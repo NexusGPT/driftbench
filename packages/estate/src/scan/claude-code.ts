@@ -1,7 +1,7 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { basename, join, posix } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { guardName } from './code';
+import { fileNames, guardName, locateNamed, namedPaths } from './code';
 import type {
   CheckDecl,
   EstateFile,
@@ -19,7 +19,7 @@ import type {
   StepDecl,
   SubagentDecl,
 } from './reader';
-import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
+import { blankFences, keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
 
 /**
  * The Claude Code reader: the runtime adapter of the estate scanner. It reads `CLAUDE.md` (and
@@ -136,18 +136,28 @@ export class ClaudeCodeReader implements EstateReader {
 
   /**
    * The files of the estate the runtime may load, relative to the root: the standing files, `.mcp.json`,
-   * and everything under `.claude` the ignore list keeps (links followed, files over 1 MB included). A copy
-   * of the estate needs these and nothing else.
+   * and everything under `.claude` the ignore list keeps (links followed, files over 1 MB included).
+   * Explicitly named bare root references are included after local names have their first choice.
    */
   async listFiles(root: string): Promise<string[]> {
     const notes: ReadNote[] = [];
     const { ignored } = await this.ignoreOf(root, notes);
     const large: string[] = [];
     const walked = await walk(root, '.claude', notes, ignored, new Set(), undefined, large);
+    const raw = await this.read(root);
+    const rootReferences = [
+      ...raw.files.filter((file) => !file.path.includes('/')).map((file) => file.path),
+      ...raw.notes
+        .filter((note) => !note.file.includes('/') && note.message === 'skipped: larger than 1 MB')
+        .map((note) => note.file),
+    ];
     return [
-      ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md', '.mcp.json'])),
-      ...walked,
-      ...large,
+      ...new Set([
+        ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md', '.mcp.json'])),
+        ...walked,
+        ...large,
+        ...rootReferences,
+      ]),
     ].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   }
 
@@ -225,6 +235,7 @@ export class ClaudeCodeReader implements EstateReader {
         addProse(estate, file, frontmatter.bodyLine, lastLine(file.text), budget);
       }
     }
+    await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
     // so every guard is known before a row is matched to one.
     const catalogues = files.filter((file) => file.kind === 'registry' && catalogueEntries(file.text));
@@ -236,6 +247,59 @@ export class ClaudeCodeReader implements EstateReader {
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
     return estate;
   }
+}
+
+/** Read only explicitly named bare root files, after local references have had their first choice. */
+async function readRootReferences(
+  root: string,
+  estate: RawEstate,
+  ignored: Ignored,
+  budget: number,
+): Promise<void> {
+  const files = new Map(estate.files.map((file) => [file.path, file]));
+  let byName = fileNames(files);
+  const skipped = new Set(ignored.paths);
+  const tried = new Set<string>();
+  // Newly read root guides may themselves name another guide. The file set bounds cycles.
+  for (let index = 0; index < estate.prose.length; index++) {
+    const chunk = estate.prose[index];
+    if (!chunk) continue;
+    for (const name of namedPaths(blankFences(chunk.text))) {
+      if (name.includes('/') || files.has(name) || tried.has(name)) continue;
+      const candidate: EstateFile = { path: name, text: '', kind: 'other' };
+      // The resolver only needs a root placeholder for this synchronous choice. Avoid copying the
+      // whole estate index for each name, which makes large estates quadratic.
+      files.set(name, candidate);
+      const target = locateNamed(name, chunk.file, files, { byName, skipped });
+      files.delete(name);
+      if (target.path !== name) continue;
+      tried.add(name);
+      const info = await stat(join(root, name)).catch(() => undefined);
+      if (!info?.isFile()) continue;
+      const rule = ignored.rules.find((rule) => rule.test(name));
+      if (rule) {
+        ignored.counts.set(rule.pattern, (ignored.counts.get(rule.pattern) ?? 0) + 1);
+        ignored.paths.push(name);
+        skipped.add(name);
+        continue;
+      }
+      if (info.size > MAX_FILE_BYTES) {
+        estate.notes.push({ file: name, message: 'skipped: larger than 1 MB' });
+        continue;
+      }
+      candidate.text = (await readFile(join(root, name), 'utf8')).replace(/^\uFEFF/, '');
+      estate.files.push(candidate);
+      files.set(name, candidate);
+      byName = fileNames(files);
+      if (candidate.text.trim() === '')
+        estate.notes.push({ file: name, message: 'empty file: nothing to read' });
+      else if (/\.(md|markdown)$/i.test(name))
+        addProse(estate, candidate, 1, lastLine(candidate.text), budget);
+    }
+  }
+  // The report points at the mutable counters by value, so refresh counts after root discovery.
+  for (const pattern of estate.ignored?.patterns ?? [])
+    pattern.files = ignored.counts.get(pattern.pattern) ?? 0;
 }
 
 async function present(root: string, names: readonly string[]): Promise<string[]> {

@@ -10,7 +10,17 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 0 |
 <!-- level-table:end -->
 
-### Current executor measurement, iteration 14
+### Current executor measurement, iteration 15
+
+The final refined seed 1 run passes 917 of 1170 items (0.7837606837606838), level 0. The merged pre-fix snapshot passes 902. Same-instrument before/after captures show three legitimate component gains: bench.defects.name-own-folder, name-below-folder and name-root-file. Node 22 lint also recovers without a diagnosed fix, and receives no credit. The final run includes PR 124's bank correction: eight registry items, one task item and two script mutant items improve. All eleven are maintainer work and receive no component credit.
+
+The component implements exact local folder, local subtree, estate root, then global bare-name lookup. Local ambiguity stays within its first matching scope. The reader discovers only named bare root guides, with the same local/skipped choice as actual resolution, plus ignore and size limits. Runtime copies include the selected guides and exclude unrelated root documents. All 105 refined scan tests pass. The initial four name tests are red; the extra skipped-local discovery test is also red first. The synthetic reader-cases map and approvals are regenerated from recorded answers; no paid call occurs.
+
+Captures: iteration-15-before.json and iteration-15.json use the pre-124 loaded bank; iteration-15-final-reader.json is the final whole-bank run, despite its name, because --items requests every level. This final run measures the refined source and the corrected 124 instrument. The only credited gains are the three bare-name items. A direct Node 22/current Node lint probe prints identical output; the earlier failure is retained in the before capture.
+
+PR 131 is now merged into this branch, after 120 and 124. Fresh typecheck and lint precede the next push. The lead cancels the old queued CI; do not rerun it. PR 133 will correct the seven maintenance oracles when merged; those gains also belong to the maintainer.
+
+### Previous executor measurement, iteration 14
 
 Seed 1 passes 902 of 1170 items (0.770940170940171), level 0. The stats command changes all 37 estate.stats items from fail to pass. The timing-only scan.hostile.wide-folder item changes from pass to fail: its structure holds, but its scan takes 12377 ms against 5000 ms. A separate unchanged-reader probe then passes twice and fails once at 5110 ms; this is a variable timing result, not a claimed fix or a discarded failure. The measured score keeps that failure.
 
@@ -69,9 +79,9 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
-1. Fix bare-name search order in the first failing reader level: exact local folder, local subtree, root, then global candidates. The prepared local-names.test.ts is red on four of five cases. Load only named root references and include them in copied estates.
-2. Measure that one cause on seed 1, journal, check typecheck and lint, then push. Keep protected bank defects separate; never count the eight registration-only diagnostic gains as component progress.
-3. After five new iterations, run seeds 1 to 20 and the hidden seed in the background, update this handover, and inspect PR CI. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
+1. Apply the already-tested HTML-comment fix from .cache/estate-executor/iteration-16.patch after iteration 15 is committed. The isolated candidate passes 112 scan tests. Preserve cross-chunk state, source quotes and frontmatter data markers. Do not rerun prepare-comments.py, which produces the earlier proposal.
+2. Fix the isolated offline TypeScript IPC failure as its own later iteration. The long-path test is red; the same script succeeds through Node's local tsx loader. Keep that test out of iteration 15 and 16 commits.
+3. After five new iterations, run seeds 1 to 20 and hidden in the background. Update this handover and inspect fresh PR CI. Merge main again after PR 133 lands. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
 
 ### Historical next actions before takeover
 
@@ -131,3 +141,11 @@ PR 110 on 17dee300 fails the Node 22 and Node 24 build jobs only because package
 ### Unit-family input mismatch
 
 The current estate unit command accepts native JSON UnitTest records. The bank's fixtureSuite gathers YAML core specs under specs/ and incomplete/, plus static JSON, but omits the generated native unit/ JSON. unitFamily then passes the gathered YAML mode-unit specs to the JSON-only command, producing exit 2 before a guard or script runs. This is an instrument mismatch, not proof that the native unit runner is absent. The frozen CLI flags and output shape are already implemented in packages/cli/src/commands/estate-unit.ts. The native guard tests also require outcomes recorded on an original, which this bank path does not perform. Keep this distinct from missing headless helper support and from the pre-existing long-TMPDIR TypeScript failure. Sources: bank/fixture-suite.ts, bank/unit.ts, commands/estate-unit.ts and estate/src/unit/run.ts. No protected code or oracle is changed.
+
+### Maintenance first-atom oracle conflict
+
+The seven maintain.impact.<kind>-retires-its-tests items reject mixed-atom specs that the component correctly regenerates. Section 8 of docs/estate.md says to retire only when all metadata atoms are removed; a removed atom with other atoms remaining means regenerate. The private retiresExactly oracle uses only metadata.atoms[0], excluding journey ids. A fresh seed 1 probe exhibits remaining atoms and correct regeneration for instruction, gate, reference, script, register, route and subagent. Capture: .cache/estate-executor/impact-defect.json; review file: .cache/estate-executor/maintenance-bank-defect.md. Keep the documented component rule. These are logged defects, not progress.
+
+### Frozen pre-fix sweep
+
+The pre-fix c27c96dd snapshot finishes seeds 1 to 20 and hidden 401483072: 845 of 1170 items pass on every seed (0.7222222222222222). Every seed stays at level 0. Per-seed passing counts range from 854 to 865. This is a baseline, not a current-code claim. The snapshot keeps the pre-124 instrument and the original Git context; capture: .cache/estate-executor/baseline-full.json. Timing items vary, so their changes are not credited as component fixes.

@@ -414,7 +414,8 @@ export function isExternal(path: string, externals: readonly string[] = []): boo
 }
 
 /**
- * A named path, resolved as `resolveNamed` does, then through the estate's aliases (`REF/a.md` as
+ * A bare name tries its exact local folder, then its local subtree, before the estate root. Other
+ * named paths resolve as `resolveNamed` does, then through the estate's aliases (`REF/a.md` as
  * `<folder>/a.md`), then by its ending: the longest tail of the path (its last segments, down to the bare
  * file name) that ends any file of the estate decides. One file: the path resolves to it. Several: the
  * reference is ambiguous and lists them.
@@ -433,9 +434,21 @@ export function locateNamed(
 ): NamedTarget {
   const skipped = options.skipped ?? new Set<string>();
   const known = (candidate: string) => files.has(candidate) || skipped.has(candidate);
+  const clean = path.replace(/^\.\//, '');
+  const byName = options.byName ?? fileNames(files);
+  // A bare name belongs to the naming file's own folder and subtree before the estate root.
+  if (!clean.includes('/')) {
+    const local = posix.normalize(posix.join(posix.dirname(from), clean));
+    if (known(local)) return { path: local, via: 'place' };
+    const folder = posix.dirname(from);
+    if (folder !== '.') {
+      const hits = (byName.get(clean) ?? []).filter((candidate) => candidate.startsWith(`${folder}/`));
+      if (hits.length === 1) return { path: hits[0] as string, via: 'suffix' };
+      if (hits.length > 1) return { path: local, via: 'none', candidates: [...hits].sort() };
+    }
+  }
   const placed = resolveNamed(path, from, files, options.bases ?? [], skipped);
   if (known(placed)) return { path: placed, via: 'place' };
-  const clean = path.replace(/^\.\//, '');
   // A path written as outside the estate is not looked for by its ending: it names the outside, as written.
   if (isExternal(clean, options.externals ?? [])) return { path: clean, via: 'external' };
   const [head, ...rest] = clean.split('/');
@@ -446,7 +459,6 @@ export function locateNamed(
   }
   // The ending is looked for among the estate's own files: a skipped file (node_modules, a test fixture)
   // is found only by its place, never as a candidate for a name.
-  const byName = options.byName ?? fileNames(files);
   const segments = clean
     .split('/')
     .filter((segment) => segment !== '' && segment !== '.' && segment !== '..');
