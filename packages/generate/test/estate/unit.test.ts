@@ -131,6 +131,38 @@ describe('the payloads of a guard unit test', () => {
   });
 });
 
+describe('material from a rule the guard cites', () => {
+  it('takes every concrete span of the rule source lines, and never sends a sentence as a tool payload', () => {
+    const cited: EstateAtom = {
+      ...rule('r1', 'Every failure reaches you, any spelling'),
+      fields: { spans: ['2>/dev/null', '|| true'] },
+    };
+    const prose = rule('r2', 'Never guess a status.');
+    const atoms = new Map([
+      ['r1', cited],
+      ['r2', prose],
+    ]);
+    const bash = guard({
+      event: 'PreToolUse',
+      matcher: 'Bash',
+      enforces: [
+        { atom: 'r1', by: 'id' },
+        { atom: 'r2', by: 'id' },
+      ],
+    });
+    const positive = unitTestOf(row('guard_positive'), bash, atoms, 'h', 'p');
+    expect(typeof positive !== 'string' && positive.cases.map((entry) => entry.material)).toEqual([
+      '2>/dev/null',
+      '|| true',
+    ]);
+    const prompt = guard({ event: 'UserPromptSubmit', enforces: [{ atom: 'r2', by: 'id' }] });
+    const asked = unitTestOf(row('guard_positive'), prompt, atoms, 'h', 'q');
+    expect(typeof asked !== 'string' && asked.cases.map((entry) => entry.material)).toEqual([
+      'Never guess a status.',
+    ]);
+  });
+});
+
 describe('the rules a guard test takes material from', () => {
   it('takes the rules linked by registry or cited id, and a rule linked only by a repeated quote when no other link exists', () => {
     const atoms = new Map([
