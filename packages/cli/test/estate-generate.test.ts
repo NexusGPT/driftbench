@@ -3,7 +3,9 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseSpecText } from '@driftbench/core';
+import { REPLAY_CUSTOM_CHECKS } from '@driftbench/generate';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { replayRegistry } from '../src/commands/replay';
 import { type Io, main } from '../src/index';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -251,6 +253,13 @@ describe('driftbench estate generate', () => {
     const bad = await generate(join(dir, 'bad'), '--focus', join(dir, 'bad.txt'));
     expect(bad.code).toBe(2);
     expect(bad.err).toContain('no.such.atom');
+  });
+});
+
+describe('the custom checks the generator writes', () => {
+  it('are all registered by the replay and live runners', () => {
+    const names = replayRegistry().names();
+    for (const name of REPLAY_CUSTOM_CHECKS) expect(names, name).toContain(name);
   });
 });
 

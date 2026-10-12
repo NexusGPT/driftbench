@@ -25,30 +25,30 @@
   },
   "options": {
     "seed": 1,
-    "checks": ["hazard_recovery", "ordered", "permission", "some_call"],
+    "checks": ["grounded_values", "hazard_recovery", "ordered", "permission", "some_call"],
     "fallback": true
   },
   "summary": {
     "specs": 1383,
     "blocks": 1378,
-    "complete": 980,
-    "incomplete": 403,
+    "complete": 1045,
+    "incomplete": 338,
     "judged": 144
   },
   "sources": {
     "asks": {
-      "bank": 344,
-      "code": 628,
+      "bank": 350,
+      "code": 687,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 671,
+      "bank": 684,
       "no-change:denied": 2,
       "no-change:guard": 23,
       "no-change:negative": 24,
-      "no-change:read-only": 30,
-      "no-delete": 222,
+      "no-change:read-only": 32,
+      "no-delete": 272,
       "static": 8
     }
   },
@@ -57,8 +57,8 @@
     "obligation": {
       "rows": 516,
       "specs": 516,
-      "complete": 228,
-      "incomplete": 288
+      "complete": 288,
+      "incomplete": 228
     },
     "outside_trigger": {
       "rows": 43,
@@ -69,8 +69,8 @@
     "twin": {
       "rows": 43,
       "specs": 43,
-      "complete": 19,
-      "incomplete": 24
+      "complete": 24,
+      "incomplete": 19
     },
     "ordered_pair": {
       "rows": 96,
@@ -239,8 +239,8 @@
     "live": {
       "rows": 1340,
       "specs": 1340,
-      "complete": 955,
-      "incomplete": 385
+      "complete": 1020,
+      "incomplete": 320
     }
   },
   "gaps": [
@@ -272,17 +272,22 @@
     },
     {
       "marker": "needs-negation",
-      "specs": 10,
+      "specs": 15,
       "atoms": [
         "instruction.ledger-auditor.the-auditor-never-edits-a-file",
         "instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and",
         "instruction.shipment-tracker.ask-for-the-tracking-number-when",
+        "instruction.shipment-tracker.never-guess-a-shipment-status",
         "instruction.standing.keep-an-unconfirmed-draft-unsent",
         "instruction.standing.never-force-push",
+        "instruction.standing.never-invent-order-numbers-prices-or",
         "instruction.standing.never-paste-a-credential-into-a",
         "instruction.standing.never-send-a-supplier-email-without",
         "instruction.standing.on-stop-stop-all-work-and",
+        "instruction.standing.report-only-numbers-read-during-the",
         "instruction.supplier-email.a-loose-yes-is-not-a",
+        "instruction.supplier-email.no-price-or-date-in-a",
+        "instruction.weekly-report.count-only-the-last-seven-days",
         "instruction.weekly-report.save-the-report-by-week-and"
       ],
       "details": [
@@ -291,6 +296,7 @@
         "asks_for has no negative control",
         "command_not_run has no negative control",
         "confirmed_before_send has no negative control",
+        "grounded_values has no negative control",
         "no_secret_in_reply has no negative control",
         "stopped_and_confirmed has no negative control",
         "tool_not_called has no negative control",
@@ -329,7 +335,7 @@
     },
     {
       "marker": "needs-registered-check",
-      "specs": 337,
+      "specs": 267,
       "atoms": [
         "instruction.inbox-triager.a-message-that-fits-no-folder",
         "instruction.inbox-triager.the-triager-never-answers-or-deletes",
@@ -344,16 +350,11 @@
         "instruction.route-planner.never-load-a-route-over-the",
         "instruction.route-planner.no-delivery-planned-on-a-public",
         "instruction.shipment-tracker.late-means-past-the-promised-date",
-        "instruction.shipment-tracker.never-guess-a-shipment-status",
         "instruction.shipment-tracker.on-a-carrier-error-say-so",
         "instruction.standing.after-two-failures-of-a-tool",
         "instruction.standing.never-delete-a-ledger-file-archive",
-        "instruction.standing.never-invent-order-numbers-prices-or",
-        "instruction.standing.report-only-numbers-read-during-the",
         "instruction.supplier-email.a-draft-has-a-subject-a",
         "instruction.supplier-email.a-draft-stays-under-120-words",
-        "instruction.supplier-email.no-price-or-date-in-a",
-        "instruction.weekly-report.count-only-the-last-seven-days",
         "instruction.weekly-report.fill-the-report-sections-in-the",
         "tool.settings.ask-bash-git-commit"
       ],
@@ -362,7 +363,6 @@
         "draft_shape",
         "extra_charges_listed",
         "folder_other",
-        "grounded_values",
         "invoice_amounts_untouched",
         "late_definition",
         "line_match",

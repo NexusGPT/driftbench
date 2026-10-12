@@ -1,6 +1,6 @@
 import type { CheckContext, Observed, Spec } from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
-import { ESTATE_CHECKS, hazardRecovery, permission, someCall } from '../src/checks/estate';
+import { ESTATE_CHECKS, groundedValues, hazardRecovery, permission, someCall } from '../src/checks/estate';
 import { type Call, context, observed } from './support/context';
 
 const SPEC = {
@@ -183,6 +183,86 @@ describe('permission: what a permission rule allows or denies', () => {
   });
 
   it('lists the three checks by the names the estate generator writes', () => {
-    expect(Object.keys(ESTATE_CHECKS).sort()).toEqual(['hazard_recovery', 'permission', 'some_call']);
+    expect(Object.keys(ESTATE_CHECKS).sort()).toEqual([
+      'grounded_values',
+      'hazard_recovery',
+      'permission',
+      'some_call',
+    ]);
+  });
+});
+
+describe('grounded_values: every value of the reply was seen during the run', () => {
+  const read = (path: string, output: string): Call => ({
+    label: 'Read',
+    input: { file_path: path },
+    output,
+  });
+  const LEDGER = 'date,invoice,supplier,amount\n2026-10-05,INV-1001,Fjord Kitchenware,1250.00 EUR\n';
+
+  it('passes when every number, identifier and date of the reply is in a tool result or the ask', async () => {
+    const asked = { ...SPEC, blocks: [{ id: 'ask', when: { user: 'Was PO-77 paid?' }, expect: {} }] } as Spec;
+    const out = await verdicts(
+      groundedValues,
+      context(
+        asked,
+        0,
+        observed('INV-1001 was paid 1,250.00 EUR on 5 October 2026, as you asked about PO-77.', [
+          read('ledger.csv', LEDGER),
+        ]),
+      ),
+      { block: 0 },
+    );
+    expect(out).toEqual([expect.objectContaining({ id: 'grounded_values.values', outcome: 'pass' })]);
+  });
+
+  it('fails a number, an identifier or a date the run never saw, and names each', async () => {
+    const [verdict] = await verdicts(
+      groundedValues,
+      ctx('INV-1002 was paid 1,320.00 EUR on 2026-10-07.', [read('ledger.csv', LEDGER)]),
+      {},
+    );
+    expect(verdict?.outcome).toBe('fail');
+    expect(verdict?.evidence).toContain('INV-1002');
+    expect(verdict?.evidence).toContain('1,320.00');
+    expect(verdict?.evidence).toContain('2026-10-07');
+  });
+
+  it('counts values the agent wrote into a tool input as unseen, and an earlier block result as seen', async () => {
+    const written = await verdicts(
+      groundedValues,
+      ctx('Saved 1875.40 EUR.', [{ label: 'Write', input: { content: 'total 1875.40' }, output: 'ok' }]),
+      {},
+    );
+    expect(written[0]?.outcome).toBe('fail');
+    const earlier = context(SPEC, 1, observed('The total was 1875.40 EUR.'), {
+      history: [{ index: 0, observed: observed('ok', [read('t.csv', 'total,1875.40')]) } as never],
+    });
+    expect((await verdicts(groundedValues, earlier, {}))[0]?.outcome).toBe('pass');
+  });
+
+  it('leaves small counts alone, takes the threshold from its options, and checks only its block', async () => {
+    expect((await verdicts(groundedValues, ctx('3 invoices are open.'), {}))[0]?.outcome).toBe('pass');
+    expect(
+      (await verdicts(groundedValues, ctx('3 invoices are open.'), { ignoreBelow: 2 }))[0]?.outcome,
+    ).toBe('fail');
+    expect(await verdicts(groundedValues, ctx('INV-9', [], {}, 1), { block: 0 })).toEqual([]);
+  });
+
+  it('reads one date in its written and ISO forms, and a date with no year by month and day', async () => {
+    const shipped = [read('log.md', 'NW-55012 was promised for 2 October 2026.')];
+    expect(
+      (await verdicts(groundedValues, ctx('NW-55012 was due on 2026-10-02.', shipped), {}))[0]?.outcome,
+    ).toBe('pass');
+    expect(
+      (await verdicts(groundedValues, ctx('NW-55012 was due on October 2.', shipped), {}))[0]?.outcome,
+    ).toBe('pass');
+    expect(
+      (await verdicts(groundedValues, ctx('NW-55012 was due on 2026-10-03.', shipped), {}))[0]?.outcome,
+    ).toBe('fail');
+  });
+
+  it('passes a reply that states no value', async () => {
+    expect((await verdicts(groundedValues, ctx('Done, nothing to report.'), {}))[0]?.outcome).toBe('pass');
   });
 });
