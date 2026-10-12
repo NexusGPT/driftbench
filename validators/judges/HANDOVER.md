@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 4 (cassette) passes since iteration 26. Level 5, clients (4 items): `clients/google-gives-a-response-schema`, `google-recitation`, `openai-asks-for-the-answer-schema`, and others; the Fix line of each names the change in packages/judges/src/clients. Then check, rubric, render, budget, evidence, injection and later families. Handover test (`--brief --fresh`) run at iteration 25: reproduced level 3 and named the two open cassette items.
+Level 4 (cassette) passes since iteration 26. Level 5, clients (3 items): `clients/usage-from-openai`, `usage-from-anthropic`, `usage-from-google` (one function, `usageFromResponse`), then level 6 onward (check family: `check/two-judge-verdicts-same-id-refused`), `google-recitation`, `openai-asks-for-the-answer-schema`, and others; the Fix line of each names the change in packages/judges/src/clients. Then check, rubric, render, budget, evidence, injection and later families. Handover test (`--brief --fresh`) run at iteration 25: reproduced level 3 and named the two open cassette items.
 
 ## Hypotheses tried
 
@@ -57,11 +57,12 @@ Iteration 28 (cause: content_filter stop): decline branch in clients/chat.ts. Te
 Iteration 29 (cause: blocked prompt): branch in the Google client. Test: "a Google answer whose prompt was blocked" (red first). Bank 291 -> 292 (0.4577).
 Iteration 30 (cause: RECITATION): added to the Google decline branch. Test: "a Google answer stopped for recitation" (red first). Bank 292 -> 293 (0.4592).
 Iteration 31 (cause: short echoed header): `scrub` threshold in http.ts lowered from 8 to 1. Test: "an error body that echoes a short header value" (red first). Bank 293 -> 294 (0.4608).
-Iteration 32 (cause: OpenAI schema): `ANSWER_SCHEMA` and response_format json_schema (strict false) in clients/chat.ts. Test: "the OpenAI client asks for the answer schema" (red first). Bank 294 -> 295 (0.4624). PR 86 stays open and takes every push; a second PR from the same branch is not possible. PR 86 holds iterations 11 to 25.
+Iteration 32 (cause: OpenAI schema): `ANSWER_SCHEMA` and response_format json_schema (strict false) in clients/chat.ts. Test: "the OpenAI client asks for the answer schema" (red first). Bank 294 -> 295 (0.4624).
+Iteration 33 (cause: Google schema): `GOOGLE_ANSWER_SCHEMA`. Test: "the Google client gives a response schema" (red first). Bank 295 -> 296 (0.4639). PR 86 stays open and takes every push; a second PR from the same branch is not possible. PR 86 holds iterations 11 to 25.
 
 ## Next actions
 
-1. Level 5 clients, one cause per iteration, starting with `clients/google-gives-a-response-schema` (reuse ANSWER_SCHEMA minus additionalProperties, which Gemini's schema subset may refuse) (packages/judges/src/clients/chat.ts).
+1. Level 5 clients, one cause per iteration, starting with `usageFromResponse(provider, body)` in packages/judges (page: reads input and output tokens of an OpenAI, Anthropic or Google answer) (packages/judges/src/clients/chat.ts).
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, then `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`; a PR to main every 3 iterations.
 
