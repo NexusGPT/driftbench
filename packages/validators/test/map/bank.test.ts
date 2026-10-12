@@ -371,15 +371,16 @@ describe('the hardness measurement', () => {
     expect(total).toBe(bank.length);
   });
 
-  it('reads iteration 0 and the ten pilot rows from the journal; only the audit (12.7) is left for the gate', () => {
+  it('reads iteration 0 and the ten pilot rows from the journal; the gate waits on the audit (12.7) and the score after the pilot', () => {
     const { rows, problems } = readJournal(ROOT, 'map');
     expect(problems).toEqual([]);
     const measured = measureHardness(rows);
-    expect(measured.iteration0).toMatchObject({ bankSize: 595, passing: 222 });
+    expect(measured.iteration0).toMatchObject({ bankSize: 578, passing: 222 });
     expect(measured.pilot).toMatchObject({ iterations: 10, complete: true });
     expect(measured.forecast).toBeGreaterThanOrEqual(100);
     expect(measured.causes?.distinct).toBeGreaterThanOrEqual(100);
-    for (const reason of measured.gate.reasons) expect(reason).toMatch(/audit/);
+    // The need-checked bank scores 0.41 after the pilot, above the 0.4 ceiling: reported as measured.
+    for (const reason of measured.gate.reasons) expect(reason).toMatch(/audit|score after the pilot/);
     expect(measured.bankMinimum.holds).toBe(true);
   });
 });
