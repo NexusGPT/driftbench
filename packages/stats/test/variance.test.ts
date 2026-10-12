@@ -161,8 +161,12 @@ describe('varianceComponents is stable under a common offset', () => {
       path: [String(i % 4), String(i % 12), String(i % 2)],
     }));
     const a = varianceComponents(obs).components.map((c) => c.estimate);
-    const b = varianceComponents(obs.map((o) => ({ ...o, value: o.value + 1e9 }))).components.map((c) => c.estimate);
-    a.forEach((x, i) => expect(Math.abs((b[i] as number) - x)).toBeLessThan(1e-5 * Math.max(1, Math.abs(x))));
+    const b = varianceComponents(obs.map((o) => ({ ...o, value: o.value + 1e9 }))).components.map(
+      (c) => c.estimate,
+    );
+    a.forEach((x, i) => {
+      expect(Math.abs((b[i] as number) - x)).toBeLessThan(1e-5 * Math.max(1, Math.abs(x)));
+    });
   });
 });
 

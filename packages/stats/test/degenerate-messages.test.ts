@@ -1,37 +1,37 @@
 import { describe, expect, it } from 'vitest';
 import {
   benjaminiHochberg,
+  betaQuantile,
   bootstrapCI,
   chaoCoverage,
+  chiSquareSf,
   clopperPearson,
+  cohenKappa,
   cusum,
   designEffect,
+  effectiveSampleSize,
   goodTuring,
   hillNumber,
   hillNumbers,
+  incompleteBeta,
+  krippendorffAlpha,
   ksTest,
+  logGamma,
   mcnemar,
+  mde,
   mean,
+  neymanAllocation,
+  nonInferiority,
+  normalCdf,
   pageHinkley,
+  pairedRateDifference,
   passAtK,
   passK,
   quantile,
   quantileSorted,
+  repeatsForFloor,
   sampleVariance,
   unreliability,
-  cohenKappa,
-  krippendorffAlpha,
-  nonInferiority,
-  pairedRateDifference,
-  chiSquareSf,
-  incompleteBeta,
-  logGamma,
-  normalCdf,
-  betaQuantile,
-  effectiveSampleSize,
-  mde,
-  neymanAllocation,
-  repeatsForFloor,
   varianceComponents,
   wilcoxonSignedRank,
   wilson,
@@ -253,8 +253,12 @@ describe('scalar arguments that are not finite or out of range are named', () =>
   });
   it('repeatsForFloor and neymanAllocation name variance, blocks and sizes', () => {
     expect(() => repeatsForFloor({ variance: I, floor: 0.05 })).toThrow(/^repeatsForFloor: variance/);
-    expect(() => repeatsForFloor({ variance: 0.2, floor: 0.05, blocks: I })).toThrow(/^repeatsForFloor: blocks/);
-    expect(() => neymanAllocation({ sizes: [10, I], sds: [1, 1], total: 10 })).toThrow(/^neymanAllocation: sizes/);
+    expect(() => repeatsForFloor({ variance: 0.2, floor: 0.05, blocks: I })).toThrow(
+      /^repeatsForFloor: blocks/,
+    );
+    expect(() => neymanAllocation({ sizes: [10, I], sds: [1, 1], total: 10 })).toThrow(
+      /^neymanAllocation: sizes/,
+    );
   });
 });
 
@@ -287,9 +291,15 @@ describe('agreement, paired, drift and cluster refusals name their argument', ()
   it('krippendorffAlpha names matrix and level', () => {
     expect(() => krippendorffAlpha([])).toThrow(/^krippendorffAlpha: matrix/);
     expect(() => krippendorffAlpha([[], []])).toThrow(/^krippendorffAlpha: matrix/);
-    expect(() => krippendorffAlpha([[1, 2], [1, 2]], { level: 'cubic' as never })).toThrow(
-      /^krippendorffAlpha: level/,
-    );
+    expect(() =>
+      krippendorffAlpha(
+        [
+          [1, 2],
+          [1, 2],
+        ],
+        { level: 'cubic' as never },
+      ),
+    ).toThrow(/^krippendorffAlpha: level/);
   });
   it('nonInferiority, pairedRateDifference and wilcoxonSignedRank name their arguments', () => {
     expect(() => nonInferiority({ baseline: [], candidate: [], margin: 0.05 })).toThrow(

@@ -205,7 +205,14 @@ export function varianceComponents(
     if (new Set(children.values()).size > 1) balanced = false;
   }
 
-  return { method: 'anova', balanced, n: N, mean: center + (sums[0]?.get('') as number) / N, components, total };
+  return {
+    method: 'anova',
+    balanced,
+    n: N,
+    mean: center + (sums[0]?.get('') as number) / N,
+    components,
+    total,
+  };
 }
 
 /**
@@ -361,8 +368,10 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
       const l = 2 * k + 1;
       const r = l + 1;
       let top = k;
-      if (l < heap.length && before(heap[l] as (typeof heap)[number], heap[top] as (typeof heap)[number])) top = l;
-      if (r < heap.length && before(heap[r] as (typeof heap)[number], heap[top] as (typeof heap)[number])) top = r;
+      if (l < heap.length && before(heap[l] as (typeof heap)[number], heap[top] as (typeof heap)[number]))
+        top = l;
+      if (r < heap.length && before(heap[r] as (typeof heap)[number], heap[top] as (typeof heap)[number]))
+        top = r;
       if (top === k) return;
       [heap[k], heap[top]] = [heap[top] as (typeof heap)[number], heap[k] as (typeof heap)[number]];
       k = top;

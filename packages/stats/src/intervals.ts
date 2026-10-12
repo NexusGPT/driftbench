@@ -1,6 +1,13 @@
 /** Intervals on rates: Wilson, Clopper-Pearson, the zero-failure count, the design effect and the clustered bootstrap. */
 
-import { assertCount, assertFinite, assertFiniteValues, assertProbability, mulberry32, quantileSorted } from './basics';
+import {
+  assertCount,
+  assertFinite,
+  assertFiniteValues,
+  assertProbability,
+  mulberry32,
+  quantileSorted,
+} from './basics';
 import { betaQuantile, normalQuantile } from './special';
 
 /** z for a two-sided 95 percent interval. */

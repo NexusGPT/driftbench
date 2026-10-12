@@ -26,7 +26,9 @@ export function quantileSorted(sorted: readonly number[], p: number): number {
   if (!(p >= 0 && p <= 1)) throw new RangeError(`quantileSorted: p must lie in [0, 1], got ${p}`);
   for (let i = 1; i < n; i += 1) {
     if ((sorted[i] as number) < (sorted[i - 1] as number)) {
-      throw new RangeError(`quantileSorted: sorted must be in ascending order, sorted[${i}] is below sorted[${i - 1}]`);
+      throw new RangeError(
+        `quantileSorted: sorted must be in ascending order, sorted[${i}] is below sorted[${i - 1}]`,
+      );
     }
   }
   const h = (n - 1) * p;

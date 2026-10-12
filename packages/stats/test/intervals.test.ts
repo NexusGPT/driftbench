@@ -178,7 +178,10 @@ describe('zeroFailureBound at a tiny p', () => {
 describe('bootstrapCI on equal values', () => {
   it('returns that value exactly for estimate and both limits', () => {
     for (const x of [0.1, 0.3, 0.7, 0.9]) {
-      const r = bootstrapCI(Array.from({ length: 7 }, () => x), { iterations: 20, method: 'basic' });
+      const r = bootstrapCI(
+        Array.from({ length: 7 }, () => x),
+        { iterations: 20, method: 'basic' },
+      );
       expect([r.estimate, r.lower, r.upper]).toEqual([x, x, x]);
     }
   });

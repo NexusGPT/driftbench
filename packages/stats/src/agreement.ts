@@ -105,7 +105,9 @@ export function krippendorffAlpha(
   const level = options.level ?? 'nominal';
   if (matrix.length === 0) throw new RangeError('krippendorffAlpha: matrix must not be empty');
   if (!['nominal', 'interval', 'ordinal', 'ratio'].includes(level)) {
-    throw new RangeError(`krippendorffAlpha: level must be nominal, interval, ordinal or ratio, got ${level}`);
+    throw new RangeError(
+      `krippendorffAlpha: level must be nominal, interval, ordinal or ratio, got ${level}`,
+    );
   }
   const units = Math.max(...matrix.map((row) => row.length));
   const valueSet = new Set<Label>();
