@@ -97,11 +97,13 @@ export function parseAnswerText(raw: string): JudgeResult {
   } catch (cause) {
     // One strict repair: escape the double quotes inside string values, then read it again. A repaired
     // answer still meets the whole contract or stays unparsed.
-    try {
-      const repaired = parseAnswerValue(JSON.parse(repairAnswerText(candidate)), raw);
-      if (!repaired.unparsed) return { ...repaired, repaired: true };
-    } catch {
-      // Not JSON after the repair either: the first error explains it.
+    for (const repair of [repairAnswerText, singleToDoubleQuotes]) {
+      try {
+        const repaired = parseAnswerValue(JSON.parse(repair(candidate)), raw);
+        if (!repaired.unparsed) return { ...repaired, repaired: true };
+      } catch {
+        // Not JSON after this repair: try the next, and the first error explains it if none reads.
+      }
     }
     const why = cause instanceof Error ? cause.message : String(cause);
     return { answer: inconclusive(`unparseable answer: ${why}`), raw, unparsed: true };
@@ -180,6 +182,37 @@ export function repairAnswerText(text: string): string {
   return out;
 }
 
+/**
+ * Near-JSON written with single quotes: a string opened with `'` is rewritten with double quotes. A double quote inside
+ * it is escaped and an escaped apostrophe is unescaped. Text outside strings is not touched.
+ */
+export function singleToDoubleQuotes(text: string): string {
+  let out = '';
+  let quote: '"' | "'" | undefined;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i] as string;
+    if (quote === undefined) {
+      if (ch === '"' || ch === "'") {
+        quote = ch;
+        out += '"';
+      } else out += ch;
+      continue;
+    }
+    if (ch === '\\') {
+      const next = text[i + 1];
+      i += 1;
+      if (next === undefined) break;
+      out += quote === "'" && next === "'" ? "'" : `\\${next}`;
+      continue;
+    }
+    if (ch === quote) {
+      quote = undefined;
+      out += '"';
+    } else out += quote === "'" && ch === '"' ? '\\"' : ch;
+  }
+  return out;
+}
+
 /** Validates an already decoded answer against the contract. */
 export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(value)): JudgeResult {
   const parsed = JudgeAnswer.safeParse(value);
@@ -201,7 +234,7 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
 function extractObject(raw: string): string | undefined {
   let depth = 0;
   let start = -1;
-  let inString = false;
+  let quote: string | undefined;
   let escaped = false;
   let last: string | undefined;
   for (let i = 0; i < raw.length; i += 1) {
@@ -210,18 +243,18 @@ function extractObject(raw: string): string | undefined {
       if (ch === '{') {
         depth = 1;
         start = i;
-        inString = false;
+        quote = undefined;
         escaped = false;
       }
       continue;
     }
-    if (inString) {
+    if (quote !== undefined) {
       if (escaped) escaped = false;
       else if (ch === '\\') escaped = true;
-      else if (ch === '"') inString = false;
+      else if (ch === quote) quote = undefined;
       continue;
     }
-    if (ch === '"') inString = true;
+    if (ch === '"' || ch === "'") quote = ch;
     else if (ch === '{') depth += 1;
     else if (ch === '}') {
       depth -= 1;

@@ -82,3 +82,22 @@ describe('near-JSON: the score written as a number in quotes', () => {
   });
 });
 
+describe('near-JSON: an object written with single quotes', () => {
+  it('reads it and marks the result repaired', () => {
+    const result = parseAnswerText("{'outcome':'pass','score':0.88,'reasoning':'ok'}");
+    expect(result.answer).toEqual({ outcome: 'pass', score: 0.88, reasoning: 'ok' });
+    expect(result.repaired).toBe(true);
+  });
+
+  it('keeps a double quote and an escaped apostrophe inside a single-quoted string', () => {
+    const result = parseAnswerText(String.raw`{'outcome':'fail','reasoning':'said \"no\" and it\'s final'}`);
+    expect(result.answer.reasoning).toBe('said "no" and it\'s final');
+    expect(result.repaired).toBe(true);
+  });
+
+  it('leaves a half-quoted object unparsed', () => {
+    const result = parseAnswerText("{'outcome':'pass\",\"reasoning\":\"r\"}");
+    expect(result.unparsed).toBe(true);
+  });
+});
+
