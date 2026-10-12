@@ -19,6 +19,10 @@ import {
   quantileSorted,
   sampleVariance,
   unreliability,
+  chiSquareSf,
+  incompleteBeta,
+  logGamma,
+  normalCdf,
   betaQuantile,
   effectiveSampleSize,
   mde,
@@ -247,5 +251,25 @@ describe('scalar arguments that are not finite or out of range are named', () =>
     expect(() => repeatsForFloor({ variance: I, floor: 0.05 })).toThrow(/^repeatsForFloor: variance/);
     expect(() => repeatsForFloor({ variance: 0.2, floor: 0.05, blocks: I })).toThrow(/^repeatsForFloor: blocks/);
     expect(() => neymanAllocation({ sizes: [10, I], sds: [1, 1], total: 10 })).toThrow(/^neymanAllocation: sizes/);
+  });
+});
+
+describe('special functions at the edge of their domain give the scipy limit', () => {
+  it('normalCdf at infinity', () => {
+    expect(normalCdf(Number.POSITIVE_INFINITY)).toBe(1);
+    expect(normalCdf(Number.NEGATIVE_INFINITY)).toBe(0);
+  });
+  it('chiSquareSf at infinity and at df 0', () => {
+    expect(chiSquareSf(Number.POSITIVE_INFINITY, 3)).toBe(0);
+    expect(() => chiSquareSf(2, 0)).toThrow(/^chiSquareSf: df/);
+  });
+  it('logGamma at the poles', () => {
+    expect(logGamma(0)).toBe(Number.POSITIVE_INFINITY);
+    expect(logGamma(-2)).toBe(Number.POSITIVE_INFINITY);
+  });
+  it('incompleteBeta outside [0, 1] is NaN', () => {
+    expect(incompleteBeta(1.5, 2, 3)).toBeNaN();
+    expect(incompleteBeta(0, 2, 3)).toBe(0);
+    expect(incompleteBeta(1, 2, 3)).toBe(1);
   });
 });
