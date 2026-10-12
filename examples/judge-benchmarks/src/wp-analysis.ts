@@ -213,6 +213,7 @@ const analysis = {
   items: items.length,
   prompts: new Set(items.map((i) => i.id)).size,
   adaptive: scorePairs(bench.id, baseline),
+  adaptiveRows: baseline.map(({ item, ...r }) => ({ ...r, id: item.id, group: item.group, label: item.label })),
   adaptiveByOrder: Object.fromEntries(
     ['en', 'zh'].map((group) => [
       group,

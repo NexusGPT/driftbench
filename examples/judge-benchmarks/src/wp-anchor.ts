@@ -91,9 +91,23 @@ export type AnchorDecision = {
   confidence: number;
 };
 export function parseAnchor(text: string, a: string, b: string): AnchorDecision | undefined {
-  const o = jsonObjects(text)
+  let o = jsonObjects(text)
     .filter((x) => 'winner' in x)
     .at(-1);
+  // Preserve an intact terminal ballot when the preceding editorial reviews contain malformed JSON.
+  // Never derive an omitted winner from review text or level assignments.
+  if (!o) {
+    const tail = text
+      .trim()
+      .replace(/\s*```$/, '')
+      .match(
+        /}\s*,\s*("winner"\s*:\s*"[AB]"\s*,\s*"confidence"\s*:\s*[1-5]\s*,\s*"winning_excerpt"[\s\S]*})\s*$/,
+      )?.[1];
+    if (tail)
+      o = jsonObjects(`{${tail}`)
+        .filter((x) => 'winner' in x)
+        .at(-1);
+  }
   if (!o || !isWinner(o.winner)) return undefined;
   const level = (x: unknown): number | undefined => {
     const n = x && typeof x === 'object' ? (x as { level?: unknown }).level : undefined;

@@ -1,0 +1,1253 @@
+{
+  "split": "dev",
+  "selectionRule": "At least two of adaptive, criteria equal-vote, and holistic-anchor oppose the human label in both orders, with no ties.",
+  "selected": 26,
+  "population": 90,
+  "items": [
+    {
+      "n": 1,
+      "rowKey": "cb420f160063912fc1d5",
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "A",
+            "A"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/01-cb420f160063912fc1d5.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "玉的温润、火的炽烈、冰的冷锐完美糅合"
+        },
+        {
+          "side": "B",
+          "quote": "他将堕魔鼎抛向空中，鼎身碎裂"
+        }
+      ],
+      "reason": "A enacts the balance theme through the partners' coordinated powers with developed sensory action. B completes the required ending, while A only previews it and has a repeated-location transition. A's craft supplies a defensible preference despite that completion defect; this is a quality tradeoff, not a proven reversed label.",
+      "readAt": "2026-10-12T23:43:54.599585"
+    },
+    {
+      "n": 2,
+      "rowKey": "1527c612353efdeef895",
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/02-1527c612353efdeef895.md",
+      "readFully": true,
+      "status": "suspect",
+      "labelDefensible": false,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "|总计| [X] | 100% | - |"
+        },
+        {
+          "side": "B",
+          "quote": "### 💰 总预算：150,000元"
+        }
+      ],
+      "reason": "The prompt explicitly requires clear budget allocation. Every amount and share in A is a placeholder, so that requested deliverable is absent. B supplies a complete allocation that adds to its stated total and also covers timing, design and contingencies. A's themed romance does not supply its missing budget. This label is not defensible under the stated functional instruction; prices and venue claims in B remain hypothetical, not independently verified.",
+      "readAt": "2026-10-12T23:43:54.600245",
+      "certainty": "clear-explicit-deliverable-failure"
+    },
+    {
+      "n": 3,
+      "rowKey": "ce96cf84a694bad7e635",
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/03-ce96cf84a694bad7e635.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "比如分肉与士兵同食"
+        },
+        {
+          "side": "B",
+          "quote": "李白的\"生当作人杰，死亦为鬼雄\""
+        }
+      ],
+      "reason": "A gives a chronological biography and character/legacy analysis, matching the main requested artifact. B gives more dramatic narrative, but attributes Li Qingzhao's Summer Quatrain to Li Bai and inserts heroic interpretation as fact. Both texts need historical checking. Choosing A's more restrained historical presentation is defensible; consensus preference for B does not establish a reversed label.",
+      "readAt": "2026-10-12T23:44:30.472378",
+      "sources": [
+        {
+          "claim": "The poem is by Li Qingzhao, not Li Bai.",
+          "url": "https://www.hnwu.edu.cn/ewebeditor/uploadfile/20231006195220323.pdf"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "rowKey": "27f67dbdba8d0e766d8c",
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/04-27f67dbdba8d0e766d8c.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "手机的“大脑”，决定运行速度"
+        },
+        {
+          "side": "B",
+          "quote": "带VC液冷"
+        }
+      ],
+      "reason": "The request explicitly asks for accessible explanations without excessive jargon. A explains core parameters and covers brands, cameras, memory, legitimate channels, authenticity and warranty in clear steps. B supplies a more detailed inspection procedure, but adds many chip/sensor identifiers and unexplained specialist terms. The preference for A's accessible guidance is defensible rather than a label error.",
+      "readAt": "2026-10-12T23:44:30.472563",
+      "sources": [
+        {
+          "claim": "B also names Snapdragon 8 Gen 2 for Xiaomi 14; the manufacturer specifies Gen 3.",
+          "url": "https://www.mi.com/global/product/xiaomi-14/specs/"
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "rowKey": "936d55033bdd6914efb7",
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/05-936d55033bdd6914efb7.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "多摄≠照片质量好，软件算法很关键！"
+        },
+        {
+          "side": "B",
+          "quote": "运行内存（RAM，相当于手机的办公桌）"
+        }
+      ],
+      "reason": "Both drafts satisfy the principal buying-guide requirements. A offers a practical final purchase checklist and directly counters camera marketing claims; B explains technical concepts more deeply. A also incorrectly groups Honor under Huawei, so this is not an endorsement of every fact. The requested accessible, stepwise guide admits a defensible preference for A rather than establishing a reversed label.",
+      "readAt": "2026-10-12T23:45:49.963083",
+      "sources": [
+        {
+          "claim": "Huawei announces sale of all Honor assets and no retained shares after completion.",
+          "url": "https://www.huawei.com/en/news/2020/11/huawei-honor-statement"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "rowKey": "5f9d82cdc611fbcd3cfb",
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/06-5f9d82cdc611fbcd3cfb.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "激光导航模块（如果有）"
+        },
+        {
+          "side": "B",
+          "quote": "距离墙面0.5米，左右各留1米空间"
+        },
+        {
+          "side": "B",
+          "quote": "将充电桩紧贴墙面放置"
+        }
+      ],
+      "reason": "A retains the requested brand-template title and qualifies unknown model-specific parts. B invents a brand, specifications and service commitments, and gives mutually inconsistent charging-base wall placement. A covers every requested manual section without asserting those invented particulars. The preference for its adaptable, more cautious manual is defensible despite B's fuller procedures.",
+      "readAt": "2026-10-12T23:45:49.963214"
+    },
+    {
+      "n": 7,
+      "rowKey": "d5228ea7cbf9d60938f0",
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/07-d5228ea7cbf9d60938f0.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "对家是暗中策划喜剧出道的"
+        },
+        {
+          "side": "B",
+          "quote": "迷惑行为诺贝尔奖"
+        }
+      ],
+      "reason": "Both are forum satires with data-manipulation mishaps, public embarrassment and multiple reply voices. A's outsider-as-comedy-audience framing and varied short personas plausibly suit the requested sarcastic internal commentary. B's purple-potato motif and longer anecdotes are also defensible humor. Funniness does not have a uniquely correct winner here; the official preference is defensible.",
+      "readAt": "2026-10-12T23:45:49.963485"
+    },
+    {
+      "n": 8,
+      "rowKey": "bd3d609825cfb28b1a85",
+      "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/08-bd3d609825cfb28b1a85.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "硬皮烤好照样上个好学！"
+        },
+        {
+          "side": "B",
+          "quote": "导师论文折成纸飞机 抛物线即天意！"
+        }
+      ],
+      "reason": "A preserves the requested absurd motifs and develops them through layered voices, repeated hooks and sound cues. B invents stronger new wordplay but changes several seed expressions. Either can satisfy the deliberately nonsensical rap request. A's literal motif realization supplies a defensible preference; stylistic novelty alone does not prove the label wrong.",
+      "readAt": "2026-10-12T23:45:49.963741"
+    },
+    {
+      "n": 9,
+      "rowKey": "4ae6fb8c6f273a598d0a",
+      "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/09-4ae6fb8c6f273a598d0a.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "我，商品编码734"
+        },
+        {
+          "side": "A",
+          "quote": "排列。排列。排列。"
+        },
+        {
+          "side": "B",
+          "quote": "声带 在齿轮间转动出 下一季的促销文案"
+        }
+      ],
+      "reason": "A explicitly establishes the requested employee identity and repeatedly replaces narration with mechanical advertising language. B has more distinctive imagery, but A closely realizes the specified repetitive industrial alienation. Both sustain the requested premise. A's direct formal realization remains a defensible preference despite B's more original details.",
+      "readAt": "2026-10-12T23:46:35.563244"
+    },
+    {
+      "n": 10,
+      "rowKey": "e35a3925df1212fa293e",
+      "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/10-e35a3925df1212fa293e.md",
+      "readFully": true,
+      "status": "ambiguous",
+      "labelDefensible": null,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "那一层被称为“新皮质”"
+        },
+        {
+          "side": "B",
+          "quote": "“外套膜”（pallium）"
+        }
+      ],
+      "reason": "A adopts a broadly accessible friendly register while B leans heavily on internet slang. That supplies a possible style rationale for the label, but A describes an avian brain region as neocortex . B more accurately distinguishes avian pallium from mammalian cortex. The source materials do not determine the annotators' tradeoff between tone and science accuracy. The label is ambiguous rather than a proved reversal, and this pair is not used to tune a preference rule.",
+      "readAt": "2026-10-12T23:46:35.563488",
+      "sources": [
+        "https://homepages.uni-tuebingen.de/andreas.nieder/Nieder%20%282021%29%20JEB.pdf"
+      ]
+    },
+    {
+      "n": 11,
+      "rowKey": "7e5280339f8eb3ca22ad",
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/11-7e5280339f8eb3ca22ad.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "James Westmoreland looks exactly like Emma."
+        },
+        {
+          "side": "B",
+          "quote": "Grandma Lilian…?"
+        }
+      ],
+      "reason": "A builds an escalating supernatural investigation and ends on a visual identity shock, directly satisfying the requested suspense climax. B offers a more articulated family revelation, but its kinship references and the boy-versus-infant evidence are less clear. Neither story has a uniquely objective quality ranking. The preference for A's focused horror reveal is defensible.",
+      "readAt": "2026-10-12T23:47:27.091830"
+    },
+    {
+      "n": 12,
+      "rowKey": "a86db0132adb156849e5",
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/12-a86db0132adb156849e5.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "My great-grandmother's name was... Margaret Chen."
+        },
+        {
+          "side": "B",
+          "quote": "I’m the child. A century later."
+        }
+      ],
+      "reason": "A makes the historical secret personally consequential through a coherent great-grandmother relationship and documentary discovery. B names a modern graduate student as an unborn child from 1891 without explaining the temporal mechanism. Supernatural presentation permits that possibility but does not develop it. A's earned family revelation is a defensible preference, and no label reversal is established.",
+      "readAt": "2026-10-12T23:47:27.091906"
+    },
+    {
+      "n": 13,
+      "rowKey": "0bcaf1760cbc799fa3ef",
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/13-0bcaf1760cbc799fa3ef.md",
+      "readFully": true,
+      "status": "suspect",
+      "labelDefensible": false,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "Good afternoon, graduates, distinguished professors, and proud families,"
+        },
+        {
+          "side": "B",
+          "quote": "亲爱的同学们、尊敬的老师与家人朋友们："
+        }
+      ],
+      "reason": "A is entirely English despite the request to maintain colloquial Chinese style. B is a Chinese commencement speech with the three named examples, historical reference and requested metaphors. Under the natural language interpretation, preferring A rewards an instruction failure. The wording says Chinese style rather than explicitly Chinese language, so a style-only English interpretation remains possible. This is a conditional suspect label, not a proved annotation error.",
+      "certainty": "conditional-language-interpretation",
+      "requestQuote": "Maintain colloquial Chinese style",
+      "readAt": "2026-10-12T23:48:34.855714"
+    },
+    {
+      "n": 14,
+      "rowKey": "9ffccd4bffffad21e886",
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/14-9ffccd4bffffad21e886.md",
+      "readFully": true,
+      "status": "suspect",
+      "labelDefensible": false,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "The Quiet Power of Ordinary Kindness"
+        },
+        {
+          "side": "B",
+          "quote": "当每一束微光勇敢发亮，便是最好的时代"
+        }
+      ],
+      "reason": "The chosen A is an English speech; B realizes the Chinese conversational style and the named kindness narratives. A can be defended only if Chinese style permits a wholly English artifact. The published request does not clarify that interpretation. Mark this preference as conditionally suspect and do not tune the judge to prefer its English output.",
+      "certainty": "conditional-language-interpretation",
+      "requestQuote": "Maintain colloquial Chinese style",
+      "readAt": "2026-10-12T23:48:34.855776"
+    },
+    {
+      "n": 15,
+      "rowKey": "26c3f3c5330cebeb0387",
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/15-26c3f3c5330cebeb0387.md",
+      "readFully": true,
+      "status": "suspect",
+      "labelDefensible": false,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "The Light Within Us All: A Commencement Address"
+        },
+        {
+          "side": "B",
+          "quote": "同学们，出发吧——带着你们的小灯"
+        }
+      ],
+      "reason": "Again the preferred speech is wholly English while B is colloquial Chinese and develops all three required examples. Both invent unsupported biographical particulars, so neither becomes verified real-world testimony. The explicit Chinese-style wording makes A's language a conditional instruction failure. The label is suspect under that reading, but the style-versus-language ambiguity prevents a confirmed reversal.",
+      "certainty": "conditional-language-interpretation",
+      "requestQuote": "Maintain colloquial Chinese style",
+      "readAt": "2026-10-12T23:48:34.855844"
+    },
+    {
+      "n": 16,
+      "rowKey": "940ecafd5cfce547c277",
+      "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/16-940ecafd5cfce547c277.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "I am a monster. I just choose my prey more carefully now."
+        },
+        {
+          "side": "B",
+          "quote": "Plot Outline (Seven Arcs)"
+        }
+      ],
+      "reason": "A delivers enacted chapters that develop the inherited hunger, social persecution, manipulation and the protagonist's changing moral choices. B is a well-designed novel outline with a more consistently bleak ending. A's later optimistic synthesis softens the requested dark tone, but its dramatized internal struggle supplies a defensible preference over an outline. This is an artifact-and-tone tradeoff, not a proven reversed label.",
+      "readAt": "2026-10-12T23:49:45.040116"
+    },
+    {
+      "n": 17,
+      "rowKey": "87f62e22527d29b156ac",
+      "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/17-87f62e22527d29b156ac.md",
+      "readFully": true,
+      "status": "ambiguous",
+      "labelDefensible": null,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "Personnel and Coordination (40% - $194,000)"
+        },
+        {
+          "side": "B",
+          "quote": "Total | 248,500"
+        }
+      ],
+      "reason": "Both proposals supply the requested theme, analysis, actions and KPIs, but both budgets contradict their line items. A's personnel lines total $258,000, not $194,000; all its detailed expense lines total $578,000, not $485,000. B's listed components total $258,500, not $248,500. Both also assert unsupported community baselines. A offers a more passionate social-value narrative; B provides clearer risk and governance provisions. The relative preference is ambiguous rather than a confirmed label reversal.",
+      "readAt": "2026-10-12T23:49:45.040217"
+    },
+    {
+      "n": 18,
+      "rowKey": "ebf7409185f6d88ff350",
+      "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/18-ebf7409185f6d88ff350.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "You talk when you drink, and I listen. It's part of my job."
+        },
+        {
+          "side": "B",
+          "quote": "Thinking While Terrified."
+        }
+      ],
+      "reason": "Both stories keep an untrained innkeeper alive through deception, gossip and practical improvisation. A develops escalating factional misunderstandings into a comic mediation payoff; B concentrates on forged messages and a firecracker bluff. A adds factions beyond the initial two but preserves the commoner's viewpoint and avoids a martial-power rescue. Its ensemble farce is a defensible preference, not evidence of label corruption.",
+      "readAt": "2026-10-12T23:52:08.918529"
+    },
+    {
+      "n": 19,
+      "rowKey": "8a1bfb7ff0c8c44bbc8d",
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/19-8a1bfb7ff0c8c44bbc8d.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "Qian maintained a collaborative leadership style"
+        },
+        {
+          "side": "B",
+          "quote": "guided guidance-loop bandwidth calculations"
+        }
+      ],
+      "reason": "A covers the academic, detention, Chinese program and leadership phases through a full biographical narrative. B offers a technical chronological inventory. Both make specific historical claims without sources, which remain verification targets rather than certified facts. A's developed biography and leadership explanation supply a defensible genre-based preference; the more technical alternative does not make the official label demonstrably wrong.",
+      "readAt": "2026-10-12T23:52:08.919004"
+    },
+    {
+      "n": 20,
+      "rowKey": "a223f611a92a6605ee86",
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/20-a223f611a92a6605ee86.md",
+      "readFully": true,
+      "status": "ambiguous",
+      "labelDefensible": null,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "became the carrier for China's first atomic bomb"
+        },
+        {
+          "side": "B",
+          "quote": "Arrived 17 September 1955"
+        }
+      ],
+      "reason": "A better sustains a biographical narrative, while B supplies more detailed missile and leadership descriptions. A incorrectly couples the first 1964 nuclear explosion to DF-2 delivery. B conflates a September departure date with arrival and contains other technical assertions needing verification. The requested objective historical accuracy is compromised in both. The prose-versus-technical-detail tradeoff is ambiguous, not a confirmed reversal.",
+      "readAt": "2026-10-12T23:52:08.920669",
+      "sources": [
+        "https://physicstoday.aip.org/features/the-chinese-nuclear-tests-1964-1996",
+        "https://www.chnmuseum.cn/zp/zpml/gshww/202104/t20210401_249471.shtml"
+      ]
+    },
+    {
+      "n": 21,
+      "rowKey": "88f369d25b7b0f3e7253",
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/21-88f369d25b7b0f3e7253.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "power, the burden of editing that anthology."
+        },
+        {
+          "side": "B",
+          "quote": "I became a walking ossuary of these broken wills."
+        }
+      ],
+      "reason": "Both include the five named characters, their conflicts, three endings and moral reflection. A uses lyrical sectional narration and a five-voice philosophical coda; B uses dense first-person introspection. This is abstract fanfiction rather than an objective answer with one correct literary ranking. A's poetic treatment is a defensible preference despite possible game-lore departures; no label correction is justified.",
+      "readAt": "2026-10-12T23:52:08.921259"
+    },
+    {
+      "n": 22,
+      "rowKey": "2755803185e240c8b123",
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/22-2755803185e240c8b123.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "60-Minute Timer"
+        },
+        {
+          "side": "B",
+          "quote": "120 min"
+        }
+      ],
+      "reason": "Both manuals invent an unspecified product. A gives a coherent operating and safety guide. B recommends a 120-minute dehydration cycle despite its stated 60-minute timer, without explaining repeated cycles; this makes A a defensible preference.",
+      "readAt": "2026-10-12T23:56:48.435921"
+    },
+    {
+      "n": 23,
+      "rowKey": "3bf25a90b027dde837eb",
+      "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/23-3bf25a90b027dde837eb.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "Leland broke from the formation and dove toward Alexei's sinking form"
+        },
+        {
+          "side": "B",
+          "quote": "Victory is breathing"
+        }
+      ],
+      "reason": "Both enact the speculative sport, rival team, conspiracy, rescue, and breathing relay. A develops the trauma and team reconciliation through scenes. Its final survival contest and pressure escalation depart from parts of the brief, but the preference remains defensible as a writing judgment. The fictional premise is not penalized as real physics.",
+      "readAt": "2026-10-12T23:56:48.436655"
+    },
+    {
+      "n": 24,
+      "rowKey": "58a6d394451171b64827",
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/24-58a6d394451171b64827.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "Classification Standards"
+        },
+        {
+          "side": "B",
+          "quote": "pilot showed +27 % repeat donors"
+        }
+      ],
+      "reason": "A supplies the requested proposal, classification, activities, promotion, risks, and a consistent budget. B also meets the structure but asserts a prior pilot result and institutional commitments absent from the request. A is defensible on grounded planning, independent of event scale or price.",
+      "readAt": "2026-10-12T23:56:48.437110"
+    },
+    {
+      "n": 25,
+      "rowKey": "e4657fc72efd60e3d5bb",
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "tie",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/25-e4657fc72efd60e3d5bb.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "Reading Buddy Matching"
+        },
+        {
+          "side": "B",
+          "quote": "1 book = 0.4 kg CO₂"
+        }
+      ],
+      "reason": "Both give substantive proposals with classification and innovative participation. A develops inclusion and follow-up; B gives a clear execution map. Both introduce unsupported quantitative claims, so these do not establish a uniquely reversed label. A remains defensible as a comprehensive community proposal.",
+      "readAt": "2026-10-12T23:56:48.437421"
+    },
+    {
+      "n": 26,
+      "rowKey": "d6e86cb7f2633db38c0b",
+      "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/26-d6e86cb7f2633db38c0b.md",
+      "readFully": true,
+      "status": "defensible",
+      "labelDefensible": true,
+      "quotes": [
+        {
+          "side": "A",
+          "quote": "But Gatsby’s character sustains the illusion."
+        },
+        {
+          "side": "B",
+          "quote": "Gatsby’s tragedy is first a tragedy of character, only secondarily of era."
+        }
+      ],
+      "reason": "Both answer the requested character contradiction, symbols, and Nick's mediation. A develops the symbolic readings and era-character interaction; B reaches a sharper character-first conclusion. A's idealizing ending weakens its earlier criticism, and both contain questionable textual assertions. The preference is still defensible as subjective development and voice, not a proven annotation error.",
+      "readAt": "2026-10-12T23:56:48.437519"
+    }
+  ],
+  "ceiling": {
+    "population": 90,
+    "clearSuspectRows": 1,
+    "conditionalAdditionalRows": 3,
+    "provisionalInstructionCeiling": 0.9888888888888889,
+    "conditionalInstructionCeiling": 0.9555555555555556,
+    "universalCeilingEstablished": false,
+    "note": "These are audit-based instruction ceilings under stated interpretations, not a proved ceiling of subjective human preference. Only the 26 jointly disputed rows were audited; the other 64 remain unaudited."
+  }
+}

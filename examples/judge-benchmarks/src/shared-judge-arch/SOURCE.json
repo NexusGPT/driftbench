@@ -1,0 +1,21 @@
+{
+  "repository": "achammah/driftbench",
+  "branch": "codex/judge-arch",
+  "commit": "35b7ad973e3e2a2cde726205fe3342d88fc44057",
+  "sourceRoot": "packages/judges/src/",
+  "files": [
+    "assessment.ts",
+    "client.ts",
+    "contract.ts",
+    "criterion-ledger.ts",
+    "evidence.ts",
+    "fact-audit.ts",
+    "http.ts",
+    "legacy-prompt.ts",
+    "pairwise.ts",
+    "prompt.ts",
+    "legacy-contract.ts"
+  ],
+  "policy": "Verbatim snapshots. Only frozen legacy parsing approved; new-contract execution waits for the next owner-supplied reviewed commit.",
+  "approvedForNew": false
+}

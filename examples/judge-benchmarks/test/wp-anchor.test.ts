@@ -64,4 +64,17 @@ describe('holistic writing anchors', () => {
     expect(parseReading('{"level":4,"placement":1}')).toBeUndefined();
     expect(parseReading('{"level":"2","placement":1}')).toBeUndefined();
   });
+  it('recovers an intact terminal ballot without inventing missing choices', () => {
+    const tail =
+      '"winner":"B","confidence":4,"winning_excerpt":"beta scene","reason":"B has enacted scenes."}';
+    expect(
+      parseAnchor(
+        `{"A":{"level":2,"review":"alpha","}"},"B":{"level":3,"review":"beta","}"},${tail}`,
+        'alpha scene',
+        'beta scene',
+      )?.winner,
+    ).toBe('B');
+    expect(parseAnchor('{"A":{"level":3},"B":{"level":1}}', 'alpha', 'beta')).toBeUndefined();
+    expect(parseAnchor('{"review":"winner B, confidence 4"}', 'alpha', 'beta')).toBeUndefined();
+  });
 });

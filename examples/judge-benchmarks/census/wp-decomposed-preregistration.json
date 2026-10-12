@@ -1,0 +1,16 @@
+{
+  "version": "request-blind-atomic-v1",
+  "frozenBeforeFirstCall": true,
+  "weights": {"requirements": 0.45, "development": 0.35, "craft": 0.20},
+  "requirementWeight": "0.45 divided equally among all request-derived explicit requirements",
+  "batchSize": 4,
+  "scores": "Each criterion has separate integer A and B scores from 0 through 4",
+  "orderPolicy": "Independent AB and BA aggregates, swapped game mapped to original candidate labels",
+  "repairAttempts": 1,
+  "tiePolicy": "A tie or unknown score is wrong under the official benchmark metric",
+  "selectionInputs": "DEV request shapes and the owner's decomposition instruction; no fit to suspect labels",
+  "setupInputs": "Only the writing request",
+  "scoringInputs": "Request, its blind-derived criteria, complete candidate texts",
+  "excludedInputs": ["gold labels", "audit verdicts", "source model names", "item IDs", "reply-size features", "TEST items"],
+  "newContractPending": true
+}

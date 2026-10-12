@@ -1,0 +1,811 @@
+{
+  "rule": "At least two of adaptive, criteria equal-vote, and holistic-anchor oppose the human label in both orders, with no ties.",
+  "items": [
+    {
+      "n": 1,
+      "rowKey": "cb420f160063912fc1d5",
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "A",
+            "A"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/01-cb420f160063912fc1d5.md"
+    },
+    {
+      "n": 2,
+      "rowKey": "1527c612353efdeef895",
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/02-1527c612353efdeef895.md"
+    },
+    {
+      "n": 3,
+      "rowKey": "ce96cf84a694bad7e635",
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/03-ce96cf84a694bad7e635.md"
+    },
+    {
+      "n": 4,
+      "rowKey": "27f67dbdba8d0e766d8c",
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/04-27f67dbdba8d0e766d8c.md"
+    },
+    {
+      "n": 5,
+      "rowKey": "936d55033bdd6914efb7",
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/05-936d55033bdd6914efb7.md"
+    },
+    {
+      "n": 6,
+      "rowKey": "5f9d82cdc611fbcd3cfb",
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/06-5f9d82cdc611fbcd3cfb.md"
+    },
+    {
+      "n": 7,
+      "rowKey": "d5228ea7cbf9d60938f0",
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/07-d5228ea7cbf9d60938f0.md"
+    },
+    {
+      "n": 8,
+      "rowKey": "bd3d609825cfb28b1a85",
+      "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/08-bd3d609825cfb28b1a85.md"
+    },
+    {
+      "n": 9,
+      "rowKey": "4ae6fb8c6f273a598d0a",
+      "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/09-4ae6fb8c6f273a598d0a.md"
+    },
+    {
+      "n": 10,
+      "rowKey": "e35a3925df1212fa293e",
+      "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/10-e35a3925df1212fa293e.md"
+    },
+    {
+      "n": 11,
+      "rowKey": "7e5280339f8eb3ca22ad",
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/11-7e5280339f8eb3ca22ad.md"
+    },
+    {
+      "n": 12,
+      "rowKey": "a86db0132adb156849e5",
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/12-a86db0132adb156849e5.md"
+    },
+    {
+      "n": 13,
+      "rowKey": "0bcaf1760cbc799fa3ef",
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/13-0bcaf1760cbc799fa3ef.md"
+    },
+    {
+      "n": 14,
+      "rowKey": "9ffccd4bffffad21e886",
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/14-9ffccd4bffffad21e886.md"
+    },
+    {
+      "n": 15,
+      "rowKey": "26c3f3c5330cebeb0387",
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/15-26c3f3c5330cebeb0387.md"
+    },
+    {
+      "n": 16,
+      "rowKey": "940ecafd5cfce547c277",
+      "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/16-940ecafd5cfce547c277.md"
+    },
+    {
+      "n": 17,
+      "rowKey": "87f62e22527d29b156ac",
+      "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/17-87f62e22527d29b156ac.md"
+    },
+    {
+      "n": 18,
+      "rowKey": "ebf7409185f6d88ff350",
+      "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/18-ebf7409185f6d88ff350.md"
+    },
+    {
+      "n": 19,
+      "rowKey": "8a1bfb7ff0c8c44bbc8d",
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/19-8a1bfb7ff0c8c44bbc8d.md"
+    },
+    {
+      "n": 20,
+      "rowKey": "a223f611a92a6605ee86",
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/20-a223f611a92a6605ee86.md"
+    },
+    {
+      "n": 21,
+      "rowKey": "88f369d25b7b0f3e7253",
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/21-88f369d25b7b0f3e7253.md"
+    },
+    {
+      "n": 22,
+      "rowKey": "2755803185e240c8b123",
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/22-2755803185e240c8b123.md"
+    },
+    {
+      "n": 23,
+      "rowKey": "3bf25a90b027dde837eb",
+      "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/23-3bf25a90b027dde837eb.md"
+    },
+    {
+      "n": 24,
+      "rowKey": "58a6d394451171b64827",
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/24-58a6d394451171b64827.md"
+    },
+    {
+      "n": 25,
+      "rowKey": "e4657fc72efd60e3d5bb",
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "tie",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/25-e4657fc72efd60e3d5bb.md"
+    },
+    {
+      "n": 26,
+      "rowKey": "d6e86cb7f2633db38c0b",
+      "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criteria",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "holistic-anchor",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-inputs/26-d6e86cb7f2633db38c0b.md"
+    }
+  ]
+}
