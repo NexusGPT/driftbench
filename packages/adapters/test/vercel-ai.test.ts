@@ -1,4 +1,4 @@
-import { collectRetries, type Message, type Session } from '@driftbench/core';
+import { collectRetries, type Message, type Session } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { ToolLabels } from '../src/anthropic/common';
 import { type GenerateTextLike, toModelMessages, vercelAiAdapter } from '../src/vercel-ai/index';

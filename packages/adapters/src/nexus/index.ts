@@ -8,7 +8,7 @@ import {
   isPlainObject,
   type Session,
   type TargetRef,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { type FetchLike, readSource, stimulusMessages, type ToolPayload } from '../shared';
 import { type Answer, createClient, DEFAULT_BASE_URL, type NexusClient } from './client';
 import {

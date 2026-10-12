@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { extractMap, ModelError, type Proposal, SYSTEM_PROMPT } from '@driftbench/generate';
+import { extractMap, ModelError, type Proposal, SYSTEM_PROMPT } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { BANK_MIN_FAMILY as MIN_FAMILY, measureHardness } from '../../src/hardness';
 import { readJournal } from '../../src/journal';

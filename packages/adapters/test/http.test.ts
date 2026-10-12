@@ -1,4 +1,9 @@
-import { AdapterTransportError, AgentFailure, type Message, type Session } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  type Message,
+  type Session,
+} from '@agent-nexus/driftbench-core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { toChatMessages } from '../src/http/chat';
 import { httpAdapter } from '../src/http/index';

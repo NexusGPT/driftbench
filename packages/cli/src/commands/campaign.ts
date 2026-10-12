@@ -3,9 +3,9 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { functionAdapter, processAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { classifyTool, defaultChecks } from '@driftbench/checks';
+import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
@@ -39,10 +39,10 @@ import {
   type TargetPrompt,
   TargetRef,
   type UserDriver,
-} from '@driftbench/core';
-import { portFromEnv } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
-import { bootstrapCI } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-core';
+import { portFromEnv } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import {
   openMemoryStore,
   openStore,
@@ -51,8 +51,12 @@ import {
   restoreFiles,
   type SqliteStore,
   StoreError,
-} from '@driftbench/store';
-import { createPerturbingDriver, createScriptedDriver, type UserModelPort } from '@driftbench/users';
+} from '@agent-nexus/driftbench-store';
+import {
+  createPerturbingDriver,
+  createScriptedDriver,
+  type UserModelPort,
+} from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
@@ -85,7 +89,7 @@ export type CampaignDeps = {
   consequential?: (label: string) => boolean;
   /**
    * The model port a simulated user speaks through with --model. Default: the port the environment
-   * configures (portFromEnv of @driftbench/generate). Tests pass a fake one.
+   * configures (portFromEnv of @agent-nexus/driftbench-generate). Tests pass a fake one.
    */
   modelPort?(): UserModelPort;
   /** The store at a path, or one held in memory without a path. A failure to open is reported, exit 2. */
@@ -171,9 +175,9 @@ const KNOWN_TARGETS =
 /**
  * What the commands run with. `function:acme-sales`, the target the Acme conversation specs name, and its
  * short form `function:acme` are the Acme sales assistant behind the function adapter of
- * @driftbench/adapters. `process:acme-ops`, the target of the Acme task spec, is the Acme ops agent behind
- * the process adapter. The checks are `defaultChecks()` of @driftbench/checks with the readers of
- * @driftbench/artifacts, and the store is @driftbench/store, a SQLite file with `--store` and in memory
+ * @agent-nexus/driftbench-adapters. `process:acme-ops`, the target of the Acme task spec, is the Acme ops agent behind
+ * the process adapter. The checks are `defaultChecks()` of @agent-nexus/driftbench-checks with the readers of
+ * @agent-nexus/driftbench-artifacts, and the store is @agent-nexus/driftbench-store, a SQLite file with `--store` and in memory
  * without it.
  */
 export const defaultDeps: CampaignDeps = {
@@ -1404,7 +1408,7 @@ export type CampaignDetail = {
 
 /**
  * The detail of a campaign: the compounding index of every spec run in T and F, with the clustered
- * bootstrap interval of @driftbench/stats (blocks resampled within a spec, specs across the campaign);
+ * bootstrap interval of @agent-nexus/driftbench-stats (blocks resampled within a spec, specs across the campaign);
  * the succession metrics and drift classes of every run; the recovery of every perturbed run.
  */
 export function detailOf(outcomes: readonly CellOutcome[], specs: readonly LoadedSpec[]): CampaignDetail {
@@ -1692,7 +1696,7 @@ export function acmeOpsAgent(): string | undefined {
 function cliPackageRoot(from: string): string | undefined {
   for (let dir = from; ; dir = dirname(dir)) {
     const manifest = join(dir, 'package.json');
-    if (existsSync(manifest) && packageName(manifest) === '@driftbench/cli') return dir;
+    if (existsSync(manifest) && packageName(manifest) === '@agent-nexus/driftbench') return dir;
     if (dirname(dir) === dir) return undefined;
   }
 }

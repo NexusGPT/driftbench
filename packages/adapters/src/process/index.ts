@@ -17,7 +17,7 @@ import {
   type Turn,
   type WorkspaceSnapshot,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { parseCommands, parseRuntime } from './protocol';
 import { shellLine, shellQuote } from './shell';
 
@@ -56,7 +56,7 @@ export type ProcessAdapterOptions = {
   command: string;
   /** Its arguments. In file mode `{stimulus_file}` is replaced by the stimulus file path, else that path is appended. */
   args?: string[];
-  /** Where sandboxes come from: localProvider() or dockerProvider({ image }) from @driftbench/sandbox. */
+  /** Where sandboxes come from: localProvider() or dockerProvider({ image }) from @agent-nexus/driftbench-sandbox. */
   provider: SandboxProvider;
   /** Leaves each sandbox on disk after close, for inspection. */
   keep?: boolean;
@@ -372,7 +372,7 @@ async function readProtocol<T>(
   return parsed.value;
 }
 
-/** The folder on this machine, for a kept sandbox: a sandbox from @driftbench/sandbox names it. */
+/** The folder on this machine, for a kept sandbox: a sandbox from @agent-nexus/driftbench-sandbox names it. */
 function folderOf(sandbox: Sandbox): string {
   const folder = (sandbox as { folder?: unknown }).folder;
   return typeof folder === 'string' ? folder : sandbox.root;

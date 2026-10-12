@@ -7,7 +7,7 @@ import {
   hillNumbers,
   quantile,
   seededRandom,
-} from '@driftbench/space';
+} from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { at, map, spec } from './support';
 

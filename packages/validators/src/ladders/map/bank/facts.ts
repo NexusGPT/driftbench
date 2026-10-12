@@ -1,5 +1,5 @@
-import { canonicalJson } from '@driftbench/core';
-import type { Proposal } from '@driftbench/generate';
+import { canonicalJson } from '@agent-nexus/driftbench-core';
+import type { Proposal } from '@agent-nexus/driftbench-generate';
 import { fold, forbidKey } from '../truth';
 import { asModelWrites, type Planted } from './perfect';
 

@@ -31,7 +31,7 @@ import {
   type Stimulus,
   type Turn,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { shellLine, shellQuote } from '../../process/shell';
 import { isRecord, parseJsonl } from '../format';
 import { mapSession } from '../session';
@@ -104,7 +104,7 @@ export type ClaudeCodeLiveOptions = {
   library?: StateLibrary;
   /** More operations before a turn, chosen by the caller. */
   ops?: (turn: Turn) => readonly LiveOp[];
-  /** Where sandboxes come from: `localProvider()` of @driftbench/sandbox. */
+  /** Where sandboxes come from: `localProvider()` of @agent-nexus/driftbench-sandbox. */
   provider: SandboxProvider;
   /** The estate map hashes this copy answers to; a spec pinned to another (`vars.estate.map_hash`) fails. */
   pins?: readonly string[];

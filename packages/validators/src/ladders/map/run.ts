@@ -6,7 +6,7 @@ import {
   Recording,
   recordingPort,
   type SourceText,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import { oracleRecording } from './oracle';
 import { INVENTORY_PATH, PROMPT_PATH, type Rendered, type RenderOptions, render, TOOLS_PATH } from './render';
 import type { HiddenSpec } from './spec';

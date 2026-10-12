@@ -1,4 +1,4 @@
-import type { RequiredCell, SpaceCoverage } from '@driftbench/space';
+import type { RequiredCell, SpaceCoverage } from '@agent-nexus/driftbench-space';
 import type { CoverElement } from './cover';
 
 /**

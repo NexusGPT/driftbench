@@ -12,7 +12,7 @@ Python and `crewai` are yours to install; driftbench depends on neither.
 ## Options
 
 ```ts
-import { crewaiAdapter, crewaiHttp, crewaiProcess } from '@driftbench/adapters';
+import { crewaiAdapter, crewaiHttp, crewaiProcess } from '@agent-nexus/driftbench-adapters';
 
 const local = crewaiAdapter({
   transport: crewaiProcess({ crew: 'acme.crews:build_sales', python: '.venv/bin/python', cwd: '/srv/acme' }),

@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FakeModelPort, loadProposal } from '@driftbench/generate';
+import { FakeModelPort, loadProposal } from '@agent-nexus/driftbench-generate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { extractCommand } from '../src/commands/extract';
 import { type Io, main } from '../src/index';

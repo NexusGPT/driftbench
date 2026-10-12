@@ -1,9 +1,15 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { mapSession, orderedCheck, parseJsonl, replayAdapter } from '@driftbench/adapters';
-import { CheckRegistry, defaultChecks, defaultRegistry } from '@driftbench/checks';
-import { type CheckSet, type LoadedSpec, parseSpecText, type RunResult, runSpec } from '@driftbench/core';
+import { mapSession, orderedCheck, parseJsonl, replayAdapter } from '@agent-nexus/driftbench-adapters';
+import { CheckRegistry, defaultChecks, defaultRegistry } from '@agent-nexus/driftbench-checks';
+import {
+  type CheckSet,
+  type LoadedSpec,
+  parseSpecText,
+  type RunResult,
+  runSpec,
+} from '@agent-nexus/driftbench-core';
 import {
   type Atom,
   buildPlan,
@@ -15,15 +21,15 @@ import {
   type RawEstate,
   readerFor,
   scanEstate,
-} from '@driftbench/estate';
+} from '@agent-nexus/driftbench-estate';
 import {
   type EstateGenerateResult,
   type EstateSpecRecord,
   generateEstateSuite,
   type PhraseBank,
   type SessionIndex,
-} from '@driftbench/generate';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-generate';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { follow } from './follower';
 import { drawEstate, type HiddenEstate, type Profile } from './hidden';
 import { RUNTIME } from './layout';

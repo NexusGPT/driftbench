@@ -2,13 +2,13 @@
 
 Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode, on a fake client that plays the Acme example agent, and on the real `@google/genai` client with its `fetch` stubbed. It has not run against a live model yet.
 
-The google adapter runs an agent built on the Gemini API: a model, a system instruction and function declarations. The SDK is not a dependency of driftbench: the adapter takes your client and types it with a local interface that mirrors `client.models.generateContent`. `@google/genai` is an optional peer dependency of `@driftbench/adapters`; the shapes match version 2.28.0.
+The google adapter runs an agent built on the Gemini API: a model, a system instruction and function declarations. The SDK is not a dependency of driftbench: the adapter takes your client and types it with a local interface that mirrors `client.models.generateContent`. `@google/genai` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; the shapes match version 2.28.0.
 
 ## Options
 
 ```ts
 import { GoogleGenAI } from '@google/genai';
-import { googleAdapter } from '@driftbench/adapters';
+import { googleAdapter } from '@agent-nexus/driftbench-adapters';
 import { salesPrompt, salesTools } from './agent'; // your prompt, and a function that returns SdkTool[]
 
 const adapter = googleAdapter({

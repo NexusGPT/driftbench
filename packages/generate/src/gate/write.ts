@@ -1,4 +1,4 @@
-import { type BlockSpec, contentHash, type Spec } from '@driftbench/core';
+import { type BlockSpec, contentHash, type Spec } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { formatJson } from '../enumerate/json';
 import type { BlockRecord, GateResult } from './gate';

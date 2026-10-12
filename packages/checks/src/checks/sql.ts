@@ -12,7 +12,7 @@ function sqliteModule(): typeof import('node:sqlite') {
   return loaded as typeof import('node:sqlite');
 }
 
-import { type Check, machineVerdict, type Verdict } from '@driftbench/core';
+import { type Check, machineVerdict, type Verdict } from '@agent-nexus/driftbench-core';
 
 /**
  * `expect.sql`: the SQL the agent ran, read from the input of its call to `tool` (the input's `query` field),

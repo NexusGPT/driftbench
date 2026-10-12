@@ -1,5 +1,5 @@
-import { pptxReader } from '@driftbench/artifacts';
-import type { ArtifactDocument } from '@driftbench/core';
+import { pptxReader } from '@agent-nexus/driftbench-artifacts';
+import type { ArtifactDocument } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { bytesOf, pptx, runCases, type SlideSpec } from './fixtures';
 

@@ -2,13 +2,13 @@
 
 Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode, on a fake client that plays the Acme example agent, and on the real `@anthropic-ai/sdk` client driven through a fake `fetch`. It has not run against a live model yet.
 
-The anthropic adapter runs an agent built on the Anthropic Messages API: a model, a system prompt and tools. The SDK is not a dependency of driftbench: the adapter takes your client and types it with a local interface that mirrors `client.messages.create`. `@anthropic-ai/sdk` is an optional peer dependency of `@driftbench/adapters`; the shapes match version 0.133.0.
+The anthropic adapter runs an agent built on the Anthropic Messages API: a model, a system prompt and tools. The SDK is not a dependency of driftbench: the adapter takes your client and types it with a local interface that mirrors `client.messages.create`. `@anthropic-ai/sdk` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; the shapes match version 0.133.0.
 
 ## Options
 
 ```ts
 import Anthropic from '@anthropic-ai/sdk';
-import { anthropicAdapter } from '@driftbench/adapters';
+import { anthropicAdapter } from '@agent-nexus/driftbench-adapters';
 import { salesPrompt, salesTools } from './agent'; // your prompt, and a function that returns SdkTool[]
 
 const adapter = anthropicAdapter({

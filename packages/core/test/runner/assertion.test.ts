@@ -1,4 +1,4 @@
-import type { Assertion, EndState } from '@driftbench/core';
+import type { Assertion, EndState } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { compareEndState, matchAssertion } from '../../src/runner';
 

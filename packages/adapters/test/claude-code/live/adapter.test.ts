@@ -6,8 +6,8 @@ import {
   AgentFailure,
   Observed,
   type Session,
-} from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type ClaudeCodeLiveOptions, claudeCodeLiveAdapter } from '../../../src/claude-code/live';
 import {

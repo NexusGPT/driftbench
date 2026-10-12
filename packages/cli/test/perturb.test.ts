@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadSpecFile, type PlannedCell } from '@driftbench/core';
+import { loadSpecFile, type PlannedCell } from '@agent-nexus/driftbench-core';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { defaultDeps } from '../src/commands/campaign';
@@ -83,7 +83,7 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
     expect(out).toContain(
       'Recovery record (runner): {"injectedAt":1,"turnsToRecover":0,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}',
     );
-    expect(out).not.toContain('@driftbench/users');
+    expect(out).not.toContain('@agent-nexus/driftbench-users');
   });
 
   it('refuses an unapproved phrasing, exit 2 and nothing run, and draws it with --drafts', async () => {
@@ -252,7 +252,7 @@ describe('driftbench perturb and the runner', { timeout: 60_000 }, () => {
 });
 
 describe('the campaign driver for mode P', () => {
-  it("is the perturbing driver of @driftbench/users on the cell's spec; the scripted driver otherwise", async () => {
+  it("is the perturbing driver of @agent-nexus/driftbench-users on the cell's spec; the scripted driver otherwise", async () => {
     const loaded = await loadSpecFile(join(ROOT, COVERAGE));
     if (!loaded.ok) throw new Error('the coverage spec does not load');
     const cell: PlannedCell = {

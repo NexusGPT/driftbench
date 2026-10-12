@@ -7,7 +7,7 @@ The http adapter reaches an agent behind an HTTP endpoint that speaks JSON. Each
 ## Options
 
 ```ts
-import { httpAdapter } from '@driftbench/adapters';
+import { httpAdapter } from '@agent-nexus/driftbench-adapters';
 
 const adapter = httpAdapter({
   url: 'http://localhost:8080/turn',

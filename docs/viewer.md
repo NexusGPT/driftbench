@@ -81,7 +81,7 @@ blocks:
 
 `judge calibrate` needs at least one pass and one fail label per criterion, or kappa has nothing to measure. The labelling section says when a criterion still lacks one of the two.
 
-From code, `saveLabel(dir, criterion, block, labelledBy)` and `readLabelFile(dir, criterion)` of `@driftbench/judges` write and read the same files.
+From code, `saveLabel(dir, criterion, block, labelledBy)` and `readLabelFile(dir, criterion)` of `@agent-nexus/driftbench-judges` write and read the same files.
 
 ## Anchors on a label
 

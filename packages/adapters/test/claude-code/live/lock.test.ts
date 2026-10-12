@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { localProvider } from '@driftbench/sandbox';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterEach, describe, expect, it } from 'vitest';
 import { claudeCodeLiveAdapter, OWNER_CONFIG_ENTRIES } from '../../../src/claude-code/live';
 import { ESTATE, FAKE, givenOf, MAP_HASH, scratch, turnOf } from './support';

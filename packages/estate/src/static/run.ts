@@ -1,4 +1,4 @@
-import type { StaticTest } from '@driftbench/generate';
+import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { scanEstate } from '../map/build';
 import type { EstateReader } from '../scan/reader';
 

@@ -3,7 +3,7 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadEstateMap } from '@driftbench/estate';
+import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { lineOf } from '../src/commands/estate-live';
 import { type Io, main } from '../src/index';
@@ -219,7 +219,7 @@ function outcomes(json: RunJson | undefined): Record<string, string> {
 
 /** The ids of the proof specs whose metadata names the atom. */
 async function specsOfAtom(atom: string): Promise<string[]> {
-  const { loadSpecFile } = await import('@driftbench/core');
+  const { loadSpecFile } = await import('@agent-nexus/driftbench-core');
   const out: string[] = [];
   for (const path of proofSpecs()) {
     const loaded = await loadSpecFile(path);
@@ -269,7 +269,7 @@ describe('driftbench estate run', () => {
       [true, [], 0],
       [false, ['block 0: forbidden.WebFetch'], 0],
     ]);
-    const { openStore } = await import('@driftbench/store');
+    const { openStore } = await import('@agent-nexus/driftbench-store');
     const store = await openStore(result.store);
     const runs = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
     await store.close();
@@ -319,7 +319,7 @@ describe('driftbench estate run', () => {
       const secret = join(await folder(), 'secrets');
       const result = await estateRun(FIXTURE, [spec], '--lock-deny', secret);
       expect(result.code).toBe(0);
-      const { openStore } = await import('@driftbench/store');
+      const { openStore } = await import('@agent-nexus/driftbench-store');
       const store = await openStore(result.store);
       const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
       await store.close();

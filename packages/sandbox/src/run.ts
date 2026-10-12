@@ -3,7 +3,7 @@ import { readdirSync, readlinkSync, realpathSync } from 'node:fs';
 import { constants } from 'node:os';
 import { sep } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import type { ExecutionRecord } from '@driftbench/core';
+import type { ExecutionRecord } from '@agent-nexus/driftbench-core';
 import { trackGroup, untrackGroup } from './cleanup';
 import { TIMEOUT_EXIT_CODE } from './limits';
 

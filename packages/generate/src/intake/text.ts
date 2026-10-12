@@ -1,8 +1,8 @@
 /**
  * Text similarity for the intake. The gram primitives (n-grams, TF-IDF, cosine, words) live in
- * @driftbench/core, shared with the similarity check; this file adds neighbours and clusters.
+ * @agent-nexus/driftbench-core, shared with the similarity check; this file adds neighbours and clusters.
  */
-import { type GramVector, gramCosine } from '@driftbench/core';
+import { type GramVector, gramCosine } from '@agent-nexus/driftbench-core';
 
 export {
   charGrams,
@@ -12,7 +12,7 @@ export {
   gramTfidf,
   normaliseText,
   wordsOf,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 
 export type GramNeighbour = { index: number; score: number };
 

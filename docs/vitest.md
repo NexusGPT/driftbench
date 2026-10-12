@@ -1,10 +1,10 @@
 # vitest
 
-`@driftbench/vitest` runs a spec inside a vitest suite, one test per block. It is not on npm yet: version 0.1.0 is prepared (see [Releasing](releasing.md)).
+`@agent-nexus/driftbench-vitest` runs a spec inside a vitest suite, one test per block. It is not on npm yet: version 0.1.0 is prepared (see [Releasing](releasing.md)).
 
 ```ts
-import { functionAdapter } from '@driftbench/adapters';
-import { describeSpec } from '@driftbench/vitest';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { describeSpec } from '@agent-nexus/driftbench-vitest';
 import { createAcmeAgent } from './acme';
 
 describeSpec('specs/plan-upgrade.yaml', functionAdapter({ respond: createAcmeAgent().respond }));
@@ -14,7 +14,7 @@ describeSpec('specs/plan-upgrade.yaml', functionAdapter({ respond: createAcmeAge
 
 | Option | Meaning |
 |---|---|
-| `checks` | the machine checks; `defaultChecks()` of `@driftbench/checks` by default |
+| `checks` | the machine checks; `defaultChecks()` of `@agent-nexus/driftbench-checks` by default |
 | `driver` | the user driver; the scripted driver by default |
 | `repeat` | the repeat number the run records, 0 by default |
 | `timeoutMs` | the timeout of each test, 60000 by default: the first test waits for the whole run |
