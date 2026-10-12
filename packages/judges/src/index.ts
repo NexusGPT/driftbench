@@ -143,6 +143,7 @@ export {
   pairwiseRequest,
   pairwiseTally,
   readPairwiseCriterion,
+  swapConsistent,
 } from './pairwise';
 export {
   ANSWER_CONTRACT,

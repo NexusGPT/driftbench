@@ -139,3 +139,12 @@ export async function readPairwiseCriterion(path: string): Promise<CriterionText
   }
   return parsed.data;
 }
+
+/**
+ * Whether a comparison survives the swap: the winner of the swapped comparison, mapped back (a is b and b is a),
+ * is the winner of the first. A tie matches a tie.
+ */
+export function swapConsistent(first: string, swapped: string): boolean {
+  const back = swapped === 'a' ? 'b' : swapped === 'b' ? 'a' : swapped;
+  return back === first;
+}
