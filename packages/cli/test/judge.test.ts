@@ -471,6 +471,9 @@ describe('the judge check in the default check set', () => {
     expect(request?.artifact).toContain('File out/acme-price-sheet.xlsx (xlsx)');
     expect(request?.artifact).toContain('| 3 | Acme Mobile M | 40 GB | 25 | 300 (=C3*12) |');
     expect(request?.artifact).toMatch(/Workspace changes: created out\/acme-price-sheet\.xlsx/);
+    // The criterion names catalog.csv as an input: the judge reads the seed the agent started from.
+    expect(request?.inputs?.map((input) => input.path)).toEqual(['catalog.csv']);
+    expect(request?.inputs?.[0]?.text).toContain('mobile-m,Acme Mobile M,mobile,40 GB,25');
   }, 120_000);
 });
 

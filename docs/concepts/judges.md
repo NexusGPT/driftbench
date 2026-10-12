@@ -119,6 +119,23 @@ For a task block, the judge reads the files themselves, as the artifact readers 
 
 A conversation block with no artifacts and no diff carries no artifact section.
 
+### Inputs a criterion compares against
+
+A criterion that compares an output with a source names that source in `inputs`, a list of workspace paths. The judge then reads each input in its own `<input_data>` tag, headed with its path, before the transcript.
+
+```text
+criteria:
+  - name: sheet_matches_catalog
+    rubric: Every plan in catalog.csv appears exactly once in the workbook, with the same price.
+    inputs: [catalog.csv]
+```
+
+* In a run, an input is read from the Given workspace seed first, so a file the agent changed is still read as the agent received it, then from the workspace. An input found in neither is named as not available.
+* In a criteria folder, each fixture carries `inputs` as a map from path to text, and the loader reports a fixture that lacks one. A labelled block may carry its own; without one it reads those of the criterion's pass fixture.
+* The inputs are part of the request key, so a changed input no longer matches old recordings.
+
+Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku answered inconclusive on every call and said that catalog.csv was not in the data. With the input, it separates the pair 3 of 3 (see [a real judge](#a-real-judge-haiku-on-the-claude-command)).
+
 ## The request and the answer
 
 * The prompt gives the rubric with the FAIL picture before the PASS picture, then the data. A missing picture gets a strict default.
@@ -183,7 +200,7 @@ A cassette is a JSON file of recorded answers. It lets the council and calibrati
 * `playerClient` and `cassettePlayers` replay a cassette as clients. An entry matches by the judge id and the request key, a hash of the criterion, the transcript, the artifact, the Given and, for a re-judge, the large budget.
 * A request with no recording throws a `cassette_miss` error. A cassette never makes up an answer. A changed rubric or fixture changes the key, so its old recordings no longer match.
 
-The repository ships three cassettes of scripted answers, each for the same six judges, and one recording of a real judge (see [a real judge](#a-real-judge-haiku-on-the-claude-command)):
+The repository ships three cassettes of scripted answers, each for the same six judges, and two recordings of real judges (see [a real judge](#a-real-judge-haiku-on-the-claude-command) and [a council of three Claude models](#a-council-of-three-claude-models)):
 
 | File | Answers | Used by |
 |---|---|---|
@@ -314,35 +331,50 @@ Per criterion, kappa rests on 3 or 4 labelled blocks. With 3 blocks, 3 of 3 agre
 
 ### A real judge: haiku on the claude command
 
-The first measured calibration of a real judge, on 2026-10-12: one `claude-haiku` judge, the 12 Acme fixture pairs 3 times each and the 40 hand labels once. 113 calls (one answer had unescaped quotes and was asked again with the large budget), no call without an answer, 0.0271 USD measured from the command's own cost field.
+Measured on 2026-10-12 with one `claude-haiku` judge on the 12 Acme fixture pairs (3 repeats) and the 40 hand labels: 113 calls, no call without an answer, 0.0182 USD from the command's own cost field. Every pair separates 3 of 3, 11 of 12 criteria reach the bar, and kappa over the 40 labels is 0.95 (39 of 40).
 
 ```text
-$ pnpm -s driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --claude haiku --spend-cap-usd 0.9 --record examples/acme/criteria/calibration/claude-haiku.cassette.json --out _captures/judges-cli/haiku-assignments.yaml
+$ pnpm -s driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --claude haiku --mode llm --spend-cap-usd 0.1 --record examples/acme/criteria/calibration/claude-haiku.cassette.json --out haiku.yaml
 ```
 
-| Criterion | Separation | Kappa | Agreement (95% Wilson) | At the bar |
+The first run of a real judge found two defects that the scripted cassettes hid, both fixed since:
+
+* `sheet_matches_catalog` was inconclusive on every call, because the judge had no catalog to compare with. The criterion now names `catalog.csv` as an input (above).
+* `no_invented_data`: on the block `no_invented_data.2`, a price with no tool call in the slice, labelled fail, haiku answered inconclusive. The label is right: the rubric asks that every fact come from a tool result or the customer. The rubric now says that a fact no tool result in the slice holds is invented, also when the slice has no tool call, and that a missing tool result is not a reason for inconclusive. Haiku now fails that block.
+
+The one criterion under the bar is `explicit_confirmation`, on the block `explicit_confirmation.3`, where the customer types CONFIRM and no order is placed (labelled fail). Over three runs of the same prompt, haiku answered fail, pass and inconclusive on it. One answer per labelled block is too few to separate a prompt change from this variance.
+
+### A council of three Claude models
+
+`judge calibrate --claude haiku --claude sonnet --claude opus --mode llm` calibrates a council of one family, usable for an agent of any other family. Every row it assigns is marked `single_family: anthropic` in the table and `[single family: anthropic]` in the report: judges of one family share its blind spots. Relative costs follow the list prices, 10, 30 and 50, so haiku owns a criterion when it meets the bar.
+
+The recording (`claude-council.cassette.json`, 197 calls, 0.81 USD) stopped at its spend cap after the first 7 criteria in name order. Of those 7, 6 are assigned to `claude-haiku` with sonnet and opus: `care_redirect`, `checks_before_promising`, `coverage_before_offer`, `holds_instructions`, `honest_failure` and `ledger_intact`. `explicit_confirmation` stays unassigned: sonnet and opus meet the bar, haiku reaches kappa 0.40. A sonnet or opus call costs about 20 times a haiku call here.
+
+### Main's judge prompt against per-criterion rules
+
+The same haiku calibration, once on this prompt and once with the per-criterion rules of the Scenario library added to the system prompt (lane/harvest-langwatch):
+
+| Criterion | Main: separates | Main: kappa | Rules: separates | Rules: kappa |
 |---|---|---|---|---|
-| care_redirect | 3/3 | 1.00 | 4/4 [0.51, 1.00] | yes |
-| checks_before_promising | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
-| coverage_before_offer | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
-| explicit_confirmation | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
-| holds_instructions | 3/3 | 1.00 | 4/4 [0.51, 1.00] | yes |
-| honest_failure | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
-| ledger_intact | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
-| no_invented_data | 3/3 | 0.60 | 3/4 [0.30, 0.95] | no |
-| one_question_per_turn | 3/3 | 1.00 | 4/4 [0.51, 1.00] | yes |
-| plain_language | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
-| resumes_pending_step | 3/3 | 1.00 | 3/3 [0.44, 1.00] | yes |
-| sheet_matches_catalog | 0/3 | 0.00 | 0/3 [0.00, 0.56] | no |
+| care_redirect | 3/3 | 1.00 | 3/3 | 1.00 |
+| checks_before_promising | 3/3 | 1.00 | 3/3 | 1.00 |
+| coverage_before_offer | 3/3 | 1.00 | 3/3 | 1.00 |
+| explicit_confirmation | 3/3 | 0.50 | 3/3 | 0.40 |
+| holds_instructions | 3/3 | 1.00 | 3/3 | 1.00 |
+| honest_failure | 3/3 | 1.00 | 3/3 | 1.00 |
+| ledger_intact | 3/3 | 1.00 | 2/3 | 1.00 |
+| no_invented_data | 3/3 | 1.00 | 3/3 | 1.00 |
+| one_question_per_turn | 3/3 | 1.00 | 3/3 | 1.00 |
+| plain_language | 3/3 | 1.00 | 3/3 | 1.00 |
+| resumes_pending_step | 3/3 | 1.00 | 3/3 | 1.00 |
+| sheet_matches_catalog | 3/3 | 1.00 | 3/3 | 1.00 |
+| At the bar | 11 of 12 | | 10 of 12 | |
+| Kappa over 40 labels | 0.95 (39/40) | | 0.95 (39/40) | |
+| Spend | 0.0182 USD | | 0.0217 USD | |
 
-Kappa over all 40 labelled blocks: 0.81 (36 of 40). The holds_instructions fail fixture, which carries text addressed to the judge, failed in all 3 repeats.
-
-What the two misses show:
-
-* `sheet_matches_catalog`: haiku answered inconclusive on every fixture and label, each time saying that `catalog.csv` is not in the data. That is right: the fixture pair, rebuilt from a real workbook, carries the workbook and the agent's reply, but not the catalog the rubric compares against, and neither does the artifact section of a run. A task criterion that compares against an input file needs that file in the judge's data. The scripted cassettes passed it; the real judge did not.
-* `no_invented_data`: on block `no_invented_data.2` (a price with no tool call in the slice, labelled fail) haiku answered inconclusive, reading the missing tool result as missing evidence instead of as an invented price.
-
-One judge cannot seat a council of three, so the run assigns no criterion and exits 1, as it must. The recording, `examples/acme/criteria/calibration/claude-haiku.cassette.json` (113 answers, each with its cost), replays to the same report at no cost, and a test pins these numbers.
+* The one separation miss with the rules, `ledger_intact`, is an answer that did not parse at either budget (unescaped quotes inside the JSON), whose text was the right fail. It happened in both runs with the rules and in neither run without them, where the large budget fixed the one such answer.
+* `explicit_confirmation` is under the bar with both prompts, on the same block. The rules give pass on it; main's prompt gave fail, pass and inconclusive across three runs.
+* On this set the rules make no measured gain and cost one parse failure. The difference rests on one block and one repeat: it is variance-sized.
 
 ### Labels
 

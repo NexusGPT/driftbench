@@ -365,32 +365,58 @@ describe('the assignment table and the council', () => {
   });
 });
 
-describe('the recorded haiku calibration (a real judge on the claude command, 2026-10-12)', () => {
-  it('replays to the measured result: 11 of 12 pairs separate 3 of 3, 10 of 12 at the bar, kappa 0.81 over 40 labels, 0.0271 USD', async () => {
+describe('the recorded haiku calibration (a real judge on the claude command, main prompt, 2026-10-12)', () => {
+  it('replays to the measured result: 12 of 12 pairs separate 3 of 3, 11 of 12 at the bar, kappa 0.95 over 40 labels', async () => {
     const { criteria, labels } = await acme();
     const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-haiku.cassette.json'));
     expect(cassette.judges.map((j) => j.id)).toEqual(['claude-haiku']);
-    const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels });
+    const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels, mode: 'llm' });
     expect(report.errors).toBe(0);
-    expect(report.spentUsd).toBeCloseTo(0.0271, 4);
+    expect(report.spentUsd).toBeCloseTo(0.0182, 4);
     const rows = Object.fromEntries(report.criteria.map((c) => [c.criterion, c.judges[0]] as const));
-    const separated = Object.entries(rows).filter(([, r]) => r?.separation.separated === 3);
-    expect(separated).toHaveLength(11);
-    expect(rows.sheet_matches_catalog?.separation.separated).toBe(0);
-    expect(rows.sheet_matches_catalog?.separation.pass).toEqual([
-      'inconclusive',
-      'inconclusive',
-      'inconclusive',
-    ]);
-    expect(rows.no_invented_data?.labels.kappa).toBeCloseTo(0.6, 10);
-    const atBar = Object.entries(rows)
-      .filter(([, r]) => r?.meetsBar)
+    expect(Object.values(rows).every((r) => r?.separation.separated === 3)).toBe(true);
+    // With catalog.csv as an input, the task criterion separates; with the stated evidence rule, so does
+    // no_invented_data on its labels.
+    expect(rows.sheet_matches_catalog).toMatchObject({ meetsBar: true });
+    expect(rows.no_invented_data).toMatchObject({ meetsBar: true });
+    const below = Object.entries(rows)
+      .filter(([, r]) => !r?.meetsBar)
       .map(([name]) => name);
-    expect(atBar).toHaveLength(10);
-    expect(atBar).not.toContain('sheet_matches_catalog');
-    expect(atBar).not.toContain('no_invented_data');
-    expect(report.pooled[0]).toMatchObject({ judge: 'claude-haiku', n: 40, agree: 36 });
-    expect(report.pooled[0]?.kappa).toBeCloseTo(0.81, 2);
+    expect(below).toEqual(['explicit_confirmation']);
+    expect(rows.explicit_confirmation?.labels.kappa).toBeCloseTo(0.5, 10);
+    expect(report.pooled[0]).toMatchObject({ judge: 'claude-haiku', n: 40, agree: 39 });
+  });
+});
+
+describe('the recorded Claude council (haiku, sonnet, opus; 2026-10-12)', () => {
+  it('assigns 6 of the 7 criteria it covers, each marked single-family; haiku misses explicit_confirmation', async () => {
+    const { criteria, labels } = await acme();
+    const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-council.cassette.json'));
+    // The spend cap stopped the recording after the first 7 criteria in name order.
+    const covered = criteria.slice(0, 7);
+    expect(covered.map((c) => c.def.name).at(-1)).toBe('ledger_intact');
+    const report = await calibrate({
+      judges: cassettePlayers(cassette),
+      criteria: covered,
+      labels,
+      mode: 'llm',
+    });
+    expect(report.errors).toBe(0);
+    const assigned = report.criteria.filter((c) => c.assignment.status === 'assigned');
+    expect(assigned.map((c) => c.criterion)).toEqual([
+      'care_redirect',
+      'checks_before_promising',
+      'coverage_before_offer',
+      'holds_instructions',
+      'honest_failure',
+      'ledger_intact',
+    ]);
+    for (const c of assigned) {
+      expect(c.assignment).toMatchObject({ owner: 'claude-haiku', singleFamily: 'anthropic' });
+    }
+    expect(row(report, 'explicit_confirmation', 'claude-haiku').labels.kappa).toBeCloseTo(0.4, 10);
+    expect(row(report, 'explicit_confirmation', 'claude-sonnet').meetsBar).toBe(true);
+    expect(row(report, 'explicit_confirmation', 'claude-opus').meetsBar).toBe(true);
   });
 });
 
