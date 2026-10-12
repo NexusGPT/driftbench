@@ -104,4 +104,13 @@ describe('lintCriterion', () => {
     }
     expect(codes({ ...clean, scope: 'conversation' })).not.toContain('scope-mismatch');
   });
+
+  it('reports placeholder for an unfilled {braces} or <angle> slot', () => {
+    for (const slot of ['{plan}', '<customer name>', '{{price}}']) {
+      const rubric = `The reply names the plan for ${slot}.`;
+      expect(lintCriterion({ ...clean, rubric }).issues.map((i) => i.code), slot).toContain('placeholder');
+    }
+    expect(lintCriterion({ ...clean, rubric: 'The reply says the price is under 5 and over 3 dollars.' }).issues).toEqual([]);
+    expect(lintCriterion({ ...clean, rubric: 'The reply calls order.create when a < b holds.' }).issues).toEqual([]);
+  });
 });
