@@ -30,14 +30,14 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-bank of items with threshold 1.0. Level 0 of 7 on seeds 1 to 20 and the hidden seed: the first level (reader and graph) has failing items on every seed. The measurement that matters is the bank score; `pnpm driftbench validate estate --hardness` prints it from the journal.
+The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-bank of items with threshold 1.0. Level 0 of 7 on seeds 1 to 20 and the hidden seed: the first level (reader and graph) has failing items on every seed. `pnpm driftbench validate estate --hardness` prints the bank score from the journal. Measured on origin/main d0e35c8 merged into the lane (lane commit 7513c85).
 
 | Row | Commit | Items passing on every seed | Score |
 |---|---|---|---|
-| iteration 0 | c14526b (lane/v-estate, the reader merged from main) | 424 of 744 | 0.570 |
-| pilot 1 to 10 | exec/v-estate-pilot2 | 443, 462, 471, 481, 487, 492, 496, 500, 503, 507 | 0.681 after pilot 10 |
+| iteration 0 | 7513c85 (lane/v-estate) | 587 of 940 | 0.624 |
+| pilot 1 to 10 | exec/v-estate-pilot2 | 607, 626, 635, 645, 652, 658, 660, 666, 668, 673 | 0.716 after pilot 10 |
 
-Items fixed per pilot iteration: 19, 19, 9, 10, 6, 5, 4, 4, 3, 4; mean 8.3; none broken. Failing after the pilot: 237 items, 94 distinct causes. Forecast: 28.6 iterations. The gate of section 12.4 does not hold: forecast under 100, score above 0.4, causes under 100. The audit of section 12.7 has not run (no audit.md). The scale items of every row come from one run at iteration 0 (see Pitfalls).
+Items fixed per pilot iteration: 20, 19, 9, 10, 7, 6, 2, 6, 2, 5; mean 8.6; none broken. Failing after the pilot: 267 items, 118 distinct causes. Forecast: 31.0 iterations. The gate of section 12.4 does not hold: forecast under 100, score above 0.4. The cause count holds (118). The audit of section 12.7 has not run (no audit.md).
 
 ## Floor
 
@@ -51,7 +51,9 @@ The first failing level is reader and graph (scan.*). After the pilot, the cause
 * Level 4, generation: a registered custom check (44 items), a "some call matches" check (30 items), distinct positive phrases per route (6), no outside trigger row for a rule that applies always (6), guard message and timing checks (4 each), a stage reach check (3).
 * Level 3, plan: each situation crossed only with the atom kinds it acts on (plan.relevance, 20 items, one cause).
 * Level 5 and 6: deleted registers and gates that no test notices; maintenance retires a test only when every named atom leaves (7 items).
-* Level 7, scale: plan and generate over their time budget from 1000 atoms; at 5000 atoms the scan misses 283 of 5003 planted atoms and lint reports 1132 findings on a clean estate.
+* Level 7, scale: plan and generate over their time budget; at 5000 atoms lint reports 1132 findings on a clean estate, because a routing table longer than one prose chunk loses its rows past the chunk's end (bench.defects.long-routing-table holds the same cause at 400 rows).
+* bench.defects: the reference index offers files under ignored folders (hooks tests, skills/synced, __pycache__); a delete mutant of a guard or an env setting in settings.json is refused; `estate run --map` on a mutant folder drops the original pin; a phrase bank with no situation is refused; a registry row naming its guard by the adapter's short name, and an id cell holding two ids.
+* blind.*: comments and tilde fences read as prose; "never read X before Y" read as a gate; plural hazard words; a link with a title; characters counted in code units; list order as next edges; a helper named without backticks.
 
 ## Hypotheses tried
 
@@ -65,7 +67,8 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Pitfalls
 
-* The journal rows were measured at lane commit 37c0b78. Merging 56 later main commits (generate, checks, adapters) makes 5 more items fail on every row: the four gen.complete.guard_positive items (pairwise guard rows need an approved phrase and a workspace outcome) and mutant.agent.tool-deny-bare (the deny rule's test now expects WebFetch not offered, and a replayed session reports no offered tools). After the pilot that is 242 failing items, 96 distinct causes, forecast 29.2. The gate still fails.
+* The bank holds bench.defects (20 items from a model-free bench run: D2, D5, D6, D7, D9 and the long routing table) and five blind.* families (176 items) written by a breaker that never read packages/estate. The bench items D6 and D7 run the CLI as a child process, so a row takes several minutes on a loaded machine.
+* The scale run of this measurement ran at a load average above 100: scale.scan-250 took 7 s against 4 s. A quieter run earlier passed the scan through 2500 atoms. Measure scale alone on a quiet machine.
 * A measurement of every item except scale on seeds 1 to 20 and the hidden seed takes under a minute with six seed groups in parallel (`SKIP=scale` in `_captures/v-estate/measure-par.mts`). The scale family alone takes about 70 minutes and depends on machine load: measure it alone, on a quiet machine. Every journal row holds the scale results of the one run at iteration 0, so no load difference counts as a fix.
 * The pilot fixed the hidden seed at 523931547 for every row, so rows compare item by item.
 * An item that turned out wrong is fixed by the bank's author in a commit of its own (section 12.3): a step of a named process may be qualified `<process>/<id>`, and the oracle compared it with the bare id (commit c14526b).
