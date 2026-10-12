@@ -108,3 +108,57 @@ describe('driftbench queue', () => {
     expect(again.out).toContain('Queued 0 items');
   });
 });
+
+describe('driftbench queue votes and agreement', () => {
+  it('records a second reviewer vote on an item, and prints the agreement between the two reviewers', async () => {
+    const queue = await readQueue(join(dir, 'labels'));
+    const item = queue.entries[0];
+    if (!item) throw new Error('the queue is empty');
+    const ana = await run([
+      'queue',
+      'vote',
+      item.id,
+      '--criterion',
+      item.criterion,
+      '--reviewer',
+      'Ana',
+      '--label',
+      'pass',
+      '--labels',
+      'labels',
+    ]);
+    expect(ana.code).toBe(0);
+    const ben = await run([
+      'queue',
+      'vote',
+      item.id,
+      '--criterion',
+      item.criterion,
+      '--reviewer',
+      'Ben',
+      '--label',
+      'fail',
+      '--labels',
+      'labels',
+    ]);
+    expect(ben.code).toBe(0);
+    const again = await run([
+      'queue',
+      'vote',
+      item.id,
+      '--criterion',
+      item.criterion,
+      '--reviewer',
+      'Ben',
+      '--label',
+      'pass',
+      '--labels',
+      'labels',
+    ]);
+    expect(again.code).toBe(2);
+    expect(again.err).toContain('already voted');
+    const agreement = await run(['queue', 'agreement', '--labels', 'labels']);
+    expect(agreement.code).toBe(0);
+    expect(agreement.out).toContain('Agreement over 1 item with two votes: 0 agree (0%)');
+  });
+});

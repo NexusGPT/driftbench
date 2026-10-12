@@ -117,6 +117,9 @@ export {
   SYSTEM_PROMPT,
 } from './prompt';
 export {
+  type Agreement,
+  addVote,
+  agreementOf,
   assign,
   completeItem,
   emptyQueue,

@@ -45,6 +45,8 @@ driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> --
 
 `queue create` queues each block of the campaign once per criterion of its spec, skipping blocks already labelled. The viewer's `/queue` page lists the items. "Take" assigns an item to the viewer's reviewer, "Label it" opens its block, and saving the label there marks the item done. Another reviewer cannot take or label an item held by someone else. A label written from the queue is the same label file `judge calibrate` reads.
 
+A second reviewer records a view of a block with `driftbench queue vote`, which does not write the labels file. `driftbench queue agreement` then prints, over the items with two votes, how many agree and Cohen's kappa between the first two reviewers. Keyboard review is not built: the viewer pages carry no script.
+
 ## Labelling a block
 
 The form under a block offers the judged criteria of its spec, and any judged criterion that voted on the block. Pick one, choose pass or fail, write why, and save. The page comes back on the same block with "Label saved". The label shows under the block, and the labelling section counts the labels per criterion.
