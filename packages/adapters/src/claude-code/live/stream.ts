@@ -107,10 +107,20 @@ function resultOf(record: Record<string, unknown>): StreamResult {
 const OVERLOADED = /overloaded|\b529\b|rate[ _-]?limit|\b429\b/i;
 
 /**
- * True when a run ended on the provider's overload or rate limit rather than on the agent: the result
- * record is an error whose text names it, or the run failed with no result and its error output names it.
+ * True when a run ended on the provider's overload or rate limit, or on an API it could not reach, rather
+ * than on the agent: the result record is an error whose text names it, or its text is an `API Error:` that
+ * names one, or the run failed with no result and its error output names it.
  */
+const UNREACHABLE =
+  /can't reach the API|ENOTFOUND|ECONNRESET|ECONNREFUSED|ETIMEDOUT|fetch failed|connection error/i;
+
 export function isOverloaded(parsed: ParsedStream, exitCode: number, stderr: string): boolean {
+  // An API the runtime could not reach ends the run with subtype success and the error as the text (seen on
+  // the Cue bench in a network outage): the turn never reached the agent.
+  const text = parsed.result?.text ?? '';
+  if (/^API Error:/.test(text) && (UNREACHABLE.test(text) || OVERLOADED.test(text))) return true;
+  // A subscription limit ends the run the same way: the notice is the text (seen on the Cue bench).
+  if (/^you've hit your (session|usage|weekly|daily) limit/i.test(text)) return true;
   if (parsed.result?.isError)
     return OVERLOADED.test(`${parsed.result.text ?? ''} ${parsed.result.subtype ?? ''}`);
   if (parsed.result === undefined && exitCode !== 0) return OVERLOADED.test(stderr);
@@ -203,12 +213,13 @@ export type HookRow = { at: string; event: string; check: string; verdict: strin
  *   gives a row; the verdict is the `permissionDecision` or `decision` a JSON stdout names, else deny for
  *   exit code 2, allow for 0 and error otherwise;
  * - a `permission_denied` system record gives `permission:<tool>` with verdict deny.
- * The record names no command, so the row is named by the script of the one hook the estate's settings put
- * under that event and matcher (`block-force-push.sh`), and by `<event>:<matcher>` when the settings hold
- * none or several. Hook records carry no time; every row takes the turn's start, so it falls in the turn.
+ * The record names no command, so the row is named by the script of the hook the estate's settings put under
+ * that event and matcher (`block-force-push.sh`); several commands under one matcher name the responses in
+ * turn; `<event>:<matcher>` names it when the settings hold none. Hook records carry no time; every row takes the turn's start, so it falls in the turn.
  */
 export function hookDecisions(parsed: ParsedStream, settings: unknown, at: string): HookRow[] {
   const rows: HookRow[] = [];
+  const seen = new Map<string, number>();
   for (const entry of parsed.lines) {
     if (!entry.ok || !isRecord(entry.value)) continue;
     const record = entry.value;
@@ -223,7 +234,14 @@ export function hookDecisions(parsed: ParsedStream, settings: unknown, at: strin
     const name = stringField(record, 'hook_name') ?? stringField(record, 'hook_event') ?? 'hook';
     const event = stringField(record, 'hook_event') ?? name.split(':')[0] ?? name;
     const matcher = name.includes(':') ? name.slice(name.indexOf(':') + 1) : undefined;
-    rows.push({ at, event, check: scriptOf(settings, event, matcher) ?? name, verdict: verdictOf(record) });
+    const scripts = scriptsOf(settings, event, matcher);
+    // A matcher holding several commands: the responses take the commands in turn. Each command of the group
+    // runs once per event, so the counts per command hold; which verdict belongs to which command is as good
+    // as the order the responses arrive in.
+    const turn = seen.get(name) ?? 0;
+    seen.set(name, turn + 1);
+    const check = scripts.length === 0 ? name : (scripts[turn % scripts.length] ?? name);
+    rows.push({ at, event, check, verdict: verdictOf(record) });
   }
   return rows;
 }
@@ -263,11 +281,11 @@ function matches(own: string | undefined, suffix: string | undefined): boolean {
   }
 }
 
-/** The script name of the one command hook the settings put under the event and matcher. */
-function scriptOf(settings: unknown, event: string, matcher: string | undefined): string | undefined {
+/** The script names of the command hooks the settings put under the event and matcher, in order. */
+function scriptsOf(settings: unknown, event: string, matcher: string | undefined): string[] {
   const hooks = isRecord(settings) && isRecord(settings.hooks) ? settings.hooks : undefined;
   const groups = hooks?.[event];
-  if (!Array.isArray(groups)) return undefined;
+  if (!Array.isArray(groups)) return [];
   const commands: string[] = [];
   for (const group of groups) {
     if (!isRecord(group)) continue;
@@ -277,8 +295,9 @@ function scriptOf(settings: unknown, event: string, matcher: string | undefined)
       if (isRecord(hook) && typeof hook.command === 'string') commands.push(hook.command);
     }
   }
-  if (commands.length !== 1) return undefined;
-  const words = (commands[0] ?? '').split(/\s+/).map((word) => word.replace(/["']/g, ''));
-  const script = [...words].reverse().find((word) => /\.[A-Za-z0-9]+$/.test(word)) ?? words.at(-1);
-  return script?.split('/').at(-1);
+  return commands.map((command) => {
+    const words = command.split(/\s+/).map((word) => word.replace(/["']/g, ''));
+    const script = [...words].reverse().find((word) => /\.[A-Za-z0-9]+$/.test(word)) ?? words.at(-1);
+    return script?.split('/').at(-1) ?? command;
+  });
 }

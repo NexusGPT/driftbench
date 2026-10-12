@@ -139,7 +139,14 @@ log({
 const base = Date.now();
 let tick = 0;
 const stamp = () => new Date(base + 10 * tick++).toISOString();
-const fill = (text) => text.split('{{cwd}}').join(cwd).split('{{session_id}}').join(sessionId);
+const fill = (text) =>
+  text
+    .split('{{cwd}}')
+    .join(cwd)
+    .split('{{session_id}}')
+    .join(sessionId)
+    .split('{{home}}')
+    .join(env.HOME ?? '');
 
 print({
   type: 'system',
@@ -184,6 +191,34 @@ for (const line of lines) {
   if (record.fake === 'move') {
     mkdirSync(dirname(join(cwd, record.to)), { recursive: true });
     renameSync(join(cwd, record.from), join(cwd, record.to));
+    continue;
+  }
+  if (record.fake === 'write_abs') {
+    // A write outside the project, as the runtime's Write tool would make it; its result is what happened.
+    let result;
+    try {
+      writeFileSync(record.path, record.content);
+      result = {
+        type: 'tool_result',
+        tool_use_id: record.tool_use_id,
+        content: `File written: ${record.path}`,
+      };
+    } catch (error) {
+      result = {
+        type: 'tool_result',
+        tool_use_id: record.tool_use_id,
+        is_error: true,
+        content: `${error.code}: ${error.message}`,
+      };
+    }
+    const out = {
+      type: 'user',
+      message: { role: 'user', content: [result] },
+      parent_tool_use_id: null,
+      session_id: sessionId,
+      timestamp: stamp(),
+    };
+    print(out);
     continue;
   }
   if (record.fake === 'edit') {
