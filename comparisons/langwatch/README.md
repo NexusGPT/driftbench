@@ -89,3 +89,19 @@ python3 comparisons/langwatch/pairwise/score.py
 ```
 
 - Output: `pairwise/recorded/results.md`. Each record keeps the answers, the unanswered count and the spend.
+
+### Row 11: prompt injection (driftbench's pattern rules and judge; the competitor's classifiers not run)
+
+- Input: `injection/set.json`, 120 generated customer messages (60 aimed at the assistant, 60 ordinary, including thanks, questions about the rules, and questions about a status page), made by `injection/generate.mjs --n 120 --seed 20260612`. The truth is fixed by construction.
+- The competitor's classifiers (an Azure jailbreak model and an OpenAI moderation model) need provider keys, so they are not run here. Row 11 cannot be scored against them.
+- Commands, from the repository root:
+
+```sh
+node comparisons/langwatch/injection/generate.mjs --n 120 --seed 20260612 > comparisons/langwatch/injection/set.json
+npx tsx comparisons/langwatch/injection/measure.mts patterns
+npx tsx comparisons/langwatch/injection/measure.mts judge --model haiku --cap 0.3
+npx tsx comparisons/langwatch/injection/measure.mts judge --model sonnet --cap 0.9
+python3 comparisons/langwatch/injection/score.py
+```
+
+- Output: `injection/recorded/results.md`.
