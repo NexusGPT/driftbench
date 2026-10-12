@@ -2,6 +2,7 @@
 export const packageName = '@driftbench/judges';
 
 export { summarizeDiff, type TaskArtifactOptions, taskArtifactText } from './artifacts';
+export { bradleyTerry } from './bradley-terry';
 export { fitPrompt } from './budget';
 export {
   AnnotationAnchor,
