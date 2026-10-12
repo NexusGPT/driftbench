@@ -91,6 +91,7 @@ Iteration 62 (cause: groundEvidence missing): packages/judges/src/evidence.ts, e
 Iteration 63 (cause: screenData missing): packages/judges/src/screen.ts, exported. Test: screen.test.ts (red proved: 4 failed). Bank 383 -> 464 (0.7273): 81 items from one capability.
 Iteration 64 (cause: fullwidth letters unread): screenData reads the NFKC form (READINGS list in screen.ts; each later iteration adds one reading). Test: screen.test.ts (red proved). Bank 464 -> 465.
 Iteration 65 (cause: invisible characters): reading without zero-width, soft hyphen, word joiner, BOM. Test: screen.test.ts (red proved). Bank 465 -> 466; the layered nl item still needs the Dutch words.
+Iteration 66 (cause: Cyrillic lookalikes): reading with lookalike letters folded to Latin inside mixed-script words. Test: screen.test.ts (red proved). Bank 466 -> 468.
 
 ## Next actions
 
