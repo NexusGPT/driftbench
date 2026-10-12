@@ -37,6 +37,13 @@ const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
 const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?;])\s+|[\r\n\u2028\u2029]+/);
 const instructs = (sentence: string): boolean => JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence));
 
+/** The letters a-z moved `by` places along the alphabet, case kept; other characters stay. */
+const shift = (text: string, by: number): string =>
+  text.replace(/[a-z]/gi, (ch) => {
+    const base = ch <= 'Z' ? 65 : 97;
+    return String.fromCharCode(((ch.charCodeAt(0) - base + by) % 26) + base);
+  });
+
 const LEET: Readonly<Record<string, string>> = { '4': 'a', '3': 'e', '1': 'i', '0': 'o', '5': 's', '7': 't' };
 
 const LOOKALIKES: Readonly<Record<string, string>> = Object.fromEntries(
@@ -82,6 +89,8 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
   },
   // The text read backwards, line by line is not needed: instructions are written on one line.
   (text) => [...text].reverse().join(''),
+  // ROT13: each letter moved 13 places along the alphabet.
+  (text) => shift(text, 13),
   // Compatibility forms: fullwidth letters and the like read as plain letters.
   (text) => {
     const folded = text.normalize('NFKC');
