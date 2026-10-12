@@ -4,13 +4,14 @@
 id: gen-cover-012
 version: b583de68c530
 kind: conversation
-title: "Cell deviation=D9_out_of_scope, stage=port_number: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D9_out_of_scope at port_number"
-channel: whatsapp
+title: "Cell behaviour=B-012, stage=needs: Path upgrade-most-data of upgrade: needs > identify > closing, D1_off_topic at needs"
 lang: EN
 tier: generated
 tags:
-  - flow:porting
-  - persona:new-customer
+  - flow:upgrade
+  - persona:existing-customer
+covers:
+  - B-012
 stages:
   - needs
   - identify
@@ -26,132 +27,63 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: flow.porting
-    rubric: A new customer switches to Acme and keeps their number
+  - name: behaviour.B-012
+    rubric: Send billing and service matters to Acme Care, never to sales
     gating: false
     scope: conversation
-  - name: deviation.D9_out_of_scope
-    rubric: The agent routes it to the place that handles it and keeps it out of the current flow.
+  - name: flow.upgrade
+    rubric: An existing customer moves to a plan with more data
+    gating: false
+    scope: conversation
+  - name: deviation.D1_off_topic
+    rubric: A short answer, then the agent resumes its pending stage in the same block.
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-port_number
-    when:
-      user: I'd like to move to Acme and keep my phone number.
-    expect:
-      stage: port_number
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-      criteria:
-        - flow.porting
-  - id: b2-D9_out_of_scope
+  - id: b1-D1_off_topic
     when:
       injection:
-        class: D9_out_of_scope
-        user: My last bill charged me twice, can you fix it?
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
     expect:
-      stage: port_number
+      stage: needs
       tools:
-        - label: port.check
-          count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
-          count: 0
       must:
-        - Acme Care
+        - Monday to Saturday
       lang: EN
       criteria:
-        - deviation.D9_out_of_scope
-  - id: b3-port_number-to-offer
+        - behaviour.B-012
+        - flow.upgrade
+        - deviation.D1_off_topic
+  - id: b2-needs-to-identify
     when:
-      user: My number is +1 202 555 0165.
+      user: Hi, I already have an Acme plan and I need more data.
     expect:
-      stage: offer
+      stage: identify
       tools:
-        - label: port.check
-          count: 1
-          input:
-            number: "+12025550165"
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b3-identify-to-closing
+    when:
+      user: It's morgan.diaz@example.com.
+    expect:
+      stage: closing
+      tools:
         - label: catalog.search
           count: 1
           input:
             category: mobile
-        - label: order.create
-          count: 0
-      must:
-        - Acme Mobile S, 10 GB for \$15 a month
-        - Acme Mobile M, 40 GB for \$25 a month
-        - Acme Mobile L, unlimited data for \$35 a month
-      lang: EN
-  - id: b4-offer-to-details
-    when:
-      user: Acme Mobile M, please.
-    expect:
-      stage: details
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b5-details-to-recap
-    when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
-    expect:
-      stage: recap
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b6-recap-to-order_placed
-    when:
-      user: CONFIRM
-    expect:
-      stage: order_placed
-      tools:
-        - label: order.create
-          count: 1
-          input:
-            type: new
-            plan_id: mobile-m
-            port_number: "+12025550165"
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
+            customer_email: morgan.diaz@example.com
       lang: EN
 rules:
   forbidden_tools:
     - coverage.check
+    - port.check
+    - order.create
     - notify_sales
-end_state:
-  source: tool:order.create
-  mode: subset
-  expect:
-    type: new
-    plan_id: mobile-m
-    port_number: "+12025550165"
-    customer:
-      subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
 metadata:
   generated:
     by: driftbench generate
@@ -163,71 +95,38 @@ metadata:
       agent: acme
       version: "1"
       hash: b583de68c530
-    path: porting-keep-number
+    path: upgrade-most-data
     cell:
-      flow: porting
-      user_type: new-customer
-      port_result: can-move
-      plan_choice: names-one
-      customer_details: name-and-email
-      channel: whatsapp
-      coverage_result: none
+      behaviour: B-012
+      flow: upgrade
+      user_type: existing-customer
+      account_lookup: most-data
     blocks:
-      - block: b1-needs-to-port_number
+      - block: b1-D1_off_topic
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-port_number
-          stage: port_number
-        phrase:
-          dimension: stage_transition
-          value: needs-to-port_number
-      - block: b2-D9_out_of_scope
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: port_number
+          deviation: D1_off_topic
+          stage: needs
         phrase:
           dimension: deviation
-          value: D9_out_of_scope
-      - block: b3-port_number-to-offer
+          value: D1_off_topic
+      - block: b2-needs-to-identify
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: port_number-to-offer
-          port_result: can-move
-          stage: offer
+          stage_transition: needs-to-identify
+          stage: identify
         phrase:
           dimension: stage_transition
-          value: port_number-to-offer
-      - block: b4-offer-to-details
+          value: needs-to-identify
+      - block: b3-identify-to-closing
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
+          stage_transition: identify-to-closing
+          account_lookup: most-data
+          stage: closing
         phrase:
           dimension: stage_transition
-          value: offer-to-details
-      - block: b5-details-to-recap
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b6-recap-to-order_placed
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: recap-to-order_placed
-          port_result: can-move
-          customer_details: name-and-email
-          stage: order_placed
-        phrase:
-          dimension: stage_transition
-          value: recap-to-order_placed
+          value: identify-to-closing

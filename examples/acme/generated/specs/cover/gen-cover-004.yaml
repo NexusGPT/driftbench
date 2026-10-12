@@ -4,14 +4,15 @@
 id: gen-cover-004
 version: b583de68c530
 kind: conversation
-title: "Cell behaviour=B-010, stage=needs: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D1_off_topic at needs"
+title: "Cell behaviour=B-005, stage=needs: Path home-callback of new-home: needs > address > offer > callback > handover, D1_off_topic at needs"
 lang: EN
 tier: generated
 tags:
-  - flow:order
-  - data:fiber
+  - flow:new-home
+  - persona:new-customer
+  - data:5g-only
 covers:
-  - B-010
+  - B-005
 stages:
   - needs
   - identify
@@ -27,12 +28,12 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-010
-    rubric: Report a failed tool honestly, invent none of its answer, and offer a fallback
+  - name: behaviour.B-005
+    rubric: Book a sales callback with a phone number when the customer asks or a check cannot be done
     gating: false
     scope: conversation
-  - name: flow.order
-    rubric: Recap, explicit confirmation and order placement
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
   - name: deviation.D1_off_topic
@@ -52,18 +53,18 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
       must:
         - Monday to Saturday
       lang: EN
       criteria:
-        - behaviour.B-010
-        - flow.order
+        - behaviour.B-005
+        - flow.new-home
         - deviation.D1_off_topic
   - id: b2-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
@@ -71,73 +72,55 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
       lang: EN
   - id: b3-address-to-offer
     when:
-      user: The address is 14 Harbor Road, Acmeville.
+      user: The address is 88 Summit Avenue, Acmeville.
     expect:
       stage: offer
       tools:
         - label: coverage.check
           count: 1
           input:
-            address: 14 Harbor Road, Acmeville
+            address: 88 Summit Avenue, Acmeville
         - label: catalog.search
           count: 1
           input:
             category: home
-            address_id: addr-101
-        - label: order.create
+            address_id: addr-103
+        - label: notify_sales
           count: 0
       must:
-        - Acme Fiber 300, 300 Mbps for \$40 a month
-        - Acme Fiber 1000, 1000 Mbps for \$60 a month
         - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
-  - id: b4-offer-to-details
+  - id: b4-offer-to-callback
     when:
-      user: I'll take Acme Fiber 1000.
+      user: Can someone just call me back?
     expect:
-      stage: details
+      stage: callback
       tools:
         - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
-        - label: order.create
+        - label: notify_sales
           count: 0
       lang: EN
-  - id: b5-details-to-recap
+  - id: b5-callback-to-handover
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: You can reach me on +1 202 555 0131.
     expect:
-      stage: recap
+      stage: handover
       tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b6-recap-to-order_placed
-    when:
-      user: CONFIRM
-    expect:
-      stage: order_placed
-      tools:
-        - label: order.create
+        - label: notify_sales
           count: 1
           input:
-            type: new
-            plan_id: fiber-1000
-            address_id: addr-101
+            reason: callback
             customer:
               subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
+                phone: "+12025550131"
         - label: coverage.check
           count: 0
         - label: catalog.search
@@ -146,18 +129,15 @@ blocks:
 rules:
   forbidden_tools:
     - port.check
-    - notify_sales
+    - order.create
 end_state:
-  source: tool:order.create
+  source: tool:notify_sales
   mode: subset
   expect:
-    type: new
-    plan_id: fiber-1000
-    address_id: addr-101
+    reason: callback
     customer:
       subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
+        phone: "+12025550131"
 metadata:
   generated:
     by: driftbench generate
@@ -169,13 +149,14 @@ metadata:
       agent: acme
       version: "1"
       hash: b583de68c530
-    path: order-named-plan
+    path: home-callback
     cell:
-      behaviour: B-010
-      flow: order
-      coverage_result: fiber
-      plan_choice: names-one
-      customer_details: name-and-email
+      behaviour: B-005
+      flow: new-home
+      user_type: new-customer
+      coverage_result: 5g-only
+      plan_choice: asks-for-callback
+      callback_phone: given
     blocks:
       - block: b1-D1_off_topic
         seeder: cover
@@ -200,38 +181,29 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: address-to-offer
-          coverage_result: fiber
+          coverage_result: 5g-only
           stage: offer
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b4-offer-to-details
+      - block: b4-offer-to-callback
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
+          stage_transition: offer-to-callback
+          stage: callback
         phrase:
           dimension: stage_transition
-          value: offer-to-details
-      - block: b5-details-to-recap
+          value: offer-to-callback
+      - block: b5-callback-to-handover
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
+          stage_transition: callback-to-handover
+          callback_phone: given
+          coverage_result: 5g-only
+          plan_choice: asks-for-callback
+          stage: handover
         phrase:
           dimension: stage_transition
-          value: details-to-recap
-      - block: b6-recap-to-order_placed
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: recap-to-order_placed
-          coverage_result: fiber
-          customer_details: name-and-email
-          stage: order_placed
-        phrase:
-          dimension: stage_transition
-          value: recap-to-order_placed
+          value: callback-to-handover

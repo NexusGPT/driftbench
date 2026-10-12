@@ -16,9 +16,9 @@
     "max": null
   },
   "summary": {
-    "specs": 321,
-    "blocks": 1178,
-    "complete": 251,
+    "specs": 337,
+    "blocks": 1267,
+    "complete": 267,
     "incomplete": 70
   },
   "seeders": {
@@ -47,9 +47,9 @@
       "cut": false
     },
     "deviation": {
-      "specs": 10,
-      "blocks": 52,
-      "complete": 10,
+      "specs": 17,
+      "blocks": 90,
+      "complete": 17,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false
@@ -71,9 +71,9 @@
       "cut": false
     },
     "cover": {
-      "specs": 13,
-      "blocks": 71,
-      "complete": 13,
+      "specs": 22,
+      "blocks": 122,
+      "complete": 22,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false
@@ -101,7 +101,11 @@
     "rows": 132,
     "allowed": 314,
     "covered": 314,
-    "share": 1
+    "share": 1,
+    "unreachable": [
+      "behaviour=B-013 & deviation=D6_instruction_in_data",
+      "behaviour=B-014 & deviation=D6_instruction_in_data"
+    ]
   },
   "boundary": {
     "values": 80,
@@ -113,62 +117,62 @@
     "probes": [
       {
         "class": "D1_off_topic",
-        "stage": "needs",
+        "stage": "address",
         "spec": "gen-deviation-001",
         "phrase": true
       },
       {
         "class": "D2_goal_shift",
         "stage": "recap",
-        "spec": "gen-deviation-002",
+        "spec": "gen-deviation-003",
         "phrase": true
       },
       {
         "class": "D3_contradiction",
         "stage": "offer",
-        "spec": "gen-deviation-003",
+        "spec": "gen-deviation-004",
         "phrase": true
       },
       {
         "class": "D4_loose_confirmation",
         "stage": "recap",
-        "spec": "gen-deviation-004",
-        "phrase": true
-      },
-      {
-        "class": "D5_language_switch",
-        "stage": "closing",
         "spec": "gen-deviation-005",
         "phrase": true
       },
       {
-        "class": "D6_instruction_in_data",
+        "class": "D5_language_switch",
         "stage": "callback",
         "spec": "gen-deviation-006",
         "phrase": true
       },
       {
-        "class": "D8_tool_failure",
-        "stage": "recap",
-        "spec": "gen-deviation-007",
-        "phrase": false
-      },
-      {
-        "class": "D10_return",
+        "class": "D6_instruction_in_data",
         "stage": "address",
         "spec": "gen-deviation-008",
         "phrase": true
       },
       {
+        "class": "D8_tool_failure",
+        "stage": "address",
+        "spec": "gen-deviation-010",
+        "phrase": false
+      },
+      {
+        "class": "D10_return",
+        "stage": "address",
+        "spec": "gen-deviation-012",
+        "phrase": true
+      },
+      {
         "class": "D7_silence_or_burst",
         "stage": "order_placed",
-        "spec": "gen-deviation-009",
+        "spec": "gen-deviation-014",
         "phrase": true
       },
       {
         "class": "D9_out_of_scope",
-        "stage": "identify",
-        "spec": "gen-deviation-010",
+        "stage": "offer",
+        "spec": "gen-deviation-016",
         "phrase": true
       }
     ]
@@ -200,8 +204,8 @@
     ]
   },
   "cover": {
-    "cells": 13,
-    "covered": 13,
+    "cells": 23,
+    "covered": 23,
     "unbuilt": [],
     "unreachable": [
       {
@@ -3897,14 +3901,14 @@
     "allowed": 637,
     "complete": {
       "t": 2,
-      "specs": 251,
+      "specs": 267,
       "allowed": 637,
       "covered": 637,
       "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 321,
+      "specs": 337,
       "allowed": 637,
       "covered": 637,
       "share": 1

@@ -4,14 +4,15 @@
 id: gen-cover-002
 version: b583de68c530
 kind: conversation
-title: "Cell behaviour=B-006, stage=needs: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D1_off_topic at needs"
+title: "Cell behaviour=B-003, stage=needs: Path home-address-not-found of new-home: needs > address > address, D1_off_topic at needs"
 lang: EN
 tier: generated
 tags:
-  - flow:porting
+  - flow:new-home
   - persona:new-customer
+  - data:not-in-map
 covers:
-  - B-006
+  - B-003
 stages:
   - needs
   - identify
@@ -27,12 +28,12 @@ stages:
   - build_sheet
   - add_summary
 criteria:
-  - name: behaviour.B-006
-    rubric: Check that a number can move to Acme before promising to keep it
+  - name: behaviour.B-003
+    rubric: Check coverage at the street address before offering home internet
     gating: false
     scope: conversation
-  - name: flow.porting
-    rubric: A new customer switches to Acme and keeps their number
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
     gating: false
     scope: conversation
   - name: deviation.D1_off_topic
@@ -48,115 +49,41 @@ blocks:
     expect:
       stage: needs
       tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
+        - label: coverage.check
           count: 0
       must:
         - Monday to Saturday
       lang: EN
       criteria:
-        - behaviour.B-006
-        - flow.porting
+        - behaviour.B-003
+        - flow.new-home
         - deviation.D1_off_topic
-  - id: b2-needs-to-port_number
+  - id: b2-needs-to-address
     when:
-      user: I'd like to move to Acme and keep my phone number.
+      user: Do you have home internet where I live?
     expect:
-      stage: port_number
+      stage: address
       tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
+        - label: coverage.check
           count: 0
       lang: EN
-  - id: b3-port_number-to-offer
+  - id: b3-address-to-address
     when:
-      user: My number is +1 202 555 0165.
+      user: The address is 21 Willow Court, Acmeville.
     expect:
-      stage: offer
+      stage: address
       tools:
-        - label: port.check
+        - label: coverage.check
           count: 1
           input:
-            number: "+12025550165"
-        - label: catalog.search
-          count: 1
-          input:
-            category: mobile
-        - label: order.create
-          count: 0
-      must:
-        - Acme Mobile S, 10 GB for \$15 a month
-        - Acme Mobile M, 40 GB for \$25 a month
-        - Acme Mobile L, unlimited data for \$35 a month
-      lang: EN
-  - id: b4-offer-to-details
-    when:
-      user: Acme Mobile M, please.
-    expect:
-      stage: details
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b5-details-to-recap
-    when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
-    expect:
-      stage: recap
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b6-recap-to-order_placed
-    when:
-      user: Confirm
-    expect:
-      stage: order_placed
-      tools:
-        - label: order.create
-          count: 1
-          input:
-            type: new
-            plan_id: mobile-m
-            port_number: "+12025550165"
-            customer:
-              subset:
-                name: Jo Okafor
-                email: jo.okafor@example.com
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
+            address: 21 Willow Court, Acmeville
       lang: EN
 rules:
   forbidden_tools:
-    - coverage.check
+    - catalog.search
+    - port.check
+    - order.create
     - notify_sales
-end_state:
-  source: tool:order.create
-  mode: subset
-  expect:
-    type: new
-    plan_id: mobile-m
-    port_number: "+12025550165"
-    customer:
-      subset:
-        name: Jo Okafor
-        email: jo.okafor@example.com
 metadata:
   generated:
     by: driftbench generate
@@ -168,14 +95,12 @@ metadata:
       agent: acme
       version: "1"
       hash: b583de68c530
-    path: porting-keep-number
+    path: home-address-not-found
     cell:
-      behaviour: B-006
-      flow: porting
+      behaviour: B-003
+      flow: new-home
       user_type: new-customer
-      port_result: can-move
-      plan_choice: names-one
-      customer_details: name-and-email
+      coverage_result: not-in-map
     blocks:
       - block: b1-D1_off_topic
         seeder: cover
@@ -186,52 +111,22 @@ metadata:
         phrase:
           dimension: deviation
           value: D1_off_topic
-      - block: b2-needs-to-port_number
+      - block: b2-needs-to-address
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-port_number
-          stage: port_number
+          stage_transition: needs-to-address
+          stage: address
         phrase:
           dimension: stage_transition
-          value: needs-to-port_number
-      - block: b3-port_number-to-offer
+          value: needs-to-address
+      - block: b3-address-to-address
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: port_number-to-offer
-          port_result: can-move
-          stage: offer
+          stage_transition: address-to-address
+          coverage_result: not-in-map
+          stage: address
         phrase:
           dimension: stage_transition
-          value: port_number-to-offer
-      - block: b4-offer-to-details
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: offer-to-details
-          stage: details
-        phrase:
-          dimension: stage_transition
-          value: offer-to-details
-      - block: b5-details-to-recap
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: details-to-recap
-          customer_details: name-and-email
-          stage: recap
-        phrase:
-          dimension: stage_transition
-          value: details-to-recap
-      - block: b6-recap-to-order_placed
-        seeder: cover
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: recap-to-order_placed
-          port_result: can-move
-          customer_details: name-and-email
-          stage: order_placed
-        phrase:
-          dimension: stage_transition
-          value: recap-to-order_placed
+          value: address-to-address

@@ -4,7 +4,8 @@
 id: gen-deviation-001
 version: b583de68c530
 kind: conversation
-title: "Deviation probe D1_off_topic: Path home-callback of new-home: needs > address > offer > callback > handover, D1_off_topic at needs"
+title: "Deviation probe D1_off_topic: Path home-callback of new-home: needs > address > offer > callback > handover, D1_off_topic at address"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -35,27 +36,7 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-D1_off_topic
-    when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: needs
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: notify_sales
-          count: 0
-      must:
-        - Monday to Saturday
-      lang: EN
-      criteria:
-        - flow.new-home
-        - deviation.D1_off_topic
-  - id: b2-needs-to-address
+  - id: b1-needs-to-address
     when:
       user: Hello, I'm looking for home internet.
     expect:
@@ -68,6 +49,27 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
+      criteria:
+        - flow.new-home
+  - id: b2-D1_off_topic
+    when:
+      injection:
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+      criteria:
+        - deviation.D1_off_topic
   - id: b3-address-to-offer
     when:
       user: The address is 14 Harbor Road, Acmeville.
@@ -151,17 +153,9 @@ metadata:
       coverage_result: fiber
       plan_choice: asks-for-callback
       callback_phone: given
+      channel: whatsapp
     blocks:
-      - block: b1-D1_off_topic
-        seeder: deviation
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: needs
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b2-needs-to-address
+      - block: b1-needs-to-address
         seeder: deviation
         cell:
           spec: metadata.generated.cell
@@ -170,6 +164,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
+      - block: b2-D1_off_topic
+        seeder: deviation
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: address
+        phrase:
+          dimension: deviation
+          value: D1_off_topic
       - block: b3-address-to-offer
         seeder: deviation
         cell:

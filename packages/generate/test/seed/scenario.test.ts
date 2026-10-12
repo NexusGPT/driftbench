@@ -660,11 +660,18 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
 });
 
 describe('pilot iteration 10: a deviation on the first turn', () => {
-  it('probes the start stage when the recovery keeps the conversation there', () => {
+  it('probes the start stage when the recovery keeps the conversation there and asks for a call', () => {
     const prepared = prepare((draft) => {
       draft.relations = [
         ...(draft.relations ?? []),
-        { kind: 'recovery', class: 'D5_language_switch', flows: ['balance'], stage_after: 'pending', ...by },
+        {
+          kind: 'recovery',
+          class: 'D5_language_switch',
+          flows: ['balance'],
+          stage_after: 'pending',
+          tools: [{ tool: 'lookup', count: 1 }],
+          ...by,
+        },
       ];
     });
     const built = buildScenario(prepared, rngFor(1, 't'), {

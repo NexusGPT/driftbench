@@ -4,7 +4,7 @@
 id: gen-twise-033
 version: b583de68c530
 kind: conversation
-title: "t-wise row 33 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D9_out_of_scope at offer"
+title: "t-wise row 33 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D9_out_of_scope at details"
 channel: chat
 lang: EN
 tier: generated
@@ -78,26 +78,7 @@ blocks:
       must:
         - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
-  - id: b3-D9_out_of_scope
-    when:
-      injection:
-        class: D9_out_of_scope
-        user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: offer
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-      criteria:
-        - deviation.D9_out_of_scope
-  - id: b4-offer-to-details
+  - id: b3-offer-to-details
     when:
       user: I'll take Acme Air 5G.
     expect:
@@ -110,6 +91,25 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b4-D9_out_of_scope
+    when:
+      injection:
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
+    expect:
+      stage: details
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Acme Care
+      lang: EN
+      criteria:
+        - deviation.D9_out_of_scope
   - id: b5-details-to-recap
     when:
       user: I'm Jo Okafor and my email is jo.okafor@example.com.
@@ -199,16 +199,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b3-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
-      - block: b4-offer-to-details
+      - block: b3-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -217,6 +208,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
+      - block: b4-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: details
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
       - block: b5-details-to-recap
         seeder: twise
         cell:
