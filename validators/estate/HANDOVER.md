@@ -35,6 +35,7 @@ The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-b
 | Row | Commit | Items passing on every seed | Score |
 |---|---|---|---|
 | iteration 0 | f1e6ec9 (lane/v-estate) | 737 of 1170 | 0.630 |
+| iteration 11 | exec/estate-v2 25bb3096 | 840 of 1170 | 0.718 |
 | pilot 1 to 10 | exec/v-estate-pilot2 | 756, 776, 785, 795, 803, 807, 811, 815, 818, 823 | 0.703 after pilot 10 |
 
 Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none broken. Failing after the pilot: 347 items, 145 distinct causes. Forecast: 40.3 iterations. GATE.md holds the honest numbers for the owner. validators/estate/NEEDS.md cites the need of every family; none is quarantined. GATE.md records the accepted estate bar (forecast at least 30, score at most 0.75, causes at least 100), which holds. The section 12.4 gate does not hold on the forecast and the score. No audit: the owner ended validator work.
@@ -69,9 +70,12 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
-1. Read a routing cell naming a skill or helper without backticks (code.ts routeAtoms): three scan.standing items.
-2. Read standing files in subfolders and the files a standing file imports (claude-code.ts walk and readImports).
-3. Fix the crash on an empty file: the invariant and skill atoms are anchored on the first non-empty line, and an empty file has none (scan/invariants.ts, claude-code.ts readSkill).
+Iteration 11 (exec/estate-v2): an empty file is noted and gives no atom (claude-code.ts read). Bank 840 of 1170, level 0 on every seed, 145 causes. Load on the dev machine made one sweep take over an hour; run sweeps one at a time.
+
+1. scan.hostile settings-bom: settings starting with a byte order mark are not read (claude-code.ts readSettings).
+2. scan.hostile hooks-wrong-shape and prompt-hook: hooks given as an object get a note; a prompt hook gives a guard atom.
+3. scan.hostile duplicate-names and helper-subfolder, tabs-in-frontmatter.
+Then the owner-flagged output items: lint codes, scan order, approve counts (122 vs 125 atoms), run and mutate not-built messages.
 
 ## Pitfalls
 
