@@ -123,6 +123,23 @@ describe('session states on the fake command', () => {
     expect(live(observed[0]).notes).toContain('compact: a compaction boundary and its summary were appended');
   });
 
+  it('marks a planted compaction in the trace, at the start of the turn, so a hazard check can read it', async () => {
+    // Seen on the Cue bench: the runtime does not stream a boundary it found in the file it resumed.
+    const { observed } = await run({ session_state: 'long', event: 'compaction_mid_task' });
+    const raw = observed[0]?.raw as { markers: Array<Record<string, unknown>> };
+    expect(raw.markers).toEqual([
+      expect.objectContaining({
+        kind: 'compaction',
+        afterToolCalls: 0,
+        planted: true,
+        trigger: 'auto',
+        preTokens: 150000,
+      }),
+    ]);
+    const fresh = await run({});
+    expect((fresh.observed[0]?.raw as { markers: unknown[] }).markers).toEqual([]);
+  });
+
   it('after restart: the session file is cut with a torn record and reopened', async () => {
     const { calls, observed } = await run({ session_state: 'after_restart' });
     expect(calls[0]?.torn).toBe(true);
