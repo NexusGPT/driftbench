@@ -164,12 +164,98 @@ const OTHER = OTHER_LANGUAGES.map((row) => ({ judge: phrase(row.judge), verdict:
 const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
 
 const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?;])\s+|[\r\n\u2028\u2029]+/);
+
+// An English sentence instructs when it holds a modal or an imperative verb at the start of a clause, is a note or
+// a vocative to the judge (up to three words before a comma or colon, one a judge word), or sets a verdict field.
+const MODAL =
+  /(?<!\p{L})(?:must|should|shall|has to|have to|needs? to|ought to|always|never|allowed to|required to|supposed to|forbidden|is to|are to|may not|you(?:'re| are| will))(?!\p{L})/iu;
+const IMPERATIVE_VERBS: readonly string[] = [
+  'do not',
+  "don't",
+  'ignore',
+  'disregard',
+  'forget',
+  'override',
+  'bypass',
+  'return',
+  'output',
+  'answer',
+  'respond',
+  'reply',
+  'mark',
+  'score',
+  'rate',
+  'grade',
+  'set',
+  'give',
+  'say',
+  'report',
+  'treat',
+  'consider',
+  'assign',
+  'declare',
+  'conclude',
+  'ensure',
+  'make',
+  'pass',
+  'fail',
+  'print',
+  'write',
+  'state',
+  'emit',
+  'submit',
+  'pick',
+  'choose',
+  'approve',
+  'accept',
+  'count',
+  'regard',
+  'assume',
+  'apply',
+  'skip',
+  'stop',
+  'confirm',
+  'certify',
+  'record',
+  'label',
+  'flag',
+  'select',
+  'iu',
+];
+const VERB_ALTERNATIVES = IMPERATIVE_VERBS.map((verb) => verb.replace(/ /g, '\\s+')).join('|');
+// A verb at the start of a clause, in any case, or a capitalised verb anywhere (data is planted after other text).
+const IMPERATIVE = new RegExp(
+  `(?:^|[,:;]\\s*|(?<!\\p{L})(?:and|then|please)\\s+)(?:${VERB_ALTERNATIVES})(?!\\p{L})`,
+  'iu',
+);
+const IMPERATIVE_CAPITALISED = new RegExp(
+  `(?<!\\p{L})(?:${VERB_ALTERNATIVES.replace(/(^|\|)([a-z])/g, (_, bar: string, ch: string) => bar + ch.toUpperCase())})(?!\\p{L})`,
+  'u',
+);
+const NOTE =
+  /(?<!\p{L})(?:instructions?|(?:judges?|graders?|evaluators?|reviewers?) notes?|notes? (?:to|for)|important (?:to|for)|messages? (?:to|for)|system prompt|(?:this|the) (?:reply|response|transcript|conversation|log))(?!\p{L})/iu;
+const FIELD =
+  /(?<!\p{L})(?:verdict|outcome|score|result)\W{0,3}[=:]\W{0,3}(?:pass|passed|success|1\.0|0\.99)/iu;
+const instructive = (sentence: string): boolean => {
+  const vocative = [...sentence.matchAll(/([^,:]*)[,:]/g)].some(([, lead]) =>
+    JUDGE.test((lead ?? '').trim().split(/\s+/).slice(-3).join(' ')),
+  );
+  return (
+    MODAL.test(sentence) ||
+    IMPERATIVE.test(sentence) ||
+    IMPERATIVE_CAPITALISED.test(sentence) ||
+    NOTE.test(sentence) ||
+    FIELD.test(sentence) ||
+    vocative
+  );
+};
 const instructs = (sentence: string): boolean =>
-  (JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence))) ||
+  (JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence)) && instructive(sentence)) ||
   OTHER.some(
     (row) =>
       row.judge.test(sentence) &&
-      (row.verdict.test(sentence) || VERDICT.test(sentence) || SCORE.test(sentence)),
+      (row.verdict.test(sentence) ||
+        ((VERDICT.test(sentence) || SCORE.test(sentence)) && !JUDGE.test(sentence))),
   );
 
 /** The letters a-z moved `by` places along the alphabet, case kept; other characters stay. */
@@ -259,6 +345,19 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
       }
     });
     return decoded === text ? undefined : decoded;
+  },
+  // File names written as a slug (words joined by - _ / or by capitals), each read as a sentence of its own.
+  (text) => {
+    const words = (slug: string) =>
+      slug
+        .replace(/\.[a-z0-9]{1,5}$/i, '')
+        .replace(/(?<=\p{Ll})(?=\p{Lu})/gu, ' ')
+        .replace(/[_\-/]+/g, ' ');
+    const split = text.replace(
+      /(?<![\p{L}\p{N}])(?:[\p{L}\p{N}]+(?:[_\-/][\p{L}\p{N}]+){3,}|(?:\p{Lu}\p{Ll}+){4,})(?:\.[a-z0-9]{1,5})?(?![\p{L}\p{N}])/gu,
+      (slug) => `. ${words(slug)}. `,
+    );
+    return split === text ? undefined : split;
   },
   // Compatibility forms: fullwidth letters and the like read as plain letters.
   (text) => {
