@@ -7,7 +7,7 @@
  * failure names first, so the count of causes never exceeds the changes an executor makes.
  */
 
-/** Items a pilot iteration made pass, with the change that did it. */
+/** Items whose cause a first pilot (on the reader before the reader lane merged) named by the change that fixed them. */
 const FIXED: ReadonlyArray<readonly [string, string]> = [
   ['scan.frontmatter.colon-in-value', 'read a frontmatter value holding a colon and a space'],
   ['scan.frontmatter.colon-twice', 'read a frontmatter value holding a colon and a space'],
@@ -68,7 +68,6 @@ const FIXED: ReadonlyArray<readonly [string, string]> = [
   ['scan.catalogue.markdown-table', 'read a catalogue of checks'],
   ['scan.dispatcher.quiet-prefix', 'find the script behind a command prefix'],
   ['scan.dispatcher.test-prefix', 'find the script behind a command prefix'],
-  ['scan.dispatcher.change-folder', 'find the script behind a command prefix'],
   ['scan.dispatcher.env-runner', 'find the script behind a command prefix'],
   ['scan.dispatcher.assignment-prefix', 'find the script behind a command prefix'],
   ['scan.dispatcher.time-limit', 'find the script behind a command prefix'],
@@ -160,6 +159,8 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
     /^(scan\.dispatcher\.dispatcher(-with-prefix)?|lint\.defect\.dispatcher-target-missing|lint\.clean\.guard-by-dispatcher)$/,
     'resolve the script a dispatcher runs from its target argument',
   ],
+  [/^scan\.dispatcher\.change-folder$/, 'count a script reached through a change of folder as anchored'],
+  [/^scan\.dispatcher\.shell-wrapper$/, 'unwrap a quoted shell wrapper to find its script'],
   [/^scan\.dispatcher\.dispatcher-flag$/, 'resolve a dispatcher target given by a flag'],
   // Reference files.
   [/^scan\.reference-prose\.(large|huge-chunked)$/, 'split a reference over 40,000 characters into chunks'],
@@ -175,6 +176,13 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   ],
   [/^scan\.reference-prose\.named-twice$/, 'read a reference two skills share once'],
   [/^scan\.reference-prose\.(fixed-gate-inside|hazard-inside)$/, 'run the code readers over reference files'],
+  // A combination fails on the form the reader lacks: the first in this order.
+  [
+    /^scan\.combination\..*(anchorlink|urldecoy)/,
+    'name the file of a path with an anchor, a query or a title',
+  ],
+  [/^scan\.combination\..*gatebold/, 'strip markup from a gate act and its first file'],
+  [/^scan\.combination\..*hazarddecoy/, 'read compaction only from the noun, not the adjective compact'],
   [
     /^scan\.(reference-prose\.|combination\..*refprose)/,
     'send the reference files a skill names to the prose splitter',
