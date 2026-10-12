@@ -74,6 +74,7 @@ export const BANK_LEVELS = [
       readsFamily(),
       coverageFamily(),
       unitFamily(),
+      statsFamily(),
     ],
   },
   { id: 'agent-mutants', name: 'agent mutants', families: () => [mutantFamily(), killFamily()] },

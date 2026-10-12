@@ -30,9 +30,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 697,
-      "score": 0.6544600938967137,
+      "size": 1113,
+      "passing": 717,
+      "score": 0.6442048517520216,
       "change": "Iteration 0: the bank with the unit, kill, generation-quality and fixture-maintenance families",
       "failing": [
         "bench.defects.long-routing-table",
@@ -48,6 +48,34 @@
         "blind.gates.skill-compactions-plural",
         "blind.links.ref-link-with-title",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -469,6 +497,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -529,6 +561,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -579,9 +615,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 716,
-      "score": 0.672300469483568,
+      "size": 1113,
+      "passing": 736,
+      "score": 0.6612758310871518,
       "change": "Estate pilot 1: the reader reads a catalogue of checks",
       "failing": [
         "bench.defects.long-routing-table",
@@ -597,6 +633,34 @@
         "blind.gates.skill-compactions-plural",
         "blind.links.ref-link-with-title",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -999,6 +1063,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -1059,6 +1127,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -1109,9 +1181,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 736,
-      "score": 0.6910798122065728,
+      "size": 1113,
+      "passing": 756,
+      "score": 0.6792452830188679,
       "change": "Estate pilot 2: a named path with an anchor, a query or a title names its file",
       "failing": [
         "bench.defects.long-routing-table",
@@ -1126,6 +1198,34 @@
         "blind.gates.decoy-tilde-fence",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -1509,6 +1609,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -1569,6 +1673,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -1619,9 +1727,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 745,
-      "score": 0.6995305164319249,
+      "size": 1113,
+      "passing": 765,
+      "score": 0.6873315363881402,
       "change": "Estate pilot 3: the adjective compact is no compaction",
       "failing": [
         "bench.defects.long-routing-table",
@@ -1636,6 +1744,34 @@
         "blind.gates.decoy-tilde-fence",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -2010,6 +2146,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -2070,6 +2210,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -2120,9 +2264,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 755,
-      "score": 0.7089201877934272,
+      "size": 1113,
+      "passing": 775,
+      "score": 0.6963162623539982,
       "change": "Estate pilot 4: a gate's act and first file lose their markup",
       "failing": [
         "bench.defects.long-routing-table",
@@ -2137,6 +2281,34 @@
         "blind.gates.decoy-tilde-fence",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -2501,6 +2673,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -2561,6 +2737,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -2611,9 +2791,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 763,
-      "score": 0.7164319248826291,
+      "size": 1113,
+      "passing": 783,
+      "score": 0.7035040431266847,
       "change": "Estate pilot 5: code read from prose skips fenced examples",
       "failing": [
         "bench.defects.long-routing-table",
@@ -2627,6 +2807,34 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -2984,6 +3192,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -3044,6 +3256,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -3094,9 +3310,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 767,
-      "score": 0.72018779342723,
+      "size": 1113,
+      "passing": 787,
+      "score": 0.7070979335130279,
       "change": "Estate pilot 6: the registry reader knows more rule column names",
       "failing": [
         "bench.defects.long-routing-table",
@@ -3110,6 +3326,34 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -3463,6 +3707,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -3523,6 +3771,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -3573,9 +3825,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 771,
-      "score": 0.723943661971831,
+      "size": 1113,
+      "passing": 791,
+      "score": 0.710691823899371,
       "change": "Estate pilot 7: a dispatcher's target may be a bare script name",
       "failing": [
         "bench.defects.long-routing-table",
@@ -3589,6 +3841,34 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -3938,6 +4218,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -3998,6 +4282,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -4048,9 +4336,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 775,
-      "score": 0.7276995305164319,
+      "size": 1113,
+      "passing": 795,
+      "score": 0.7142857142857143,
       "change": "Estate pilot 8: registries, catalogues and step lists may be YAML",
       "failing": [
         "bench.defects.long-routing-table",
@@ -4064,6 +4352,34 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -4409,6 +4725,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -4469,6 +4789,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -4519,9 +4843,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 778,
-      "score": 0.7305164319248826,
+      "size": 1113,
+      "passing": 798,
+      "score": 0.7169811320754716,
       "change": "Estate pilot 9: a guard command behind exec, timeout or uv run finds its script",
       "failing": [
         "bench.defects.long-routing-table",
@@ -4535,6 +4859,34 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -4877,6 +5229,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -4937,6 +5293,10 @@
           "size": 26,
           "passing": 0
         },
+        "estate.stats": {
+          "size": 28,
+          "passing": 0
+        },
         "mutant.agent": {
           "size": 44,
           "passing": 17
@@ -4987,9 +5347,9 @@
         "hidden"
       ],
       "hiddenSeed": 523931547,
-      "size": 1065,
-      "passing": 783,
-      "score": 0.7352112676056338,
+      "size": 1113,
+      "passing": 803,
+      "score": 0.7214734950584007,
       "change": "Estate pilot 10: a gate comes only before an act of the agent",
       "failing": [
         "bench.defects.long-routing-table",
@@ -5003,6 +5363,34 @@
         "blind.gates.decoy-never-read-before",
         "blind.gates.skill-compactions-plural",
         "blind.lint.emoji-count-as-characters",
+        "estate.stats.enforced-gate",
+        "estate.stats.enforced-guard",
+        "estate.stats.enforced-hazard",
+        "estate.stats.enforced-instruction",
+        "estate.stats.enforced-invariant",
+        "estate.stats.enforced-reference",
+        "estate.stats.enforced-register",
+        "estate.stats.enforced-route",
+        "estate.stats.enforced-script",
+        "estate.stats.enforced-setting",
+        "estate.stats.enforced-skill",
+        "estate.stats.enforced-stage",
+        "estate.stats.enforced-subagent",
+        "estate.stats.enforced-tool",
+        "estate.stats.tested-gate",
+        "estate.stats.tested-guard",
+        "estate.stats.tested-hazard",
+        "estate.stats.tested-instruction",
+        "estate.stats.tested-invariant",
+        "estate.stats.tested-reference",
+        "estate.stats.tested-register",
+        "estate.stats.tested-route",
+        "estate.stats.tested-script",
+        "estate.stats.tested-setting",
+        "estate.stats.tested-skill",
+        "estate.stats.tested-stage",
+        "estate.stats.tested-subagent",
+        "estate.stats.tested-tool",
         "gen.asks.all-load",
         "gen.asks.asks-approved",
         "gen.asks.judged-only-registers",
@@ -5340,6 +5728,10 @@
           "size": 20,
           "passing": 18
         },
+        "estate.determinism": {
+          "size": 20,
+          "passing": 20
+        },
         "blind.layout": {
           "size": 35,
           "passing": 35
@@ -5398,6 +5790,10 @@
         },
         "unit.runner": {
           "size": 26,
+          "passing": 0
+        },
+        "estate.stats": {
+          "size": 28,
           "passing": 0
         },
         "mutant.agent": {

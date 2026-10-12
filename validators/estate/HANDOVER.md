@@ -34,10 +34,14 @@ The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-b
 
 | Row | Commit | Items passing on every seed | Score |
 |---|---|---|---|
-| iteration 0 | f1e6ec9 (lane/v-estate) | 697 of 1065 | 0.654 |
-| pilot 1 to 10 | exec/v-estate-pilot2 | 716, 736, 745, 755, 763, 767, 771, 775, 778, 783 | 0.735 after pilot 10 |
+| iteration 0 | f1e6ec9 (lane/v-estate) | 717 of 1113 | 0.644 |
+| pilot 1 to 10 | exec/v-estate-pilot2 | 736, 756, 765, 775, 783, 787, 791, 795, 798, 803 | 0.721 after pilot 10 |
 
-Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none broken. Failing after the pilot: 282 items, 135 distinct causes. Forecast: 32.8 iterations. validators/estate/NEEDS.md cites the need of every family; gen.task is quarantined. The gate does not hold on the forecast and the score; the cause term holds. No audit.md yet.
+Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none broken. Failing after the pilot: 310 items, 137 distinct causes. Forecast: 36.0 iterations. validators/estate/NEEDS.md cites the need of every family; gen.task is quarantined. The gate does not hold on the forecast and the score; the cause term holds. No audit.md yet.
+
+## The estate stats contract (proposed to the lead)
+
+`driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json` prints `coverage.kinds: { <kind>: { atoms, tested, enforced } }`, `coverage.cells` and `coverage.edges` as `{ covered, total }`, `reach: [{ atom, reached, followed }]` and `decay: [{ block, runs, passRate }]`; exit 0, or 2 on bad input. The estate.stats items read `coverage.kinds`.
 
 ## The unit runner contract (frozen with the lead and the reader lane)
 
@@ -71,6 +75,7 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Pitfalls
 
+* estate.determinism (20) runs scan, lint, plan, generate, diff, impact and mutate twice in separate processes on copies of the fixture, across folders, file orders, time zones and locales; all 20 pass. The map records when it was read and its root folder's name by design: the items leave those two out. estate.stats (28) fails until `estate stats` exists.
 * Families on the Northwind fixture's generated suite (examples/estates/fixture, fictional), judged once per run (seed-free): unit.runner (26: every guard's unit specs pass, and turn red when the guard allows all, blocks all, changes its message or runs past its timeout; scripts on their fixtures), kill.fake (31: a generated live spec, green on the original, turns red on the delete or invert mutant of each atom kind, on the fake runtime), gen.task (23: every ask holds a task; quarantined, see NEEDS.md), gen.reads (23: no Read of a missing file), gen.coverage (25: one complete spec per atom of each kind, judged domain rules, the gap markers), maintain.fixture (20: impact on structural edits and on the two committed versions).
 * kill.fake fails on all 31: the fake runtime knows only the Northwind proof asks, so most specs naming an atom fail on the original, and the specs that pass do not change on the mutant (D15 of the bench).
 * The bank holds bench.defects (20 items from a model-free bench run: D2, D5, D6, D7, D9 and the long routing table) and five blind.* families (176 items) written by a breaker that never read packages/estate. The bench items D6 and D7 run the CLI as a child process, so a row takes several minutes on a loaded machine.

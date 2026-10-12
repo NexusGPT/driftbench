@@ -25,6 +25,7 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | blind.links | 27 | reader | docs/estate.md section 1, Reference row |
 | blind.lint | 46 | reader | docs/estate.md section 2, "Checking the estate: `estate lint`" |
 | blind.edges | 25 | reader | docs/estate.md section 2, "Relations: the estate graph" |
+| estate.determinism | 20 | reader | docs/estate.md section 5, "The same map, plan, bank and seed give the same specs"; section 1, atom ids and hashes from file, span and quote |
 | lint.defect | 24 | lint | docs/estate.md section 2, `estate lint` |
 | lint.clean | 22 | lint | docs/estate.md section 2, `estate lint` (no finding on a clean estate) |
 | plan.contract | 25 | plan | docs/estate.md section 4, the contract table |
@@ -35,6 +36,7 @@ Rule (lead, 2026-10-12): every item family cites the product need it serves, as 
 | gen.reads | 23 | generation | docs/estate.md section 5 (a Read of a path goes to the references check) and section 1, Reference row |
 | gen.coverage | 25 | generation | docs/estate.md section 5: `--focus` ("names the gaps of the ones with none"), the domain-rule row (a gating judged criterion), and the named gaps that close "as the pieces they name arrive" |
 | unit.runner | 26 | generation | docs/estate.md section 6, "Unit (offline). Guards replayed with synthetic events; scripts on fixtures"; the `estate unit` contract in HANDOVER.md |
+| estate.stats | 28 | generation | docs/estate.md section 7, "Not built yet: coverage lines per atom kind" (tested over atoms, enforced over atoms); the `estate stats` contract in HANDOVER.md |
 | mutant.agent | 44 | agent mutants | docs/estate.md section 6, estate mutants (adequacy: a deleted atom fails a test) |
 | kill.fake | 31 | agent mutants | `estate mutate` and `estate run` on the fixture's stand-in command (docs/reference/cli.md, "driftbench estate run and driftbench estate mutate") |
 | maintain.impact | 33 | maintenance | docs/estate.md section 8, `estate diff` and `estate impact` |
