@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fixtureLeaks, labelConflicts } from '../src/calibration';
+import { fixtureLeaks, labelConflicts, labelWarnings } from '../src/calibration';
 
 const block = (id: string, label: 'pass' | 'fail', text: string) => ({
   id,
@@ -29,5 +29,15 @@ describe('fixtureLeaks', () => {
     } as unknown as Parameters<typeof fixtureLeaks>[0];
     const blocks = [block('leak', 'pass', 'yes'), block('own', 'fail', 'something else')];
     expect(fixtureLeaks(criterion, blocks)).toEqual(['leak']);
+  });
+});
+
+describe('labelWarnings', () => {
+  it('warns few-labels when a class holds fewer than 5 blocks', () => {
+    const many = (label: 'pass' | 'fail', n: number) =>
+      Array.from({ length: n }, (_, i) => block(`${label}${i}`, label, `${label} ${i}`));
+    expect(labelWarnings([...many('pass', 16), ...many('fail', 4)])).toEqual(['few-labels']);
+    expect(labelWarnings([...many('pass', 5), ...many('fail', 5)])).toEqual([]);
+    expect(labelWarnings([])).toEqual([]);
   });
 });

@@ -314,6 +314,8 @@ export type CriterionCalibration = {
   readonly labelConflicts?: readonly (readonly string[])[];
   /** Ids of labelled blocks equal to a fixture of the criterion, which inflates agreement; absent when none. */
   readonly fixtureLeaks?: readonly string[];
+  /** `few-labels` when a class has fewer than 5 labelled blocks; absent when there is nothing to warn of. */
+  readonly warnings?: readonly string[];
   readonly assignment: CriterionAssignment;
 };
 
@@ -414,6 +416,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       ...(alpha === undefined ? {} : { alpha }),
       ...(conflicts.length === 0 ? {} : { labelConflicts: conflicts }),
       ...(leaks.length === 0 ? {} : { fixtureLeaks: leaks }),
+      ...(labelWarnings(blocks).length === 0 ? {} : { warnings: labelWarnings(blocks) }),
       assignment:
         config.rule === 'cheapest' ? assignCheapest(rows, judges, mode) : assign(rows, judges, mode),
     });
@@ -446,6 +449,13 @@ export function labelConflicts(blocks: readonly LabelledBlock[]): string[][] {
   return [...bySlice.values()]
     .filter((group) => new Set(group.map((block) => block.label)).size > 1)
     .map((group) => group.map((block) => block.id));
+}
+
+/** The warnings a labels set earns: `few-labels` when a class holds fewer than 5 labelled blocks (any labels given). */
+export function labelWarnings(blocks: readonly LabelledBlock[]): string[] {
+  if (blocks.length === 0) return [];
+  const few = (['pass', 'fail'] as const).some((label) => blocks.filter((b) => b.label === label).length < 5);
+  return few ? ['few-labels'] : [];
 }
 
 /** The ids of the labelled blocks whose transcript, artifact and given equal those of a fixture of the criterion. */
