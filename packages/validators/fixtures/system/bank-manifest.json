@@ -15245,7 +15245,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench estate scan",
-      "cause": "driftbench estate scan --no-model prints \"  Refused: none.\" right after the no model line, without extra prose lines in between"
+      "cause": "driftbench estate scan --no-model prints the documented no-model and refusal lines in order, allowing inventory details between them"
     },
     {
       "id": "breaker/tools/estate-approve-counts-match-docs",
@@ -15254,7 +15254,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench estate approve",
-      "cause": "driftbench estate approve reports 122 atoms for the committed Northwind fixture map, or the docs report the current count"
+      "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
     },
     {
       "id": "breaker/tools/estate-run-not-built-message",
@@ -15263,7 +15263,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench estate run",
-      "cause": "driftbench estate run called without options prints \"driftbench estate run is not built yet.\" and exits 2, or the pages describe the built runner"
+      "cause": "driftbench estate run exposes the documented options and rejects missing required input with the documented exit code"
     },
     {
       "id": "breaker/tools/estate-mutate-not-built-message",
@@ -15272,7 +15272,7 @@
       "level": 10,
       "source": "contract",
       "component": "driftbench estate mutate",
-      "cause": "driftbench estate mutate called without options prints \"driftbench estate mutate is not built yet.\" and exits 2, or the pages describe the built command"
+      "cause": "driftbench estate mutate exposes the documented options and rejects missing required input with the documented exit code"
     },
     {
       "id": "breaker/tools/judge-calibrate-judge-names",
