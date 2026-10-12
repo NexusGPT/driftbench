@@ -56,3 +56,14 @@ describe('the shared criteria catalogue: relevancy and knowledge_retention', () 
     expect(await outcomes(knowledgeRetention, blockOf(retained.fail, keep))).toEqual(['fail', 'fail']);
   });
 });
+
+describe('the relevancy criterion judges a reply in other words', () => {
+  it('reads a paraphrased answer as relevant, and still reads another question as not', async () => {
+    const { criteria } = await loadCriteria(DIR);
+    const relevant = criteria.find((criterion) => criterion.def.name === 'relevancy');
+    if (!relevant) throw new Error('the relevancy criterion is missing');
+    expect(relevant.def.rubric).toContain('in any words');
+    expect(relevant.def.pass).toContain('even when it does not repeat the question words');
+    expect(relevant.def.fail).toContain('answers a different question');
+  });
+});
