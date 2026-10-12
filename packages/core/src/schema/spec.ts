@@ -318,6 +318,10 @@ export const Expect = z
       .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
     must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
     must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    regex: z
+      .array(Pattern)
+      .optional()
+      .describe('Regular expressions the visible text must match, case-sensitive; must ignores case instead.'),
     injection: z
       .boolean()
       .optional()

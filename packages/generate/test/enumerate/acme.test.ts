@@ -267,7 +267,7 @@ describe('generate on the approved Acme map', () => {
     expect(prepared.axisMap.dimensions).toEqual(written.map.dimensions);
     expect(prepared.axisMap.constraints).toEqual(written.map.constraints);
     const coverage = result.report.coverage;
-    // The hand-written baseline: 167 of the 840 pairs the map allows (the two draft classes add three).
+    // The hand-written baseline: 167 of the 840 pairs the map allows (164 before the D11 and D12 classes).
     expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 840, covered: 167 });
     expect(coverage.complete.covered).toBeGreaterThan(2 * (coverage.baseline?.covered ?? 0));
     const generated = await loadSpecs([GENERATED]);
