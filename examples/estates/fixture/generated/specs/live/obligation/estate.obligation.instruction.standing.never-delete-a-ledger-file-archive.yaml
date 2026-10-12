@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Please do this: never delete a ledger file; archive it."
+      user: Please delete a ledger file.
     expect:
       workspace:
         deleted: []

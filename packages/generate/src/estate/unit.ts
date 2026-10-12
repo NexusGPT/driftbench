@@ -17,8 +17,10 @@ import type { EstateAtom, EstatePlanRow } from './inputs';
  * - guard_negative: neutral payloads. The guard lets them through on the original.
  * - guard_hostile: the forbidden material in forms that slip past a naive match (spacing, case, quoting,
  *   a chained command). Recorded allowed, a case is a weakness of the guard, reported.
- * - guard_speed: the positive payloads, timed against the guard's declared timeout (60 s by default).
- * - script_fixture: the fixtures the estate declares for the script, run as declared.
+ * - guard_speed: a spread of at most five positive payloads, timed against the guard's declared timeout (60 s by default).
+ * - script_fixture: the fixtures the estate declares for the script, run as declared; with none declared,
+ *   minimal fixtures from how the estate says to run the script (no argument, then its documented command
+ *   lines), their outcomes recorded like a guard's.
  */
 
 export const UNIT_DIR = 'unit';
@@ -54,6 +56,8 @@ export const GuardCase = z.strictObject({
   expected: UnitOutcome.optional(),
   /** Set by --record: the case cannot show the guard at work (positive) or slips past it (hostile). */
   inert: z.boolean().optional(),
+  /** Recorded with an outcome that varied across the record runs: reported, never compared. */
+  flaky: z.boolean().optional(),
 });
 export type GuardCase = z.infer<typeof GuardCase>;
 
@@ -73,6 +77,8 @@ export const UnitTest = z.strictObject({
       command: z.string().min(1),
       /** The guard's declared timeout, in seconds. */
       timeout: z.number().positive().optional(),
+      /** A catalogue check this hook runs: the test sends the check's trigger, and looks for its id. */
+      check: z.string().optional(),
     }),
     z.strictObject({ kind: z.literal('script'), path: z.string().min(1), skill: z.string().optional() }),
   ]),
@@ -107,13 +113,34 @@ export function matcherTools(matcher: string | undefined): string[] {
   return tools.length > 0 ? tools : ['Bash'];
 }
 
-/** The material of a rule quote: its backticked spans and quoted phrases, else the quote itself. */
+/** Words and marks that make a clause forbid what it names. */
+const FORBIDS =
+  /\b(never|no|not|don't|do not|must not|mustn't|forbid|forbidden|banned|refuse[sd]?|block(?:s|ed)?|den(?:y|ies|ied)|avoid|stop)\b|✗|\bWRONG\b/i;
+
+/**
+ * The material of a rule quote: the backticked spans and quoted phrases of the clauses that forbid them
+ * ("Never use `sed -i`", "✗ `2>/dev/null`"), never a name or path the rule only mentions. A quote with no
+ * span at all is its own material.
+ */
 export function materialOf(quote: string): string[] {
-  const found = [
-    ...[...quote.matchAll(/`([^`]+)`/g)].map((match) => match[1] ?? ''),
-    ...[...quote.matchAll(/"([^"]{3,})"/g)].map((match) => match[1] ?? ''),
-  ].filter((item) => item.trim() !== '');
-  return found.length > 0 ? [...new Set(found)] : [quote.trim()];
+  const spans: string[] = [];
+  const masked = quote.replace(
+    /`([^`]+)`|"([^"]{3,})"/g,
+    (_, code: string | undefined, phrase: string | undefined) => {
+      spans.push(code ?? phrase ?? '');
+      return `\uE000${spans.length - 1}\uE000`;
+    },
+  );
+  if (spans.length === 0) return [quote.trim()];
+  const found: string[] = [];
+  for (const clause of masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/)) {
+    if (!FORBIDS.test(clause.replace(/\uE000\d+\uE000/g, ' '))) continue;
+    for (const match of clause.matchAll(/\uE000(\d+)\uE000/g)) {
+      const span = spans[Number(match[1])] ?? '';
+      if (span.trim() !== '') found.push(span);
+    }
+  }
+  return [...new Set(found)];
 }
 
 /** The tool input a tool takes, carrying one piece of material. */
@@ -156,6 +183,19 @@ export function payloadOf(
   return { stop_hook_active: false, last_reply: material };
 }
 
+/** A speed test times this many positive payloads: latency needs a spread, not every payload. */
+export const SPEED_CASES = 5;
+
+/** At most `count` cases, evenly spread from the first to the last, numbered again from case-01. */
+function spreadOf(cases: GuardCase[], count: number): GuardCase[] {
+  if (cases.length <= count) return cases;
+  const picked = Array.from(
+    { length: count },
+    (_, index) => cases[Math.round((index * (cases.length - 1)) / (count - 1))] as GuardCase,
+  );
+  return picked.map((entry, index) => ({ ...entry, id: `case-${String(index + 1).padStart(2, '0')}` }));
+}
+
 /** Hostile forms of forbidden material: spacing, case, quoting and a chained command. */
 export function hostileForms(material: string): string[] {
   const forms = [
@@ -184,10 +224,13 @@ export function unitTestOf(
     return {
       ...base,
       target: { kind: 'script', path, ...(typeof skill === 'string' ? { skill } : {}) },
-      cases: [],
+      cases: scriptCases(atom.provenance?.quote ?? '', path),
     };
   }
   const fields = atom.fields ?? {};
+  // A catalogue check is run by a hook, not by a command of its own: it is tested by sending its trigger to
+  // that hook. Without a trigger or a host hook it is a counted gap, not a test.
+  if (fields.scope === 'catalogue') return checkTestOf(row, atom, atoms, base);
   const name = fields.name;
   const event = fields.event;
   const command = fields.command;
@@ -205,11 +248,15 @@ export function unitTestOf(
     ...(timeout !== undefined ? { timeout } : {}),
   };
   const tools = TOOL_EVENTS.has(event) ? matcherTools(matcher) : [undefined];
-  const enforced = Array.isArray(fields.enforces)
-    ? (fields.enforces as Array<{ atom?: unknown }>).flatMap((entry) =>
-        typeof entry.atom === 'string' ? [entry.atom] : [],
+  // A rule linked by a registry row or an id the guard cites is what the guard checks; a rule linked only
+  // because the guard's source repeats some of its words is a weaker link, used when there is no other.
+  const links = Array.isArray(fields.enforces)
+    ? (fields.enforces as Array<{ atom?: unknown; by?: unknown }>).flatMap((entry) =>
+        typeof entry.atom === 'string' ? [{ atom: entry.atom, by: entry.by }] : [],
       )
     : [];
+  const strong = links.filter((link) => link.by === 'registry' || link.by === 'id');
+  const enforced = (strong.length > 0 ? strong : links).map((link) => link.atom);
   const material = [
     ...new Set(
       enforced.flatMap((ruleId) => {
@@ -240,7 +287,124 @@ export function unitTestOf(
   return {
     ...base,
     target,
-    cases,
+    cases: testType === 'guard_speed' ? spreadOf(cases, SPEED_CASES) : cases,
     ...(testType === 'guard_speed' ? { budgetMs: Math.round((timeout ?? 60) * 1000) } : {}),
   };
+}
+
+/** Reasons a catalogue check gets no unit test; the report counts them as gaps. */
+export const CHECK_GAP = {
+  trigger: 'needs a trigger: the map holds no material that sets the check off',
+  host: 'needs a host: no configured hook on its event names the check',
+} as const;
+
+/** The events and tools a check's event names: `PreToolUse (Bash)`, `Stop, PostToolUse`, `PreToolUse (Task/Agent)`. */
+export function checkEvents(text: string): Array<{ event: string; tools: string[] }> {
+  return text.split(',').flatMap((part) => {
+    const match = /^\s*(\w+)\s*(?:\(([^)]*)\))?/.exec(part);
+    if (!match?.[1]) return [];
+    const tools = (match[2] ?? '')
+      .split('/')
+      .map((tool) => tool.trim())
+      .filter((tool) => tool !== '');
+    return [{ event: match[1], tools }];
+  });
+}
+
+function checkTestOf(
+  row: { testType: string },
+  atom: EstateAtom,
+  atoms: ReadonlyMap<string, EstateAtom>,
+  base: Omit<UnitTest, 'target' | 'cases'>,
+): UnitTest | string {
+  const fields = atom.fields ?? {};
+  if (row.testType !== 'guard_positive') {
+    return `${atom.id} is a check its host hook runs; the host hook tests cover this test type`;
+  }
+  const trigger = Array.isArray(fields.trigger)
+    ? (fields.trigger as unknown[]).filter((item): item is string => typeof item === 'string' && item !== '')
+    : [];
+  if (trigger.length === 0) return `${atom.id} ${CHECK_GAP.trigger}`;
+  const host = fields.host;
+  const check = typeof fields.check === 'string' ? fields.check : String(fields.name ?? atom.id);
+  const wanted = checkEvents(String(fields.event ?? ''));
+  for (const parent of atoms.values()) {
+    const own = parent.fields ?? {};
+    if (
+      parent.kind !== 'guard' ||
+      own.scope === 'catalogue' ||
+      own.script !== host ||
+      typeof host !== 'string'
+    )
+      continue;
+    const name = own.name;
+    const event = own.event;
+    const command = own.command;
+    if (typeof name !== 'string' || typeof event !== 'string' || typeof command !== 'string') continue;
+    const matcher = typeof own.matcher === 'string' ? own.matcher : undefined;
+    const hostTools: string[] = TOOL_EVENTS.has(event) ? matcherTools(matcher) : [];
+    const fit = wanted.find((entry) => entry.event === event);
+    if (!fit) continue;
+    const tools: Array<string | undefined> = TOOL_EVENTS.has(event)
+      ? fit.tools.length > 0
+        ? fit.tools.filter((tool) => hostTools.includes(tool))
+        : hostTools.slice(0, 1)
+      : [undefined];
+    if (tools.length === 0) continue;
+    const tool = tools[0];
+    const cases: GuardCase[] = trigger.map((text, index) => ({
+      id: `case-${String(index + 1).padStart(2, '0')}`,
+      payload: payloadOf(event, tool, text),
+      material: text,
+    }));
+    const timeout = typeof own.timeout === 'number' ? own.timeout : undefined;
+    return {
+      ...base,
+      target: {
+        kind: 'guard' as const,
+        name,
+        event,
+        command,
+        ...(matcher !== undefined ? { matcher } : {}),
+        ...(timeout !== undefined ? { timeout } : {}),
+        check,
+      },
+      cases,
+    };
+  }
+  return `${atom.id} ${CHECK_GAP.host}`;
+}
+
+/**
+ * The minimal fixtures of a script with none declared, from how the estate says to run it: the script with
+ * no argument (its usage path), then each command line the atom's quote writes for it, a `<placeholder>`
+ * argument becoming an empty file of that name in the working folder. The outcomes are recorded on the
+ * original by `estate unit --record`, like a guard's.
+ */
+export function scriptCases(quote: string, path: string): GuardCase[] {
+  const name = path.split('/').pop() ?? path;
+  const cases: GuardCase[] = [{ id: 'case-01', payload: { args: [] }, material: 'no argument' }];
+  const seen = new Set<string>(['']);
+  for (const match of quote.matchAll(/`([^`]+)`/g)) {
+    const tokens = (match[1] ?? '').trim().split(/\s+/);
+    const at = tokens.findIndex((token) => token.endsWith(name));
+    if (at < 0) continue;
+    const files: Record<string, string> = {};
+    const args = tokens.slice(at + 1).map((token) => {
+      const placeholder = /^<([^>]+)>$/.exec(token)?.[1];
+      if (placeholder === undefined) return token;
+      const file = placeholder.replace(/[^\w.-]+/g, '-');
+      files[file] = '';
+      return file;
+    });
+    const key = args.join(' ');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cases.push({
+      id: `case-${String(cases.length + 1).padStart(2, '0')}`,
+      payload: { args, ...(Object.keys(files).length > 0 ? { files } : {}) },
+      material: key,
+    });
+  }
+  return cases;
 }

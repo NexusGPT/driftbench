@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { readQueue } from '@driftbench/judges';
+import { loadLabels, readQueue } from '@driftbench/judges';
 import { openStore } from '@driftbench/store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
@@ -69,6 +69,55 @@ describe('the viewer review queue', () => {
     });
     expect(saved.status).toBe(303);
     expect((await readQueue(labels)).entries[0]).toMatchObject({ state: 'done', assignee: 'Ana' });
+  }, 120_000);
+});
+
+describe('a label on an item another reviewer holds', () => {
+  it('is refused with 409 and writes no label: another reviewer cannot label an item held by someone else', async () => {
+    const queue = await readQueue(labels);
+    const item = queue.entries.find((entry) => entry.state === 'open');
+    if (!item) throw new Error('no open item');
+    const io: Io = { out: () => {}, err: () => {}, cwd: dir };
+    expect(
+      await main(
+        [
+          'queue',
+          'assign',
+          item.id,
+          '--criterion',
+          item.criterion,
+          '--reviewer',
+          'Ben',
+          '--labels',
+          'labels',
+        ],
+        io,
+      ),
+    ).toBe(0);
+    const saved = await fetch(`${viewer.url}/labels`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        campaign: item.campaign,
+        run: item.runId,
+        criterion: item.criterion,
+        block: String(item.index),
+        label: 'fail',
+        note: 'Not mine to label.',
+      }),
+      redirect: 'manual',
+    });
+    expect(saved.status).toBe(409);
+    expect(
+      (await readQueue(labels)).entries.find(
+        (entry) => entry.id === item.id && entry.criterion === item.criterion,
+      ),
+    ).toMatchObject({
+      state: 'assigned',
+      assignee: 'Ben',
+    });
+    const held = (await loadLabels(labels)).labels.get(item.criterion) ?? [];
+    expect(held.some((entry) => entry.id === item.id)).toBe(false);
   }, 120_000);
 });
 

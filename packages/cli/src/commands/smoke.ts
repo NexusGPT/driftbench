@@ -1,6 +1,7 @@
 import { compareTranscripts, type RunResult, runSpec } from '@driftbench/core';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import {
   type CampaignDeps,
   defaultDeps,
@@ -46,7 +47,7 @@ export async function smokeCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
-  const runs = Number(options.runs);
+  const runs = optionNumber(options.runs);
   if (!Number.isInteger(runs) || runs < 2) {
     io.err(`--runs takes a whole number of at least 2, not "${options.runs}".\n`);
     return 2;

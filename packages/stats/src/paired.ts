@@ -5,7 +5,7 @@
 
 import { assertCount, assertProbability, assertSameLength } from './basics';
 import { wilson } from './intervals';
-import { binomialCdf, chiSquareSf, normalQuantile, normalSf } from './special';
+import { binomialCdf, chiSquareSf, incompleteBeta, normalQuantile, normalSf } from './special';
 
 export interface McNemarResult {
   /** The exact test reports min(b, c); the chi-square test reports the corrected chi-square. */
@@ -315,4 +315,51 @@ export function nonInferiority(input: NonInferiorityInput): NonInferiorityResult
     newFlags,
     reason,
   };
+}
+
+export interface OneWayAnovaResult {
+  /** F = MSB / MSW. Infinity when the groups differ and the within-group variance is zero. */
+  readonly statistic: number;
+  /** Groups less one. */
+  readonly df1: number;
+  /** Values less groups. */
+  readonly df2: number;
+  /** The upper tail of the F distribution at the statistic. */
+  readonly pValue: number;
+}
+
+/**
+ * The one-way ANOVA F test of equal means (scipy.stats.f_oneway): F = MSB / MSW with k - 1 and N - k degrees of
+ * freedom. Throws a RangeError on fewer than two groups, an empty group, a value that is not finite, no
+ * within-group degrees of freedom (every group a single value), or all values equal (0 / 0).
+ */
+export function oneWayAnova(groups: readonly (readonly number[])[]): OneWayAnovaResult {
+  const k = groups.length;
+  if (k < 2) throw new RangeError(`oneWayAnova needs at least two groups, got ${k}`);
+  let n = 0;
+  let total = 0;
+  groups.forEach((group, g) => {
+    if (group.length === 0) throw new RangeError(`oneWayAnova: group ${g} is empty`);
+    group.forEach((v, i) => {
+      if (!Number.isFinite(v))
+        throw new RangeError(`oneWayAnova: groups[${g}][${i}] must be finite, got ${v}`);
+      total += v;
+    });
+    n += group.length;
+  });
+  if (n === k) throw new RangeError('oneWayAnova needs at least one group with two values');
+  const grand = total / n;
+  let ssb = 0;
+  let ssw = 0;
+  for (const group of groups) {
+    const m = group.reduce((a, b) => a + b, 0) / group.length;
+    ssb += group.length * (m - grand) ** 2;
+    for (const v of group) ssw += (v - m) ** 2;
+  }
+  const df1 = k - 1;
+  const df2 = n - k;
+  if (ssb === 0 && ssw === 0) throw new RangeError('oneWayAnova: all values are equal, so F is undefined');
+  if (ssw === 0) return { statistic: Number.POSITIVE_INFINITY, df1, df2, pValue: 0 };
+  const statistic = ssb / df1 / (ssw / df2);
+  return { statistic, df1, df2, pValue: incompleteBeta(df2 / (df2 + df1 * statistic), df2 / 2, df1 / 2) };
 }

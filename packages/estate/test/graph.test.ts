@@ -62,6 +62,34 @@ describe('what a guard enforces', () => {
     expect(result.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
   });
 
+  it('by a rule id the guard source cites in the R#n form, against rules labelled R#n', async () => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n**R#1 — No vault.** Never touch the vault folder at all.\n\n**R#2 — Log.** Always log the run.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "blocked: the vault is closed (R#1)" >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'No vault',
+          quote: 'No vault.** Never touch the vault folder at all.',
+          evidence: [{ type: 'custom', name: 'v' }],
+        },
+        {
+          kind: 'instruction',
+          title: 'Log',
+          quote: 'Log.** Always log the run.',
+          evidence: [{ type: 'custom', name: 'l' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'id' }]);
+  });
+
   it('by nothing when the guard source names no label and repeats no rule', async () => {
     const result = await oneRule(
       '#!/bin/sh\necho "Something unrelated entirely here" >&2\n# R1 is not declared\nexit 2\n',

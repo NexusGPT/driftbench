@@ -76,6 +76,8 @@ A criterion can name a repeat reducer (`mode`, `median` or `at_least:<k>`). It r
 
 `bootstrapCI` takes one cluster key per value: every value of one conversation carries the conversation's key, so the blocks of a run are never treated as independent samples. Without keys every value is its own cluster. `iterations` defaults to 2000, `method` is `percentile` (the default) or `basic`, `alpha` defaults to 0.05, and `seed` defaults to 1: the same seed gives the same interval. `statistic` replaces the pooled mean with any function of the resampled values.
 
+The scorecard's pass rate over specs, with several repeats of each, does not use the percentile bootstrap: with five or six specs it holds the true rate in about 82 percent of draws. It prints the Wilson interval on the effective runs instead: the runs divided by the design effect that the spread of the spec rates implies, with the Student t quantile on the specs less one in place of z. On 6 specs of 5 repeats at `rho` 0.3 it holds the true rate in about 97 percent of draws, on 20 specs of 3 repeats in about 95 percent (planted designs, 4000 draws). Its method name in the report is `wilson, design effect`.
+
 ## Where results vary
 
 Two runs of the same spec can differ, and two wordings of the same situation can differ too. Before a difference between two versions means anything, it is read against that spread: the noise floor.
@@ -99,7 +101,7 @@ Both run on the same specs.
 
 | Function | Computes |
 |---|---|
-| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square |
+| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square. `compare` (and so `ci`) always passes `exact: true`, at any count, and prints "McNemar exact" |
 | `wilcoxonSignedRank(x, y, { method })` | Wilcoxon's signed-rank test on paired values, such as the drift count per spec; `method` is `auto` (the default, which follows scipy's choice), `exact`, `permutation` or `asymptotic` |
 | `pairedRateDifference(table, alpha)` | the baseline pass rate minus the candidate's, with Newcombe's interval for paired data; `table` counts `bothPass`, `regressed`, `improved` and `bothFail` |
 | `benjaminiHochberg(pvalues, q)` | false discovery rate control at `q` (default 0.05): adjusted p-values, the rejected hypotheses and the threshold |
@@ -134,10 +136,10 @@ The function judges one criterion. `compareCampaigns` in `@driftbench/report` co
 
 Measured on the Acme example (2026-10-12):
 
-| Suite | Auto margin | Set by | Identity control | The nine faults |
+| Suite | Auto margin | Set by | Identity control | The faults |
 |---|---|---|---|---|
-| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning | the all-pass flag (27.75) | parity | red: 3 regressed, 6 not shown non-inferior |
-| `examples/acme/gated/specs`, 134 goldens | 6.5 points | `must` (6.02, 60 goldens); `cards` (11) and `guards` (26) underpowered | parity | 8 red as regressions; `x1-invents-price` reads parity, because no gated golden catches a price raised by 5 dollars |
+| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning | the all-pass flag (27.75) | parity | of the 13 sales and ops faults the gate scores: 5 regressed, 7 not shown non-inferior; `ops-d6-deletes-readme` reads parity |
+| `examples/acme/gated/specs`, 193 goldens | 7.5 points | `guards` (7); `cards` (12) and the task-only criteria (24) underpowered | parity | all 13 red as regressions, the 4 ops faults included through `--route` |
 
 With `--strict` at 30 points the identity control on the 10-golden suite is not shown non-inferior, as before the minimum existed.
 
@@ -147,7 +149,7 @@ With `--strict` at 30 points the identity control on the 10-golden suite is not 
 
 `mde({ n, repeats, baselineRate, power, alpha, rho })` solves the two-proportion power equation for the smallest drop from the baseline rate that the campaign detects, with `n` specs per version, `repeats` per spec (default 1), `power` 0.8 and `alpha` 0.05 by default. The repeats count through the design effect: `n repeats / (1 + (repeats - 1) rho)` effective units per version. `rho` defaults to 0, which treats repeats as independent and so is optimistic; pass the `rho` that `icc` measures. It treats the two versions as independent samples, which is conservative for a paired campaign. The effect is `null` when no drop below the baseline rate is detectable.
 
-`campaign plan` uses the runner's own formula today, with runs counted as independent; using `mde` with a measured `rho` there is planned, phase 4. See [running](../running.md#the-minimum-detectable-effect).
+`campaign plan` prints the effect of `mde`, with the specs as `n` and the repeats of each spec as `repeats`. `--rho <rho>` passes the correlation that `icc` measures; the default 0 counts repeats as independent. See [running](../running.md#the-minimum-detectable-effect).
 
 ## Over time
 

@@ -6,5 +6,6 @@ export * from './mutants';
 export * from './plan';
 export * from './scan';
 export * from './schema';
+export * from './session';
 export * from './static';
 export * from './unit';
