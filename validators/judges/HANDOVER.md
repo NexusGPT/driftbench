@@ -7,27 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 3 |
-| 2 | 3 |
-| 3 | 3 |
-| 4 | 3 |
-| 5 | 3 |
-| 6 | 3 |
-| 7 | 3 |
-| 8 | 3 |
-| 9 | 3 |
-| 10 | 3 |
-| 11 | 3 |
-| 12 | 3 |
-| 13 | 3 |
-| 14 | 3 |
-| 15 | 3 |
-| 16 | 3 |
-| 17 | 3 |
-| 18 | 3 |
-| 19 | 3 |
-| 20 | 3 |
-| hidden | 3 |
+| 1 | 4 |
+| 2 | 4 |
+| 3 | 4 |
+| 4 | 4 |
+| 5 | 4 |
+| 6 | 4 |
+| 7 | 4 |
+| 8 | 4 |
+| 9 | 4 |
+| 10 | 4 |
+| 11 | 4 |
+| 12 | 4 |
+| 13 | 4 |
+| 14 | 4 |
+| 15 | 4 |
+| 16 | 4 |
+| 17 | 4 |
+| 18 | 4 |
+| 19 | 4 |
+| 20 | 4 |
+| hidden | 4 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
@@ -42,9 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Executor exec/judges-v2 (from lane/v-judges2). Finding at start: the handover described the pilot's package (260 of 638), but this branch carries main's judges package, so the baseline was 258 of 638 (0.4044), 153 causes, level 1; iteration 11 is the first fix here.
-
-Level 2, contract (5 items): near-JSON the page asks to repair and mark repaired: typographic quotes (each with its `repaired-marked-*` twin), then `contract/probability-above-one`, `-below-zero`, `-crossed-bounds`, then `contract/unescaped-quotes` if still red. Then level 3, consistency (`judgeRepeated`, chat client temperature). `pnpm driftbench validate judges --seeds 1..20 --hidden --items` lists everything.
+Level 4 (cassette) passes since iteration 26. Level 5, clients (10 items): `clients/openai-content-parts`, `openai-content-filter`, `google-prompt-blocked`, `google-recitation`, `openai-asks-for-the-answer-schema`, and others; the Fix line of each names the change in packages/judges/src/clients. Then check, rubric, render, budget, evidence, injection and later families. Handover test (`--brief --fresh`) run at iteration 25: reproduced level 3 and named the two open cassette items.
 
 ## Hypotheses tried
 
@@ -53,12 +51,13 @@ Iteration 12 (cause: score in quotes): `recaseOutcome` (now also coercing a quot
 Iteration 13 (cause: single quotes): `singleToDoubleQuotes` in the repair loop of `parseAnswerText`, and `extractObject` tracks the opening quote. Test: "near-JSON: an object written with single quotes". Bank 262 -> 264.
 Iteration 14 (cause: trailing comma): `dropTrailingComma`. Test: "near-JSON: a comma before a closing brace". Bank 264 -> 266.
 Iteration 15 (cause: comment line): `dropCommentLines`. Test: "near-JSON: a line that is only a comment". Bank 266 -> 268 (0.4201). Its source landed in the iteration 14 handover commit by a script slip; the row 15 measurement is of that code. The level stayed 1 for three iterations because level 2 needs all 48 contract items; the bank score rose each time, so the executor kept going (stop rule read as no progress).
+Iteration 26 (cause: key not hex): check in `loadCassette`. Test: "loading a cassette with a key that is not a request hash" (red before, green after). Bank 287 -> 289 (0.4530): the answer-breaking-contract item turned green too, so its failing state came from the same validation path (not separately fixed). Level 3 -> 4. PR 86 holds iterations 11 to 25.
 
 ## Next actions
 
-1. `loadCassette` (packages/judges/src/cassette.ts), one refusal per iteration: recorded answer breaking the contract; key not 12-character hex.
-2. Then levels 5 onward (clients, check, rubric, render, budget, ...): `validate judges --seeds 1..20 --hidden --items` names each Fix.
-3. Every fix: one cause, its test, commit, then `measure.ts --iteration N` (repo root, `pnpm exec tsx`) and `validate judges --journal row.json`.
+1. Level 5 clients, one cause per iteration, starting with `clients/openai-content-parts` (packages/judges/src/clients/chat.ts).
+2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
+3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, then `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`; a PR to main every 3 iterations.
 
 ## Pitfalls
 
