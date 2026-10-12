@@ -192,6 +192,7 @@ export function mapItem(meta: {
     component: meta.component,
     title: meta.title,
     generate: (seed) => [meta.build(seed).case],
+    code: (seed) => meta.build(seed).code,
     check: (runs, seed) => {
       const built = meta.build(seed);
       const run = runs[0];
