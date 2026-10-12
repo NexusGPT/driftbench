@@ -1,3 +1,4 @@
+import { mde } from '@driftbench/stats';
 import type { AgentAdapter } from '../contracts/adapter';
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import type { CheckSet } from '../contracts/check';
@@ -41,21 +42,23 @@ export type CostLine = {
 };
 
 /**
- * The minimum detectable effect of a comparison between two arms (a baseline target and a candidate)
- * that each run `runsPerArm` runs, by the two-proportion normal approximation:
- *
- *   effect = (z(1 - alpha / 2) + z(power)) * sqrt(2 * p * (1 - p) / n)
- *
- * with p the baseline pass rate and n the runs per arm, two-sided. It treats runs as independent, so
- * repeats of one spec count as separate runs; the clustered version moves to the stats package in phase 4.
+ * The minimum detectable effect of a comparison between two arms (a baseline target and a candidate),
+ * as `mde` of @driftbench/stats solves it: the specs are the independent units, the repeats of one spec
+ * count through the design effect 1 + (repeats - 1) rho, and the two arms are independent samples.
  */
 export type MinimumDetectableEffect = {
   mode: RunMode;
   runsPerArm: number;
+  /** The specs per arm: the independent units. */
+  specs: number;
   baselineRate: number;
+  /** The intraclass correlation of repeats of one spec the plan assumes. */
+  rho: number;
+  /** 1 + (repeats - 1) rho, for the mean repeats per spec. */
+  designEffect: number;
   alpha: 0.05;
   power: 0.8;
-  /** The smallest drop in pass rate the design detects, as a proportion; undefined with no runs. */
+  /** The smallest drop in pass rate the design detects, as a proportion; undefined when it has no runs or no drop below the baseline is detectable. */
   effect?: number;
 };
 
@@ -77,6 +80,8 @@ export type PlanOptions = {
   budgetUsd?: number;
   /** The baseline pass rate the MDE assumes. Default 0.5, where the variance is largest. */
   baselineRate?: number;
+  /** The intraclass correlation of repeats of one spec, as `icc` measures it, in [0, 1]. Default 0: repeats count as independent. */
+  rho?: number;
 };
 
 /**
@@ -86,9 +91,40 @@ export type PlanOptions = {
 const Z_ALPHA = 1.9599639845400534;
 const Z_POWER = 0.8416212335729144;
 
+/**
+ * The effect of the two-proportion normal approximation with every run counted as independent. The plan no
+ * longer uses it: `planCampaign` prints `mde` of @driftbench/stats, which counts specs as the units.
+ */
 export function minimumDetectableEffect(runsPerArm: number, baselineRate = 0.5): number | undefined {
   if (runsPerArm <= 0) return undefined;
   return (Z_ALPHA + Z_POWER) * Math.sqrt((2 * baselineRate * (1 - baselineRate)) / runsPerArm);
+}
+
+/**
+ * The MDE line of one mode: `specs` independent specs sharing `runsPerArm` runs, so `runsPerArm / specs`
+ * repeats each, through `mde` of @driftbench/stats. Throws a RangeError naming rho outside [0, 1].
+ */
+export function mdeLine(
+  mode: RunMode,
+  specs: number,
+  runsPerArm: number,
+  baselineRate: number,
+  rho = 0,
+): MinimumDetectableEffect {
+  if (!(rho >= 0 && rho <= 1)) throw new RangeError(`rho must lie in [0, 1], got ${rho}`);
+  const line = { mode, runsPerArm, specs, baselineRate, rho, alpha: 0.05 as const, power: 0.8 as const };
+  if (specs <= 0 || runsPerArm <= 0) return { ...line, designEffect: 1 };
+  // Fewer runs than specs (a mode that gives some specs no cell): each run is then its own unit.
+  const perSpec = runsPerArm / specs;
+  const result =
+    perSpec >= 1
+      ? mde({ n: specs, repeats: perSpec, baselineRate, rho })
+      : mde({ n: runsPerArm, baselineRate, rho });
+  return {
+    ...line,
+    designEffect: result.designEffect,
+    ...(result.effect === null ? {} : { effect: result.effect }),
+  };
 }
 
 /**
@@ -148,18 +184,11 @@ export function planCampaign(
     .sort();
 
   const baselineRate = options.baselineRate ?? 0.5;
+  const rho = options.rho ?? 0;
   const firstTarget = targets[0];
   const mde = modes.map((mode): MinimumDetectableEffect => {
     const runsPerArm = cells.filter((cell) => cell.mode === mode && cell.target === firstTarget).length;
-    const effect = minimumDetectableEffect(runsPerArm, baselineRate);
-    return {
-      mode,
-      runsPerArm,
-      baselineRate,
-      alpha: 0.05,
-      power: 0.8,
-      ...(effect === undefined ? {} : { effect }),
-    };
+    return mdeLine(mode, specs.length, runsPerArm, baselineRate, rho);
   });
 
   return {

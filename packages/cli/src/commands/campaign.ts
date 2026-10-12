@@ -23,7 +23,7 @@ import {
   type LoadedSpec,
   loadSpecs,
   type MinimumDetectableEffect,
-  minimumDetectableEffect,
+  mdeLine,
   outcomeOf,
   type PlannedCell,
   type PlanOptions,
@@ -201,6 +201,7 @@ type PlanCommandOptions = {
   repeats: string;
   budgetUsd?: string;
   baselineRate: string;
+  rho?: string;
   store?: string;
   json?: boolean;
 };
@@ -258,6 +259,7 @@ export function registerCampaignCommands(
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option('--budget-usd <usd>', 'compare the projected cost with this budget')
     .option('--baseline-rate <rate>', 'the pass rate the minimum detectable effect assumes', '0.5')
+    .option('--rho <rho>', 'the correlation of repeats of one spec, as icc measures it, from 0 to 1', '0')
     .option('--store <file>', 'read the measured unit costs from this store')
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: PlanCommandOptions) => {
@@ -464,7 +466,8 @@ export async function campaignPlanCommand(
   const budget =
     options.budgetUsd === undefined ? undefined : parseNumber(options.budgetUsd, '--budget-usd', io);
   const baselineRate = parseRate(options.baselineRate, io);
-  if (!shape || budget === null || baselineRate === undefined) return 2;
+  const rho = parseRho(options.rho ?? '0', io);
+  if (!shape || budget === null || baselineRate === undefined || rho === undefined) return 2;
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
   const runs = specRuns(loaded, shape.targets, io);
@@ -485,6 +488,7 @@ export async function campaignPlanCommand(
   const plan = planFor(runs, shape.modes, shape.repeats, {
     units,
     baselineRate,
+    rho,
     ...(budget === undefined ? {} : { budgetUsd: budget }),
   });
 
@@ -525,9 +529,14 @@ export async function campaignPlanCommand(
   );
   io.out(`${costLine(plan)}\n`);
   for (const line of plan.mde) {
-    const effect = line.effect === undefined ? 'no runs' : `${(line.effect * 100).toFixed(1)} points`;
+    const effect =
+      line.runsPerArm === 0
+        ? 'no runs'
+        : line.effect === undefined
+          ? 'none detectable'
+          : `${(line.effect * 100).toFixed(1)} points`;
     io.out(
-      `Minimum detectable effect, mode ${line.mode}: ${effect} on a ${(line.baselineRate * 100).toFixed(0)}% pass rate, with ${count(line.runsPerArm, 'run')} per arm (two-sided alpha ${line.alpha}, power ${line.power}).\n`,
+      `Minimum detectable effect, mode ${line.mode}: ${effect} on a ${(line.baselineRate * 100).toFixed(0)}% pass rate, with ${count(line.runsPerArm, 'run')} per arm over ${count(line.specs, 'spec')} (rho ${line.rho}, design effect ${line.designEffect.toFixed(2)}; two-sided alpha ${line.alpha}, power ${line.power}).\n`,
     );
   }
   return 0;
@@ -1149,15 +1158,7 @@ function planFor(
       : { budgetUsd: options.budgetUsd, withinBudget: usd <= options.budgetUsd }),
     mde: modes.map((mode, index): MinimumDetectableEffect => {
       const runsPerArm = parts.reduce((sum, part) => sum + (part.mde[index]?.runsPerArm ?? 0), 0);
-      const effect = minimumDetectableEffect(runsPerArm, baselineRate);
-      return {
-        mode,
-        runsPerArm,
-        baselineRate,
-        alpha: 0.05,
-        power: 0.8,
-        ...(effect === undefined ? {} : { effect }),
-      };
+      return mdeLine(mode, runs.length, runsPerArm, baselineRate, options.rho);
     }),
   };
 }
@@ -1540,6 +1541,15 @@ function parseRate(text: string, io: Io): number | undefined {
   const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 1) {
     io.err(`--baseline-rate takes a number between 0 and 1, not "${text}".\n`);
+    return undefined;
+  }
+  return value;
+}
+
+function parseRho(text: string, io: Io): number | undefined {
+  const value = optionNumber(text);
+  if (!Number.isFinite(value) || value < 0 || value > 1) {
+    io.err(`--rho takes a number from 0 to 1, not "${text}".\n`);
     return undefined;
   }
   return value;

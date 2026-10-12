@@ -260,7 +260,7 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 These commands run specs on a target. Each has its options, its output and its exit codes on the [running](../running.md) page.
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--json]
 driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
@@ -286,6 +286,7 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--repeats <n>` | runs per spec, target and mode; default 1 |
 | `--budget-usd <usd>` | `plan`: compare the projected cost with this budget. `run`: no cell starts once the campaign has spent this much. `resume`: the same stop, by default the budget the campaign was run with |
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes; default 0.5 |
+| `--rho <rho>` | the correlation of repeats of one spec, from 0 to 1; default 0 |
 | `--campaign <id>` | the campaign id; without it, one is made from the content and the clock |
 | `--dataset <ref>` | `run` only: run the specs of this dataset version of the store and record it in the campaign; needs `--store`. See [datasets](../datasets.md) |
 | `--prompt <ref>` | `run` only: the agent runs with this prompt version of the store, a single text file: every target carries it in `target.prompt`, and the campaign records it; give it once; needs `--store`. Each adapter page says how the text reaches the agent |

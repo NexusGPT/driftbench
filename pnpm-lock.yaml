@@ -142,6 +142,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@driftbench/stats':
+        specifier: workspace:*
+        version: link:../stats
       yaml:
         specifier: ^2.9.1
         version: 2.9.1

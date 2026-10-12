@@ -147,7 +147,7 @@ With `--strict` at 30 points the identity control on the 10-golden suite is not 
 
 `mde({ n, repeats, baselineRate, power, alpha, rho })` solves the two-proportion power equation for the smallest drop from the baseline rate that the campaign detects, with `n` specs per version, `repeats` per spec (default 1), `power` 0.8 and `alpha` 0.05 by default. The repeats count through the design effect: `n repeats / (1 + (repeats - 1) rho)` effective units per version. `rho` defaults to 0, which treats repeats as independent and so is optimistic; pass the `rho` that `icc` measures. It treats the two versions as independent samples, which is conservative for a paired campaign. The effect is `null` when no drop below the baseline rate is detectable.
 
-`campaign plan` uses the runner's own formula today, with runs counted as independent; using `mde` with a measured `rho` there is planned, phase 4. See [running](../running.md#the-minimum-detectable-effect).
+`campaign plan` prints the effect of `mde`, with the specs as `n` and the repeats of each spec as `repeats`. `--rho <rho>` passes the correlation that `icc` measures; the default 0 counts repeats as independent. See [running](../running.md#the-minimum-detectable-effect).
 
 ## Over time
 

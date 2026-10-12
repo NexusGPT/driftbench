@@ -20,7 +20,7 @@ The examples below run from the repository root. `pnpm -s` keeps pnpm's own line
 ## `driftbench campaign plan`
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--json]
 ```
 
 Expands the cells, projects their cost and prints the minimum detectable effect. Nothing runs.
@@ -42,7 +42,7 @@ Plan: 6 specs, 1 target, mode F, 2 repeats: 12 cells, 52 blocks.
   d44b9dfe9d1cf87a  acme-tool-failure              function:acme  F     0       3
   0e486429b58c635e  acme-tool-failure              function:acme  F     1       3
 Projected cost: $0.00 (function: no unit measured).
-Minimum detectable effect, mode F: 57.2 points on a 50% pass rate, with 12 runs per arm (two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode F: 47.8 points on a 50% pass rate, with 12 runs per arm over 6 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
 
 With several modes, the cells come in the order T, F, P, and each P cell names its perturbation:
@@ -60,9 +60,9 @@ Plan: 1 spec, 1 target, modes T, F, P, 2 repeats: 8 cells, 44 blocks.
   468e63cbd5cafa61  acme-plan-upgrade  function:acme  P     0       loose-ok       6
   96dad27d69a17729  acme-plan-upgrade  function:acme  P     1       loose-ok       6
 Projected cost: $0.00 (function: no unit measured).
-Minimum detectable effect, mode T: 140.1 points on a 50% pass rate, with 2 runs per arm (two-sided alpha 0.05, power 0.8).
-Minimum detectable effect, mode F: 140.1 points on a 50% pass rate, with 2 runs per arm (two-sided alpha 0.05, power 0.8).
-Minimum detectable effect, mode P: 99.1 points on a 50% pass rate, with 4 runs per arm (two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode T: none detectable on a 50% pass rate, with 2 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 2 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode P: none detectable on a 50% pass rate, with 4 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
 
 Without `--target`, each spec is planned on its own target:
@@ -79,7 +79,7 @@ Plan: 7 specs, each on its own target (function:acme-sales, process:acme-ops), m
   c72578fc24c33e86  acme-tool-failure              function:acme-sales  F     0       3
   500a848c99ae5b91  acme-price-sheet               process:acme-ops     F     0       2
 Projected cost: $0.00 (function: no unit measured; process: no unit measured).
-Minimum detectable effect, mode F: 74.9 points on a 50% pass rate, with 7 runs per arm (two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 7 runs per arm over 7 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
 
 | Option | Effect |
@@ -89,6 +89,7 @@ Minimum detectable effect, mode F: 74.9 points on a 50% pass rate, with 7 runs p
 | `--repeats <n>` | runs per spec, target and mode, at least 1. Default 1. |
 | `--budget-usd <usd>` | compare the projected cost with this budget |
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes, between 0 and 1. Default 0.5. |
+| `--rho <rho>` | the correlation of repeats of one spec, as `icc` measures it, from 0 to 1. Default 0. |
 | `--store <file>` | read the measured unit costs from this store |
 | `--json` | print one JSON document: `cells`, `blocks`, `cost` (`usd`, `unmeasured`, `byAdapter`), `budgetUsd` and `withinBudget` when a budget is given, and `mde` |
 
@@ -550,13 +551,14 @@ That command exits 1.
 
 ### The minimum detectable effect
 
-`campaign plan` prints the smallest drop in pass rate that a comparison of two arms can detect, by the two-proportion normal approximation:
+`campaign plan` prints the smallest drop in pass rate that a comparison of two arms can detect, as `mde` of the statistics library solves it: the two-proportion power equation at a two-sided alpha of 0.05 and a power of 0.8, with the specs as the independent units and the repeats of one spec counted through the design effect.
 
 ```
-effect = (z(0.975) + z(0.8)) * sqrt(2 * p * (1 - p) / n)
+design effect = 1 + (repeats - 1) * rho
+effective units per arm = specs * repeats / design effect
 ```
 
-`p` is the baseline pass rate (`--baseline-rate`, default 0.5) and `n` the runs per arm: the cells of the mode on the first target, or, when each spec runs on its own target, the cells of the mode over every spec. `z(0.975)` and `z(0.8)` are the standard normal quantiles for a two-sided alpha of 0.05 and a power of 0.8. The formula treats runs as independent, so repeats of one spec count as separate runs. With 12 runs per arm at a 50% pass rate, the effect is 57.2 points, as the first plan above prints. The statistics library's `mde` also takes the correlation of repeats of one spec (`rho`); using it in `campaign plan` is planned, phase 4. See [statistics](concepts/statistics.md).
+`--baseline-rate` is the baseline pass rate (default 0.5) and `--rho` the correlation of repeats of one spec, as `icc` measures it (default 0, which counts repeats as independent and so is optimistic). The line names the runs per arm, the specs, `rho` and the design effect. When each spec runs on its own target, one arm is every spec on its first target. At six specs of five repeats, a 90% baseline and `--rho 0.3`, the design effect is 2.2. When the campaign is too small to detect any drop below the baseline, the line reads `none detectable`. See [statistics](concepts/statistics.md).
 
 ### The store
 
