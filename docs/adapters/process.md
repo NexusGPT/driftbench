@@ -108,7 +108,7 @@ This is how a code-agent harness reports its runtime: its hooks as guards, its s
 | Provider | Isolation | What it is |
 |---|---|---|
 | `localProvider()` | weak | a fresh temporary folder on this machine. Commands run there through `/bin/sh` as the current user: the folder bounds what the run records, not what the agent can reach. |
-| `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. |
+| `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. The container has no network unless `network: 'bridge'` is given. |
 
 Each provider reports whether it can run on this machine (`available()`); the adapter does not fall back from one to the other. The sandbox's isolation is on every Observed.
 
