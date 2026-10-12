@@ -15,7 +15,9 @@ import {
 import type { PreparedMap } from '../seed/map';
 import {
   type BoundarySummary,
+  type BudgetSummary,
   boundarySeeder,
+  budgetSeeder,
   coverDraft,
   type DeviationSummary,
   deviationSeeder,
@@ -56,6 +58,11 @@ export type GenerateOptions = {
   seed?: number;
   /** The most specs per seeder. */
   max?: number;
+  /**
+   * Budget mode: N conversations placed by the budget rules in place of the twise seeder's rows (seed/budget.ts).
+   * The other seeders are unchanged.
+   */
+  budget?: number;
   /** The map path as the specs and the report record it (relative to the output folder). */
   mapPath: string;
   /** Specs to measure on the same map for comparison, such as the hand-written suite. */
@@ -92,11 +99,13 @@ export type GenerateReport = {
     constraints: number;
     phrases: number;
   };
-  options: { t: number; seed: number; max: number | null };
+  options: { t: number; seed: number; max: number | null; budget?: number };
   summary: { specs: number; blocks: number; complete: number; incomplete: number };
   seeders: Record<Seeder, SeederTotals>;
   graph: GraphSummary;
   twise: TwiseSummary;
+  /** Budget mode only: the pick, the pair coverage and the value balance of the twise seeder's replacement. */
+  budget?: BudgetSummary;
   boundary: BoundarySummary;
   deviation: DeviationSummary;
   metamorphic: MetamorphicSummary;
@@ -151,7 +160,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const run: RunIdentity = { seed, mapPath: options.mapPath };
 
   const graph = graphSeeder(prepared, context);
-  const twise = twiseSeeder(prepared, context);
+  const budgeted =
+    options.budget === undefined ? undefined : budgetSeeder(prepared, context, { budget: options.budget });
+  const twise = budgeted ?? twiseSeeder(prepared, context);
   const boundary = boundarySeeder(prepared, context);
   const deviation = deviationSeeder(prepared, context);
   const metamorphic = metamorphicSeeder(prepared, context);
@@ -166,7 +177,8 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   };
   const cut: Record<Seeder, boolean> = {
     graph: graph.summary.blocked.length > 0 && graph.summary.paths >= max,
-    twise: twise.summary.covered < twise.summary.allowed,
+    // A budget below the pair-cover size is the point of the mode, not a cut: it exits 0.
+    twise: budgeted === undefined && twise.summary.covered < twise.summary.allowed,
     boundary: dataValues(prepared) > boundary.drafts.length,
     deviation: deviation.summary.classes > deviation.drafts.length,
     metamorphic: metamorphic.drafts.length >= max,
@@ -328,7 +340,12 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       constraints: prepared.map.constraints.length,
       phrases: prepared.phrases.length,
     },
-    options: { t, seed, max: Number.isFinite(max) ? max : null },
+    options: {
+      t,
+      seed,
+      max: Number.isFinite(max) ? max : null,
+      ...(options.budget === undefined ? {} : { budget: options.budget }),
+    },
     summary: {
       specs: totals.reduce((sum, entry) => sum + entry.specs, 0),
       blocks: totals.reduce((sum, entry) => sum + entry.blocks, 0),
@@ -338,6 +355,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     seeders,
     graph: graph.summary,
     twise: twise.summary,
+    ...(budgeted ? { budget: budgeted.budget } : {}),
     boundary: boundary.summary,
     deviation: deviation.summary,
     metamorphic: metamorphic.summary,
@@ -446,7 +464,9 @@ export function renderSummary(report: GenerateReport): string {
         ? ` Paths no cell can walk: ${report.graph.unwalked.map((entry) => entry.path).join(', ')}.`
         : ''
     }`,
-    `t-wise: covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}).`,
+    report.budget
+      ? `Budget ${report.budget.budget}: ${report.budget.picked} cells of ${report.budget.pool} allowed, pairs covered ${report.budget.pairs.covered} of ${report.budget.pairs.allowed} (${percent(report.budget.pairs.share)}), max deviation from fair share ${report.budget.maxDeviation.toFixed(2)}.`
+      : `t-wise: covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}).`,
     `Constraints applied: ${report.constraints.applied}.`,
     `Deviation probes: ${report.deviation.probes.length} of ${report.deviation.classes} classes. Metamorphic families: ${report.metamorphic.families}.`,
     `Coverage on the axis map at t = ${report.coverage.t}: complete specs ${report.coverage.complete.covered} of ${report.coverage.allowed} (${percent(report.coverage.complete.share)}), all specs ${report.coverage.all.covered} (${percent(report.coverage.all.share)})${report.coverage.baseline ? `, ${report.coverage.baseline.label} ${report.coverage.baseline.covered} (${percent(report.coverage.baseline.share)})` : ''}.`,

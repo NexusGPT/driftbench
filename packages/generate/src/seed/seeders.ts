@@ -10,6 +10,7 @@ import {
   pickOf,
   type SpecDraft,
 } from './assemble';
+import { enumerateCells, selectBudget } from './budget';
 import {
   DETOURS,
   MAX_CALLS_AFTER_FAILURE,
@@ -19,9 +20,9 @@ import {
 } from './deviation';
 import { type Edge, type StageGraph, stageGraph, walkGraph } from './graph';
 import { dimensionId, type PreparedMap, partitionOf, phraseKey, valueId } from './map';
-import { pick, type Rng, rngFor, shuffle, streamSeed } from './random';
+import { pick, type Rng, range, rngFor, shuffle, streamSeed } from './random';
 import { buildScenario, type ProbeRequest } from './scenario';
-import { coveringArray } from './twise';
+import { type AllowedCheck, coveringArray } from './twise';
 import { concreteValue, INVALID_PARTITIONS, inputAssertion, toolAnswer } from './values';
 
 /**
@@ -425,28 +426,20 @@ function withDetails(prepared: PreparedMap, cell: readonly Pick[], rng: Rng): Pi
   return [...cell, ...details];
 }
 
-export function twiseSeeder(
+/**
+ * The conversation drafts of a set of rows: one cell per row, its path (when the map holds approved
+ * paths), or a carrier when no path builds. `label` names the rows in their titles.
+ */
+export function rowDrafts(
   prepared: PreparedMap,
   context: SeedContext,
-): { drafts: SpecDraft[]; summary: TwiseSummary } {
-  const dimensions = twiseDimensions(prepared);
-  const sizes = prepared.space.dimensions.map((dimension) => dimension.values.length);
-  const t = Math.min(context.t, dimensions.length);
-  // A row is a conversation: it holds no task setting, so every task axis stays at its `none`.
-  const taskNones: Pick[] = [...prepared.axes].flatMap((index): Pick[] => {
-    const dimension = prepared.space.dimensions[index];
-    const empty = dimension?.index.get(NONE);
-    return dimension?.kind === 'task' && empty !== undefined ? [[index, empty]] : [];
-  });
-  const conversation = {
-    allowed: (picks: readonly Pick[]) => prepared.feasibility.allowed([...picks, ...taskNones]),
-  };
-  const array = coveringArray(conversation, sizes, dimensions, t, rngFor(context.seed, 'twise'), context.max);
-  const drafts = array.rows.map((row, index) => {
+  cells: readonly (readonly Pick[])[],
+  label: string,
+): SpecDraft[] {
+  return cells.map((cell, index) => {
     const id = `gen-twise-${pad(index + 1)}`;
-    const cell: Pick[] = dimensions.map((dimension) => [dimension, row[dimension] ?? 0]);
-    const title = `t-wise row ${index + 1} of ${array.rows.length}`;
-    if (!hasPaths(prepared)) return carrierDraft(prepared, context, id, 'twise', title, cell);
+    const title = `${label} row ${index + 1} of ${cells.length}`;
+    if (!hasPaths(prepared)) return carrierDraft(prepared, context, id, 'twise', title, [...cell]);
     const behaviour = cell
       .filter(
         ([dimension]) =>
@@ -480,8 +473,42 @@ export function twiseSeeder(
       paths.length === 0
         ? [`no approved path belongs to a flow of ${behaviour ?? 'the row'} (${flows.join(', ') || 'none'})`]
         : built.reasons;
-    return withReasons(carrierDraft(prepared, context, id, 'twise', title, cell), reasons);
+    return withReasons(carrierDraft(prepared, context, id, 'twise', title, [...cell]), reasons);
   });
+}
+
+/** The conversation's cell of each row: the twise dimensions, the task axes held at their `none`. */
+function conversationOf(prepared: PreparedMap): {
+  dimensions: number[];
+  sizes: number[];
+  allowed: AllowedCheck;
+} {
+  const dimensions = twiseDimensions(prepared);
+  const sizes = prepared.space.dimensions.map((dimension) => dimension.values.length);
+  // A row is a conversation: it holds no task setting, so every task axis stays at its `none`.
+  const taskNones: Pick[] = [...prepared.axes].flatMap((index): Pick[] => {
+    const dimension = prepared.space.dimensions[index];
+    const empty = dimension?.index.get(NONE);
+    return dimension?.kind === 'task' && empty !== undefined ? [[index, empty]] : [];
+  });
+  return {
+    dimensions,
+    sizes,
+    allowed: { allowed: (picks: readonly Pick[]) => prepared.feasibility.allowed([...picks, ...taskNones]) },
+  };
+}
+
+export function twiseSeeder(
+  prepared: PreparedMap,
+  context: SeedContext,
+): { drafts: SpecDraft[]; summary: TwiseSummary } {
+  const { dimensions, sizes, allowed } = conversationOf(prepared);
+  const t = Math.min(context.t, dimensions.length);
+  const array = coveringArray(allowed, sizes, dimensions, t, rngFor(context.seed, 'twise'), context.max);
+  const cells = array.rows.map((row) =>
+    dimensions.map((dimension): Pick => [dimension, row[dimension] ?? 0]),
+  );
+  const drafts = rowDrafts(prepared, context, cells, 't-wise');
   const summary: TwiseSummary = {
     t,
     dimensions: dimensions.map((dimension) => dimensionId(prepared, dimension)),
@@ -491,6 +518,98 @@ export function twiseSeeder(
     share: array.allowed === 0 ? 0 : array.covered / array.allowed,
   };
   return { drafts, summary };
+}
+
+/** The budget seeder's account of its picks: pair coverage and the value balance per dimension. */
+export type BudgetSummary = {
+  budget: number;
+  seed: number;
+  dimensions: string[];
+  /** Allowed cells of the pool. */
+  pool: number;
+  /** Cells picked: the budget, or the pool when the budget is larger. */
+  picked: number;
+  /** The budget is larger than the pool: every allowed cell is in the suite and nothing more can be placed. */
+  capped: boolean;
+  pairs: { allowed: number; covered: number; share: number };
+  values: Array<{
+    dimension: string;
+    allowed: number;
+    values: Array<{ value: string; count: number; fair: number; deviation: number }>;
+  }>;
+  /** The largest |count - fair share| over every value of every dimension. */
+  maxDeviation: number;
+};
+
+/**
+ * Budget mode: N conversations placed by the budget rules (seed/budget.ts) over the twise dimensions. Pair
+ * coverage is the hard rule, the Latin hypercube balance breaks ties. Each picked cell is drafted as a
+ * twise row is, so the rest of the pipeline is the same.
+ */
+export function budgetSeeder(
+  prepared: PreparedMap,
+  context: SeedContext,
+  options: { budget: number },
+): { drafts: SpecDraft[]; summary: TwiseSummary; budget: BudgetSummary } {
+  const { dimensions, sizes, allowed } = conversationOf(prepared);
+  const pool = enumerateCells(
+    sizes.filter((_, index) => dimensions.includes(index)),
+    (cell) => allowed.allowed(cell.map((value, index) => [dimensions[index] as number, value] as const)),
+  );
+  const selection = selectBudget(
+    pool,
+    dimensions.map((dimension) => sizes[dimension] ?? 0),
+    options.budget,
+    rngFor(context.seed, 'budget'),
+  );
+  const cells = selection.picked.map((index) =>
+    dimensions.map((dimension, column): Pick => [dimension, pool[index]?.[column] ?? 0]),
+  );
+  const drafts = rowDrafts(prepared, context, cells, 'budget');
+  const picked = selection.picked.length;
+  const share = selection.pairs.allowed === 0 ? 0 : selection.pairs.covered / selection.pairs.allowed;
+  const summary: TwiseSummary = {
+    t: 2,
+    dimensions: dimensions.map((dimension) => dimensionId(prepared, dimension)),
+    rows: picked,
+    allowed: selection.pairs.allowed,
+    covered: selection.pairs.covered,
+    share,
+  };
+  const values = dimensions.map((dimension, column) => {
+    const allowedCount = selection.allowedValues[column] ?? 0;
+    const fair = allowedCount === 0 ? 0 : picked / allowedCount;
+    const present = (value: number) => (pool.some((row) => row[column] === value) ? value : -1);
+    const rows = range(sizes[dimension] ?? 0)
+      .map(present)
+      .filter((value) => value >= 0)
+      .map((value) => {
+        const count = selection.counts[column]?.[value] ?? 0;
+        return {
+          value: valueId(prepared, dimension, value),
+          count,
+          fair,
+          deviation: count - fair,
+        };
+      });
+    return { dimension: dimensionId(prepared, dimension), allowed: allowedCount, values: rows };
+  });
+  const maxDeviation = Math.max(
+    0,
+    ...values.flatMap((entry) => entry.values.map((value) => Math.abs(value.deviation))),
+  );
+  const budget: BudgetSummary = {
+    budget: options.budget,
+    seed: context.seed,
+    dimensions: summary.dimensions,
+    pool: pool.length,
+    picked,
+    capped: options.budget > pool.length,
+    pairs: { ...selection.pairs, share },
+    values,
+    maxDeviation,
+  };
+  return { drafts, summary, budget };
 }
 
 /**

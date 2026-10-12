@@ -191,4 +191,38 @@ describe('driftbench generate', () => {
     expect(measured.baseline.label).toBe('out/specs');
     expect(measured.baseline.covered).toBe(measured.complete.covered);
   });
+
+  it('exits 0 below full pair coverage in budget mode and reports the uncovered pairs', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    await writeFile(join(dir, 'prompt.md'), PROMPT);
+    const map = PHRASED_MAP.replace(
+      `constraints: []`,
+      `      - { id: voice, title: Voice, evidence: ${EVIDENCE}, ${CODE} }\nconstraints: []`,
+    ).replace(
+      `relations:\n`,
+      `  - { dimension: channel, value: voice, text: Hello from the voice channel., lang: en, produced_by: model, approved: true }\nrelations:\n`,
+    );
+    await writeFile(join(dir, 'map.yaml'), map);
+    const result = await run(['generate', '--map', 'map.yaml', '--out', 'out', '--budget', '1'], dir);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    expect(result.out).toContain('pairs covered 3 of 8');
+    const report = JSON.parse(await readFile(join(dir, 'out/generate-report.json'), 'utf8'));
+    expect(report.budget.picked).toBe(1);
+    expect(report.seeders.twise.cut).toBe(false);
+    expect(report.budget.pairs).toMatchObject({ covered: 3, allowed: 8 });
+  });
+
+  it('refuses invalid budgets before writing output', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    for (const budget of ['0', '-1', '1.5', 'NaN']) {
+      const result = await run(
+        ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'out', '--budget', budget],
+        dir,
+      );
+      expect(result.code).toBe(2);
+      expect(result.err).toContain('--budget must be a whole number of at least 1');
+    }
+    expect(await readdir(dir)).toEqual([]);
+  });
 });
