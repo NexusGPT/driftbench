@@ -508,7 +508,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       const project = join(state.configDir, 'projects', projectFolderName(state.sandbox.root));
       // A daemon an estate guard starts can leave the run's process group and keep running from the copy
       // or with the run's home: what still names or stands in either folder ends now, kept or not.
-      await reapFolder([state.stateFolder]);
+      await reapFolder([state.sandbox.root, state.stateFolder]);
       await state.sandbox.destroy();
       if (options.keep) return;
       await rm(state.stateFolder, { recursive: true, force: true });

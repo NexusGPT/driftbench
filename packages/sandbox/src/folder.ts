@@ -26,7 +26,6 @@ import type {
 import { trackFolder, untrackFolder } from './cleanup';
 import { DEFAULT_MAX_READ_BYTES, SandboxLimitError, SandboxPathError, type SnapshotLimits } from './limits';
 import { makeFoldersInside, relativeInside, resolveExisting } from './paths';
-import { reapFolder } from './reap';
 import { diffSnapshots, takeSnapshot, walkFiles } from './walk';
 
 export type Workspace = NonNullable<WorldState['workspace']>;
@@ -118,9 +117,6 @@ export abstract class FolderSandbox implements Sandbox {
 
   /** Removes the workspace folder unless the sandbox keeps it. */
   protected async removeFolder(): Promise<void> {
-    // What a command started and left running (a daemon that left its process group) ends with the folder,
-    // kept or not: a kept folder keeps its files, never its processes.
-    await reapFolder([this.folder]);
     if (!this.keep) {
       await rm(this.folder, { recursive: true, force: true });
       untrackFolder(this.folder);

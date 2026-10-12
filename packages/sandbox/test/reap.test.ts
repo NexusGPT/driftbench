@@ -44,7 +44,7 @@ afterAll(async () => {
 });
 
 describe('processes a run leaves behind', () => {
-  it('a sandbox ends every process it started, even one that left its process group, when it is destroyed', async () => {
+  it('reapFolder ends what a sandbox command left running, even a process that left its process group', async () => {
     const parent = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-reap-test-')));
     parents.push(parent);
     const box = await localProvider({ dir: parent }).create({});
@@ -60,6 +60,7 @@ describe('processes a run leaves behind', () => {
     await until(() => alive(byPath).length > 0 && alive(byPlace).length > 0);
     expect(alive(byPath)).toHaveLength(1);
     expect(alive(byPlace)).toHaveLength(1);
+    await reapFolder([box.root]);
     await box.destroy();
     await until(() => alive(byPath).length === 0 && alive(byPlace).length === 0);
     expect(alive(byPath)).toEqual([]);

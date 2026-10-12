@@ -143,7 +143,7 @@ Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, tools_offered, forb
 The runs are not kept: pass --store <file> to keep them.
 ```
 
-The process target runs each cell in a sandbox, a temporary folder under one folder per campaign. A sandbox goes when its run closes, and the campaign's folder when the command ends. Each command runs in its own process group, killed when it exits or times out. A process that left the group (a daemon in a new session) is ended too when its sandbox goes: any process whose command line names the sandbox folder, or that works inside it. The same holds for `estate run` (the estate copy and its state folder) and `estate unit` (its run folder), and on an interrupt.
+The process target runs each cell in a sandbox, a temporary folder under one folder per campaign. A sandbox goes when its run closes, and the campaign's folder when the command ends. Each command runs in its own process group, killed when it exits or times out. `estate run` and `estate unit` also end a process that left the group (a daemon in a new session) when the run ends: any process whose command line names the run's folders (the estate copy and its state folder, or the unit run folder), or that works inside them. On an interrupt, every sandbox folder still open is reaped the same way.
 
 | Option | Effect |
 |---|---|
