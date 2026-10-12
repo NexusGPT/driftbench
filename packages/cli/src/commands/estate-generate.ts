@@ -15,6 +15,7 @@ import {
   renderEstateSummary,
   SessionIndex,
   STATIC_DIR,
+  UNIT_DIR,
   type YamlSchema,
 } from '@driftbench/generate';
 import type { Command } from 'commander';
@@ -215,6 +216,7 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
       ESTATE_REPORT_FILE,
       ESTATE_ORDER_FILE,
       STATIC_DIR,
+      UNIT_DIR,
     ]) {
       await rm(join(outPath, entry), { recursive: true, force: true });
     }

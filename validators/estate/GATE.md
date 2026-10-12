@@ -53,6 +53,11 @@ Items that the pilot cannot move were measured once and carried to every row; th
 
 ## The recorded estate bar (accepted)
 
+The lines `driftbench validate estate --hardness` reads:
+
+- Max score after the pilot: 0.75
+- Min forecast: 30
+
 The bar this validator is held to, accepted by the lead on the owner's decision:
 
 | Term | Section 12.4 bar | Estate bar | Measured |

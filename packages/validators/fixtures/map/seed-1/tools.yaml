@@ -4,7 +4,6 @@ tools:
     description: Finds an account by its reference.
     input_schema:
       type: object
-      additionalProperties: false
       required: [name, attempts]
       properties:
         name: { type: string }
@@ -23,7 +22,6 @@ tools:
     description: Places an order for a plan.
     input_schema:
       type: object
-      additionalProperties: false
       required: [contact_email, queued, slot]
       properties:
         contact_email: { type: string, format: email }
@@ -54,7 +52,6 @@ tools:
     description: Opens a refund request.
     input_schema:
       type: object
-      additionalProperties: false
       required: [priority, note]
       properties:
         priority: { type: string, enum: [basic, plus, max] }
@@ -69,7 +66,6 @@ tools:
     description: Hands a case to a person.
     input_schema:
       type: object
-      additionalProperties: false
       required: [count, customer, reference, reason_code]
       properties:
         count: { type: integer, minimum: 0 }

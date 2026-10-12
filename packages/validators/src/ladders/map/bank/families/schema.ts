@@ -515,15 +515,19 @@ export const SCHEMA_CASES: readonly Case[] = [
     slug: 'dependencies',
     tier: 4,
     title: 'draft-07 dependencies (array form) gives present-without-<other>',
-    make: (_d, name) => ({
-      properties: { [name]: { type: 'string', format: 'date' }, reason: { type: 'string', minLength: 1 } },
-      required: [],
-      extra: { dependencies: { [name]: ['reason'] } },
-      expected: [
-        { path: [name], partitions: ['well-formed', 'malformed', 'absent', 'present-without-reason'] },
-        { path: ['reason'], partitions: ['below-min-length', 'at-min-length', 'absent'] },
-      ],
-    }),
+    make: (_d, name) => {
+      // The other property is never the drawn one: two properties of one name are one key in YAML.
+      const other = name === 'reason' ? 'detail' : 'reason';
+      return {
+        properties: { [name]: { type: 'string', format: 'date' }, [other]: { type: 'string', minLength: 1 } },
+        required: [],
+        extra: { dependencies: { [name]: [other] } },
+        expected: [
+          { path: [name], partitions: ['well-formed', 'malformed', 'absent', `present-without-${other}`] },
+          { path: [other], partitions: ['below-min-length', 'at-min-length', 'absent'] },
+        ],
+      };
+    },
   },
   {
     slug: 'if-then-else',
@@ -638,11 +642,15 @@ export const SCHEMA_CASES: readonly Case[] = [
   {
     slug: 'unevaluated-items',
     tier: 4,
-    title: 'unevaluatedItems false on a tuple adds extra-item',
-    make: one(
-      () => ({ type: 'array', prefixItems: [{ type: 'boolean' }], unevaluatedItems: false }),
-      () => [...ARRAY, 'extra-item'],
-    ),
+    title: 'unevaluatedItems false on a tuple adds extra-item; the tuple still gives its position <array>.0',
+    make: (_d, name) => ({
+      properties: { [name]: { type: 'array', prefixItems: [{ type: 'boolean' }], unevaluatedItems: false } },
+      required: [name],
+      expected: [
+        { path: [name], partitions: [...ARRAY, 'extra-item'] },
+        { path: [name, '0'], partitions: ['true', 'false'] },
+      ],
+    }),
   },
   {
     slug: 'min-contains',
@@ -776,11 +784,16 @@ export const SCHEMA_CASES: readonly Case[] = [
   {
     slug: 'additional-items',
     tier: 4,
-    title: 'additionalItems false after a tuple adds extra-item',
-    make: one(
-      () => ({ type: 'array', items: [{ type: 'boolean' }], additionalItems: false }),
-      () => [...ARRAY, 'extra-item'],
-    ),
+    title:
+      'additionalItems false after a tuple adds extra-item; the tuple still gives its position <array>.0',
+    make: (_d, name) => ({
+      properties: { [name]: { type: 'array', items: [{ type: 'boolean' }], additionalItems: false } },
+      required: [name],
+      expected: [
+        { path: [name], partitions: [...ARRAY, 'extra-item'] },
+        { path: [name, '0'], partitions: ['true', 'false'] },
+      ],
+    }),
   },
   {
     slug: 'ref-with-siblings',

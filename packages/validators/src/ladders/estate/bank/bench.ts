@@ -307,7 +307,7 @@ function registryCases(): Case[] {
 
 // Scale: a routing table longer than one prose chunk ----------------------------------------------------------
 
-function longTable(key: string, tier: Tier, rows: number, lintToo: boolean): Case {
+export function longTable(key: string, tier: Tier, rows: number, lintToo: boolean): Case {
   return {
     key,
     tier,
@@ -322,14 +322,15 @@ function longTable(key: string, tier: Tier, rows: number, lintToo: boolean): Cas
       writer.line('|---|---|');
       for (let index = 0; index < rows; index += 1) {
         const name = `${namesFor(s, `${o}:${index}`).noun}-task-${index}`;
-        e.file(skillFile(name, 'SKILL.md'), o).lines_([
-          '---',
-          `name: ${name}`,
-          `description: Handle task ${index}.`,
-          '---',
-          '',
-          `# ${name}`,
+        // Each skill states its own atoms: the skill on its name line, the route on its description line.
+        const skill = e.file(skillFile(name, 'SKILL.md'), o);
+        skill.line('---');
+        skill.line(`name: ${name}`, [{ hid: `${o}:skill${index}`, kind: 'skill', key: name }]);
+        skill.line(`description: Handle task ${index}.`, [
+          { hid: `${o}:desc${index}`, kind: 'route', key: name },
         ]);
+        skill.lines_(['---', '', `# ${name}`]);
+        e.edge(o, `${o}:desc${index}`, `${o}:skill${index}`, 'route');
         writer.line(`| handle task ${index} with the long wording of a real routing row | \`${name}\` |`, [
           { hid: `${o}:row${index}`, kind: 'route', key: name },
         ]);

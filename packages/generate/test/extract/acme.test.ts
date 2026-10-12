@@ -29,10 +29,10 @@ describe('the Acme map proposal', () => {
     const counts = countEntries(loaded.proposal);
     expect(counts).toMatchObject({
       dimensions: 46,
-      constraints: 59,
+      constraints: 111,
       phrases: 51,
-      relations: 63,
-      total: 219,
+      relations: 71,
+      total: 279,
       approved: 0,
     });
     expect(counts.valuesApproved).toBe(0);
@@ -61,7 +61,7 @@ describe('the Acme map proposal', () => {
     expect(
       deviation?.values.filter((value) => value.produced_by === 'model').map((value) => value.id),
     ).toEqual(['D7_silence_or_burst', 'D9_out_of_scope']);
-    expect(axisGrid(loaded.proposal)).toEqual({ cells: 81312, limit: DEFAULT_MAX_CELLS });
+    expect(axisGrid(loaded.proposal)).toEqual({ cells: 96096, limit: DEFAULT_MAX_CELLS });
   });
 
   it('is exactly what the extractor writes from the sources and the recorded lane answers', async () => {
@@ -135,6 +135,8 @@ describe('the Acme map proposal', () => {
       'callback',
       'handover',
       'closing',
+      'build_sheet',
+      'add_summary',
     ]);
   });
 
@@ -175,7 +177,7 @@ describe('the Acme map proposal', () => {
     const flipped = approveAll(proposal.text);
     if (!flipped.ok) throw new Error('cannot approve');
     expect(approved.text).toBe(flipped.text);
-    expect(countEntries(approved.proposal)).toMatchObject({ total: 219, approved: 219, valuesApproved: 175 });
+    expect(countEntries(approved.proposal)).toMatchObject({ total: 279, approved: 279, valuesApproved: 177 });
   });
 
   it('gives the space commands a map of seven axes they accept, written in space.yaml', async () => {
@@ -183,7 +185,8 @@ describe('the Acme map proposal', () => {
     if (!approved.ok) throw new Error('invalid');
     const map = toSpaceMap(approved.proposal, { approvedOnly: true });
     expect(validateSpaceMap(map).ok).toBe(true);
-    expect(gridSize(map)).toBe(81312);
+    // The approved map gives its data and task axes a `none`: a spec that holds none of them places there.
+    expect(gridSize(map)).toBe(180180);
     expect(gridSize(map)).toBeLessThanOrEqual(DEFAULT_MAX_CELLS);
     const written = await loadSpaceMap(`${ACME}map/space.yaml`);
     if (!written.ok) throw new Error(JSON.stringify(written.errors));

@@ -1,4 +1,23 @@
-import { DeviationClass } from '@driftbench/core';
+import type { DeviationClass } from '@driftbench/core';
+
+/**
+ * The deviation classes the map validator draws from: D1 to D10, frozen here. Reading the live list of core
+ * would reshuffle every seeded item, fixture and level the day core adds a class.
+ */
+export const MAP_DEVIATIONS = [
+  'D1_off_topic',
+  'D2_goal_shift',
+  'D3_contradiction',
+  'D4_loose_confirmation',
+  'D5_language_switch',
+  'D6_instruction_in_data',
+  'D7_silence_or_burst',
+  'D8_tool_failure',
+  'D9_out_of_scope',
+  'D10_return',
+] as const satisfies readonly DeviationClass[];
+export type MapDeviation = (typeof MAP_DEVIATIONS)[number];
+
 import { AtomKind } from '@driftbench/estate';
 import { mulberry32 } from '@driftbench/stats';
 
@@ -17,7 +36,7 @@ export type HiddenStage = { id: string; title: string };
 
 export type HiddenBehaviour = { id: string; title: string; channels?: string[] };
 
-export type HiddenFlow = { id: string; title: string; behaviours: string[]; deviations: DeviationClass[] };
+export type HiddenFlow = { id: string; title: string; behaviours: string[]; deviations: MapDeviation[] };
 
 /** A JSON Schema shape the tool pre-pass reads. `open` states no partition. */
 export type ArgSchema =
@@ -72,7 +91,7 @@ export type HiddenSpec = {
   tools: HiddenTool[];
   rules: HiddenRule[];
   /** A deviation class the rules handle in prose, absent from every flow; null when there is none. */
-  proseDeviation: DeviationClass | null;
+  proseDeviation: MapDeviation | null;
   personas: HiddenProseDimension[];
   data: HiddenProseDimension[];
   /** Stage tied to one channel: one constraint per channel it leaves out. */
@@ -327,8 +346,11 @@ const RULE_TEXT: Record<AtomKind, readonly { main: string; condition: string }[]
   ],
 };
 
-/** A sentence per deviation class that a rule can handle in prose. */
-export const DEVIATION_SENTENCES: Record<DeviationClass, string> = {
+/**
+ * A sentence per deviation class that a rule can handle in prose. Every class the validator draws has one; a
+ * class core adds later may have one too, and is never drawn.
+ */
+export const DEVIATION_SENTENCES: Record<MapDeviation, string> & Partial<Record<DeviationClass, string>> = {
   D1_off_topic: 'If the customer asks about something unrelated, answer briefly and return to the request',
   D2_goal_shift: 'If the customer changes what they want halfway, start the new request from its first step',
   D3_contradiction: 'If the customer gives a value that contradicts an earlier one, ask which one is right',
@@ -361,12 +383,12 @@ export function hiddenSpec(seed: number): HiddenSpec {
   const flows: HiddenFlow[] = draw.subset(FLOWS, draw.int(2, 4)).map((flow) => {
     const members = draw.subset(behaviours, draw.int(2, Math.min(4, behaviours.length)));
     const deviations = draw.chance(0.75)
-      ? draw.subset(DeviationClass.options, draw.int(1, 3))
-      : ([] as DeviationClass[]);
+      ? draw.subset(MAP_DEVIATIONS, draw.int(1, 3))
+      : ([] as MapDeviation[]);
     return { ...flow, behaviours: members.map((member) => member.id), deviations };
   });
   const required = new Set(flows.flatMap((flow) => flow.deviations));
-  const spare = DeviationClass.options.filter((deviation) => !required.has(deviation));
+  const spare = MAP_DEVIATIONS.filter((deviation) => !required.has(deviation));
   const proseDeviation = draw.chance(0.6) && spare.length > 0 ? draw.pick(spare) : null;
 
   const tools = draw.subset(TOOL_NAMES, draw.int(2, 4)).map((tool) => ({
