@@ -7,27 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 6 |
-| 2 | 6 |
-| 3 | 6 |
-| 4 | 6 |
-| 5 | 6 |
-| 6 | 6 |
-| 7 | 6 |
-| 8 | 6 |
-| 9 | 6 |
-| 10 | 6 |
-| 11 | 6 |
-| 12 | 6 |
-| 13 | 6 |
-| 14 | 6 |
-| 15 | 6 |
-| 16 | 6 |
-| 17 | 6 |
-| 18 | 6 |
-| 19 | 6 |
-| 20 | 6 |
-| hidden | 6 |
+| 1 | 7 |
+| 2 | 7 |
+| 3 | 7 |
+| 4 | 7 |
+| 5 | 7 |
+| 6 | 7 |
+| 7 | 7 |
+| 8 | 7 |
+| 9 | 7 |
+| 10 | 7 |
+| 11 | 7 |
+| 12 | 7 |
+| 13 | 7 |
+| 14 | 7 |
+| 15 | 7 |
+| 16 | 7 |
+| 17 | 7 |
+| 18 | 7 |
+| 19 | 7 |
+| 20 | 7 |
+| hidden | 7 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 6 passes since iteration 34 (clients and criteria green). Level 7, check: `check/diff-summary-one-line` (1 item left in the family). Then level 8 rubric (20 items, `rubric/two-questions` first), render, budget, evidence, injection (102 items) and later. Handover test (`--brief --fresh`) last run at iteration 25 and reproduced the level.
+Level 7 (check) passes since iteration 38. Level 8, rubric (20 items, all failing): `rubric/two-questions`, `subjective`, `vague-quantity`, `double-negative`, `no-observable`; read the head comment of families/rubric*.ts for the capability. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
 
 ## Hypotheses tried
 
@@ -63,11 +63,12 @@ Iteration 34 (cause: usageFromResponse missing): packages/judges/src/clients/usa
 Iteration 36 (cause: duplicate judge ids): `combineVerdicts` refuses two judge verdicts with one id. Test: check.test.ts "two judge verdicts with one id" (red first). Bank 300 -> 301 (0.4718).
 Iteration 37 (cause: safe-id collision): `uniqueIds` in judgeCheck (suffix -2, -3). Test: check.test.ts "two criterion names that map to one safe id" (red first). Bank 301 -> 302 (0.4734).
 The first commit of iteration 34 lacked the index export; a second commit added it and the row is of that second commit.
+Iteration 38 (cause: raw file names in diff summary): `oneLine` in artifacts.ts. Test: task.test.ts "a diff summary with a line break in a file name" (red proved by reverting the source). Bank 302 -> 303 (0.4749). Level 6 -> 7. Pitfall: a heredoc turns \u2028 in test text into the raw character; write such escapes with python and a doubled backslash.
 
 ## Next actions
 
-1. Level 7 check family, one cause per iteration, first `check/diff-summary-one-line` (packages/judges/src/artifacts.ts summarizeDiff).
-2. Then level 8 rubric (`rubric/two-questions`) and onward: `validate judges --seeds 1..20 --hidden --items`.
+1. Level 8 rubric: find the capability in packages/validators/src/ladders/judges/v2/families (rubric file head comment) and the Planned/rubric lines of docs/concepts/judges.md; build it in packages/judges, one cause per iteration.
+2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
 3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
 
 ## Pitfalls
