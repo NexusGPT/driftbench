@@ -58,7 +58,23 @@ const caller = createCaller(
   { capUsd: Math.max(0, cap - 0.1), replayOnly: process.argv.includes('--replay-only') },
 );
 let stopped: string | undefined;
-const results = [];
+const results: {
+  item: PairItem;
+  rowKey: string;
+  games: PairDecision[];
+  rated: PairDecision[];
+  excerpt: PairDecision[];
+  reconciled: PairDecision[];
+  parsed: (AnchorDecision | undefined)[];
+  readings: ReturnType<typeof parseReading>[] | undefined;
+  costUsd: number;
+  baseCostUsd: number;
+  reconciliationCostUsd: number;
+  readCostUsd: number;
+  missing: number;
+  resolutionMissing: number;
+  resolution: string | undefined;
+}[] = [];
 for (const item of items) {
   let costUsd = 0;
   const call = async (p: Parameters<typeof caller.call>[0], order: string) => {

@@ -73,13 +73,19 @@ async function main() {
   const auditPath = arg('audit');
   const audit = auditPath
     ? (JSON.parse(await readFile(auditPath, 'utf8')) as {
-        items: { rowKey: string; status: string; readFully: boolean }[];
+        items: { rowKey: string; status: string; readFully: boolean; certainty?: string }[];
       })
     : undefined;
   const suspect = new Set(
     audit?.items.filter((x) => x.readFully && x.status === 'suspect').map((x) => x.rowKey),
   );
   const trusted = measured.results.filter((x) => !suspect.has(x.rowKey));
+  const clearSuspect = new Set(
+    audit?.items
+      .filter((x) => x.readFully && x.status === 'suspect' && x.certainty?.startsWith('clear-'))
+      .map((x) => x.rowKey),
+  );
+  const strictTrusted = measured.results.filter((x) => !clearSuspect.has(x.rowKey));
   const report = {
     source: input,
     split: measured.split,
@@ -97,6 +103,12 @@ async function main() {
             'Exclude manually reviewed suspect labels; no labels flipped. This subset score is not official benchmark accuracy.',
           excluded: measured.results.length - trusted.length,
           score: writingAccuracy(trusted),
+          strict: {
+            excluded: measured.results.length - strictTrusted.length,
+            score: writingAccuracy(strictTrusted),
+            method:
+              'Exclude only clear explicit-deliverable failures; retain conditional interpretation suspects.',
+          },
           auditedRows: measured.results.filter((r) =>
             audit.items.some((a) => a.rowKey === r.rowKey && a.readFully),
           ).length,

@@ -9,8 +9,17 @@ const arg = (s: string) => {
   return i < 0 ? undefined : process.argv[i + 1];
 };
 const input = arg('dev-report'),
-  variant = arg('variant');
-if (!input || !variant) throw new Error('--dev-report and --variant required');
+  variant = arg('variant'),
+  validationPath = arg('validation-report');
+if (!input || !variant || !validationPath)
+  throw new Error('--dev-report, --variant and --validation-report required');
+const validation = JSON.parse(await readFile(validationPath, 'utf8'));
+if (
+  validation.split !== 'dev' ||
+  validation.selection.variant !== variant ||
+  validation.selection.path !== input
+)
+  throw new Error('Freeze must select the design chosen on the 80 DEV pairs outside the tuning pilot');
 const report = JSON.parse(await readFile(input, 'utf8'));
 if (
   report.split !== 'dev' ||
@@ -59,6 +68,8 @@ const manifest = {
   variant,
   frozenAt,
   devReport: input,
+  validationReport: validationPath,
+  validation80: validation.selection.validationAccuracy,
   officialDev: report.summary,
   devPerOrder: report.perOrder,
   costPer100: report.costPer100,

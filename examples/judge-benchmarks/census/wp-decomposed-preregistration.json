@@ -51,5 +51,38 @@
       "quality distinguishes assertion from realized experience and responsible unknowns"
     ],
     "pilotGate": "strictly greater than 45% on the same ten pairs before full DEV; freeze holistic if no fix ready by 03:45 Brussels"
+  },
+  "freezeSelection": {
+    "authority": "Owner: score the80 pairs outside v3 tuning beside holistic on the same80; freeze decision uses80.",
+    "partition": "Exact pilot row keys from stratifiedSample(full,10,wp-cost-pilot)",
+    "rule": "Highest accuracy on other80; exact ties use lower full recipe cost",
+    "full90ReportedSeparately": true,
+    "tenPilotReportedSeparately": true,
+    "notATestHoldout": true
+  },
+  "v4DraftBeforeValidationResult": {
+    "createdAt": "2026-10-12T22:45:27.972331+00:00",
+    "beforeV3Validation80Result": true,
+    "causes": [
+      "Extracted craft criterion falsely forbids additional fictional plot events",
+      "Single reply is rendered as one transcript line, replacing every paragraph boundary with the arrow delimiter"
+    ],
+    "evidenceQuote": "without adding unrequested plot events, sources, or viewpoint shifts.",
+    "weightsUnchanged": true,
+    "findReplace": [
+      {
+        "find": "request-blind-single-reply-v3",
+        "replace": "request-blind-single-reply-v4"
+      },
+      {
+        "find": "Quality criteria must not add plot events, sources, viewpoint changes, platform markers or promotional calls to action that the commission does not request. A requested tone or inner struggle can evolve into an earned resolution. Derive quality criteria from the intended reader experience, not from a generic publication template.",
+        "replace": "Your extraction must not invent writing requirements such as mandatory plot events, sources, viewpoint changes, platform markers or promotional calls to action. This restriction governs YOUR extraction, not the candidate author: fiction can invent additional events and characters. Evaluate their coherence and contribution to the requested experience. A requested tone or inner struggle can evolve into an earned resolution. Derive quality criteria from the intended reader experience."
+      },
+      {
+        "find": "    transcript: [\n      { role: 'user', text: question },\n      { role: 'agent', text: reply },\n    ],",
+        "replace": "    artifact: reply,\n    transcript: [{ role: 'user', text: question }],"
+      }
+    ],
+    "applyAfter": "V3 full DEV finishes; rerun the same ten before any V4 full run"
   }
 }

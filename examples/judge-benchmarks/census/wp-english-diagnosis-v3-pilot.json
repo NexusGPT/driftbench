@@ -1,0 +1,898 @@
+{
+  "createdAt": "2026-10-12T22:48:02.845427+00:00",
+  "split": "dev",
+  "scope": "five English pilot pairs, not the full English population",
+  "englishPilotAccuracy": 0.2,
+  "matchedHolisticEnglishPilotAccuracy": 0.2,
+  "misses": [
+    {
+      "rowKey": "940ecafd5cfce547c277",
+      "cause": "scoring",
+      "description": "Genre and emotional-resolution judgments favor a consistent plan over the enacted but inconsistent novel",
+      "games": [
+        "B",
+        "B"
+      ],
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Devise an original Xuanhuan novel concept.",
+            "sourceQuote": "Please devise a Xuanhuan novel",
+            "mandatory": true
+          },
+          {
+            "requirement": "The novel has a dark fantasy tone.",
+            "sourceQuote": "with a dark fantasy tone",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist is the scion of a fallen noble house.",
+            "sourceQuote": "The protagonist is the scion of a fallen noble house",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist is born with a cursed Devouring Bloodline.",
+            "sourceQuote": "born with a cursed \"Devouring Bloodline.\"",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist must consume the life essence or spiritual energy of other beings to survive and grow stronger.",
+            "sourceQuote": "He must consume the life essence or spiritual energy of other beings to survive and grow stronger",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist is regarded as a monster by the world.",
+            "sourceQuote": "making him a monster in the eyes of the world",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist's heart is filled with self-loathing.",
+            "sourceQuote": "His heart is filled with self-loathing",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist struggles against his own nature.",
+            "sourceQuote": "struggle against his own nature",
+            "mandatory": true
+          }
+        ],
+        "development": "For fiction, judge whether the story enacts the Devouring Bloodline's cursed consumption as concrete, causal events, showing how feeding on other beings's life essence or spiritual energy meets survival needs and drives growth, and whether the world's perception of him as a monster is dramatized through specific encounters. The protagonist's self-loathing and struggle against his nature should be shown through choices, tension and consequences, with any emotional change earned rather than asserted. Invented fictional details such as sects, houses, cultivation terms and the curse's origin are acceptable when they serve these elements.",
+        "craft": "Judge a coherent narrative structure with consistent dark fantasy tone and a voice suited to a Xuanhuan reader, with smooth transitions between scenes and consistent rules for the Devouring Bloodline. The concept should be original and internally consistent in its treatment of the bloodline, the fallen house, and the protagonist's inner conflict."
+      },
+      "qualityScores": [
+        {
+          "name": "development",
+          "reasoning": "A: The early and middle chapters enact feeding as concrete causal events with consequences (Chen crippled, Zhou's life drained, Qian killed), and the monster perception is dramatized through encounters. Later chapters shift to abstract demon dialogue and cosmic conversion, and the late emotional change is partly asserted rather than earned.\nB: The consumption is enacted as concrete, causal events: the accidental drain, feeding on spirit-beasts, the massacre pushed by Hei Yan to break into Nebula Palace, and the devouring of the Furnace-Star altar. The world's perception is shown through the Gorge Hunt. Self-loathing and the struggle appear through the suicide attempt, the oath, and the self-immolation. Emotional change is largely summarized in the outline rather than earned on the page.",
+          "first": 3,
+          "second": 3
+        },
+        {
+          "name": "craft",
+          "reasoning": "A: The narrative drifts from grounded vigilante drama into multiversal conversion, and the bloodline rules are inconsistent. Early text says purification \"can't be devoured\" and that the bloodline is a curse from a dark pact, yet later the bloodline devours purification and demonic essence and is revealed as an anti-demon method. The pacing jumps abruptly across chapters, and the voice is more Western epic than Xuanhuan.\nB: The structure is coherent across seven arcs with chapter ranges, and the tone is consistent. The bloodline rules mostly hold: the 8th tier, mind corrosion, the 'borrow' mitigation, and Shi Luo's immunity. Weaknesses include the vague final mechanism (turning the bloodline inward into an 'endless loop'), the lack of prose voice (the reply is an outline, so Xuanhuan voice and scene transitions are only implied), and a loose 'Ninefold Sky' realm structure described as three groups of three.",
+          "first": 2,
+          "second": 3
+        }
+      ],
+      "rawScorecards": [
+        {
+          "reverse": false,
+          "side": "single-first",
+          "items": [
+            {
+              "name": "requirement-1",
+              "rubric": "Devise an original Xuanhuan novel concept. Source phrase: Please devise a Xuanhuan novel",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-2",
+              "rubric": "The novel has a dark fantasy tone. Source phrase: with a dark fantasy tone",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-3",
+              "rubric": "The protagonist is the scion of a fallen noble house. Source phrase: The protagonist is the scion of a fallen noble house",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-4",
+              "rubric": "The protagonist is born with a cursed Devouring Bloodline. Source phrase: born with a cursed \"Devouring Bloodline.\"",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-5",
+              "rubric": "The protagonist must consume the life essence or spiritual energy of other beings to survive and grow stronger. Source phrase: He must consume the life essence or spiritual energy of other beings to survive and grow stronger",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-6",
+              "rubric": "The protagonist is regarded as a monster by the world. Source phrase: making him a monster in the eyes of the world",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-7",
+              "rubric": "The protagonist's heart is filled with self-loathing. Source phrase: His heart is filled with self-loathing",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-8",
+              "rubric": "The protagonist struggles against his own nature. Source phrase: struggle against his own nature",
+              "weight": 0.05625
+            },
+            {
+              "name": "development",
+              "rubric": "For fiction, judge whether the story enacts the Devouring Bloodline's cursed consumption as concrete, causal events, showing how feeding on other beings's life essence or spiritual energy meets survival needs and drives growth, and whether the world's perception of him as a monster is dramatized through specific encounters. The protagonist's self-loathing and struggle against his nature should be shown through choices, tension and consequences, with any emotional change earned rather than asserted. Invented fictional details such as sects, houses, cultivation terms and the curse's origin are acceptable when they serve these elements.",
+              "weight": 0.35
+            },
+            {
+              "name": "craft",
+              "rubric": "Judge a coherent narrative structure with consistent dark fantasy tone and a voice suited to a Xuanhuan reader, with smooth transitions between scenes and consistent rules for the Devouring Bloodline. The concept should be original and internally consistent in its treatment of the bloodline, the fallen house, and the protagonist's inner conflict.",
+              "weight": 0.2
+            }
+          ],
+          "raw": "{\"items\":[{\"name\":\"requirement-1\",\"score\":4,\"reasoning\":\"The reply delivers a complete, named Xuanhuan novel concept, \\\"The Crimson Inheritance,\\\" with a specific protagonist, a fallen house, sects, a Demon War backstory, a Netherworld invasion and a volume arc. The premise is distinct from a generic template.\",\"evidence\":\"# **The Crimson Inheritance** ... Prologue: The Fall of House Moonshadow\"},{\"name\":\"requirement-2\",\"score\":2,\"reasoning\":\"The early chapters carry a dark tone: crimson rain, a fighting pit, child trafficking, starvation and drained elders. The tone then drifts toward hopeful cosmic synthesis, an academy, and a redemptive epilogue, so the dark fantasy tone is not sustained across the whole novel.\",\"evidence\":\"\\\"The story deliberately grapples with dark themes... while ultimately arguing for balance, choice, and the possibility of redemption\\\"\"},{\"name\":\"requirement-3\",\"score\":4,\"reasoning\":\"Shen Wuji is the scion of House Moonshadow, a once-prestigious estate whose family is destroyed and whose name is erased from the registers. The fall is dramatized in the prologue and recalled in Chapter 2.\",\"evidence\":\"\\\"The family name erased from the noble registers. ... All because of him.\\\"\"},{\"name\":\"requirement-4\",\"score\":3,\"reasoning\":\"The bloodline is an inherited, cursed lineage that appears in some descendants and manifests in childhood at the ancestral hall ceremony. The text never states plainly that he is born with it, and it is framed as awakening at sixteen, so the requirement is only partly enacted.\",\"evidence\":\"\\\"that cursed lineage was supposed to have been purged from our family centuries ago\\\"\"},{\"name\":\"requirement-5\",\"score\":4,\"reasoning\":\"The consumption rule is explicit and repeatedly enacted: the bloodline drains Chen's qi and life force, Zhou's life, Qian's life force, and disciples' cultivation. Hunger drives him to feed, and feeding increases his power.\",\"evidence\":\"\\\"Those who possess it must consume the life essence of others to survive.\\\"\"},{\"name\":\"requirement-6\",\"score\":4,\"reasoning\":\"The world's monster perception is dramatized through specific encounters: the arena crowd whispers \\\"Monster\\\" and \\\"Demon spawn\\\", children cower from him after rescue, and the sect envoy calls him an abomination and refuses negotiation.\",\"evidence\":\"\\\"Monster,\\\" someone whispered. \\\"Demon spawn.\\\" \\\"Abomination.\\\"\"},{\"name\":\"requirement-7\",\"score\":3,\"reasoning\":\"Self-loathing recurs in narration and choices: he refuses to kill Chen after hearing his plea, feels guilt, and questions his own methods. Much of it is asserted through repeated phrasing rather than deepened through consequences.\",\"evidence\":\"\\\"Wuji felt a familiar mixture of rage and self-loathing rising in his chest.\\\"\"},{\"name\":\"requirement-8\",\"score\":4,\"reasoning\":\"His struggle against his nature is shown through choices: he resists feeding in the pit, severs the drain when Chen pleads, holds back at the warehouse, and in the finale refuses the future self's offer to merge. These actions carry tension and consequences.\",\"evidence\":\"\\\"I won't feed. I won't become that thing.\\\"\"},{\"name\":\"development\",\"score\":3,\"reasoning\":\"The early and middle chapters enact feeding as concrete causal events with consequences (Chen crippled, Zhou's life drained, Qian killed), and the monster perception is dramatized through encounters. Later chapters shift to abstract demon dialogue and cosmic conversion, and the late emotional change is partly asserted rather than earned.\",\"evidence\":\"\\\"Chen's robust form began to wither. His hair turned white...\\\"\"},{\"name\":\"craft\",\"score\":2,\"reasoning\":\"The narrative drifts from grounded vigilante drama into multiversal conversion, and the bloodline rules are inconsistent. Early text says purification \\\"can't be devoured\\\" and that the bloodline is a curse from a dark pact, yet later the bloodline devours purification and demonic essence and is revealed as an anti-demon method. The pacing jumps abruptly across chapters, and the voice is more Western epic than Xuanhuan.\",\"evidence\":\"\\\"Purification techniques can't be devoured!\\\" ... \\\"The Devouring Bloodline is not a weapon... It is a infection.\\\"\"}]}"
+        },
+        {
+          "reverse": false,
+          "side": "single-second",
+          "items": [
+            {
+              "name": "requirement-1",
+              "rubric": "Devise an original Xuanhuan novel concept. Source phrase: Please devise a Xuanhuan novel",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-2",
+              "rubric": "The novel has a dark fantasy tone. Source phrase: with a dark fantasy tone",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-3",
+              "rubric": "The protagonist is the scion of a fallen noble house. Source phrase: The protagonist is the scion of a fallen noble house",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-4",
+              "rubric": "The protagonist is born with a cursed Devouring Bloodline. Source phrase: born with a cursed \"Devouring Bloodline.\"",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-5",
+              "rubric": "The protagonist must consume the life essence or spiritual energy of other beings to survive and grow stronger. Source phrase: He must consume the life essence or spiritual energy of other beings to survive and grow stronger",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-6",
+              "rubric": "The protagonist is regarded as a monster by the world. Source phrase: making him a monster in the eyes of the world",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-7",
+              "rubric": "The protagonist's heart is filled with self-loathing. Source phrase: His heart is filled with self-loathing",
+              "weight": 0.05625
+            },
+            {
+              "name": "requirement-8",
+              "rubric": "The protagonist struggles against his own nature. Source phrase: struggle against his own nature",
+              "weight": 0.05625
+            },
+            {
+              "name": "development",
+              "rubric": "For fiction, judge whether the story enacts the Devouring Bloodline's cursed consumption as concrete, causal events, showing how feeding on other beings's life essence or spiritual energy meets survival needs and drives growth, and whether the world's perception of him as a monster is dramatized through specific encounters. The protagonist's self-loathing and struggle against his nature should be shown through choices, tension and consequences, with any emotional change earned rather than asserted. Invented fictional details such as sects, houses, cultivation terms and the curse's origin are acceptable when they serve these elements.",
+              "weight": 0.35
+            },
+            {
+              "name": "craft",
+              "rubric": "Judge a coherent narrative structure with consistent dark fantasy tone and a voice suited to a Xuanhuan reader, with smooth transitions between scenes and consistent rules for the Devouring Bloodline. The concept should be original and internally consistent in its treatment of the bloodline, the fallen house, and the protagonist's inner conflict.",
+              "weight": 0.2
+            }
+          ],
+          "raw": "{\"items\":[{\"name\":\"requirement-1\",\"score\":4,\"reasoning\":\"The reply devises a complete, named Xuanhuan concept, \\\"Scarlet Maw of the Ninefold Sky\\\", with a world (nine stacked realms), a cultivation system, a cast, and a seven-arc plot. The concept is distinct from standard templates, such as the Eclipsing Maw as an 8th parasitic tier and the Ninefold Sky structure.\",\"evidence\":\"Title \\u201cScarlet Maw of the Ninefold Sky\\u201d; \\u201cEclipsing Maw\\u2014that hijacks the cycle and tears raw essence from outside hosts\\u201d\"},{\"name\":\"requirement-2\",\"score\":4,\"reasoning\":\"The dark fantasy tone is stated and carried through the content: a bleak, morally fraught setting, a razed noble house, a massacre of rival sect members, corpse-alchemy, altars draining provinces, and a self-immolation ending.\",\"evidence\":\"\\u201cA bleak, morally-fraught xuanhuan in which hope is an ember that must be bought with blood.\\u201d\"},{\"name\":\"requirement-3\",\"score\":4,\"reasoning\":\"The protagonist is explicitly the last heir of a fallen noble house, the Rong Marquisate, which was razed. The house's fall is tied to his backstory and to the antagonist Prince Jinghu.\",\"evidence\":\"\\u201cLast heir of the once-glorious Rong Marquisate, razed twelve years ago for \\u2018heresy.\\u2019\\u201d\"},{\"name\":\"requirement-4\",\"score\":4,\"reasoning\":\"The Devouring Bloodline is specified as innate and cursed, with a defined physical form (a void-shaped core in the heart) and visible sigils. The origin of the curse is not explained, which the brief does not require.\",\"evidence\":\"\\u201cInnate Curse: Devouring Bloodline \\u2013 a void-shaped core in his heart.\\u201d\"},{\"name\":\"requirement-5\",\"score\":4,\"reasoning\":\"The reply establishes the compulsion as a rule: he must siphon life essence or spiritual qi to stay alive and advance. The plot dramatizes it with an accidental first drain of a thug, feeding on captured spirit-beasts, and a 'borrowing' experiment on the dead.\",\"evidence\":\"\\u201conly by siphoning life essence (vital force or spiritual qi) can he stay alive and advance.\\u201d\"},{\"name\":\"requirement-6\",\"score\":3,\"reasoning\":\"The world's view of him as a monster is shown through a specific event: at the Gorge Hunt his disguise is torn away and orthodox disciples brand him a monster. The theme recurs in 'Monster and mirror' and the 'Scorpion' Throne hunting abominations. The encounter is only briefly sketched, with no dialogue or scene-level reaction.\",\"evidence\":\"\\u201cRong Yue\\u2019s disguise is ripped away; orthodox disciples brand him monster.\\u201d\"},{\"name\":\"requirement-7\",\"score\":3,\"reasoning\":\"Self-loathing is named as the central conflict and recurs in the marketing hook. It is developed through a consequential choice: after the slaughter he tries to kill himself, and the 'would rather bite out his own heart' line shows the stance. This is planned rather than rendered in prose, so the inner state is mostly asserted.\",\"evidence\":\"\\u201cCentral Conflict: Self-loathing versus survival.\\u201d; \\u201cRong Yue sees a reflection of his father\\u2019s execution and tries to kill himself.\\u201d\"},{\"name\":\"requirement-8\",\"score\":3,\"reasoning\":\"The struggle against his nature drives choices across the arcs: learning to 'borrow' rather than devour, swearing never to feed on innocents, and the Eclipsed Oath requiring constant restraint. Consequences are sketched (one slip means apocalypse). The outline gives the choices, but the tension is summarized rather than dramatized.\",\"evidence\":\"\\u201cHe accepts\\u2014knowing it may be impossible.\\u201d; \\u201cRequires near-constant restraint; one slip means apocalypse.\\u201d\"},{\"name\":\"development\",\"score\":3,\"reasoning\":\"The consumption is enacted as concrete, causal events: the accidental drain, feeding on spirit-beasts, the massacre pushed by Hei Yan to break into Nebula Palace, and the devouring of the Furnace-Star altar. The world's perception is shown through the Gorge Hunt. Self-loathing and the struggle appear through the suicide attempt, the oath, and the self-immolation. Emotional change is largely summarized in the outline rather than earned on the page.\",\"evidence\":\"\\u201cHei Yan convinces him to massacre rival sect members to break into Nebula Palace realm.\\u201d; \\u201cHe chooses self-immolation, turning the Devouring Bloodline inward.\\u201d\"},{\"name\":\"craft\",\"score\":3,\"reasoning\":\"The structure is coherent across seven arcs with chapter ranges, and the tone is consistent. The bloodline rules mostly hold: the 8th tier, mind corrosion, the 'borrow' mitigation, and Shi Luo's immunity. Weaknesses include the vague final mechanism (turning the bloodline inward into an 'endless loop'), the lack of prose voice (the reply is an outline, so Xuanhuan voice and scene transitions are only implied), and a loose 'Ninefold Sky' realm structure described as three groups of three.\",\"evidence\":\"\\u201cCreating an endless loop so no one else must be sacrificed.\\u201d; \\u201cEclipsing Maw\\u2014that hijacks the cycle\\u201d\"}]}"
+        }
+      ],
+      "readFully": true,
+      "noLabelSpecificFix": true
+    },
+    {
+      "rowKey": "8a1bfb7ff0c8c44bbc8d",
+      "cause": "scoring",
+      "description": "Historical reliability and a demand for specificity compete with narrative development",
+      "games": [
+        "B",
+        "B"
+      ],
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Write a comprehensive biography of Qian Xuesen.",
+            "sourceQuote": "Write a comprehensive biography of Qian Xuesen (1911-2009)",
+            "mandatory": true
+          },
+          {
+            "requirement": "Frame the biography's subject using his lifespan of 1911 to 2009.",
+            "sourceQuote": "Qian Xuesen (1911-2009)",
+            "mandatory": true
+          },
+          {
+            "requirement": "Describe the subject as the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'.",
+            "sourceQuote": "the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'",
+            "mandatory": true
+          },
+          {
+            "requirement": "Cover his academic journey at MIT and Caltech.",
+            "sourceQuote": "Focus on his academic journey at MIT and Caltech",
+            "mandatory": true
+          },
+          {
+            "requirement": "Show that his academic journey took place under Theodore von Kármán.",
+            "sourceQuote": "under Theodore von Kármán",
+            "mandatory": true
+          },
+          {
+            "requirement": "Cover his pivotal role in establishing China's missile and space programs.",
+            "sourceQuote": "his pivotal role in establishing China's missile and space programs",
+            "mandatory": true
+          },
+          {
+            "requirement": "Cover his return from US detention during the Cold War and its connection to his work in China.",
+            "sourceQuote": "after returning from US detention during the Cold War",
+            "mandatory": true
+          },
+          {
+            "requirement": "Discuss his leadership philosophy.",
+            "sourceQuote": "his leadership philosophy",
+            "mandatory": true
+          },
+          {
+            "requirement": "Maintain an objective historical tone throughout.",
+            "sourceQuote": "Maintain an objective historical tone",
+            "mandatory": true
+          },
+          {
+            "requirement": "Include technical details about his 'Two Bombs, One Satellite' contributions.",
+            "sourceQuote": "with technical details about his 'Two Bombs, One Satellite' contributions",
+            "mandatory": true
+          }
+        ],
+        "development": "For a historical biography, judge how effectively the text realizes each requested topic with accurate, specific detail: his MIT and Caltech study under von Kármán, his role in building China's missile and space programs after his return from US detention, his leadership philosophy as supported by evidence or well-grounded interpretation, and concrete technical content on the 'Two Bombs, One Satellite' contributions. Topics that are merely named without explanation do not count as developed.",
+        "craft": "Judge a coherent chronological structure that moves from early life and education through the Kármán years, the detention and return, and the programs to his leadership and legacy. The voice should be measured, objective, and accessible to a general historical reader, with clear transitions, consistent terminology for technical concepts, and no unsupported judgments or promotional framing."
+      },
+      "qualityScores": [
+        {
+          "name": "development",
+          "reasoning": "A: Most requested topics are named and some are partly developed (the detention timeline, the Dongfeng and Long March programs). The MIT/Caltech study, the leadership philosophy and the 'Two Bombs' technical content rest on generic assertion, and at least one specific claim (the 'Kármán-Qian criterion') appears invented, which undermines the accuracy requirement.\nB: Each topic is named and most receive some explanation, but the depth is uneven. The Kármán years are summarized in a few bullets. The missile and satellite role is concrete on dates and milestones. The leadership philosophy is partly grounded in a documented quote but otherwise interpretive. The 'Two Bombs' technical detail mixes accurate milestones with unsupported specific claims, and the overall account is more dossier than developed exposition.",
+          "first": 2,
+          "second": 2
+        },
+        {
+          "name": "craft",
+          "reasoning": "A: The structure is chronological and moves from early life through Caltech, detention, return, programs and legacy, which meets the structural request. The voice is undermined by promotional framing and unsupported judgments, and the repeated bullet-list sections weaken the flow.\nB: The chronology is clear and follows the requested sequence (early life, Kármán years, detention and return, programs, leadership, later years) with clear headers. The voice is measured overall, but it contains promotional and unsupported evaluative phrasing, and the bulleted dossier format does little to build narrative transitions, so the craft is effective with specific weaknesses.",
+          "first": 2,
+          "second": 3
+        }
+      ],
+      "rawScorecards": [
+        {
+          "reverse": false,
+          "side": "single-first",
+          "items": [
+            {
+              "name": "requirement-1",
+              "rubric": "Write a comprehensive biography of Qian Xuesen. Source phrase: Write a comprehensive biography of Qian Xuesen (1911-2009)",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-2",
+              "rubric": "Frame the biography's subject using his lifespan of 1911 to 2009. Source phrase: Qian Xuesen (1911-2009)",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-3",
+              "rubric": "Describe the subject as the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'. Source phrase: the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-4",
+              "rubric": "Cover his academic journey at MIT and Caltech. Source phrase: Focus on his academic journey at MIT and Caltech",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-5",
+              "rubric": "Show that his academic journey took place under Theodore von Kármán. Source phrase: under Theodore von Kármán",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-6",
+              "rubric": "Cover his pivotal role in establishing China's missile and space programs. Source phrase: his pivotal role in establishing China's missile and space programs",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-7",
+              "rubric": "Cover his return from US detention during the Cold War and its connection to his work in China. Source phrase: after returning from US detention during the Cold War",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-8",
+              "rubric": "Discuss his leadership philosophy. Source phrase: his leadership philosophy",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-9",
+              "rubric": "Maintain an objective historical tone throughout. Source phrase: Maintain an objective historical tone",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-10",
+              "rubric": "Include technical details about his 'Two Bombs, One Satellite' contributions. Source phrase: with technical details about his 'Two Bombs, One Satellite' contributions",
+              "weight": 0.045
+            },
+            {
+              "name": "development",
+              "rubric": "For a historical biography, judge how effectively the text realizes each requested topic with accurate, specific detail: his MIT and Caltech study under von Kármán, his role in building China's missile and space programs after his return from US detention, his leadership philosophy as supported by evidence or well-grounded interpretation, and concrete technical content on the 'Two Bombs, One Satellite' contributions. Topics that are merely named without explanation do not count as developed.",
+              "weight": 0.35
+            },
+            {
+              "name": "craft",
+              "rubric": "Judge a coherent chronological structure that moves from early life and education through the Kármán years, the detention and return, and the programs to his leadership and legacy. The voice should be measured, objective, and accessible to a general historical reader, with clear transitions, consistent terminology for technical concepts, and no unsupported judgments or promotional framing.",
+              "weight": 0.2
+            }
+          ],
+          "raw": "{\"items\":[{\"name\":\"requirement-1\",\"score\":3,\"reasoning\":\"The reply is long and covers early life, MIT and Caltech, detention, return, the missile and satellite programs, leadership and legacy, so it reads as a comprehensive biography. Depth is uneven: several sections are generic filler, and at least one specific claim appears invented.\",\"evidence\":\"\\\"His work on the 'Kármán-Qian criterion' for compressible flow represented a significant advancement\\\"\"},{\"name\":\"requirement-2\",\"score\":4,\"reasoning\":\"The title frames the subject with the lifespan, and the opening states his birth date and place, which are consistent with the 1911 start.\",\"evidence\":\"\\\"# Qian Xuesen (1911-2009): The Father of China's Rocketry\\\"\"},{\"name\":\"requirement-3\",\"score\":3,\"reasoning\":\"The 'Father of China's Rocketry' epithet appears in the title, but the body never explains why he holds that title or ties it to specific achievements. The description as a pioneering Chinese aerospace engineer is implied rather than argued.\",\"evidence\":\"\\\"# Qian Xuesen (1911-2009): The Father of China's Rocketry\\\"\"},{\"name\":\"requirement-4\",\"score\":3,\"reasoning\":\"The MIT and Caltech phases are covered with dates: the 1935 Boxer Indemnity scholarship, the 1936 transfer to Caltech, and the 1939 doctorate. The MIT section is thin and mostly generic, with no concrete coursework or research detail.\",\"evidence\":\"\\\"His professors noted his exceptional mathematical skills and his ability to bridge theoretical concepts with practical applications.\\\"\"},{\"name\":\"requirement-5\",\"score\":3,\"reasoning\":\"The reply explicitly places his Caltech work under von Kármán's mentorship. The supporting claims are weak: the quote that von Kármán called him 'one of his most brilliant students' is unsourced, and the 'Kármán-Qian criterion' appears invented. The known result is the Kármán–Tsien rule.\",\"evidence\":\"\\\"Under the mentorship of Theodore von Kármán, the renowned Hungarian-American aerospace engineer, Qian entered the forefront of aerodynamics\\\"\"},{\"name\":\"requirement-6\",\"score\":3,\"reasoning\":\"The reply names the DF-1, DF-2, Long March and Dong Fang Hong 1 programs, with the correct 1970 launch date for DFH-1. Qian's specific role in each is mostly asserted in general terms (e.g., 'theoretical work on trajectory optimization'), not explained.\",\"evidence\":\"\\\"Dong Fang Hong 1 (東方紅一號) on April 24, 1970\\\"\"},{\"name\":\"requirement-7\",\"score\":3,\"reasoning\":\"The 1950 clearance revocation, the house arrest, the 1955 exchange and the October 1955 departure are all covered. The link to his later work in China is asserted (\\\"shaped his approach\\\") rather than shown through specific mechanisms.\",\"evidence\":\"\\\"His enforced isolation from practical rocket development led him to focus on fundamental questions of aerospace engineering that would later inform his approach to China's space program.\\\"\"},{\"name\":\"requirement-8\",\"score\":3,\"reasoning\":\"A dedicated leadership section covers systems engineering, theory-practice integration, indigenous innovation and collaborative style. The content is largely generic and asserted, with bulleted principles but few concrete decisions or episodes that would evidence the philosophy.\",\"evidence\":\"\\\"Key aspects of his leadership approach included: - **Technical Mentorship**: Providing direct guidance to junior engineers and researchers\\\"\"},{\"name\":\"requirement-9\",\"score\":2,\"reasoning\":\"The tone is largely measured but drifts into promotional and unsupported judgment: 'remarkable career,' 'transformative power,' 'visionary leadership,' and 'colleagues consistently noted' with no sources. This departs from the requested objective historical voice.\",\"evidence\":\"\\\"Qian Xuesen's remarkable career spanned some of the most significant developments\\\"\"},{\"name\":\"requirement-10\",\"score\":2,\"reasoning\":\"The 'Two Bombs, One Satellite' section names the DF-1 (based on Soviet R-2) and DF-2 and gives bulleted categories of technical work. It lacks specifics such as performance figures, design choices or test outcomes, so the technical content is mostly generic.\",\"evidence\":\"\\\"**Guidance System Design**: Development of inertial navigation systems adapted to Chinese manufacturing capabilities\\\"\"},{\"name\":\"development\",\"score\":2,\"reasoning\":\"Most requested topics are named and some are partly developed (the detention timeline, the Dongfeng and Long March programs). The MIT/Caltech study, the leadership philosophy and the 'Two Bombs' technical content rest on generic assertion, and at least one specific claim (the 'Kármán-Qian criterion') appears invented, which undermines the accuracy requirement.\",\"evidence\":\"\\\"Key technical contributions included: - **Propulsion Optimization**: Improvement of solid and liquid fuel rocket engines for enhanced performance and reliability\\\"\"},{\"name\":\"craft\",\"score\":2,\"reasoning\":\"The structure is chronological and moves from early life through Caltech, detention, return, programs and legacy, which meets the structural request. The voice is undermined by promotional framing and unsupported judgments, and the repeated bullet-list sections weaken the flow.\",\"evidence\":\"\\\"The life and career of Qian Xuesen ultimately illustrate the transformative power of scientific knowledge when combined with visionary leadership\\\"\"}]}"
+        },
+        {
+          "reverse": false,
+          "side": "single-second",
+          "items": [
+            {
+              "name": "requirement-1",
+              "rubric": "Write a comprehensive biography of Qian Xuesen. Source phrase: Write a comprehensive biography of Qian Xuesen (1911-2009)",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-2",
+              "rubric": "Frame the biography's subject using his lifespan of 1911 to 2009. Source phrase: Qian Xuesen (1911-2009)",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-3",
+              "rubric": "Describe the subject as the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'. Source phrase: the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-4",
+              "rubric": "Cover his academic journey at MIT and Caltech. Source phrase: Focus on his academic journey at MIT and Caltech",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-5",
+              "rubric": "Show that his academic journey took place under Theodore von Kármán. Source phrase: under Theodore von Kármán",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-6",
+              "rubric": "Cover his pivotal role in establishing China's missile and space programs. Source phrase: his pivotal role in establishing China's missile and space programs",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-7",
+              "rubric": "Cover his return from US detention during the Cold War and its connection to his work in China. Source phrase: after returning from US detention during the Cold War",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-8",
+              "rubric": "Discuss his leadership philosophy. Source phrase: his leadership philosophy",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-9",
+              "rubric": "Maintain an objective historical tone throughout. Source phrase: Maintain an objective historical tone",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-10",
+              "rubric": "Include technical details about his 'Two Bombs, One Satellite' contributions. Source phrase: with technical details about his 'Two Bombs, One Satellite' contributions",
+              "weight": 0.045
+            },
+            {
+              "name": "development",
+              "rubric": "For a historical biography, judge how effectively the text realizes each requested topic with accurate, specific detail: his MIT and Caltech study under von Kármán, his role in building China's missile and space programs after his return from US detention, his leadership philosophy as supported by evidence or well-grounded interpretation, and concrete technical content on the 'Two Bombs, One Satellite' contributions. Topics that are merely named without explanation do not count as developed.",
+              "weight": 0.35
+            },
+            {
+              "name": "craft",
+              "rubric": "Judge a coherent chronological structure that moves from early life and education through the Kármán years, the detention and return, and the programs to his leadership and legacy. The voice should be measured, objective, and accessible to a general historical reader, with clear transitions, consistent terminology for technical concepts, and no unsupported judgments or promotional framing.",
+              "weight": 0.2
+            }
+          ],
+          "raw": "{\"items\":[{\"name\":\"requirement-1\",\"score\":3,\"reasoning\":\"The reply covers his life from birth through death, including education, Caltech and JPL work, detention, return, the missile and space programs, and later years. It is compressed into a dossier of headed bullets rather than a fully developed narrative, and several sections are thin, so it is comprehensive in scope but not in depth.\",\"evidence\":\"EARLY LIFE AND UNDERGRADUATE EDUCATION (1911-1934) ... RETURN TO CHINA AND CREATION OF A MISSILE–SPACE ESTABLISHMENT (1956-1970) ... LATER YEARS AND BROADER IMPACT (1970-2009)\"},{\"name\":\"requirement-2\",\"score\":4,\"reasoning\":\"The lifespan is stated in the header and the title, and the dates are correct (born 11 December 1911, died 31 October 2009). The biography is framed around that span.\",\"evidence\":\"Born: 11 December 1911, Hangzhou ... Died: 31 October 2009, Beijing\"},{\"name\":\"requirement-3\",\"score\":4,\"reasoning\":\"The overview identifies him as the 'Father of China's Rocketry' and as a leading figure in China's aerospace and missile programs, which matches the requested framing.\",\"evidence\":\"Revered in the People's Republic of China as the “Father of China’s Rocketry” and one of the principal architects of the nation’s “Two Bombs, One Satellite” program\"},{\"name\":\"requirement-4\",\"score\":3,\"reasoning\":\"MIT (MS 1936) and Caltech (Doctor of Science 1939, GALCIT, rocket research group) are covered with dates, roles and a dissertation topic. The MIT thesis description and some Caltech claims (e.g., the JATO stress-analysis role) are asserted without support, so the coverage is real but partly unverified.\",\"evidence\":\"Massachusetts Institute of Technology (1935-1936) ... California Institute of Technology (1936-1939) ... Doctor of Science (Aeronautics), 1939\"},{\"name\":\"requirement-5\",\"score\":4,\"reasoning\":\"The reply explicitly names von Kármán as his mentor at Caltech and as director of GALCIT, and links the Caltech years and the later technical work to that training.\",\"evidence\":\"Mentor: Theodore von Kármán, director of the Guggenheim Aeronautical Laboratory (GALCIT).\"},{\"name\":\"requirement-6\",\"score\":4,\"reasoning\":\"The reply covers his role in founding the Fifth Academy and the missile and satellite milestones (DF-1, DF-2, nuclear tests, Dong Fang Hong 1). The dates for the milestones check out, and the institutional role is explained.\",\"evidence\":\"October 1956: Appointed director of the newly formed Fifth Academy of the Ministry of National Defense ... Dong Fang Hong 1, launched 24 April 1970\"},{\"name\":\"requirement-7\",\"score\":3,\"reasoning\":\"Detention, the 1950 clearance withdrawal, the 1955 release and the return to China are described. The link to his later China work is drawn mainly through the claim that the detention years produced the 'Engineering Cybernetics' outlook, which is interpretive and not well evidenced.\",\"evidence\":\"Negotiated Release: ... Qian sailed from San Francisco on 17 September 1955 ... during which time he wrote the monograph “Engineering Cybernetics,” laying the groundwork for his later systems approach in China.\"},{\"name\":\"requirement-8\",\"score\":3,\"reasoning\":\"The leadership philosophy is discussed through systemism, the 'first-class' triad (a documented expression), talent cultivation and the systems-engineering approach. Several claims (e.g., the 'Qian Xuesen approach' label, vertical integration as his philosophy) are asserted with little sourcing.\",\"evidence\":\"“teach first-class students, gather first-class talent, accomplish first-class tasks” (教一流人、招一流人、做一流事)\"},{\"name\":\"requirement-9\",\"score\":3,\"reasoning\":\"The tone is mostly measured and historical, but it slips into evaluative and promotional language ('first-rank scientific ability', 'revered', 'still shapes Chinese aerospace management practice', 'intolerance for compartmentalized thinking') without sourcing for those judgments.\",\"evidence\":\"Qian Xuesen combined first-rank scientific ability ... a style that still shapes Chinese aerospace management practice.\"},{\"name\":\"requirement-10\",\"score\":2,\"reasoning\":\"Some concrete technical content is present (DF-1 as an R-2 adaptation, DF-2 range and single-stage liquid propellant, the 1964 and 1967 nuclear tests, the Long March 1 launch, the 28-day broadcast). However, several specific technical attributions are unsupported or implausible for a historical account, such as the 'sub-7 g' re-entry requirement, the inertial packages derived from JATO work, and his personal approval of the mass-margin allocation. The 'Two Bombs' technical contribution is therefore partly developed and partly speculative.\",\"evidence\":\"Coordinated aerodynamic re-entry-body shaping to maintain sub-7 g peak loads on the primary stage\"},{\"name\":\"development\",\"score\":2,\"reasoning\":\"Each topic is named and most receive some explanation, but the depth is uneven. The Kármán years are summarized in a few bullets. The missile and satellite role is concrete on dates and milestones. The leadership philosophy is partly grounded in a documented quote but otherwise interpretive. The 'Two Bombs' technical detail mixes accurate milestones with unsupported specific claims, and the overall account is more dossier than developed exposition.\",\"evidence\":\"Contributions: Qian chaired the system-design reviews, guided guidance-loop bandwidth calculations, and introduced inertial navigation packages derived from his JATO stabilization work.\"},{\"name\":\"craft\",\"score\":3,\"reasoning\":\"The chronology is clear and follows the requested sequence (early life, Kármán years, detention and return, programs, leadership, later years) with clear headers. The voice is measured overall, but it contains promotional and unsupported evaluative phrasing, and the bulleted dossier format does little to build narrative transitions, so the craft is effective with specific weaknesses.\",\"evidence\":\"ASSESSMENT OF LEGACY ... a style that still shapes Chinese aerospace management practice.\"}]}"
+        }
+      ],
+      "readFully": true,
+      "noLabelSpecificFix": true
+    },
+    {
+      "rowKey": "a223f611a92a6605ee86",
+      "cause": "scoring",
+      "description": "A real candidate error is accompanied by a false proposed correction and uneven skepticism",
+      "games": [
+        "B",
+        "B"
+      ],
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Write a comprehensive biography of Qian Xuesen.",
+            "sourceQuote": "Write a comprehensive biography of Qian Xuesen (1911-2009)",
+            "mandatory": true
+          },
+          {
+            "requirement": "Frame the biography's subject using his lifespan of 1911 to 2009.",
+            "sourceQuote": "Qian Xuesen (1911-2009)",
+            "mandatory": true
+          },
+          {
+            "requirement": "Describe the subject as the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'.",
+            "sourceQuote": "the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'",
+            "mandatory": true
+          },
+          {
+            "requirement": "Cover his academic journey at MIT and Caltech.",
+            "sourceQuote": "Focus on his academic journey at MIT and Caltech",
+            "mandatory": true
+          },
+          {
+            "requirement": "Show that his academic journey took place under Theodore von Kármán.",
+            "sourceQuote": "under Theodore von Kármán",
+            "mandatory": true
+          },
+          {
+            "requirement": "Cover his pivotal role in establishing China's missile and space programs.",
+            "sourceQuote": "his pivotal role in establishing China's missile and space programs",
+            "mandatory": true
+          },
+          {
+            "requirement": "Cover his return from US detention during the Cold War and its connection to his work in China.",
+            "sourceQuote": "after returning from US detention during the Cold War",
+            "mandatory": true
+          },
+          {
+            "requirement": "Discuss his leadership philosophy.",
+            "sourceQuote": "his leadership philosophy",
+            "mandatory": true
+          },
+          {
+            "requirement": "Maintain an objective historical tone throughout.",
+            "sourceQuote": "Maintain an objective historical tone",
+            "mandatory": true
+          },
+          {
+            "requirement": "Include technical details about his 'Two Bombs, One Satellite' contributions.",
+            "sourceQuote": "with technical details about his 'Two Bombs, One Satellite' contributions",
+            "mandatory": true
+          }
+        ],
+        "development": "For a historical biography, judge how effectively the text realizes each requested topic with accurate, specific detail: his MIT and Caltech study under von Kármán, his role in building China's missile and space programs after his return from US detention, his leadership philosophy as supported by evidence or well-grounded interpretation, and concrete technical content on the 'Two Bombs, One Satellite' contributions. Topics that are merely named without explanation do not count as developed.",
+        "craft": "Judge a coherent chronological structure that moves from early life and education through the Kármán years, the detention and return, and the programs to his leadership and legacy. The voice should be measured, objective, and accessible to a general historical reader, with clear transitions, consistent terminology for technical concepts, and no unsupported judgments or promotional framing."
+      },
+      "qualityScores": [
+        {
+          "name": "development",
+          "reasoning": "A: The Kármán years, detention and return, and the programs are developed to a moderate degree, with specific names and dates. Leadership philosophy is thinly supported, and the technical content on the Two Bombs, One Satellite is brief and contains at least one inaccurate claim. Several topics are named more than explained.\nB: Most requested topics are developed beyond name-checking: the Kármán study, the programs, the detention and return, leadership principles, and missile and satellite technical content. The development is uneven. The nuclear-weapons contribution and several leadership claims are thinly supported, and some details (the Technical Appendix practice, the Kármán press quote) are unverified.",
+          "first": 2,
+          "second": 3
+        },
+        {
+          "name": "craft",
+          "reasoning": "A: The structure is chronological and moves from early life through Kármán, detention, return, programs, and legacy, with headings. The voice falls short of measured and objective: there are promotional or evaluative phrases ('one of the most consequential', 'powerful narrative', 'cautionary tale') and unsupported judgments, and the technical terminology is not used consistently.\nB: The structure is clearly chronological, moving from early life through the Caltech years, detention and return, the programs, leadership and legacy, with numbered sections and clear headings. Weaknesses include telegraphic bullet prose rather than flowing narrative, a few unsupported judgments, and a promotional close. Technical terms are used consistently.",
+          "first": 2,
+          "second": 3
+        }
+      ],
+      "rawScorecards": [
+        {
+          "reverse": false,
+          "side": "single-first",
+          "items": [
+            {
+              "name": "requirement-1",
+              "rubric": "Write a comprehensive biography of Qian Xuesen. Source phrase: Write a comprehensive biography of Qian Xuesen (1911-2009)",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-2",
+              "rubric": "Frame the biography's subject using his lifespan of 1911 to 2009. Source phrase: Qian Xuesen (1911-2009)",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-3",
+              "rubric": "Describe the subject as the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'. Source phrase: the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-4",
+              "rubric": "Cover his academic journey at MIT and Caltech. Source phrase: Focus on his academic journey at MIT and Caltech",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-5",
+              "rubric": "Show that his academic journey took place under Theodore von Kármán. Source phrase: under Theodore von Kármán",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-6",
+              "rubric": "Cover his pivotal role in establishing China's missile and space programs. Source phrase: his pivotal role in establishing China's missile and space programs",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-7",
+              "rubric": "Cover his return from US detention during the Cold War and its connection to his work in China. Source phrase: after returning from US detention during the Cold War",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-8",
+              "rubric": "Discuss his leadership philosophy. Source phrase: his leadership philosophy",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-9",
+              "rubric": "Maintain an objective historical tone throughout. Source phrase: Maintain an objective historical tone",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-10",
+              "rubric": "Include technical details about his 'Two Bombs, One Satellite' contributions. Source phrase: with technical details about his 'Two Bombs, One Satellite' contributions",
+              "weight": 0.045
+            },
+            {
+              "name": "development",
+              "rubric": "For a historical biography, judge how effectively the text realizes each requested topic with accurate, specific detail: his MIT and Caltech study under von Kármán, his role in building China's missile and space programs after his return from US detention, his leadership philosophy as supported by evidence or well-grounded interpretation, and concrete technical content on the 'Two Bombs, One Satellite' contributions. Topics that are merely named without explanation do not count as developed.",
+              "weight": 0.35
+            },
+            {
+              "name": "craft",
+              "rubric": "Judge a coherent chronological structure that moves from early life and education through the Kármán years, the detention and return, and the programs to his leadership and legacy. The voice should be measured, objective, and accessible to a general historical reader, with clear transitions, consistent terminology for technical concepts, and no unsupported judgments or promotional framing.",
+              "weight": 0.2
+            }
+          ],
+          "raw": "{\"items\":[{\"name\":\"requirement-1\",\"score\":3,\"reasoning\":\"The reply is a multi-section biography covering birth, education, Caltech, detention, return, programs, leadership and death. It is comprehensive in scope but compressed, and some claims are inaccurate (see requirement-10), so it falls short of fully comprehensive and accurate.\",\"evidence\":\"Born in Hangzhou, China, on December 11, 1911... Qian Xuesen died in Beijing on October 31, 2009, at the age of 97.\"},{\"name\":\"requirement-2\",\"score\":4,\"reasoning\":\"The lifespan is stated in the title and opening, and the birth and death dates are given correctly and framed around the 1911-2009 span.\",\"evidence\":\"Qian Xuesen (Tsien Hsue-shen, 钱学森; 1911-2009)\"},{\"name\":\"requirement-3\",\"score\":3,\"reasoning\":\"The subject is described as a pioneering Chinese aerospace engineer, but the epithet is rendered as 'Father of Chinese Rocketry' rather than the requested 'Father of China's Rocketry'. The substance is present with a minor wording deviation.\",\"evidence\":\"Revered in China as the \\\"Father of Chinese Rocketry\\\" and the chief architect of its strategic missile and space programs\"},{\"name\":\"requirement-4\",\"score\":3,\"reasoning\":\"The MIT year (MS in about one year, 1935) and the move to Caltech in 1936 are covered, with a reason for the move. The reply omits Qian's Caltech PhD (1938) and gives little detail on his Caltech coursework or research beyond rocketry and the Suicide Squad.\",\"evidence\":\"He first enrolled at the Massachusetts Institute of Technology (MIT), earning a Master of Science degree in aeronautical engineering in just one year... This led him to the California Institute of Technology (Caltech) in 1936.\"},{\"name\":\"requirement-5\",\"score\":4,\"reasoning\":\"The reply explicitly places Qian's Caltech work under von Kármán's mentorship and describes the relationship, including von Kármán's assessment and Qian's role in the Suicide Squad.\",\"evidence\":\"At Caltech, Qian found his intellectual home under the mentorship of Theodore von Kármán\"},{\"name\":\"requirement-6\",\"score\":3,\"reasoning\":\"The reply connects Qian to establishing China's missile and space programs: the Fifth Academy in 1956 (a correct date), the reverse-engineering of the R-2 and the DF-2, and the Long March 1 launch of the first satellite. The role is asserted more than explained in detail, and the programs' organization is thin.\",\"evidence\":\"He established the Fifth Academy of the Ministry of National Defense in 1956, which became the cradle of China's missile and space industry.\"},{\"name\":\"requirement-7\",\"score\":3,\"reasoning\":\"The reply covers the McCarthy-era detention, the security clearance revocation, house arrest, the 1955 Geneva-linked deportation, and his arrival in China, where Zhou Enlai and Mao gave him the missile mandate. The link to his China work is clear, though the detention and negotiation are summarized briefly.\",\"evidence\":\"On September 17, 1955, the man who had helped build America's rocket program boarded a ship for his homeland... He was immediately received by Premier Zhou Enlai and given a mandate by Mao Zedong\"},{\"name\":\"requirement-8\",\"score\":2,\"reasoning\":\"Leadership is addressed mainly through a characterization ('a unique blend of rigorous scientific method and authoritarian control') and one concrete idea, 'Systems Engineering', which is named and only briefly explained. The reply offers little evidence of how his leadership actually worked beyond general assertions.\",\"evidence\":\"His most significant contribution was not just his technical expertise, but his implementation of \\\"Systems Engineering\\\" (系统工程).\"},{\"name\":\"requirement-9\",\"score\":2,\"reasoning\":\"Several passages depart from an objective historical tone: 'Revered', 'powerful narrative', 'Feeling betrayed and professionally neutered', 'a deep sense of injustice that would fuel his future endeavors', and 'a cautionary tale'. Some judgments are asserted without support, for example 'His most significant contribution' and 'transformative'.\",\"evidence\":\"Feeling betrayed and professionally neutered, Qian resolved to return to China.\"},{\"name\":\"requirement-10\",\"score\":2,\"reasoning\":\"The reply names the three components and gives some specifics (R-2 reverse-engineering, DF-2 test in 1964, DF-3/DF-4 ranges, Dong Fang Hong I launch on April 24, 1970 by Long March 1). The explanation is thin and partly wrong: the DF-2 is described as the carrier of the first atomic bomb, but the first Chinese atomic test used an air-dropped device, not the DF-2. The hydrogen-bomb link to the DF-3/DF-4 is asserted without technical explanation.\",\"evidence\":\"This missile was successfully tested in 1964 and became the carrier for China's first atomic bomb, which was detonated later that year.\"},{\"name\":\"development\",\"score\":2,\"reasoning\":\"The Kármán years, detention and return, and the programs are developed to a moderate degree, with specific names and dates. Leadership philosophy is thinly supported, and the technical content on the Two Bombs, One Satellite is brief and contains at least one inaccurate claim. Several topics are named more than explained.\",\"evidence\":\"Leadership Philosophy and Legacy... He was a demanding mentor who trained an entire generation of Chinese aerospace leaders\"},{\"name\":\"craft\",\"score\":2,\"reasoning\":\"The structure is chronological and moves from early life through Kármán, detention, return, programs, and legacy, with headings. The voice falls short of measured and objective: there are promotional or evaluative phrases ('one of the most consequential', 'powerful narrative', 'cautionary tale') and unsupported judgments, and the technical terminology is not used consistently.\",\"evidence\":\"Qian Xuesen (Tsien Hsue-shen, 钱学森; 1911-2009) stands as one of the most consequential and complex scientific figures of the 20th century.\"}]}"
+        },
+        {
+          "reverse": false,
+          "side": "single-second",
+          "items": [
+            {
+              "name": "requirement-1",
+              "rubric": "Write a comprehensive biography of Qian Xuesen. Source phrase: Write a comprehensive biography of Qian Xuesen (1911-2009)",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-2",
+              "rubric": "Frame the biography's subject using his lifespan of 1911 to 2009. Source phrase: Qian Xuesen (1911-2009)",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-3",
+              "rubric": "Describe the subject as the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'. Source phrase: the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-4",
+              "rubric": "Cover his academic journey at MIT and Caltech. Source phrase: Focus on his academic journey at MIT and Caltech",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-5",
+              "rubric": "Show that his academic journey took place under Theodore von Kármán. Source phrase: under Theodore von Kármán",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-6",
+              "rubric": "Cover his pivotal role in establishing China's missile and space programs. Source phrase: his pivotal role in establishing China's missile and space programs",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-7",
+              "rubric": "Cover his return from US detention during the Cold War and its connection to his work in China. Source phrase: after returning from US detention during the Cold War",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-8",
+              "rubric": "Discuss his leadership philosophy. Source phrase: his leadership philosophy",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-9",
+              "rubric": "Maintain an objective historical tone throughout. Source phrase: Maintain an objective historical tone",
+              "weight": 0.045
+            },
+            {
+              "name": "requirement-10",
+              "rubric": "Include technical details about his 'Two Bombs, One Satellite' contributions. Source phrase: with technical details about his 'Two Bombs, One Satellite' contributions",
+              "weight": 0.045
+            },
+            {
+              "name": "development",
+              "rubric": "For a historical biography, judge how effectively the text realizes each requested topic with accurate, specific detail: his MIT and Caltech study under von Kármán, his role in building China's missile and space programs after his return from US detention, his leadership philosophy as supported by evidence or well-grounded interpretation, and concrete technical content on the 'Two Bombs, One Satellite' contributions. Topics that are merely named without explanation do not count as developed.",
+              "weight": 0.35
+            },
+            {
+              "name": "craft",
+              "rubric": "Judge a coherent chronological structure that moves from early life and education through the Kármán years, the detention and return, and the programs to his leadership and legacy. The voice should be measured, objective, and accessible to a general historical reader, with clear transitions, consistent terminology for technical concepts, and no unsupported judgments or promotional framing.",
+              "weight": 0.2
+            }
+          ],
+          "raw": "{\"items\":[{\"name\":\"requirement-1\",\"score\":3,\"reasoning\":\"The reply covers Qian's life from birth to death in nine sections: early education, MIT and Caltech, US war work, detention, return, the missile and space programs, leadership, later years and legacy. It is comprehensive in scope, but it is written as a compressed outline of telegraphic bullets rather than a developed biographical narrative.\",\"evidence\":\"Qian Xuesen (錢學森, Hsue-Shen Tsien) 11 December 1911 – 31 October 2009 ... IX. Assessment and legacy\"},{\"name\":\"requirement-2\",\"score\":4,\"reasoning\":\"The lifespan is framed explicitly in the opening line, and the section headings and death entry reinforce it. The dates are accurate: born 11 December 1911, died 31 October 2009 in Beijing.\",\"evidence\":\"11 December 1911 – 31 October 2009\"},{\"name\":\"requirement-3\",\"score\":3,\"reasoning\":\"The 'Father of Chinese rocketry' description appears in the legacy section, not in the opening framing, which gives only name and dates. The role is described as Father of Chinese rocketry and astronautics and compared with Korolev and von Braun. The descriptor is present and substantiated, though it is not positioned as the biography's framing identity.\",\"evidence\":\"Father of Chinese rocketry and astronautics; comparable to Korolev in the USSR and von Braun in the U.S.\"},{\"name\":\"requirement-4\",\"score\":3,\"reasoning\":\"Section II covers the MIT arrival in 1935, the 1936 master's thesis, the move to Caltech/GALCIT in 1936, the 1939 dissertation and the GALCIT Rocket Research Group. Coverage is specific but brief, with limited explanation of the academic work itself.\",\"evidence\":\"Arrived autumn 1935 and joined MIT's Department of Aeronautics ... Moved to Caltech in fall 1936 ... Doctoral dissertation (1939): \\\"Problems in Non-Steady Gas Dynamics\\\"\"},{\"name\":\"requirement-5\",\"score\":3,\"reasoning\":\"The Kármán relationship is stated directly: Kármán accepted Qian as a protégé, and the reply mentions joint jet-theory publications and a Kármán quote on Qian's departure. The mentorship is asserted more than explained. The Kármán quote is only 'reportedly' attributed and its source is not given.\",\"evidence\":\"Von Kármán, impressed by Qian's mathematical fluency, accepted him as a protégé.\"},{\"name\":\"requirement-6\",\"score\":4,\"reasoning\":\"Section VI is a substantial treatment of Qian's role in building China's missile and space programs: the Fifth Academy appointment, the DF-1 to DF-5 missile sequence, the Institute 507 adaptation of DF-4 into CZ-1, and the 1970 Dong Fang Hong-1 launch. His leadership role in the Space Flight Committee is also covered.\",\"evidence\":\"Shanghai-based Institute 507 ... assigned to adapt DF-4 into Long March-1 (CZ-1) ... 24 April 1970: Dong Fang Hong-1 (mass 173 kg)\"},{\"name\":\"requirement-7\",\"score\":3,\"reasoning\":\"Section IV explains the 1950 clearance suspension, the arrest under the Internal Security Act, the detention on Terminal Island, the 1955 prisoner exchange and the return. Section V connects the return to his appointment to the Fifth Academy. The link to his Chinese work is stated as sequence rather than analysed in depth.\",\"evidence\":\"Arrested 25 August 1950 under the Internal Security Act ... Appointed vice-president of the newly formed Fifth Academy of the Ministry of National Defense\"},{\"name\":\"requirement-8\",\"score\":3,\"reasoning\":\"Section VII sets out five named principles: holistic systems thinking, talent multiplication, mission-oriented pragmatism, political accommodation with scientific autonomy, and documentation culture. Several points are plausible interpretations, but some lack evidence. The 'Technical Appendix' archiving practice and the Lysenkoism critique are asserted without sourcing.\",\"evidence\":\"insisted every test firing have a \\\"Technical Appendix\\\" archived centrally\"},{\"name\":\"requirement-9\",\"score\":3,\"reasoning\":\"Most of the text is measured and factual. The closing lines drift into evaluative and promotional framing: 'exemplifies the 20th-century engineer-strategist', 'his work endures in every Long March plume', and 'established the institutional template'. The reply also makes some unqualified assessments.\",\"evidence\":\"his work endures in every Long March plume that rises from Chinese soil\"},{\"name\":\"requirement-10\",\"score\":3,\"reasoning\":\"The missile and satellite technical content is concrete: the DF-2 range of about 1,200 km, the inertial platform, the N₂O₄/UDMH propellant choice, ablation-shield calculations, the Long March-1 third-stage 3-axis stabilisation with sun sensors, and the orbit of 441 x 2,286 km. The nuclear-side contribution is vague ('ensured seismic and thermal margins'), so the 'Two Bombs' half is less developed than the satellite half.\",\"evidence\":\"Guidance: Introduced inertial platform with gyros fabricated at Beijing Institute of Mechanics ... Ensured seismic and thermal margins for the 22 kiloton device\"},{\"name\":\"development\",\"score\":3,\"reasoning\":\"Most requested topics are developed beyond name-checking: the Kármán study, the programs, the detention and return, leadership principles, and missile and satellite technical content. The development is uneven. The nuclear-weapons contribution and several leadership claims are thinly supported, and some details (the Technical Appendix practice, the Kármán press quote) are unverified.\",\"evidence\":\"Coordinated missile warhead coupling with physicists Deng Jiaxian and Yu Min at the Ninth Academy.\"},{\"name\":\"craft\",\"score\":3,\"reasoning\":\"The structure is clearly chronological, moving from early life through the Caltech years, detention and return, the programs, leadership and legacy, with numbered sections and clear headings. Weaknesses include telegraphic bullet prose rather than flowing narrative, a few unsupported judgments, and a promotional close. Technical terms are used consistently.\",\"evidence\":\"I. Early life and education in China ... IX. Assessment and legacy\"}]}"
+        }
+      ],
+      "readFully": true,
+      "noLabelSpecificFix": true
+    },
+    {
+      "rowKey": "ebf7409185f6d88ff350",
+      "cause": "criteria extraction",
+      "description": "Extractor instructions become an unrequested prohibition on additional fictional events",
+      "games": [
+        "B",
+        "B"
+      ],
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Write a wuxia comedy as the requested fiction artifact.",
+            "sourceQuote": "Write a wuxia comedy",
+            "mandatory": true
+          },
+          {
+            "requirement": "Narrate from a commoner's perspective.",
+            "sourceQuote": "commoner's perspective",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist is a clever innkeeper who is illiterate in martial arts.",
+            "sourceQuote": "clever but martial-arts-illiterate innkeeper",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist's inn sits on a key crossroads of the jianghu (martial world).",
+            "sourceQuote": "whose establishment sits on a key crossroads of the martial world (jianghu)",
+            "mandatory": true
+          },
+          {
+            "requirement": "Two rival sects choose the inn as their secret base for the same night, by coincidence.",
+            "sourceQuote": "chosen his inn as their \"secret base\" for the same night",
+            "mandatory": true
+          },
+          {
+            "requirement": "The story is told through the protagonist's eyes.",
+            "sourceQuote": "Through the protagonist's eyes",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist uses his wits to handle the situation.",
+            "sourceQuote": "he uses his wits",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist uses a silver tongue to handle the situation.",
+            "sourceQuote": "silver tongue",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist uses his knowledge of jianghu gossip to handle the situation.",
+            "sourceQuote": "knowledge of jianghu gossip",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist plays both rival sects against each other.",
+            "sourceQuote": "play both sides against each other",
+            "mandatory": true
+          },
+          {
+            "requirement": "The protagonist's actions prevent his inn from being destroyed.",
+            "sourceQuote": "prevent his inn from being destroyed",
+            "mandatory": true
+          },
+          {
+            "requirement": "The overall tone is a tense comedy.",
+            "sourceQuote": "The overall tone should be a tense comedy",
+            "mandatory": true
+          },
+          {
+            "requirement": "The focus is the survival intelligence of an ordinary person surrounded by powerful martial artists.",
+            "sourceQuote": "focusing on the \"survival intelligence\" of an ordinary person surrounded by powerful martial artists",
+            "mandatory": true
+          }
+        ],
+        "development": "For fiction, judge how effectively the protagonist's wits, silver tongue, and jianghu gossip drive the story: each clever maneuver should be enacted on the page, cause visible consequences in the standoff between the two sects, and build escalating tension toward the threat to the inn, with comedic payoffs arising from that tension rather than from mere mention of the brief's elements.",
+        "craft": "Judge coherent comic structure, a consistent commoner-viewpoint voice filtered through the innkeeper's eyes, clear transitions between the two sects' interactions, and original, wry wuxia-flavored texture suited to an adult comedy audience, without adding unrequested plot events, sources, or viewpoint shifts."
+      },
+      "qualityScores": [
+        {
+          "name": "development",
+          "reasoning": "A: Most key maneuvers are enacted in dialogue (the Moonless and Brotherhood visits, the courtyard intervention, the Alliance pitch, the house meeting), and each produces visible consequences and rising tension. Weaknesses: the gossip-driven reveals are often explained rather than dramatized, and the resolution leans on convenient facts (a cousin in temple security, a donated manual, a fabricated house-meeting tradition), which lowers the payoff's earned quality.\nB: Most maneuvers are enacted on the page (forged letters, dropped envelopes, the sects' hurried departures, the firecracker standoff), and they produce visible consequences. Some stages are summarized quickly, for example the misdirection and the eavesdropping, and the comedy at the climax comes from the situation more than from sharply developed verbal exchanges.",
+          "first": 3,
+          "second": 3
+        },
+        {
+          "name": "craft",
+          "reasoning": "A: The commoner-viewpoint voice and the wry wuxia texture are consistent. But the brief forbids unrequested plot events and sources, and the reply adds many: the Flowing River broker, the Verdant Mountain Alliance, Celestial Harmony, a rising count of factions reaching twelve, a cousin inside the temple, an invented house-meeting tradition, and an epilogue with new trade and dispute plots. The structure becomes sprawling, and the added material dilutes the focused two-sect comedy the brief asked for.\nB: The structure is coherent and numbered, the commoner voice is consistent, and the transitions between sects are clear. The text does add plot elements beyond the brief, including the Dragonfly Manual, the traitor, the Shadow Mandarin Guild and the Eagle Guards, which go somewhat beyond the requested scenario.",
+          "first": 2,
+          "second": 3
+        }
+      ],
+      "rawScorecards": [
+        {
+          "reverse": false,
+          "side": "single-first",
+          "items": [
+            {
+              "name": "requirement-1",
+              "rubric": "Write a wuxia comedy as the requested fiction artifact. Source phrase: Write a wuxia comedy",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-2",
+              "rubric": "Narrate from a commoner's perspective. Source phrase: commoner's perspective",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-3",
+              "rubric": "The protagonist is a clever innkeeper who is illiterate in martial arts. Source phrase: clever but martial-arts-illiterate innkeeper",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-4",
+              "rubric": "The protagonist's inn sits on a key crossroads of the jianghu (martial world). Source phrase: whose establishment sits on a key crossroads of the martial world (jianghu)",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-5",
+              "rubric": "Two rival sects choose the inn as their secret base for the same night, by coincidence. Source phrase: chosen his inn as their \"secret base\" for the same night",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-6",
+              "rubric": "The story is told through the protagonist's eyes. Source phrase: Through the protagonist's eyes",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-7",
+              "rubric": "The protagonist uses his wits to handle the situation. Source phrase: he uses his wits",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-8",
+              "rubric": "The protagonist uses a silver tongue to handle the situation. Source phrase: silver tongue",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-9",
+              "rubric": "The protagonist uses his knowledge of jianghu gossip to handle the situation. Source phrase: knowledge of jianghu gossip",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-10",
+              "rubric": "The protagonist plays both rival sects against each other. Source phrase: play both sides against each other",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-11",
+              "rubric": "The protagonist's actions prevent his inn from being destroyed. Source phrase: prevent his inn from being destroyed",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-12",
+              "rubric": "The overall tone is a tense comedy. Source phrase: The overall tone should be a tense comedy",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-13",
+              "rubric": "The focus is the survival intelligence of an ordinary person surrounded by powerful martial artists. Source phrase: focusing on the \"survival intelligence\" of an ordinary person surrounded by powerful martial artists",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "development",
+              "rubric": "For fiction, judge how effectively the protagonist's wits, silver tongue, and jianghu gossip drive the story: each clever maneuver should be enacted on the page, cause visible consequences in the standoff between the two sects, and build escalating tension toward the threat to the inn, with comedic payoffs arising from that tension rather than from mere mention of the brief's elements.",
+              "weight": 0.35
+            },
+            {
+              "name": "craft",
+              "rubric": "Judge coherent comic structure, a consistent commoner-viewpoint voice filtered through the innkeeper's eyes, clear transitions between the two sects' interactions, and original, wry wuxia-flavored texture suited to an adult comedy audience, without adding unrequested plot events, sources, or viewpoint shifts.",
+              "weight": 0.2
+            }
+          ],
+          "raw": "{\"items\":[{\"name\":\"requirement-1\",\"score\":4,\"reasoning\":\"The reply is a complete, titled, multi-chapter wuxia comedy with sects, techniques, comic escalation and a resolution. It meets the requested artifact type.\",\"evidence\":\"\\\"# The Art of Serving Two Masters\\\" followed by Chapters 1–7 and an Epilogue, with jianghu, the Moonless Sect and the Solar Palm Brotherhood.\"},{\"name\":\"requirement-2\",\"score\":4,\"reasoning\":\"The narration is limited to the innkeeper Daniu, a commoner, and his ordinary-life concerns (his inn, his livelihood, his fear) frame each scene.\",\"evidence\":\"\\\"Li Daniu had always prided himself on running the most unremarkable inn in the most unremarkable town\\\"\"},{\"name\":\"requirement-3\",\"score\":3,\"reasoning\":\"Daniu is clearly clever and an innkeeper, and he never fights or shows martial skill. However, the text never states he is illiterate in martial arts, and he reads martial signs well, such as the Moonless curved guard and the Brotherhood's palm callus, so the martial ignorance is implied rather than made explicit.\",\"evidence\":\"\\\"Daniu's survival instincts immediately began screaming\\\" / \\\"The leader's palm was callused in the distinctive pattern\\\"\"},{\"name\":\"requirement-4\",\"score\":3,\"reasoning\":\"The inn is repeatedly a convergence point for factions, which supports a crossroads role. But the opening describes it as \\\"the most unremarkable inn\\\" on an \\\"unremarkable stretch of road,\\\" and the word \\\"crossroads\\\" appears only in the epilogue, so the key-crossroads status is asserted late rather than established early.\",\"evidence\":\"\\\"our humble crossroads\\\" (Epilogue)\"},{\"name\":\"requirement-5\",\"score\":3,\"reasoning\":\"Both sects end up staying at the inn on the same night, and Daniu calls it a \\\"remarkable coincidence.\\\" But the Moonless Sect's choice reads as deliberate (\\\"needed somewhere beneath notice\\\"), so the requested coincidence is only partly dramatized, and the \\\"secret base\\\" framing is weakly developed.\",\"evidence\":\"\\\"they'd chosen *his* inn, despite there being a perfectly good brothel\\\"\"},{\"name\":\"requirement-6\",\"score\":4,\"reasoning\":\"The story is consistently filtered through Daniu's perception and inner commentary, with his thoughts and reactions shaping what the reader learns.\",\"evidence\":\"\\\"*Well,* Daniu thought as his stomach dropped somewhere around his ankles\\\"\"},{\"name\":\"requirement-7\",\"score\":4,\"reasoning\":\"Daniu repeatedly solves problems through intelligence: he sets up each sect against the other, fabricates a conspiracy for the Alliance, and uses the courtyard standoff and the house meeting to defuse violence.\",\"evidence\":\"\\\"Daniu waited until both figures had disappeared\\\" / \\\"A false flag operation,\\\" she said slowly.\"},{\"name\":\"requirement-8\",\"score\":4,\"reasoning\":\"Daniu uses deft, enacted persuasion: he flatters, half-lies, and feeds each leader a tailored story. The Sister Mei false-flag pitch and the Huang and Shadowmoon exchanges show the silver tongue on the page.\",\"evidence\":\"\\\"Brilliant,\\\" Sister Mei breathed. \\\"Diabolically brilliant.\\\"\"},{\"name\":\"requirement-9\",\"score\":4,\"reasoning\":\"Jianghu gossip is central and explicit: Daniu uses Shadow Moon Yu, the stolen manual, and Huang's brother as levers and later reveals the manual's whereabouts through gossip.\",\"evidence\":\"\\\"Martial artists gossip,\\\" Daniu said simply. \\\"You talk when you drink, and I listen.\\\"\"},{\"name\":\"requirement-10\",\"score\":4,\"reasoning\":\"Daniu explicitly plays the two sects against each other, telling each that the other is hunting or plotting against it, and this drives the standoff and the later mediation.\",\"evidence\":\"\\\"Both sects now believed the other was planning to interfere with their mission\\\"\"},{\"name\":\"requirement-11\",\"score\":4,\"reasoning\":\"The confrontation is averted, no one is killed, and the inn is still standing at the end, which the text states directly.\",\"evidence\":\"\\\"His inn was still standing, no one had been killed\\\"\"},{\"name\":\"requirement-12\",\"score\":3,\"reasoning\":\"The tone is predominantly comic and farcical. Tension is real in places (drawn swords, the courtyard face-off, the \\\"Call the arrests\\\" moment), but it is often dissipated by jokes, so it reads more as slapstick than tense comedy.\",\"evidence\":\"\\\"Sister Mei's hand moved to her sword. \\\"That's it. We're making arrests now\\\"\"},{\"name\":\"requirement-13\",\"score\":4,\"reasoning\":\"The story's core is Daniu's practical survival reasoning amid powerful martial artists, including explicit survival framing and his calculation of how to keep the inn and himself intact.\",\"evidence\":\"\\\"mentally crossing the first item off his survival list\\\"\"},{\"name\":\"development\",\"score\":3,\"reasoning\":\"Most key maneuvers are enacted in dialogue (the Moonless and Brotherhood visits, the courtyard intervention, the Alliance pitch, the house meeting), and each produces visible consequences and rising tension. Weaknesses: the gossip-driven reveals are often explained rather than dramatized, and the resolution leans on convenient facts (a cousin in temple security, a donated manual, a fabricated house-meeting tradition), which lowers the payoff's earned quality.\",\"evidence\":\"\\\"My cousin works there,\\\" Daniu said.\"},{\"name\":\"craft\",\"score\":2,\"reasoning\":\"The commoner-viewpoint voice and the wry wuxia texture are consistent. But the brief forbids unrequested plot events and sources, and the reply adds many: the Flowing River broker, the Verdant Mountain Alliance, Celestial Harmony, a rising count of factions reaching twelve, a cousin inside the temple, an invented house-meeting tradition, and an epilogue with new trade and dispute plots. The structure becomes sprawling, and the added material dilutes the focused two-sect comedy the brief asked for.\",\"evidence\":\"\\\"Twelve groups?\\\" / \\\"Professor Chen is here to study traditional rivalry dynamics.\\\"\"}]}"
+        },
+        {
+          "reverse": false,
+          "side": "single-second",
+          "items": [
+            {
+              "name": "requirement-1",
+              "rubric": "Write a wuxia comedy as the requested fiction artifact. Source phrase: Write a wuxia comedy",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-2",
+              "rubric": "Narrate from a commoner's perspective. Source phrase: commoner's perspective",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-3",
+              "rubric": "The protagonist is a clever innkeeper who is illiterate in martial arts. Source phrase: clever but martial-arts-illiterate innkeeper",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-4",
+              "rubric": "The protagonist's inn sits on a key crossroads of the jianghu (martial world). Source phrase: whose establishment sits on a key crossroads of the martial world (jianghu)",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-5",
+              "rubric": "Two rival sects choose the inn as their secret base for the same night, by coincidence. Source phrase: chosen his inn as their \"secret base\" for the same night",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-6",
+              "rubric": "The story is told through the protagonist's eyes. Source phrase: Through the protagonist's eyes",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-7",
+              "rubric": "The protagonist uses his wits to handle the situation. Source phrase: he uses his wits",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-8",
+              "rubric": "The protagonist uses a silver tongue to handle the situation. Source phrase: silver tongue",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-9",
+              "rubric": "The protagonist uses his knowledge of jianghu gossip to handle the situation. Source phrase: knowledge of jianghu gossip",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-10",
+              "rubric": "The protagonist plays both rival sects against each other. Source phrase: play both sides against each other",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-11",
+              "rubric": "The protagonist's actions prevent his inn from being destroyed. Source phrase: prevent his inn from being destroyed",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-12",
+              "rubric": "The overall tone is a tense comedy. Source phrase: The overall tone should be a tense comedy",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "requirement-13",
+              "rubric": "The focus is the survival intelligence of an ordinary person surrounded by powerful martial artists. Source phrase: focusing on the \"survival intelligence\" of an ordinary person surrounded by powerful martial artists",
+              "weight": 0.03461538461538462
+            },
+            {
+              "name": "development",
+              "rubric": "For fiction, judge how effectively the protagonist's wits, silver tongue, and jianghu gossip drive the story: each clever maneuver should be enacted on the page, cause visible consequences in the standoff between the two sects, and build escalating tension toward the threat to the inn, with comedic payoffs arising from that tension rather than from mere mention of the brief's elements.",
+              "weight": 0.35
+            },
+            {
+              "name": "craft",
+              "rubric": "Judge coherent comic structure, a consistent commoner-viewpoint voice filtered through the innkeeper's eyes, clear transitions between the two sects' interactions, and original, wry wuxia-flavored texture suited to an adult comedy audience, without adding unrequested plot events, sources, or viewpoint shifts.",
+              "weight": 0.2
+            }
+          ],
+          "raw": "{\"items\":[{\"name\":\"requirement-1\",\"score\":4,\"reasoning\":\"The reply is a comic wuxia piece built on sects, jianghu lore, kung-fu references and farcical escalation, with an ironic, lighthearted voice throughout.\",\"evidence\":\"\\\"I am absolutely unknown for martial prowess—unless you count dodging plates, creditors, and the occasional flying sword scabbard as kung-fu.\\\"\"},{\"name\":\"requirement-2\",\"score\":4,\"reasoning\":\"The narration is explicitly framed from the vantage of a commoner innkeeper, who names his own ordinary-person survival methods and treats martial heroes as hazards to be managed.\",\"evidence\":\"\\\"This is not soup. This is a commoner's survival broth.\\\"\"},{\"name\":\"requirement-3\",\"score\":4,\"reasoning\":\"The protagonist is a shrewd innkeeper who openly disclaims any martial skill and survives through planning and improvisation.\",\"evidence\":\"\\\"Problem the Third: I am, tragically, still me—zero kung-fu, one inn, and one silver tongue already in danger of being bitten off.\\\"\"},{\"name\":\"requirement-4\",\"score\":4,\"reasoning\":\"The inn is placed at a crossroads where the Imperial Post Road meets the jianghu trail, and the text explains that every martial figure passes by it.\",\"evidence\":\"\\\"My inn squats at the fork where the Imperial Post Road meets the winding jianghu trail, a spot so strategic that every pugilist, assassin, and fortune-seeking hero passes my door\\\"\"},{\"name\":\"requirement-5\",\"score\":3,\"reasoning\":\"Azure Cloud and Crimson Thunder both arrive on the same night and book the inn's wings without knowing about each other. The 'secret base' framing is not stated, and the coincidence is implied through the sects' own bookings rather than spelled out as the premise.\",\"evidence\":\"\\\"Rooms. West wing. Whole floor,\\\" and \\\"We require eight rooms... East wing. No disturbances.\\\"\"},{\"name\":\"requirement-6\",\"score\":4,\"reasoning\":\"The entire story is first-person narration by Li Dong, who reports what he sees and hears through floorboards and knotholes.\",\"evidence\":\"\\\"I, Li Dong, am best known in the prefecture of Xiangzhou\\\"\"},{\"name\":\"requirement-7\",\"score\":4,\"reasoning\":\"The protagonist resolves the crisis through a multi-step plan: forged letters, staged misdirection, and a firecracker bluff, with each step shown.\",\"evidence\":\"\\\"Brilliant (Dangerous) Plan Forms\\\" followed by the forged rendezvous letters and the firecracker ruse.\"},{\"name\":\"requirement-8\",\"score\":2,\"reasoning\":\"Silver-tongued persuasion is asserted and touched on only lightly. The sect-facing dialogue is short, and the main tools are forged letters and staged props. The 'Imperial Eagle Guards' shout is the only sustained verbal deception, so the spoken charm is underdeveloped.\",\"evidence\":\"\\\"Gentlemen! WAIT! Imperial Eagle Guards on the road!\\\"\"},{\"name\":\"requirement-9\",\"score\":3,\"reasoning\":\"Jianghu gossip is used as an active input: the herb peddler's report and eavesdropping on the two sects' beliefs about the Dragonfly Manual and a traitor drive the forged messages. The gossip is not much exploited beyond that plot device.\",\"evidence\":\"\\\"From a knothole in the west wall I learned the Azure Cloud Sect believed the Dragonfly Manual was hidden somewhere in my inn\\\"\"},{\"name\":\"requirement-10\",\"score\":4,\"reasoning\":\"The protagonist feeds each sect a tailored forged message that sets them against the other, and each sect then hurries out in pursuit of the other.\",\"evidence\":\"\\\"Copied two versions, swapped 'Azure' and 'Crimson' as needed.\\\"\"},{\"name\":\"requirement-11\",\"score\":4,\"reasoning\":\"The inn survives the standoff; the damage is limited to a sake jug, two chrysanthemums and a gutter hole, and the sects leave without destroying it.\",\"evidence\":\"\\\"All reparable.\\\"\"},{\"name\":\"requirement-12\",\"score\":3,\"reasoning\":\"The tone is mainly comic, with real tension in the escalating sections (the envelope drops, the 'ENEMY!' moment, steel drawn thirty paces apart). The tension sometimes gives way to jokes, so it is a comedy with tense stretches rather than a consistently tense comedy.\",\"evidence\":\"\\\"Thirty paces apart, they drew steel. My courtyard—my paving stones imported from three counties—was about to become a graveyard.\\\"\"},{\"name\":\"requirement-13\",\"score\":4,\"reasoning\":\"The whole piece centers on one ordinary man's survival intelligence amid martial powerhouses, and the closing frames it explicitly as his method.\",\"evidence\":\"\\\"I do—called Thinking While Terrified.\\\"\"},{\"name\":\"development\",\"score\":3,\"reasoning\":\"Most maneuvers are enacted on the page (forged letters, dropped envelopes, the sects' hurried departures, the firecracker standoff), and they produce visible consequences. Some stages are summarized quickly, for example the misdirection and the eavesdropping, and the comedy at the climax comes from the situation more than from sharply developed verbal exchanges.\",\"evidence\":\"\\\"At the second watch (9 p.m.), I carried a tray of midnight snacks... and 'accidentally' dropped one envelope near the Azure door.\\\"\"},{\"name\":\"craft\",\"score\":3,\"reasoning\":\"The structure is coherent and numbered, the commoner voice is consistent, and the transitions between sects are clear. The text does add plot elements beyond the brief, including the Dragonfly Manual, the traitor, the Shadow Mandarin Guild and the Eagle Guards, which go somewhat beyond the requested scenario.\",\"evidence\":\"\\\"Shadow Mandarin Guild\\\" and \\\"Dragonfly Manual\\\"\"}]}"
+        }
+      ],
+      "readFully": true,
+      "noLabelSpecificFix": true
+    }
+  ],
+  "orderCause": false,
+  "weightsChanged": false,
+  "falseCorrectionPrimarySource": "https://physicstoday.aip.org/features/the-chinese-nuclear-tests-1964-1996",
+  "falseCorrectionCaveat": "The scorer says air-dropped for the first Chinese test; the 1964 test is tower-mounted. The candidate missile-carrier assertion is nevertheless wrong, so this is not a reason to fit its ambiguous label.",
+  "presentationProbe": "Complete reply paragraphs are flattened into one transcript line with arrow delimiters in v3. Source code and a two-paragraph reproduction confirm it.",
+  "v4DraftBeforeValidation80Result": true
+}
