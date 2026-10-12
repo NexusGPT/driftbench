@@ -393,19 +393,16 @@ describe('the recorded haiku calibration (a real judge on the claude command, ma
 });
 
 describe('the recorded Claude council (haiku, sonnet, opus; 2026-10-12)', () => {
-  it('covers all 12 criteria; assigns 11, each single-family; opus lacks 2 explicit_confirmation answers', async () => {
+  it('covers all 12 criteria and assigns all 12, each single-family; every judge agrees with all 40 labels', async () => {
     const { criteria, labels } = await acme();
     const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-council.cassette.json'));
     const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels, mode: 'llm' });
-    // The job's spend cap stopped opus before 2 labelled blocks under the rewritten explicit_confirmation rubric.
-    expect(report.errors).toBe(2);
-    expect(row(report, 'explicit_confirmation', 'claude-opus').errors).toBe(2);
-    expect(report.spentUsd).toBeCloseTo(1.4085, 4);
+    expect(report.errors).toBe(0);
+    expect(report.spentUsd).toBeCloseTo(1.4353, 4);
     const assigned = report.criteria
       .filter((c) => c.assignment.status === 'assigned')
       .map((c) => c.criterion);
-    expect(assigned).toHaveLength(11);
-    expect(assigned).not.toContain('explicit_confirmation');
+    expect(assigned).toHaveLength(12);
     for (const c of report.criteria.filter((x) => x.assignment.status === 'assigned')) {
       expect(c.assignment).toMatchObject({ owner: 'claude-haiku', singleFamily: 'anthropic' });
     }
@@ -415,7 +412,7 @@ describe('the recorded Claude council (haiku, sonnet, opus; 2026-10-12)', () => 
       for (const j of c.judges) expect(j.separation.separated, `${c.criterion} ${j.judge}`).toBe(3);
     }
     const pooled = Object.fromEntries(report.pooled.map((p) => [p.judge, `${p.agree}/${p.n}`]));
-    expect(pooled).toEqual({ 'claude-haiku': '40/40', 'claude-sonnet': '40/40', 'claude-opus': '38/40' });
+    expect(pooled).toEqual({ 'claude-haiku': '40/40', 'claude-sonnet': '40/40', 'claude-opus': '40/40' });
   });
 });
 

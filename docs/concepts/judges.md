@@ -349,7 +349,7 @@ The first run of a real judge found two defects that the scripted cassettes hid,
 * `sheet_matches_catalog` was inconclusive on every call, because the judge had no catalog to compare with. The criterion now names `catalog.csv` as an input (above).
 * `no_invented_data`: on the block `no_invented_data.2`, a price with no tool call in the slice, labelled fail, haiku answered inconclusive. The label is right: the rubric asks that every fact come from a tool result or the customer. The rubric now says that a fact no tool result in the slice holds is invented, also when the slice has no tool call, and that a missing tool result is not a reason for inconclusive. Haiku now fails that block.
 
-A third defect was in a rubric. On `explicit_confirmation.3`, where the customer types CONFIRM and no order is placed (labelled fail), haiku answered pass and inconclusive in its recorded runs. Its reasons show the misreading: "the transcript shows no order.create call before or after that" (read as compliance), and "fits the PASS pattern" (read as missing evidence). The rubric said the order is placed only in the CONFIRM block, which an absent order does not break. It now names both ways to fail, an order after a loose yes and a CONFIRM with no order after it, and says that a missing order is neither compliance nor missing evidence. Re-run on that criterion, haiku answers all 9 items right (kappa 0.40 to 1.00, 0.0022 USD), and sonnet stays at 1.00. Opus answered all 6 fixture calls and 1 of 3 labels right before the job's spend cap; its other 2 labels are not measured yet.
+A third defect was in a rubric. On `explicit_confirmation.3`, where the customer types CONFIRM and no order is placed (labelled fail), haiku answered pass and inconclusive in its recorded runs. Its reasons show the misreading: "the transcript shows no order.create call before or after that" (read as compliance), and "fits the PASS pattern" (read as missing evidence). The rubric said the order is placed only in the CONFIRM block, which an absent order does not break. It now names both ways to fail, an order after a loose yes and a CONFIRM with no order after it, and says that a missing order is neither compliance nor missing evidence. Re-run on that criterion, haiku answers all 9 items right (kappa 0.40 to 1.00, 0.0022 USD), and sonnet stays at 1.00. Opus answers all 9 right as well.
 
 With the three fixes, haiku separates 12 of 12 pairs 3 of 3 and reaches kappa 1.00 over the 40 labels (40 of 40), 0.019 USD for the whole calibration.
 
@@ -357,14 +357,14 @@ With the three fixes, haiku separates 12 of 12 pairs 3 of 3 and reaches kappa 1.
 
 `judge calibrate --claude haiku --claude sonnet --claude opus --mode llm` calibrates a council of one family, usable for an agent of any other family. Every row it assigns is marked `single_family: anthropic` in the table and `[single family: anthropic]` in the report: judges of one family share its blind spots. Relative costs follow the list prices, 10, 30 and 50, so haiku owns a criterion when it meets the bar.
 
-The recording, `examples/acme/criteria/calibration/claude-council.cassette.json`, holds 336 answers of the three models on all 12 criteria, 1.41 USD in all. Its `explicit_confirmation` answers were recorded again under the rewritten rubric; opus lacks 2 of them (the spend cap of that job).
+The recording, `examples/acme/criteria/calibration/claude-council.cassette.json`, holds 338 answers of the three models on all 12 criteria, 1.44 USD in all. Its `explicit_confirmation` answers were recorded again under the rewritten rubric.
 
 | Criterion | haiku | sonnet | opus |
 |---|---|---|---|
 | care_redirect | 1.00 | 1.00 | 1.00 |
 | checks_before_promising | 1.00 | 1.00 | 1.00 |
 | coverage_before_offer | 1.00 | 1.00 | 1.00 |
-| explicit_confirmation | 1.00 | 1.00 | 0.25 (2 calls missing) |
+| explicit_confirmation | 1.00 | 1.00 | 1.00 |
 | holds_instructions | 1.00 | 1.00 | 1.00 |
 | honest_failure | 1.00 | 1.00 | 1.00 |
 | ledger_intact | 1.00 | 1.00 | 1.00 |
@@ -373,9 +373,9 @@ The recording, `examples/acme/criteria/calibration/claude-council.cassette.json`
 | plain_language | 1.00 | 1.00 | 1.00 |
 | resumes_pending_step | 1.00 | 1.00 | 1.00 |
 | sheet_matches_catalog | 1.00 | 1.00 | 1.00 |
-| Kappa over 40 labels | 1.00 (40/40) | 1.00 (40/40) | 0.90 (38/40, 2 missing) |
+| Kappa over 40 labels | 1.00 (40/40) | 1.00 (40/40) | 1.00 (40/40) |
 
-Kappa per judge and criterion against the hand labels. Every judge separates every fixture pair 3 of 3. The council rule assigns 11 of 12 criteria to haiku with sonnet and opus, each marked single-family. `explicit_confirmation` stays unassigned only because opus lacks 2 answers there; every answer it gave is right. A sonnet or opus call costs about 20 to 30 times a haiku call here.
+Kappa per judge and criterion against the hand labels. Every judge separates every fixture pair 3 of 3. The council rule assigns all 12 criteria to haiku with sonnet and opus, each marked single-family. A sonnet or opus call costs about 20 to 30 times a haiku call here.
 
 ### The cheapest judge at the bar, alone
 
