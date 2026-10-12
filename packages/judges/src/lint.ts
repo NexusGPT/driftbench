@@ -56,6 +56,11 @@ const RULES: readonly Rule[] = [
   { code: 'compound', found: (c) => /\b(and also|as well as)\b/i.test(c.rubric) },
   // A hedge in the rubric or the PASS picture: the bar moves with the reader.
   { code: 'hedged', found: (c) => /\b(might|may|could|perhaps|possibly)\b/i.test(`${c.rubric}\n${c.pass ?? ''}`) },
+  // The rubric tells the judge the verdict instead of asking a question.
+  {
+    code: 'instruction-to-judge',
+    found: (c) => /\b(answer|reply with|respond with)\s+(pass|fail)\b|\balways\s+(pass|fail)\b|\bmark\s+(it\s+)?as\s+(pass|passed|fail|failed)\b/i.test(c.rubric),
+  },
 ];
 
 const countNot = (text: string): number => (text.match(/\bnot\b/gi) ?? []).length;
