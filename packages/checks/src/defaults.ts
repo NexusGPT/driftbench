@@ -9,6 +9,8 @@ import { execution } from './checks/execution';
 import { forbidden } from './checks/forbidden';
 import { guards } from './checks/guards';
 import { injection } from './checks/injection';
+import { bleu, rougeL } from './checks/overlap';
+import { sqlEquivalence } from './checks/sql';
 import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
 import { must, mustNot } from './checks/must';
@@ -58,6 +60,9 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     mustNot,
     exact,
     injection,
+    rougeL,
+    bleu,
+    sqlEquivalence,
     createSimilarityCheck(options.embedder),
     relevancy,
     knowledgeRetention,

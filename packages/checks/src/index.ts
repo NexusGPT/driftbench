@@ -29,6 +29,8 @@ export {
   complianceMatches,
   injection,
 } from './checks/injection';
+export { bleu, bleuScore, rougeL, rougeLScore } from './checks/overlap';
+export { sqlEquivalence, singleReadStatement } from './checks/sql';
 export { knowledgeRetention } from './checks/knowledge_retention';
 export { createLangCheck, lang } from './checks/lang';
 export { must, mustNot } from './checks/must';
