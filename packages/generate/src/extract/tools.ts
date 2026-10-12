@@ -428,8 +428,8 @@ function unwrap(node: unknown): unknown {
 function firstMap(map: unknown, keys: string[]): YAMLMap | undefined {
   for (const key of keys) {
     const found = mapAt(map, key);
-    // Bedrock holds the schema one step down, as inputSchema.json.
-    if (found) return (!entry(found, 'properties') && mapAt(found, 'json')) || found;
+    // Bedrock holds the schema one step down as inputSchema.json, Vercel as parameters.jsonSchema.
+    if (found) return (!entry(found, 'properties') && (mapAt(found, 'json') ?? mapAt(found, 'jsonSchema'))) || found;
   }
   return undefined;
 }

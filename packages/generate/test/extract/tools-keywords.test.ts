@@ -176,4 +176,20 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
     expect(result.tools).toEqual(['findAccount']);
     expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
   });
+
+  it('reads Vercel tools by name with parameters wrapped as jsonSchema', () => {
+    const file = {
+      tools: {
+        findAccount: {
+          description: 'x',
+          parameters: {
+            jsonSchema: { type: 'object', required: ['flag'], properties: { flag: { type: 'boolean' } } },
+          },
+        },
+      },
+    };
+    const result = toolsPrepass(stringify(file), 'tools.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.dimensions.map((dimension) => dimension.id)).toEqual(['find_account.in.flag']);
+  });
 });

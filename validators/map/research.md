@@ -159,3 +159,15 @@ Sources read:
 What others do: Bedrock Converse wraps each tool in toolSpec and the JSON Schema in inputSchema.json.
 
 What to try, and why: the tool pre-pass reads Bedrock tool specs
+
+## Iteration 14
+
+Question: packages/generate/src/extract/tools.ts: firstMap takes parameters as the schema, so { parameters: { jsonSchema } } gives a schema with no properties; tool-formats.vercel-json-schema proves it.
+
+Sources read:
+* https://ai-sdk.dev/docs/reference/ai-sdk-core/json-schema (jsonSchema() wraps a JSON Schema for a tool's parameters)
+* packages/validators/src/ladders/map/bank/families/formats.ts (vercel-json-schema)
+
+What others do: The AI SDK wraps the JSON Schema of a tool in a jsonSchema value and keys tools by name.
+
+What to try, and why: the tool pre-pass reads Vercel parameters wrapped as jsonSchema
