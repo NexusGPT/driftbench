@@ -1,67 +1,64 @@
 # Handover: validator system
 
-Rewritten by the executor every iteration (docs/validators.md section 10). A stranger continues from this file alone. The level table is written by `driftbench validate system --journal <row.json>` from the last journal row.
-
 ## Level per seed
 
 <!-- level-table:start -->
+| Seed | Level |
+|---|---|
+| 1 | 7 |
 <!-- level-table:end -->
 
-Bank version 5 (2383 items) has no journal row yet: its first full measurement is still to run, so the table is empty. The journals of earlier bank versions are kept as journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl.
+Baseline on main a303a3f2 merged into codex/system-v3: bank version 5, 2384 items, 2355 passing, 29 failing, score 0.9878355704697986. Only seed 1 is complete. Do not extrapolate to other seeds. Older journals remain in journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl.
 
 ## Floor
 
-None for system. The validator merges as a regression floor in the plain sense: its failing items name the defects still open, and a fix turns its items green. A numeric floor waits for the first full measurement of bank version 5.
+No system floor is set. A numeric floor requires the complete evidence for that ladder version.
 
 ## Open items
 
-A file-by-file measurement on main e6f93d2d, after PRs 51, 53, 59 and 62, checked again every item that had failed (93 items, seeds 1, 2, 3 and 9999). 43 still fail, on every seed, under 29 distinct causes. Each failing item prints "asks: <capability>. found: <what came back>" and names its component; act on that line, the validator code is not needed. Open causes by package:
+The baseline has two real growth failures and 27 stale item expectations. The real failures are `scale/flow-blocks-teacher-forced/growth` (30.1 times) and `scale/flow-blocks-replayed/growth` (31.2 times), against the unchanged bound of 25. The free-running growth item passes the baseline but can fail on a new timing.
 
-1. packages/core: 11 (two loader checks on perturbations, the recovery label, nonempty on null mappings, the cache key version label, the one-spec compounding interval, and a per-block cost that grows with the run in the loader, lint and three runner paths).
-2. packages/cli: 9 (estate approve on a folder, estate lint and scan output, estate counts and "not built yet" pages that lag the commands, judge names, the floors line, campaign plan on an unknown adapter).
-3. packages/store: 4 (bundle record hashes, units by date, a torn read during a replace, listRuns trusting hand-edited columns).
-4. packages/adapters: 2 (the final line break of stdout, the session history shared with the Given).
-5. packages/sandbox, packages/checks, packages/space: 1 each (a detached child surviving the agent, the plural "orders" word, the extract proposal as a space map).
+Stale expectations cover the report's two rate intervals, four MDE assertions, extract proposal validation and map counts, select and holdout fixture counts, four mixed-suite golden comparisons, five estate output assertions and the pilot example totals. The executor does not edit any of them. The bank maintainer re-derives each assertion from current code or docs and retains its strength.
 
-Items that had never failed were not run again in this measurement; the first full run (Next actions) covers them.
+The current golden suite has nine conversations and one price-sheet task. Its documented run requires `--route flow:price-sheet=process:acme-ops`. The stale comparison items omit that route. The holdout secrecy item fails its old sealed-count conjunct, not its leakage assertion: the measured leaked-ID list is empty.
 
 ## Hypotheses tried
 
-Ten one-cause fixes were measured against bank version 3 on branch exec/system-pilot-v3 (journal-v3.jsonl rows 1 to 10): units by date, bundle hashes, plan on an unknown adapter, the cache key without the version label, the recovery label per docs/concepts/recovery.md, nonempty on null mappings, the process adapter's final line break and history copy, the plural order word, a store file cut inside its header. Every one held. The fixes live on that branch for their owners.
+The function adapter copies every prior message body on each send, and teacher-forced sessions copy their entire canonical prefix on open. Red-first tests reproduce unread message access and teacher-forced growth, including an 80 times measurement and a seed-2 measurement of 58.1 times.
+
+The pending fix preserves mutable `Message[]` callbacks and `structuredClone`: marked runner-owned prefixes can be borrowed; callbacks receive plain arrays that copy each message on first access. A read-only proxy is an explicit helper, never the callback default. Targeted teacher-forced tests now pass, but free-running and replay growth still fail in one targeted run at 29.4 and 31.2 times. Do not claim the history work complete before measurement.
+
+Profiling the remaining free-running growth identifies repeated native hash updates over the whole prefix. The cache-key head changes per block, so the incremental digest cannot reuse that head. A new red-first test verifies the unchanged canonical digest but observes 802 native updates for 800 messages. The next distinct mechanism is bulk canonical-text hashing for a new head.
 
 ## Next actions
 
-1. Run the first full measurement of bank version 5 on main: `pnpm driftbench validate system --seeds 1..20 --hidden --items --json > iter0.json`, then build and append its journal row (How to run).
-2. Hand each failing item to the lane owning its component; the item's line is the task.
-3. When the item set changes, regenerate packages/validators/fixtures/system/bank-manifest.json in a commit of its own.
+1. Finish the pending staged sweep of seeds 1 through 5 on the prefix-copy implementation, journal its measured result, then commit that cause alone.
+2. Fix the native hash-update growth with the existing red-first test; preserve exact canonical cache keys. Measure seed 1 and journal it separately.
+3. Correct the current estate doc/output mismatches and pilot totals with red-first tests. Change only the approved.yaml approval-output line in docs/estate.md to 125; leave historical scan examples alone. Coordinate stale items with the maintainer.
 
 ## Pitfalls
 
-* The hidden seed changes on every run, so a seed-dependent item can fail in one measurement and pass in the next. The pilot met one: the header-cut store item. Compare the failing lists of two runs, not only the counts.
-* Run the measurement alone: `--items` runs every level on 21 seeds, about 8 minutes under load. Parallel jobs slow it.
-* Under heavy load, packages/cli/test/validate.test.ts can time out at 5 seconds; it passes when run alone.
-* Use files of your own, never /tmp/<common name>.
-* The scale items time CPU, not wall time; the growth bound is 25 from ten to a hundred times the size.
-* The variance family holds three Monte Carlo items; each can fail a correct chain on about 2 seeds in 1000 (packages/validators/fixtures/system/design.json).
-* An item that is wrong is the maintainer's to fix, in a commit of its own on a non-executor branch, never the executor's.
-* docs/concepts/*.md is the contract the bank follows; docs/running.md and cli.md lag in places (cli.md still says report, compare and ci are not built).
+* No paid model calls, no git stash, no secrets, no bank edits. Commit trailer: Co-Authored-By: GPT-6.1 Sol (Codex) <noreply@openai.com>.
+* Vitest uses `--maxWorkers=2`; typecheck and lint must pass before each push.
+* The owner stages sweeps: seed 1 plus four more first; report completed seeds as N of 21. Run remaining seeds only while time remains before 06:00 local. The work ends at 07:00 local or 100 percent.
+* Nested stats measurements are cached by stats revision and seed only within one sweep. Dirty stats/bank code measures fresh. Disclose cache use and verify fresh/cached report equality.
+* The scale bank times CPU and keeps the minimum of repeated timings. One green micro-run is insufficient when another run fails the bound.
+* PR 74 remains red on the Node 24 golden-cover growth test. PR 118 is this executor's draft into lane/v-system. PR 114 is the separate estate-item maintainer PR, with all checks green at the last check.
 
 ## How to run
 
 ```
-pnpm driftbench validate system --seeds 1..20 --hidden --items --json > after.json
-pnpm -s exec tsx packages/validators/src/ladders/system/journal-row.ts --before before.json --after after.json --iteration <n> --hypothesis "<one sentence>" --files a,b --commit <sha> --model sonnet > row.json
+pnpm driftbench validate system --seed 1 --items --json > before.json
+pnpm driftbench validate system --seeds 1..5 --items --json > staged.json
+pnpm -s exec tsx packages/validators/src/ladders/system/journal-row.ts --before before.json --after staged.json --iteration <n> --hypothesis "<one cause>" --files a,b --commit <sha> --model codex > row.json
 pnpm driftbench validate system --journal row.json
-pnpm driftbench validate system --hardness
+pnpm exec vitest run <tests> --maxWorkers=2
+pnpm typecheck
+pnpm lint
 ```
 
-Run one item family on one seed while you work: filter `systemBank()` from packages/validators/src/ladders/system/bank/index.ts by id prefix and call `runItem(item, seed, root, scratch)`.
-
-The ladder is registered in packages/validators/src/ladders/index.ts (a root file).
+The journal-row helper's default command names the full 21-seed sweep. Correct that field to the command actually run before appending a partial-sweep row. Never claim unmeasured seeds.
 
 ## Fixtures
 
-* packages/validators/fixtures/system/bank-manifest.json: every item (id, family, tier, level, source, component, cause); a test compares it with the bank.
-* packages/validators/fixtures/system/design.json: the design point of the Monte Carlo items.
-* The fault family: examples/acme/faults, read through the gate's importFaultSet; the operator per class is OPERATORS in packages/validators/src/ladders/system/family.ts.
-* Everything else is generated from the seed under packages/validators/src/ladders/system/bank/ (claims under bank/claims/).
+The unchanged bank is packages/validators/src/ladders/system/bank. Its manifest is packages/validators/fixtures/system/bank-manifest.json. The maintainer alone changes items and regenerates the manifest. The executor changes component source, tests, docs, research, journal and this handover.
