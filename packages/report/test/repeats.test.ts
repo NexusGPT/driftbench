@@ -20,7 +20,7 @@ describe('criterionRepeats', () => {
         blocks: [{ verdicts: [judged('tone', 'pass')] }, { verdicts: [judged('tone', 'fail')] }],
       }),
     ];
-    const [line] = criterionRepeats(runs, reducers);
+    const [line] = criterionRepeats(runs, new Map([['h1', reducers]]));
     expect(line?.outcomes).toEqual([0]);
     expect(line?.verdict).toBe(0);
   });
@@ -34,14 +34,14 @@ describe('criterionRepeats', () => {
       run({ repeat: 1, blocks: [{ verdicts: [judged('tone', 'pass')] }] }),
       run({ repeat: 2, blocks: [{ verdicts: [judged('tone', 'pass')] }] }),
     ];
-    const [line] = criterionRepeats(runs, reducers);
+    const [line] = criterionRepeats(runs, new Map([['h1', reducers]]));
     expect(line?.outcomes).toEqual([undefined, 1, 1]);
     expect(line?.verdict).toBe(1);
   });
 
   it('a run that never judged the criterion is undecided, not a pass', () => {
     const runs = [run({ repeat: 0, blocks: [{}] }), run({ repeat: 1, blocks: [{}] })];
-    const [line] = criterionRepeats(runs, reducers);
+    const [line] = criterionRepeats(runs, new Map([['h1', reducers]]));
     expect(line?.outcomes).toEqual([undefined, undefined]);
     expect(line?.verdict).toBeUndefined();
   });
@@ -64,8 +64,13 @@ describe('criterionRepeats', () => {
     const lines = criterionRepeats(
       runs,
       new Map([
-        ['tone', parseRepeatReducer('at_least:2')],
-        ['facts', parseRepeatReducer('median')],
+        [
+          'h1',
+          new Map([
+            ['tone', parseRepeatReducer('at_least:2')],
+            ['facts', parseRepeatReducer('median')],
+          ]),
+        ],
       ]),
     );
     expect(lines.map((line) => line.criterion).sort()).toEqual(['facts', 'tone']);
@@ -86,7 +91,7 @@ describe('criterionRepeats', () => {
         blocks: [{ verdicts: [judged('tone', 'pass')] }],
       }),
     ];
-    const lines = criterionRepeats(runs, reducers);
+    const lines = criterionRepeats(runs, new Map([['h1', reducers]]));
     expect(lines).toHaveLength(2);
     expect(lines.map((line) => line.verdict).sort()).toEqual([0, 1]);
   });

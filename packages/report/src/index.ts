@@ -65,4 +65,4 @@ export {
   type SpreadOptions,
   spread,
 } from './spread';
-export { compareText, textTable } from './text';
+export { compareText, criterionRepeatsText, textTable } from './text';

@@ -31,6 +31,7 @@ import {
   reliability,
   successionOf,
 } from './reliability';
+import { type CriterionRepeat, criterionRepeats, repeatReducersOf } from './repeats';
 import { type Spread, spread } from './spread';
 
 export type ScorecardOptions = {
@@ -125,6 +126,8 @@ export type Scorecard = {
   /** Blocks carrying each drift class, over every run. */
   drift: Partial<Record<DriftClass, number>>;
   spread: Spread;
+  /** Criteria with a repeat reducer, reduced over the repeats of each line. Empty when no criterion names one. */
+  criterionRepeats: CriterionRepeat[];
   compare?: CompareResult;
   pilot?: PilotReport;
   drilldown: RunDetail[];
@@ -177,6 +180,7 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
     ...optional('recovery', recovery),
     recoveryByClass,
     drift: successionOf(runs).classes,
+    criterionRepeats: criterionRepeats(runs, repeatReducersOf(data)),
     spread: spread(data, {
       margin,
       ...optional('mode', options.spreadMode),
