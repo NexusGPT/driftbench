@@ -52,14 +52,14 @@ const pick = <T,>(items: readonly T[]): T => items[Math.floor(rng() * items.leng
 function markupCases(): Array<{ kind: 'xml' | 'html' | 'sql'; c: Case }> {
   const out: Array<{ kind: 'xml' | 'html' | 'sql'; c: Case }> = [];
   const tags = ['plan', 'name', 'price', 'data', 'item'];
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 100; i++) {
     const t = pick(tags);
     const u = pick(tags);
     const valid = i % 2 === 0;
     const text = valid ? `<${t}><${u}>Mobile L</${u}></${t}>` : `<${t}><${u}>Mobile L</${t}>`;
     out.push({ kind: 'xml', c: { text, truth: valid } });
   }
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 100; i++) {
     const valid = i % 2 === 0;
     const text = valid ? `<div><p>Fiber<br>5G</p><img src="x.png"></div>` : `<div><span>Fiber</div>`;
     out.push({ kind: 'html', c: { text, truth: valid } });
@@ -71,7 +71,7 @@ function markupCases(): Array<{ kind: 'xml' | 'html' | 'sql'; c: Case }> {
     `DELETE FROM sessions WHERE expired = 1;`,
   ];
   const sqlInvalid = [`SELCT * FROM plans;`, `SELECT * FROM plans WHERE name = 'Mobile L;`, `INSERT INTO orders VALUES (1;`, `UPDATE plans SET;`];
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 100; i++) {
     const valid = i % 2 === 0;
     out.push({ kind: 'sql', c: { text: valid ? pick(sqlValid) : pick(sqlInvalid), truth: valid } });
   }

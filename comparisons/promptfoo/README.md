@@ -31,12 +31,12 @@ the path, or `CLAUDE_BIN` set to its location.
 
 | Row | Capability | Cases | Result |
 |---|---|---|---|
-| 7 | XML, HTML and SQL validity | 120 | see `out/deterministic.json` |
+| 7 | XML, HTML and SQL validity | 300 | equal: ours 266, promptfoo 250 of 300; p 0.10 |
 | 8 | regex | 120 | equal: `expect.regex` is case-sensitive, as a regular expression is by default. `expect.must` ignores case and is behind on the same cases, which the script also prints for reference |
 | 9 | contains, contains-all, contains-any | 120 | equal |
 | 10 | icontains family | 120 | equal |
 | 11 | equals | 120 | behind on identical text; ahead when case, punctuation and spacing are ignored |
-| 12 | starts-with | 120 | ahead: promptfoo does not drop leading space |
+| 12 | starts-with | 120 | equal on the current sample (p 0.06); an earlier sample showed ahead, which did not hold |
 | 16 | cost and latency bounds | 120 | equal |
 | 19 | factuality against a reference | 100 | equal: both 100 of 100. The cases are easy (a wrong price against a clear reference), so this shows no gap either way and is not evidence of an advantage |
 
