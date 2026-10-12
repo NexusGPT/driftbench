@@ -10,5 +10,24 @@
     "path": ".claude/skills/invoice-reconcile/scripts/reconcile.py",
     "skill": "invoice-reconcile"
   },
-  "cases": []
+  "cases": [
+    {
+      "id": "case-01",
+      "payload": {
+        "args": []
+      },
+      "material": "no argument"
+    },
+    {
+      "id": "case-02",
+      "payload": {
+        "args": ["invoice", "order"],
+        "files": {
+          "invoice": "",
+          "order": ""
+        }
+      },
+      "material": "invoice order"
+    }
+  ]
 }

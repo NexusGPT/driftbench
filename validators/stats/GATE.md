@@ -1,10 +1,14 @@
 # Stats validator: where the gate stands
 
-Status, 2026-10-12: the owner closed the validator design ("we've done enough work on validator honestly, let's just start building and iterating"). The stats validator merges with the honest numbers below as its recorded bar. It does not meet the section 12 contract (forecast 100, score after the pilot 0.4, 100 distinct causes), and no item was added to reach it. Every item names its need in [NEEDS.md](NEEDS.md).
+Status, 2026-10-12: the owner closed the validator design ("we've done enough work on validator honestly, let's just start building and iterating"). The stats validator merges with the lowered bar below, set to what its honest bank meets. It does not meet the section 12 contract (forecast 100, score after the pilot 0.4, 100 distinct causes), and no item was added to reach it. Every item names its need in [NEEDS.md](NEEDS.md).
 
 ## The recorded bar
 
-The bar for the stats validator is the bank as measured: 651 items, a forecast of 73.21 iterations, a score after the pilot of 0.6851, and 62 distinct failing causes. A later bank change is judged against these numbers. It must not lower the forecast or the cause count without a reason written here.
+Max score after the pilot: 0.7
+Min forecast: 70
+Min distinct failing causes: 60
+
+The owner's fallback, verbatim: "If you cannot do it, lower the bar per validator". The stats bar is what this honest bank meets: a forecast of at least 70 iterations (measured 73.21), a score after the pilot of at most 0.7 (measured 0.6851) and at least 60 distinct failing causes (measured 62). `driftbench validate stats --hardness` reads the three lines above (`parseGate` in `packages/validators/src/hardness.ts`, which takes a value only when it lowers the section 12.4 term). The audit (12.7) still applies: the stats-v2 audit judged the old bank, and this bank has no `audit.md` yet.
 
 ## The numbers
 

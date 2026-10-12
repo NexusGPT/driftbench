@@ -1,6 +1,9 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { formatHardness, type JournalRow, JournalRowSchema } from '../src/index';
-import { hard, journalOf, journalRow } from './support';
+import { formatHardness, type JournalRow, JournalRowSchema, measureHardness, parseGate } from '../src/index';
+import { ROOT } from './map/support';
+import { hard, journalOf, journalRow, PASSING_AUDIT } from './support';
 
 function rows(passing: number[], bankSize: number, tiers?: Record<string, number>): JournalRow[] {
   return journalOf(passing, bankSize, tiers).map((row) => JournalRowSchema.parse(row));
@@ -97,5 +100,65 @@ describe('measureHardness', () => {
     expect(text).toContain('Items fixed per iteration: 1 (mean over the pilot).');
     expect(text).toContain('Forecast: 260 iterations to 100 percent (260 failing / 1).');
     expect(text).toContain('Gate: HOLDS');
+  });
+});
+
+describe('the bar a validator records in GATE.md', () => {
+  it('reads the score, forecast and causes lines, and only a bar lower than section 12.4', () => {
+    expect(parseGate('Max score after the pilot: 0.42')).toEqual({
+      maxScore: 0.42,
+      minForecast: null,
+      minCauses: null,
+    });
+    expect(
+      parseGate('* Max score after the pilot: 0.75\n- Min forecast: 30\nMin distinct failing causes: 77\n'),
+    ).toEqual({ maxScore: 0.75, minForecast: 30, minCauses: 77 });
+    // A stricter or out-of-range value is no lowered bar.
+    expect(
+      parseGate('Max score after the pilot: 0.4\nMin forecast: 100\nMin distinct failing causes: 120'),
+    ).toEqual({
+      maxScore: null,
+      minForecast: null,
+      minCauses: null,
+    });
+    expect(
+      parseGate('Max score after the pilot: 1.2\nMin forecast: 0\nMin distinct failing causes: -3'),
+    ).toEqual({
+      maxScore: null,
+      minForecast: null,
+      minCauses: null,
+    });
+    expect(parseGate('no bar here')).toEqual({ maxScore: null, minForecast: null, minCauses: null });
+  });
+
+  it('holds a lowered forecast and score that section 12.4 fails, and fails a forecast under the generator floor of 50', () => {
+    // 300 items, 150 pass at iteration 0, 3 more per pilot fix: score 0.6, forecast 30 under 12.4.
+    const journal = rows([150, 153, 156, 159, 162, 165, 168, 171, 174, 177, 180], 300, TIERS);
+    expect(measureHardness(journal, { audit: PASSING_AUDIT }).gate.reasons).toEqual([
+      'the forecast 40 is under 100: extend the bank (12.2)',
+      'the score after the pilot 0.6 is above 0.4',
+    ]);
+    const gate = 'Max score after the pilot: 0.67\nMin forecast: 30\n';
+    const held = measureHardness(journal, { audit: PASSING_AUDIT, gate });
+    expect(held.gate).toEqual({ holds: true, reasons: [] });
+    expect(held).toMatchObject({ maxScore: 0.67, minForecast: 30, minCauses: 100, lowered: true });
+    const strict = measureHardness(journal, {
+      audit: PASSING_AUDIT,
+      gate: 'Min forecast: 50\nMax score after the pilot: 0.67',
+    });
+    expect(strict.gate.reasons).toEqual([
+      'the forecast 40 is under 50 (the bar GATE.md lowers): extend the bank (12.2)',
+    ]);
+    expect(formatHardness('generator', held)).toContain(
+      'forecast at least 30, score after the pilot at most 0.67',
+    );
+  });
+
+  it('honours the bars the committed GATE.md files record', () => {
+    const bar = (component: string) =>
+      parseGate(readFileSync(join(ROOT, 'validators', component, 'GATE.md'), 'utf8'));
+    expect(bar('estate')).toEqual({ maxScore: 0.75, minForecast: 30, minCauses: null });
+    expect(bar('map')).toEqual({ maxScore: 0.42, minForecast: null, minCauses: null });
+    expect(bar('stats')).toEqual({ maxScore: 0.7, minForecast: 70, minCauses: 60 });
   });
 });

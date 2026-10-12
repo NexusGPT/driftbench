@@ -317,6 +317,9 @@ describe('driftbench validate through main', () => {
     const handover = await run(['validate', 'all', '--check-handover']);
     expect(handover.code).toBe(0);
     expect(handover.out).toContain('validators/stats/HANDOVER.md: every section present');
+    expect(handover.out).toContain('validators/estate/HANDOVER.md: every section present');
+    // The judges ladder version 2 runs its whole bank, each item in a child process; the estate ladder runs
+    // its reader level on a bank of planted estates.
   }, 600_000);
 
   it('prints the stats brief from the real executor instruction', async () => {

@@ -6,7 +6,8 @@ import { attempt, type BankItem, fail, near, ok, show, type Tier } from './item'
  * Level `degenerate`: inputs a careless caller sends. The contract, one rule per kind of input:
  * 1. A statistical procedure refuses input it cannot answer for (no data, NaN, an infinite value, a count or a
  *    probability out of range) by throwing a RangeError that names itself and the argument to fix: the message
- *    begins `<function>: <argument>`, or names the entry `<argument>[<index>]` after `<function>: `. The argument
+ *    begins `<function>: <argument>` (quoted or backticked when the argument's name is an English word, `a`), or
+ *    names the entry `<argument>[<index>]` after `<function>: `. The argument
  *    is the parameter of the exported signature, or the option or field inside it. It never returns a number built
  *    from that input. A blanket guard that throws on any non-finite argument cannot name the argument, so it does
  *    not pass these items (validators/stats/audit.md, cheater attempt 1).
@@ -270,14 +271,21 @@ const CALL_PARAM: Record<string, string | readonly string[]> = {
 
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+/** Argument names that are also English words, so a sentence can begin with them by chance. */
+const ENGLISH_WORDS = new Set(['a']);
+
 /** Whether a RangeError message names the function and one of the arguments, as rule 1 asks. */
 export function namesArgument(fn: string, params: string | readonly string[], message: string): boolean {
   const prefix = `${fn}: `;
   if (!message.startsWith(prefix)) return false;
   const rest = message.slice(prefix.length);
-  return (typeof params === 'string' ? [params] : params).some(
-    (p) => new RegExp(`^${escapeRegExp(p)}\\b`).test(rest) || rest.includes(`${p}[`),
-  );
+  return (typeof params === 'string' ? [params] : params).some((p) => {
+    if (rest.includes(`${p}[`)) return true;
+    // An argument named like an English word ("a") counts only quoted or backticked: "ksTest: a finite value is
+    // needed" does not name it, "ksTest: 'a' must be finite" does.
+    if (ENGLISH_WORDS.has(p)) return [`'${p}'`, `"${p}"`, `\`${p}\``].some((q) => rest.startsWith(q));
+    return new RegExp(`^${escapeRegExp(p)}\\b`).test(rest);
+  });
 }
 
 const finiteDeep = (value: unknown): boolean => {
