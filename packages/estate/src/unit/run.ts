@@ -633,12 +633,13 @@ export function casesFromSource(source: string): GuardCase[] {
 }
 
 /**
- * How a TypeScript script runs offline: tsx where driftbench can resolve it, else Node's own type stripping.
+ * How a TypeScript script runs offline: the tsx loader where available, else Node's own type stripping.
+ * The loader avoids the CLI's Unix socket, which cannot represent long temporary paths.
  * Never `npx tsx`, which reaches for the network the sandbox closes and waits out the timeout.
  */
 function typeScriptRunner(): string[] {
   try {
-    return [process.execPath, createRequire(import.meta.url).resolve('tsx/cli')];
+    return [process.execPath, '--import', createRequire(import.meta.url).resolve('tsx')];
   } catch {
     return [process.execPath, '--experimental-strip-types', '--no-warnings'];
   }

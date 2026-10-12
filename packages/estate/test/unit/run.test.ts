@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { chmod, cp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -516,6 +516,45 @@ describe('a script with declared fixtures', () => {
 });
 
 describe('a TypeScript script', () => {
+  it('runs when the temporary path is longer than a Unix socket path allows', async () => {
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/skills/sum/scripts/sum.ts':
+        'const total: number = Number(process.argv[2]) + Number(process.argv[3]);\nconsole.log(total);\n',
+      'driftbench.estate.yaml':
+        'scripts:\n  .claude/skills/sum/scripts/sum.ts:\n    - { args: ["2", "3"], expect: { stdout: "5" } }\n',
+    });
+    const temporary = join(root, 'long-socket-path-'.repeat(12));
+    await mkdir(temporary);
+    const previous = process.env.TMPDIR;
+    process.env.TMPDIR = temporary;
+    try {
+      const run = await runUnitTests(
+        [
+          {
+            id: 'unit.script_fixture.sum-ts-long-path',
+            planRow: 'row',
+            testType: 'script_fixture',
+            atom: 'script.sum.sum-ts',
+            title: 'sum',
+            mapHash: 'x',
+            target: { kind: 'script', path: '.claude/skills/sum/scripts/sum.ts' },
+            cases: [],
+          },
+        ],
+        { root, reader: new ClaudeCodeReader() },
+      );
+      expect([run.results[0]?.status, run.results[0]?.detail]).toEqual([
+        'pass',
+        '1 of 1 fixtures as declared',
+      ]);
+      expect(run.results[0]?.cases[0]?.outcome.output).toBe('5');
+    } finally {
+      if (previous === undefined) delete process.env.TMPDIR;
+      else process.env.TMPDIR = previous;
+    }
+  }, 60_000);
+
   it('runs offline in the sandbox, with no package fetched, in well under its timeout', async () => {
     const root = await estate({
       'CLAUDE.md': RULES,
