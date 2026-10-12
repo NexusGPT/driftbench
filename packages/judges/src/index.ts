@@ -71,6 +71,7 @@ export {
 } from './clients/claude-cli';
 export { type FakeAnswer, FakeJudge } from './clients/fake';
 export { createHttpJudge, type HttpJudgeOptions } from './clients/http-json';
+export { type TokenUsage, type UsageProvider, usageFromResponse } from './clients/usage';
 export {
   binaryQuestion,
   createJevJudge,
