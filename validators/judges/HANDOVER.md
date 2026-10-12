@@ -110,6 +110,7 @@ Iteration 95 (cause: base64 run after an equals sign, URL-safe alphabet. Test: s
 Iteration 96 (cause: decoded text was screened as written only. DECODERS list; readingsOf applies every reading to each decoded text, two levels deep. Test: screen.test.ts reads a base64 text that holds ROT13 or base64 again (red first). Add each later decoder as one DECODERS row.)
 Iteration 97 (cause: no hex reading. DECODERS row for 0x runs of 8 bytes or more; shared readable() for UTF-8 plus 90 percent printable. Test: screen.test.ts reads 0x hexadecimal runs.)
 Iteration 98 (cause: no entity reading. DECODERS row for &#NNN; and &#xHH;. Test: screen.test.ts reads HTML numeric entities.)
+Iteration 99 (cause: no per judge labels.metrics. agreement() counts tp fp tn fn (fail positive, inconclusive wrong) and derives sensitivity, specificity, balancedAccuracy, falsePositiveRate, falseNegativeRate. Test: metrics-confusion.test.ts.)
 
 ## Next actions
 
