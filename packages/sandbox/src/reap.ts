@@ -78,9 +78,12 @@ const BORN_MARGIN_MS = 5000;
 
 type Proc = { pid: number; ppid: number; startedAt: number; command: string };
 
-/** Every process: its id, its parent, when it started (from its elapsed time) and its command line. */
+/**
+ * Every process: its id, its parent, when it started (from its elapsed time) and its command line. `-A`, not
+ * `ax`: on Linux the dash form `-a` leaves out session leaders, which is just what a daemon is.
+ */
 function processes(): Proc[] {
-  const ps = spawnSync('ps', ['-axww', '-o', 'pid=,ppid=,etime=,command='], {
+  const ps = spawnSync('ps', ['-A', '-ww', '-o', 'pid=,ppid=,etime=,command='], {
     encoding: 'utf8',
     maxBuffer: 64 << 20,
   });

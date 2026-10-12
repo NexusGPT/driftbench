@@ -101,7 +101,7 @@ const status = (results: readonly UnitResult[]) => results.map((result) => [resu
 
 /** The ids of running processes whose command line holds the marker. */
 function running(marker: string): number[] {
-  const ps = spawnSync('ps', ['-axww', '-o', 'pid=,command='], { encoding: 'utf8' });
+  const ps = spawnSync('ps', ['-A', '-ww', '-o', 'pid=,command='], { encoding: 'utf8' });
   if (ps.status !== 0) throw new Error(`ps failed: ${ps.stderr}`);
   return ps.stdout
     .split('\n')

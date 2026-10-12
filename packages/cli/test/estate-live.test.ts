@@ -635,7 +635,7 @@ describe('estate run leaves no process behind', () => {
     const { chmod } = await import('node:fs/promises');
     await chmod(wrapper, 0o755);
     const running = () =>
-      (spawnSync('ps', ['-axww', '-o', 'pid=,command='], { encoding: 'utf8' }).stdout ?? '')
+      (spawnSync('ps', ['-A', '-ww', '-o', 'pid=,command='], { encoding: 'utf8' }).stdout ?? '')
         .split('\n')
         .filter((line) => line.includes(marker) && !line.includes('-o pid=,command='))
         .map((line) => Number.parseInt(line.trim(), 10));
