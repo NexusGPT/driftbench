@@ -310,6 +310,8 @@ export type CriterionCalibration = {
   readonly judges: readonly JudgeCalibration[];
   /** Krippendorff's alpha across every judge, over the fixtures and the labelled blocks. */
   readonly alpha?: number;
+  /** Groups of labelled blocks that hold the same slice under both labels; absent when there are none. */
+  readonly labelConflicts?: readonly (readonly string[])[];
   readonly assignment: CriterionAssignment;
 };
 
@@ -401,11 +403,13 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       pooled.set(judge.id, own);
     }
     const alpha = alphaOf(matrix);
+    const conflicts = labelConflicts(blocks);
     criteria.push({
       criterion: criterion.def.name,
       gating: criterion.def.gating === true,
       judges: rows,
       ...(alpha === undefined ? {} : { alpha }),
+      ...(conflicts.length === 0 ? {} : { labelConflicts: conflicts }),
       assignment:
         config.rule === 'cheapest' ? assignCheapest(rows, judges, mode) : assign(rows, judges, mode),
     });
@@ -426,6 +430,18 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     errors,
     spentUsd,
   };
+}
+
+/** The blocks that hold one slice (transcript, artifact, given) under both labels, one group of ids per slice. */
+export function labelConflicts(blocks: readonly LabelledBlock[]): string[][] {
+  const bySlice = new Map<string, LabelledBlock[]>();
+  for (const block of blocks) {
+    const key = JSON.stringify([block.transcript, block.artifact ?? null, block.given ?? null]);
+    bySlice.set(key, [...(bySlice.get(key) ?? []), block]);
+  }
+  return [...bySlice.values()]
+    .filter((group) => new Set(group.map((block) => block.label)).size > 1)
+    .map((group) => group.map((block) => block.id));
 }
 
 /** One answer as a council vote would get it: an unparsed answer is asked again with the large budget. */
