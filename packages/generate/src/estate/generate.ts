@@ -81,6 +81,7 @@ export const ESTATE_SEEDER = 'estate';
 export const ESTATE_DEFAULT_SEED = 1;
 /** The custom checks the replay runner registers. */
 export const REPLAY_CUSTOM_CHECKS: readonly string[] = [
+  'grounded_values',
   'hazard_recovery',
   'ordered',
   'permission',
