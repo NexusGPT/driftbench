@@ -116,7 +116,7 @@ A prompt version from the registry, handed to the agent as its system prompt. ca
 
 ## RetrySettings
 
-How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.
+How model calls are retried. Only a 408, a 429, a 5xx (529 included) or a network error is retried.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|

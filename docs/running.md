@@ -685,7 +685,7 @@ The runner gives every block its drift classes from the gating verdicts it fails
 
 A run ends `completed`, `failed` or `stopped`.
 
-* An `AdapterTransportError` with a 429, a 5xx or no status (a network failure) is retried under the [shared retry policy](retries.md): 4 attempts by default, a backoff from 500 ms with full jitter, at least the server's Retry-After. Each retry is recorded in the block's Observed as `retries`. Past the attempts, or on one marked `exhausted` by the adapter, the run fails.
+* An `AdapterTransportError` with a 408, a 429, a 5xx or no status (a network failure) is retried under the [shared retry policy](retries.md): 4 attempts by default, a backoff from 500 ms with full jitter, at least the server's Retry-After. Each retry is recorded in the block's Observed as `retries`. Past the attempts, or on one marked `exhausted` by the adapter, the run fails.
 * An `AgentFailure`, an Observed that does not match the schema as JSON, or any other error fails the run at once.
 * A driver that does not stop within `maxSteps` steps stops the run.
 
