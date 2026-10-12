@@ -14,9 +14,9 @@ async function main(): Promise<void> {
   const completed = new Map<string, ContestantReport>();
   const partial: { file: string; items: number; missing: number; stopped?: string }[] = [];
   for (const file of await readdir(directory)) {
-    if (!file.endsWith('.json') || file === 'audit.json') continue;
+    if (!file.endsWith('.json') || file === 'audit.json' || file.startsWith('official-test')) continue;
     const report = JSON.parse(await readFile(join(directory, file), 'utf8')) as Partial<RunReport>;
-    if (!Array.isArray(report.contestants)) continue;
+    if (!Array.isArray(report.contestants) || report.split === 'test') continue;
     for (const contestant of report.contestants) {
       if (report.items === 357 && contestant.summary.missing === 0)
         completed.set(contestant.contestant, contestant);
@@ -35,7 +35,11 @@ async function main(): Promise<void> {
       (a.uniqueCostUsd ?? a.costUsd) - (b.uniqueCostUsd ?? b.costUsd),
   );
   const ours = rows.filter((r) => r.contestant.startsWith('driftbench'));
-  const best = ours[0];
+  const frozenMode = process.argv.includes('--frozen');
+  const frozen = frozenMode
+    ? JSON.parse(await readFile(join(directory, 'best-config.json'), 'utf8')) as { contestant: string }
+    : undefined;
+  const best = frozen ? ours.find((row) => row.contestant === frozen.contestant) : ours[0];
   if (!best) throw new Error('No completed driftbench dev configuration');
   const bestCost = ((best.uniqueCostUsd ?? best.costUsd) / 357) * 100;
   const domainRows = rows.flatMap((r) =>
@@ -60,6 +64,29 @@ async function main(): Promise<void> {
     .map((line) => JSON.parse(line) as { contestant?: string; costUsd: number })
     .filter((r) => r.contestant?.startsWith('driftbench-rb-') || r.contestant === 'driftbench-checklist');
   const spend = newRows.reduce((a, b) => a + b.costUsd, 0);
+  const audit = JSON.parse(await readFile(join(directory, 'audit.json'), 'utf8')) as {
+    reports: { contestant: string; completeItems: number; details: { invalidChecks: boolean; invalidParse: boolean; countMismatch: boolean }[] }[];
+  };
+  const selectedAudit = audit.reports.find((row) => row.contestant === best.contestant);
+  let official: {
+    frozenCommit: string; population: number; requestedItems: number; stratifiedSample: boolean;
+    frozenAt: string; frozenBy0430: boolean;
+    measuredAt: string; complete: boolean; usdPer100: number; run: RunReport;
+    populationDomains: Record<string, number>;
+    interval?: { lower: number; upper: number }; intervalMethod: string;
+    usedFallback: boolean; attemptRequestedItems: number; attemptUsdPer100ReportedItems: number;
+  } | undefined;
+  try {
+    official = JSON.parse(await readFile(join(directory, 'official-test.json'), 'utf8')) as typeof official;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+  }
+  let testCompetitors: RunReport | undefined;
+  try {
+    testCompetitors = (JSON.parse(await readFile(join(directory, 'official-test-competitors.json'), 'utf8')) as { run: RunReport }).run;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+  }
   const coverage = JSON.parse(await readFile(join(directory, 'code-coverage.json'), 'utf8')) as {
     rows: { domain: string; attempted: boolean; evidence?: { A: Execution[]; B: Execution[] } }[];
   };
@@ -89,16 +116,17 @@ async function main(): Promise<void> {
     usdPer100: bestCost,
     newTaskSpendUsd: spend,
     measuredAt: new Date().toISOString(),
-    testEvaluated: false,
+    testEvaluated: official !== undefined,
   };
-  await writeFile(join(directory, 'best-config.json'), `${JSON.stringify(freeze, null, 2)}\n`);
+  if (!frozenMode)
+    await writeFile(join(directory, 'best-config.json'), `${JSON.stringify(freeze, null, 2)}\n`);
   const lines = [
     '# RubricBench dev experiment',
     '',
     `Measured at ${freeze.measuredAt}. Branch: codex/rb-judge. Head: ${head}.`,
     '',
     `Best completed full-dev config: **${best.contestant}**, **${(best.summary.value.estimate * 100).toFixed(4)}%**, **$${bestCost.toFixed(6)} per 100 items**.`,
-    `The 90% target is ${best.summary.value.estimate >= 0.9 ? 'met on dev' : 'not met on dev'}. The test split remains untouched.`,
+    `The 90% target is ${best.summary.value.estimate >= 0.9 ? 'met on dev' : 'not met on dev'}. ${official ? 'Official test results use the committed frozen design below.' : 'The test split remains untouched.'}`,
     `Recorded task spend: $${spend.toFixed(6)} across ${newRows.length} new recorded calls. Aborted calls without a returned cost cannot be metered from this harness.`,
     '',
     '| Completed variant | Dev items | Game accuracy | Position consistency | USD per 100 items | Unique calls |',
@@ -112,12 +140,34 @@ async function main(): Promise<void> {
     '',
     'All completed variants and every dataset domain are in domain-scores.csv beside the result JSON files. Domain labels remain exactly as the source dataset supplies them.',
     '',
-    '| Dataset domain | Items | Dev accuracy |',
-    '|---|---:|---:|',
+    '| Dataset domain | Items | Dev accuracy | Whole judge USD per 100 |',
+    '|---|---:|---:|---:|',
     ...Object.entries(best.summary.byGroup).map(
-      ([name, group]) => `| ${name} | ${group.n / 2} | ${(group.value * 100).toFixed(4)}% |`,
+      ([name, group]) => `| ${name} | ${group.n / 2} | ${(group.value * 100).toFixed(4)}% | ${bestCost.toFixed(6)} |`,
     ),
     '',
+    ...(official ? [
+      '## Official frozen test', '',
+      `Frozen design commit: ${official.frozenCommit}. Freeze recorded at ${official.frozenAt}; by 04:30 local: ${official.frozenBy0430 ? 'yes' : 'no'}. Test measured at ${official.measuredAt}. No design changes follow that freeze.`,
+      `${official.stratifiedSample ? 'Stratified sample' : 'Full test set'}: ${official.requestedItems} of ${official.population} test pairs. ${official.complete ? `All requested cases are evaluated. Missing judgments count as errors: ${official.run.contestants[0]?.summary.missing ?? 0}.` : `The run is incomplete: ${official.run.contestants[0]?.summary.missing ?? 'unknown'} missing answers; ${official.run.stopped ?? 'no stop reason'}.`}`,
+      '', '| Split | Items | Accuracy | 95% interval | USD per 100 items |', '|---|---:|---:|---|---:|',
+      `| Full dev | 357 | ${(best.summary.value.estimate * 100).toFixed(4)}% | not reported | ${bestCost.toFixed(6)} |`,
+      `| Test${official.stratifiedSample ? ' sample' : ''} | ${official.requestedItems} | ${((official.run.contestants[0]?.summary.value.estimate ?? 0) * 100).toFixed(4)}% | ${official.interval ? `${(official.interval.lower * 100).toFixed(2)}% to ${(official.interval.upper * 100).toFixed(2)}%` : 'not available for an incomplete run'} | ${official.usdPer100.toFixed(6)} |`,
+      '', official.intervalMethod,
+      ...(official.usedFallback ? ['', `The live full-set attempt cannot finish within its limit. The predeclared stratified subset is judged first and reported from cache. No second model test occurs. Total attempt reproduction cost per 100 reported sample pairs is $${official.attemptUsdPer100ReportedItems.toFixed(6)}, including calls outside the reported sample.`] : []),
+      '', '| Test domain | Sample pairs | Accuracy | Whole judge USD per 100 |', '|---|---:|---:|---:|',
+      ...Object.keys(official.populationDomains).map((domain) => {
+        const group = official?.run.contestants[0]?.summary.byGroup[domain];
+        return `| ${domain} | ${group ? group.n / 2 : 0} | ${group ? `${(group.value * 100).toFixed(4)}%` : 'not sampled'} | ${official?.usdPer100.toFixed(6)} |`;
+      }),
+      '', 'The sample size is fixed before judging. The projection uses observed dev throughput and leaves time for slow calls. Test results never select or alter the design.', '',
+      ...(testCompetitors ? [
+        '| Default competitor on the same test items | Accuracy | Missing answers | USD per 100 items |',
+        '|---|---:|---:|---:|',
+        ...testCompetitors.contestants.map((row) => `| ${row.contestant} | ${(row.summary.value.estimate * 100).toFixed(4)}% | ${row.summary.missing} | ${(((row.uniqueCostUsd ?? row.costUsd) / testCompetitors.items) * 100).toFixed(6)} |`),
+        '', 'Competitors replay their original default prompts on the exact selected test pairs. No new competitor call occurs.', '',
+      ] : []),
+    ] : []),
     '## What changed and why',
     '',
     '- Atomic grading records evidence and a score for each expert requirement for both replies. Arithmetic runs in TypeScript, not in the model.',
@@ -130,6 +180,11 @@ async function main(): Promise<void> {
     '- Code and MBPP snippets run in worktree scratch folders. Python uses supplied examples, JavaScript runs in a VM, C/C++ run when an entry point exists, and SQL uses a scratch SQLite database. A portable Java runtime is stored in the ignored worktree cache; unsupported languages and absent context remain visible unknowns.',
     '',
     `The selected configuration uses ${config.rubricEngine?.samples ?? config.samples ?? 1} judgment(s) per prompt and ${config.canonicalOrder ? 'canonical presentation' : 'the original presentation rules'}. Its measured score and domain rows above are the evidence for choosing it.`,
+    ...(selectedAudit
+      ? [
+          `The canonical prototype has ${selectedAudit.details.filter((row) => row.countMismatch).length} rubric-count mismatches and ${selectedAudit.details.filter((row) => row.invalidParse).length} malformed outputs among ${selectedAudit.completeItems} audited pairs. Its score retains those original judgments. The pointwise engine separately validates every original rubric id. Wrapped expert questions remain one requirement.`,
+        ]
+      : []),
     '',
     'Canonical mapping gives the same choice in both input orders. The reported consistency metric still counts ties as inconsistent. Mapping is not evidence that the underlying model is immune to ordering. The two reported games reuse one judgment and are not independent observations.',
     'Cost counts unique recorded prompt keys within a contestant. The legacy costUsd field counts both game requests, including cache hits, and can therefore double-count canonical judgments. uniqueCostUsd is the reproduction cost used here.',

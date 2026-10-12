@@ -1,59 +1,64 @@
-import { execFileSync } from 'node:child_process';
-import { readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-/**
- * The recordings hold judge answers about public benchmark items, which quote numbers from math and
- * science questions. A few of those numbers have the shape of a phone or national number, and the leak
- * guard reports them. This marks exactly the reported lines with `guard:allow` (a key the recording reader
- * ignores), so every other line stays under the guard. A denylist finding is never marked.
- *
- *   npx tsx examples/judge-benchmarks/src/guard-allow.ts
- */
-
+/** Public benchmark answers quote supplied data. Denylist findings are never allowed. */
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
+type Finding = { line: number; kind: string };
+type Guard = {
+  scanText(text: string, options: { denylist: readonly string[] }): { findings: Finding[] };
+  loadDenylist(env: NodeJS.ProcessEnv, root: string): string[];
+};
+const guard = () => import(pathToFileURL(join(ROOT, 'tools/guard/guard.mjs')).href) as Promise<Guard>;
 
-type Finding = { file: string; line: number; kind: string };
+/** Scan the whole recording, including files larger than the tree guard's byte limit. */
+export async function allowPublicPatterns(text: string, denylist: readonly string[]): Promise<{
+  text: string; marked: number; denied: number;
+}> {
+  const { findings } = (await guard()).scanText(text, { denylist });
+  const deniedLines = new Set(findings.filter((f) => f.kind.startsWith('denylist')).map((f) => f.line));
+  const allowedLines = new Set(findings.filter((f) => !f.kind.startsWith('denylist') && !deniedLines.has(f.line)).map((f) => f.line));
+  const lines = text.split('\n');
+  for (const line of allowedLines) {
+    const entry = JSON.parse(lines[line - 1] as string) as Record<string, unknown>;
+    lines[line - 1] = JSON.stringify({ ...entry, guard: 'guard:allow' });
+  }
+  return {
+    text: lines.join('\n'), marked: allowedLines.size,
+    denied: findings.filter((f) => f.kind.startsWith('denylist')).length,
+  };
+}
 
 async function main(): Promise<void> {
-  let out: string;
-  try {
-    out = execFileSync(
-      process.execPath,
-      ['tools/guard/guard.mjs', 'examples/judge-benchmarks/recordings', '--json'],
-      {
-        cwd: ROOT,
-        encoding: 'utf8',
-      },
-    );
-  } catch (cause) {
-    // The guard exits 1 when it finds something; its JSON is still on stdout.
-    out = (cause as { stdout?: string }).stdout ?? '';
-  }
-  const findings = (JSON.parse(out) as { findings: Finding[] }).findings;
-  const pattern = findings.filter((f) => f.kind !== 'denylist');
-  const byFile = new Map<string, Set<number>>();
-  for (const f of pattern) byFile.set(f.file, new Set([...(byFile.get(f.file) ?? []), f.line]));
-  for (const [file, lines] of byFile) {
-    const path = join(ROOT, file);
-    const text = (await readFile(path, 'utf8')).split('\n');
-    for (const line of lines) {
-      const entry = JSON.parse(text[line - 1] as string) as Record<string, unknown>;
-      text[line - 1] = JSON.stringify({ ...entry, guard: 'guard:allow' });
+  const benchAt = process.argv.indexOf('--bench');
+  const bench = benchAt < 0 ? undefined : process.argv[benchAt + 1];
+  if (benchAt >= 0 && (!bench || !/^[a-z0-9-]+$/.test(bench))) throw new Error('Invalid --bench');
+  const base = join(ROOT, 'examples', 'judge-benchmarks', 'recordings');
+  const directories = bench ? [join(base, bench)] : (await readdir(base, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory()).map((entry) => join(base, entry.name));
+  const denylist = (await guard()).loadDenylist(process.env, ROOT);
+  let denied = 0;
+  for (const directory of directories) {
+    for (const file of (await readdir(directory)).filter((file) => file.endsWith('.jsonl'))) {
+      const path = join(directory, file);
+      const result = await allowPublicPatterns(await readFile(path, 'utf8'), denylist);
+      denied += result.denied;
+      if (result.marked > 0) {
+        await writeFile(path, result.text, 'utf8');
+        process.stdout.write(`${path}: ${result.marked} public-pattern line(s) marked\n`);
+      }
     }
-    await writeFile(path, text.join('\n'), 'utf8');
-    process.stdout.write(`${file}: ${lines.size} line(s) marked\n`);
   }
-  const denylisted = findings.length - pattern.length;
-  if (denylisted > 0) {
-    process.stderr.write(`${denylisted} denylist finding(s): not marked, fix them first\n`);
+  if (denied > 0) {
+    process.stderr.write(`${denied} denylist finding(s): not marked, fix them first\n`);
     process.exitCode = 1;
   }
 }
 
-main().catch((cause) => {
-  process.stderr.write(`${cause instanceof Error ? cause.message : String(cause)}\n`);
-  process.exitCode = 2;
-});
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((cause) => {
+    process.stderr.write(`${cause instanceof Error ? cause.message : String(cause)}\n`);
+    process.exitCode = 2;
+  });
+}

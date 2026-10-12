@@ -6,7 +6,8 @@ import { RECORDINGS, type RunReport, runBenchmark } from './run';
 
 /** Sequential, dev-only campaign with a task-wide cap and a fixed local deadline. */
 const DIRECTORY = join(fileURLToPath(new URL('..', import.meta.url)), 'experiments', 'rb');
-const DEADLINE = new Date('2026-10-13T07:00:00+02:00').getTime();
+// The owner requests a committed design by 04:30, then one official test run.
+const DEADLINE = new Date('2026-10-13T04:28:00+02:00').getTime();
 const RESERVE = 0.05;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -51,11 +52,11 @@ async function main(): Promise<void> {
       name: 'hardpoint-dev',
       contestants: ['driftbench-rb-hardpoint', 'driftbench-rb-quotedcounts'].map(contestantById),
     },
+    { name: 'hardpoint5-executed-dev', contestants: [contestantById('driftbench-rb-hardpoint5-executed')] },
     {
       name: 'hardpoint5-dev',
       contestants: ['driftbench-rb-hardpoint5', 'driftbench-rb-quotedcounts5'].map(contestantById),
     },
-    { name: 'hardpoint5-executed-dev', contestants: [contestantById('driftbench-rb-hardpoint5-executed')] },
     { name: 'checklist-dev', contestants: [contestantById('driftbench-checklist')] },
     { name: 'contract-dev', contestants: [contestantById('driftbench-rb-contract')] },
     { name: 'executed-dev', contestants: [contestantById('driftbench-rb-executed')] },

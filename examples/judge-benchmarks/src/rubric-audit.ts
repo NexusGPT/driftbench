@@ -6,6 +6,7 @@ import { promptKey, Recordings } from './call';
 import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem, splitOf } from './data';
 import { atomicChecks } from './rubric-atomic';
+import { rubricItems } from './rubric-items';
 import { RECORDINGS } from './run';
 import { type PairResult, scorePairs } from './score';
 
@@ -32,6 +33,8 @@ async function main(): Promise<void> {
       const decisions: PairDecision[] = [];
       let complete = true;
       let invalidChecks = false;
+      let invalidParse = false;
+      let countMismatch = false;
       for (const [a, b] of [
         [item.a, item.b],
         [item.b, item.a],
@@ -50,18 +53,17 @@ async function main(): Promise<void> {
         }
         unique.set(entry.key, entry.costUsd);
         const parsed = atomicChecks(entry.text);
-        const expected = (item.criterion ?? benchmark.criterion)
-          .split('\n')
-          .slice(1)
-          .filter((x) => x.trim() !== '').length;
-        if (!parsed || parsed.checks.length !== expected) invalidChecks = true;
+        const expected = rubricItems(item.criterion ?? benchmark.criterion).length;
+        if (!parsed) invalidParse = true;
+        else if (parsed.checks.length !== expected) countMismatch = true;
+        invalidChecks ||= invalidParse || countMismatch;
         const d = contestant.parsePair(entry.text);
         decisions.push(reversed ? flip(d) : d);
       }
       if (!complete) continue;
       const games = [decisions[0] ?? 'tie', flip(decisions[1] ?? 'tie')];
       results.push({ item, games, missing: 0 });
-      details.push({ id: item.id, group: item.group, label: item.label, games, invalidChecks });
+      details.push({ id: item.id, group: item.group, label: item.label, games, invalidChecks, invalidParse, countMismatch });
     }
     const cost = [...unique.values()].reduce((a, b) => a + b, 0);
     reports.push({

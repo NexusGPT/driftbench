@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Caller, CallFailed, createCaller, promptKey, Recordings, SpendCapReached } from './call';
 import { codeEvidence } from './code-evidence';
+import { rubricItems } from './rubric-items';
 import {
   CONTESTANTS,
   type Contestant,
@@ -100,6 +101,7 @@ export type ContestantReport = {
 export type RunReport = {
   readonly bench: BenchmarkId;
   readonly model: string;
+  readonly split?: 'dev' | 'test' | 'all';
   readonly items: number;
   readonly sample?: number;
   readonly contestants: readonly ContestantReport[];
@@ -352,11 +354,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
         if (contestant.rubricEngine) {
           const engine = contestant.rubricEngine;
           const criterion = await criterionFor(item);
-          const rubrics = criterion
-            .split('\n')
-            .slice(1)
-            .map((r) => r.trim())
-            .filter(Boolean);
+          const rubrics = rubricItems(criterion);
           const planned = await ask(contestant, rubricPlan(item.question, rubrics), item.id, 'hardsoft-plan');
           const rules = planned ? parseRubricPlan(planned.text, rubrics.length) : undefined;
           if (!rules) return { item, games: ['tie', 'tie'], missing: 2 };
@@ -423,11 +421,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
         if (contestant.checklist) {
           // Each reply is checked against every rubric alone; the reply with more satisfied rubrics wins.
           const checklist = contestant.checklist;
-          const rubrics = (await criterionFor(item))
-            .split('\n')
-            .slice(1)
-            .map((r) => r.trim())
-            .filter(Boolean);
+          const rubrics = rubricItems(await criterionFor(item));
           const count = async (reply: string): Promise<number | undefined> => {
             const r = await ask(
               contestant,
@@ -532,6 +526,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
   return {
     bench: options.bench,
     model: options.model,
+    split: options.split ?? 'all',
     items: items.length,
     ...(options.sample ? { sample: options.sample } : {}),
     contestants: reports,
