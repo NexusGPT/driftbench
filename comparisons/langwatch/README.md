@@ -49,22 +49,26 @@ python3 comparisons/langwatch/overlap/score.py
 
 ### Row 12: personal data (patterns, the judged name and address detector, and Presidio)
 
-- Input: `pii/heldout.json`, 120 messages, made by `pii/generate.mjs --n 120 --seed 20260612`. Half name a person or
-  give a personal address. The other half hold only identifiers (phone, IBAN, national number, email), a company, a
-  product, a shop, or a place name.
+- Input: two sets of 120 fictional messages, built in memory from fixed seeds by `pii/set.mjs`. Nothing about the
+  identifiers is stored in the repository: the sets hold checksum-valid IBANs and national numbers, so they are rebuilt
+  wherever they are needed. `dev` (seed 20260612) is the set that found the rubric problem; `check` (seed 20260701) is
+  the held-out check. Half the messages in each name a person or give a personal address.
 - Truth: a message is personal when it names a person or gives a personal address. An email or a national number on
-  its own is not personal for the judge, but the pattern detector still reports it as an identifier.
-- Commands:
+  its own is not personal for the judge; the pattern detector still reports it as an identifier.
+- Records: every answer is stored under the SHA-256 of its message (with an occurrence number when the same text
+  appears twice), never the message. `pii/recorded/` holds judge answers, pattern findings and Presidio findings.
+- Commands, from the repository root:
 
 ```sh
-node comparisons/langwatch/pii/generate.mjs --n 120 --seed 20260612 > comparisons/langwatch/pii/heldout.json
 npx tsx comparisons/langwatch/pii/measure.mts patterns
-npx tsx comparisons/langwatch/pii/measure.mts judge --model haiku --cap 1.0
-npx tsx comparisons/langwatch/pii/measure.mts judge --model sonnet --cap 3.0
-<presidio-env>/bin/python comparisons/langwatch/pii/presidio.py
+npx tsx comparisons/langwatch/pii/measure.mts judge --model haiku --set dev --rubric new --cap 1.0
+npx tsx comparisons/langwatch/pii/measure.mts judge --model haiku --set check --rubric new --cap 1.0
+npx tsx comparisons/langwatch/pii/measure.mts judge --model sonnet --set check --rubric new --cap 3.0
+<presidio-env>/bin/python comparisons/langwatch/pii/presidio.py dev
+<presidio-env>/bin/python comparisons/langwatch/pii/presidio.py check
 python3 comparisons/langwatch/pii/score.py
 ```
 
-- `<presidio-env>` has presidio-analyzer, spacy and the en_core_web_sm model. Setup is in the header of `presidio.py`.
 - The judge commands call the local `claude` command and cost money; `--cap` stops the run at that spend.
-- Output: `pii/recorded/pii-results.md`; raw answers and their costs are in `pii/recorded/pii-judge-<model>.json`.
+- `<presidio-env>` has presidio-analyzer, spacy and the en_core_web_sm model. Setup is in the header of `presidio.py`.
+- Output: `pii/recorded/results.md`.
