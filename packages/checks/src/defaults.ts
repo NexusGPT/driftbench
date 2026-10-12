@@ -1,20 +1,29 @@
-import type { Check } from '@driftbench/core';
+import type { Check, Embedder } from '@driftbench/core';
 import { artifacts } from './checks/artifacts';
 import { budget } from './checks/budget';
 import { cards } from './checks/cards';
 import { type CheckRegistry, createCustomCheck, defaultRegistry } from './checks/custom';
 import { endState } from './checks/end_state';
+import { exact } from './checks/exact';
 import { execution } from './checks/execution';
 import { forbidden } from './checks/forbidden';
 import { guards } from './checks/guards';
+import { injection } from './checks/injection';
+import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
 import { must, mustNot } from './checks/must';
-import { pii } from './checks/pii';
+import { createPiiCheck, pii } from './checks/pii';
+import { references } from './checks/references';
+import { relevancy } from './checks/relevancy';
 import { safety } from './checks/safety';
 import { schemaStrict } from './checks/schema_strict';
+import { createSimilarityCheck } from './checks/similarity';
 import { skills } from './checks/skills';
 import { stage } from './checks/stage';
+import { subagents } from './checks/subagents';
+import { createToolPolicyCheck, type ToolRule } from './checks/tool-policy';
 import { tools } from './checks/tools';
+import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
 
 /**
@@ -29,6 +38,12 @@ export type DefaultChecksOptions = {
   registry?: CheckRegistry;
   /** The judge council. Its check runs after every machine check. No council: no judge check. */
   judges?: JudgeCheckSource;
+  /** What the similarity check scores with. The local character n-gram embedder when absent. */
+  embedder?: Embedder;
+  /** The owner's own values the pii check leaves out (see `createPiiCheck`). Empty when absent. */
+  piiOwner?: readonly string[];
+  /** A run-wide tool policy over the recorded calls of every block. Off when absent. */
+  toolPolicy?: readonly ToolRule[];
 };
 
 /**
@@ -40,15 +55,24 @@ export type DefaultChecksOptions = {
 export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
   return [
     tools,
+    toolsOffered,
     forbidden,
     must,
     mustNot,
+    exact,
+    injection,
+    createSimilarityCheck(options.embedder),
+    relevancy,
+    knowledgeRetention,
     lang,
-    pii,
+    options.piiOwner?.length ? createPiiCheck({ owner: options.piiOwner }) : pii,
     cards,
+    ...(options.toolPolicy?.length ? [createToolPolicyCheck(options.toolPolicy)] : []),
     stage,
     skills,
     guards,
+    references,
+    subagents,
     execution,
     workspace,
     safety,

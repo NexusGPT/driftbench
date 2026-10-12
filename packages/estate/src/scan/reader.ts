@@ -63,10 +63,27 @@ export type GuardDecl = {
   script?: string;
   /** True when the command finds its script from an anchor (the project folder), not the working folder. */
   anchored: boolean;
-  /** `estate` for a guard of the settings, else the name of the skill that declares it. */
+  /** The script the shell runs when it hands the guard's own script to it as an argument (a dispatcher). */
+  dispatcher?: string;
+  /** `estate` for a guard of the settings, `catalogue` for a catalogue check, else the declaring skill's name. */
   scope: string;
   timeout?: number;
+  /** A check a catalogue declares: its id, its enforcement state and the steps it watches. */
+  check?: CheckDecl;
   at: Located;
+};
+
+/** A catalogue entry read as a guard: the id it goes by and what the catalogue says about it. */
+export type CheckDecl = {
+  id: string;
+  /** The entry's own kind, as the catalogue writes it (a check, a judge, a nudge, ...). */
+  kind?: string;
+  /** Its enforcement state, as the catalogue writes it (enforce, observe, off, ...). */
+  state?: string;
+  /** What the check does or runs, as written. */
+  work?: string;
+  /** The steps of a step list the check belongs to. */
+  steps: string[];
 };
 
 export type PermissionDecl = {
@@ -89,11 +106,25 @@ export type RegistryRow = {
   event?: string;
   enforces: Array<{ id: string } | { quote: string }>;
   verdict?: string;
+  /** Its rollout or enforcement state, when the registry writes one. */
+  state?: string;
+  /** `catalogue` for a row the reader made from a catalogue entry; absent for a registry row. */
+  origin?: 'catalogue';
   at: Located;
 };
 
-/** One step of a step list. `anytime` steps may happen at any point; the others follow `next`. */
-export type StepDecl = { id: string; title?: string; next: string[]; anytime: boolean; at: Located };
+/**
+ * One step of a step list. `anytime` steps may happen at any point; the others follow `next`. A step of a
+ * named process carries the process, and its id and `next` are the ids the reader gave it in that process.
+ */
+export type StepDecl = {
+  id: string;
+  title?: string;
+  next: string[];
+  anytime: boolean;
+  process?: string;
+  at: Located;
+};
 
 /** A passage of prose a model splits into atoms: the body of an instruction file. */
 export type ProseChunk = { id: string; file: string; startLine: number; endLine: number; text: string };
@@ -117,6 +148,25 @@ export type RawEstate = {
   steps: StepDecl[];
   prose: ProseChunk[];
   notes: ReadNote[];
+  /**
+   * Folders, relative to the root, that a path named in prose may be written from when it is not written
+   * from the naming file's folder or the root (for Claude Code, `.claude` and `.claude/skills`).
+   */
+  bases?: string[];
+  /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
+  ignored?: {
+    patterns: Array<{ pattern: string; files: number }>;
+    paths: string[];
+    /** The globs beside the defaults (from the estate configuration and the reader's options). */
+    chosen?: string[];
+  };
+  /** Path aliases: `REF` stands for each folder listed, so `REF/a.md` is tried as `<folder>/a.md`. */
+  aliases?: Record<string, string[]>;
+  /**
+   * Folders outside the estate a named path may point into (`docs/`, `_meta/`). A path under one of them, or
+   * one that starts with `~/` or `/`, is external when the estate does not hold it.
+   */
+  externals?: string[];
 };
 
 export interface EstateReader {
@@ -124,4 +174,6 @@ export interface EstateReader {
   readonly runtime: string;
   /** Reads the estate at `root`. Paths in the result are relative to `root`, with forward slashes. */
   read(root: string): Promise<RawEstate>;
+  /** The files a copy of the estate needs, relative to `root`: what the runtime may load, ignored paths left out. */
+  listFiles?(root: string): Promise<string[]>;
 }

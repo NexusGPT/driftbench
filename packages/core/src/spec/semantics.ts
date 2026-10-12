@@ -62,6 +62,8 @@ export function checkSemantics(spec: Spec): Issue[] {
       blockIds.add(block.id);
     }
     if (block.expect) checkExpect(block.expect, `blocks.${index}.expect`, ctx, issues);
+    if (block.expect)
+      checkRetention(block.expect, `blocks.${index}.expect`, factsBefore(spec, index), issues);
   });
 
   const perturbationIds = new Set<string>();
@@ -94,6 +96,14 @@ export function checkSemantics(spec: Spec): Issue[] {
       issues.push(error('PERTURBATION_EMPTY', path, 'a perturbation needs `user`, `burst` or `world`'));
     }
     if (perturbation.expect) checkExpect(perturbation.expect, `${path}.expect`, ctx, issues);
+    if (perturbation.expect) {
+      checkRetention(
+        perturbation.expect,
+        `${path}.expect`,
+        factsBefore(spec, perturbation.inject_at),
+        issues,
+      );
+    }
     const after = perturbation.recovery?.stage_after;
     if (after !== undefined && ctx.stages && !ctx.stages.has(after)) {
       issues.push(
@@ -168,6 +178,12 @@ function checkExpect(expect: Expect, path: string, ctx: Context, issues: Issue[]
   for (const [index, guard] of (expect.guards ?? []).entries()) {
     checkCount(guard.count, `${path}.guards.${index}.count`, issues);
   }
+  for (const [index, reference] of (expect.references ?? []).entries()) {
+    checkCount(reference.count, `${path}.references.${index}.count`, issues);
+  }
+  for (const [index, subagent] of (expect.subagents ?? []).entries()) {
+    checkCount(subagent.count, `${path}.subagents.${index}.count`, issues);
+  }
 
   expect.criteria?.forEach((ref, index) => {
     const parsed = parseCriterionRef(ref);
@@ -218,4 +234,37 @@ export function isZero(count: Count | undefined): boolean {
   if (count === undefined) return false;
   if (typeof count === 'number') return count === 0;
   return count.max === 0;
+}
+
+/**
+ * The ledger keys known at block `index`: the seed, every earlier block's ledger_add, and the given.ledger
+ * of this block and of the blocks before it.
+ */
+function factsBefore(spec: Spec, index: number): Set<string> {
+  const known = new Set(Object.keys(spec.given?.ledger ?? {}));
+  spec.blocks.slice(0, index + 1).forEach((block, at) => {
+    for (const key of Object.keys(block.given?.ledger ?? {})) known.add(key);
+    if (at < index) for (const key of Object.keys(block.expect?.ledger_add ?? {})) known.add(key);
+  });
+  return known;
+}
+
+/** A retention fact must be in the ledger before the block, and its ask pattern must compile. */
+function checkRetention(expect: Expect, path: string, known: Set<string>, issues: Issue[]): void {
+  expect.knowledge_retention?.forEach((entry, index) => {
+    const at = `${path}.knowledge_retention.${index}`;
+    if (!known.has(entry.fact)) {
+      issues.push(
+        error(
+          'RETENTION_FACT_UNKNOWN',
+          `${at}.fact`,
+          `fact "${entry.fact}" is in no ledger before this block: not in given.ledger, nor in an earlier ledger_add`,
+        ),
+      );
+    }
+    if (entry.ask !== undefined) {
+      const problem = patternError(entry.ask);
+      if (problem) issues.push(error('REGEX_INVALID', `${at}.ask`, problem));
+    }
+  });
 }

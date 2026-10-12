@@ -224,6 +224,13 @@ export function nexusAdapter(options: NexusAdapterOptions = {}): AgentAdapter {
 
     async open(given) {
       const target = given.target;
+      if (target.prompt !== undefined) {
+        // The platform runs its own prompt variants; this adapter never uploads prompt text.
+        const { name, version } = target.prompt;
+        throw new Error(
+          `the nexus adapter runs a prompt variant of the platform: push ${name}@${version} to the agent as a variant and name it in target.variant`,
+        );
+      }
       const agentId = required(target.agent, 'target.agent: the agent id');
       const deploymentId = required(target.deployment, 'target.deployment: a deployment id of that agent');
       const stubs = readStubs(target);

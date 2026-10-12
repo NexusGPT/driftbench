@@ -1,0 +1,4 @@
+conversation,title,question,stage,must,must_not,max_calls
+upgrade,A customer upgrades home internet,"Hello, I'm looking for faster home internet.",address,Acme Telecom|street address,,0
+upgrade,,"88 Summit Avenue, Acmeville",offer,Fiber is not available|Acme Air 5G,Fiber (300|1000),1
+porting,A customer keeps their number,Can I keep my number if I switch to Acme?,details,keep your number,,0

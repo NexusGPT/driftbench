@@ -71,9 +71,11 @@ describe('the Acme criteria', () => {
     for (const criterion of criteria) {
       const row = council.assignmentFor(criterion.def.name, criterion.def.judge_class);
       for (const which of ['pass', 'fail'] as const) {
-        const key = requestKey(fixtureRequest(criterion, which));
-        for (const judge of row.judges)
+        for (const judge of row.judges) {
+          const meta = cassette.judges.find((j) => j.id === judge);
+          const key = requestKey(fixtureRequest(criterion, which), meta);
           expect(keys.has(`${judge} ${key}`), `${criterion.def.name} ${which} ${judge}`).toBe(true);
+        }
       }
     }
   });

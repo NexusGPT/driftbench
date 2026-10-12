@@ -3,6 +3,7 @@ import {
   type AgentAdapter,
   canonicalJson,
   contentHash,
+  gateToolCalls,
   type Message,
   Observed,
   type ResolvedGiven,
@@ -287,6 +288,28 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
           expect(observed.toolCalls.map((call) => call.label)).toEqual(['coverage.check', 'catalog.search']);
           expect(observed.toolCalls[0]?.output).toMatchObject({ found: true, address_id: 'addr-102' });
           expect(observed.text).toContain('3 Orchard Way, Acmeville has fiber up to 300 Mbps');
+        });
+      },
+      timeout,
+    );
+
+    it(
+      'its recorded tool calls can be gated: a deny on one tool marks exactly its calls and keeps the others',
+      async ({ skip }) => {
+        chatOnly(skip, 'the Acme chat and its tool calls do not apply');
+        await withSession(async (adapter, session) => {
+          const observed = await sendUser(adapter, session, COVERAGE_QUESTION, 0);
+          const gated = gateToolCalls(observed.toolCalls, [{ pattern: 'coverage.check', action: 'deny' }]);
+          expect(gated.map((call) => call.label)).toEqual(observed.toolCalls.map((call) => call.label));
+          const denied = gated.filter((call) => call.label === 'coverage.check');
+          expect(denied.length).toBeGreaterThan(0);
+          for (const call of denied) {
+            expect(call.error).toBe('denied by tool policy rule coverage.check');
+            expect(call.output).toBeUndefined();
+          }
+          for (const call of gated.filter((call) => call.label !== 'coverage.check')) {
+            expect(call.error).toBeUndefined();
+          }
         });
       },
       timeout,

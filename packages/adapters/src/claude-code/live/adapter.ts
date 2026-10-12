@@ -1,8 +1,20 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { cp, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { constants, realpathSync } from 'node:fs';
+import {
+  cp,
+  lstat,
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  realpath,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises';
+import { homedir, tmpdir } from 'node:os';
+import { dirname, join, relative, sep } from 'node:path';
 import {
   type AdapterCapabilities,
   AdapterTransportError,
@@ -33,7 +45,7 @@ import {
   type StateLibrary,
   sessionFileText,
 } from './states';
-import { isOverloaded, normaliseStream, type ParsedStream, parseStream } from './stream';
+import { hookDecisions, isOverloaded, normaliseStream, type ParsedStream, parseStream } from './stream';
 
 export const CLAUDE_CODE_LIVE_VERSION = '0.1.0';
 
@@ -42,8 +54,12 @@ export const CLAUDE_CODE_LIVE_VERSION = '0.1.0';
  * seeded workspace, one process per turn, and maps the streamed transcript into one Observed per turn with
  * the session adapter.
  *
- * The command line is the public headless shape, NOT verified against a live run yet:
- *   `<command> [args] -p <ask> --output-format stream-json --verbose [--resume <session id>]`
+ * The command line, checked against the runtime (2.1.296) in the first real run, 2026-10-12:
+ *   `<command> [args] [--allowed-tools ...] -p <ask> --output-format stream-json --verbose
+ *    --include-hook-events --setting-sources project,local --strict-mcp-config [--resume <session id>]`
+ * `--setting-sources project,local` keeps the evaluator's own user settings, hooks and user CLAUDE.md out
+ * of the run (only the copy's CLAUDE.md loaded); `--strict-mcp-config` keeps the evaluator's MCP servers out.
+ * Resuming keeps the session id and appends to the same session file.
  * The ask is the turn's user message and nothing else: no spec id, test type or atom reaches the agent, in
  * the prompt or anywhere in its folder (the estate copy holds the estate's own files only). A queued message
  * switches the turn to `--input-format stream-json`, with the ask and the queued messages on the input.
@@ -51,12 +67,18 @@ export const CLAUDE_CODE_LIVE_VERSION = '0.1.0';
  * Turn after turn the run resumes the session the runtime named. The session state and the estate
  * deviations are operations on what the runtime finds (see `states.ts`), applied before the turn.
  *
- * What the estate's own hooks write is read when it is there, from paths the process receives in its
- * environment, outside the project folder: `HOOK_DECISION_LOG` (one row `{ at, event, check, verdict }` per
- * guard verdict) and `STEP_FEED` (one row `{ at, step }` per stage). The rows a turn adds become its guards
- * and stages. The runtime keeps its own files under `CLAUDE_CONFIG_DIR`, a folder of the run, so a real run
- * needs its credentials in `env`; nothing of the evaluator's environment passes but the sandbox's few
- * variables.
+ * Guards come from the stream's hook events (`hook_response`, `permission_denied`; see `hookDecisions`),
+ * named by the copy's settings, and from what the estate's own hooks write when they write it, at paths the
+ * process receives in its environment, outside the project folder: `HOOK_DECISION_LOG` (one row
+ * `{ at, event, check, verdict }` per verdict) and `STEP_FEED` (one row `{ at, step }` per stage). The rows a
+ * turn adds become its guards and stages.
+ *
+ * The login: with `config: 'host'` (the default) the runtime uses the evaluator's config folder
+ * (`CLAUDE_CONFIG_DIR` of `env`, else `~/.claude`), where a subscription login lives; a run with its own
+ * config folder is not logged in (seen in the first real run). Session files go to
+ * `<config>/projects/<the folder, non-alphanumerics replaced by ->/<id>.jsonl`; the runner removes that
+ * project folder at close, as it is the sandbox's own. `config: 'isolated'` gives the run a config folder of
+ * its own, for stand-ins and for runs whose credentials come in `env`.
  *
  * Cost comes from the stream's result record (`total_cost_usd`), tokens from it or from the messages.
  * An overloaded or rate-limited run is retried up to `retries.max` times; past that the turn fails as a
@@ -95,7 +117,49 @@ export type ClaudeCodeLiveOptions = {
   keep?: boolean;
   /** The parent folder of the run's state folder. Default: the system temp folder. */
   stateDir?: string;
+  /** Whose config folder the runtime uses: the evaluator's (default, where the login lives) or the run's own. */
+  config?: 'host' | 'isolated';
+  /**
+   * Passes the tools the copy's settings allow, and Skill, as `--allowed-tools`. A headless run in a folder
+   * never trusted interactively ignores the estate's allow list (seen in the first real run); this restores it.
+   */
+  trustEstate?: boolean;
+  /** Tools the runtime must refuse, passed as `--disallowed-tools` (a secrets folder, a network tool). */
+  disallowedTools?: readonly string[];
+  /**
+   * The lock (macOS): the runtime, its hooks and every command the agent runs are children of
+   * `sandbox-exec` with a profile that refuses writes to `denyWrite` and reads and writes of `deny`. By
+   * default it refuses writes to the owner's own configuration under `~/.claude` (OWNER_CONFIG_ENTRIES), with
+   * the home folder read from `env.HOME`. `false` runs without it. Elsewhere it is not applied, and the trace
+   * says so.
+   */
+  lock?: false | { denyWrite?: readonly string[]; deny?: readonly string[] };
 };
+
+/**
+ * The owner's configuration inside ~/.claude: what an agent under test must never change (seen on the Cue
+ * bench: an agent tried to edit ~/.claude/settings.json). The runtime's own state there (projects, sessions,
+ * shell snapshots, telemetry) stays writable, so a run still works.
+ */
+export const OWNER_CONFIG_ENTRIES = [
+  'settings.json',
+  'settings.local.json',
+  'CLAUDE.md',
+  'agents',
+  'skills',
+  'hooks',
+  'commands',
+  'output-styles',
+  'keybindings.json',
+] as const;
+
+/** The flags the runner adds after the headless shape. */
+export const RUNTIME_FLAGS = [
+  '--include-hook-events',
+  '--setting-sources',
+  'project,local',
+  '--strict-mcp-config',
+] as const;
 
 export const DEFAULT_ESTATE_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
 
@@ -104,6 +168,8 @@ type LiveState = {
   /** Outside the project folder: the runtime's config folder, the hook logs, the helper registry. */
   stateFolder: string;
   configDir: string;
+  /** The copy's `.claude/settings.json`, parsed, to name the hooks of the stream. */
+  settings: unknown;
   decisions: string;
   steps: string;
   helpers: string;
@@ -159,7 +225,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         const parent = options.stateDir ?? tmpdir();
         await mkdir(parent, { recursive: true });
         stateFolder = await mkdtemp(join(parent, 'live-state-'));
-        await mkdir(join(stateFolder, 'config'), { recursive: true });
+        if (options.config === 'isolated') await mkdir(join(stateFolder, 'config'), { recursive: true });
       } catch (error) {
         await sandbox.destroy().catch(() => undefined);
         if (stateFolder !== undefined) await rm(stateFolder, { recursive: true, force: true });
@@ -168,7 +234,11 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       const state: LiveState = {
         sandbox,
         stateFolder,
-        configDir: join(stateFolder, 'config'),
+        configDir:
+          options.config === 'isolated'
+            ? join(stateFolder, 'config')
+            : (options.env?.CLAUDE_CONFIG_DIR ?? join(options.env?.HOME ?? homedir(), '.claude')),
+        settings: await readJson(join(folderOf(sandbox), '.claude', 'settings.json')).catch(() => undefined),
         decisions: join(stateFolder, 'decisions.jsonl'),
         steps: join(stateFolder, 'steps.jsonl'),
         helpers: join(stateFolder, 'helpers.json'),
@@ -221,14 +291,20 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       const decisionsBefore = await lineCount(state.decisions);
       const stepsBefore = await lineCount(state.steps);
       const queued = ops.flatMap((op) => (op.op === 'queue' ? [op.message] : []));
+      const allowed = options.trustEstate ? allowedTools(state.settings) : [];
+      const profile = lockProfile(options);
       const words = [
+        ...(profile === undefined ? [] : ['/usr/bin/sandbox-exec', '-p', profile]),
         options.command,
         ...(options.args ?? []),
+        ...(allowed.length > 0 ? ['--allowed-tools', ...allowed] : []),
+        ...(options.disallowedTools?.length ? ['--disallowed-tools', ...options.disallowedTools] : []),
         '-p',
         ...(queued.length > 0 ? ['--input-format', 'stream-json'] : [ask]),
         '--output-format',
         'stream-json',
         '--verbose',
+        ...RUNTIME_FLAGS,
         ...(state.resumeId === undefined ? [] : ['--resume', state.resumeId]),
       ];
       const commandLine = shellLine(words);
@@ -241,7 +317,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
           : '';
       const env: Record<string, string> = {
         ...options.env,
-        CLAUDE_CONFIG_DIR: state.configDir,
+        ...(options.config === 'isolated' ? { CLAUDE_CONFIG_DIR: state.configDir } : {}),
         HOOK_DECISION_LOG: state.decisions,
         STEP_FEED: state.steps,
         HELPER_REGISTRY: state.helpers,
@@ -281,12 +357,14 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       }
 
       const after = await sandbox.snapshot();
-      const workspaceDiff = sandbox.diff(before, after);
-      const artifacts: ArtifactRef[] = [...workspaceDiff.created, ...workspaceDiff.changed]
-        .sort()
-        .map((path) => ({ path, ...after.files[path] }) as ArtifactRef);
+      const fullDiff = sandbox.diff(before, after);
 
-      const decisions = await linesAfter(state.decisions, decisionsBefore);
+      const logged = await linesAfter(state.decisions, decisionsBefore);
+      const hooked = hookDecisions(parsed, state.settings, startedAt).map((row) => JSON.stringify(row));
+      const decisions =
+        logged === undefined && hooked.length === 0
+          ? undefined
+          : [logged ?? '', ...hooked].filter((text) => text !== '').join('\n');
       const steps = await linesAfter(state.steps, stepsBefore);
       const transcript = normaliseStream({ parsed, ask, startedAt, cwd, queued });
       const mapped = mapSession({
@@ -296,10 +374,35 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       });
       const block = mapped.blocks[0];
       if (!block) throw new AgentFailure('the turn mapped to no block');
+      const { diff: workspaceDiff, runtimeWrites } = agentDiff(
+        fullDiff,
+        block.observed.toolCalls,
+        cwd,
+        options.estateFiles ?? DEFAULT_ESTATE_FILES,
+      );
+      const artifacts: ArtifactRef[] = [...workspaceDiff.created, ...workspaceDiff.changed]
+        .sort()
+        .map((path) => ({ path, ...after.files[path] }) as ArtifactRef);
+
       if (mapped.blocks.length > 1) {
         throw new AgentFailure(`the turn mapped to ${mapped.blocks.length} blocks; one is expected`);
       }
       if (parsed.sessionId !== undefined) state.resumeId = parsed.sessionId;
+      const findings = outsideWrites(block.observed.toolCalls, cwd);
+      if (findings.length > 0) {
+        const runtime = block.observed.runtime ?? {};
+        block.observed.runtime = {
+          ...runtime,
+          guards: [
+            ...(runtime.guards ?? []),
+            ...findings.map((finding) => ({
+              name: 'outside-write',
+              verdict: finding.refused ? 'deny' : 'allow',
+              at: startedAt,
+            })),
+          ],
+        };
+      }
 
       const agentRecord: ExecutionRecord = {
         command: commandLine,
@@ -312,8 +415,11 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
       };
       const tokens = block.observed.cost;
       const result = parsed.result;
+      const runtime = block.observed.runtime ?? {};
       const observed: Observed = {
         ...block.observed,
+        // What the runtime offered the agent, from the init record: a denied tool is absent.
+        ...(parsed.tools === undefined ? {} : { runtime: { ...runtime, offered: parsed.tools } }),
         artifacts,
         workspaceDiff,
         executions: [...(block.observed.executions ?? []), agentRecord],
@@ -335,6 +441,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
           ...(isRecord(block.observed.raw) ? block.observed.raw : {}),
           live: {
             sessionId: parsed.sessionId ?? null,
+            ...(parsed.tools === undefined ? {} : { tools: parsed.tools }),
             pin: state.pin,
             attempts,
             ops: ops.map((op) => op.op),
@@ -342,6 +449,9 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
             queued,
             ...(result === undefined ? {} : { result }),
             issues: [...parsed.issues, ...mapped.meta.issues],
+            runtimeWrites,
+            findings,
+            lock: profile === undefined ? 'none' : 'sandbox-exec',
             decisions: decisions !== undefined,
             steps: steps !== undefined,
           },
@@ -368,8 +478,15 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
           // Already gone.
         }
       }
+      const project = join(state.configDir, 'projects', projectFolderName(state.sandbox.root));
       await state.sandbox.destroy();
-      if (!options.keep) await rm(state.stateFolder, { recursive: true, force: true });
+      if (options.keep) return;
+      await rm(state.stateFolder, { recursive: true, force: true });
+      // The runtime's project folder of this sandbox: its name holds the sandbox's own unique folder name.
+      const own = state.sandbox.root.split('/').at(-1) ?? '';
+      if (options.config !== 'isolated' && own.length >= 8 && project.endsWith(projectFolderName(own))) {
+        await rm(project, { recursive: true, force: true });
+      }
     },
   };
 
@@ -401,6 +518,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
     }
     for (const op of ops) {
       if (op.op === 'plant') {
+        await insideCopy(folderOf(state.sandbox), op.path);
         await state.sandbox.seed({ files: { [op.path]: op.content } });
         notes.push(`plant: ${op.path}`);
       } else if (op.op === 'helper') {
@@ -452,18 +570,90 @@ function pinOf(given: ResolvedGiven, pins: readonly string[] | undefined): strin
   return match;
 }
 
-/** Copies the estate's own files into the project folder, modes kept (guard scripts stay runnable). */
+/**
+ * Copies the estate's own files into the project folder, modes kept (guard scripts stay runnable): the
+ * names given, a folder whole or one file each (the runner passes the estate's file list, so ignored
+ * folders stay out). Symbolic
+ * links are followed: the copy holds real files and never a link, so nothing the runner or the agent writes
+ * in the copy reaches the estate it came from. A link left in the copy refuses the open.
+ */
 async function copyEstate(root: string, names: readonly string[], folder: string): Promise<void> {
   const info = await stat(root).catch(() => undefined);
   if (!info?.isDirectory()) throw new AgentFailure(`the estate root ${root} is not a folder`);
   let copied = 0;
-  for (const name of names) {
+  // Sixteen copies at a time: an estate of thousands of small files is bound by the file system's latency.
+  await eachLimited(names, 16, async (name) => {
     const source = join(root, name);
-    if ((await stat(source).catch(() => undefined)) === undefined) continue;
-    await cp(source, join(folder, name), { recursive: true, verbatimSymlinks: true });
+    if ((await stat(source).catch(() => undefined)) === undefined) return;
+    // A copy-on-write clone where the file system has one, else a plain copy; never a hard link.
+    await mkdir(dirname(join(folder, name)), { recursive: true });
+    await cp(source, join(folder, name), {
+      recursive: true,
+      dereference: true,
+      mode: constants.COPYFILE_FICLONE,
+    });
     copied += 1;
-  }
+  });
   if (copied === 0) throw new AgentFailure(`the estate root ${root} holds none of ${names.join(', ')}`);
+  const left = await linksUnder(folder);
+  if (left.length > 0) throw new AgentFailure(`the estate copy holds symbolic links: ${left.join(', ')}`);
+}
+
+/** Runs `work` on every item, at most `limit` at a time. */
+async function eachLimited<T>(
+  items: readonly T[],
+  limit: number,
+  work: (item: T) => Promise<void>,
+): Promise<void> {
+  let next = 0;
+  const lanes = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const item = items[next++] as T;
+      await work(item);
+    }
+  });
+  await Promise.all(lanes);
+}
+
+async function linksUnder(dir: string): Promise<string[]> {
+  const out: string[] = [];
+  const walk = async (at: string): Promise<void> => {
+    for (const entry of await readdir(at, { withFileTypes: true })) {
+      const full = join(at, entry.name);
+      if ((await lstat(full)).isSymbolicLink()) out.push(relative(dir, full));
+      else if (entry.isDirectory()) await walk(full);
+    }
+  };
+  await walk(dir);
+  return out.sort();
+}
+
+/**
+ * Refuses a write into the copy whose real path leaves it: a link on the way (the file, or a folder above
+ * it) that leads out names where it leads.
+ */
+async function insideCopy(root: string, file: string): Promise<void> {
+  const base = await realpath(root);
+  const path = join(root, file);
+  let real: string;
+  try {
+    real = await realpath(path);
+  } catch {
+    let folder = dirname(path);
+    let tail = file.split('/').at(-1) ?? '';
+    for (;;) {
+      const found = await realpath(folder).catch(() => undefined);
+      if (found !== undefined) {
+        real = join(found, tail);
+        break;
+      }
+      tail = join(folder.split('/').at(-1) ?? '', tail);
+      folder = dirname(folder);
+    }
+  }
+  if (real !== base && !real.startsWith(`${base}${sep}`)) {
+    throw new AgentFailure(`${file} resolves to ${real}, outside the copy ${base}; refused`);
+  }
 }
 
 /** Fails the open with a transport error when the command is not there to run. */
@@ -545,4 +735,102 @@ function sleep(ms: number): Promise<void> {
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+/** The tools the settings allow, and Skill, for `--allowed-tools`. */
+function allowedTools(settings: unknown): string[] {
+  const permissions = isRecord(settings) && isRecord(settings.permissions) ? settings.permissions : {};
+  const allow = Array.isArray(permissions.allow)
+    ? permissions.allow.filter((entry): entry is string => typeof entry === 'string')
+    : [];
+  return allow.includes('Skill') ? allow : [...allow, 'Skill'];
+}
+
+const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
+
+/**
+ * The diff the agent made. An estate's hooks write their own state into the estate folder (caches, logs,
+ * locks; seen on a real estate): a path inside the estate's own files that no write tool of the block
+ * targeted is the runtime's, left out of the diff and kept in `runtimeWrites`. A path outside the estate
+ * files, or one the agent's Write or Edit named, stays. A change the agent makes there through a shell
+ * command is therefore not counted; the trace keeps it in `runtimeWrites`.
+ */
+function agentDiff(
+  diff: { created: string[]; changed: string[]; deleted: string[] },
+  calls: readonly { label: string; input: unknown }[],
+  cwd: string,
+  estateFiles: readonly string[],
+): { diff: { created: string[]; changed: string[]; deleted: string[] }; runtimeWrites: string[] } {
+  const roots = [cwd, cwd.startsWith('/private/') ? cwd.slice('/private'.length) : `/private${cwd}`];
+  const named = new Set<string>();
+  for (const call of calls) {
+    if (!WRITE_TOOLS.has(call.label) || !isRecord(call.input)) continue;
+    const path = call.input.file_path ?? call.input.notebook_path;
+    if (typeof path !== 'string') continue;
+    const root = roots.find((candidate) => path.startsWith(`${candidate}/`));
+    named.add(root === undefined ? path : path.slice(root.length + 1));
+  }
+  // The estate's folders: the top of every listed path. A runner may list the estate file by file, and a hook
+  // creates new files beside them (seen on the Cue bench: .claude/hooks/watchers/state/sweeper.log).
+  const tops = new Set(estateFiles.map((name) => name.split('/')[0] ?? name));
+  const estate = (path: string) => [...tops].some((name) => path === name || path.startsWith(`${name}/`));
+  const runtimeWrites: string[] = [];
+  const keep = (paths: string[]) =>
+    paths.filter((path) => {
+      if (!estate(path) || named.has(path)) return true;
+      runtimeWrites.push(path);
+      return false;
+    });
+  const out = { created: keep(diff.created), changed: keep(diff.changed), deleted: keep(diff.deleted) };
+  return { diff: out, runtimeWrites: runtimeWrites.sort() };
+}
+
+/** The sandbox profile of the lock, or undefined when the lock is off or not available here. */
+function lockProfile(options: ClaudeCodeLiveOptions): string | undefined {
+  if (options.lock === false || process.platform !== 'darwin') return undefined;
+  const home = options.env?.HOME ?? homedir();
+  const denyWrite =
+    options.lock?.denyWrite ?? OWNER_CONFIG_ENTRIES.map((entry) => join(home, '.claude', entry));
+  const deny = options.lock?.deny ?? [];
+  // The sandbox matches resolved paths: /var is /private/var on macOS, and a home may be a link.
+  const quote = (path: string) => `(subpath ${JSON.stringify(resolvedPath(path))})`;
+  const lines = ['(version 1)', '(allow default)'];
+  if (deny.length > 0) lines.push(`(deny file-read* file-write* ${deny.map(quote).join(' ')})`);
+  if (denyWrite.length > 0) lines.push(`(deny file-write* ${denyWrite.map(quote).join(' ')})`);
+  return lines.join('\n');
+}
+
+export type OutsideWrite = { kind: 'write_outside_project'; tool: string; path: string; refused: boolean };
+
+/** Write tool calls aimed outside the project folder, and whether the write failed. */
+function outsideWrites(
+  calls: readonly { label: string; input: unknown; error?: string }[],
+  cwd: string,
+): OutsideWrite[] {
+  const roots = [cwd, cwd.startsWith('/private/') ? cwd.slice('/private'.length) : `/private${cwd}`];
+  const out: OutsideWrite[] = [];
+  for (const call of calls) {
+    if (!WRITE_TOOLS.has(call.label) || !isRecord(call.input)) continue;
+    const path = call.input.file_path ?? call.input.notebook_path;
+    if (typeof path !== 'string' || !path.startsWith('/')) continue;
+    if (roots.some((root) => path === root || path.startsWith(`${root}/`))) continue;
+    out.push({ kind: 'write_outside_project', tool: call.label, path, refused: call.error !== undefined });
+  }
+  return out;
+}
+
+/** A path with its longest existing prefix resolved, the rest kept as written. */
+function resolvedPath(path: string): string {
+  let head = path;
+  const tail: string[] = [];
+  for (;;) {
+    try {
+      return join(realpathSync(head), ...tail.reverse());
+    } catch {
+      const parent = dirname(head);
+      if (parent === head) return path;
+      tail.push(head.slice(parent.length + 1));
+      head = parent;
+    }
+  }
 }

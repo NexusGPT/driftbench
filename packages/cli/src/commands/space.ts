@@ -25,6 +25,7 @@ import {
 } from '@driftbench/space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 /** `driftbench space declare|coverage|complete`: the declared map of situations, and the coverage counted on it. */
 export function registerSpaceCommands(program: Command, io: Io, setExit: (code: number) => void): void {
@@ -37,7 +38,10 @@ export function registerSpaceCommands(program: Command, io: Io, setExit: (code: 
     .description('Count the cells of the map the specs cover. Exit 1 when a required cell is empty.')
     .argument('<paths...>', 'spec files or folders')
     .requiredOption('--map <file>', 'the map of situations (YAML or JSON)')
-    .option('--t <n>', 'cells on every subset of n dimensions (2 or 3); default: the full grid')
+    .option(
+      '--t <n>',
+      'cells on every subset of n dimensions, n from 1 to the number of dimensions; default: the full grid',
+    )
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: SpaceOptions) => {
       setExit(await spaceCoverageCommand(paths, options, io));
@@ -207,7 +211,7 @@ async function readInputs(
   const k = map.dimensions.length;
   let t: number | undefined;
   if (options.t !== undefined) {
-    t = /^\d+$/.test(options.t) ? Number(options.t) : Number.NaN;
+    t = /^\d+$/.test(options.t) ? optionNumber(options.t) : Number.NaN;
     if (!(t >= 1 && t <= k)) {
       io.err(
         `Unknown t "${options.t}". The map has ${k} dimensions, so t is a whole number from 1 to ${k}.\n`,

@@ -1,0 +1,21 @@
+# The judged side of task completion: whether the outcome the customer came for is in the conversation. Fictional data.
+criterion:
+  name: task_completion
+  rubric: "The task the customer came with reached its outcome by the end of the conversation: the order is placed, the callback is booked, or the question is answered. A task promised but not yet done is not complete."
+  pass: "The result the customer came for is in the conversation: the order placed, the callback booked, or the asked question answered."
+  fail: "The task the customer came for has no result by the end: the order is not placed, the callback not booked, or a question still open."
+  judge_class: system1
+  scope: conversation
+fixtures:
+  pass:
+    note: The customer orders the fibre plan and the order is placed.
+    transcript:
+      - { role: user, text: "I want to order Acme Fiber 1000 for 14 Harbor Road." }
+      - { role: agent, text: "Here is the order: Acme Fiber 1000 at 14 Harbor Road, $60 a month. Reply CONFIRM to place it." }
+      - { role: user, text: "CONFIRM" }
+      - { role: agent, text: "Done. Your order ORD-222B51 is placed." }
+  fail:
+    note: The customer wants the same plan; the agent offers it and never places the order.
+    transcript:
+      - { role: user, text: "I want to order Acme Fiber 1000 for 14 Harbor Road." }
+      - { role: agent, text: "Acme Fiber 1000 is available at 14 Harbor Road for $60 a month. Would you like it?" }

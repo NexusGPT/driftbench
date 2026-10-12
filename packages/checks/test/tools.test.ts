@@ -40,6 +40,47 @@ describe('tools', () => {
     expect(verdict(verdicts, 'tools.order').evidence).toContain('saw catalog.search, coverage.check');
   });
 
+  it('exact order names the first call that differs, for a swap, an extra call and a missing call', async () => {
+    const exact = async (calls: Call[]) =>
+      verdict(
+        await run(
+          tools,
+          context(coverage, 1, observed(offerText, calls), {
+            expect: { ...coverage.blocks[1]?.expect, tool_order: 'exact' } as never,
+          }),
+        ),
+        'tools.order',
+      ).evidence;
+    const swapped = await exact([offerCalls[1], offerCalls[0]] as Call[]);
+    expect(swapped).toContain(
+      'first difference: call 1 differs: expected coverage.check, saw catalog.search',
+    );
+    const extra = await exact([offerCalls[0], offerCalls[1], { label: 'order.create', input: {} }] as Call[]);
+    expect(extra).toContain('first difference: call 3 is extra: saw order.create');
+    const missing = await exact([offerCalls[0]] as Call[]);
+    expect(missing).toContain('first difference: call 2 is missing: expected catalog.search');
+  });
+
+  it('exact order names the argument that differs, with its call and position, when the calls have the right names', async () => {
+    const exact = async (calls: Call[]) =>
+      verdict(
+        await run(
+          tools,
+          context(coverage, 1, observed(offerText, calls), {
+            expect: { ...coverage.blocks[1]?.expect, tool_order: 'exact' } as never,
+          }),
+        ),
+        'tools.order',
+      ).evidence;
+    const cap = [
+      offerCalls[0],
+      { label: 'catalog.search', input: { category: 'Home', address_id: 'addr-101' } },
+    ] as Call[];
+    expect(await exact(cap)).toContain(
+      'first argument difference: call 2 (catalog.search) input.category: expected equal to "home", saw "Home"',
+    );
+  });
+
   it('mutation: a wrong address_id fails that input and lowers the argument accuracy to 2 of 3', async () => {
     const wrong: Call[] = [
       offerCalls[0] as Call,

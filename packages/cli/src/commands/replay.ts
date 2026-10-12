@@ -1,8 +1,11 @@
-import { basename, resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { basename, dirname, resolve } from 'node:path';
 import { orderedCheck, type ReplaySession, readSession, replayAdapter } from '@driftbench/adapters';
-import { CheckRegistry, defaultChecks, defaultRegistry } from '@driftbench/checks';
+import { defaultReaders } from '@driftbench/artifacts';
+import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@driftbench/checks';
 import {
   type Campaign,
+  type Check,
   type CheckSet,
   contentHash,
   type LoadedSpec,
@@ -11,11 +14,13 @@ import {
   type Store,
   type TargetRef,
 } from '@driftbench/core';
+import { noJudgeCheck } from '@driftbench/judges';
 import { openMemoryStore, openStore } from '@driftbench/store';
 import { createScriptedDriver } from '@driftbench/users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';
+import { addJudgeOptions, type RunJudgeOptions, runJudgeFrom } from './run-judge';
 
 /**
  * `driftbench replay`: runs a suite of specs over recorded sessions, offline, with no model call.
@@ -52,7 +57,11 @@ export type ReplayOptions = {
   steps: string[];
   store?: string;
   json?: boolean;
-};
+  /** The owner's own values (an email, a phone, an IBAN) the pii check leaves out. */
+  owner?: string[];
+  /** A file of owner values, one per line; blank lines and lines starting with # are skipped. */
+  ownerFile?: string;
+} & RunJudgeOptions;
 
 /** Registers `driftbench replay`. */
 export function registerReplayCommand(
@@ -61,7 +70,7 @@ export function registerReplayCommand(
   setExit: (code: number) => void,
   deps: ReplayDeps = defaultReplayDeps,
 ): void {
-  program
+  const replay = program
     .command('replay')
     .description('Run a spec suite over recorded sessions, offline, with no model call.')
     .argument('<sessions...>', 'session transcripts (JSONL)')
@@ -74,14 +83,35 @@ export function registerReplayCommand(
     )
     .option('--steps <feeds...>', 'step feeds (JSONL), one per session, matched by file name', collectAll, [])
     .option('--store <db>', 'keep the runs in this store; in memory without it')
-    .option('--json', 'print one JSON document')
-    .action(async (sessions: string[], options: ReplayOptions) => {
-      setExit(await replayCommand(sessions, options, io, deps));
-    });
+    .option(
+      '--owner <values...>',
+      "the owner's own email, phone, IBAN or national number: the pii check leaves exactly these out",
+      collectAll,
+      [],
+    )
+    .option('--owner-file <file>', 'owner values, one per line, for the pii check; # starts a comment line')
+    .option('--json', 'print one JSON document');
+  addJudgeOptions(replay).action(async (sessions: string[], options: ReplayOptions) => {
+    setExit(await replayCommand(sessions, options, io, deps));
+  });
 }
 
-type SessionEntry = { name: string; path: string; session: ReplaySession };
-type Alignment = { spec: LoadedSpec; entry: SessionEntry; fromBlock: number; how: 'metadata' | 'order' };
+type SessionEntry = {
+  name: string;
+  path: string;
+  session: ReplaySession;
+  decisions?: string;
+  steps?: string;
+};
+/** The before and after trees of a spec's session: the seed folder, and the folder the session left. */
+type Trees = { before: string; after: string };
+type Alignment = {
+  spec: LoadedSpec;
+  entry: SessionEntry;
+  fromBlock: number;
+  how: 'metadata' | 'order';
+  trees?: Trees;
+};
 type ReplayLine = {
   spec: string;
   session: string;
@@ -114,6 +144,10 @@ export async function replayCommand(
     io.err(`Two sessions share the name ${duplicate}; give each transcript its own file name.\n`);
     return 2;
   }
+  const owner = await ownerValues(options, io);
+  const judge = await runJudgeFrom(options, io);
+  if (!judge) return 2;
+  if (!owner) return 2;
   const decisions = assign(options.decisions, names, '--decisions', io);
   const steps = assign(options.steps, names, '--steps', io);
   if (!decisions || !steps) return 2;
@@ -124,12 +158,13 @@ export async function replayCommand(
     try {
       const decisionLog = decisions.get(name);
       const stepFeed = steps.get(name);
-      const session = await readSession({
+      const files = {
         transcript: path,
         ...(decisionLog === undefined ? {} : { decisions: resolve(io.cwd, decisionLog) }),
         ...(stepFeed === undefined ? {} : { steps: resolve(io.cwd, stepFeed) }),
-      });
-      entries.push({ name, path, session });
+      };
+      const session = await readSession(files);
+      entries.push({ name, path, session, ...files });
     } catch (cause) {
       io.err(`Cannot read the session ${name}: ${describe(cause)}\n`);
       return 2;
@@ -179,14 +214,24 @@ export async function replayCommand(
       modes: ['F'],
       repeats: { T: 0, F: 1, P: 0 },
       budgetUsd: 0,
-      judge: { mode: 'system1', judges: [] },
+      judge: {
+        mode: judge.label === 'none' ? 'system1' : 'llm',
+        judges: judge.label === 'none' ? [] : [judge.label],
+      },
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks();
+    const checks = replayChecks({ piiOwner: owner, judge: judge.check });
+    const artifacts = defaultReaders();
     for (const alignment of aligned.alignments) {
+      const session = await sessionFor(alignment);
       const run = await runSpec(alignment.spec.spec, {
-        adapter: replayAdapter({ session: alignment.entry.session, fromBlock: alignment.fromBlock }),
+        adapter: replayAdapter({
+          session,
+          fromBlock: alignment.fromBlock,
+          ...(alignment.trees ? { files: alignment.trees.after } : {}),
+        }),
+        artifacts,
         driver: createScriptedDriver(),
         checks,
         mode: 'F',
@@ -214,6 +259,8 @@ export async function replayCommand(
           campaignId,
           store: storePath ?? null,
           notes: aligned.notes,
+          judge: judge.label,
+          judgeCostUsd: judge.spend.usd,
           runs: lines,
           passed,
           failed: lines.length - passed,
@@ -233,21 +280,72 @@ export async function replayCommand(
       if (line.failing.length > 0) io.out(`    failing: ${line.failing.join(', ')}\n`);
     }
     io.out(
-      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${lines.length - passed} fail. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${lines.length - passed} fail. Judge ${judge.label}, ${judge.spend.usd.toFixed(4)} USD. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
     );
   }
   return passed === lines.length ? 0 : 1;
 }
 
-/** The checks of a replay: every default check, with the ordered-pair check added to the custom registry. */
-export function replayChecks(): CheckSet {
+/**
+ * The session a spec reads. It is read again for the spec when the spec names files it must read (they map
+ * to references beside the skill folders) or names its trees (the last block's workspace diff is then the
+ * diff of the trees, and its artifacts are read from the after folder).
+ */
+async function sessionFor(alignment: Alignment): Promise<ReplaySession> {
+  const named = referencesOf(alignment.spec);
+  const { entry, trees } = alignment;
+  if (named.length === 0 && !trees) return entry.session;
+  return readSession({
+    transcript: entry.path,
+    ...(entry.decisions === undefined ? {} : { decisions: entry.decisions }),
+    ...(entry.steps === undefined ? {} : { steps: entry.steps }),
+    ...(trees ? { before: trees.before, after: trees.after } : {}),
+    ...(named.length === 0 ? {} : { references: named }),
+  });
+}
+
+/** Every path or glob a spec expects the agent to read, in its blocks and its perturbations. */
+function referencesOf(spec: LoadedSpec): string[] {
+  const expects = [
+    ...spec.spec.blocks.map((block) => block.expect),
+    ...(spec.spec.perturbations ?? []).map((perturbation) => perturbation.expect),
+  ];
+  return [
+    ...new Set(expects.flatMap((expect) => (expect?.references ?? []).map((reference) => reference.path))),
+  ];
+}
+
+/**
+ * The custom checks of an estate run: every check of the default registry, the ordered-pair check, and
+ * the estate checks (`some_call`, `hazard_recovery`, `permission`). The estate generator writes only names
+ * this registry holds (`REPLAY_CUSTOM_CHECKS`).
+ */
+export function replayRegistry(): CheckRegistry {
   const registry = new CheckRegistry();
   for (const name of defaultRegistry.names()) {
     const check = defaultRegistry.get(name);
     if (check) registry.register(name, check);
   }
   if (!registry.get('ordered')) registry.register('ordered', orderedCheck);
-  return defaultChecks({ registry });
+  for (const [name, check] of Object.entries(ESTATE_CHECKS)) {
+    if (!registry.get(name)) registry.register(name, check);
+  }
+  return registry;
+}
+
+/**
+ * The checks of a replay: every default check, with the replay registry's custom checks. `piiOwner` lists
+ * the owner's own values the pii check leaves out; empty by default. `judge` judges the criteria blocks
+ * name; without one, each is inconclusive (`noJudgeCheck`), never a pass.
+ */
+export function replayChecks(options: { piiOwner?: readonly string[]; judge?: Check } = {}): CheckSet {
+  const registry = replayRegistry();
+  const judge = options.judge ?? noJudgeCheck();
+  return defaultChecks({
+    registry,
+    judges: { check: () => judge },
+    ...(options.piiOwner?.length ? { piiOwner: options.piiOwner } : {}),
+  });
 }
 
 /** A session's name: its file name without `.jsonl`. */
@@ -328,7 +426,19 @@ function align(
       notes.push(`${spec.spec.id} names the session ${parsed.session}, which was not given; skipped`);
       continue;
     }
-    alignments.push({ spec, entry, fromBlock: parsed.fromBlock, how: 'metadata' });
+    // The trees belong to the session: they resolve from the transcript's folder, so a corpus can move.
+    const folder = dirname(entry.path);
+    const trees =
+      parsed.trees === undefined
+        ? undefined
+        : { before: resolve(folder, parsed.trees.before), after: resolve(folder, parsed.trees.after) };
+    alignments.push({
+      spec,
+      entry,
+      fromBlock: parsed.fromBlock,
+      how: 'metadata',
+      ...(trees ? { trees } : {}),
+    });
   }
   if (bad) return undefined;
   for (const { spec, entry } of alignments) {
@@ -347,19 +457,31 @@ function align(
   return { alignments, notes };
 }
 
-function replayKey(value: unknown): { session: string; fromBlock: number } | string {
+const REPLAY_KEYS = ['session', 'from_block', 'before', 'after'];
+
+function replayKey(value: unknown): { session: string; fromBlock: number; trees?: Trees } | string {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return 'is a mapping: { session, from_block }';
+    return 'is a mapping: { session, from_block, before, after }';
   }
   const record = value as Record<string, unknown>;
-  const unknown = Object.keys(record).filter((key) => key !== 'session' && key !== 'from_block');
-  if (unknown.length > 0) return `has unknown keys: ${unknown.join(', ')}; it takes session and from_block`;
+  const unknown = Object.keys(record).filter((key) => !REPLAY_KEYS.includes(key));
+  if (unknown.length > 0) {
+    return `has unknown keys: ${unknown.join(', ')}; it takes session, from_block, before and after`;
+  }
+  const folder = (key: string) => typeof record[key] === 'string' && record[key] !== '';
+  if ((record.before !== undefined || record.after !== undefined) && !(folder('before') && folder('after'))) {
+    return 'before and after go together: the folders the workspace held before and after the session';
+  }
   if (typeof record.session !== 'string' || record.session === '') return 'needs session, a session name';
   const from = record.from_block ?? 0;
   if (typeof from !== 'number' || !Number.isInteger(from) || from < 0) {
     return 'from_block is a whole number of at least 0';
   }
-  return { session: record.session, fromBlock: from };
+  return {
+    session: record.session,
+    fromBlock: from,
+    ...(folder('after') ? { trees: { before: String(record.before), after: String(record.after) } } : {}),
+  };
 }
 
 function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
@@ -413,4 +535,24 @@ function collectAll(value: string, previous: string[]): string[] {
 
 function describe(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
+}
+
+/** The owner values from --owner and --owner-file. Undefined, with the reason printed, when the file cannot be read. */
+async function ownerValues(options: ReplayOptions, io: Io): Promise<string[] | undefined> {
+  const values = [...(options.owner ?? [])];
+  if (options.ownerFile !== undefined) {
+    const path = resolve(io.cwd, options.ownerFile);
+    let text: string;
+    try {
+      text = await readFile(path, 'utf8');
+    } catch (cause) {
+      io.err(`Cannot read the owner file ${path}: ${describe(cause)}\n`);
+      return undefined;
+    }
+    for (const line of text.split(/\r?\n/)) {
+      const value = line.trim();
+      if (value !== '' && !value.startsWith('#')) values.push(value);
+    }
+  }
+  return values.map((value) => value.trim()).filter((value) => value !== '');
 }

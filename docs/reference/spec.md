@@ -21,6 +21,8 @@ The loader rewrites these forms before it validates a spec.
 
 * [Spec](#spec)
 * [TargetRef](#targetref)
+* [TargetPrompt](#targetprompt)
+* [RetrySettings](#retrysettings)
 * [GivenDefaults](#givendefaults)
 * [WorldState](#worldstate)
 * [ToolOverride](#tooloverride)
@@ -37,9 +39,15 @@ The loader rewrites these forms before it validates a spec.
 * [ToolExpect](#toolexpect)
 * [Count](#count)
 * [Assertion](#assertion)
+* [ToolsOfferedExpect](#toolsofferedexpect)
+* [SimilarityExpect](#similarityexpect)
+* [RelevancyExpect](#relevancyexpect)
+* [RetentionExpect](#retentionexpect)
 * [CardExpect](#cardexpect)
 * [SkillExpect](#skillexpect)
 * [GuardExpect](#guardexpect)
+* [ReferenceExpect](#referenceexpect)
+* [SubagentExpect](#subagentexpect)
 * [ExecutionExpect](#executionexpect)
 * [ArtifactExpect](#artifactexpect)
 * [WorkspaceExpect](#workspaceexpect)
@@ -92,6 +100,31 @@ Which agent a spec runs against. The adapter decides what the other fields mean.
 | `variant` | string, not empty | no |  | A variant of the agent, such as a prompt version. |
 | `deployment` | string, not empty | no |  | A deployment of the agent, as the adapter names it. |
 | `options` | map of string to any value | no |  | Adapter settings. Each adapter defines their names. |
+| `prompt` | [TargetPrompt](#targetprompt) | no |  | The prompt the agent runs with, from the registry. campaign run --prompt sets it; each adapter page says how it reaches the agent. |
+| `retry` | [RetrySettings](#retrysettings) | no |  | How the model calls of this target are retried. |
+
+## TargetPrompt
+
+A prompt version from the registry, handed to the agent as its system prompt. campaign run --prompt sets it.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | string, not empty | yes |  | The prompt name in the registry. |
+| `version` | integer, at least 1 | yes |  | The version number. |
+| `hash` | string matching `^[0-9a-f]{64}$` | yes |  | The version hash: the SHA-256 of its file list. |
+| `text` | string | yes |  | The prompt text, restored byte for byte from the store. |
+
+## RetrySettings
+
+How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `max_attempts` | integer, 1 to 20 | no |  | Attempts per model call, the first included. Default 4. |
+| `base_delay_ms` | integer, at least 0 | no |  | The wait before the first retry; each later retry doubles it. Default 500. |
+| `max_delay_ms` | integer, at least 0 | no |  | The longest wait between two attempts. Default 30000. |
+| `jitter` | boolean | no |  | Draw each wait at random below the backoff (full jitter). Default true. |
+| `retry_after` | boolean | no |  | Wait at least what the server's Retry-After header asks. Default true. |
 
 ## GivenDefaults
 
@@ -145,7 +178,9 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `fail` | string | no |  | What a failing block looks like. |
 | `gating` | boolean | no |  | True gates every reference to this criterion; a reference can also add @gating. |
 | `scope` | `block` or `conversation` | no |  | block judges one block; conversation judges the whole conversation. |
+| `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
+| `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
 
 ## Block
 
@@ -182,7 +217,7 @@ Write a mapping with exactly one of these keys.
 
 The ten deviation classes a perturbed run can inject.
 
-Used by `when.injection.class` and `perturbations[].class`. Running a perturbation is planned, phase 3. See [recovery](../concepts/recovery.md).
+Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).
 
 | Value | Meaning |
 |---|---|
@@ -240,14 +275,22 @@ The expected output and state delta of a block. Every field is optional.
 | `stage` | string, not empty | no |  | The stage the agent must reach after the block, one of the spec stages. |
 | `ledger_add` | map of string to any value | no |  | Facts the block establishes. They join the ledger. |
 | `tools` | list of [ToolExpect](#toolexpect) | no |  | The tool calls expected in the block. |
+| `tools_offered` | [ToolsOfferedExpect](#toolsofferedexpect) | no |  | The tools the runtime must offer and must not offer, whether or not the agent calls them. |
 | `tool_order` | one of `exact`, `in_order`, `any_order` | no |  | How the expected tools line up with the observed calls: exact, in_order or any_order. |
 | `must` | list of strings, each not empty | no |  | Patterns the visible text must match. |
 | `must_not` | list of strings, each not empty | no |  | Patterns the visible text must not match. |
+| `injection` | boolean | no |  | True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it. |
+| `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. |
+| `similarity` | list of [SimilarityExpect](#similarityexpect) | no |  | Reference texts the reply must be close to, each with its lowest passing score. |
+| `relevancy` | [RelevancyExpect](#relevancyexpect) | no |  | The reply addresses the ask of the block. |
+| `knowledge_retention` | list of [RetentionExpect](#retentionexpect) | no |  | Facts given earlier that the block must not ask for again, and may have to use. |
 | `lang` | string, 2 to 8 characters | no |  | The language of the reply. |
 | `cards` | list of [CardExpect](#cardexpect) | no |  | The cards expected in the block. |
 | `criteria` | list of strings, each not empty | no |  | Judged criteria by name. name@gating makes a fail fail the block. |
 | `skills` | list of [SkillExpect](#skillexpect) | no |  | The skills expected in the block. |
 | `guards` | list of [GuardExpect](#guardexpect) | no |  | The runtime checks expected in the block, with their verdict and count. |
+| `references` | list of [ReferenceExpect](#referenceexpect) | no |  | The files the agent must read in the block, by path or glob, with a count. |
+| `subagents` | list of [SubagentExpect](#subagentexpect) | no |  | The helpers the agent must dispatch in the block, by name and model, with a count. |
 | `execution` | [ExecutionExpect](#executionexpect) | no |  | What the agent runs. |
 | `artifacts` | list of [ArtifactExpect](#artifactexpect) | no |  | The files the block must produce. |
 | `workspace` | [WorkspaceExpect](#workspaceexpect) | no |  | The workspace diff expected. |
@@ -299,6 +342,43 @@ Write one of these forms.
 | `absent` | `true` | Absent. |
 | `subset` | map of string to JSON value | Holds at least these keys with these values. |
 
+## ToolsOfferedExpect
+
+The tools the runtime offers the agent, read from the runtime trace; calls do not count.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `include` | list of strings, each not empty | no |  | Tools the runtime must offer. |
+| `exclude` | list of strings, each not empty | no |  | Tools the runtime must not offer, such as a tool a setting denies. |
+
+## SimilarityExpect
+
+A reference text the reply must be close to, with the lowest score that passes.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `reference` | string, not empty | yes |  | The text the reply is compared with. |
+| `min` | number, 0 to 1 | yes |  | The lowest similarity that passes, from 0 to 1, as the embedder scores it. |
+
+## RelevancyExpect
+
+The reply addresses the ask of the block: a share of its key terms appears in the reply.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | number, 0 to 1 | no |  | The share of the key terms that must appear in the reply, from 0 to 1. Default 0.5. |
+| `terms` | list of strings, each not empty | no |  | The key terms of the ask. Without them, the check takes the words of the stimulus. |
+
+## RetentionExpect
+
+A fact the user gave earlier: the block must not ask for it again, and may have to use it.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `fact` | string, not empty | yes |  | The ledger key of the fact, given in an earlier block. |
+| `use` | boolean | no |  | True when the block must use the fact: its value appears in the reply or a tool input. |
+| `ask` | string, not empty | no |  | A pattern that marks a question asking for the fact again. Default: the words of the key. |
+
 ## CardExpect
 
 One expected card.
@@ -326,6 +406,25 @@ One runtime check that fired during the block, with its verdict. The adapter map
 | `name` | string, not empty | yes |  | The name of the check, as the adapter reports it. |
 | `verdict` | string, not empty | no |  | The verdict the check must have given, such as pass or deny. |
 | `count` | [Count](#count) | no |  | How many times the check fired. |
+
+## ReferenceExpect
+
+A file the agent must read during the block, by path or glob.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `path` | string, not empty | yes |  | The path read, or a glob: * matches within a folder, ** across folders, ? one character. |
+| `count` | [Count](#count) | no |  | How many reads of a matching file. 0 means it must not be read. |
+
+## SubagentExpect
+
+A helper the agent must dispatch during the block, with an optional model.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | string, not empty | yes |  | The helper name, as the adapter reports it. |
+| `model` | string, not empty | no |  | The model the helper must run on. |
+| `count` | [Count](#count) | no |  | How many dispatches. 0 means the helper must not be dispatched. |
 
 ## ExecutionExpect
 
@@ -387,6 +486,7 @@ Rules that hold for the whole conversation.
 | `forbidden_tools` | list of strings, each not empty | no |  | Tools that must never be called. |
 | `lang_stable` | boolean | no |  | True when the reply language must stay the same across blocks. |
 | `one_message_per_turn` | boolean | no |  | True when each block may send one message only. |
+| `match_case` | boolean | no |  | True makes must and must_not patterns case-sensitive and the trailing punctuation count. Default false: a pattern ignores the case of the reply and a trailing punctuation mark. |
 | `custom` | map of string to any value | no |  | Maps a registered custom check name to its options; the checks package runs it. |
 
 ## EndState
@@ -438,7 +538,7 @@ How the agent should come back after an injected deviation.
 
 The five drift classes a failing block can carry.
 
-Run records, not specs, carry these classes: one or more on each failing block. The drift engine that assigns them is planned, phase 3. See [drift](../concepts/drift.md).
+Run records, not specs, carry these classes: one or more on each failing block. The runner assigns them from the failing gating verdicts of each block. See [drift](../concepts/drift.md).
 
 | Value | Meaning |
 |---|---|

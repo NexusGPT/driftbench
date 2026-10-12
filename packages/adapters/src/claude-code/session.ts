@@ -10,6 +10,7 @@ import type {
   ToolCall,
   WorkspaceDiff,
 } from '@driftbench/core';
+import { globMatches } from '@driftbench/core';
 import {
   type DecisionRow,
   decisionRow,
@@ -43,6 +44,10 @@ import {
  *   session never saw the path before, and changes it otherwise. With a before and after tree the last
  *   block's diff is the diff of the trees, which also sees deletions.
  * - A compaction boundary is a marker in the block's `raw.markers`, with the number of tool calls before it.
+ * - A `system` record with `subtype: init` names the tools the runtime offered (`tools`). They become
+ *   `runtime.offered` of the block it falls in and of every later block, until the next init record. A block
+ *   before any init record has no `offered` at all, never an empty list, so a check of offered tools is
+ *   inconclusive there.
  * - Every record the mapping does not use (thinking, snapshots, helper records, unknown types, lines that
  *   are not JSON) is kept in `raw.kept` of its block, or in `meta.preamble` before the first turn.
  */
@@ -115,6 +120,8 @@ export type SessionInput = {
   steps?: JsonlLine[];
   trees?: { before: Tree; after: Tree };
   file?: string;
+  /** Paths or globs the spec names: a successful Read of a matching file is a reference too. */
+  references?: readonly string[];
 };
 
 export type SessionPaths = {
@@ -124,6 +131,8 @@ export type SessionPaths = {
   /** Folders whose files are hashed into the before and after trees. */
   before?: string;
   after?: string;
+  /** Paths or globs the spec names, mapped to references beside the skill folders. */
+  references?: readonly string[];
 };
 
 /** Reads a session from its files and maps it. */
@@ -141,6 +150,7 @@ export async function readSession(paths: SessionPaths): Promise<ReplaySession> {
     ...(paths.decisions === undefined ? {} : { decisions: await lines(paths.decisions) }),
     ...(paths.steps === undefined ? {} : { steps: await lines(paths.steps) }),
     ...(trees ? { trees } : {}),
+    ...(paths.references === undefined ? {} : { references: paths.references }),
     file: paths.transcript,
   });
 }
@@ -179,11 +189,15 @@ export function diffTrees(before: Tree, after: Tree): WorkspaceDiff {
 
 const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
 const AGENT_TOOLS = new Set(['Agent', 'Task']);
+/** A file inside a skill folder: a `skills/<name>/` segment anywhere in its path. */
+const SKILL_FILE = /(^|\/)skills\/[^/]+\//;
 const OUTPUT_LIMIT = 4000;
 
 type PendingCall = { call: ToolCall; at?: string; line: number };
 
 class BlockBuilder {
+  /** The tools the runtime offered in this block, from the last init record; undefined when none was seen. */
+  offered?: string[];
   readonly segments: Segment[] = [];
   readonly texts: string[] = [];
   readonly toolCalls: ToolCall[] = [];
@@ -191,6 +205,8 @@ class BlockBuilder {
   readonly skills: NonNullable<RuntimeTrace['skills']> = [];
   readonly guards: NonNullable<RuntimeTrace['guards']> = [];
   readonly stages: NonNullable<RuntimeTrace['stages']> = [];
+  readonly references: NonNullable<RuntimeTrace['references']> = [];
+  readonly subagents: NonNullable<RuntimeTrace['subagents']> = [];
   readonly markers: Marker[] = [];
   readonly kept: KeptRecord[] = [];
   readonly reads: string[] = [];
@@ -224,6 +240,7 @@ class BlockBuilder {
 
 /** Maps parsed session files onto blocks. Pure: the same input gives the same output. */
 export function mapSession(input: SessionInput): ReplaySession {
+  assertTranscript(input);
   const meta: SessionMeta = {
     ...(input.file === undefined ? {} : { file: input.file }),
     records: input.transcript.length,
@@ -240,6 +257,8 @@ export function mapSession(input: SessionInput): ReplaySession {
   /** Paths the session has seen exist: read, edited or written. */
   const known = new Set<string>();
   let anonymous = 0;
+  /** The tools offered from the last init record on; undefined until one is seen. */
+  let offered: string[] | undefined;
 
   const current = () => builders.at(-1);
   const keep = (line: number, reason: string, record: unknown) => {
@@ -248,6 +267,10 @@ export function mapSession(input: SessionInput): ReplaySession {
     else meta.preamble.push({ line, reason, record });
   };
   const rel = (path: string) => relativeTo(meta.cwd, path);
+  const named = input.references ?? [];
+  /** A file under a skill folder, or a path the spec names, is a reference. */
+  const isReference = (path: string) =>
+    SKILL_FILE.test(path) || named.some((pattern) => globMatches(pattern, path));
 
   for (const entry of input.transcript) {
     if (!entry.ok) {
@@ -280,7 +303,15 @@ export function mapSession(input: SessionInput): ReplaySession {
     }
     if (type === 'system') {
       const block = current();
-      if (stringField(record, 'subtype') === 'compact_boundary') {
+      if (stringField(record, 'subtype') === 'init' && Array.isArray(record.tools)) {
+        // The runtime's init record names the tools it offered: a tool a setting denies is not offered.
+        offered = record.tools.filter((tool): tool is string => typeof tool === 'string');
+        if (block) {
+          block.offered = offered;
+          block.touch(line, at);
+        }
+        keep(line, 'the init record (its tools are the offered tools)', record);
+      } else if (stringField(record, 'subtype') === 'compact_boundary') {
         const data = isRecord(record.compactMetadata) ? record.compactMetadata : {};
         const marker: Marker = {
           kind: 'compaction',
@@ -347,6 +378,7 @@ export function mapSession(input: SessionInput): ReplaySession {
         continue;
       }
       const block = new BlockBuilder(builders.length, { user: text }, line, at);
+      if (offered !== undefined) block.offered = offered;
       if (Array.isArray(content)) {
         for (const part of content) {
           if (!isRecord(part) || part.type !== 'text') {
@@ -428,6 +460,14 @@ export function mapSession(input: SessionInput): ReplaySession {
     if (AGENT_TOOLS.has(label) && !isRecord(input)) {
       meta.issues.push(`line ${line}: an ${label} call whose brief is not an object`);
     }
+    if (AGENT_TOOLS.has(label)) {
+      const model = stringField(fields, 'model');
+      block.subagents.push({
+        name: stringField(fields, 'subagent_type') ?? 'general-purpose',
+        ...(model === undefined ? {} : { model }),
+        ...(at === undefined ? {} : { at }),
+      });
+    }
   }
 
   function applyResult(
@@ -483,6 +523,9 @@ export function mapSession(input: SessionInput): ReplaySession {
     if (path === undefined || isError) return;
     if (call.label === 'Read') {
       known.add(path);
+      const read = rel(path);
+      if (isReference(read))
+        block.references.push({ path: read, ...(open.at === undefined ? {} : { at: open.at }) });
       return;
     }
     if (!WRITE_TOOLS.has(call.label)) return;
@@ -519,8 +562,12 @@ export function mapSession(input: SessionInput): ReplaySession {
     }
     const runtime: RuntimeTrace = {
       skills: block.skills,
+      references: block.references,
+      subagents: block.subagents,
       ...(meta.decisions ? { guards: block.guards } : {}),
       ...(meta.steps ? { stages: block.stages } : {}),
+      // Absent, never empty, when no init record named the offered tools: the check is then inconclusive.
+      ...(block.offered === undefined ? {} : { offered: [...block.offered] }),
     };
     const diff =
       treeDiff && index === builders.length - 1
@@ -594,7 +641,15 @@ function placeRows(input: SessionInput, meta: SessionMeta, builders: BlockBuilde
     meta.issues.push(`${otherSession} decision-log rows belong to another session and were left out`);
   }
   for (const { row, block } of sortByAt(guards)) {
-    block.guards.push({ name: row.check, verdict: row.verdict, at: row.at });
+    block.guards.push({
+      name: row.check,
+      verdict: row.verdict,
+      at: row.at,
+      ...(row.stdout === undefined ? {} : { stdout: row.stdout }),
+      ...(row.stderr === undefined ? {} : { stderr: row.stderr }),
+      ...(row.exitCode === undefined ? {} : { exitCode: row.exitCode }),
+      ...(row.outcome === undefined ? {} : { outcome: row.outcome }),
+    });
   }
   const stages: Array<{ row: StepRow; block: BlockBuilder }> = [];
   for (const entry of input.steps ?? []) {
@@ -665,4 +720,37 @@ function relativeTo(cwd: string | undefined, path: string): string {
   if (cwd === undefined) return path;
   const base = cwd.endsWith('/') ? cwd : `${cwd}/`;
   return path.startsWith(base) ? path.slice(base.length) : path;
+}
+
+/** Thrown when a file is not a Claude Code transcript, so a corpus in another shape never reads as empty sessions. */
+export class NotATranscriptError extends Error {
+  override name = 'NotATranscriptError';
+}
+
+const TRANSCRIPT_TYPES = new Set(['user', 'assistant']);
+
+/**
+ * A transcript holds at least one record of type user or assistant. A file with none (another JSONL shape,
+ * only lines that are not JSON, or nothing at all) is refused with what its first line holds.
+ */
+function assertTranscript(input: SessionInput): void {
+  const where = input.file === undefined ? 'the transcript' : input.file;
+  const parsed = input.transcript.filter((entry) => entry.ok);
+  const typed = parsed.some(
+    (entry) => entry.ok && isRecord(entry.value) && TRANSCRIPT_TYPES.has(String(entry.value.type)),
+  );
+  if (typed) return;
+  if (input.transcript.length === 0) {
+    throw new NotATranscriptError(`${where} is not a Claude Code transcript: it holds no record`);
+  }
+  const first = input.transcript[0];
+  const shape =
+    first === undefined || !first.ok
+      ? `line ${first?.line ?? 1} is not JSON`
+      : isRecord(first.value)
+        ? `line ${first.line} has the keys ${Object.keys(first.value).slice(0, 6).join(', ') || '(none)'}`
+        : `line ${first.line} is not an object`;
+  throw new NotATranscriptError(
+    `${where} is not a Claude Code transcript: no record has type user or assistant (${shape})`,
+  );
 }

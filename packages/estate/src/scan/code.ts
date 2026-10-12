@@ -110,15 +110,33 @@ export class AtomBuilder {
   }
 }
 
-/** The name a trace gives a guard: its script's file name, else a slug of its command. */
-export function guardName(guard: Pick<GuardDecl, 'script' | 'command'>): string {
+/** The name a trace gives a guard: a catalogue check's id, else its script's file name, else a slug of its command. */
+export function guardName(guard: Pick<GuardDecl, 'script' | 'command' | 'check'>): string {
+  if (guard.check) return guard.check.id;
   return guard.script ? basename(guard.script) : slug(guard.command, 8);
 }
 
-/** The registry row of a guard, matched on the guard's name. */
-export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow | undefined {
+/** Every registry row that names a guard, matched on the guard's name, in registry order. */
+export function registryRowsOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow[] {
   const name = guardName(guard);
-  return registry.find((row) => basename(row.guard) === name);
+  return registry.filter((row) => basename(row.guard) === name);
+}
+
+/**
+ * The registry row of a guard. When several rows name the guard (one guard script runs several checks),
+ * one row stands for them all: the first row's id, event, verdict and place, the first state written, and
+ * the rules every row enforces.
+ */
+export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]): RegistryRow | undefined {
+  const rows = registryRowsOf(guard, registry);
+  const [first, ...rest] = rows;
+  if (!first || rest.length === 0) return first;
+  const state = rows.find((row) => row.state !== undefined)?.state;
+  return {
+    ...first,
+    enforces: rows.flatMap((row) => row.enforces),
+    ...(state !== undefined ? { state } : {}),
+  };
 }
 
 /** Every atom code reads, in a fixed order, so ids are the same on every run. */
@@ -186,6 +204,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
   for (const guard of raw.guards) {
     const name = guardName(guard);
     const row = registryRowOf(guard, raw.registry);
+    const rows = registryRowsOf(guard, raw.registry).filter((entry) => entry.origin !== 'catalogue');
     builder.add({
       kind: 'guard',
       title: `${guard.event}${guard.matcher ? ` ${guard.matcher}` : ''} guard ${name}`,
@@ -199,8 +218,20 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
         scope: guard.scope,
         ...(guard.matcher ? { matcher: guard.matcher } : {}),
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
+        ...(guard.dispatcher ? { dispatcher: guard.dispatcher } : {}),
         ...(guard.timeout !== undefined ? { timeout: guard.timeout } : {}),
         ...(row ? { registry: row.id } : {}),
+        ...(rows.length > 1 ? { registryRows: rows.map((entry) => entry.id) } : {}),
+        ...(row?.state !== undefined ? { state: row.state } : {}),
+        ...(guard.check
+          ? {
+              check: guard.check.id,
+              ...(guard.check.kind !== undefined ? { checkKind: guard.check.kind } : {}),
+              ...(guard.check.state !== undefined ? { state: guard.check.state } : {}),
+              ...(guard.check.work !== undefined ? { work: guard.check.work } : {}),
+              ...(guard.check.steps.length > 0 ? { steps: guard.check.steps } : {}),
+            }
+          : {}),
       },
     });
   }
@@ -265,7 +296,12 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
       title: `Stage ${step.id}${step.title ? `: ${step.title}` : ''}`,
       at: step.at,
       evidence: [{ type: 'stage_reached', name: step.id }],
-      fields: { id: step.id, next: step.next, anytime: step.anytime },
+      fields: {
+        id: step.id,
+        next: step.next,
+        anytime: step.anytime,
+        ...(step.process !== undefined ? { process: step.process } : {}),
+      },
     });
   }
 
@@ -291,22 +327,17 @@ function scriptAtoms(
   raw: RawEstate,
   builder: AtomBuilder,
 ): void {
-  const body = raw.prose.find((chunk) => chunk.file === definition);
+  // A long body may be cut into several chunks: the mention is looked for in each, in order.
+  const body = raw.prose.filter((chunk) => chunk.file === definition).flatMap((chunk) => chunkLines(chunk));
   for (const file of raw.files) {
     if (file.kind !== 'skill_file' || file.owner !== skill) continue;
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention = body ? linesOf(body.text).find((line) => line.text.includes(name)) : undefined;
-    const at: Located =
-      mention && body
-        ? {
-            file: definition,
-            startLine: body.startLine + mention.line - 1,
-            endLine: body.startLine + mention.line - 1,
-            quote: mention.text,
-          }
-        : firstLine(file);
+    const mention = body.find((line) => line.text.includes(name));
+    const at: Located = mention
+      ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.text }
+      : firstLine(file);
     builder.add({
       kind: 'script',
       title: `Script ${relative}`,
@@ -327,11 +358,117 @@ export function namedPaths(line: string): string[] {
   return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
 }
 
-/** A path a file names, relative to the root: from the root when it starts with `.claude/`, else from the file. */
-export function resolveNamed(path: string, from: string, files: ReadonlyMap<string, EstateFile>): string {
+/**
+ * A path a file names, relative to the root. It is tried, in order, from the naming file's folder, from the
+ * root, then from each base folder the runtime declares; the first that names a file of the estate (or a file
+ * the reader skipped on purpose, in `skipped`) wins. When none does, the path stays as the naming file's
+ * folder gives it (from the root when it starts with `.claude/`), so the finding names where it was looked
+ * for.
+ */
+export function resolveNamed(
+  path: string,
+  from: string,
+  files: ReadonlyMap<string, EstateFile>,
+  bases: readonly string[] = [],
+  skipped: ReadonlySet<string> = new Set(),
+): string {
   const clean = path.replace(/^\.\//, '');
-  if (clean.startsWith('.claude/') || files.has(clean)) return posix.normalize(clean);
-  return posix.normalize(posix.join(posix.dirname(from), clean));
+  const candidates = [
+    posix.join(posix.dirname(from), clean),
+    clean,
+    ...bases.map((base) => posix.join(base, clean)),
+  ].map((candidate) => posix.normalize(candidate));
+  const hit = candidates.find((candidate) => files.has(candidate) || skipped.has(candidate));
+  if (hit !== undefined) return hit;
+  if (clean.startsWith('.claude/')) return posix.normalize(clean);
+  return candidates[0] as string;
+}
+
+/** Where a named path leads: one file, several candidates, or nowhere; and how it was found. */
+export type NamedTarget = {
+  path: string;
+  via: 'place' | 'alias' | 'suffix' | 'external' | 'none';
+  candidates?: string[];
+};
+
+/**
+ * True when a path as written points outside the estate: it starts with `~/` or `/`, or it starts with one
+ * of the external folders. Only the written form decides; a name is never guessed external.
+ */
+export function isExternal(path: string, externals: readonly string[] = []): boolean {
+  const clean = path.replace(/^\.\//, '');
+  if (clean.startsWith('~/') || clean.startsWith('/')) return true;
+  return externals.some((root) => clean.startsWith(root.endsWith('/') ? root : `${root}/`));
+}
+
+/**
+ * A named path, resolved as `resolveNamed` does, then through the estate's aliases (`REF/a.md` as
+ * `<folder>/a.md`), then by its ending: the longest tail of the path (its last segments, down to the bare
+ * file name) that ends any file of the estate decides. One file: the path resolves to it. Several: the
+ * reference is ambiguous and lists them.
+ */
+export function locateNamed(
+  path: string,
+  from: string,
+  files: ReadonlyMap<string, EstateFile>,
+  options: {
+    bases?: readonly string[];
+    skipped?: ReadonlySet<string>;
+    aliases?: Readonly<Record<string, readonly string[]>>;
+    byName?: ReadonlyMap<string, readonly string[]>;
+    externals?: readonly string[];
+  } = {},
+): NamedTarget {
+  const skipped = options.skipped ?? new Set<string>();
+  const known = (candidate: string) => files.has(candidate) || skipped.has(candidate);
+  const placed = resolveNamed(path, from, files, options.bases ?? [], skipped);
+  if (known(placed)) return { path: placed, via: 'place' };
+  const clean = path.replace(/^\.\//, '');
+  // A path written as outside the estate is not looked for by its ending: it names the outside, as written.
+  if (isExternal(clean, options.externals ?? [])) return { path: clean, via: 'external' };
+  const [head, ...rest] = clean.split('/');
+  const folders = head !== undefined && rest.length > 0 ? (options.aliases?.[head] ?? []) : [];
+  for (const folder of folders) {
+    const candidate = posix.normalize(posix.join(folder, ...rest));
+    if (known(candidate)) return { path: candidate, via: 'alias' };
+  }
+  // The ending is looked for among the estate's own files: a skipped file (node_modules, a test fixture)
+  // is found only by its place, never as a candidate for a name.
+  const byName = options.byName ?? fileNames(files);
+  const segments = clean
+    .split('/')
+    .filter((segment) => segment !== '' && segment !== '.' && segment !== '..');
+  const named = byName.get(segments[segments.length - 1] ?? '') ?? [];
+  for (let start = 0; start < segments.length; start++) {
+    const tail = segments.slice(start).join('/');
+    const hits = named.filter((candidate) => candidate === tail || candidate.endsWith(`/${tail}`));
+    if (hits.length === 1) return { path: hits[0] as string, via: 'suffix' };
+    if (hits.length > 1) return { path: placed, via: 'none', candidates: [...hits].sort() };
+  }
+  return { path: placed, via: 'none' };
+}
+
+/** Every file of the estate (and every skipped file) by its file name. */
+export function fileNames(
+  files: ReadonlyMap<string, EstateFile>,
+  skipped: ReadonlySet<string> = new Set(),
+): Map<string, string[]> {
+  const byName = new Map<string, string[]>();
+  for (const path of [...files.keys(), ...skipped]) {
+    const name = basename(path);
+    byName.set(name, [...(byName.get(name) ?? []), path]);
+  }
+  return byName;
+}
+
+/** The file-name index of an estate, built once per estate read. */
+const NAME_INDEX = new WeakMap<RawEstate, Map<string, string[]>>();
+function names(raw: RawEstate, files: ReadonlyMap<string, EstateFile>): Map<string, string[]> {
+  const cached = NAME_INDEX.get(raw);
+  if (cached) return cached;
+  const built = fileNames(files);
+  NAME_INDEX.set(raw, built);
+  return built;
 }
 
 function referenceAtoms(
@@ -340,11 +477,20 @@ function referenceAtoms(
   raw: RawEstate,
   builder: AtomBuilder,
 ): void {
+  const skipped = new Set(raw.ignored?.paths ?? []);
   for (const line of chunkLines(chunk)) {
     for (const named of namedPaths(line.text)) {
-      const path = resolveNamed(named, chunk.file, files);
+      const located = locateNamed(named, chunk.file, files, {
+        bases: raw.bases ?? [],
+        skipped,
+        aliases: raw.aliases ?? {},
+        byName: names(raw, files),
+        externals: raw.externals ?? [],
+      });
+      const path = located.path;
       const target = files.get(path);
-      if (!target && !DOCUMENT.test(path)) continue;
+      const isSkipped = target === undefined && skipped.has(path);
+      if (!target && !isSkipped && !DOCUMENT.test(path)) continue;
       if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
       builder.add({
         kind: 'reference',
@@ -352,7 +498,16 @@ function referenceAtoms(
         at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
         evidence: [{ type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }],
         situation: line.text,
-        fields: { path, exists: target !== undefined, readWhen: line.text, from: chunk.file },
+        fields: {
+          path,
+          exists: target !== undefined || isSkipped,
+          readWhen: line.text,
+          from: chunk.file,
+          ...(isSkipped ? { ignored: true } : {}),
+          ...(located.via === 'alias' || located.via === 'suffix' ? { resolvedBy: located.via } : {}),
+          ...(located.candidates ? { candidates: located.candidates } : {}),
+          ...(located.via === 'external' ? { external: true } : {}),
+        },
       });
     }
   }
@@ -420,7 +575,17 @@ function gateAtoms(
       const trigger = (match[act] ?? '').replace(/`/g, '').trim();
       if (first === '' || trigger === '') continue;
       const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
-      const path = isFile ? resolveNamed(first, chunk.file, files) : undefined;
+      // The file to read first is found as a reference's is: its place, an alias, then its ending.
+      const located = isFile
+        ? locateNamed(first, chunk.file, files, {
+            bases: raw.bases ?? [],
+            skipped: new Set(raw.ignored?.paths ?? []),
+            aliases: raw.aliases ?? {},
+            byName: names(raw, files),
+            externals: raw.externals ?? [],
+          })
+        : undefined;
+      const path = located?.path;
       const before = isFile ? raw.labels.read : raw.labels.shell;
       const after = actLabel(trigger, raw);
       const evidence: EvidencePredicate[] = [
@@ -435,7 +600,15 @@ function gateAtoms(
         at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
         evidence,
         situation: trigger,
-        fields: { form, first, trigger, ...(path ? { path } : {}) },
+        fields: {
+          form,
+          first,
+          trigger,
+          ...(path ? { path } : {}),
+          ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
+          ...(located?.candidates ? { candidates: located.candidates } : {}),
+          ...(located?.via === 'external' ? { external: true } : {}),
+        },
       });
       break;
     }

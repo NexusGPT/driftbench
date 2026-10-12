@@ -139,6 +139,10 @@ export const EstateMap = z.strictObject({
   atoms: z.array(Atom),
   edges: z.array(Edge),
   space: z.string().optional().describe('Path of the exported space map of the situation axes'),
+  ignore: z
+    .array(z.string().min(1))
+    .optional()
+    .describe('Globs the scan skipped beside the runtime defaults; lint reads the estate with them again'),
   producedBy: z
     .strictObject({
       family: z.string().min(1).describe('The model family that split the prose, `code` when no model ran'),
@@ -179,6 +183,7 @@ export const TestType = z.enum([
   'register_sample',
   'hazard_recovery',
   'invariant',
+  'setting',
   'journey',
 ]);
 export type TestType = z.infer<typeof TestType>;

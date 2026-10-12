@@ -1,3 +1,4 @@
+import { collectRetries } from '@driftbench/core';
 import { describe, expect, it } from 'vitest';
 import {
   createAnthropicJudge,
@@ -31,7 +32,10 @@ const REQUEST: JudgeRequest = {
 type Call = { url: string; headers: Record<string, string>; body: unknown };
 
 /** A fetch that answers from a list of (status, body) pairs and records every call. */
-function fakeFetch(replies: Array<[number, unknown]>): { fetch: FetchLike; calls: Call[] } {
+function fakeFetch(replies: Array<[number, unknown] | [number, unknown, Record<string, string>]>): {
+  fetch: FetchLike;
+  calls: Call[];
+} {
   const calls: Call[] = [];
   const fetch: FetchLike = async (url, init) => {
     calls.push({
@@ -39,9 +43,16 @@ function fakeFetch(replies: Array<[number, unknown]>): { fetch: FetchLike; calls
       headers: init.headers as Record<string, string>,
       body: JSON.parse(String(init.body)),
     });
-    const [status, body] = replies[Math.min(calls.length - 1, replies.length - 1)] as [number, unknown];
+    const [status, body, headers] = replies[Math.min(calls.length - 1, replies.length - 1)] as [
+      number,
+      unknown,
+      Record<string, string> | undefined,
+    ];
     if (body instanceof Error) throw body;
-    return new Response(typeof body === 'string' ? body : JSON.stringify(body), { status });
+    return new Response(typeof body === 'string' ? body : JSON.stringify(body), {
+      status,
+      ...(headers ? { headers } : {}),
+    });
   };
   return { fetch, calls };
 }
@@ -198,14 +209,42 @@ describe.each(CASES)('the $name judge client', (c) => {
     expect((error as JudgeError).message).toContain('[redacted]');
   });
 
-  it('stops after its retries on a provider that keeps failing', async () => {
+  it("stops after the shared policy's four attempts on a provider that keeps failing", async () => {
     const { fetch, calls } = fakeFetch([[529, 'overloaded']]);
     const error = await c
       .make(fetch, c.env)
       .judge(REQUEST)
       .catch((cause: unknown) => cause);
-    expect(calls).toHaveLength(3);
+    expect(calls).toHaveLength(4);
     expect((error as JudgeError).code).toBe('http');
+    expect((error as JudgeError).status).toBe(529);
+  });
+
+  it('fails twice with 429 then 529, waits what Retry-After asks, and hands both retries to the scope', async () => {
+    const { fetch, calls } = fakeFetch([
+      [429, { error: { message: 'rate limited' } }, { 'retry-after': '2' }],
+      [529, { error: { message: 'overloaded' } }],
+      [200, c.ok],
+    ]);
+    const { value: result, retries } = await collectRetries(() => c.make(fetch, c.env).judge(REQUEST));
+    expect(calls).toHaveLength(3);
+    expect(result.answer.outcome).toBe('fail');
+    expect(retries.map((event) => [event.attempt, event.status, event.retryAfterMs])).toEqual([
+      [1, 429, 2_000],
+      [2, 529, undefined],
+    ]);
+    expect(retries[0]?.delayMs, 'never shorter than Retry-After').toBeGreaterThanOrEqual(2_000);
+  });
+
+  it('never retries a 408 or a 409', async () => {
+    for (const status of [408, 409]) {
+      const { fetch, calls } = fakeFetch([[status, 'no']]);
+      await c
+        .make(fetch, c.env)
+        .judge(REQUEST)
+        .catch(() => undefined);
+      expect(calls, `status ${status}`).toHaveLength(1);
+    }
   });
 
   it('turns an unreadable answer into an unparsed inconclusive, never a pass', async () => {

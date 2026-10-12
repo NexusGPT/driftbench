@@ -46,8 +46,15 @@ export function parseCommands(text: string, file: string): ParseResult<Execution
   return { value, errors };
 }
 
-export function parseRuntime(text: string, file: string): ParseResult<Required<RuntimeTrace>> {
-  const value: Required<RuntimeTrace> = { skills: [], guards: [], stages: [] };
+export function parseRuntime(
+  text: string,
+  file: string,
+): ParseResult<Required<Pick<RuntimeTrace, 'skills' | 'guards' | 'stages'>>> {
+  const value: Required<Pick<RuntimeTrace, 'skills' | 'guards' | 'stages'>> = {
+    skills: [],
+    guards: [],
+    stages: [],
+  };
   const errors: string[] = [];
   for (const [line, entry] of objects(text, file, errors)) {
     const { type, name, verdict, at } = entry;

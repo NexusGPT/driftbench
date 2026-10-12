@@ -132,13 +132,13 @@ export function scriptedCalibrationCassette(
           const miss = own.find((m) => m.repeat === undefined || m.repeat === r);
           answers.push(miss ? miss.answer : truth);
         }
-        const key = requestKey(request);
+        const key = requestKey(request, judge);
         const note = own.map((m) => m.note).find((text) => text !== undefined);
         for (const answer of answers) {
           entries.push(entryFor(judge, key, name, answer, criterion, note));
         }
         if (answers.includes('unparsed')) {
-          const large = requestKey({ ...request, budget: 'large' });
+          const large = requestKey({ ...request, budget: 'large' }, judge);
           entries.push(entryFor(judge, large, name, 'unparsed', criterion, note));
         }
       }

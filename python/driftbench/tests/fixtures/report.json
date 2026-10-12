@@ -1,0 +1,137 @@
+{
+  "campaignId": "c-52387fbc33af",
+  "stored": false,
+  "checks": [
+    "tools",
+    "forbidden",
+    "must",
+    "must_not",
+    "lang",
+    "pii",
+    "cards",
+    "stage",
+    "skills",
+    "guards",
+    "references",
+    "subagents",
+    "execution",
+    "workspace",
+    "safety",
+    "artifacts",
+    "schema_strict",
+    "budget",
+    "end_state",
+    "custom"
+  ],
+  "cells": [
+    {
+      "cellId": "c93fb15d4134fbac",
+      "specId": "py-echo",
+      "specHash": "0885ec9be2ed",
+      "target": {
+        "adapter": "process",
+        "agent": "echo_with_history"
+      },
+      "mode": "F",
+      "repeat": 0,
+      "state": "fail",
+      "reused": false,
+      "failing": ["block 1 must.0"],
+      "runId": "c93fb15d4134fbac",
+      "cacheHit": false,
+      "cost": 0,
+      "blocks": [
+        {
+          "index": 0,
+          "blockId": "greet",
+          "pass": true,
+          "stage": "echoed",
+          "verdicts": [
+            {
+              "id": "must.0",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "/echo: hello/ matched \"echo: hello\" at offset 0: \"echo: hello (1 messages)\""
+            },
+            {
+              "id": "pii.iban",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "no IBAN in the visible text"
+            },
+            {
+              "id": "pii.national_number",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "no national register number in the visible text"
+            },
+            {
+              "id": "pii.phone",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "no phone number in the visible text"
+            },
+            {
+              "id": "pii.email",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "no email address in the visible text"
+            },
+            {
+              "id": "stage.reached",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "reached echoed, expected echoed (stages in this block: echoed)"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "blockId": "wrong",
+          "pass": false,
+          "stage": "echoed",
+          "verdicts": [
+            {
+              "id": "must.0",
+              "outcome": "fail",
+              "gating": true,
+              "evidence": "/farewell/ is missing; visible text \"echo: bye (3 messages)\""
+            },
+            {
+              "id": "pii.iban",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "no IBAN in the visible text"
+            },
+            {
+              "id": "pii.national_number",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "no national register number in the visible text"
+            },
+            {
+              "id": "pii.phone",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "no phone number in the visible text"
+            },
+            {
+              "id": "pii.email",
+              "outcome": "pass",
+              "gating": true,
+              "evidence": "no email address in the visible text"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "cells": 1,
+    "pass": 0,
+    "fail": 1,
+    "failed": 0,
+    "stoppedByBudget": 0,
+    "pending": 0
+  }
+}

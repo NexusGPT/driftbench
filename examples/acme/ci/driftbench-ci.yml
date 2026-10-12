@@ -1,0 +1,72 @@
+# An example workflow: copy it to .github/workflows/ to gate pull requests on the Acme sales assistant.
+# It builds the baseline from the pull request's base branch, runs the same suite on the head with the
+# driftbench ci action, and fails the job unless ci shows parity, by the rule of driftbench compare.
+# Fictional data only: the Acme Telecom example agent, no secret, no paid model.
+name: driftbench ci (Acme example)
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the head
+        uses: actions/checkout@v7
+        with:
+          path: head
+      - name: Check out the base
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: head/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install
+        run: |
+          (cd base && pnpm install --frozen-lockfile)
+          (cd head && pnpm install --frozen-lockfile)
+
+      # The baseline: the base branch's agent on the suite. A failing cell is part of the baseline, so
+      # exit 1 is kept; exit 2 (bad input) stops the job.
+      - name: Baseline campaign on the base branch
+        working-directory: base
+        run: |
+          code=0
+          pnpm -s driftbench campaign run examples/acme/gated/specs \
+            --target function:acme-sales --store "$RUNNER_TEMP/baseline.db" --no-cache || code=$?
+          echo "baseline campaign exit $code"
+          if [ "$code" -gt 1 ]; then exit "$code"; fi
+
+      - name: driftbench ci on the head
+        id: gate
+        uses: ./head/action
+        with:
+          working-directory: head
+          specs: examples/acme/gated/specs
+          target: function:acme-sales
+          baseline: ${{ runner.temp }}/baseline.db
+          store: ${{ runner.temp }}/candidate.db
+          report-path: driftbench-ci.json
+
+      - name: Keep the summary
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: driftbench-ci
+          path: head/driftbench-ci.json
+          if-no-files-found: warn
+
+      - name: Verdict
+        if: always()
+        env:
+          VERDICT: ${{ steps.gate.outputs.verdict }}
+          REPORT: ${{ steps.gate.outputs.report-path }}
+        run: echo "driftbench ci verdict $VERDICT, summary $REPORT"

@@ -17,15 +17,20 @@
     "driftbench": "tsx packages/cli/src/bin.ts",
     "guard:canary": "node tools/guard/guard.mjs --canary",
     "docs:reference": "tsx tools/docs/spec-reference.ts",
-    "docs:links": "tsx tools/docs/check-links.ts"
+    "docs:links": "tsx tools/docs/check-links.ts",
+    "docs:site": "vitepress dev docs",
+    "docs:site:build": "vitepress build docs",
+    "docs:site:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
     "@types/node": "^26.6.5",
     "exceljs": "^4.4.0",
+    "playwright-core": "1.63.0",
     "tsup": "^8.5.1",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
+    "vitepress": "1.6.4",
     "vitest": "^5.0.3"
   }
 }

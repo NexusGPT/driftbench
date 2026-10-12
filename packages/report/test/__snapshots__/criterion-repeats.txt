@@ -1,0 +1,2 @@
+Criterion tone (spec-a, mode F): mode over 3 repeats, pass (P F P).
+Criterion facts (spec-a, mode F): at_least:2 over 3 repeats, pass (- P P).

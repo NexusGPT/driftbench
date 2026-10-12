@@ -15,7 +15,8 @@
  *   and `{"fake":"edit", path, old, new}` change the workspace.
  * - The init and result records are written by the fake; the result's cost is 0.
  * - `RATE_WAVE_FILE` holding n > 0: the run answers overloaded and counts n down.
- * - `--resume <id>` reads `CLAUDE_CONFIG_DIR/projects/<folder>/<id>.jsonl`; a missing file fails the run as
+ * - `--resume <id>` reads `<config>/projects/<folder>/<id>.jsonl`, where the config folder is
+ *   `CLAUDE_CONFIG_DIR` or `~/.claude` as for the runtime; a missing file fails the run as
  *   the runtime does. Every turn is appended to that file.
  * - `FAKE_CALLS` (tests only): one JSON line per call, with what the fake saw.
  */
@@ -81,8 +82,10 @@ const sessionId = resume ?? randomUUID();
 let sessionPath;
 const previous = [];
 let torn = false;
-if (env.CLAUDE_CONFIG_DIR) {
-  sessionPath = join(env.CLAUDE_CONFIG_DIR, 'projects', projectFolder, `${sessionId}.jsonl`);
+// As the runtime does: the config folder is CLAUDE_CONFIG_DIR, else .claude in the home folder.
+const configDir = env.CLAUDE_CONFIG_DIR ?? (env.HOME ? join(env.HOME, '.claude') : undefined);
+if (configDir) {
+  sessionPath = join(configDir, 'projects', projectFolder, `${sessionId}.jsonl`);
 }
 if (resume !== undefined) {
   const found = findSession(resume);
@@ -118,6 +121,7 @@ for (const rule of entry?.unless ?? []) {
 
 log({
   argv: args,
+  configDir: env.CLAUDE_CONFIG_DIR ?? null,
   ask,
   queued,
   resume: resume ?? null,
@@ -135,7 +139,14 @@ log({
 const base = Date.now();
 let tick = 0;
 const stamp = () => new Date(base + 10 * tick++).toISOString();
-const fill = (text) => text.split('{{cwd}}').join(cwd).split('{{session_id}}').join(sessionId);
+const fill = (text) =>
+  text
+    .split('{{cwd}}')
+    .join(cwd)
+    .split('{{session_id}}')
+    .join(sessionId)
+    .split('{{home}}')
+    .join(env.HOME ?? '');
 
 print({
   type: 'system',
@@ -143,7 +154,7 @@ print({
   session_id: sessionId,
   cwd,
   model: 'fake-model',
-  tools: ['Read', 'Edit', 'Write', 'Bash', 'Skill', 'Agent', 'WebFetch'],
+  tools: offeredTools(),
   timestamp: stamp(),
 });
 const written = [
@@ -180,6 +191,34 @@ for (const line of lines) {
   if (record.fake === 'move') {
     mkdirSync(dirname(join(cwd, record.to)), { recursive: true });
     renameSync(join(cwd, record.from), join(cwd, record.to));
+    continue;
+  }
+  if (record.fake === 'write_abs') {
+    // A write outside the project, as the runtime's Write tool would make it; its result is what happened.
+    let result;
+    try {
+      writeFileSync(record.path, record.content);
+      result = {
+        type: 'tool_result',
+        tool_use_id: record.tool_use_id,
+        content: `File written: ${record.path}`,
+      };
+    } catch (error) {
+      result = {
+        type: 'tool_result',
+        tool_use_id: record.tool_use_id,
+        is_error: true,
+        content: `${error.code}: ${error.message}`,
+      };
+    }
+    const out = {
+      type: 'user',
+      message: { role: 'user', content: [result] },
+      parent_tool_use_id: null,
+      session_id: sessionId,
+      timestamp: stamp(),
+    };
+    print(out);
     continue;
   }
   if (record.fake === 'edit') {
@@ -221,14 +260,27 @@ if (sessionPath !== undefined) {
 }
 
 function findSession(id) {
-  if (!env.CLAUDE_CONFIG_DIR) return undefined;
-  const projects = join(env.CLAUDE_CONFIG_DIR, 'projects');
+  if (!configDir) return undefined;
+  const projects = join(configDir, 'projects');
   if (!existsSync(projects)) return undefined;
   for (const folder of readdirSync(projects)) {
     const path = join(projects, folder, `${id}.jsonl`);
     if (existsSync(path)) return path;
   }
   return undefined;
+}
+
+/** The tools offered, as the runtime does: a tool the copy's settings deny whole is not offered. */
+function offeredTools() {
+  const all = ['Read', 'Edit', 'Write', 'Bash', 'Skill', 'Agent', 'WebFetch'];
+  const text = readText(join(cwd, '.claude', 'settings.json'));
+  let deny = [];
+  try {
+    deny = text === undefined ? [] : (JSON.parse(text).permissions?.deny ?? []);
+  } catch {
+    deny = [];
+  }
+  return all.filter((tool) => !deny.includes(tool));
 }
 
 function readHelpers() {

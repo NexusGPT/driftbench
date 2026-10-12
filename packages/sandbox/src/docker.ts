@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import { posix } from 'node:path';
 import type { ExecOptions, ExecutionRecord, SandboxOptions, SandboxProvider } from '@driftbench/core';
+import { untrackFolder } from './cleanup';
 import { FolderSandbox, makeWorkspaceFolder } from './folder';
 import {
   DEFAULT_EXEC_TIMEOUT_MS,
@@ -27,6 +28,11 @@ export type DockerProviderOptions = {
   dir?: string;
   /** Bounds of the workspace walk. */
   limits?: Partial<SnapshotLimits>;
+  /**
+   * The container's network. Default `none`: a command the agent runs reaches no host and no internet. Name
+   * `bridge` when the agent's task needs the network (a package install, an API it calls).
+   */
+  network?: 'none' | 'bridge';
 };
 
 /** Where the workspace is mounted in the container: the root the agent sees. */
@@ -57,6 +63,8 @@ export function dockerProvider(options: DockerProviderOptions): SandboxProvider 
       const container = `driftbench-${randomUUID()}`;
       const args = ['run', '-d', '--init', '--name', container, '-v', `${folder}:${DOCKER_WORKSPACE}`];
       args.push('-w', DOCKER_WORKSPACE, '-e', 'HOME=/tmp');
+      // Default-deny network: a command the agent runs reaches no host and no internet unless the provider names bridge.
+      args.push('--network', options.network ?? 'none');
       if (typeof process.getuid === 'function' && typeof process.getgid === 'function') {
         args.push('--user', `${process.getuid()}:${process.getgid()}`);
       }
@@ -67,6 +75,7 @@ export function dockerProvider(options: DockerProviderOptions): SandboxProvider 
       if (started.exitCode !== 0) {
         await docker(binary, ['rm', '-f', container], HOUSEKEEPING_TIMEOUT_MS).catch(() => undefined);
         await rm(folder, { recursive: true, force: true });
+        untrackFolder(folder);
         throw new Error(`docker could not start a container from ${image}: ${(started.stderr ?? '').trim()}`);
       }
       return new DockerSandbox(folder, limits, create.keep ?? false, binary, container);

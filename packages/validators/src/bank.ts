@@ -16,6 +16,8 @@ export type BankRow = {
   component: string;
   family: string;
   tier: Tier | undefined;
+  /** The item's cause, the first one a seed reported; undefined when it names none. */
+  cause: string | undefined;
   /** One verdict per seed, in the order of the report's seeds. */
   perSeed: BankVerdict[];
   /** True when the item passed on every seed of the run. */
@@ -36,8 +38,23 @@ export type BankSummary = {
   byFamilyTier: Record<string, Record<string, number>>;
   /** Items not passing on every seed, per family; every family of the bank is listed, 0 included. */
   failingByFamily: Record<string, number>;
+  /**
+   * Distinct causes among the items not passing on every seed (section 12.4). An item without a cause counts as
+   * its own cause; `failingWithoutCause` says how many such items there are.
+   */
+  failingCauses: number;
+  failingWithoutCause: number;
+  /** Distinct failing causes per family; every family of the bank is listed, 0 included. */
+  failingCausesByFamily: Record<string, number>;
   rows: BankRow[];
 };
+
+/** The key a failing item's cause counts under: its cause, or the item itself when it names none. */
+export function causeKey(row: Pick<BankRow, 'cause' | 'level' | 'id'>): string {
+  return row.cause !== undefined && row.cause.trim() !== ''
+    ? `cause:${row.cause.trim()}`
+    : `item:${row.level}/${row.id}`;
+}
 
 /** The bank summary of a report. Run the report with `full` so the levels above a failure are known. */
 export function bankSummary(report: LadderReport): BankSummary {
@@ -56,10 +73,16 @@ export function bankSummary(report: LadderReport): BankSummary {
         }
         return;
       }
-      const entries: { id: string; component: string; family?: string; tier?: Tier; pass: boolean }[] =
-        row.bank ?? [
-          { id: row.id, component: report.component, family: LEVEL_FAMILY, pass: row.pass === true },
-        ];
+      const entries: {
+        id: string;
+        component: string;
+        family?: string;
+        tier?: Tier;
+        cause?: string;
+        pass: boolean;
+      }[] = row.bank ?? [
+        { id: row.id, component: report.component, family: LEVEL_FAMILY, pass: row.pass === true },
+      ];
       for (const entry of entries) {
         const key = `${row.level}/${entry.id}`;
         let target = rows.get(key);
@@ -68,6 +91,7 @@ export function bankSummary(report: LadderReport): BankSummary {
           target.tier = entry.tier;
           rows.set(key, target);
         }
+        if (target.cause === undefined && entry.cause !== undefined) target.cause = entry.cause;
         target.perSeed[seedIndex] = entry.pass ? 'pass' : 'fail';
       }
     });
@@ -89,6 +113,11 @@ export function bankSummary(report: LadderReport): BankSummary {
     failingByFamily[row.family] = (failingByFamily[row.family] ?? 0) + (row.passEverySeed ? 0 : 1);
   }
   const passing = list.filter((row) => row.passEverySeed).length;
+  const failingRows = list.filter((row) => !row.passEverySeed);
+  const causesByFamily: Record<string, number> = {};
+  for (const family of Object.keys(byFamilyTier)) {
+    causesByFamily[family] = new Set(failingRows.filter((row) => row.family === family).map(causeKey)).size;
+  }
   return {
     seeds,
     size: list.length,
@@ -96,6 +125,9 @@ export function bankSummary(report: LadderReport): BankSummary {
     score: list.length === 0 ? 0 : passing / list.length,
     byFamilyTier: sortKeys(byFamilyTier),
     failingByFamily: sortKeys(failingByFamily),
+    failingCauses: new Set(failingRows.map(causeKey)).size,
+    failingWithoutCause: failingRows.filter((row) => causeKey(row).startsWith('item:')).length,
+    failingCausesByFamily: sortKeys(causesByFamily),
     rows: list,
   };
 }
@@ -115,6 +147,7 @@ function blank(
     component,
     family,
     tier: undefined,
+    cause: undefined,
     perSeed: seeds.map(() => 'not run'),
     passEverySeed: false,
   };
@@ -128,11 +161,17 @@ function sortKeys<T>(record: Record<string, T>): Record<string, T> {
  * The bank listing of `--items`: one block per family, items ordered by tier then level then id, each with its
  * verdict per seed; then the bank score and the counts per family and tier.
  */
-export function formatItems(summary: BankSummary, component: string): string {
+export function formatItems(
+  summary: BankSummary,
+  component: string,
+  options: { blind?: boolean } = {},
+): string {
   const families = Object.keys(summary.byFamilyTier);
   let text = `Bank of ${component}: ${summary.size} items in ${families.length} famil${
     families.length === 1 ? 'y' : 'ies'
   }, ${summary.passing} pass on every seed (score ${round(summary.score)}).\n`;
+  if (!options.blind)
+    text += `Failing: ${summary.size - summary.passing} items, ${summary.failingCauses} distinct causes (${summary.failingWithoutCause} items name no cause and count as their own).\n`;
   const header = ['Item', 'Tier', 'Level', 'Component', ...summary.seeds.map((seed) => `seed ${seed}`)];
   for (const family of families) {
     const members = summary.rows
@@ -144,7 +183,10 @@ export function formatItems(summary: BankSummary, component: string): string {
           a.id.localeCompare(b.id, undefined, { numeric: true }),
       );
     const failing = summary.failingByFamily[family] ?? 0;
-    text += `\nFamily ${family}: ${members.length} items, ${failing} failing; per tier ${tierCounts(
+    const causes = options.blind
+      ? ''
+      : `, ${summary.failingCausesByFamily[family] ?? 0} distinct failing causes`;
+    text += `\nFamily ${family}: ${members.length} items, ${failing} failing${causes}; per tier ${tierCounts(
       summary.byFamilyTier[family] ?? {},
     )}\n`;
     text += table(

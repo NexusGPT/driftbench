@@ -17,6 +17,8 @@ export type Item = {
   detail: string;
   family?: string;
   tier?: Tier;
+  /** The one change that would make the item pass (section 12.4). Items sharing a cause count once. */
+  cause?: string;
 };
 
 /** One item of a level's bank and whether it passed on this seed. */
@@ -25,6 +27,8 @@ export type BankEntry = {
   component: string;
   family?: string;
   tier?: Tier;
+  /** The one change that would make the item pass; items sharing a cause count once. */
+  cause?: string;
   pass: boolean;
   detail?: string;
 };
@@ -59,6 +63,7 @@ export function bankMeasure(entries: readonly BankEntry[], component = 'bank'): 
       detail: entry.detail ?? 'failed',
       ...(entry.family !== undefined ? { family: entry.family } : {}),
       ...(entry.tier !== undefined ? { tier: entry.tier } : {}),
+      ...(entry.cause !== undefined ? { cause: entry.cause } : {}),
     }));
   return { value: (entries.length - items.length) / entries.length, items, bank: [...entries] };
 }
@@ -154,6 +159,8 @@ export type LevelRow = {
   itemCount: number | null;
   bank?: BankEntry[];
   beyond?: boolean;
+  /** The items the level named, kept on every computed row of a full run (`--all-levels`). */
+  items?: Item[];
 };
 
 /** The run of one ladder on one seed. `level` is the highest level passed, 0 when level 1 fails. */
@@ -246,6 +253,7 @@ export async function runLadder(ladder: Ladder, options: RunOptions): Promise<Se
       itemCount: measure.items.length,
       ...(measure.bank ? { bank: measure.bank } : {}),
       ...(failing ? { beyond: true } : {}),
+      ...(options.full ? { items: measure.items } : {}),
     });
     if (failing) continue;
     if (pass) {

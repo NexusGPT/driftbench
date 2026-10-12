@@ -83,7 +83,7 @@ describe('a store on disk', () => {
       .prepare("SELECT name FROM sqlite_schema WHERE type = 'table' ORDER BY name")
       .all()
       .map((row) => row.name);
-    expect(tables).toEqual(['blocks', 'cache', 'campaigns', 'runs', 'specs', 'units']);
+    expect(tables).toEqual(['blobs', 'blocks', 'cache', 'campaigns', 'runs', 'specs', 'units', 'versions']);
     expect({ ...raw.prepare('SELECT spec_id, mode, repeat, status, cost FROM runs').get() }).toEqual({
       spec_id: 'acme-new-customer-coverage',
       mode: 'F',
@@ -190,6 +190,19 @@ describe('opening a store', () => {
     expect(error.message).toContain(`schema version ${SCHEMA_VERSION + 1}`);
     raw.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
     store = openStore(path);
+  });
+
+  it('upgrades a schema 1 database: its records stay, the registry tables appear', async () => {
+    const stored = await seed();
+    await store.close();
+    raw.exec('DROP TABLE versions; DROP TABLE blobs; PRAGMA user_version = 1');
+    store = openStore(path);
+    expect(raw.prepare('PRAGMA user_version').get()?.user_version).toBe(SCHEMA_VERSION);
+    expect(await store.getRun(stored.runId)).toStrictEqual(stored);
+    const pushed = await store.pushVersion('prompt', 'acme-sales', [
+      { path: 'acme-sales.md', bytes: new TextEncoder().encode('You are the Acme sales assistant.\n') },
+    ]);
+    expect(pushed.version.version).toBe(1);
   });
 
   it('refuses a file that is not a database', async () => {

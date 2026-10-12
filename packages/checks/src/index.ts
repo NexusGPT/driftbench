@@ -1,7 +1,8 @@
 /**
  * Machine checks. Each check reads one part of what a block expected and what was observed, and returns
  * verdicts with evidence: tool calls, forbidden tools, text, language, personal data, cards, stage,
- * skills, guards, execution, workspace, safety, artifacts, strict schemas, budget, end state and the
+ * skills, guards, files read, helpers dispatched, execution, workspace, safety, artifacts, strict schemas,
+ * budget, end state and the
  * checks users register. `defaultChecks()` returns them all, in the order the runner applies them.
  */
 export { artifacts } from './checks/artifacts';
@@ -16,17 +17,44 @@ export {
   registerCheck,
 } from './checks/custom';
 export { endState } from './checks/end_state';
+export {
+  draftOf,
+  ESTATE_CHECKS,
+  groundedValues,
+  guardFinished,
+  guardMessage,
+  hazardRecovery,
+  maxWords,
+  noDeleteUnder,
+  permission,
+  someCall,
+  stageSeen,
+} from './checks/estate';
+export { exact, normaliseExact } from './checks/exact';
 export { execution } from './checks/execution';
 export { forbidden } from './checks/forbidden';
 export { guards } from './checks/guards';
+export {
+  ATTACK_RULES,
+  attackRules,
+  COMPLIANCE_RULES,
+  complianceMatches,
+  injection,
+} from './checks/injection';
+export { knowledgeRetention } from './checks/knowledge_retention';
 export { createLangCheck, lang } from './checks/lang';
 export { must, mustNot } from './checks/must';
-export { pii } from './checks/pii';
+export { createPiiCheck, ownerKey, type PiiCheckOptions, pii } from './checks/pii';
+export { references } from './checks/references';
+export { relevancy } from './checks/relevancy';
 export { safety } from './checks/safety';
 export { schemaStrict } from './checks/schema_strict';
+export { createSimilarityCheck, similarity } from './checks/similarity';
 export { skills } from './checks/skills';
 export { stage } from './checks/stage';
+export { subagents } from './checks/subagents';
 export { tools } from './checks/tools';
+export { toolsOffered } from './checks/tools_offered';
 export { workspace } from './checks/workspace';
 export { type DefaultChecksOptions, defaultChecks, type JudgeCheckSource } from './defaults';
 export { type AssertionResult, checkAssertion } from './support/assert';

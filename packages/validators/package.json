@@ -1,9 +1,31 @@
 {
   "name": "@driftbench/validators",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "version": "0.1.0",
+  "description": "Validators that prove driftbench works: each plants a known truth, runs one part of the framework and scores a ladder of levels.",
+  "keywords": [
+    "driftbench",
+    "ai-agents",
+    "evaluation",
+    "llm",
+    "testing",
+    "validation",
+    "planted-truth",
+    "meta-evaluation"
+  ],
+  "homepage": "https://github.com/achammah/driftbench#readme",
+  "bugs": {
+    "url": "https://github.com/achammah/driftbench/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achammah/driftbench.git",
+    "directory": "packages/validators"
+  },
   "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -33,5 +55,9 @@
     "@driftbench/artifacts": "workspace:*",
     "zod": "^4.6.5",
     "yaml": "^2.9.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
