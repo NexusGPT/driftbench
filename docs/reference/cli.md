@@ -1446,4 +1446,6 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 | `battery run` | the runtime battery on agent traces | 4 |
 | a rerun of one stored cell | run one cell of a stored campaign again | no phase assigned |
 | `init` | start a project | no phase assigned |
+| `judge lint` | lint the rubric of every criterion in a folder (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
+| `judge compare` | judge two runs of the same specs side by side, in both orders, and report the winner per criterion and the position bias (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
 | `spec synth` | specs from traffic clusters | no phase assigned |
