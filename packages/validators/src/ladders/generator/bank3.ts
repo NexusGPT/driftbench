@@ -495,7 +495,7 @@ function adequacyItems(): BankItem[] {
           return verdict(false, `${cls.id} never changes what the agent does in a complete spec`);
         const late = changed.filter(([spec, index]) => {
           const block = runs.blocks.find((entry) => entry.spec === spec && entry.index === index);
-          return !block || block.reference[0] !== 'pass' || block.faults[record.fault.def.id] !== 'fail';
+          return block?.reference[0] !== 'pass' || block.faults[record.fault.def.id] !== 'fail';
         });
         return verdict(
           late.length === 0,
