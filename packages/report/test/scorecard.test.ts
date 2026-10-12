@@ -1,12 +1,12 @@
 import { fileURLToPath } from 'node:url';
 import { openMemoryStore } from '@driftbench/store';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { type CampaignData, loadCampaign, ReportInputError } from '../src/data';
+import { type CampaignData, loadCampaign, ReportInputError, runPassed } from '../src/data';
 import type { Estimate } from '../src/estimate';
-import { renderHtml } from '../src/html';
+import { renderHtml, renderPage, renderRun } from '../src/html';
 import { renderJunit } from '../src/junit';
 import { readPilotReport } from '../src/pilot';
-import { buildScorecard, toolAccuracy } from '../src/scorecard';
+import { buildScorecard, runDetailOf, toolAccuracy } from '../src/scorecard';
 import { dataOf, FIXED, run, storeAcmeCampaign } from './support';
 
 const PILOT = fileURLToPath(new URL('../../../examples/acme/pilot/acme-random', import.meta.url));
@@ -220,5 +220,29 @@ describe('readPilotReport', () => {
     expect(() => readPilotReport('/nowhere/at/all')).toThrow(ReportInputError);
     const notPilot = fileURLToPath(new URL('../../../package.json', import.meta.url));
     expect(() => readPilotReport(notPilot)).toThrow('is not a pilot report');
+  });
+});
+
+describe('rendering for the viewer', () => {
+  it('links each run of the drilldown when given its address, and leaves the file alone without one', () => {
+    const card = buildScorecard(fault, { maxRuns: 2 });
+    const linked = renderHtml(card, { runHref: (runId) => `/run/${runId}`, nav: '<nav class="top">x</nav>' });
+    expect(linked.match(/<a class="open" href="\/run\/[^"]+">open the run<\/a>/g)).toHaveLength(2);
+    expect(linked).toContain('<nav class="top">x</nav>');
+    expect(renderHtml(card)).not.toContain('class="open"');
+  });
+
+  it('renders one run with every block in full and the extra after each block', () => {
+    const passing = fault.runs.find(runPassed) as (typeof fault.runs)[number];
+    const html = renderRun(
+      runDetailOf(fault, passing),
+      (block) => `<p class="extra">form ${block.index}</p>`,
+    );
+    for (const index of passing.blocks.map((block) => block.index)) {
+      expect(html).toContain(`id="block-${index}"`);
+      expect(html).toContain(`<p class="extra">form ${index}</p>`);
+    }
+    expect(html).toContain('Machine verdicts passed');
+    expect(renderPage('T', [html])).toMatch(/^<!doctype html>[\s\S]*<title>T<\/title>/);
   });
 });

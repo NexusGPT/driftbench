@@ -1,0 +1,59 @@
+# litellm adapter
+
+Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode, on a fake proxy that plays the Acme example agent, and on the real `openai` client (7.32.0) pointed at that fake proxy through its `fetch`. It has not run against a live LiteLLM proxy yet.
+
+The litellm adapter runs an agent whose model sits behind a [LiteLLM](https://docs.litellm.ai/) proxy, or any endpoint that speaks the OpenAI chat completions shape. You hand it a client: the `openai` package's client with its `baseURL` on the proxy, or any object with `chat.completions.create`. `openai` is an optional peer dependency of `@driftbench/adapters`; driftbench does not depend on it.
+
+## Options
+
+```ts
+import OpenAI from 'openai';
+import { litellmAdapter } from '@driftbench/adapters';
+import { salesPrompt, salesTools } from './agent'; // your prompt, and a function that returns SdkTool[]
+
+const adapter = litellmAdapter({
+  client: new OpenAI({ baseURL: 'http://localhost:4000', apiKey: process.env.LITELLM_API_KEY }),
+  model: 'anthropic/claude-sonnet-5-5', // a model or a model group of the proxy
+  system: salesPrompt,
+  tools: (given) => salesTools(),
+  sideEffects: ['order.create'],
+});
+```
+
+| Option | Meaning |
+|---|---|
+| `client` | the client. The adapter calls `client.chat.completions.create(body, { maxRetries: 0 })` and nothing else. |
+| `model` | the model name the proxy routes |
+| `system` | the system prompt, sent as the first message |
+| `tools` | the agent's tools as `SdkTool`s (see the [anthropic adapter](anthropic.md#options)), or a factory called once per session |
+| `maxTokens` | `max_tokens` of each call; unset leaves the model's default |
+| `maxSteps` | the most model calls one block may take. Default 8. A block's `budget.steps` lowers it. |
+| `retry`, `sleep` | the adapter's own [retry settings](../retries.md), under the spec target's and the run's, and how a wait is spent (tests) |
+| `sideEffects` | the spec labels of the tools that change the world. It enables `endState`. |
+| `deterministic`, `version` | as on the [anthropic adapter](anthropic.md#options) |
+
+## The agent loop
+
+A chat completion that asks for tools stops there, so the adapter closes the loop, as the anthropic adapter does: it answers each `tool_calls` entry (a forced result or error from the block's `world.tools` first, else the tool's own `run`), sends one `tool` message per call (the output as JSON, an error as `{"error": "..."}`), and calls again, until a completion asks for no tool or the step cap. Tool names go to the proxy with the characters the OpenAI shape accepts (`coverage.check` becomes `coverage_check`) and come back as labels.
+
+Each completion is one model call under the [shared retry policy](../retries.md), with the client's own retries off, so a 429 or a 5xx from the proxy or the provider behind it is retried once, by the policy, and recorded in the block.
+
+## What `send` returns
+
+Text and tool calls in order, each tool call followed by its result. Tokens come from `usage.prompt_tokens` and `usage.completion_tokens`, on each call's first segment. `raw.models` lists the model each answer names (the deployment the proxy routed to), `raw.finishReasons` each call's `finish_reason`.
+
+## Capabilities
+
+`seedPrefix` and `toolStubs` yes; `endState` with `sideEffects`; `variants`, `trace` and `sandbox` no; `deterministic` as declared.
+
+## Errors
+
+| Error | Becomes |
+|---|---|
+| a 429 or a 5xx, or a connection or timeout error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
+| any other status, such as a 400 for a bad tool name or a 401 | `AgentFailure` |
+| a completion with no `choices[0].message`, or tool calls at the step cap | `AgentFailure` |
+
+## Target
+
+The adapter reads no field of the target except `retry`. Its id is `litellm`.

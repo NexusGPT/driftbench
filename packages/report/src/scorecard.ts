@@ -181,12 +181,13 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
     }),
     ...(options.baseline ? { compare: compareCampaigns(options.baseline, data, { margin }) } : {}),
     ...optional('pilot', options.pilot),
-    drilldown: shown.map((run) => detailOf(data, run)),
+    drilldown: shown.map((run) => runDetailOf(data, run)),
     omittedRuns: runs.length - shown.length,
   };
 }
 
-function detailOf(data: CampaignData, run: RunResult): RunDetail {
+/** The drilldown of one run: its blocks with stimulus, reply, tool calls and verdicts. */
+export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
   const spec = specOfRun(data, run);
   const deviation = deviationOf(spec, run);
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);

@@ -36,6 +36,7 @@ const adapter = functionAdapter({
 * `messages`: the session history as the runner left it, ending with the block's user messages. The history starts as a copy of the prefix, so the agent sees the prefix.
 * `world` and `vars`: the block's resolved world and runtime variables, so `world.tools` can force tool results and errors.
 * `state`: what `create` built for the session.
+* `context`: `{ target, prompt }`. `prompt` is `target.prompt.text`, the prompt version `campaign run --prompt` restored from the store, byte for byte; it is absent without one. See [datasets](../datasets.md#the-prompt-reaches-the-agent).
 
 Every argument is a copy: the agent cannot change the session or the Given. The adapter validates what the agent returns.
 

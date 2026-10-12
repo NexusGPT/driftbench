@@ -64,7 +64,14 @@ export {
   ledgerVerdicts,
 } from './ledger';
 export { type RecoveryMetrics, type RecoveryOptions, recoveryOf } from './recovery';
-export { CallFailure, describeError, isTransportError, type RetryOptions, withRetry } from './retry';
+export {
+  CallFailure,
+  describeError,
+  isTransportError,
+  type RetryOptions,
+  retryLayer,
+  withRetry,
+} from './retry';
 export { type RunOptions, runSpec } from './run';
 export {
   canonicalPreviousStage,

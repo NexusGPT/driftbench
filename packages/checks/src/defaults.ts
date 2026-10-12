@@ -20,6 +20,7 @@ import { skills } from './checks/skills';
 import { stage } from './checks/stage';
 import { subagents } from './checks/subagents';
 import { tools } from './checks/tools';
+import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
 
 /**
@@ -49,6 +50,7 @@ export type DefaultChecksOptions = {
 export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
   return [
     tools,
+    toolsOffered,
     forbidden,
     must,
     mustNot,

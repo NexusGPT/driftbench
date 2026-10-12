@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "driftbench"
+version = "0.1.0"
+description = "Run driftbench specs from Python and pytest: typed results, a pytest plugin, Python function agents."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = []
+keywords = ["driftbench", "ai-agents", "evaluation", "llm", "testing", "pytest"]
+classifiers = [
+  "Framework :: Pytest",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Testing",
+]
+
+[project.urls]
+Homepage = "https://github.com/achammah/driftbench"
+Documentation = "https://github.com/achammah/driftbench/blob/main/docs/python.md"
+Issues = "https://github.com/achammah/driftbench/issues"
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.entry-points.pytest11]
+driftbench = "driftbench.pytest_plugin"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests", "tests/fixtures"]

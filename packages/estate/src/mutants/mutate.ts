@@ -1,5 +1,5 @@
-import { cp, readFile, stat, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { cp, lstat, readdir, readFile, realpath, stat, writeFile } from 'node:fs/promises';
+import { dirname, join, relative, sep } from 'node:path';
 import { mapHash } from '../map/build';
 import { quoteDrift } from '../map/file';
 import { provenanceHash, quoteAtSpan } from '../scan/text';
@@ -48,7 +48,9 @@ export const ESTATE_COPY_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.m
 
 /**
  * Copies the estate's own files, and every file an atom of the map quotes, from `root` into `to`. Modes are
- * kept, so guard scripts stay runnable.
+ * kept, so guard scripts stay runnable. Symbolic links are followed: the copy holds real files and never a
+ * link, so a mutant can never write through one into the estate it was copied from. A link left in the copy
+ * (a dangling one cannot be followed) refuses the copy.
  */
 export async function copyEstate(
   root: string,
@@ -62,9 +64,11 @@ export async function copyEstate(
     if (copied.some((done) => name === done || name.startsWith(`${done}/`))) continue;
     const source = join(root, name);
     if ((await stat(source).catch(() => undefined)) === undefined) continue;
-    await cp(source, join(to, name), { recursive: true, verbatimSymlinks: true });
+    await cp(source, join(to, name), { recursive: true, dereference: true });
     copied.push(name);
   }
+  const left = await linksUnder(to);
+  if (left.length > 0) throw new MutantError(`the estate copy holds symbolic links: ${left.join(', ')}`);
   return copied;
 }
 
@@ -78,7 +82,7 @@ export async function mutateEstate(
   const atom = copy.map.atoms.find((candidate) => candidate.id === id);
   if (!atom) throw new MutantError(`atom ${id} is not in the map`);
   const { file, startLine, endLine, quote } = atom.provenance;
-  const path = join(copy.root, file);
+  const path = await insideCopy(copy.root, file);
   const text = await readFile(path, 'utf8').catch(() => {
     throw new MutantError(`${file} is not in the estate copy`);
   });
@@ -251,4 +255,38 @@ function invertClause(clause: string, sentence: boolean): string | undefined {
   if (!/^[A-Za-z]/.test(clause)) return undefined;
   const lowered = clause.charAt(0).toLowerCase() + clause.slice(1);
   return `${cap('do not')} ${lowered}`;
+}
+
+/** The symbolic links under a folder, relative to it. */
+async function linksUnder(dir: string): Promise<string[]> {
+  const out: string[] = [];
+  const walk = async (at: string): Promise<void> => {
+    for (const entry of await readdir(at, { withFileTypes: true })) {
+      const full = join(at, entry.name);
+      if ((await lstat(full)).isSymbolicLink()) out.push(relative(dir, full));
+      else if (entry.isDirectory()) await walk(full);
+    }
+  };
+  await walk(dir);
+  return out.sort();
+}
+
+/**
+ * The path of `file` in the copy, once its real path is known to stay inside the copy root: a link on the
+ * way (the file, or a folder above it) that leads out of the copy refuses the write, naming where it leads.
+ */
+export async function insideCopy(root: string, file: string): Promise<string> {
+  const base = await realpath(root);
+  const path = join(root, file);
+  let real: string;
+  try {
+    real = await realpath(path);
+  } catch {
+    // A file not there yet: its folder must stay inside.
+    real = join(await realpath(dirname(path)).catch(() => base), file.split('/').at(-1) ?? '');
+  }
+  if (real !== base && !real.startsWith(`${base}${sep}`)) {
+    throw new MutantError(`${file} resolves to ${real}, outside the copy ${base}; refused`);
+  }
+  return path;
 }

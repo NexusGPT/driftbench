@@ -10,6 +10,7 @@ export {
   type TableInput,
   type TableMapping,
 } from './import/table';
+export * from './retry';
 export * from './runner';
 export * from './schema/common';
 export * from './schema/run';

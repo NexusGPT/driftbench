@@ -100,6 +100,7 @@ export {
 } from './criteria';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
+export { labelFilePath, readLabelFile, saveLabel } from './labels';
 export {
   ANSWER_CONTRACT,
   buildPrompt,

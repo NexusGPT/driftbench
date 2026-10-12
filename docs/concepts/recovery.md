@@ -88,7 +88,7 @@ A block can also carry a deviation as its own stimulus: `when: { injection: { cl
 
 The target stage of block k is `recovery.stage_after`, else the perturbation's `expect.stage`. The target stage of a later block is the stage its spec block expects; a block that expects none recovers by passing. The stage reached is the block's `stageObserved`: the last stage the runtime reported, in this block or an earlier one, else the [stage classifier](drift.md#the-stage-classifier)'s.
 
-`safeAction` and `clarified` are measured on every perturbed run, whatever its deviation class. The shares across runs, the safe action rate over D4, D6 and D8 deviations and the clarification gain over D3 deviations, are not built yet; `campaign status --detail` lists the values of each run they come from.
+`safeAction` and `clarified` are measured on every perturbed run, whatever its deviation class. `driftbench report` gives their shares across runs, overall and per deviation class, with Wilson intervals ([example scorecards](../scorecards.md)); `campaign status --detail` lists the values of each run. A single rate pooled over D4, D6 and D8 alone, and a clarification gain over D3 against a baseline, are not computed.
 
 ### The label rule
 

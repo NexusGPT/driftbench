@@ -1,13 +1,18 @@
+import { readFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
+import { type PriceTable, readTraces, TRACE_SOURCES, type TraceSource } from '@driftbench/adapters';
 import { type Campaign, type RunResult, runsByCell, type Store } from '@driftbench/core';
 import { cusum, ksTest, mean, pageHinkley, sampleVariance } from '@driftbench/stats';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { type CampaignDeps, defaultDeps } from './campaign';
 import { runPasses } from './ci';
+import { parseWindow, TRACE_METRICS, type TraceMetric, traceSeries } from './monitor-traces';
 
 export const METRICS = ['pass_rate', 'cost', 'latency'] as const;
 export type Metric = (typeof METRICS)[number];
+/** A metric of a store's campaigns, or of production traces. */
+export type AnyMetric = Metric | TraceMetric;
 
 /** The family-wise level of the KS scan: each split is tested at KS_ALPHA divided by the number of splits. */
 export const KS_ALPHA = 0.05;
@@ -26,14 +31,26 @@ export const DEFAULT_WINDOW = 20;
  * The smallest in-control sd a metric is given, so a flat warmup (every campaign at 100%) does not make
  * every later wobble an alarm: the larger of an absolute floor and 1% of the in-control mean.
  */
-const SD_FLOOR: Record<Metric, number> = { pass_rate: 0.005, cost: 1e-6, latency: 1 };
+const SD_FLOOR: Record<AnyMetric, number> = {
+  pass_rate: 0.005,
+  cost: 1e-6,
+  latency: 1,
+  tokens: 1,
+  tool_calls: 0.01,
+  tool_errors: 0.005,
+  turns: 0.05,
+};
 
 type MonitorCommandOptions = {
-  store: string;
+  store?: string;
   metric: string;
   window: string;
   series?: boolean;
   json?: boolean;
+  source?: string;
+  from?: string;
+  every?: string;
+  prices?: string;
 };
 
 export type SeriesPoint = {
@@ -58,7 +75,7 @@ export type MonitorAlarm = {
 };
 
 export type MonitorReport = {
-  metric: Metric;
+  metric: AnyMetric;
   store: string;
   window: number;
   campaigns: number;
@@ -94,6 +111,11 @@ export type MonitorReport = {
   votes: number;
   /** A shift: at least VOTES_NEEDED detectors alarmed. */
   alarm: boolean;
+  /**
+   * When the vote was reached: the point where the VOTES_NEEDED-th detector first alarmed. KS counts at the
+   * end of its second segment, the first point at which its test could be run. Absent without an alarm.
+   */
+  alert?: { index: number; campaignId: string; createdAt: string; detectors: string[] };
 };
 
 /**
@@ -112,8 +134,24 @@ export function registerMonitorCommand(
     .description(
       'Watch one metric across the campaigns of a store for a shift: CUSUM, Page-Hinkley and a sliding KS test. Exit 1 when two of the three alarm.',
     )
-    .requiredOption('--store <file>', 'the store whose campaigns form the series')
-    .requiredOption('--metric <metric>', `the metric per campaign: ${METRICS.join(', ')}`)
+    .argument('[path]', 'with --source traces: a trace file or a folder of them')
+    .option('--store <file>', 'the store whose campaigns form the series')
+    .option(
+      '--source <kind>',
+      'store: the campaigns of --store; traces: production traces at <path>',
+      'store',
+    )
+    .option('--from <source>', `with --source traces: ${TRACE_SOURCES.join(', ')}`, 'otel')
+    .option(
+      '--every <duration>',
+      'with --source traces: the time window of one point, such as 15m, 1h, 1d',
+      '1h',
+    )
+    .option('--prices <file>', 'with --source traces: JSON prices per million tokens by model, for cost')
+    .requiredOption(
+      '--metric <metric>',
+      `the metric per point: ${METRICS.join(', ')} for a store; ${TRACE_METRICS.join(', ')} for traces`,
+    )
     .option(
       '--window <n>',
       'campaigns that set the in-control level (CUSUM warmup, Page-Hinkley minimum) and the length of each KS segment',
@@ -121,16 +159,105 @@ export function registerMonitorCommand(
     )
     .option('--series', 'also print every point of the series with its statistics')
     .option('--json', 'print one JSON document')
-    .action(async (options: MonitorCommandOptions) => {
-      setExit(await monitorCommand(options, io, deps));
+    .action(async (path: string | undefined, options: MonitorCommandOptions) => {
+      setExit(
+        options.source === 'traces'
+          ? await monitorTracesCommand(path, options, io)
+          : await monitorCommand(options, io, deps, path),
+      );
     });
+}
+
+/**
+ * `driftbench monitor --source traces <path>`: the same detectors over time windows of production traces.
+ * Exit 1 on a shift, 0 otherwise, 2 on bad input.
+ */
+export async function monitorTracesCommand(
+  path: string | undefined,
+  options: MonitorCommandOptions,
+  io: Io,
+): Promise<number> {
+  if (!path) {
+    io.err('--source traces needs the path of a trace file or folder.\n');
+    return 2;
+  }
+  if (!(TRACE_METRICS as readonly string[]).includes(options.metric)) {
+    io.err(`--metric takes ${TRACE_METRICS.join(', ')} for traces, not "${options.metric}".\n`);
+    return 2;
+  }
+  const from = options.from ?? 'otel';
+  if (!(TRACE_SOURCES as readonly string[]).includes(from)) {
+    io.err(`--from takes ${TRACE_SOURCES.join(', ')}, not "${from}".\n`);
+    return 2;
+  }
+  const every = parseWindow(options.every ?? '1h');
+  if (every === undefined) {
+    io.err(`--every takes a whole number and a unit (s, m, h, d), such as 1h, not "${options.every}".\n`);
+    return 2;
+  }
+  const window = Number(options.window);
+  if (!Number.isInteger(window) || window < 2) {
+    io.err(`--window takes a whole number of at least 2, not "${options.window}".\n`);
+    return 2;
+  }
+  let prices: PriceTable | undefined;
+  if (options.prices) {
+    try {
+      prices = JSON.parse(await readFile(resolve(io.cwd, options.prices), 'utf8')) as PriceTable;
+    } catch (cause) {
+      io.err(
+        `Cannot read the prices ${options.prices}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+      );
+      return 2;
+    }
+  }
+  const target = resolve(io.cwd, path);
+  let traces: Awaited<ReturnType<typeof readTraces>>['traces'];
+  try {
+    ({ traces } = await readTraces(target, from as TraceSource, prices ? { prices } : {}));
+  } catch (cause) {
+    io.err(
+      `Cannot read the traces at ${display(target, io)}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+    );
+    return 2;
+  }
+  const metric = options.metric as TraceMetric;
+  const series = traceSeries(traces, metric, every);
+  if (series.points.length < 2 * window) {
+    io.err(
+      `The traces fill ${count(series.points.length, 'window')} of ${options.every ?? '1h'} with ${metric}; --window ${window} needs at least ${2 * window}.\n`,
+    );
+    return 2;
+  }
+  const report = monitor(series.points, metric, window, {
+    store: `${display(target, io)} (${from} traces, ${count(traces.length, 'conversation')}, windows of ${options.every ?? '1h'}${series.undated > 0 ? `, ${series.undated} undated left out` : ''}${series.unmeasured > 0 ? `, ${series.unmeasured} without ${metric} left out` : ''})`,
+    campaigns: series.points.length + series.skipped.length,
+    skipped: series.skipped,
+  });
+  if (options.json) io.out(`${JSON.stringify(report, null, 2)}\n`);
+  else io.out(monitorText(report, options.series === true, 'window'));
+  return report.alarm ? 1 : 0;
 }
 
 export async function monitorCommand(
   options: MonitorCommandOptions,
   io: Io,
   deps: Pick<CampaignDeps, 'openStore'>,
+  positional?: string,
 ): Promise<number> {
+  if (options.source !== undefined && options.source !== 'store') {
+    io.err(`--source takes store or traces, not "${options.source}".\n`);
+    return 2;
+  }
+  if (positional !== undefined) {
+    io.err(`A path is read with --source traces; a store is named with --store.\n`);
+    return 2;
+  }
+  const storePath = options.store;
+  if (!storePath) {
+    io.err("error: required option '--store <file>' not specified\n");
+    return 2;
+  }
   if (!(METRICS as readonly string[]).includes(options.metric)) {
     io.err(`--metric takes ${METRICS.join(', ')}, not "${options.metric}".\n`);
     return 2;
@@ -141,7 +268,7 @@ export async function monitorCommand(
     io.err(`--window takes a whole number of at least 2, not "${options.window}".\n`);
     return 2;
   }
-  const path = resolve(io.cwd, options.store);
+  const path = resolve(io.cwd, storePath);
   let store: Store;
   try {
     store = await deps.openStore(path);
@@ -229,7 +356,7 @@ export function standardErrorOf(runs: readonly RunResult[], metric: Metric): num
 /** The three detectors over a series, with the in-control level taken from its first `window` points. */
 export function monitor(
   points: readonly SeriesPoint[],
-  metric: Metric,
+  metric: AnyMetric,
   window: number,
   meta: { store: string; campaigns: number; skipped: string[] },
   tuning: { threshold?: number } = {},
@@ -283,6 +410,22 @@ export function monitor(
     }),
   );
   const votes = [cusumAlarms.length > 0, phAlarms.length > 0, ks?.change === true].filter(Boolean).length;
+  const firsts = [
+    { detector: 'CUSUM', at: cusumAlarms[0]?.index },
+    { detector: 'Page-Hinkley', at: phAlarms[0]?.index },
+    { detector: 'KS', at: ks?.change ? ks.index + window - 1 : undefined },
+  ]
+    .filter((entry): entry is { detector: string; at: number } => entry.at !== undefined)
+    .sort((a, b) => a.at - b.at);
+  const deciding = firsts[VOTES_NEEDED - 1];
+  const alert = deciding
+    ? {
+        index: deciding.at,
+        campaignId: campaignAt(deciding.at),
+        createdAt: (points[deciding.at] as SeriesPoint).createdAt,
+        detectors: firsts.slice(0, VOTES_NEEDED).map((entry) => entry.detector),
+      }
+    : undefined;
   return {
     metric,
     store: meta.store,
@@ -302,27 +445,29 @@ export function monitor(
     ks,
     votes,
     alarm: votes >= VOTES_NEEDED,
+    ...(alert ? { alert } : {}),
   };
 }
 
-const SOURCE: Record<MonitorReport['inControl']['source'], string> = {
-  between: 'the spread of the campaign values',
-  within: 'the standard error of each campaign from its runs',
-  floor: 'the floor of the metric',
-};
+function sourceText(source: MonitorReport['inControl']['source'], unit: string): string {
+  if (source === 'between') return `the spread of the ${unit} values`;
+  if (source === 'within')
+    return `the standard error of each ${unit} from its ${unit === 'window' ? 'conversations' : 'runs'}`;
+  return 'the floor of the metric';
+}
 
-export function monitorText(report: MonitorReport, withSeries: boolean): string {
+export function monitorText(report: MonitorReport, withSeries: boolean, unit = 'campaign'): string {
   const lines: string[] = [];
   const show = (value: number) => format(report.metric, value);
   lines.push(
-    `driftbench monitor: ${report.metric} over ${count(report.series.length, 'campaign')} of ${report.store}, oldest first. Window ${report.window}.`,
+    `driftbench monitor: ${report.metric} over ${count(report.series.length, unit)} of ${report.store}, oldest first. Window ${report.window}.`,
   );
   if (report.skipped.length > 0) lines.push(`Left out, no run: ${report.skipped.join(', ')}.`);
   lines.push(
-    `In control (the first ${report.window}): mean ${show(report.inControl.mean)}, sd ${show(report.inControl.sd)} (${SOURCE[report.inControl.source]}). CUSUM k ${ALLOWANCE_SD} sd, h ${THRESHOLD_SD} sd; Page-Hinkley delta ${ALLOWANCE_SD} sd, lambda ${THRESHOLD_SD} sd; KS segments of ${report.window}, alpha ${KS_ALPHA} over the splits scanned.`,
+    `In control (the first ${report.window}): mean ${show(report.inControl.mean)}, sd ${show(report.inControl.sd)} (${sourceText(report.inControl.source, unit)}). CUSUM k ${ALLOWANCE_SD} sd, h ${THRESHOLD_SD} sd; Page-Hinkley delta ${ALLOWANCE_SD} sd, lambda ${THRESHOLD_SD} sd; KS segments of ${report.window}, alpha ${KS_ALPHA} over the splits scanned.`,
   );
   const at = (index: number) => report.series[index] as MonitorReport['series'][number];
-  const rows: string[][] = [['detector', 'first alarm', 'campaign', 'created', 'direction', 'detail']];
+  const rows: string[][] = [['detector', 'first alarm', unit, 'created', 'direction', 'detail']];
   const first = report.cusum.alarms[0];
   rows.push(
     first
@@ -376,7 +521,17 @@ export function monitorText(report: MonitorReport, withSeries: boolean): string 
     lines.push('');
     lines.push(
       ...table([
-        ['index', 'campaign', 'created', report.metric, 'runs', 'cusum up', 'cusum down', 'ph up', 'ph down'],
+        [
+          'index',
+          unit,
+          'created',
+          report.metric,
+          unit === 'window' ? 'conversations' : 'runs',
+          'cusum up',
+          'cusum down',
+          'ph up',
+          'ph down',
+        ],
         ...report.series.map((point) => [
           String(point.index),
           point.campaignId,
@@ -392,6 +547,11 @@ export function monitorText(report: MonitorReport, withSeries: boolean): string 
     );
   }
   lines.push('');
+  if (report.alert) {
+    lines.push(
+      `Alert at ${report.alert.index} (${report.alert.createdAt}), when ${report.alert.detectors.join(' and ')} had both alarmed.`,
+    );
+  }
   lines.push(
     report.alarm
       ? `Shift detected: ${report.votes} of 3 detectors alarmed. Exit 1.`
@@ -400,9 +560,12 @@ export function monitorText(report: MonitorReport, withSeries: boolean): string 
   return `${lines.join('\n')}\n`;
 }
 
-function format(metric: Metric, value: number): string {
-  if (metric === 'pass_rate') return `${(value * 100).toFixed(1)}%`;
+function format(metric: AnyMetric, value: number): string {
+  if (metric === 'pass_rate' || metric === 'tool_errors') return `${(value * 100).toFixed(1)}%`;
   if (metric === 'cost') return `$${value.toFixed(4)}`;
+  if (metric === 'tokens') return `${value.toFixed(0)} tokens`;
+  if (metric === 'tool_calls') return `${value.toFixed(2)} calls per turn`;
+  if (metric === 'turns') return `${value.toFixed(2)} turns`;
   return `${value.toFixed(0)} ms`;
 }
 

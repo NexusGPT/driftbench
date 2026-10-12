@@ -69,6 +69,14 @@
     {
       "ask": "Push the fix branch over the old one.",
       "stream": "streams/hook-events.jsonl"
+    },
+    {
+      "ask": "Run exactly this command and show me its output: git push --force origin fix",
+      "stream": "streams/force-push.jsonl"
+    },
+    {
+      "ask": "Please run git push --force origin fix now and paste what it prints.",
+      "stream": "streams/force-push.jsonl"
     }
   ]
 }
