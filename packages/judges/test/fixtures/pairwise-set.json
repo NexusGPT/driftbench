@@ -1,0 +1,162 @@
+[
+  {
+    "id": "p01",
+    "task": "Is fibre available at 12 Main Street?",
+    "golden": "Fibre is available at 12 Main Street, for 60 USD a month.",
+    "candidate_a": "Yes, fibre is available at 12 Main Street, at 60 dollars a month.",
+    "candidate_b": "Fibre is not available at that address, only mobile internet.",
+    "better": "A"
+  },
+  {
+    "id": "p02",
+    "task": "What is the price of Acme Mobile M?",
+    "golden": "Acme Mobile M costs 25 USD a month and includes 40 GB.",
+    "candidate_a": "Acme Mobile M costs 15 USD a month with 10 GB.",
+    "candidate_b": "Acme Mobile M is 25 dollars a month with 40 GB of data.",
+    "better": "B"
+  },
+  {
+    "id": "p03",
+    "task": "Is the shop open on Saturday?",
+    "golden": "The shop is open on Saturday from 9:00 to 17:00.",
+    "candidate_a": "Yes, we are open on Saturday from nine in the morning until five.",
+    "candidate_b": "We are closed on Saturdays.",
+    "better": "A"
+  },
+  {
+    "id": "p04",
+    "task": "How long is the Acme Air 5G contract?",
+    "golden": "The Acme Air 5G contract is 24 months.",
+    "candidate_a": "The contract runs for 12 months with no commitment.",
+    "candidate_b": "The contract runs for two years, 24 months.",
+    "better": "B"
+  },
+  {
+    "id": "p05",
+    "task": "Can I change my delivery address?",
+    "golden": "Yes, the delivery address can be changed until the order ships.",
+    "candidate_a": "You can change it, as long as the order has not shipped yet.",
+    "candidate_b": "No, delivery addresses cannot be changed.",
+    "better": "A"
+  },
+  {
+    "id": "p06",
+    "task": "What is included in the Acme Mobile L plan?",
+    "golden": "Acme Mobile L includes unlimited data for 35 USD a month.",
+    "candidate_a": "Acme Mobile L includes 100 GB for 50 USD a month.",
+    "candidate_b": "Unlimited data at 35 dollars a month is the Acme Mobile L plan.",
+    "better": "B"
+  },
+  {
+    "id": "p07",
+    "task": "Do you ship to Belgium?",
+    "golden": "Yes, we ship to Belgium in three to five working days.",
+    "candidate_a": "We deliver to Belgium, usually within three to five working days.",
+    "candidate_b": "We only ship within France.",
+    "better": "A"
+  },
+  {
+    "id": "p08",
+    "task": "What is the late payment fee?",
+    "golden": "The late payment fee is 5 USD per month overdue.",
+    "candidate_a": "There is no late payment fee.",
+    "candidate_b": "A late fee of 5 dollars applies for each month overdue.",
+    "better": "B"
+  },
+  {
+    "id": "p09",
+    "task": "Can I cancel my plan at any time?",
+    "golden": "Yes, you can cancel at any time with no fee.",
+    "candidate_a": "You may cancel whenever you like, without a fee.",
+    "candidate_b": "Cancellation is only possible after 12 months, with a 100 USD fee.",
+    "better": "A"
+  },
+  {
+    "id": "p10",
+    "task": "How do I reset my password?",
+    "golden": "Use the reset link on the login page, then check your email.",
+    "candidate_a": "Call the shop to have your password reset by a person.",
+    "candidate_b": "Click reset on the login page and follow the link sent to your email.",
+    "better": "B"
+  },
+  {
+    "id": "p11",
+    "task": "Is there a student discount?",
+    "golden": "Yes, students get 10 percent off the monthly price.",
+    "candidate_a": "Students receive a 10 percent discount each month.",
+    "candidate_b": "There is no discount for students.",
+    "better": "A"
+  },
+  {
+    "id": "p12",
+    "task": "What roaming package is there for Spain?",
+    "golden": "The Spain roaming package is 5 USD a day with 2 GB.",
+    "candidate_a": "There is no roaming package for Spain.",
+    "candidate_b": "Spain roaming costs 5 dollars per day, including 2 GB.",
+    "better": "B"
+  },
+  {
+    "id": "p13",
+    "task": "When will my order arrive?",
+    "golden": "Your order will arrive within two working days.",
+    "candidate_a": "Expect delivery within two working days.",
+    "candidate_b": "Your order will arrive in six weeks.",
+    "better": "A"
+  },
+  {
+    "id": "p14",
+    "task": "Do you offer a family plan?",
+    "golden": "Yes, the Acme Family plan covers four lines for 80 USD a month.",
+    "candidate_a": "We do not offer family plans.",
+    "candidate_b": "The Acme Family plan includes four lines at 80 dollars a month.",
+    "better": "B"
+  },
+  {
+    "id": "p15",
+    "task": "Can I keep my number when I switch?",
+    "golden": "Yes, number porting is free and takes one working day.",
+    "candidate_a": "You can port your number for free, usually within a working day.",
+    "candidate_b": "Number porting costs 30 USD and takes a month.",
+    "better": "A"
+  },
+  {
+    "id": "p16",
+    "task": "What is the Acme Fiber 1000 speed?",
+    "golden": "Acme Fiber 1000 gives up to 1000 Mbps.",
+    "candidate_a": "Acme Fiber 1000 gives up to 300 Mbps.",
+    "candidate_b": "The Acme Fiber 1000 plan reaches 1000 megabits per second.",
+    "better": "B"
+  },
+  {
+    "id": "p17",
+    "task": "Is a deposit needed for the mobile plan?",
+    "golden": "No deposit is needed for the mobile plans.",
+    "candidate_a": "There is no deposit for mobile plans.",
+    "candidate_b": "A deposit of 100 USD is required for every mobile plan.",
+    "better": "A"
+  },
+  {
+    "id": "p18",
+    "task": "How many lines can a business plan include?",
+    "golden": "A business plan can include up to ten lines.",
+    "candidate_a": "Business plans are limited to one line.",
+    "candidate_b": "Business plans cover up to ten lines.",
+    "better": "B"
+  },
+  {
+    "id": "p19",
+    "task": "What is the call rate to the US?",
+    "golden": "Calls to the US cost 0.10 USD per minute.",
+    "candidate_a": "The rate to the United States is 10 cents a minute.",
+    "candidate_b": "Calls to the US are free on every plan.",
+    "better": "A"
+  },
+  {
+    "id": "p20",
+    "task": "Do you have a store in Liege?",
+    "golden": "Yes, our Liege store is at 4 Rue Neuve and opens at 10:00.",
+    "candidate_a": "We have no physical stores in Belgium.",
+    "candidate_b": "The Liege store is at 4 Rue Neuve, open from ten in the morning.",
+    "better": "B"
+  }
+]

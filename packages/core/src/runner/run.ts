@@ -16,7 +16,7 @@ import {
   Verdict,
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
-import { contentHash } from '../spec/hash';
+import { cloneJson, contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { cellId } from './cell';
@@ -73,6 +73,8 @@ export type RunOptions = {
    *  whose capabilities say `sandbox` never uses it: a replay has no workspace to read files from. */
   cache?: ObservedCache;
   cacheTtlMs?: number;
+  /** Names the suite a run belongs to. Its cache keys differ from another suite's, so a new name starts from an empty cache. */
+  suite?: string;
   /** Readers for the artifact checks, passed to every CheckContext. */
   artifacts?: ArtifactReaderRegistry;
   retry?: RetryOptions;
@@ -112,6 +114,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   }
   const now = options.now ?? (() => new Date());
   const specHash = contentHash(spec);
+  // The cache key leaves out the spec's version: a free label that plays no part (docs/running.md, "The
+  // cache and replay"), so relabelling a spec still replays its runs.
+  const { version: _version, ...unlabelled } = spec;
+  const cacheSpecHash = contentHash(unlabelled);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
   // In P mode the spec's end state describes the unperturbed run, so it is neither read nor compared, as
   // the Acme light runner and the end_state check do; phase 3 decides what a perturbed run should leave.
@@ -132,6 +138,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const run: RunContext = {
     spec,
     specHash,
+    cacheSpecHash,
     target,
     mode: options.mode,
     repeat: options.repeat,
@@ -144,6 +151,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     onEvent: reportEvent,
     cache,
     cacheTtlMs: options.cacheTtlMs,
+    suite: options.suite,
     artifacts: options.artifacts,
     retry: options.retry,
     // The spec target's retry settings, the run's own (the command line) over them.
@@ -189,6 +197,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 type RunContext = {
   spec: Spec;
   specHash: string;
+  /** The hash the cache key carries: the spec's, without its version label. */
+  cacheSpecHash: string;
   target: TargetRef;
   mode: RunMode;
   repeat: number;
@@ -201,6 +211,7 @@ type RunContext = {
   checks: CheckSet;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
+  suite: string | undefined;
   artifacts: ArtifactReaderRegistry | undefined;
   retry: RetryOptions | undefined;
   policy: RetryPolicy;
@@ -265,6 +276,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   /** In mode T, the end state composed before the open session opened. */
   let sessionBase: unknown[] | undefined;
   let status: RunResult['status'] = 'completed';
+  let endVerdict: 'success' | 'failure' | undefined;
   let error: string | undefined;
 
   try {
@@ -275,7 +287,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         break;
       }
       const step = await nextStep(run, nextBlock, blocks);
-      if (step.kind === 'stop') break;
+      if (step.kind === 'stop') {
+        endVerdict = step.verdict;
+        break;
+      }
       const planned = planStep(spec, step);
       if (step.kind === 'block') nextBlock = step.blockIndex + 1;
 
@@ -314,7 +329,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         retry: run.policy,
       };
       const key = blockCacheKey({
-        specHash: run.specHash,
+        specHash: run.cacheSpecHash,
         repeat: run.repeat,
         position,
         given,
@@ -322,6 +337,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         target: run.target,
         adapter: run.adapter.id,
         adapterVersion: run.adapter.version,
+        ...(run.suite === undefined ? {} : { suite: run.suite }),
       });
       run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
       const observed = await channel.observe(turn, user, key);
@@ -330,6 +346,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       // the call began latencyMs earlier.
       for (const segment of observed.segments) {
         if (segment.cost === undefined && segment.latencyMs === undefined) continue;
+        // One clock reading gives both times, so the end minus the start is exactly the latency.
+        const reportedAt = Date.now();
         run.onEvent?.({
           type: 'model_call',
           index: position,
@@ -337,8 +355,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           ...(segment.cost?.outputTokens === undefined ? {} : { outputTokens: segment.cost.outputTokens }),
           ...(segment.cost?.usd === undefined ? {} : { usd: segment.cost.usd }),
           ...(segment.latencyMs === undefined ? {} : { latencyMs: segment.latencyMs }),
-          startedAt: new Date(Date.now() - (segment.latencyMs ?? 0)).toISOString(),
-          at: new Date().toISOString(),
+          startedAt: new Date(reportedAt - (segment.latencyMs ?? 0)).toISOString(),
+          at: new Date(reportedAt).toISOString(),
         });
       }
       for (const call of observed.toolCalls) {
@@ -353,7 +371,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       for (let r = 0; r < (observed.retries?.length ?? 0); r += 1) {
         run.onEvent?.({ type: 'retry', index: position, at: new Date().toISOString() });
       }
-      history = [...history, ...user, assistantMessage(observed)];
+      history = [...history, ...cloneJson(user), cloneJson(assistantMessage(observed))];
       lastKey = key;
 
       const facts = addFacts(state.ledger, planned.expect.ledger_add);
@@ -472,6 +490,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     repeat: run.repeat,
     ...(run.perturbationId !== undefined ? { perturbationId: run.perturbationId } : {}),
     status,
+    ...(endVerdict ? { endVerdict } : {}),
     ...(message ? { error: message } : {}),
     blocks,
     succession: succession(blocks),

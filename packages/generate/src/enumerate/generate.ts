@@ -1,5 +1,6 @@
 import { type Issue, type LoadResult, parseSpecText, type Spec } from '@driftbench/core';
 import { coverage } from '@driftbench/space';
+import { stringify } from 'yaml';
 import {
   NO_THEN_CRITERION,
   PLACEHOLDER_CRITERION,
@@ -15,6 +16,7 @@ import type { PreparedMap } from '../seed/map';
 import {
   type BoundarySummary,
   boundarySeeder,
+  coverDraft,
   type DeviationSummary,
   deviationSeeder,
   type GraphSummary,
@@ -25,6 +27,7 @@ import {
   type TwiseSummary,
   twiseSeeder,
 } from '../seed/seeders';
+import { type TaskInput, taskSpecs } from '../seed/tasks';
 import { formatJson } from './json';
 
 /** t-wise coverage of a set of specs on the axis map, as `driftbench space coverage --t` counts it. */
@@ -36,7 +39,7 @@ export type MeasuredCoverage = { t: number; specs: number; allowed: number; cove
  * files. Same map, same options: the same files, byte for byte.
  */
 
-export const DEFAULT_T = 2;
+export const DEFAULT_T = 3;
 export const DEFAULT_SEED = 1;
 /** The report's file name inside the output folder. */
 export const REPORT_FILE = 'generate-report.json';
@@ -57,6 +60,11 @@ export type GenerateOptions = {
   mapPath: string;
   /** Specs to measure on the same map for comparison, such as the hand-written suite. */
   baseline?: { label: string; specs: Spec[] };
+  /**
+   * The specs the map's task families built (`task_family`), one entry per family: the caller builds them,
+   * since a family's oracle runs asynchronously. A flow with a task family and none given has no specs.
+   */
+  tasks?: TaskInput[];
 };
 
 export type GeneratedFile = { path: string; text: string };
@@ -92,6 +100,11 @@ export type GenerateReport = {
   boundary: BoundarySummary;
   deviation: DeviationSummary;
   metamorphic: MetamorphicSummary;
+  /**
+   * The cover seeder: the allowed cells of the axis map no complete spec of the other seeders covered, how
+   * many it built a complete spec for, and why it could not build the others.
+   */
+  cover: CoverSummary;
   constraints: { applied: number; list: Array<{ forbid: Record<string, string>; reason: string }> };
   no_phrase: Array<{ dimension: string; value: string; blocks: number; specs: string[] }>;
   /** Specs with a block the map supports no machine Then for, and why when a path could not be walked. */
@@ -107,6 +120,20 @@ export type GenerateReport = {
   invalid: Array<{ id: string; errors: Issue[] }>;
   /** Lint warnings on complete specs: a generator defect when not empty. */
   lint: Array<{ id: string; warnings: Issue[] }>;
+};
+
+export type CoverSummary = {
+  /** Cells left uncovered by the other seeders. */
+  cells: number;
+  /** Cells covered after the cover seeder. */
+  covered: number;
+  /** Cells still uncovered, each with the reasons no scenario could be built for it. */
+  unbuilt: Array<{ cell: Record<string, string>; reasons: string[] }>;
+  /**
+   * Axis values no allowed cell holds: the map's relations rule out every pair with them (a flow with no
+   * approved path, for one). No spec can cover them until the map gives them a path.
+   */
+  unreachable: Array<{ dimension: string; value: string }>;
 };
 
 export type GenerateResult = {
@@ -134,6 +161,8 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     boundary: boundary.drafts,
     deviation: deviation.drafts,
     metamorphic: metamorphic.drafts,
+    task: [],
+    cover: [],
   };
   const cut: Record<Seeder, boolean> = {
     graph: graph.summary.blocked.length > 0 && graph.summary.paths >= max,
@@ -141,6 +170,8 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     boundary: dataValues(prepared) > boundary.drafts.length,
     deviation: deviation.summary.classes > deviation.drafts.length,
     metamorphic: metamorphic.drafts.length >= max,
+    task: false,
+    cover: false,
   };
 
   const files: GeneratedFile[] = [];
@@ -152,8 +183,10 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const noThen: GenerateReport['no_then'] = [];
   const seeders = {} as Record<Seeder, SeederTotals>;
 
-  for (const seeder of SEEDERS) {
-    const totals: SeederTotals = {
+  /** Renders drafts of one seeder, adds them to the suite and the seeder's totals; returns the complete ones. */
+  const renderSeeder = (seeder: Seeder, list: readonly SpecDraft[]): Spec[] => {
+    const own: Spec[] = [];
+    const totals: SeederTotals = seeders[seeder] ?? {
       specs: 0,
       blocks: 0,
       complete: 0,
@@ -161,7 +194,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       needs_then: 0,
       cut: cut[seeder],
     };
-    for (const draft of drafts[seeder]) {
+    for (const draft of list) {
       const rendered: Rendered = renderDraft(prepared, draft, run);
       const text = specText(rendered, run, prepared.hash);
       const loaded = parseSpecText(text, 'yaml', rendered.id);
@@ -200,12 +233,82 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       if (!needsPhrase && !needsThen) {
         totals.complete += 1;
         complete.push(loaded.spec);
+        own.push(loaded.spec);
       }
       const folder = needsPhrase || needsThen ? INCOMPLETE_DIR : COMPLETE_DIR;
       files.push({ path: `${folder}/${seeder}/${rendered.id}.yaml`, text });
     }
     seeders[seeder] = totals;
+    return own;
+  };
+  for (const seeder of SEEDERS)
+    renderSeeder(seeder, seeder === 'cover' || seeder === 'task' ? [] : drafts[seeder]);
+
+  // The task seeder: the specs the task families built, placed in the space (seed/tasks.ts).
+  const header = [
+    `# Generated by driftbench generate (seeder task, seed ${seed}) from ${options.mapPath}, map hash ${prepared.hash}.`,
+    "# A task family's oracle wrote the Then before any agent ran; this file places it in the map's space.",
+    '# Do not edit it by hand: change the family or the map and generate again. Fictional data only.',
+  ].join('\n');
+  for (const { id, spec } of taskSpecs(prepared, options.tasks ?? [], run)) {
+    const text = `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
+    const loaded = parseSpecText(text, 'yaml', id);
+    const totals = seeders.task;
+    if (!loaded.ok) {
+      invalid.push({ id, errors: loaded.errors });
+      continue;
+    }
+    totals.specs += 1;
+    totals.blocks += loaded.spec.blocks.length;
+    totals.complete += 1;
+    all.push(loaded.spec);
+    complete.push(loaded.spec);
+    files.push({ path: `${COMPLETE_DIR}/task/${id}.yaml`, text });
   }
+
+  // The cover seeder: one scenario per allowed cell still uncovered, skipping a cell an earlier cover spec
+  // already reached. A cell it cannot build is listed with the reasons.
+  const uncovered = cellsOf(prepared, complete, t).filter((cell) => cell.count === 0);
+  const unbuilt: CoverSummary['unbuilt'] = [];
+  const reached = new Set<string>();
+  for (const cell of uncovered) {
+    const key = cellKey(cell.values);
+    if (reached.has(key)) continue;
+    if (drafts.cover.length >= max) {
+      cut.cover = true;
+      unbuilt.push({ cell: cell.values, reasons: ['cut by --max'] });
+      continue;
+    }
+    const id = `gen-cover-${String(drafts.cover.length + 1).padStart(3, '0')}`;
+    const built = coverDraft(prepared, context, id, cell.values);
+    if (!('draft' in built)) {
+      unbuilt.push({ cell: cell.values, reasons: built.reasons });
+      continue;
+    }
+    drafts.cover.push(built.draft);
+    const made = renderSeeder('cover', [built.draft]);
+    for (const entry of cellsOf(prepared, made, t)) if (entry.count > 0) reached.add(cellKey(entry.values));
+    if (!reached.has(key))
+      unbuilt.push({
+        cell: cell.values,
+        reasons: [`${id} was built but ${made.length === 0 ? 'is incomplete' : 'does not reach the cell'}`],
+      });
+  }
+  const held = new Set(
+    cellsOf(prepared, [], t).flatMap((cell) =>
+      Object.entries(cell.values).map(([dimension, value]) => `${dimension}=${value}`),
+    ),
+  );
+  const coverSummary: CoverSummary = {
+    cells: uncovered.length,
+    covered: uncovered.filter((cell) => reached.has(cellKey(cell.values))).length,
+    unbuilt,
+    unreachable: prepared.axisMap.dimensions.flatMap((dimension) =>
+      dimension.values
+        .filter((value) => !held.has(`${dimension.id}=${value.id}`))
+        .map((value) => ({ dimension: dimension.id, value: value.id })),
+    ),
+  };
 
   const measure = (specs: Spec[]) => measured(prepared, specs, t);
   const completeCoverage = measure(complete);
@@ -238,6 +341,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     boundary: boundary.summary,
     deviation: deviation.summary,
     metamorphic: metamorphic.summary,
+    cover: coverSummary,
     constraints: {
       applied: prepared.map.constraints.length,
       list: prepared.map.constraints.map((constraint) => ({
@@ -265,6 +369,33 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
  * Coverage on the space map of the approved axes, by the space package's own `coverage`: the same count
  * `driftbench space coverage --map <space.yaml> <specs> --t <t>` prints.
  */
+/** The allowed cells of the axis map at strength t, each with how many of the specs cover it. */
+function cellsOf(
+  prepared: PreparedMap,
+  specs: readonly Spec[],
+  t: number,
+): Array<{ values: Record<string, string>; count: number }> {
+  const results: LoadResult[] = specs.map((spec) => ({
+    ok: true,
+    path: spec.id,
+    spec,
+    hash: '',
+    warnings: [],
+  }));
+  const grid = coverage(prepared.axisMap, results, {
+    t: Math.min(t, prepared.axisMap.dimensions.length),
+    ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
+  }).grid;
+  return grid.cells.map((cell) => ({ values: { ...cell.values }, count: cell.count }));
+}
+
+function cellKey(values: Readonly<Record<string, string>>): string {
+  return Object.entries(values)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([dimension, value]) => `${dimension}=${value}`)
+    .join('&');
+}
+
 function measured(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCoverage {
   const results: LoadResult[] = specs.map((spec) => ({
     ok: true,
@@ -320,6 +451,14 @@ export function renderSummary(report: GenerateReport): string {
     `Deviation probes: ${report.deviation.probes.length} of ${report.deviation.classes} classes. Metamorphic families: ${report.metamorphic.families}.`,
     `Coverage on the axis map at t = ${report.coverage.t}: complete specs ${report.coverage.complete.covered} of ${report.coverage.allowed} (${percent(report.coverage.complete.share)}), all specs ${report.coverage.all.covered} (${percent(report.coverage.all.share)})${report.coverage.baseline ? `, ${report.coverage.baseline.label} ${report.coverage.baseline.covered} (${percent(report.coverage.baseline.share)})` : ''}.`,
   );
+  if (report.cover.unbuilt.length > 0)
+    lines.push(
+      `Allowed pairs no spec could be built for: ${report.cover.unbuilt.length} (see cover.unbuilt).`,
+    );
+  if (report.cover.unreachable.length > 0)
+    lines.push(
+      `Values no allowed pair holds, so no spec can cover them until the map gives them a path: ${report.cover.unreachable.map((entry) => `${entry.dimension}=${entry.value}`).join(', ')}.`,
+    );
   if (report.no_phrase.length > 0) {
     lines.push(
       '',

@@ -139,14 +139,14 @@ describe('driftbench gate', () => {
     async () => {
       // Two specs no path could build: their blocks hold judged criteria only, so stage 1 rejects them.
       const specs = await folder([
-        join(INCOMPLETE, 'gen-twise-133.yaml'),
-        join(INCOMPLETE, 'gen-twise-025.yaml'),
+        join(INCOMPLETE, 'gen-twise-089.yaml'),
+        join(INCOMPLETE, '../boundary/gen-boundary-062.yaml'),
       ]);
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--out', out]);
       expect(result.code).toBe(1);
-      expect(result.out).toContain('Accepted 0 of 3 blocks.');
-      expect(result.out).toContain('no-machine-then 3');
+      expect(result.out).toContain('Accepted 0 of 2 blocks.');
+      expect(result.out).toContain('no-machine-then 2');
       expect(await tree(out)).toEqual([
         'gate-report.json',
         'holdout/seal.json',

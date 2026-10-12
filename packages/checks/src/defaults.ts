@@ -12,6 +12,7 @@ import { injection } from './checks/injection';
 import { knowledgeRetention } from './checks/knowledge_retention';
 import { lang } from './checks/lang';
 import { must, mustNot } from './checks/must';
+import { bleu, rougeL } from './checks/overlap';
 import { createPiiCheck, pii } from './checks/pii';
 import { references } from './checks/references';
 import { relevancy } from './checks/relevancy';
@@ -19,6 +20,7 @@ import { safety } from './checks/safety';
 import { schemaStrict } from './checks/schema_strict';
 import { createSimilarityCheck } from './checks/similarity';
 import { skills } from './checks/skills';
+import { sqlEquivalence } from './checks/sql';
 import { stage } from './checks/stage';
 import { subagents } from './checks/subagents';
 import { createToolPolicyCheck, type ToolRule } from './checks/tool-policy';
@@ -61,6 +63,9 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     mustNot,
     exact,
     injection,
+    rougeL,
+    bleu,
+    sqlEquivalence,
     createSimilarityCheck(options.embedder),
     relevancy,
     knowledgeRetention,

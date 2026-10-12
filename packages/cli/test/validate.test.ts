@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { registeredLadders } from '@driftbench/validators';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   bankLadder,
@@ -123,6 +124,17 @@ describe('driftbench validate seeds', () => {
 });
 
 describe('driftbench validate floors', () => {
+  it('prints the one line that docs/reference/cli.md and docs/validators.md show', async () => {
+    const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+    const out: string[] = [];
+    const io: Io = { out: (text) => out.push(text), err: () => undefined, cwd: ROOT };
+    expect(await main(['validate', 'floors'], io)).toBe(0);
+    const line = out.join('').trim();
+    for (const page of ['docs/reference/cli.md', 'docs/validators.md']) {
+      expect(await readFile(join(ROOT, page), 'utf8'), page).toContain(line);
+    }
+  });
+
   async function withFloors(floors: Record<string, number>, failOn: number[] = []) {
     const d = await deps(failOn);
     await mkdir(join(d.root as string, 'validators'));
@@ -312,15 +324,22 @@ describe('driftbench validate through main', () => {
     expect(result.out).toContain('Level of the run: 1 of 7, the minimum over 1 seed.');
   }, 600_000);
 
-  it('holds the committed floors and handovers, as CI checks them', async () => {
-    expect((await run(['validate', 'all', '--seed', '1', '--check-floor'])).code).toBe(0);
+  // One test per registered ladder, so each has its own time and a slow ladder is named. The validators
+  // workflow also runs `validate all --seeds 1..3 --hidden --check-floor`, which checks the floors file as a whole.
+  it.each(Object.keys(registeredLadders()))(
+    'holds the committed floor of the %s ladder',
+    async (component) => {
+      expect((await run(['validate', component, '--seed', '1', '--check-floor'])).code).toBe(0);
+    },
+    600_000,
+  );
+
+  it('holds the committed handovers, as CI checks them', async () => {
     const handover = await run(['validate', 'all', '--check-handover']);
     expect(handover.code).toBe(0);
     expect(handover.out).toContain('validators/stats/HANDOVER.md: every section present');
     expect(handover.out).toContain('validators/estate/HANDOVER.md: every section present');
-    // The judges ladder version 2 runs its whole bank, each item in a child process; the estate ladder runs
-    // its reader level on a bank of planted estates.
-  }, 600_000);
+  }, 60_000);
 
   it('prints the stats brief from the real executor instruction', async () => {
     const result = await run(['validate', 'stats', '--brief', '--fresh']);

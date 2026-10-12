@@ -160,27 +160,65 @@ function membership(elements: readonly CoverElement[], pool: ReadonlySet<string>
  */
 function greedy(pool: readonly string[], tiers: readonly Tier[], goals: number, limit: number): string[] {
   const covered = tiers.map(() => new Set<number>());
-  const chosen: string[] = [];
-  const left = new Set(pool);
-  while (chosen.length < limit) {
-    let best: { id: string; gains: number[] } | undefined;
-    for (const id of pool) {
-      if (!left.has(id)) continue;
-      const gains = tiers.map(
-        (tier, position) => (tier.get(id) ?? []).filter((index) => !covered[position]?.has(index)).length,
-      );
-      if (gains.slice(0, goals).every((gain) => gain === 0)) continue;
-      if (!best || ahead(gains, best.gains)) best = { id, gains };
+  const gainsOf = (id: string): number[] =>
+    tiers.map((tier, position) => {
+      let gain = 0;
+      for (const index of tier.get(id) ?? []) if (!covered[position]?.has(index)) gain += 1;
+      return gain;
+    });
+  // Lazy greedy: a gain only falls as cells get covered, so the stored gains of a candidate are an upper
+  // bound. The candidate on top is re-read; if it still leads, no other candidate can beat it. The picks
+  // and the ties (the earlier spec of the pool) are those of a full scan at every step.
+  type Entry = { id: string; order: number; gains: number[] };
+  const heap: Entry[] = [];
+  const before = (x: Entry, y: Entry) =>
+    ahead(x.gains, y.gains) ? true : sameGains(x.gains, y.gains) && x.order < y.order;
+  const up = (from: number) => {
+    let i = from;
+    while (i > 0) {
+      const parent = (i - 1) >> 1;
+      if (!before(heap[i] as Entry, heap[parent] as Entry)) break;
+      [heap[i], heap[parent]] = [heap[parent] as Entry, heap[i] as Entry];
+      i = parent;
     }
-    if (!best) break;
-    const picked = best.id;
-    chosen.push(picked);
-    left.delete(picked);
+  };
+  const down = (from: number) => {
+    let i = from;
+    for (;;) {
+      const l = 2 * i + 1;
+      const r = l + 1;
+      let top = i;
+      if (l < heap.length && before(heap[l] as Entry, heap[top] as Entry)) top = l;
+      if (r < heap.length && before(heap[r] as Entry, heap[top] as Entry)) top = r;
+      if (top === i) return;
+      [heap[i], heap[top]] = [heap[top] as Entry, heap[i] as Entry];
+      i = top;
+    }
+  };
+  pool.forEach((id, order) => {
+    heap.push({ id, order, gains: gainsOf(id) });
+    up(heap.length - 1);
+  });
+  const chosen: string[] = [];
+  while (chosen.length < limit && heap.length > 0) {
+    const top = heap[0] as Entry;
+    top.gains = gainsOf(top.id);
+    down(0);
+    if (heap[0] !== top) continue;
+    if (top.gains.slice(0, goals).every((gain) => gain === 0)) break;
+    heap[0] = heap[heap.length - 1] as Entry;
+    heap.pop();
+    down(0);
+    chosen.push(top.id);
     tiers.forEach((tier, position) => {
-      for (const index of tier.get(picked) ?? []) covered[position]?.add(index);
+      for (const index of tier.get(top.id) ?? []) covered[position]?.add(index);
     });
   }
   return chosen;
+}
+
+function sameGains(a: readonly number[], b: readonly number[]): boolean {
+  return a.every((gain, position) => gain === (b[position] ?? 0));
 }
 
 /** True when `a` beats `b` read tier by tier. */

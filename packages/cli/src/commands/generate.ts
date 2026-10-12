@@ -2,6 +2,7 @@ import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { type LoadedSpec, loadSpecs } from '@driftbench/core';
 import {
+  buildTaskInputs,
   COMPLETE_DIR,
   formatJson,
   generateSuite,
@@ -29,6 +30,8 @@ export type GenerateDeps = {
 
 /** Where --model writes its proposals, their gated copies and its report, under --out. */
 export const PROPOSED_DIR = 'proposed';
+/** Instances built per task family when --tasks is not given. */
+export const DEFAULT_TASKS = 8;
 export const PROPOSALS_FILE = 'proposals.json';
 
 export type GenerateCommandOptions = {
@@ -37,6 +40,7 @@ export type GenerateCommandOptions = {
   t?: string;
   seed?: string;
   max?: string;
+  tasks?: string;
   baseline?: string[];
   force?: boolean;
   json?: boolean;
@@ -63,9 +67,10 @@ export function registerGenerateCommand(
     .description('Generate specs from an approved map, by code: graph paths, t-wise rows, boundaries, probes')
     .requiredOption('--map <file>', 'the approved map (a proposal whose every entry is approved)')
     .requiredOption('--out <dir>', 'the folder to write the specs and generate-report.json into')
-    .option('--t <n>', 'the strength of the covering array (default 2)')
+    .option('--t <n>', 'the strength of the covering array (default 3)')
     .option('--seed <n>', 'the integer seed of every seeded choice (default 1)')
     .option('--max <n>', 'the most specs per seeder')
+    .option('--tasks <n>', `instances built per task family the map names (default ${DEFAULT_TASKS})`)
     .option('--baseline <path>', 'specs to measure on the same map for comparison; repeat it', collect)
     .option('--force', 'replace the output of an earlier run in the folder')
     .option('--json', 'print the report as JSON')
@@ -115,7 +120,8 @@ export async function generateCommand(
   const t = whole(options.t, 't', 1);
   const seed = whole(options.seed, 'seed', 0);
   const max = whole(options.max, 'max', 1);
-  for (const parsed of [t, seed, max]) {
+  const tasks = whole(options.tasks, 'tasks', 1);
+  for (const parsed of [t, seed, max, tasks]) {
     if (typeof parsed === 'string') {
       io.err(`${parsed}\n`);
       return 2;
@@ -123,6 +129,11 @@ export async function generateCommand(
   }
   const mapPath = resolve(io.cwd, options.map);
   const outPath = resolve(io.cwd, options.out);
+  const outInfo = await stat(outPath).catch(() => undefined);
+  if (outInfo && !outInfo.isDirectory()) {
+    io.err(`--out names ${display(outPath, io)}, which is a file: give a folder.\n`);
+    return 2;
+  }
 
   const loaded = await loadApprovedMap(mapPath);
   if (!loaded.ok) {
@@ -162,9 +173,18 @@ export async function generateCommand(
     }
   }
 
+  // The task families the map names build their instances first: their oracles run asynchronously.
+  const built = await buildTaskInputs(loaded.prepared, dirname(mapPath), {
+    n: typeof tasks === 'number' ? tasks : DEFAULT_TASKS,
+    seed: typeof seed === 'number' ? seed : 1,
+  });
+  for (const entry of built.refused)
+    io.err(`✗ the task family ${entry.family} builds no spec: ${entry.reason}\n`);
+
   let result: ReturnType<typeof generateSuite>;
   try {
     result = generateSuite(loaded.prepared, {
+      tasks: built.inputs,
       ...(typeof t === 'number' ? { t } : {}),
       ...(typeof seed === 'number' ? { seed } : {}),
       ...(typeof max === 'number' ? { max } : {}),
@@ -186,7 +206,7 @@ export async function generateCommand(
   if (options.json) io.out(formatJson(report));
   else io.out(`${renderSummary(report)}Wrote ${result.files.length} files to ${display(outPath, io)}.\n`);
   const cut = Object.values(report.seeders).some((entry) => entry.cut);
-  const defects = report.invalid.length > 0 || report.lint.length > 0;
+  const defects = report.invalid.length > 0 || report.lint.length > 0 || built.refused.length > 0;
   const code = report.summary.incomplete > 0 || cut || defects ? 1 : 0;
   if (!options.model) return code;
 

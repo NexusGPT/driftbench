@@ -107,28 +107,35 @@ relations:
 describe('driftbench generate', () => {
   it('writes the Acme suite, refuses to overwrite it, and writes it again byte for byte with --force', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
-    const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a'], dir);
+    const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'], dir);
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
     expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
-    expect(first.out).toContain('t-wise: covering array of 154 rows over 6 dimensions');
-    expect(first.out).toContain('Constraints applied: 59.');
-    expect(first.out).toContain(
-      '  Most frequent reasons:\n    11  no approved path belongs to a flow of B-013',
-    );
+    expect(first.out).toContain('t-wise: covering array of 132 rows over 5 dimensions');
+    expect(first.out).toContain('Constraints applied: 457.');
+    expect(first.out).toContain('  Most frequent reasons:\n     2  no approved path says flow=upgrade');
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(168);
+    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(251);
 
-    const refused = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a'], dir);
+    const refused = await run(
+      ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'],
+      dir,
+    );
     expect(refused.code).toBe(2);
     expect(refused.err).toContain('Pass --force');
 
-    const again = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--force'], dir);
+    const again = await run(
+      ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--force', '--t', '2'],
+      dir,
+    );
     expect(again.code).toBe(1);
     expect(await tree(join(dir, 'a'))).toEqual(before);
 
-    const elsewhere = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'b/c'], dir);
+    const elsewhere = await run(
+      ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'b/c', '--t', '2'],
+      dir,
+    );
     expect(elsewhere.code).toBe(1);
     const moved = await tree(join(dir, 'b/c'));
     // Only the recorded map path differs: it is relative to the output folder.
@@ -144,7 +151,7 @@ describe('driftbench generate', () => {
     const result = await run(['generate', '--map', `${ACME}map/proposal.yaml`, '--out', 'out'], dir);
     expect(result.code).toBe(2);
     expect(result.err).toContain('MAP_NOT_APPROVED');
-    expect(result.err).toContain('219 of 219 entries are not approved');
+    expect(result.err).toContain('279 of 279 entries are not approved');
     expect(await readdir(dir)).toEqual([]);
   });
 

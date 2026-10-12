@@ -53,6 +53,8 @@ export type CriterionText = z.infer<typeof CriterionText>;
 /** Everything one judge call reads. */
 export type JudgeRequest = {
   readonly criterion: CriterionText;
+  /** The system prompt of this request. Absent: the criterion prompt of the prompt kit. */
+  readonly system?: string;
   /** The observed slice: what the user sent, what the agent did and said. */
   readonly transcript: readonly TranscriptEntry[];
   /** The text of a produced file, as an artifact reader extracted it. */
