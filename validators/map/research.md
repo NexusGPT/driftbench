@@ -387,3 +387,15 @@ Sources read:
 What others do: Array items are a schema of their own; tuples give one schema per position; a recursive reference is read once.
 
 What to try, and why: the tool pre-pass follows arrays, tuples and nesting
+
+## Iteration 33
+
+Question: packages/generate/src/extract/tools.ts: partitionsOf reads none of these leaf keywords, so const-object, enum-objects, contains, min-contains, not, property-names, content-media-type, format-int32 and x-nullable lose their values.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-validation sections 6.4.4 (contains), 8.3 (contentMediaType), 7.3 (format)
+* https://swagger.io/specification/v2/ (x-nullable vendor extension)
+
+What others do: Each keyword states an input class a generator tests on its own.
+
+What to try, and why: the tool pre-pass reads object consts, contains, not, propertyNames, contentMediaType, int32 and x-nullable

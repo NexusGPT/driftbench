@@ -580,10 +580,20 @@ function partitionsOf(
   const types = typesOf(property);
   const members = plain(entry(property, 'enum')?.value);
   if (Array.isArray(members)) {
-    for (const member of members) add(valueSlug(member), `${name} is ${show(member)}`, 'enum');
+    members.forEach((member, index) =>
+      add(
+        isStructured(member) ? `member-${index + 1}` : valueSlug(member),
+        `${name} is ${show(member)}`,
+        'enum',
+      ),
+    );
   } else if (entry(property, 'const')) {
     const constant = plain(entry(property, 'const')?.value);
-    add(valueSlug(constant), `${name} is always ${show(constant)}`, 'const');
+    add(
+      isStructured(constant) ? 'fixed' : valueSlug(constant),
+      `${name} is always ${show(constant)}`,
+      'const',
+    );
   } else {
     if (types.includes('boolean')) {
       add('true', `${name} is true`, 'type');
@@ -595,15 +605,30 @@ function partitionsOf(
     if (types.includes('object') && types.includes('null')) add('present', `${name} is an object`, 'type');
     if (types.includes('object')) objectPartitions(name, property, add);
   }
-  const nullable = plain(entry(property, 'nullable')?.value) === true;
+  // not with an enum: a value the enum excludes, and one it allows.
+  if (Array.isArray(plain(entry(mapAt(property, 'not'), 'enum')?.value))) {
+    add('excluded', `${name} is one of the values the schema excludes`, 'not');
+    add('allowed', `${name} is a value the schema allows`, 'not');
+  }
+  const nullable =
+    plain(entry(property, 'nullable')?.value) === true ||
+    plain(entry(property, 'x-nullable')?.value) === true;
   // An enum that lists null already gave the null partition.
   const listed = out.some((partition) => partition.id === 'null');
   if ((types.includes('null') || nullable) && !listed)
-    add('null', `${name} is null`, nullable ? 'nullable' : 'type');
+    add(
+      'null',
+      `${name} is null`,
+      nullable ? (entry(property, 'nullable') ? 'nullable' : 'x-nullable') : 'type',
+    );
   return out;
 }
 
+const isStructured = (value: unknown) => value !== null && typeof value === 'object';
+
 type Add = (id: string, title: string, keyword?: string) => void;
+
+const property_format = (property: YAMLMap) => plain(entry(property, 'format')?.value);
 
 function numberPartitions(name: string, property: YAMLMap, add: Add): void {
   const bound = (key: string) => {
@@ -650,6 +675,14 @@ function numberPartitions(name: string, property: YAMLMap, add: Add): void {
       'exclusiveMaximum',
     );
   }
+  if (
+    property_format(property) === 'int32' &&
+    bound('minimum') === undefined &&
+    bound('maximum') === undefined
+  ) {
+    add('at-int32-max', `${name} at the largest 32-bit integer`, 'format');
+    add('above-int32-max', `${name} above the largest 32-bit integer`, 'format');
+  }
   const multipleOf = bound('multipleOf');
   if (multipleOf !== undefined && multipleOf > 0) {
     add('multiple', `${name} a multiple of ${multipleOf}`, 'multipleOf');
@@ -681,6 +714,11 @@ function stringPartitions(name: string, property: YAMLMap, add: Add): void {
     add('malformed', `${name} is not ${shaped}`, keyword);
     return;
   }
+  if (plain(entry(property, 'contentMediaType')?.value) === 'application/json') {
+    add('well-formed', `${name} is well-formed JSON`, 'contentMediaType');
+    add('malformed', `${name} is not well-formed JSON`, 'contentMediaType');
+    return;
+  }
   const encoding = plain(entry(property, 'contentEncoding')?.value);
   if (typeof encoding === 'string') {
     add('well-formed', `${name} is well-formed ${encoding}`, 'contentEncoding');
@@ -693,6 +731,10 @@ function objectPartitions(name: string, property: YAMLMap, add: Add): void {
     const value = plain(entry(property, key)?.value);
     return typeof value === 'number' ? value : undefined;
   };
+  if (entry(mapAt(property, 'propertyNames'), 'pattern')) {
+    add('well-formed-key', `${name} has only keys matching its propertyNames pattern`, 'propertyNames');
+    add('malformed-key', `${name} has a key that does not match its propertyNames pattern`, 'propertyNames');
+  }
   const minProperties = count('minProperties');
   const maxProperties = count('maxProperties');
   if (minProperties !== undefined && minProperties > 0) {
@@ -729,6 +771,19 @@ function arrayPartitions(name: string, property: YAMLMap, add: Add): void {
   }
   if (plain(entry(property, 'uniqueItems')?.value) === true) {
     add('duplicate-items', `${name} holds the same item twice`, 'uniqueItems');
+  }
+  if (entry(property, 'contains')) {
+    add('has-match', `${name} has an item matching contains`, 'contains');
+    add('no-match', `${name} has no item matching contains`, 'contains');
+    const minContains = count('minContains');
+    if (minContains !== undefined && minContains > 0) {
+      add(
+        'below-min-contains',
+        `${name} has ${minContains - 1} matching items, one under minContains`,
+        'minContains',
+      );
+      add('at-min-contains', `${name} has exactly ${minContains} matching items`, 'minContains');
+    }
   }
 }
 

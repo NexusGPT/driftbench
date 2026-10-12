@@ -638,4 +638,47 @@ type = "boolean"
       't.x.in.p.children.item.label': ['a'],
     });
   });
+
+  it('reads object consts and enums, contains, not, propertyNames, contentMediaType, int32 and x-nullable', () => {
+    const only = (property: Record<string, unknown>) => Object.values(partitions(property))[0];
+    expect(only({ type: 'object', const: { mode: 'test' } })).toEqual(['fixed']);
+    expect(only({ type: 'object', enum: [{ size: 1 }, { size: 2 }] })).toEqual(['member-1', 'member-2']);
+    expect(only({ type: 'string', contentMediaType: 'application/json' })).toEqual([
+      'well-formed',
+      'malformed',
+    ]);
+    expect(only({ type: 'integer', format: 'int32' })).toEqual(['at-int32-max', 'above-int32-max']);
+    expect(only({ type: 'integer', minimum: 1, 'x-nullable': true })).toEqual([
+      'below-minimum',
+      'at-minimum',
+      'above-minimum',
+      'null',
+    ]);
+    expect(only({ type: 'string', not: { enum: ['admin'] } })).toEqual(['excluded', 'allowed']);
+    expect(
+      only({
+        type: 'object',
+        additionalProperties: { type: 'string' },
+        propertyNames: { pattern: '^[a-z]+$' },
+      }),
+    ).toEqual(['well-formed-key', 'malformed-key']);
+    expect(only({ type: 'array', items: { type: 'string' }, contains: { const: 'vip' } })).toEqual([
+      'empty',
+      'one-item',
+      'several-items',
+      'has-match',
+      'no-match',
+    ]);
+    expect(
+      only({ type: 'array', items: { type: 'string' }, contains: { const: 'vip' }, minContains: 3 }),
+    ).toEqual([
+      'empty',
+      'one-item',
+      'several-items',
+      'has-match',
+      'no-match',
+      'below-min-contains',
+      'at-min-contains',
+    ]);
+  });
 });
