@@ -552,7 +552,8 @@ function differentialItems(): BankItem[] {
       const axisMap = generated.prepared?.axisMap;
       if (!axisMap) return verdict(false, 'no prepared map');
       // Placement by brute force, as the space package states it: spec-level values from covers, channel and
-      // tags; one event per block, on its expected stage, an injected block on the stage reached before it.
+      // tags; one event per block, on its expected stage, an injected block on the stage reached before it, and
+      // one event per perturbation, on its class.
       const values = new Map(
         axisMap.dimensions.map((dimension) => [
           dimension.id,
@@ -582,13 +583,30 @@ function differentialItems(): BankItem[] {
           const kept = named.filter((value) => listed.has(value));
           level[dimension] = kept.length > 0 ? kept : listed.has('none') ? ['none'] : [];
         }
-        spec.blocks.forEach((block, index) => {
-          const injected =
-            block.when !== undefined && 'injection' in block.when ? block.when.injection.class : undefined;
-          const earlier = [...spec.blocks.slice(0, index)]
-            .reverse()
-            .find((entry) => entry.expect?.stage !== undefined)?.expect?.stage;
-          const stage = injected ? (earlier ?? block.expect?.stage) : block.expect?.stage;
+        // The stage the conversation has reached before block `index`: the nearest earlier declared stage.
+        const arrival = (index: number) =>
+          [...spec.blocks.slice(0, index)].reverse().find((entry) => entry.expect?.stage !== undefined)
+            ?.expect?.stage;
+        const events: Array<{ stage: string | undefined; injected: string | undefined }> = spec.blocks.map(
+          (block, index) => {
+            const injected =
+              block.when !== undefined && 'injection' in block.when ? block.when.injection.class : undefined;
+            return {
+              stage: injected ? (arrival(index) ?? block.expect?.stage) : block.expect?.stage,
+              injected,
+            };
+          },
+        );
+        // A perturbation is an event too: on its class, at the stage reached when it arrives.
+        for (const perturbation of spec.perturbations ?? [])
+          events.push({
+            stage:
+              arrival(perturbation.inject_at) ??
+              perturbation.expect?.stage ??
+              perturbation.recovery?.stage_after,
+            injected: perturbation.class,
+          });
+        for (const { stage, injected } of events) {
           const event: Record<string, string[]> = { ...level };
           for (const [dimension, kind] of kinds) {
             const listed = values.get(dimension) as Set<string>;
@@ -614,7 +632,7 @@ function differentialItems(): BankItem[] {
             }
             for (const key of keys) held.add(key);
           }
-        });
+        }
       }
       const allowedTuples = new Set<string>();
       for (const cell of allowedCellsOf2(axisMap))
