@@ -75,6 +75,11 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
     const joined = text.replace(/(?<=\p{L}) (?=\p{L}(?: |$|[^\p{L}]))/gu, '');
     return joined === text ? undefined : joined;
   },
+  // Letters separated by dots (i.g.n.o.r.e): the dots between letters are dropped.
+  (text) => {
+    const joined = text.replace(/(?<=\p{L})\.(?=\p{L})/gu, '');
+    return joined === text ? undefined : joined;
+  },
   // Compatibility forms: fullwidth letters and the like read as plain letters.
   (text) => {
     const folded = text.normalize('NFKC');
