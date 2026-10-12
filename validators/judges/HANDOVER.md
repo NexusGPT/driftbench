@@ -7,27 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 7 |
-| 2 | 7 |
-| 3 | 7 |
-| 4 | 7 |
-| 5 | 7 |
-| 6 | 7 |
-| 7 | 7 |
-| 8 | 7 |
-| 9 | 7 |
-| 10 | 7 |
-| 11 | 7 |
-| 12 | 7 |
-| 13 | 7 |
-| 14 | 7 |
-| 15 | 7 |
-| 16 | 7 |
-| 17 | 7 |
-| 18 | 7 |
-| 19 | 7 |
-| 20 | 7 |
-| hidden | 7 |
+| 1 | 8 |
+| 2 | 8 |
+| 3 | 8 |
+| 4 | 8 |
+| 5 | 8 |
+| 6 | 8 |
+| 7 | 8 |
+| 8 | 8 |
+| 9 | 8 |
+| 10 | 8 |
+| 11 | 8 |
+| 12 | 8 |
+| 13 | 8 |
+| 14 | 8 |
+| 15 | 8 |
+| 16 | 8 |
+| 17 | 8 |
+| 18 | 8 |
+| 19 | 8 |
+| 20 | 8 |
+| hidden | 8 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Level 7 (check) passes since iteration 38. Level 8, rubric (1 items left); next code: block-scope-whole-conversation. Then render, budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test (`--brief --fresh`) last run at iteration 25 (reproduced level 3).
+Levels 1 to 8 pass since iteration 57 (rubric lint complete). Level 9, render (19 items at start): `render/closing-tag-*` first (fullwidth brackets, small-form brackets, fullwidth name, zero-width and soft-hyphen inside), then the rest of the family. Then budget, evidence, injection (102 items), precision, attacks, council, cascade, turns, pairwise, calibration, scale. Handover test last run after iteration 49.
 
 ## Hypotheses tried
 
@@ -82,12 +82,13 @@ Iteration 53 (cause: no compound rule). Test: lint.test.ts (red proved). Bank 31
 Iteration 54 (cause: no hedged rule, rubric and PASS picture): two items green (hedged, hedged-picture). Test: lint.test.ts (red proved). Bank 318 -> 320 (0.5016).
 Iteration 55 (cause: no instruction-to-judge rule). Test: lint.test.ts (red proved). Bank 320 -> 321 (0.5031).
 Iteration 56 (cause: no pictures-swapped rule). Test: lint.test.ts (red proved). Bank 321 -> 322 (0.5047).
+Iteration 57 (cause: no block-side scope-mismatch rule): extended the scope-mismatch row. Test: lint.test.ts (red proved). Bank 322 -> 323 (0.5063). Level 7 -> 8.
 
 ## Next actions
 
-1. Level 8 rubric: add one code per iteration as a row of RULES in packages/judges/src/lint.ts, in the order of docs/concepts/judges.md ("Rubric lint"), next: block-scope-whole-conversation. The clean twin of every item must still give no issue.
+1. Level 9 render: read the head comment of packages/validators/src/ladders/judges/v2/families/render*.ts and the item Fix lines; fix packages/judges/src/prompt.ts one cause per iteration.
 2. Then the first failing level of `validate judges --seeds 1..20 --hidden --items`.
-3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N` (repo root, `pnpm exec tsx`), `validate judges --journal row.json`. PR 86 takes every push.
+3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N`, `validate judges --journal row.json`. PR 86 takes every push. At the top level, raise the floor in its own commit.
 
 ## Pitfalls
 
