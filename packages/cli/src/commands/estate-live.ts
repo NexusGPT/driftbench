@@ -5,6 +5,7 @@ import { type Campaign, contentHash, type RunResult, runSpec, type Store } from 
 import {
   copyEstate,
   type EstateMap,
+  insideCopy,
   loadEstateMap,
   MutantError,
   type MutantResult,
@@ -460,8 +461,9 @@ export async function estateMutateCommand(
     mapHash: result.mapHash,
     collateral: result.collateral,
   };
-  await writeFile(join(to, MUTANT_FILE), `${JSON.stringify(record, null, 2)}\n`);
-  await writeFile(join(to, MUTANT_MAP_FILE), renderEstateMap({ ...result.map, root: '.' }));
+  // The record and the map go beside the copy, never through a link out of it.
+  await writeFile(await insideCopy(to, MUTANT_FILE), `${JSON.stringify(record, null, 2)}\n`);
+  await writeFile(await insideCopy(to, MUTANT_MAP_FILE), renderEstateMap({ ...result.map, root: '.' }));
   if (options.json) io.out(`${JSON.stringify(record, null, 2)}\n`);
   else {
     io.out(`Mutant: ${result.op} ${result.atom} in ${result.file}.\n`);
