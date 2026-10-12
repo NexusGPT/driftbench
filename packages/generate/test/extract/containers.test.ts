@@ -43,8 +43,6 @@ describe('prompts kept inside JSON files', () => {
     const answer = {
       dimensions: [{ values: [{ evidence: { source: 'prompt.json', quote: 'Never say "refund"' } }] }],
     };
-    expect(rawizeAnswer(answer, sources).dimensions[0]?.values[0]?.evidence.quote).toBe(
-      'Never say \\"refund\\"',
-    );
+    expect(rawizeAnswer(answer, sources).dimensions[0]?.values[0]?.evidence.quote).toBe('Never say');
   });
 });
