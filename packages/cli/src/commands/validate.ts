@@ -50,6 +50,7 @@ import {
 } from '@driftbench/validators';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 /** The exit code of an input or usage error: kept apart from the level codes 0 to 63. */
 export const USAGE_EXIT = 64;
@@ -407,11 +408,11 @@ function floorsCommand(
     io.err(`The level is a whole number, not "${level}".\n`);
     return USAGE_EXIT;
   }
-  if (!/^\d+$/.test(options.ladderVersion) || Number(options.ladderVersion) < 1) {
+  if (!/^\d+$/.test(options.ladderVersion) || optionNumber(options.ladderVersion) < 1) {
     io.err(`--ladder-version is a whole number of at least 1, not "${options.ladderVersion}".\n`);
     return USAGE_EXIT;
   }
-  const version = Number(options.ladderVersion);
+  const version = optionNumber(options.ladderVersion);
   let evidence: unknown;
   try {
     evidence = JSON.parse(readFileSync(resolve(io.cwd, options.evidence), 'utf8'));

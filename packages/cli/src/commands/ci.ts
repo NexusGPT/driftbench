@@ -220,6 +220,11 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   const flags = options.flag.length > 0 ? options.flag : [...DEFAULT_FLAGS];
   const storePath = resolve(io.cwd, options.store);
   const outPath = resolve(io.cwd, options.out ?? DEFAULT_SUMMARY);
+  // Refused before the candidate runs: a summary that cannot be written must leave the store unchanged.
+  if (existsSync(outPath) && statSync(outPath).isDirectory()) {
+    io.err(`--out ${options.out} is a folder; the summary is a file.\n`);
+    return 2;
+  }
 
   const target = parseTarget(options.target);
   let runDeps = deps;

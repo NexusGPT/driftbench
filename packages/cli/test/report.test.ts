@@ -210,6 +210,8 @@ describe('driftbench report', () => {
   });
 
   it('exits 2 on a store that holds no campaign', async () => {
+    // An existing store with no campaign; a missing store is refused before it is opened.
+    await openStore(join(dir, 'empty.db')).close();
     const { code, err } = await cli(['report', '--store', 'empty.db', '--out', 'bad.html']);
     expect(code).toBe(2);
     expect(err).toContain('The store holds no campaign.');

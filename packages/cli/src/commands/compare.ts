@@ -22,6 +22,8 @@ import {
 import { openStore } from '@driftbench/store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { noStoreAt } from '../store-path';
 
 /** What compare and report open stores with. Tests pass their own. */
 export type ReportDeps = {
@@ -110,6 +112,7 @@ export async function compareCommand(
   const q = parseRate(options.q, '--q', io);
   const modes = options.mode === undefined ? undefined : parseModes(options.mode, io);
   if (gate === undefined || q === undefined || modes === null) return 2;
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
@@ -252,7 +255,7 @@ export function parseGate(
   options: { margin: string; minGoldens: string; strict?: boolean },
   io: Io,
 ): Gate | undefined {
-  const minGoldens = Number(options.minGoldens);
+  const minGoldens = optionNumber(options.minGoldens);
   if (!Number.isInteger(minGoldens) || minGoldens < 1) {
     io.err(`--min-goldens takes a whole number of at least 1, not "${options.minGoldens}".\n`);
     return undefined;
@@ -283,7 +286,7 @@ export function resolveMargin(
 
 /** A margin in points, such as 2, as a proportion; undefined after printing why it is not one. */
 export function parseMargin(text: string, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 100) {
     io.err(`--margin takes a number of points above 0 and below 100, such as 2, not "${text}".\n`);
     return undefined;
@@ -292,7 +295,7 @@ export function parseMargin(text: string, io: Io): number | undefined {
 }
 
 function parseRate(text: string, flag: string, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 1) {
     io.err(`${flag} takes a number between 0 and 1, not "${text}".\n`);
     return undefined;
