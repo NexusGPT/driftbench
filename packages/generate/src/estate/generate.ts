@@ -20,6 +20,7 @@ import {
   type Situation,
   type SituationUse,
 } from './inputs';
+import { compilePredicate } from './predicates';
 import { STATIC_DIR, STATIC_TEST_TYPES, type StaticTest, staticCheckOf } from './static';
 import {
   addPair,
@@ -97,6 +98,8 @@ export const ESTATE_DEFAULT_SEED = 1;
 /** The custom checks the replay runner registers. */
 export const REPLAY_CUSTOM_CHECKS: readonly string[] = [
   'grounded_values',
+  'guard_finished',
+  'guard_message',
   'hazard_recovery',
   'max_words',
   'no_delete_under',
@@ -252,6 +255,8 @@ type Context = ThenContext & {
   seed: number;
   paths: EstateGenerateOptions['paths'];
   fallback: boolean;
+  /** The estate's output rules as patterns no message may match, compiled from its register atoms. */
+  outputRules: string[];
   /** Skill names, for a misroute ask that names the wrong skill. */
   units: string[];
 };
@@ -338,6 +343,7 @@ export function generateEstateSuite(
       ),
     ].sort(),
     stages: stageModel(input.map.atoms),
+    outputRules: outputRulesOf(input.map.atoms),
     skills: new Set(
       input.map.atoms
         .filter((atom) => atom.kind === 'skill')
@@ -628,11 +634,23 @@ function build(
     // A malformed payload: the guard answers with some verdict instead of failing.
     then.guards = then.guards.map(({ verdict: _verdict, ...guard }) => ({ ...guard, count: { min: 1 } }));
   }
+  // The guard answered in time, and said why it blocked in words that keep the estate's output rules: read
+  // from the hook output the runtime reports (the guard record's stdout, stderr, exit code and outcome).
+  const guardName = typeof first.fields?.name === 'string' ? first.fields.name : undefined;
   if (row.testType === 'guard_speed') {
-    gap(then, MARKERS.guardTiming, first, 'the trace records no time per guard run');
+    if (guardName && ctx.customChecks.has('guard_finished')) {
+      then.guards = then.guards.map(({ verdict: _verdict, ...guard }) => ({ ...guard, count: { min: 1 } }));
+      then.custom.guard_finished = { name: guardName, block: 0 };
+    } else gap(then, MARKERS.guardTiming, first, 'the runner registers no guard_finished check');
   }
   if (row.testType === 'guard_register') {
-    gap(then, MARKERS.guardMessage, first, 'the trace records no guard message text');
+    if (guardName && ctx.customChecks.has('guard_message')) {
+      then.custom.guard_message = {
+        name: guardName,
+        ...(ctx.outputRules.length > 0 ? { mustNot: [...ctx.outputRules] } : {}),
+        block: 0,
+      };
+    } else gap(then, MARKERS.guardMessage, first, 'the runner registers no guard_message check');
   }
   if (noSession) {
     gap(then, MARKERS.session, first, `no recorded session of ${situation?.id ?? 'this situation'}`);
@@ -1051,6 +1069,20 @@ function runOrder(
 
 function sortedKeys(table: Record<string, number>): Record<string, number> {
   return Object.fromEntries(Object.entries(table).sort(([a], [b]) => a.localeCompare(b)));
+}
+
+/** The must_not patterns the approved register atoms of the map compile into (`predicates.ts`). */
+export function outputRulesOf(atoms: readonly EstateAtom[]): string[] {
+  const out = new Set<string>();
+  for (const atom of atoms) {
+    if (atom.kind !== 'register' || !atom.approved) continue;
+    for (const evidence of atom.evidence) {
+      if (evidence.type !== 'custom') continue;
+      for (const pattern of compilePredicate(evidence.name, evidence.options)?.mustNot ?? [])
+        out.add(pattern);
+    }
+  }
+  return [...out].sort();
 }
 
 /** The files a map knows: those its atoms are read from, and the references and scripts that exist. */

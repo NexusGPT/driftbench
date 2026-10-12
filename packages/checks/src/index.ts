@@ -21,6 +21,8 @@ export {
   draftOf,
   ESTATE_CHECKS,
   groundedValues,
+  guardFinished,
+  guardMessage,
   hazardRecovery,
   maxWords,
   noDeleteUnder,

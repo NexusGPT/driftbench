@@ -56,18 +56,18 @@ describe('driftbench estate generate', () => {
     first = await generate(out);
   }, 60_000);
 
-  it('writes the suite and its report, and exits 1 while specs are incomplete', async () => {
+  it('writes the suite and its report, and exits 0 once every row gave complete specs', async () => {
     expect(first.err).toBe('');
-    expect(first.code).toBe(1);
-    expect(first.out).toMatch(/total\s+44\s+42\s+2/);
+    expect(first.code).toBe(0);
+    expect(first.out).toMatch(/total\s+44\s+44\s+0/);
     expect(first.out).toContain('Replay: 12 specs aligned to sessions, 10 planned to pass, 2 to fail.');
     const written = await files(out);
     expect(written).toContain('estate-generate-report.json');
-    expect(written.filter((path) => path.startsWith('specs/'))).toHaveLength(41);
+    expect(written.filter((path) => path.startsWith('specs/'))).toHaveLength(43);
     expect(written.filter((path) => path.startsWith('static/'))).toEqual([
       'static/invariant/estate.p32.json',
     ]);
-    expect(written.filter((path) => path.startsWith('incomplete/'))).toHaveLength(2);
+    expect(written.filter((path) => path.startsWith('incomplete/'))).toHaveLength(0);
     expect(written).toContain('run-order.txt');
   });
 
@@ -130,7 +130,7 @@ describe('driftbench estate generate', () => {
   it('lints the complete specs clean', async () => {
     const lint = await run(['spec', 'lint', join(out, 'specs'), '--strict']);
     expect(lint.code).toBe(0);
-    expect(lint.out).toContain('Checked 41 specs: 41 valid, 0 invalid, 0 warnings.');
+    expect(lint.out).toContain('Checked 43 specs: 43 valid, 0 invalid, 0 warnings.');
   });
 
   it('refuses an earlier output without --force, and replaces it with --force', async () => {
@@ -139,7 +139,7 @@ describe('driftbench estate generate', () => {
     expect(again.err).toMatch(/already exists: an earlier run wrote this folder/);
     await writeFile(join(out, 'keep.txt'), 'not ours');
     const forced = await generate(out, '--force');
-    expect(forced.code).toBe(1);
+    expect(forced.code).toBe(0);
     expect(await files(out)).toContain('keep.txt');
   });
 

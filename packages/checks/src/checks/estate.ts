@@ -25,6 +25,8 @@ import type { CustomCheckFunction } from './custom';
  * - `max_words`: a word limit on a named part of the reply: a draft, or the whole reply.
  * - `no_delete_under`: nothing deleted under a folder.
  * - `stage_seen`: a step allowed at any point was reached at least once.
+ * - `guard_message`: a guard that blocked said why, and the message keeps the output rules.
+ * - `guard_finished`: every run of a guard answered within its time.
  */
 
 type SomeCallOption = { label: string; input: Record<string, Assertion>; count: Count; block?: number };
@@ -522,9 +524,135 @@ export const stageSeen: CustomCheckFunction = (ctx, options) => {
   ];
 };
 
+type GuardRun = NonNullable<NonNullable<CheckContext['observed']['runtime']>['guards']>[number];
+
+const STOPPED = /^(cancelled|canceled|no_response|timeout|timed_out)$/i;
+
+/** The runs of one guard in the block, by the name the runtime trace gives it. */
+function runsOf(ctx: CheckContext, name: string): GuardRun[] {
+  return (ctx.observed.runtime?.guards ?? []).filter((run) => run.name === name);
+}
+
+/** What a guard run said: the reason of a JSON decision on stdout, else stderr, else stdout. */
+function messageOf(run: GuardRun): string | undefined {
+  if (run.stdout === undefined && run.stderr === undefined) return undefined;
+  const stdout = (run.stdout ?? '').trim();
+  if (stdout.startsWith('{')) {
+    try {
+      const output: unknown = JSON.parse(stdout);
+      if (isRecord(output)) {
+        const specific = isRecord(output.hookSpecificOutput) ? output.hookSpecificOutput : {};
+        const reason = specific.permissionDecisionReason ?? output.reason ?? output.systemMessage;
+        if (typeof reason === 'string') return reason.trim();
+      }
+    } catch {
+      // Not JSON: read as text below.
+    }
+  }
+  const stderr = (run.stderr ?? '').trim();
+  return stderr !== '' ? stderr : stdout;
+}
+
+/**
+ * `{ name, mustNot?, block? }`. Every run of the guard that blocked (deny or block) gives a message, and
+ * each message keeps the output rules: no pattern of `mustNot` matches it. Inconclusive when the guard did
+ * not block in the block, or the runtime reports no output for it.
+ */
+export const guardMessage: CustomCheckFunction = (ctx, options) => {
+  if (!isRecord(options) || typeof options.name !== 'string') throw new Error('guard_message needs { name }');
+  if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
+  const blocked = runsOf(ctx, options.name).filter((run) => /^(deny|block)$/i.test(run.verdict));
+  if (blocked.length === 0) {
+    return [
+      machineVerdict(
+        'guard_message',
+        'present',
+        'inconclusive',
+        `${options.name} did not block in this block`,
+      ),
+    ];
+  }
+  const messages = blocked.map(messageOf);
+  if (messages.every((message) => message === undefined)) {
+    return [
+      machineVerdict(
+        'guard_message',
+        'present',
+        'inconclusive',
+        `the runtime reports no output of ${options.name}`,
+      ),
+    ];
+  }
+  const given = messages.filter((message): message is string => message !== undefined && message !== '');
+  const verdicts: Verdict[] = [
+    machineVerdict(
+      'guard_message',
+      'present',
+      given.length === blocked.length ? 'pass' : 'fail',
+      given.length === blocked.length
+        ? `${plural(blocked.length, 'blocking run')} of ${options.name}, each with a message: ${given.map((m) => JSON.stringify(m)).join('; ')}`
+        : `${blocked.length - given.length} of ${plural(blocked.length, 'blocking run')} of ${options.name} gave no message`,
+    ),
+  ];
+  const patterns = Array.isArray(options.mustNot)
+    ? options.mustNot.filter((pattern): pattern is string => typeof pattern === 'string')
+    : [];
+  if (patterns.length > 0) {
+    const broken = given.flatMap((message) =>
+      patterns
+        .filter((pattern) => new RegExp(pattern, 'm').test(message))
+        .map((pattern) => `/${pattern}/ in ${JSON.stringify(message)}`),
+    );
+    verdicts.push(
+      machineVerdict(
+        'guard_message',
+        'rules',
+        broken.length === 0 ? 'pass' : 'fail',
+        broken.length === 0
+          ? `the messages keep ${plural(patterns.length, 'output rule')}`
+          : broken.join('; '),
+      ),
+    );
+  }
+  return verdicts;
+};
+
+/**
+ * `{ name, block? }`. Every run of the guard answered within its time: none stopped by the runtime
+ * (cancelled, no response) and none that says it timed out. Inconclusive when the guard did not run.
+ */
+export const guardFinished: CustomCheckFunction = (ctx, options) => {
+  if (!isRecord(options) || typeof options.name !== 'string')
+    throw new Error('guard_finished needs { name }');
+  if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
+  const id = options.name.replace(/[^A-Za-z0-9_-]/g, '_');
+  const runs = runsOf(ctx, options.name);
+  if (runs.length === 0) {
+    return [
+      machineVerdict('guard_finished', id, 'inconclusive', `${options.name} did not run in this block`),
+    ];
+  }
+  const stopped = runs.filter(
+    (run) =>
+      STOPPED.test(run.outcome ?? '') || /timed out|timeout/i.test(`${run.stderr ?? ''} ${run.stdout ?? ''}`),
+  );
+  return [
+    machineVerdict(
+      'guard_finished',
+      id,
+      stopped.length === 0 ? 'pass' : 'fail',
+      stopped.length === 0
+        ? `${plural(runs.length, 'run')} of ${options.name}, each answered`
+        : `${stopped.length} of ${plural(runs.length, 'run')} of ${options.name} did not answer in time: ${stopped.map((run) => run.outcome ?? run.stderr ?? '').join('; ')}`,
+    ),
+  ];
+};
+
 /** The checks by the names the estate generator writes under `rules.custom`. */
 export const ESTATE_CHECKS: Readonly<Record<string, CustomCheckFunction>> = {
   grounded_values: groundedValues,
+  guard_finished: guardFinished,
+  guard_message: guardMessage,
   hazard_recovery: hazardRecovery,
   max_words: maxWords,
   no_delete_under: noDeleteUnder,

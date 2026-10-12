@@ -301,6 +301,62 @@ describe('the real stream shapes', () => {
     expect(rows.every((row) => row.at === '2026-10-12T10:00:00.000Z')).toBe(true);
   });
 
+  it('keeps the hook output on each guard row: stdout, stderr, exit code and the runtime outcome', () => {
+    const rows = hookDecisions(stream(), settings, '2026-10-12T10:00:00.000Z');
+    expect(rows[0]).toMatchObject({
+      check: 'block-force-push.sh',
+      stdout: '',
+      stderr: 'Force pushes are blocked.',
+      exitCode: 2,
+      outcome: 'blocking',
+    });
+    expect(rows[2]).toMatchObject({ check: 'Stop', exitCode: 0, outcome: 'success' });
+  });
+
+  it('gives a hook that started and never answered a row with outcome no_response', () => {
+    const started = line({
+      type: 'system',
+      subtype: 'hook_started',
+      hook_id: 'h7',
+      hook_name: 'PreToolUse:Bash',
+      hook_event: 'PreToolUse',
+      session_id: sid,
+    });
+    const rows = hookDecisions(parseStream(started), settings, '2026-10-12T10:00:00.000Z');
+    expect(rows).toEqual([
+      {
+        at: '2026-10-12T10:00:00.000Z',
+        event: 'PreToolUse',
+        check: 'block-force-push.sh',
+        verdict: 'error',
+        outcome: 'no_response',
+      },
+    ]);
+  });
+
+  it('carries the hook output from a decision row onto the runtime guard record', () => {
+    const rows = hookDecisions(stream(), settings, '2026-10-12T10:00:00.000Z');
+    const records = normaliseStream({
+      parsed: stream(),
+      ask: 'Push.',
+      startedAt: '2026-10-12T10:00:00.000Z',
+      cwd: '/w',
+    });
+    const mapped = mapSession({
+      transcript: parseJsonl(records.join('\n')),
+      decisions: parseJsonl(rows.map((row) => JSON.stringify(row)).join('\n')),
+    });
+    expect(mapped.blocks[0]?.observed.runtime?.guards?.[0]).toEqual({
+      name: 'block-force-push.sh',
+      verdict: 'deny',
+      at: '2026-10-12T10:00:00.000Z',
+      stdout: '',
+      stderr: 'Force pushes are blocked.',
+      exitCode: 2,
+      outcome: 'blocking',
+    });
+  });
+
   it('names a hook whose name carries the tool, not the matcher, by the matcher that matches the tool', () => {
     // Seen in the live sweep: a hook under the matcher Edit|Write reports itself as PreToolUse:Edit.
     const edit = line({

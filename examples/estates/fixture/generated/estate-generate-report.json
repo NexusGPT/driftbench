@@ -27,6 +27,8 @@
     "seed": 1,
     "checks": [
       "grounded_values",
+      "guard_finished",
+      "guard_message",
       "hazard_recovery",
       "max_words",
       "no_delete_under",
@@ -41,24 +43,24 @@
   "summary": {
     "specs": 1383,
     "blocks": 1378,
-    "complete": 1349,
-    "incomplete": 34,
+    "complete": 1361,
+    "incomplete": 22,
     "judged": 399
   },
   "sources": {
     "asks": {
-      "bank": 371,
-      "code": 970,
+      "bank": 377,
+      "code": 976,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 734,
+      "bank": 740,
       "no-change:denied": 2,
       "no-change:guard": 23,
       "no-change:negative": 58,
       "no-change:read-only": 38,
-      "no-delete": 486,
+      "no-delete": 492,
       "static": 8
     },
     "judged": 255
@@ -164,14 +166,14 @@
     "guard_speed": {
       "rows": 6,
       "specs": 6,
-      "complete": 0,
-      "incomplete": 6
+      "complete": 6,
+      "incomplete": 0
     },
     "guard_register": {
       "rows": 6,
       "specs": 6,
-      "complete": 0,
-      "incomplete": 6
+      "complete": 6,
+      "incomplete": 0
     },
     "tool_boundary": {
       "rows": 9,
@@ -244,8 +246,8 @@
     "unit": {
       "rows": 37,
       "specs": 37,
-      "complete": 25,
-      "incomplete": 12
+      "complete": 37,
+      "incomplete": 0
     },
     "live": {
       "rows": 1340,
@@ -260,32 +262,6 @@
       "specs": 2,
       "atoms": ["reference.weekly-report.read-references-kpi-definitions-md"],
       "details": [".claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate"]
-    },
-    {
-      "marker": "needs-guard-message-check",
-      "specs": 6,
-      "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.pretooluse-bash-guard-block-force-push",
-        "guard.settings.pretooluse-edit-write-guard-read-before",
-        "guard.settings.stop-guard-reply-length-py",
-        "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
-      ],
-      "details": ["the trace records no guard message text"]
-    },
-    {
-      "marker": "needs-guard-timing",
-      "specs": 6,
-      "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.pretooluse-bash-guard-block-force-push",
-        "guard.settings.pretooluse-edit-write-guard-read-before",
-        "guard.settings.stop-guard-reply-length-py",
-        "guard.settings.userpromptsubmit-guard-stop-word-sh",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
-      ],
-      "details": ["the trace records no time per guard run"]
     },
     {
       "marker": "needs-ordered-anchor",

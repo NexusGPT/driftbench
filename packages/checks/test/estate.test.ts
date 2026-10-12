@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   ESTATE_CHECKS,
   groundedValues,
+  guardFinished,
+  guardMessage,
   hazardRecovery,
   maxWords,
   noDeleteUnder,
@@ -194,6 +196,8 @@ describe('permission: what a permission rule allows or denies', () => {
   it('lists the estate checks by the names the estate generator writes', () => {
     expect(Object.keys(ESTATE_CHECKS).sort()).toEqual([
       'grounded_values',
+      'guard_finished',
+      'guard_message',
       'hazard_recovery',
       'max_words',
       'no_delete_under',
@@ -370,5 +374,107 @@ describe('stage_seen: a step allowed at any point was reached at least once', ()
       [],
     );
     expect(() => stageSeen(ctx('ok'), {})).toThrow(/name/);
+  });
+});
+
+describe('guard_message and guard_finished: what a guard said, and that it answered', () => {
+  type Run = {
+    name: string;
+    verdict: string;
+    stdout?: string;
+    stderr?: string;
+    exitCode?: number;
+    outcome?: string;
+  };
+  const guards = (runs: Run[]) => ({ runtime: { guards: runs } });
+  const deny = (stderr: string): Run => ({
+    name: 'block-force-push.sh',
+    verdict: 'deny',
+    stdout: '',
+    stderr,
+    exitCode: 2,
+    outcome: 'blocking',
+  });
+
+  it('passes a blocking run whose message is given and keeps the output rules, fails one with no message', async () => {
+    const options = { name: 'block-force-push.sh', mustNot: ['[\\s\\S]{41}'] };
+    const good = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([deny('Force pushes are not allowed.')])),
+      options,
+    );
+    expect(Object.fromEntries(good.map((v) => [v.id, v.outcome]))).toEqual({
+      'guard_message.present': 'pass',
+      'guard_message.rules': 'pass',
+    });
+    const silent = await verdicts(guardMessage, ctx('ok', [], guards([deny('')])), options);
+    expect(silent.find((v) => v.id === 'guard_message.present')?.outcome).toBe('fail');
+    const long = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([deny('Force pushes are not allowed on any branch of this repository, ever.')])),
+      options,
+    );
+    expect(long.find((v) => v.id === 'guard_message.rules')?.outcome).toBe('fail');
+  });
+
+  it('reads the reason of a JSON decision on stdout, and is inconclusive when the guard did not block or no output is reported', async () => {
+    const json = {
+      name: 'read-before-edit.py',
+      verdict: 'deny',
+      stdout: JSON.stringify({
+        hookSpecificOutput: { permissionDecision: 'deny', permissionDecisionReason: 'Read the file first.' },
+      }),
+      stderr: '',
+      exitCode: 0,
+    };
+    const read = await verdicts(guardMessage, ctx('ok', [], guards([json])), { name: 'read-before-edit.py' });
+    expect(read[0]).toMatchObject({ outcome: 'pass' });
+    expect(read[0]?.evidence).toContain('Read the file first.');
+    const allowed = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([{ name: 'x.sh', verdict: 'allow', exitCode: 0 }])),
+      { name: 'x.sh' },
+    );
+    expect(allowed[0]?.outcome).toBe('inconclusive');
+    const bare = await verdicts(guardMessage, ctx('ok', [], guards([{ name: 'x.sh', verdict: 'deny' }])), {
+      name: 'x.sh',
+    });
+    expect(bare[0]?.outcome).toBe('inconclusive');
+  });
+
+  it('guard_finished: every run answered, none stopped; inconclusive when the guard never ran', async () => {
+    const ok = await verdicts(
+      guardFinished,
+      ctx(
+        'ok',
+        [],
+        guards([
+          deny('no'),
+          { name: 'block-force-push.sh', verdict: 'allow', exitCode: 0, outcome: 'success' },
+        ]),
+      ),
+      { name: 'block-force-push.sh' },
+    );
+    expect(ok[0]).toMatchObject({ id: 'guard_finished.block-force-push_sh', outcome: 'pass' });
+    const stuck = await verdicts(
+      guardFinished,
+      ctx('ok', [], guards([{ name: 'block-force-push.sh', verdict: 'error', outcome: 'no_response' }])),
+      { name: 'block-force-push.sh' },
+    );
+    expect(stuck[0]?.outcome).toBe('fail');
+    const timed = await verdicts(
+      guardFinished,
+      ctx(
+        'ok',
+        [],
+        guards([
+          { name: 'block-force-push.sh', verdict: 'error', stderr: 'Hook timed out after 5s', exitCode: 1 },
+        ]),
+      ),
+      { name: 'block-force-push.sh' },
+    );
+    expect(timed[0]?.outcome).toBe('fail');
+    const never = await verdicts(guardFinished, ctx('ok', [], guards([])), { name: 'block-force-push.sh' });
+    expect(never[0]?.outcome).toBe('inconclusive');
   });
 });
