@@ -65,6 +65,12 @@ function contextBefore(lines: readonly string[], start: number, first: string): 
   return inTable ? [...out, '', ...header] : out;
 }
 
+/** A line that says an earlier rule no longer holds: an update, a replacement. */
+const UPDATE_LINE =
+  /^\s*(update|updated|replaces?|mise à jour|supersedes?)\b.*\b(no longer|replaces?|supersede)/i;
+/** The most characters of updates one chunk carries. */
+const UPDATES_CHARS = 60_000;
+
 type Source = { kind: string; path: string; text: string };
 
 /**
@@ -83,14 +89,27 @@ export function chunkSources<T extends Source>(
     // A chunk after the first carries the headings it sits under and the header of its table.
     const lines = source.text.split('\n');
     let at = 0;
-    return chunks.map((chunk, index) => {
-      const start = at;
-      at += chunk.split('\n').length;
-      if (index === 0) return chunk;
-      const first = chunk.split('\n').find((line) => line.trim() !== '') ?? '';
-      const context = contextBefore(lines, start, first);
-      return context.length > 0 ? `${context.join('\n')}\n\n${chunk}` : chunk;
-    });
+    return chunks
+      .map((chunk, index) => {
+        const start = at;
+        at += chunk.split('\n').length;
+        if (index === 0) return chunk;
+        const first = chunk.split('\n').find((line) => line.trim() !== '') ?? '';
+        const context = contextBefore(lines, start, first);
+        return context.length > 0 ? `${context.join('\n')}\n\n${chunk}` : chunk;
+      })
+      .map((piece, index, all) => {
+        // An update at the end can retire a rule many chunks earlier: every other chunk carries the updates.
+        const own = new Set(piece.split('\n'));
+        const updates: string[] = [];
+        let size = 0;
+        for (const line of lines) {
+          if (!UPDATE_LINE.test(line) || own.has(line) || size + line.length > UPDATES_CHARS) continue;
+          updates.push(line);
+          size += line.length + 1;
+        }
+        return updates.length > 0 && all.length > 1 ? `${piece}\n\n${updates.join('\n')}` : piece;
+      });
   });
   const rounds = Math.max(1, ...pieces.map((list) => list.length));
   return Array.from({ length: rounds }, (_, round) =>

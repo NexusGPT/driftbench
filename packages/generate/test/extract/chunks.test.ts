@@ -112,4 +112,20 @@ describe('extractMap on a long prompt', () => {
       expect(withB.split('## B').length).toBe(2);
     });
   });
+
+  describe('updates that retire earlier rules', () => {
+    it('are carried by every chunk that does not hold them', () => {
+      const update = 'Update: the earlier rule on "refunds" no longer holds. Always refund within 5 days.';
+      const text = [
+        ...Array.from({ length: 60 }, (_, i) => `- Rule number ${i} must be kept.`),
+        '',
+        update,
+      ].join('\n');
+      const rounds = chunkSources([{ kind: 'prompt', path: 'p.md', text }], 200, 0);
+      expect(rounds.length).toBeGreaterThan(3);
+      const texts = rounds.map((round) => round[0]?.text ?? '');
+      expect(texts.every((t) => t.includes(update))).toBe(true);
+      expect(texts.at(-1)?.split(update).length).toBe(2);
+    });
+  });
 });

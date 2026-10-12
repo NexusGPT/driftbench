@@ -877,3 +877,14 @@ Sources read:
 What others do: Context lines are lines of the file, so quotes from them stay found.
 
 What to try, and why: a chunk carries the headings and the table header it sits under
+
+## Iteration 76
+
+Question: packages/generate/src/extract/chunks.ts: an update at the end of a long prompt that says an earlier rule no longer holds is in a later chunk than the rule, so the rule is reported live; scale.chunk.replacements and the precedence scale items prove it.
+
+Sources read:
+* docs/generating.md section Planned: long prompts (a replacement in one chunk retires the rule it replaces in another)
+
+What others do: Update lines are lines of the file; a chunk that carries them lets the reader see the replacement.
+
+What to try, and why: every chunk carries the updates that retire earlier rules
