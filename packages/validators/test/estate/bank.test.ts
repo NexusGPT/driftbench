@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { longTable } from '../../src/ladders/estate/bank/bench';
 import { judgeCase } from '../../src/ladders/estate/bank/hostile';
 import {
@@ -235,10 +235,29 @@ describe('families against the current components', { timeout: 120_000 }, () => 
     expect(results.get('scan.standing.plain-name')?.detail).toMatch(/missed route/);
   });
 
-  it('finds the script behind an anchor and names the dispatcher forms it cannot read', async () => {
-    const results = await dispatcherFamily().evaluate(3);
-    expect(results.get('scan.dispatcher.interpreter-anchor')?.pass).toBe(true);
-    expect(results.get('scan.dispatcher.dispatcher')?.pass).toBe(false);
+  it('finds the script behind an anchor and names a deliberately missed dispatcher guard', async () => {
+    const originalScan = PlantedEstate.prototype.scan;
+    const scan = vi.spyOn(PlantedEstate.prototype, 'scan').mockImplementation(async function (
+      this: PlantedEstate,
+    ) {
+      const result = await originalScan.call(this);
+      const hid = 'scan.dispatcher.dispatcher:guard';
+      const id = result.idOf.get(hid);
+      result.idOf.delete(hid);
+      result.map.atoms = result.map.atoms.filter((atom) => atom.id !== id);
+      return result;
+    });
+    try {
+      const results = await dispatcherFamily().evaluate(3);
+      expect(scan).toHaveBeenCalled();
+      expect(results.get('scan.dispatcher.interpreter-anchor')?.pass).toBe(true);
+      expect(results.get('scan.dispatcher.dispatcher')).toMatchObject({
+        pass: false,
+        detail: expect.stringContaining('missed guard'),
+      });
+    } finally {
+      scan.mockRestore();
+    }
   });
 
   it('tags the items of one cause with one cause, so the gate counts it once', () => {
@@ -253,9 +272,25 @@ describe('families against the current components', { timeout: 120_000 }, () => 
   });
 
   it('turns a crash of the scan on an empty file into a failing item, not a failing family', async () => {
-    const results = await hostileFamily().evaluate(1);
-    expect(results.get('scan.hostile.empty-definition')).toMatchObject({ pass: false });
-    expect(results.get('scan.hostile.frontmatter-only')?.pass).toBe(true);
+    const originalScan = PlantedEstate.prototype.scan;
+    const scan = vi.spyOn(PlantedEstate.prototype, 'scan').mockImplementation(async function (
+      this: PlantedEstate,
+    ) {
+      if ([...this.raws].some(([path, file]) => path.endsWith('/SKILL.md') && file.text === ''))
+        throw new Error('planted empty-file reader crash');
+      return originalScan.call(this);
+    });
+    try {
+      const results = await hostileFamily().evaluate(1);
+      expect(scan).toHaveBeenCalled();
+      expect(results.get('scan.hostile.empty-definition')).toMatchObject({
+        pass: false,
+        detail: 'the scan threw: planted empty-file reader crash',
+      });
+      expect(results.get('scan.hostile.frontmatter-only')?.pass).toBe(true);
+    } finally {
+      scan.mockRestore();
+    }
   });
 
   it('enumerates allowed tuples of strength 3 by brute force', () => {

@@ -1,4 +1,5 @@
 import { rmSync } from 'node:fs';
+import { reapFolderSync } from './reap';
 
 /**
  * The workspace folders this process has created and not yet removed. A run that ends without destroying its
@@ -19,6 +20,7 @@ function sweep(): void {
     }
   }
   groups.clear();
+  reapFolderSync([...open]);
   for (const folder of open) {
     try {
       rmSync(folder, { recursive: true, force: true });
