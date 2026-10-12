@@ -1,5 +1,5 @@
-import { majority } from '../../packages/judges/src/council';
-import { parseRepeatReducer, passK, reduceRepeats } from '../../packages/stats/src/index';
+import { majority } from '../../../packages/judges/src/council';
+import { parseRepeatReducer, passK, reduceRepeats } from '../../../packages/stats/src/index';
 
 const cases: [string, string, (number | null)[]][] = [
   ['median tie [1,0]', 'median', [1, 0]],

@@ -2,7 +2,7 @@
 // Usage: npx tsx comparisons/intervals/coverage-sim.mts [raw|widened]
 //   raw: the Wilson bounds raised to k, as the report computed them before the fix.
 //   widened: the same bounds, widened to contain the exact value (the current rule).
-import { mulberry32, passAtK, passK, wilson } from '../../packages/stats/src/index';
+import { mulberry32, passAtK, passK, wilson } from '../../../packages/stats/src/index';
 
 const rule = process.argv[2] ?? 'widened';
 const rng = mulberry32(20261012);

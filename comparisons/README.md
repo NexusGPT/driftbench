@@ -1,6 +1,6 @@
 # Comparisons
 
-Scripts that measure driftbench against a competitor on the same input. Each topic folder holds the scripts that produced one entry of the comparison log, and the numbers they print. Run every script from the repository root, or from its own folder: the imports are relative.
+Scripts that measure driftbench against a competitor on the same input. Each topic folder holds the scripts that produced one entry of the comparison log, and the numbers they print. Run every script from the repository root. Each script finds its own files from its location, so it also runs from its own folder.
 
 ## Python scripts: a venv with the competitor installed
 
@@ -11,15 +11,15 @@ python3 -m venv .venv-inspect
 .venv-inspect/bin/pip install inspect-ai==0.3.278
 ```
 
-Run a Python script with that interpreter: `.venv-inspect/bin/python comparisons/reducers/reducer-measure.py`. The eval-based sandbox script uses the mock model, so it makes no paid call.
+Run a Python script with that interpreter: `.venv-inspect/bin/python comparisons/inspect/reducers/reducer-measure.py`. The eval-based sandbox script uses the mock model, so it makes no paid call.
 
 ## TypeScript scripts: the repository's own packages
 
-Install the repository's dependencies (`pnpm install`), then run with `tsx`: `npx tsx comparisons/reducers/reducer-measure-ours.ts`.
+Install the repository's dependencies (`pnpm install`), then run with `tsx`: `npx tsx comparisons/inspect/reducers/reducer-measure-ours.ts`.
 
 ## Topics
 
-| Folder | Compares | Scripts | Makes a paid call |
+| Folder (under comparisons/inspect/) | Compares | Scripts | Makes a paid call |
 |---|---|---|---|
 | `reducers/` | mode, median, at_least and pass^k on the same repeat lists | `reducer-measure.py` (inspect_ai), `reducer-measure-ours.ts` | no |
 | `sandbox/` | command output bound: a 20 MB command in each sandbox | `sandbox-measure.py` (inspect_ai, mock model), `sandbox-measure-ours.mts` | no |

@@ -1,10 +1,11 @@
 import { readFileSync } from 'node:fs';
-import { requestKey } from '../../packages/judges/src/cassette';
-import { parseAnswerText } from '../../packages/judges/src/contract';
-import { fixtureRequest, loadCriteria } from '../../packages/judges/src/criteria';
-import { type PanelVote, weightedPanel } from '../../packages/judges/src/weighted-panel';
+import { fileURLToPath } from 'node:url';
+import { requestKey } from '../../../packages/judges/src/cassette';
+import { parseAnswerText } from '../../../packages/judges/src/contract';
+import { fixtureRequest, loadCriteria } from '../../../packages/judges/src/criteria';
+import { type PanelVote, weightedPanel } from '../../../packages/judges/src/weighted-panel';
 
-const CRIT = '../../examples/acme/criteria';
+const CRIT = fileURLToPath(new URL('../../../examples/acme/criteria', import.meta.url));
 const cassette = JSON.parse(readFileSync(`${CRIT}/calibration/cassette.json`, 'utf8'));
 const loaded = await loadCriteria(CRIT);
 const criteria = loaded.criteria.map((c) => c.def.name).sort();

@@ -1,7 +1,7 @@
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { localProvider } from '../../packages/sandbox/src/index';
+import { localProvider } from '../../../packages/sandbox/src/index';
 
 const dir = await mkdtemp(join(tmpdir(), 'probe-'));
 const box = await localProvider({ dir }).create();

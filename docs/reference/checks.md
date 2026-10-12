@@ -162,7 +162,15 @@ An adapter that does not report the files read, or the helpers dispatched, leave
 
 ## Rules on tools
 
-A run-wide tool policy is off by default. Pass `defaultChecks({ toolPolicy: [...] })` to add the `tool_policy` check. Each rule is `{ pattern, action }`: `pattern` is a glob over the tool name (`*` matches any run of characters), and `action` is `allow`, `deny` or `ask`. The first rule that matches a call decides, and a call no rule matches is allowed. A deny fails the block with one verdict per tool, `tool_policy.<label>`. An ask also fails, since a check has no approver. The check reads the calls every adapter records, so it covers a tool the runtime ran itself, after the call. A tool the harness runs itself is gated before it runs, by the sandbox's approval policy. The runner takes the same rules as `toolPolicy` in its options: every adapter's recorded calls are gated the same way before the checks read them, and a cached block is gated again when it is read back.
+A run-wide tool policy is off by default. Each rule is `{ pattern, action }`: `pattern` is a glob over the tool name (`*` matches any run of characters), and `action` is `allow`, `deny` or `ask`. The first rule that matches a call decides, and a call no rule matches is allowed. An `ask` is a denial, since nothing answers it.
+
+The same rules can be given in three places:
+
+* `defaultChecks({ toolPolicy: [...] })` adds the `tool_policy` check. A denied call fails the block with one verdict per tool, `tool_policy.<label>`. The check reads the calls after the agent made them.
+* `runSpec({ toolPolicy: [...] })` marks each denied call in the recorded block, with an error that names the rule, before the checks read it. The cache keeps the calls as the adapter reported them, and each read of a cached block gates them again.
+* An adapter option, where the adapter runs the tool itself, refuses the call before it runs. These are: the vercel-ai adapter (`toolPolicy`, refusing a tool before its `execute`), the function adapter (`toolPolicy`, applied by the agent's `context.callTool`), and the process adapter (a provider wrapped with `withApprovalPolicy`, refusing a command before it runs).
+
+Before-call gating covers the calls the harness runs. A remote runtime, an MCP server, or an SDK loop that owns its tool objects (openai-agents, pydantic-ai, the model adapters whose tools the runtime runs) has already run a call when the adapter reports it. For those adapters the call is gated after the fact, by the runner and the check, and the trace records the denial.
 
 
 * A tool is forbidden in a block when `rules.forbidden_tools` lists it, when `rules.max_calls` caps it at 0, or when the block expects it 0 times. One verdict per tool names every reason.

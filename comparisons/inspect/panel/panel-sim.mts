@@ -1,5 +1,5 @@
-import { type PanelVote, weightedPanel } from '../../packages/judges/src/weighted-panel';
-import { mulberry32 } from '../../packages/stats/src/index';
+import { type PanelVote, weightedPanel } from '../../../packages/judges/src/weighted-panel';
+import { mulberry32 } from '../../../packages/stats/src/index';
 
 const rng = mulberry32(7);
 function scenario(acc: number[], trainN = 600, testN = 2000) {
