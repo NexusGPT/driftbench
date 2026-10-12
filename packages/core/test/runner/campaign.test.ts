@@ -482,3 +482,42 @@ function specOf(cell: PlannedCell) {
   if (!found) throw new Error(`no spec ${cell.specId}`);
   return found.spec;
 }
+
+describe('runCampaign earlyStop', () => {
+  const plan = planCampaign(loaded, [acme], ['F'], 4);
+  const run = async (wrap: typeof dropsFirstToolCall | undefined, earlyStop: boolean, concurrency = 1) => {
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-early', loaded);
+    const outcomes = await runCampaign({
+      campaignId: 'c-early',
+      cells: plan.cells.filter((cell) => cell.specId === 'acme-plan-upgrade'),
+      specFor: (cell) => specOf(cell),
+      adapterFor: () => acmeAdapter(wrap ? { wrap } : {}),
+      driver: () => createScriptedDriver(),
+      checks: minimalChecks,
+      store,
+      concurrency,
+      earlyStop,
+    });
+    return { outcomes, stored: await store.listRuns({ campaignId: 'c-early' }) };
+  };
+
+  it('stops repeats 2 and 3 of a spec whose first two repeats failed a gating machine check', async () => {
+    for (const concurrency of [1, 4]) {
+      const { outcomes, stored } = await run(dropsFirstToolCall, true, concurrency);
+      expect(outcomes.map((o) => o.state)).toEqual(['fail', 'fail', 'stopped', 'stopped']);
+      expect(outcomes[2]?.earlyStop).toEqual({ after: 2 });
+      expect(outcomes[2]?.run).toBeUndefined();
+      expect(stored).toHaveLength(2);
+    }
+  });
+
+  it('runs every repeat of a passing spec, and every repeat without the option', async () => {
+    const passing = await run(undefined, true);
+    expect(passing.outcomes.map((o) => o.state)).toEqual(['pass', 'pass', 'pass', 'pass']);
+    expect(passing.stored).toHaveLength(4);
+    const off = await run(dropsFirstToolCall, false);
+    expect(off.outcomes.map((o) => o.state)).toEqual(['fail', 'fail', 'fail', 'fail']);
+    expect(off.stored).toHaveLength(4);
+  });
+});
