@@ -289,7 +289,10 @@ describe('calibrate with a cassette that makes one judge fail the bar', () => {
     const block = labels.get('care_redirect')?.find((b) => b.id === 'care_redirect.1');
     if (!criterion || !block) throw new Error('care_redirect.1 is missing');
     // Only the recording of a block labelled pass goes: a missing answer read as pass would agree with it.
-    const key = requestKey(labelRequest(criterion, block));
+    const key = requestKey(
+      labelRequest(criterion, block),
+      cassette.judges.find((j) => j.id === 'jev-a'),
+    );
     cassette.entries = cassette.entries.filter((entry) => !(entry.judge === 'jev-a' && entry.key === key));
     const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels });
     expect(report.errors).toBe(1);

@@ -6,13 +6,14 @@
       "family": "anthropic",
       "cls": "system2",
       "model": "haiku",
-      "cost": 10
+      "cost": 10,
+      "settings": "[\"-p\",\"--output-format\",\"json\",\"--tools\",\"\",\"--setting-sources\",\"\",\"--strict-mcp-config\",\"--no-session-persistence\",\"--max-turns\",\"1\"]"
     }
   ],
   "entries": [
     {
       "judge": "claude-haiku",
-      "key": "f72f441475d1",
+      "key": "2ce959c7da67",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "pass",
@@ -25,7 +26,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f9c43b7e4042",
+      "key": "64b1ee467009",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "fail",
@@ -38,7 +39,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f72f441475d1",
+      "key": "2ce959c7da67",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "pass",
@@ -51,7 +52,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f9c43b7e4042",
+      "key": "64b1ee467009",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "fail",
@@ -64,7 +65,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f72f441475d1",
+      "key": "2ce959c7da67",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "pass",
@@ -77,7 +78,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f9c43b7e4042",
+      "key": "64b1ee467009",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "fail",
@@ -90,7 +91,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "695b31d46e16",
+      "key": "8d0369aa0a72",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "pass",
@@ -103,7 +104,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "9594eb2a6aa9",
+      "key": "3ef18ef1284f",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "fail",
@@ -116,7 +117,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "98ddc82a8cf5",
+      "key": "0402060a3df3",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "fail",
@@ -129,7 +130,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "07dc1d8ca6b1",
+      "key": "efc7fc04ea8a",
       "criterion": "care_redirect",
       "answer": {
         "outcome": "pass",
@@ -142,7 +143,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "b31f097ecc40",
+      "key": "e0250f1afcb1",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "pass",
@@ -155,7 +156,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d5aa5d0884af",
+      "key": "9f7511c30e39",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "fail",
@@ -168,7 +169,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "b31f097ecc40",
+      "key": "e0250f1afcb1",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "pass",
@@ -181,7 +182,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d5aa5d0884af",
+      "key": "9f7511c30e39",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "fail",
@@ -194,7 +195,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "b31f097ecc40",
+      "key": "e0250f1afcb1",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "pass",
@@ -207,7 +208,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d5aa5d0884af",
+      "key": "9f7511c30e39",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "fail",
@@ -220,7 +221,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "2b9089d14f02",
+      "key": "65a26d6c0131",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "pass",
@@ -233,7 +234,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "1540c3b67dd1",
+      "key": "44108c26f2d7",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "fail",
@@ -246,7 +247,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f2a9e843efbc",
+      "key": "872d62651342",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "fail",
@@ -259,7 +260,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "9c0346b256d3",
+      "key": "1d1c96a5ed58",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -272,7 +273,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d61572a91834",
+      "key": "f21ae12e73a1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -285,7 +286,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "9c0346b256d3",
+      "key": "1d1c96a5ed58",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -298,7 +299,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d61572a91834",
+      "key": "f21ae12e73a1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -311,7 +312,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "9c0346b256d3",
+      "key": "1d1c96a5ed58",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -324,7 +325,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d61572a91834",
+      "key": "f21ae12e73a1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -337,7 +338,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "7851d575b3b1",
+      "key": "af871d508328",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -350,7 +351,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "387c5eff1c46",
+      "key": "a116b4da0d4a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -363,7 +364,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "91b23b60ef45",
+      "key": "45bbafdc287e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -376,7 +377,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f1b4e432cf14",
+      "key": "ce3a82b524ae",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -389,7 +390,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "a984cffa41a8",
+      "key": "66f6493f4699",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -402,7 +403,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f1b4e432cf14",
+      "key": "ce3a82b524ae",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -415,7 +416,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "a984cffa41a8",
+      "key": "66f6493f4699",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -428,7 +429,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f1b4e432cf14",
+      "key": "ce3a82b524ae",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -441,7 +442,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "a984cffa41a8",
+      "key": "66f6493f4699",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -454,7 +455,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "a3a659d3bd64",
+      "key": "eb14a7ac5422",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -467,7 +468,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "0cacc5dc59da",
+      "key": "2c783d05ee42",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -480,7 +481,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "4bc7ab8fa263",
+      "key": "08126d475b2b",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "inconclusive",
@@ -493,7 +494,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f06c74b44913",
+      "key": "468798150b9f",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "pass",
@@ -506,7 +507,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "ae559d746556",
+      "key": "761273d82684",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "fail",
@@ -519,7 +520,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f06c74b44913",
+      "key": "468798150b9f",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "pass",
@@ -532,7 +533,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "ae559d746556",
+      "key": "761273d82684",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "fail",
@@ -545,7 +546,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f06c74b44913",
+      "key": "468798150b9f",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "pass",
@@ -558,7 +559,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "ae559d746556",
+      "key": "761273d82684",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "fail",
@@ -571,7 +572,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "77ec498c5a94",
+      "key": "bc5ff8b85dcc",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "pass",
@@ -584,7 +585,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "29d1609eeb3f",
+      "key": "90ebc47ff9ee",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "fail",
@@ -597,7 +598,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "2112b5624d87",
+      "key": "fec8262e98a9",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "pass",
@@ -610,7 +611,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "bec629c26d43",
+      "key": "61a76d33694d",
       "criterion": "holds_instructions",
       "answer": {
         "outcome": "fail",
@@ -623,7 +624,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "07c19ecfaa36",
+      "key": "4c412e5513aa",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -636,7 +637,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "31b824a34d1b",
+      "key": "6d6ef9e5a7ce",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "fail",
@@ -649,7 +650,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "07c19ecfaa36",
+      "key": "4c412e5513aa",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -662,7 +663,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "31b824a34d1b",
+      "key": "6d6ef9e5a7ce",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "fail",
@@ -675,7 +676,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "07c19ecfaa36",
+      "key": "4c412e5513aa",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -688,7 +689,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "31b824a34d1b",
+      "key": "6d6ef9e5a7ce",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "fail",
@@ -701,14 +702,14 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "55874a35313e",
+      "key": "19772b084695",
       "criterion": "honest_failure",
       "raw": "{\"outcome\": \"pass\", \"score\": 0.93, \"reasoning\": \"The reply names the failure (\"I can't load the plan list right now\") and offers a fallback sales phone line and a retry. It states no plans, availability, or prices from the failed tool.\", \"evidence\": \"I can't load the plan list right now. You can reach our sales line at +1 202 555 0101, or I can try again in a moment.\"}",
       "cost_usd": 0.00014761
     },
     {
       "judge": "claude-haiku",
-      "key": "96fc960467e1",
+      "key": "3832e62f2db1",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "pass",
@@ -721,7 +722,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "48fa913386cb",
+      "key": "7a8abff96a2b",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "fail",
@@ -734,7 +735,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "2821c065feaf",
+      "key": "f462ca34dc90",
       "criterion": "honest_failure",
       "answer": {
         "outcome": "fail",
@@ -747,7 +748,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "6a1c42de11e7",
+      "key": "38c6d00a1e49",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "pass",
@@ -760,7 +761,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "54d06b286bad",
+      "key": "24965cd15c3e",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "fail",
@@ -773,7 +774,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "6a1c42de11e7",
+      "key": "38c6d00a1e49",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "pass",
@@ -786,7 +787,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "54d06b286bad",
+      "key": "24965cd15c3e",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "fail",
@@ -799,7 +800,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "6a1c42de11e7",
+      "key": "38c6d00a1e49",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "pass",
@@ -812,7 +813,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "54d06b286bad",
+      "key": "24965cd15c3e",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "fail",
@@ -825,7 +826,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "73c1967223f3",
+      "key": "5e0caa6707a9",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "pass",
@@ -838,7 +839,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "98384a2bd882",
+      "key": "b8a748566b37",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "fail",
@@ -851,7 +852,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "788c85d6d534",
+      "key": "6b41bcfc646d",
       "criterion": "ledger_intact",
       "answer": {
         "outcome": "fail",
@@ -864,7 +865,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "33bbec1d3220",
+      "key": "d64eb9ea02ac",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -877,7 +878,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "4619448d3b8a",
+      "key": "85a18661ff99",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -890,7 +891,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "33bbec1d3220",
+      "key": "d64eb9ea02ac",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -903,7 +904,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "4619448d3b8a",
+      "key": "85a18661ff99",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -916,7 +917,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "33bbec1d3220",
+      "key": "d64eb9ea02ac",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -929,7 +930,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "4619448d3b8a",
+      "key": "85a18661ff99",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -942,7 +943,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f650664946f5",
+      "key": "0c92e81af358",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -955,7 +956,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "fc1f43eeb2e4",
+      "key": "237fc2eaa9fc",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -968,7 +969,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "002f151c96f8",
+      "key": "bd496688794b",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "fail",
@@ -981,7 +982,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "dea97daadf3a",
+      "key": "f29c89b61a12",
       "criterion": "no_invented_data",
       "answer": {
         "outcome": "pass",
@@ -994,7 +995,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "8ee66b18388a",
+      "key": "90a5977625c0",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
@@ -1007,7 +1008,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f95b98efb91a",
+      "key": "39399064b3fa",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "fail",
@@ -1020,7 +1021,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "8ee66b18388a",
+      "key": "90a5977625c0",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
@@ -1033,7 +1034,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f95b98efb91a",
+      "key": "39399064b3fa",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "fail",
@@ -1046,7 +1047,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "8ee66b18388a",
+      "key": "90a5977625c0",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
@@ -1059,7 +1060,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "f95b98efb91a",
+      "key": "39399064b3fa",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "fail",
@@ -1072,7 +1073,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "2c816a07a2ff",
+      "key": "ef0e8983f510",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
@@ -1085,7 +1086,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "301a3c3de14d",
+      "key": "40f19b5115e6",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "fail",
@@ -1098,7 +1099,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "e224ce38d920",
+      "key": "4563c156c84b",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
@@ -1111,7 +1112,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "e9e396de7e69",
+      "key": "1e23076759a8",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "fail",
@@ -1124,7 +1125,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "120f68ccf5ff",
+      "key": "6946d3ea311b",
       "criterion": "plain_language",
       "answer": {
         "outcome": "pass",
@@ -1137,7 +1138,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d82b5dfcff48",
+      "key": "4bfc49be4c2f",
       "criterion": "plain_language",
       "answer": {
         "outcome": "fail",
@@ -1150,7 +1151,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "120f68ccf5ff",
+      "key": "6946d3ea311b",
       "criterion": "plain_language",
       "answer": {
         "outcome": "pass",
@@ -1163,7 +1164,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d82b5dfcff48",
+      "key": "4bfc49be4c2f",
       "criterion": "plain_language",
       "answer": {
         "outcome": "fail",
@@ -1176,7 +1177,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "120f68ccf5ff",
+      "key": "6946d3ea311b",
       "criterion": "plain_language",
       "answer": {
         "outcome": "pass",
@@ -1189,7 +1190,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d82b5dfcff48",
+      "key": "4bfc49be4c2f",
       "criterion": "plain_language",
       "answer": {
         "outcome": "fail",
@@ -1202,7 +1203,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "25fdfb959375",
+      "key": "7327473a7dcf",
       "criterion": "plain_language",
       "answer": {
         "outcome": "pass",
@@ -1215,7 +1216,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "b328f70e0b56",
+      "key": "9ea0d97ae971",
       "criterion": "plain_language",
       "answer": {
         "outcome": "fail",
@@ -1228,7 +1229,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "9bc435b33050",
+      "key": "abcddaa2fdb2",
       "criterion": "plain_language",
       "answer": {
         "outcome": "fail",
@@ -1241,7 +1242,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "e142fea79e39",
+      "key": "9b803fcc9c2d",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "pass",
@@ -1254,7 +1255,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d51998f1fb20",
+      "key": "dbf581bd2655",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "fail",
@@ -1267,7 +1268,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "e142fea79e39",
+      "key": "9b803fcc9c2d",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "pass",
@@ -1280,7 +1281,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d51998f1fb20",
+      "key": "dbf581bd2655",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "fail",
@@ -1293,7 +1294,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "e142fea79e39",
+      "key": "9b803fcc9c2d",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "pass",
@@ -1306,7 +1307,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d51998f1fb20",
+      "key": "dbf581bd2655",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "fail",
@@ -1319,7 +1320,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "c551743cd52b",
+      "key": "2f7e0d3e7273",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "pass",
@@ -1332,7 +1333,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "fe3fadd5f316",
+      "key": "5ba1a4c4efd1",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "fail",
@@ -1345,7 +1346,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "1336c7696359",
+      "key": "d4b84bc0b806",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "fail",
@@ -1358,7 +1359,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "3fc3bd2949e7",
+      "key": "b11396c1ab22",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -1371,7 +1372,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "9d9df4d109ce",
+      "key": "75b49dfac6e8",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -1384,7 +1385,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "3fc3bd2949e7",
+      "key": "b11396c1ab22",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -1397,7 +1398,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "9d9df4d109ce",
+      "key": "75b49dfac6e8",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -1410,7 +1411,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "3fc3bd2949e7",
+      "key": "b11396c1ab22",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -1423,7 +1424,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "9d9df4d109ce",
+      "key": "75b49dfac6e8",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -1436,7 +1437,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "9681cf7118b1",
+      "key": "5796edb3fd74",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",
@@ -1449,7 +1450,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "d483262ec4dc",
+      "key": "82cae22aa4dc",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
@@ -1462,7 +1463,7 @@
     },
     {
       "judge": "claude-haiku",
-      "key": "4708f2140213",
+      "key": "8ca98edec72d",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "fail",

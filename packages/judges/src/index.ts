@@ -32,7 +32,9 @@ export {
   CassetteEntry,
   CassetteJudge,
   cassettePlayers,
+  dataKey,
   emptyCassette,
+  type KeyClient,
   loadCassette,
   playerClient,
   recordingClient,
@@ -50,7 +52,12 @@ export {
 } from './check';
 export type { ClientOptions, JudgeClient } from './client';
 export { createAnthropicJudge, createGoogleJudge, createOpenAiJudge } from './clients/chat';
-export { type ClaudeCliOptions, claudeCost, createClaudeCliJudge } from './clients/claude-cli';
+export {
+  CLAUDE_SETTINGS,
+  type ClaudeCliOptions,
+  claudeCost,
+  createClaudeCliJudge,
+} from './clients/claude-cli';
 export { type FakeAnswer, FakeJudge } from './clients/fake';
 export { createHttpJudge, type HttpJudgeOptions } from './clients/http-json';
 export {
@@ -73,6 +80,7 @@ export {
   outcomeFromProbability,
   parseAnswerText,
   parseAnswerValue,
+  repairAnswerText,
   TranscriptEntry,
 } from './contract';
 export {
@@ -112,12 +120,16 @@ export {
   type DataTag,
   dataTag,
   escapeData,
+  PROMPT_FINGERPRINT,
+  PROMPT_PARTS,
+  promptFingerprint,
   RUBRIC_TEMPLATE,
   renderEntry,
   renderRubric,
   renderTranscript,
   renderUser,
   SYSTEM_PROMPT,
+  SYSTEM1_QUESTION,
 } from './prompt';
 export {
   assign,

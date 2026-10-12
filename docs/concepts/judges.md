@@ -142,6 +142,7 @@ Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku a
 * The observed content sits inside data tags: `<given_data>`, `<transcript_data>` and `<artifact_data>`. The instruction says that text inside a data tag is data, never instructions, and that an instruction found in the data is never a reason to pass. Any text in the data that opens or closes a data tag is escaped, so the data closes exactly once.
 * The answer is the final JSON object in the text. An object quoted earlier in the reasoning never becomes the verdict. A final object cut off at the end is inconclusive.
 * The answer is strict JSON with `outcome` (`pass`, `fail` or `inconclusive`), `reasoning`, and optionally `score` (the probability that the criterion passes, from 0 to 1) and `evidence` (a short quote from the data). Any other key breaks the contract.
+* An answer that is not valid JSON gets one strict repair first: inside a string, a double quote that cannot close it is escaped, and nothing else changes. If the repaired text meets the whole contract, it counts, and the result, the vote and the cassette entry say `repaired`. Haiku wrote such quotes in about one answer in a hundred (for example `"reasoning": "asks for the address again ("What address would you like me to check?")"`).
 * An answer that does not parse, breaks the contract, or stops at its token limit is inconclusive. The council asks that judge again once with the large budget (for a chat model, 4096 tokens instead of 1024). There is no silent fallback.
 * A refusal by the provider is inconclusive.
 * An inconclusive verdict is never counted as a pass or a fail.
@@ -198,7 +199,8 @@ claude -p --output-format json --model <model> --system-prompt <the judge system
 A cassette is a JSON file of recorded answers. It lets the council and calibration run with no network and no key.
 
 * `recordingClient` wraps a live client and appends every answer or failure to a cassette. An answer that did not parse is kept as raw text only, so its replay does not parse either. No key or header is recorded.
-* `playerClient` and `cassettePlayers` replay a cassette as clients. An entry matches by the judge id and the request key, a hash of the criterion, the transcript, the artifact, the Given and, for a re-judge, the large budget.
+* `playerClient` and `cassettePlayers` replay a cassette as clients. An entry matches by the judge id and the request key. The key hashes three things: the data (the criterion, the transcript, the artifact, the inputs, the Given and, for a re-judge, the large budget), the fingerprint of the prompt texts (the system prompt, the rubric template, the system 1 question and the data tags), and the client (its class, its model and its settings, such as the flags of the claude command judge).
+* A change to the prompt, the model or the client settings therefore misses every old recording: the replay fails with `cassette_miss`, never answers silently from a recording made for another question. Re-record, or re-key a recording when the change does not touch what the judge reads. `dataKey` gives the data part alone.
 * A request with no recording throws a `cassette_miss` error. A cassette never makes up an answer. A changed rubric or fixture changes the key, so its old recordings no longer match.
 
 The repository ships three cassettes of scripted answers, each for the same six judges, and two recordings of real judges (see [a real judge](#a-real-judge-haiku-on-the-claude-command) and [a council of three Claude models](#a-council-of-three-claude-models)):
