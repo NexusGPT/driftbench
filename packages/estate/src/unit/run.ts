@@ -1,0 +1,519 @@
+import { spawn } from 'node:child_process';
+import { constants, existsSync } from 'node:fs';
+import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
+import { homedir, tmpdir } from 'node:os';
+import { dirname, extname, join } from 'node:path';
+import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@driftbench/generate';
+import { parse as parseYaml } from 'yaml';
+import { guardName } from '../scan/code';
+import type { EstateReader, GuardDecl } from '../scan/reader';
+
+/**
+ * The estate unit runner: runs the guards and scripts of an estate directly, with no model in the loop.
+ *
+ * A guard case is a hook payload in the runtime's input shape. The runner adds the session fields the
+ * runtime sends (session id, a transcript that holds the case's last reply, the working folder, the event
+ * name, the permission mode), finds the guard in the estate as it is now (the event, the matcher and the
+ * guard's name; a guard the estate no longer configures fails every case), and runs the guard's command on a
+ * copy of the estate, its stdin the payload, `CLAUDE_PROJECT_DIR` the copy. What the runtime would read from
+ * the run is the outcome: deny on exit 2 or a JSON decision that blocks, ask, allow, or error on any other
+ * exit code; the message (stderr on exit 2, the reason of a JSON decision) and what the guard printed.
+ *
+ * `record` runs each case twice on the original estate and writes the outcome into the test (a message or an
+ * output that differs between the two runs is not kept). A positive case recorded with no effect is inert; a
+ * hostile case recorded allowed is a weakness of the guard. Without `record`, every recorded case that is not
+ * inert must give its recorded outcome again; guard_speed also holds every run under its budget.
+ *
+ * A script test runs the fixtures the estate declares for the script (`scripts:` in driftbench.estate.yaml),
+ * each in a fresh working folder, and compares its exit code and stdout with the declared ones.
+ *
+ * Runs are sandboxed where the platform has a sandbox (macOS sandbox-exec): no network, no read of the
+ * credential folders of the home folder, writes only into the copy and the run's temporary folder. The
+ * environment holds PATH, a fresh HOME and CLAUDE_PROJECT_DIR, nothing else.
+ */
+
+export const ESTATE_CONFIG_FILE = 'driftbench.estate.yaml';
+
+export type UnitCaseResult = {
+  case: string;
+  material: string;
+  outcome: UnitOutcome;
+  expected?: UnitOutcome;
+  inert?: boolean;
+  pass: boolean;
+  ms: number;
+  detail: string;
+};
+
+export type UnitResult = {
+  id: string;
+  testType: UnitTest['testType'];
+  atom: string;
+  status: 'pass' | 'fail' | 'unrecorded' | 'inert';
+  detail: string;
+  cases: UnitCaseResult[];
+  /** With record: the test with its recorded cases, to write back. */
+  recorded?: UnitTest;
+};
+
+export type UnitRunOptions = {
+  root: string;
+  reader: EstateReader;
+  record?: boolean;
+  /** Run without the sandbox even where one exists. */
+  noSandbox?: boolean;
+};
+
+export type UnitRun = { results: UnitResult[]; sandbox: 'sandbox-exec' | 'none'; notes: string[] };
+
+type Exec = { exitCode: number; stdout: string; stderr: string; ms: number; timedOut: boolean };
+
+const CREDENTIAL_FOLDERS = [
+  '.ssh',
+  '.aws',
+  '.gnupg',
+  '.config/gcloud',
+  '.azure',
+  '.kube',
+  '.docker',
+  '.netrc',
+  '.npmrc',
+  '.pypirc',
+  '.git-credentials',
+  '.claude',
+  '.claude.json',
+  'Library/Keychains',
+];
+
+export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunOptions): Promise<UnitRun> {
+  const notes: string[] = [];
+  const raw = await options.reader.read(options.root);
+  const work = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-unit-')));
+  const copy = join(work, 'estate');
+  try {
+    await copyListed(options.root, copy, options.reader);
+    const sandbox =
+      !options.noSandbox && process.platform === 'darwin' && existsSync('/usr/bin/sandbox-exec');
+    if (!sandbox)
+      notes.push('no sandbox: the guards and scripts ran with the network and the home folder open');
+    const runner = { work, copy, sandbox, counter: 0 };
+    const config = await readConfig(options.root);
+    const results: UnitResult[] = [];
+    for (const test of tests) {
+      if (test.target.kind === 'script') results.push(await runScriptTest(test, config, runner));
+      else results.push(await runGuardTest(test, raw.guards, options.record === true, runner));
+    }
+    return { results, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
+}
+
+type Runner = { work: string; copy: string; sandbox: boolean; counter: number };
+
+async function runGuardTest(
+  test: UnitTest,
+  guards: readonly GuardDecl[],
+  record: boolean,
+  runner: Runner,
+): Promise<UnitResult> {
+  const base = { id: test.id, testType: test.testType, atom: test.atom };
+  const target = test.target;
+  if (target.kind !== 'guard') throw new Error('not a guard test');
+  const guard = guards.find(
+    (candidate) =>
+      guardName(candidate) === target.name &&
+      candidate.event === target.event &&
+      (candidate.matcher ?? '') === (target.matcher ?? ''),
+  );
+  if (!guard) {
+    return {
+      ...base,
+      status: 'fail',
+      detail: `the estate no longer runs the ${target.event} guard ${target.name}${target.matcher ? ` on ${target.matcher}` : ''}`,
+      cases: [],
+    };
+  }
+  if (!record && test.recordedOn === undefined) {
+    return {
+      ...base,
+      status: 'unrecorded',
+      detail: 'no outcome recorded: run --record on the original first',
+      cases: [],
+    };
+  }
+  const timeoutMs = Math.round((guard.timeout ?? target.timeout ?? 60) * 1000);
+  const repeats = test.testType === 'guard_speed' ? 3 : record ? 2 : 1;
+  const cases: UnitCaseResult[] = [];
+  const recordedCases: GuardCase[] = [];
+  for (const unitCase of test.cases) {
+    const runs: Exec[] = [];
+    for (let index = 0; index < repeats; index++)
+      runs.push(await runGuard(guard, test, unitCase, runner, timeoutMs));
+    const outcomes = runs.map(outcomeOf);
+    const first = outcomes[0] as UnitOutcome;
+    const ms = Math.max(...runs.map((run) => run.ms));
+    if (record) {
+      const stable: UnitOutcome = {
+        decision: first.decision,
+        exitCode: first.exitCode,
+        ...(first.message !== undefined && outcomes.every((other) => other.message === first.message)
+          ? { message: first.message }
+          : {}),
+        ...(first.output !== undefined && outcomes.every((other) => other.output === first.output)
+          ? { output: first.output }
+          : {}),
+      };
+      const noEffect =
+        stable.decision === 'allow' && stable.message === undefined && stable.output === undefined;
+      const inert =
+        (test.testType === 'guard_positive' || test.testType === 'guard_speed') && noEffect
+          ? true
+          : test.testType === 'guard_hostile' && stable.decision === 'allow';
+      recordedCases.push({ ...unitCase, expected: stable, ...(inert ? { inert: true } : {}) });
+      cases.push({
+        case: unitCase.id,
+        material: unitCase.material,
+        outcome: stable,
+        ...(inert ? { inert } : {}),
+        pass: true,
+        ms,
+        detail: inert
+          ? test.testType === 'guard_hostile'
+            ? 'slips past the guard'
+            : 'no effect'
+          : 'recorded',
+      });
+      continue;
+    }
+    const expected = unitCase.expected;
+    if (unitCase.inert || expected === undefined) {
+      cases.push({
+        case: unitCase.id,
+        material: unitCase.material,
+        outcome: first,
+        inert: true,
+        pass: true,
+        ms,
+        detail: 'inert',
+      });
+      continue;
+    }
+    const differences = outcomes.flatMap((outcome) => differ(expected, outcome));
+    const slow = test.budgetMs !== undefined && ms > test.budgetMs;
+    const pass = differences.length === 0 && !slow;
+    cases.push({
+      case: unitCase.id,
+      material: unitCase.material,
+      outcome: first,
+      expected,
+      pass,
+      ms,
+      detail: pass
+        ? `${first.decision} as recorded`
+        : [
+            ...new Set(differences),
+            ...(slow ? [`took ${ms} ms, over the budget of ${test.budgetMs} ms`] : []),
+          ].join('; '),
+    });
+  }
+  if (record) {
+    const active = recordedCases.filter((entry) => !entry.inert).length;
+    return {
+      ...base,
+      status: 'pass',
+      detail: `recorded ${recordedCases.length} cases, ${active} active, ${recordedCases.length - active} ${test.testType === 'guard_hostile' ? 'slipping past the guard' : 'inert'}`,
+      cases,
+      recorded: { ...test, cases: recordedCases, recordedOn: test.mapHash },
+    };
+  }
+  const active = cases.filter((entry) => !entry.inert);
+  if (active.length === 0)
+    return { ...base, status: 'inert', detail: 'no recorded case shows the guard at work', cases };
+  const failed = active.filter((entry) => !entry.pass);
+  return {
+    ...base,
+    status: failed.length === 0 ? 'pass' : 'fail',
+    detail:
+      failed.length === 0
+        ? `${active.length} of ${active.length} cases as recorded`
+        : `${failed.length} of ${active.length} cases changed: ${failed.map((entry) => `${entry.case} ${entry.detail}`).join(' | ')}`,
+    cases,
+  };
+}
+
+/** How a recorded outcome and a new one differ, in words; empty when they agree. */
+function differ(expected: UnitOutcome, actual: UnitOutcome): string[] {
+  const out: string[] = [];
+  if (expected.decision !== actual.decision)
+    out.push(`${actual.decision} where ${expected.decision} was recorded`);
+  if (expected.exitCode !== actual.exitCode)
+    out.push(`exit ${actual.exitCode} where ${expected.exitCode} was recorded`);
+  if (expected.message !== undefined && expected.message !== actual.message) out.push('another message');
+  if (expected.output !== undefined && expected.output !== actual.output) out.push('another output');
+  return out;
+}
+
+/** What the runtime reads from a guard run. */
+export function outcomeOf(run: Pick<Exec, 'exitCode' | 'stdout' | 'stderr' | 'timedOut'>): UnitOutcome {
+  const stdout = run.stdout.trim();
+  const stderr = run.stderr.trim();
+  if (run.timedOut) return { decision: 'error', exitCode: run.exitCode, message: 'timed out' };
+  if (run.exitCode === 2) return { decision: 'deny', exitCode: 2, ...(stderr ? { message: stderr } : {}) };
+  if (run.exitCode !== 0)
+    return { decision: 'error', exitCode: run.exitCode, ...(stderr ? { message: stderr } : {}) };
+  let decision: UnitDecision = 'allow';
+  let message: string | undefined;
+  try {
+    const json: unknown = stdout.startsWith('{') ? JSON.parse(stdout) : undefined;
+    if (json !== null && typeof json === 'object') {
+      const record = json as Record<string, unknown>;
+      const specific = record.hookSpecificOutput as Record<string, unknown> | undefined;
+      const permission = specific?.permissionDecision;
+      if (permission === 'deny' || permission === 'ask' || permission === 'allow') {
+        decision = permission;
+        if (typeof specific?.permissionDecisionReason === 'string')
+          message = specific.permissionDecisionReason;
+      } else if (record.decision === 'block') {
+        decision = 'deny';
+        if (typeof record.reason === 'string') message = record.reason;
+      } else if (record.continue === false) {
+        decision = 'deny';
+        if (typeof record.stopReason === 'string') message = record.stopReason;
+      }
+    }
+  } catch {
+    // Plain text on stdout: kept as the output, the decision stays allow.
+  }
+  return {
+    decision,
+    exitCode: 0,
+    ...(message !== undefined ? { message } : {}),
+    ...(stdout ? { output: stdout } : {}),
+  };
+}
+
+async function runGuard(
+  guard: GuardDecl,
+  test: UnitTest,
+  unitCase: GuardCase,
+  runner: Runner,
+  timeoutMs: number,
+): Promise<Exec> {
+  runner.counter += 1;
+  const folder = join(runner.work, `case-${runner.counter}`);
+  await mkdir(folder, { recursive: true });
+  const transcript = join(folder, 'transcript.jsonl');
+  const reply = typeof unitCase.payload.last_reply === 'string' ? unitCase.payload.last_reply : '';
+  const prompt = typeof unitCase.payload.prompt === 'string' ? unitCase.payload.prompt : 'unit test';
+  await writeFile(
+    transcript,
+    [
+      { type: 'user', message: { role: 'user', content: prompt } },
+      { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: reply || 'ok' }] } },
+    ]
+      .map((line) => JSON.stringify(line))
+      .join('\n')
+      .concat('\n'),
+  );
+  const payload: Record<string, unknown> = {
+    session_id: `unit-${test.id}-${unitCase.id}`,
+    transcript_path: transcript,
+    cwd: runner.copy,
+    hook_event_name: guard.event,
+    permission_mode: 'default',
+    ...(unitCase.payload.tool_name !== undefined ? { tool_use_id: `toolu_unit_${runner.counter}` } : {}),
+    ...unitCase.payload,
+  };
+  return execute(['/bin/sh', '-c', guard.command], `${JSON.stringify(payload)}\n`, runner, folder, timeoutMs);
+}
+
+async function runScriptTest(
+  test: UnitTest,
+  config: Record<string, unknown>,
+  runner: Runner,
+): Promise<UnitResult> {
+  const base = { id: test.id, testType: test.testType, atom: test.atom };
+  if (test.target.kind !== 'script') throw new Error('not a script test');
+  const path = test.target.path;
+  const scripts = config.scripts as Record<string, unknown> | undefined;
+  const declared = scripts?.[path];
+  if (!Array.isArray(declared) || declared.length === 0) {
+    return {
+      ...base,
+      status: 'inert',
+      detail: `${ESTATE_CONFIG_FILE} declares no fixture for ${path}`,
+      cases: [],
+    };
+  }
+  if (!existsSync(join(runner.copy, path))) {
+    return { ...base, status: 'fail', detail: `the estate no longer holds ${path}`, cases: [] };
+  }
+  const cases: UnitCaseResult[] = [];
+  for (const [index, fixture] of declared.entries()) {
+    const entry = (fixture ?? {}) as Record<string, unknown>;
+    const args = Array.isArray(entry.args) ? entry.args.map(String) : [];
+    const expect = (entry.expect ?? {}) as Record<string, unknown>;
+    runner.counter += 1;
+    const folder = join(runner.work, `case-${runner.counter}`);
+    await mkdir(folder, { recursive: true });
+    const files = (entry.files ?? {}) as Record<string, unknown>;
+    for (const [name, text] of Object.entries(files)) {
+      await mkdir(dirname(join(folder, name)), { recursive: true });
+      await writeFile(join(folder, name), String(text));
+    }
+    const run = await execute(
+      [...interpreterOf(path), join(runner.copy, path), ...args],
+      typeof entry.stdin === 'string' ? entry.stdin : '',
+      runner,
+      folder,
+      60_000,
+    );
+    const problems: string[] = [];
+    const wantedExit = typeof expect.exitCode === 'number' ? expect.exitCode : 0;
+    if (run.exitCode !== wantedExit) problems.push(`exit ${run.exitCode} where ${wantedExit} is declared`);
+    if (typeof expect.stdout === 'string' && run.stdout.trim() !== expect.stdout.trim())
+      problems.push('another stdout');
+    const includes = Array.isArray(expect.stdoutIncludes) ? expect.stdoutIncludes.map(String) : [];
+    for (const piece of includes) if (!run.stdout.includes(piece)) problems.push(`stdout lacks "${piece}"`);
+    const outcome: UnitOutcome = {
+      decision: run.exitCode === 0 ? 'allow' : 'error',
+      exitCode: run.exitCode,
+      ...(run.stdout.trim() ? { output: run.stdout.trim() } : {}),
+    };
+    cases.push({
+      case: `fixture-${index + 1}`,
+      material: args.join(' '),
+      outcome,
+      pass: problems.length === 0,
+      ms: run.ms,
+      detail: problems.length === 0 ? 'as declared' : problems.join('; '),
+    });
+  }
+  const failed = cases.filter((entry) => !entry.pass);
+  return {
+    ...base,
+    status: failed.length === 0 ? 'pass' : 'fail',
+    detail:
+      failed.length === 0
+        ? `${cases.length} of ${cases.length} fixtures as declared`
+        : failed.map((entry) => `${entry.case}: ${entry.detail}`).join(' | '),
+    cases,
+  };
+}
+
+function interpreterOf(path: string): string[] {
+  switch (extname(path)) {
+    case '.py':
+      return ['python3'];
+    case '.js':
+    case '.mjs':
+    case '.cjs':
+      return ['node'];
+    case '.ts':
+      return ['npx', 'tsx'];
+    case '.rb':
+      return ['ruby'];
+    default:
+      return ['/bin/sh'];
+  }
+}
+
+/** The macOS sandbox profile of a run: no network, no credential folder, writes only where the run may. */
+export function sandboxProfile(writable: readonly string[], home: string): string {
+  const quote = (path: string) => JSON.stringify(path);
+  return [
+    '(version 1)',
+    '(allow default)',
+    '(deny network*)',
+    `(deny file-read* ${CREDENTIAL_FOLDERS.map((name) => `(subpath ${quote(join(home, name))})`).join(' ')})`,
+    '(deny file-write*)',
+    `(allow file-write* ${writable.map((path) => `(subpath ${quote(path)})`).join(' ')} (literal "/dev/null") (literal "/dev/tty") (regex #"^/dev/fd/"))`,
+  ].join('\n');
+}
+
+async function execute(
+  argv: string[],
+  stdin: string,
+  runner: Runner,
+  cwd: string,
+  timeoutMs: number,
+): Promise<Exec> {
+  const home = join(runner.work, 'home');
+  await mkdir(home, { recursive: true });
+  const env: Record<string, string> = {
+    PATH: process.env.PATH ?? '/usr/bin:/bin',
+    HOME: home,
+    TMPDIR: runner.work,
+    CLAUDE_PROJECT_DIR: runner.copy,
+  };
+  const realHome = await realpath(homedir()).catch(() => homedir());
+  const command = runner.sandbox
+    ? ['/usr/bin/sandbox-exec', '-p', sandboxProfile([runner.work], realHome), ...argv]
+    : argv;
+  const started = performance.now();
+  return await new Promise<Exec>((resolve) => {
+    const child = spawn(command[0] as string, command.slice(1), {
+      cwd,
+      env,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGKILL');
+    }, timeoutMs);
+    child.stdout.on('data', (chunk: Buffer) => {
+      stdout += chunk.toString('utf8');
+    });
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString('utf8');
+    });
+    child.stdin.on('error', () => undefined);
+    child.stdin.end(stdin);
+    child.on('error', (error) => {
+      clearTimeout(timer);
+      resolve({
+        exitCode: 127,
+        stdout,
+        stderr: `${stderr}${error.message}`,
+        ms: performance.now() - started,
+        timedOut,
+      });
+    });
+    child.on('close', (code) => {
+      clearTimeout(timer);
+      resolve({ exitCode: code ?? 1, stdout, stderr, ms: Math.round(performance.now() - started), timedOut });
+    });
+  });
+}
+
+/** The estate configuration, when the estate has one. */
+async function readConfig(root: string): Promise<Record<string, unknown>> {
+  const text = await readFile(join(root, ESTATE_CONFIG_FILE), 'utf8').catch(() => undefined);
+  if (text === undefined) return {};
+  try {
+    const parsed: unknown = parseYaml(text);
+    return parsed !== null && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** A copy of the files the reader lists, cloned where the file system can, never linked to the source. */
+async function copyListed(root: string, to: string, reader: EstateReader): Promise<void> {
+  const files = reader.listFiles ? await reader.listFiles(root) : [];
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(16, files.length) }, async () => {
+      while (next < files.length) {
+        const file = files[next++] as string;
+        await mkdir(dirname(join(to, file)), { recursive: true });
+        await copyFile(join(root, file), join(to, file), constants.COPYFILE_FICLONE);
+      }
+    }),
+  );
+  await mkdir(to, { recursive: true });
+}

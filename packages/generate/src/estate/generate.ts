@@ -35,6 +35,7 @@ import {
   type ThenParts,
   thenOf,
 } from './then';
+import { UNIT_DIR, UNIT_TEST_TYPES, type UnitTest, unitTestOf } from './unit';
 
 /**
  * `driftbench estate generate`: every approved plan row becomes one or more task specs, by code only.
@@ -174,6 +175,8 @@ export type EstateReport = {
   sessions: { path: string; sessions: number } | null;
   options: { seed: number; checks: string[]; fallback: boolean; judge: boolean };
   summary: { specs: number; blocks: number; complete: number; incomplete: number; judged: number };
+  /** Unit tests (unit/): guards and scripts run directly, with no model; the rows with none, and why. */
+  unit: { tests: number; guards: number; scripts: number; cases: number; skipped: string[] };
   /** Where the asks and outcomes of the complete specs come from. */
   sources: {
     asks: { bank: number; code: number; session: number; none: number };
@@ -335,6 +338,9 @@ export function generateEstateSuite(
   const waiting: string[] = [];
   const struck: string[] = [];
   const used = new Set<string>();
+  const unitSeen = new Set<string>();
+  const unitWritten: UnitTest[] = [];
+  const unitSkipped: string[] = [];
   let blocks = 0;
   let judged = 0;
 
@@ -351,8 +357,23 @@ export function generateEstateSuite(
     const totalsMode = totalsFor(perMode, row.mode);
     totalsType.rows += 1;
     totalsMode.rows += 1;
-    // A static row with a check the static runner knows is a static test, not a spec.
     const head = ctx.atoms.get(row.atomIds[0] ?? '');
+    // A guard or script row also gets a unit test, once per test type and atom: the guard or the script run
+    // directly by driftbench estate unit, with no model in the loop.
+    if (head && UNIT_TEST_TYPES.has(row.testType)) {
+      const key = `${row.testType}:${head.id}`;
+      if (!unitSeen.has(key)) {
+        unitSeen.add(key);
+        const id = `unit.${row.testType}.${head.id}`;
+        const built = unitTestOf(row, head, ctx.atoms, ctx.map.hash, id);
+        if (typeof built === 'string') unitSkipped.push(`${id}: ${built}`);
+        else {
+          files.push({ path: `${UNIT_DIR}/${row.testType}/${id}.json`, text: formatJson(built) });
+          unitWritten.push(built);
+        }
+      }
+    }
+    // A static row with a check the static runner knows is a static test, not a spec.
     const check = head && STATIC_TEST_TYPES.has(row.testType) ? staticCheckOf(row, head) : undefined;
     if (head && check !== undefined && typeof check !== 'string') {
       const id = uniqueId(specId(row.id), used);
@@ -477,6 +498,14 @@ export function generateEstateSuite(
         : null,
     options: { seed, checks, fallback: ctx.fallback, judge: ctx.judge === true },
     summary: { specs: records.length, blocks, complete, incomplete: records.length - complete, judged },
+    unit: {
+      tests: unitWritten.length,
+      guards: new Set(unitWritten.filter((test) => test.target.kind === 'guard').map((test) => test.atom))
+        .size,
+      scripts: unitWritten.filter((test) => test.target.kind === 'script').length,
+      cases: unitWritten.reduce((sum, test) => sum + test.cases.length, 0),
+      skipped: unitSkipped,
+    },
     sources: {
       asks,
       outcomes: sortedKeys(outcomes),
@@ -1050,6 +1079,11 @@ export function renderEstateSummary(report: EstateReport): string {
   if (statics > 0) {
     lines.push(
       `Static tests: ${statics} in ${STATIC_DIR}/ (invariants and settings), run by driftbench estate static on an estate root.`,
+    );
+  }
+  if (report.unit.tests > 0) {
+    lines.push(
+      `Unit tests: ${report.unit.tests} in ${UNIT_DIR}/ (${report.unit.guards} guards, ${report.unit.scripts} scripts, ${report.unit.cases} payloads), run by driftbench estate unit: --record on the original first, then on any copy.`,
     );
   }
   if (report.gaps.length > 0) {
