@@ -566,11 +566,61 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 
 ## Pairwise comparison
 
-A pairwise call judges two candidate replies to the same block on one criterion: which reply better meets it. `pairwiseRequest` shows both replies as labelled lines, Reply A and Reply B, under the block's transcript, and asks the judge for one of the two. `judgePairwise` runs the question twice, once with each reply in position A, and reads a choice only when both orders name the same reply. A judge that always answers pass, whatever the reply, is recorded as a position bias and its call is a tie.
+`judgePairwise(client, criterion, transcript, first, second, options)` compares both candidate orders and reconciles their identities in code. Its public `choice`, `ordered`, `swapped`, `consistent` and `positionBias` fields remain available. A disagreement remains a tie. `calls` counts the actual calls; `recovered` marks a fact-ledger recovery.
 
-`judgePairwise` takes an optional reference answer. With one, the question is which reply matches the reference better, and the reference is shown to the judge in every call. `driftbench compare --pairwise-reference <file>` gives the reference text.
+Chat models now return a named winner instead of translating a winner into pass or fail:
 
-`driftbench compare --pairwise` applies it to every block two campaigns both ran. The flags and the printed line are in the [CLI](../reference/cli.md#driftbench-report-and-driftbench-compare) reference.
+```json
+{"reasoning":"B answers the requested question.","winnerQuote":"The answer is four.","winner":"B"}
+```
+
+* `winner` is `A`, `B`, `tie` or `inconclusive`. Code maps A to the existing `pass` outcome and B to `fail`.
+* `winnerQuote` copies the opening of the named candidate, up to 240 characters. It is null for a tie or missing data. The parser checks it against the candidate text.
+* A malformed answer gets one re-ask with the large budget. A still-invalid answer stays inconclusive. A shared opening cannot by itself distinguish two candidates.
+* Every built-in chat client sends and parses the request's assessment contract. Custom clients that already return binary outcomes remain supported, including probability clients. They do not provide the named-winner integrity check until they adopt `parseJudgeText(raw, request)` or `parseJudgeValue(value, request)`.
+
+`pairwiseRequest` carries `assessment`, `candidates` and the comparison system prompt. An HTTP judge endpoint receives those fields in its request. A changed assessment or custom system prompt changes the cassette key. Old pairwise recordings require re-recording; ordinary binary criterion requests keep their answer shape.
+
+### Factual audit and ledger recovery
+
+A supplied reference enables the factual audit procedure. It checks distinct requested facts in both candidates, including values, units, entities and negation. Fewer wrong or missing requested facts decides first. Fewer unsupported extra claims breaks equal requested-fact coverage. This is an explicit factual policy; it does not assign a severity weight to each fact.
+
+If the primary orders tie or disagree, the judge asks for a fact ledger in both orders. The model reports each requested fact as `match`, `wrong` or `missing` for each candidate, plus unsupported claims. Code counts the defects and computes the winner. A malformed ledger, duplicate fact or ungrounded reference quote cannot decide a winner. Both fallback orders must agree.
+
+This ports the audit and fallback procedure from the recorded pairwise comparison. Its fallback prompt is preserved in `fact-audit.ts`; the primary answer format changes to the named-winner contract above. Model extraction still determines fact granularity. Agreement between orders does not prove the extraction is correct.
+
+A reference is supporting evidence and can be wrong. The prompt checks it against the task before relying on it. `options.audit: false` retains the general comparison path when factual counts do not fit the criterion. Open-ended comparisons without a reference use the general path.
+
+`driftbench compare --pairwise-reference <file>` supplies the reference text. The compare flags and output are in the [CLI](../reference/cli.md#driftbench-report-and-driftbench-compare) reference.
+
+### Itemized rubrics
+
+`options.rubricItems` enables a separate score for each caller-supplied requirement. Each item has `name`, `rubric`, an optional positive `weight` and optional `hard: true`. The model reports fulfillment from 0 to 4, or null when required data is missing. These scores describe fulfillment, not confidence probabilities.
+
+```ts
+const result = await judgePairwise(client, criterion, transcript, first, second, {
+  rubricItems: [
+    { name: 'correct', rubric: 'The final answer is correct.', hard: true },
+    { name: 'format', rubric: 'The reply uses the requested JSON format.' },
+  ],
+});
+```
+
+Code validates that every item appears exactly once, then computes the weighted fulfillment fraction. A candidate that fully meets every hard item outranks one that fails a hard item. Otherwise the fractions decide. A missing score leaves the assessment inconclusive. The swapped pass reverses the rubric presentation order as well as the candidates; names preserve aggregation identity.
+
+`judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
+
+### Optional verification and reference agreement
+
+`withVerification(client, { enabled: true, sandbox })` adds a provider-neutral verification step. It is off unless explicitly enabled. A sandbox implements `verify(request, signal)` and returns arithmetic checks. It must honor cancellation and isolate any general-purpose code it runs. Failure or timeout returns inconclusive, without running an unverified judgement.
+
+`arithmeticSandbox()` is a safe built-in numeric interpreter. It evaluates explicit arithmetic equations with numeric literals, parentheses and the four basic operations. It has no eval, import, filesystem, process or network access. Token, expression, scan and result limits bound its work. It cannot prove symbolic math, a natural-language solution or arbitrary code. Its results enter the transcript as tool evidence, preserving the original response; they do not replace the criterion's verdict.
+
+`extractFinalAnswer(response)` finds the last explicitly marked final answer or balanced LaTeX box. Its result includes the exact source quote and offsets. It leaves unmarked responses alone. `withFinalAnswer(client)` annotates that extraction while preserving the complete original transcript, so multi-part or ambiguous answers remain available to the judge.
+
+`referenceConsensus(answers, { minAgreement, normalize })` includes failed or missing solve attempts in its denominator. Its default requires agreement of at least 0.8 across at least two attempts. It never uses a mere plurality or removes decimal points. A caller may supply an equivalence normalizer. Agreement is a consistency signal, not a correctness guarantee.
+
+`withReferenceConsensus(client, { solve, samples })` wraps pointwise judgement with sequential blind solves. The solver receives the user question only, never the candidate response. Only an agreed answer becomes `reference`; an explicit caller reference remains intact. The result records agreement and reported solve costs. The solve port is opt-in, and no provider or solver model is selected automatically. Pairwise callers can collect blind solves once, apply `referenceConsensus`, then pass its reference to `judgePairwise`.
 
 ## Repeat reducers
 

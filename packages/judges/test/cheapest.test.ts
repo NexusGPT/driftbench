@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   assignmentTable,
+  cassettePlayers as baseCassettePlayers,
   calibrate,
-  cassettePlayers,
   councilAssignment,
   createCouncil,
   FakeJudge,
@@ -18,6 +18,9 @@ import {
  * The cheapest-judge rule: each criterion goes to the one cheapest judge at the bar, which then judges it
  * alone. Measured on the recorded Claude council (haiku, sonnet, opus on 12 Acme criteria).
  */
+
+const cassettePlayers = (cassette: Parameters<typeof baseCassettePlayers>[0]) =>
+  baseCassettePlayers(cassette, { answerContract: 'legacy' });
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const CRITERIA = join(ROOT, 'examples/acme/criteria');

@@ -135,3 +135,65 @@ describe('the pairwise request carries its own comparison system prompt', () => 
     expect(buildPrompt({ criterion, transcript }).system).toBe(SYSTEM_PROMPT);
   });
 });
+
+describe('bounded integrity retry', () => {
+  it('re-asks an invalid model answer once, then maps the swapped winner correctly', async () => {
+    const { parseJudgeText } = await import('../src/assessment');
+    let calls = 0;
+    const judge = {
+      id: 'quote',
+      family: 'test',
+      cls: 'system2' as const,
+      cost: 1,
+      async judge(request: import('../src/contract').JudgeRequest) {
+        calls += 1;
+        const raw =
+          calls === 1
+            ? '{"reasoning":"B wins","winnerQuote":"bad","winner":"B"}'
+            : calls === 2
+              ? '{"reasoning":"B wins","winnerQuote":"GOOD","winner":"B"}'
+              : '{"reasoning":"A wins","winnerQuote":"GOOD","winner":"A"}';
+        return parseJudgeText(raw, request);
+      },
+    };
+    const result = await judgePairwise(judge, criterion, transcript, 'bad', 'GOOD');
+    expect(result.choice).toBe('second');
+    expect(calls).toBe(3);
+  });
+  it('keeps a still-invalid answer inconclusive after one re-ask', async () => {
+    let calls = 0;
+    const judge = {
+      id: 'broken',
+      family: 'test',
+      cls: 'system2' as const,
+      cost: 1,
+      async judge() {
+        calls += 1;
+        return { raw: '', unparsed: true, answer: { outcome: 'pass' as const, reasoning: 'invalid' } };
+      },
+    };
+    const result = await judgePairwise(judge, criterion, transcript, 'one', 'two');
+    expect(result.choice).toBe('tie');
+    expect(result.positionBias).toBe(false);
+    expect(calls).toBe(4);
+  });
+});
+
+it('maps an explicitly named winner in code even for a custom client with a contradictory binary outcome', async () => {
+  let calls = 0;
+  const judge = {
+    id: 'named',
+    family: 'test',
+    cls: 'system2' as const,
+    cost: 1,
+    async judge() {
+      calls += 1;
+      return {
+        winner: calls === 1 ? ('B' as const) : ('A' as const),
+        raw: '',
+        answer: { outcome: 'pass' as const, reasoning: 'named winner' },
+      };
+    },
+  };
+  expect((await judgePairwise(judge, criterion, transcript, 'bad', 'good')).choice).toBe('second');
+});

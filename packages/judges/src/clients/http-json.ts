@@ -1,5 +1,5 @@
+import { parseJudgeValue } from '../assessment';
 import type { ClientOptions, JudgeClient } from '../client';
-import { parseAnswerValue } from '../contract';
 import { JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
 
@@ -36,7 +36,7 @@ export function createHttpJudge(options: HttpJudgeOptions): JudgeClient {
         { request, prompt: buildPrompt(request) },
         options,
       );
-      return parseAnswerValue(payload);
+      return parseJudgeValue(payload, request);
     },
   };
 }

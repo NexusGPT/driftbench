@@ -6,6 +6,12 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 408 Request Timeout is retried like 429 and 5xx in every adapter.
 
+* Pairwise chat judges name a winner and quote its opening. Code validates the quote, maps the existing binary outcome and reconciles both candidate orders, with one retry for malformed output.
+* Reference-guided factual comparisons audit requested facts and recover ties through a structured fact ledger. Code computes the fallback winner from factual defects and unsupported additions.
+* Optional itemized rubric scoring aggregates caller weights and hard requirements in code. Candidate swaps reverse the item presentation order.
+* Optional bounded arithmetic verification, grounded final-answer extraction and strict blind-solve reference agreement are available through provider-neutral interfaces. Verification defaults to off.
+* Existing binary criterion answers and pairwise verdict fields remain supported. Pairwise model JSON now uses `winner` and `winnerQuote`; custom chat clients should use the request-aware parsers. Assessment and custom system text enter cassette identity, so old pairwise cassettes must be recorded again. See [judges](docs/concepts/judges.md#pairwise-comparison).
+
 ## [0.1.0] - 2026-10-12
 
 The first public release. driftbench evaluates AI agents block by block: a block is one exchange with a conversational agent, or one step of a task done by a code-interpreter agent, with a Given, a When and a Then.

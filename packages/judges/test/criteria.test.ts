@@ -4,14 +4,17 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
+  cassettePlayers as baseCassettePlayers,
   buildPrompt,
-  cassettePlayers,
   createCouncil,
   fixtureRequest,
   loadCassette,
   loadCriteria,
   requestKey,
 } from '../src/index';
+
+const cassettePlayers = (cassette: Parameters<typeof baseCassettePlayers>[0]) =>
+  baseCassettePlayers(cassette, { answerContract: 'legacy' });
 
 const CRITERIA = fileURLToPath(new URL('../../../examples/acme/criteria/', import.meta.url));
 const CASSETTE = join(CRITERIA, 'council.cassette.json');
