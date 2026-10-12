@@ -579,8 +579,9 @@ function gateAtoms(
     for (const { form, pattern, read, act } of GATE_FORMS) {
       const match = pattern.exec(line.text);
       if (!match) continue;
-      const first = (match[read] ?? '').replace(/`/g, '').trim();
-      const trigger = (match[act] ?? '').replace(/`/g, '').trim();
+      // Markup around the words (bold, backticks) is not part of the act or of what is read.
+      const first = (match[read] ?? '').replace(/[`*]/g, '').trim();
+      const trigger = (match[act] ?? '').replace(/[`*]/g, '').trim();
       if (first === '' || trigger === '') continue;
       const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
       // The file to read first is found as a reference's is: its place, an alias, then its ending.
