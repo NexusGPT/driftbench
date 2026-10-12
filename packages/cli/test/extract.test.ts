@@ -419,6 +419,16 @@ describe('driftbench extract map', () => {
     );
   });
 
+  it('pins docs/reference/cli.md: a proposal is not a space map, the space commands read it through extract map', async () => {
+    const dir = await project();
+    await run([...base(), '--no-model', '--agent', 'zed'], dir);
+    const direct = await run(['space', 'coverage', '--map', 'map/proposal.yaml', 'map', '--t', '2'], dir);
+    expect(direct.code).toBe(2);
+    const doc = await readFile(join(ACME, '../../docs/reference/cli.md'), 'utf8');
+    expect(doc).toContain('The proposal is not a space map');
+    expect(doc).not.toContain('The proposal is a valid space map');
+  });
+
   it('runs space coverage on the Acme approved map without a grid refusal', async () => {
     const { code, out, err } = await run(
       ['space', 'coverage', '--map', join(ACME, 'map/space.yaml'), join(ACME, 'specs'), '--t', '2'],
