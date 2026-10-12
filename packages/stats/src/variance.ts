@@ -302,7 +302,10 @@ export interface NeymanInput {
 export interface NeymanResult {
   /** total N_h S_h / sum(N_h S_h), unrounded. */
   readonly exact: readonly number[];
-  /** Integers summing to total, by largest remainder. */
+  /**
+   * Integers summing to total that minimise sum (N_h S_h)^2 / n_h, the stratified variance: the best
+   * whole-number Neyman allocation, which rounding `exact` does not always reach.
+   */
   readonly allocated: readonly number[];
 }
 
@@ -328,14 +331,29 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
   const sumW = weights.reduce((s, w) => s + w, 0);
   if (sumW === 0) throw new RangeError('neymanAllocation: every stratum has size 0');
   const exact = weights.map((w) => (total * w) / sumW);
-  const allocated = exact.map(Math.floor);
-  let left = total - allocated.reduce((s, v) => s + v, 0);
-  const order = exact
-    .map((e, i) => [e - Math.floor(e), i] as const)
+  const allocated = weights.map(() => 0);
+  // Every stratum with weight needs one conversation before its variance is finite. With fewer than
+  // that, the largest weights get one each (ties to the lower index).
+  const positive = weights
+    .map((w, i) => [w, i] as const)
+    .filter(([w]) => w > 0)
     .sort((p, q) => q[0] - p[0] || p[1] - q[1]);
-  for (const [, i] of order) {
-    if (left <= 0) break;
-    allocated[i] = (allocated[i] as number) + 1;
+  for (const [, i] of positive.slice(0, total)) allocated[i] = 1;
+  let left = total - Math.min(total, positive.length);
+  // The objective is separable and convex in n_h, so adding one at a time where it removes the most
+  // variance, w^2 / (n (n + 1)), reaches the integer optimum. Ties go to the lower index.
+  while (left > 0) {
+    let best = -1;
+    let bestGain = -1;
+    for (const [w, i] of positive) {
+      const n = allocated[i] as number;
+      const gain = (w * w) / (n * (n + 1));
+      if (gain > bestGain || (gain === bestGain && i < best)) {
+        best = i;
+        bestGain = gain;
+      }
+    }
+    allocated[best] = (allocated[best] as number) + 1;
     left -= 1;
   }
   return { exact, allocated };
