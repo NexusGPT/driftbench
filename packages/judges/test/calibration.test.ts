@@ -369,13 +369,13 @@ describe('the assignment table and the council', () => {
 });
 
 describe('the recorded haiku calibration (a real judge on the claude command, main prompt, 2026-10-12)', () => {
-  it('replays to the measured result: 12 of 12 pairs separate 3 of 3, 11 of 12 at the bar, kappa 0.95 over 40 labels', async () => {
+  it('replays to the measured result: 12 of 12 pairs separate 3 of 3, 12 of 12 at the bar, kappa 1.00 over 40 labels', async () => {
     const { criteria, labels } = await acme();
     const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-haiku.cassette.json'));
     expect(cassette.judges.map((j) => j.id)).toEqual(['claude-haiku']);
     const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels, mode: 'llm' });
     expect(report.errors).toBe(0);
-    expect(report.spentUsd).toBeCloseTo(0.0182, 4);
+    expect(report.spentUsd).toBeCloseTo(0.019, 4);
     const rows = Object.fromEntries(report.criteria.map((c) => [c.criterion, c.judges[0]] as const));
     expect(Object.values(rows).every((r) => r?.separation.separated === 3)).toBe(true);
     // With catalog.csv as an input, the task criterion separates; with the stated evidence rule, so does
@@ -385,19 +385,22 @@ describe('the recorded haiku calibration (a real judge on the claude command, ma
     const below = Object.entries(rows)
       .filter(([, r]) => !r?.meetsBar)
       .map(([name]) => name);
-    expect(below).toEqual(['explicit_confirmation']);
-    expect(rows.explicit_confirmation?.labels.kappa).toBeCloseTo(0.5, 10);
-    expect(report.pooled[0]).toMatchObject({ judge: 'claude-haiku', n: 40, agree: 39 });
+    // With the rewritten explicit_confirmation rubric (a CONFIRM with no order fails), haiku meets the bar there too.
+    expect(below).toEqual([]);
+    expect(rows.explicit_confirmation?.labels.kappa).toBe(1);
+    expect(report.pooled[0]).toMatchObject({ judge: 'claude-haiku', n: 40, agree: 40 });
   });
 });
 
 describe('the recorded Claude council (haiku, sonnet, opus; 2026-10-12)', () => {
-  it('covers all 12 criteria; assigns 11, each single-family; haiku misses explicit_confirmation', async () => {
+  it('covers all 12 criteria; assigns 11, each single-family; opus lacks 2 explicit_confirmation answers', async () => {
     const { criteria, labels } = await acme();
     const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-council.cassette.json'));
     const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels, mode: 'llm' });
-    expect(report.errors).toBe(0);
-    expect(report.spentUsd).toBeCloseTo(1.4299, 4);
+    // The job's spend cap stopped opus before 2 labelled blocks under the rewritten explicit_confirmation rubric.
+    expect(report.errors).toBe(2);
+    expect(row(report, 'explicit_confirmation', 'claude-opus').errors).toBe(2);
+    expect(report.spentUsd).toBeCloseTo(1.4085, 4);
     const assigned = report.criteria
       .filter((c) => c.assignment.status === 'assigned')
       .map((c) => c.criterion);
@@ -406,12 +409,13 @@ describe('the recorded Claude council (haiku, sonnet, opus; 2026-10-12)', () => 
     for (const c of report.criteria.filter((x) => x.assignment.status === 'assigned')) {
       expect(c.assignment).toMatchObject({ owner: 'claude-haiku', singleFamily: 'anthropic' });
     }
-    expect(row(report, 'explicit_confirmation', 'claude-haiku').labels.kappa).toBeCloseTo(0.4, 10);
+    expect(row(report, 'explicit_confirmation', 'claude-haiku').labels.kappa).toBe(1);
+    expect(row(report, 'explicit_confirmation', 'claude-sonnet').labels.kappa).toBe(1);
     for (const c of report.criteria) {
       for (const j of c.judges) expect(j.separation.separated, `${c.criterion} ${j.judge}`).toBe(3);
     }
     const pooled = Object.fromEntries(report.pooled.map((p) => [p.judge, `${p.agree}/${p.n}`]));
-    expect(pooled).toEqual({ 'claude-haiku': '39/40', 'claude-sonnet': '40/40', 'claude-opus': '40/40' });
+    expect(pooled).toEqual({ 'claude-haiku': '40/40', 'claude-sonnet': '40/40', 'claude-opus': '38/40' });
   });
 });
 

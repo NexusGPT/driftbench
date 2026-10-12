@@ -227,7 +227,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "25864fdd4e94",
+      "key": "1b3db9c40c2d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -237,7 +237,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "25864fdd4e94",
+      "key": "1b3db9c40c2d",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -247,7 +247,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "80dcb61a7f02",
+      "key": "0bae32f1c853",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
@@ -257,7 +257,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "207b97c8ddd6",
+      "key": "23e2264d5344",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -267,7 +267,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "207b97c8ddd6",
+      "key": "23e2264d5344",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",
@@ -277,7 +277,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "cdcb78580fac",
+      "key": "1136f0fdae95",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "fail",

@@ -150,6 +150,23 @@ try {
     await page.keyboard.press('ControlOrMeta+Enter');
     await page.waitForSelector('.saved');
     await check('label-by-keys');
+    const blockBefore = await page.evaluate(
+      "document.activeElement && document.activeElement.closest('div.block') ? document.activeElement.closest('div.block').id : ''",
+    );
+    await page.keyboard.press('ArrowDown');
+    const blockAfter = await page.evaluate(
+      "document.activeElement && document.activeElement.closest('div.block') ? document.activeElement.closest('div.block').id : ''",
+    );
+    record.push({ width, arrows: { blockBefore, blockAfter } });
+    expect(
+      blockAfter !== '' && blockAfter !== blockBefore,
+      `${width} px: ArrowDown did not move focus to the next block (${blockBefore} to ${blockAfter})`,
+    );
+    await page.keyboard.press('?');
+    await page.waitForURL('**/keys');
+    const cheatsheet = await page.locator('#keys').count();
+    record.push({ width, cheatsheet });
+    expect(cheatsheet === 1, `${width} px: the ? key did not open the cheatsheet`);
     record.push({ width, keyLabelling: { passChecked } });
 
     const plain = await browser.newContext({ viewport: { width, height: 900 }, javaScriptEnabled: false });
