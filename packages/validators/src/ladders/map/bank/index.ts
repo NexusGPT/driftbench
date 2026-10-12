@@ -23,8 +23,31 @@ import { firstVersionItems } from './families/v1';
 import { bankLadder } from './ladder';
 import type { BankDeps, BankItem } from './types';
 
-/** Every item of the map bank, in level order (a stable sort keeps each family's order). */
+/**
+ * Causes no product page needs (validators/map/NEEDS.md). Their items are kept and can be run, but they
+ * count toward no score, forecast or cause: mapBank leaves them out, mapQuarantine lists them.
+ */
+export const QUARANTINED_CAUSES: Readonly<Record<string, string>> = {
+  'tools:whole-long-quote':
+    'no page needs a quote over 1000 characters: docs/generating.md asks for quotes of 4 to 400 characters, and the proposal format caps one at 1000 (MAX_QUOTE_LENGTH)',
+  'inventory:whole-long-quote':
+    'no page needs a quote over 1000 characters: docs/generating.md asks for quotes of 4 to 400 characters, and the proposal format caps one at 1000 (MAX_QUOTE_LENGTH)',
+};
+
+const quarantined = (item: BankItem) => item.cause in QUARANTINED_CAUSES;
+
+/** Every item of the map bank that a product page needs, in level order. */
 export function mapBank(): BankItem[] {
+  return allItems().filter((item) => !quarantined(item));
+}
+
+/** The items quarantined by QUARANTINED_CAUSES. */
+export function mapQuarantine(): BankItem[] {
+  return allItems().filter(quarantined);
+}
+
+/** Every item written for the map, in level order (a stable sort keeps each family's order). */
+function allItems(): BankItem[] {
   const items = [
     ...firstVersionItems(),
     ...inventoryItems(),
