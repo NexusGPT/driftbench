@@ -29,6 +29,7 @@ const ids = process.argv.slice(2);
 if (!ids.length) throw new Error('Pass one or more registered contestant ids.');
 for (const id of ids) {
   const before = await spent();
+  const startedAt = Date.now();
   if (before >= 7.97) break;
   const report = await runBenchmark({
     bench: 'longjudge-verify',
@@ -40,7 +41,10 @@ for (const id of ids) {
     includeDecisions: true,
     deadlineAt,
   });
-  await writeFile(join(folder, `${id}.json`), `${JSON.stringify(report, null, 2)}\n`);
+  await writeFile(
+    join(folder, `${id}.json`),
+    `${JSON.stringify({ ...report, timing: { startedAt: new Date(startedAt).toISOString(), endedAt: new Date().toISOString(), elapsedSeconds: (Date.now() - startedAt) / 1000 } }, null, 2)}\n`,
+  );
   process.stdout.write(`${renderReport(report)}\n`);
   const after = await spent();
   if (ledger) {

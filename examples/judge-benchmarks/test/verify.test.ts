@@ -6,13 +6,105 @@ import { createCaller, Recordings, SpendCapReached } from '../src/call';
 import { type Contestant, contestantById } from '../src/contestants';
 import { majoritySolve, normalizeFinal, pythonOutput } from '../src/extras';
 import { runBenchmark } from '../src/run';
+import { withBoardgameConvention } from '../src/verify-domain';
 import {
   committedResponse,
   extractLocalFinal,
   parseQuotedExtraction,
   quotedExtractionPrompt,
 } from '../src/verify-extraction';
+import { testMetrics, testSample } from '../src/verify-test-metrics';
 import { deterministicEvidence } from '../src/verify-tools';
+
+it('applies RGB source context only to BoardgameQA primary-color questions', () => {
+  const source = contestantById('driftbench-verify-program-backward-step-fallback');
+  const wrapped = withBoardgameConvention(source, 'test-context');
+  const unrelated = 'Which primary color appears in this unrelated problem?';
+  expect(wrapped.referencePaths?.[0]?.prompt(unrelated)).toEqual(
+    source.referencePaths?.[0]?.prompt(unrelated),
+  );
+  const board = 'A few players are playing a boardgame. Yellow is a primary color.';
+  expect(wrapped.referencePaths?.[0]?.prompt(board).system).toContain('red, green and blue');
+  expect(wrapped.codeCheck?.write(board, 'answer').system).toContain('explicit color definition');
+  const input = { question: board, response: 'answer', criterion: 'correct' };
+  expect(wrapped.point?.(input).system).toContain('RGB');
+  expect(wrapped.responseExtractor).toBe(source.responseExtractor);
+});
+
+it('samples by fixed official-label and length strata and scores missing verdicts as errors', () => {
+  const population = Array.from({ length: 40 }, (_, i) => ({
+    kind: 'point' as const,
+    id: String(i),
+    question: 'q',
+    response: i % 2 ? 'x'.repeat(10001) : 'x',
+    correct: i >= 20,
+    group: i >= 20 ? 'correct' : 'incorrect',
+  }));
+  const selected = testSample(population, 20);
+  expect(selected).toEqual(testSample([...population].reverse(), 20).reverse());
+  expect(selected).toHaveLength(20);
+  expect(selected.filter((item) => item.correct)).toHaveLength(10);
+  expect(selected.filter((item) => item.response.length > 10000)).toHaveLength(10);
+  const decisions = selected.map((item, i) => ({ id: item.id, ...(i ? { pass: item.correct } : {}) }));
+  const score = testMetrics(population, decisions, new Map());
+  expect(score.right).toBe(19);
+  expect(score.populationWeighted.estimate).toBeCloseTo(0.95);
+  expect(score.populationWeighted.lower).toBeLessThan(0.95);
+  expect(score.populationWeighted.upper).toBeGreaterThan(0.95);
+  const corrected = testMetrics(population, decisions, new Map([[selected[1]!.id, !selected[1]!.correct]]));
+  expect(corrected.right).toBe(18);
+});
+
+it.skipIf(process.platform !== 'darwin')(
+  'excludes JSON UNSUPPORTED program answers from blind agreement',
+  async () => {
+    const folder = await mkdtemp(join(tmpdir(), 'verify-abstain-test-'));
+    try {
+      const command = join(folder, 'fake.mjs');
+      await writeFile(
+        command,
+        `#!/usr/bin/env node
+let input = '';
+process.stdin.on('data', c => input += c);
+process.stdin.on('end', () => {
+  const result = input.startsWith('PROGRAM') ? '\`\`\`python\\nimport json\\nprint(json.dumps({"final_answer":"UNSUPPORTED", "evidence":"cannot solve"}))\\n\`\`\`' : '{"pass":false}';
+  process.stdout.write(JSON.stringify({result, total_cost_usd:.001}));
+});
+`,
+      );
+      await chmod(command, 0o755);
+      const c: Contestant = {
+        ...contestantById('driftbench-verify-program-backward'),
+        responseExtractor: undefined,
+        toolEvidence: undefined,
+        codeCheck: undefined,
+        referencePaths: ['one', 'two'].map((name) => ({
+          name,
+          program: true,
+          prompt: () => ({ system: '', user: `PROGRAM ${name}` }),
+        })),
+        referenceAgreementThreshold: 0.8,
+        point: ({ reference }) => {
+          expect(reference).toContain('0/2, below');
+          expect(reference).not.toContain('Final answer: UNSUPPORTED');
+          return { system: '', user: 'JUDGE' };
+        },
+      };
+      const report = await runBenchmark({
+        bench: 'longjudge-verify',
+        model: 'fake',
+        contestants: [c],
+        command,
+        recordingsDir: folder,
+        concurrency: 1,
+        items: [{ kind: 'point', id: 'abstain', question: 'q', response: 'r', correct: false, group: 'g' }],
+      });
+      expect(report.contestants[0]?.summary.value.estimate).toBe(1);
+    } finally {
+      await rm(folder, { recursive: true, force: true });
+    }
+  },
+);
 
 it('does not merge distinct numeric answers or discard mathematical grouping in solve voting', () => {
   expect(normalizeFinal('$\\boxed{264.5}$')).toBe(normalizeFinal('264.5'));

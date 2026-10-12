@@ -1,4 +1,5 @@
 import type { Contestant, Prompt } from './contestants';
+import { withBoardgameConvention } from './verify-domain';
 import {
   committedResponse,
   extractLocalFinal,
@@ -8,7 +9,12 @@ import {
 import { deterministicEvidence } from './verify-tools';
 
 /** Strategies derived from the supplied research dossier, with no benchmark labels or item ids. */
-export function dossierContestants(base: Contestant, backward: Contestant, step: Contestant): Contestant[] {
+export function dossierContestants(
+  base: Contestant,
+  backward: Contestant,
+  step: Contestant,
+  counterexampleCheck: Contestant['codeCheck'],
+): Contestant[] {
   const text = (name: string, method: string): NonNullable<Contestant['referencePaths']>[number] => ({
     name,
     prompt: (question): Prompt => ({
@@ -43,7 +49,7 @@ export function dossierContestants(base: Contestant, backward: Contestant, step:
       'search-program',
       'Use an independently implemented enumeration, constraint search, or a second computational identity. Prefer a search over candidate solutions instead of copying a closed formula.',
     ),
-  ];
+  ] as const;
   const quoted: Contestant = {
     ...base,
     id: 'driftbench-verify-quoted',
@@ -60,7 +66,7 @@ export function dossierContestants(base: Contestant, backward: Contestant, step:
       if (!prompt) throw new Error('The final-output verifier must have a point prompt.');
       return {
         ...prompt,
-        system: `${prompt.system}\nCheck the exact requested output and stated quantifiers. For a declarative proposition, check the assertion the response commits to; do not invent an unstated request for transformation amounts or a proof. For an inference question, try a countermodel to the selected option: plausibility or a real-world assumption is not logical entailment. Distinguish collinearity from linear dependence, and necessary from sufficient conditions. Apply preferred rules only when every antecedent is established. An explicit final option or truth-value label is the submitted answer even when its abandoned explanation contradicts it.`,
+        system: `${prompt.system}\nCheck the exact requested output and stated quantifiers. For a list of dates, numbers or expressions, verify each submitted element as well as its order. A wrong final list element is not merely a reasoning error even if replacing it would preserve the order. For a declarative proposition, check the assertion the response commits to; do not invent an unstated request for transformation amounts or a proof. For an inference question, try a countermodel to the selected option: plausibility or a real-world assumption is not logical entailment. Distinguish collinearity from linear dependence, and necessary from sufficient conditions. Apply preferred rules only when every antecedent is established. An explicit final option or truth-value label is the submitted answer even when its abandoned explanation contradicts it.`,
       };
     },
   };
@@ -70,7 +76,7 @@ export function dossierContestants(base: Contestant, backward: Contestant, step:
     source:
       'quote extraction, independent algebra and blind program solve, then a backward substitution program (dev candidate)',
     reference: undefined,
-    referencePaths: [paths[0]!, paths[3]!],
+    referencePaths: [paths[0], paths[3]],
     codeCheck: backward.codeCheck,
   };
   const diverse: Contestant = {
@@ -110,6 +116,21 @@ export function dossierContestants(base: Contestant, backward: Contestant, step:
     diverse,
     recovered,
     recoveredFive,
+    withBoardgameConvention(recovered, 'driftbench-verify-program-backward-step-context'),
+    withBoardgameConvention(
+      {
+        ...recovered,
+        codeCheck: counterexampleCheck,
+        source:
+          'algebra and blind program, final-step check, exact tools and targeted numerical counterexample search with quote recovery',
+      },
+      'driftbench-verify-program-counterexample-step-context',
+    ),
+    withBoardgameConvention(recoveredFive, 'driftbench-verify-diverse5-all-step-context'),
+    withBoardgameConvention(
+      { ...recoveredFive, samples: 3 },
+      'driftbench-verify-diverse5-all-step-context-vote3',
+    ),
     {
       ...recoveredFive,
       id: 'driftbench-verify-diverse5-all-step-fallback-vote3',

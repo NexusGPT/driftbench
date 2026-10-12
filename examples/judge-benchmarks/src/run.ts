@@ -272,6 +272,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
     const solveFor = async (item: Item): Promise<string | undefined> => {
       if (contestant.referencePaths) {
         const texts: string[] = [];
+        const diagnostics: string[] = [];
         for (const path of contestant.referencePaths) {
           const r = await ask(contestant, path.prompt(item.question), item.id, `blind-${path.name}`);
           if (!r) continue;
@@ -280,10 +281,18 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
             continue;
           }
           const out = await executeProgram(r.text, item);
-          if (!out || out === 'UNSUPPORTED') continue;
+          if (!out) continue;
+          if (/^UNSUPPORTED\b/i.test(out)) {
+            diagnostics.push(`${path.name} did not produce a supported final answer:\n${out}`);
+            continue;
+          }
           const answer = jsonObjects(out)
             .filter((o) => typeof o.final_answer === 'string')
             .at(-1)?.final_answer;
+          if (typeof answer === 'string' && /^UNSUPPORTED\b/i.test(answer)) {
+            diagnostics.push(`${path.name} did not produce a supported final answer:\n${out}`);
+            continue;
+          }
           texts.push(
             typeof answer === 'string' ? `Independent program output:\n${out}\nFinal answer: ${answer}` : out,
           );
@@ -297,7 +306,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
         const threshold = contestant.referenceAgreementThreshold;
         if (threshold !== undefined && agreement < threshold)
           return `Blind-solve agreement is ${count}/${total}, below the preregistered confidence threshold ${threshold}. No majority answer is supplied as a trusted reference. Re-derive the result from the question and external checks.`;
-        return `Blind-solve agreement: ${count}/${total}. Independent work is fallible; agreement does not prove correctness.\n\n${texts.map((text, i) => `Solve path ${i + 1}:\n${text}`).join('\n\n')}`;
+        return `Blind-solve agreement: ${count}/${total}. Independent work is fallible; agreement does not prove correctness.\n\n${texts.map((text, i) => `Solve path ${i + 1}:\n${text}`).join('\n\n')}${diagnostics.length ? `\n\nAbstaining program diagnostics (not counted as answers):\n${diagnostics.join('\n\n')}` : ''}`;
       }
       if (!contestant.reference) return undefined;
       const k = contestant.referenceSamples ?? 1;

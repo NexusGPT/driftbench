@@ -92,8 +92,17 @@ Reason briefly, state the submitted and verified answers, then end with JSON: {"
       }),
     },
   };
+  const counterexampleCheck: Contestant['codeCheck'] = {
+    restricted: true,
+    targeted: true,
+    write: (question, response) => ({
+      system:
+        'You falsify claimed mathematical and logical results by actual computation. Write a standalone Python 3 standard-library program. The OS denies writes, network and child processes; the time limit is five seconds. Never print a guessed answer or declare an unsupported proof.',
+      user: `Problem:\n${question}\n\nClaimed final answer:\n${response}\n\nSearch for a counterexample that satisfies all problem premises but violates the claim, or a valid solution omitted by it. Use exact Fractions where possible. For trigonometric equations search rational multiples of pi, including zero and boundaries, and verify residuals numerically. For intervals test inside, outside, endpoints and near endpoints. For matrices multiply the claimed inverse back. For universal logical claims exhaust finite assignments. For finite options or counting problems enumerate all possibilities. If a counterexample is found, print its values and both evaluated sides, and CHECK FAIL. If exhaustive finite verification succeeds, print its count and CHECK PASS. If a numerical search finds none, say CHECK UNKNOWN, no counterexample in the searched grid, and describe the grid; absence in a sample is not a proof. Unsupported problems must print UNSUPPORTED. Output only one python code block.`,
+    }),
+  };
   return [
-    ...dossierContestants(terminal, targetCheck, finalStep),
+    ...dossierContestants(terminal, targetCheck, finalStep, counterexampleCheck),
     base,
     solved,
     {
@@ -147,15 +156,7 @@ Reason briefly, state the submitted and verified answers, then end with JSON: {"
       id: 'driftbench-verify-counterexample',
       source:
         'independent algebra and finite tools plus targeted numerical counterexample search (dev candidate)',
-      codeCheck: {
-        restricted: true,
-        targeted: true,
-        write: (question, response) => ({
-          system:
-            'You falsify claimed mathematical and logical results by actual computation. Write a standalone Python 3 standard-library program. The OS denies writes, network and child processes; the time limit is five seconds. Never print a guessed answer or declare an unsupported proof.',
-          user: `Problem:\n${question}\n\nClaimed final answer:\n${response}\n\nSearch for a counterexample that satisfies all problem premises but violates the claim, or a valid solution omitted by it. Use exact Fractions where possible. For trigonometric equations search rational multiples of pi, including zero and boundaries, and verify residuals numerically. For intervals test inside, outside, endpoints and near endpoints. For matrices multiply the claimed inverse back. For universal logical claims exhaust finite assignments. For finite options or counting problems enumerate all possibilities. If a counterexample is found, print its values and both evaluated sides, and CHECK FAIL. If exhaustive finite verification succeeds, print its count and CHECK PASS. If a numerical search finds none, say CHECK UNKNOWN, no counterexample in the searched grid, and describe the grid; absence in a sample is not a proof. Unsupported problems must print UNSUPPORTED. Output only one python code block.`,
-        }),
-      },
+      codeCheck: counterexampleCheck,
     },
     {
       ...terminal,
