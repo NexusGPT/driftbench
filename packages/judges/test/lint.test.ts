@@ -71,4 +71,11 @@ describe('lintCriterion', () => {
     expect(lintCriterion({ ...clean, fail: '  ' }).issues.map((i) => i.code)).toContain('no-fail-picture');
     expect(lintCriterion(clean).issues.map((i) => i.code)).not.toContain('no-fail-picture');
   });
+
+  it('reports no-pass-picture when the PASS picture is missing or blank', () => {
+    const { pass: _pass, ...without } = clean;
+    expect(lintCriterion(without).issues.map((i) => i.code)).toContain('no-pass-picture');
+    expect(lintCriterion({ ...clean, pass: '' }).issues.map((i) => i.code)).toContain('no-pass-picture');
+    expect(lintCriterion(clean).issues.map((i) => i.code)).not.toContain('no-pass-picture');
+  });
 });

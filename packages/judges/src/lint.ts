@@ -27,6 +27,8 @@ const RULES: readonly Rule[] = [
   { code: 'too-long', found: (c) => c.rubric.length > 400 },
   // No FAIL picture: the judge gets a strict default and the rubric author never wrote one.
   { code: 'no-fail-picture', found: (c) => (c.fail ?? '').trim() === '' },
+  // No PASS picture: the judge has nothing to hold the answer against.
+  { code: 'no-pass-picture', found: (c) => (c.pass ?? '').trim() === '' },
 ];
 
 const NEGATION = /\b(not|no|never|cannot|without|fails? to|failing to)\b|n't\b/gi;
