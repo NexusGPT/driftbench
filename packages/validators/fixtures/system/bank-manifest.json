@@ -6632,7 +6632,7 @@
       "level": 3,
       "source": "contract",
       "component": "packages/checks/src/defaults.ts",
-      "cause": "defaults: defaultChecks returns the 26 machine checks in the order the page lists"
+      "cause": "defaults: defaultChecks returns the machine checks in the order the page lists"
     },
     {
       "id": "claim/checks/defaults/judge-last",

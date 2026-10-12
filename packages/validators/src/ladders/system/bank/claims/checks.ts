@@ -328,8 +328,8 @@ function verdictItems(out: BankItem[]): void {
     'defaults/order',
     1,
     DEFAULTS,
-    `defaultChecks() returns the ${DOCUMENTED_CHECKS.length} documented checks in the documented order ("Checks", first paragraph)`,
-    `defaults: defaultChecks returns the ${DOCUMENTED_CHECKS.length} machine checks in the order the page lists`,
+    'defaultChecks() returns the documented checks in the documented order ("Checks", first paragraph)',
+    'defaults: defaultChecks returns the machine checks in the order the page lists',
     async () => {
       const want: readonly string[] = DOCUMENTED_CHECKS;
       const got = defaultChecks().map((check) => check.name);
@@ -343,7 +343,7 @@ function verdictItems(out: BankItem[]): void {
     'defaults/judge-last',
     1,
     DEFAULTS,
-    `defaultChecks({ judges }) returns the same ${DOCUMENTED_CHECKS.length} and then the judge check last ("Checks", "Judged criteria")`,
+    'defaultChecks({ judges }) returns the same checks and then the judge check last ("Checks", "Judged criteria")',
     'defaults: a judge source appends its check after custom',
     async () => {
       const judge: Check = { name: 'judge', applies: () => false, evaluate: () => [] };
