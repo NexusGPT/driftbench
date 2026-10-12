@@ -362,4 +362,29 @@ describe('JSON Schema keywords in the tool pre-pass', () => {
       'place_order.out.ok',
     ]);
   });
+
+  it('reads OpenAPI query parameters as the input, each with its schema and required flag', () => {
+    const file = {
+      openapi: '3.0.3',
+      paths: {
+        '/find': {
+          get: {
+            operationId: 'findAccount',
+            parameters: [
+              { in: 'query', name: 'urgent', required: false, schema: { type: 'boolean' } },
+              { in: 'query', name: 'flag', required: true, schema: { type: 'boolean' } },
+            ],
+            responses: { '200': { content: { 'application/json': { schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] } } } } },
+          },
+        },
+      },
+    };
+    const result = toolsPrepass(stringify(file), 'api.yaml');
+    if (!result.ok) throw new Error(JSON.stringify(result.errors));
+    expect(result.dimensions.map((d) => [d.id, d.values.map((v) => v.id.slice(d.id.length + 1))])).toEqual([
+      ['find_account.in.urgent', ['true', 'false', 'absent']],
+      ['find_account.in.flag', ['true', 'false']],
+      ['find_account.out.ok', ['true', 'false']],
+    ]);
+  });
 });

@@ -279,3 +279,15 @@ Sources read:
 What others do: OpenAPI generators and agent toolkits turn each operationId into one tool, the JSON body into its input and the 200 response into its output.
 
 What to try, and why: the tool pre-pass reads OpenAPI 3 and Swagger 2 documents
+
+## Iteration 24
+
+Question: packages/generate/src/extract/tools.ts: readOpenApi takes the JSON request body as input only, so an operation whose inputs are query parameters has no input; tool-formats.openapi-query-parameters proves it.
+
+Sources read:
+* https://spec.openapis.org/oas/v3.0.3#parameter-object (in: query, name, required, schema)
+* packages/validators/src/ladders/map/bank/families/formats.ts (openapi-query-parameters)
+
+What others do: A GET operation takes its inputs as query parameters; each parameter is one argument with a schema and a required flag.
+
+What to try, and why: the tool pre-pass reads OpenAPI query parameters

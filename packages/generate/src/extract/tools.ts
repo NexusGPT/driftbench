@@ -1,4 +1,4 @@
-import { isMap, isScalar, isSeq, type Pair, parseAllDocuments, parseDocument, YAMLSeq, type YAMLMap } from 'yaml';
+import { isMap, isScalar, isSeq, type Pair, parseAllDocuments, parseDocument, YAMLMap, YAMLSeq } from 'yaml';
 import { entry, keyOf, mapAt, pairText, plain, stringItems } from './nodes';
 import type { ProposalDimension, ProposalValue } from './proposal';
 import { foldQuote } from './quote';
@@ -44,6 +44,8 @@ type Tool = {
   outputText?: string;
   /** Cohere parameter_definitions or LangChain args: the input is a mapping of parameters, each with its type. */
   cohere?: boolean;
+  /** OpenAPI query parameters: the input is these parameter mappings, each with a schema. */
+  query?: YAMLMap[];
 };
 type Partition = { id: string; title: string; quote: string };
 
@@ -104,10 +106,22 @@ function toolsOf(
       ['in', tool.input],
       ['out', tool.output],
     ] as const) {
-      if (!schema) continue;
+      if (!schema && !(direction === 'in' && tool.query)) continue;
       const open: string[] = [];
       const own = direction === 'in' ? tool.inputText : tool.outputText;
-      walk({ text: own ?? text, source, tool, direction, dimensions, ids, open, root: schema, cohere: direction === 'in' && tool.cohere === true }, schema, [], 0);
+      const ctx: Walk = {
+        text: own ?? text,
+        source,
+        tool,
+        direction,
+        dimensions,
+        ids,
+        open,
+        root: schema ?? new YAMLMap(),
+        cohere: direction === 'in' && tool.cohere === true,
+      };
+      if (direction === 'in' && tool.query) walkQuery(ctx, tool.query);
+      else if (schema) walk(ctx, schema, [], 0);
       if (open.length > 0) {
         const side = direction === 'in' ? 'input' : 'output';
         notes.push(`${tool.name} ${side}: no partition stated for ${open.join(', ')}`);
@@ -191,7 +205,17 @@ function readOpenApi(root: unknown): { tools: Tool[] } | { errors: ToolsIssue[] 
         const resolved = follow(found);
         return isMap(resolved) ? resolved : undefined;
       };
-      tools.push({ name, path: where, input: schema(body) ?? schema(bodyParameter), output: schema(ok) });
+      const query = ((entry(operation, 'parameters')?.value as { items?: unknown[] } | undefined)?.items ?? [])
+        .map(follow)
+        .filter((parameter): parameter is YAMLMap => isMap(parameter) && plain(entry(parameter, 'in')?.value) === 'query');
+      const input = schema(body) ?? schema(bodyParameter);
+      tools.push({
+        name,
+        path: where,
+        input,
+        output: schema(ok),
+        ...(!input && query.length > 0 ? { query } : {}),
+      });
     }
   }
   return errors.length > 0 ? { errors } : { tools };
@@ -211,6 +235,16 @@ type Walk = {
   cohere: boolean;
 };
 
+/** OpenAPI query parameters: each is a property named by `name`, with its `schema` and `required` flag. */
+function walkQuery(ctx: Walk, parameters: YAMLMap[]): void {
+  for (const parameter of parameters) {
+    const name = plain(entry(parameter, 'name')?.value);
+    const schemaPair = entry(parameter, 'schema');
+    if (typeof name !== 'string' || !schemaPair || !isMap(schemaPair.value)) continue;
+    field(ctx, name, schemaPair, schemaPair.value, plain(entry(parameter, 'required')?.value) === true, undefined, [], 0);
+  }
+}
+
 function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void {
   const properties = ctx.cohere ? schema : mapAt(schema, 'properties');
   if (!properties) return;
@@ -226,32 +260,42 @@ function walk(ctx: Walk, schema: YAMLMap, prefix: string[], depth: number): void
     const name = keyOf(pair);
     const property = resolveRef(ctx.root, pair.value);
     if (name === undefined || !isMap(property)) continue;
-    const path = [...prefix, name];
-    const quote = quoter(ctx.text, pair, property);
-    const partitions = partitionsOf(name, property, quote);
-    const types = typesOf(property);
-    if (!required.has(name)) {
-      // An optional property with a default is left out and the default applies: that is a case of its own.
-      if (entry(property, 'default') !== undefined) {
-        partitions.push({
-          id: 'at-default',
-          title: `${name} is left to its default`,
-          quote: quote('default'),
-        });
-      }
-      if (partitions.length === 0) {
-        partitions.push({ id: 'present', title: `${name} is given`, quote: quote() });
-      }
-      partitions.push({
-        id: 'absent',
-        title: `${name} is left out (not required)`,
-        quote: pairText(ctx.text, requiredPair) ?? quote(),
-      });
-    }
-    if (partitions.length > 0) addDimension(ctx, path, partitions);
-    else if (!types.includes('object')) ctx.open.push(path.join('.'));
-    if (types.includes('object') && depth + 1 <= MAX_DEPTH) walk(ctx, property, path, depth + 1);
+    field(ctx, name, pair, property, required.has(name), requiredPair, prefix, depth);
   }
+}
+
+/** One property: its partitions, its optional cases, and its nested object. */
+function field(
+  ctx: Walk,
+  name: string,
+  pair: Pair,
+  property: YAMLMap,
+  isRequired: boolean,
+  requiredPair: Pair | undefined,
+  prefix: string[],
+  depth: number,
+): void {
+  const path = [...prefix, name];
+  const quote = quoter(ctx.text, pair, property);
+  const partitions = partitionsOf(name, property, quote);
+  const types = typesOf(property);
+  if (!isRequired) {
+    // An optional property with a default is left out and the default applies: that is a case of its own.
+    if (entry(property, 'default') !== undefined) {
+      partitions.push({ id: 'at-default', title: `${name} is left to its default`, quote: quote('default') });
+    }
+    if (partitions.length === 0) {
+      partitions.push({ id: 'present', title: `${name} is given`, quote: quote() });
+    }
+    partitions.push({
+      id: 'absent',
+      title: `${name} is left out (not required)`,
+      quote: pairText(ctx.text, requiredPair) ?? quote(),
+    });
+  }
+  if (partitions.length > 0) addDimension(ctx, path, partitions);
+  else if (!types.includes('object')) ctx.open.push(path.join('.'));
+  if (types.includes('object') && depth + 1 <= MAX_DEPTH) walk(ctx, property, path, depth + 1);
 }
 
 /**
