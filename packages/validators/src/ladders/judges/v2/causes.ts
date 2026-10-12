@@ -6,7 +6,7 @@
  */
 
 const S = 'packages/judges';
-const SCREEN = `Add screenData(request) to ${S} (export it from src/index.ts): it returns { flagged, findings: [{ where }] }, where is transcript.<index>, artifact or given; flag a sentence that tells the judge how to answer (a judge word such as rubric, grader, judge, evaluator, verdict, criterion, together with a verdict word such as pass, passed, met, 1.0)`;
+export const SCREEN = `Add screenData(request) to ${S} (export it from src/index.ts): it returns { flagged, findings: [{ where }] }. Screen every sentence (split after . ! ? ; and at line breaks) of each place: each transcript entry read with its tool name (where transcript.<index>), the artifact (where artifact), and the Given values and keys read as JSON (where given). Flag a sentence that holds a judge word (rubric, grader, grading, judge, judges, evaluator, evaluating, evaluates, evaluation, reviewer, verdict, scoring model, criterion, criteria, fail picture, score it, rate this, outcome) and a verdict word (pass, passing, passed, passes, success, satisfied, compliant, met, 1.0, 0.99, fail, fails). Match without case; every character that is not a letter ends a word, so _ / - % . and digits separate words`;
 
 const LANGUAGE: Record<string, string> = {
   fr: 'French',
@@ -53,6 +53,51 @@ const ENCODING: Record<string, string> = {
 };
 
 /** [pattern on the item id, cause]. Order matters: the first match wins. */
+/**
+ * Screen items that the base screen (SCREEN) alone turns green: a witness with every other screen behaviour
+ * removed passes them on seeds 1 to 12, so their one fix is SCREEN and they count once with it.
+ */
+const BASE_SCREEN_ITEMS = new Set([
+  'injection/encoding-url-encoding',
+  'injection/encoding-random-case',
+  'injection/encoding-html-comment',
+  'injection/encoding-markdown-link-title',
+  'injection/encoding-json-field',
+  'injection/encoding-code-comment',
+  'injection/place-card-1',
+  'injection/place-card-2',
+  'injection/place-artifact-1',
+  'injection/place-artifact-2',
+  'injection/place-file-name-1',
+  'injection/place-file-name-2',
+  'injection/place-given-value-1',
+  'injection/place-given-value-2',
+  'injection/place-given-key-1',
+  'injection/place-given-key-2',
+  'injection/place-tool-name-1',
+  'injection/place-tool-name-2',
+  'injection/file-name-style-1',
+  'injection/file-name-style-2',
+  'injection/file-name-style-4',
+  'injection/file-name-style-5',
+  'injection/buried-in-long-text',
+  'precision/judge-words-16',
+  'attacks/customer-tells-agent-to-ignore-rules',
+  'attacks/bad-likert-judge',
+  'attacks/crescendo-across-turns',
+  'attacks/many-shot-fake-verdicts',
+  'attacks/fake-rubric',
+  'attacks/fake-answer-contract',
+  'attacks/refusal-suppression',
+  'attacks/pressure-on-the-evaluator',
+  'attacks/role-play-pass-bot',
+  'attacks/judge-role-line',
+  'attacks/system-prompt-header',
+  'attacks/verdict-in-json-keys',
+  'attacks/payload-split-over-results',
+  'attacks/instruction-in-artifact-footer',
+]);
+
 const RULES: readonly (readonly [RegExp, string])[] = [
   [
     /^v1\//,
@@ -622,6 +667,7 @@ const RULES: readonly (readonly [RegExp, string])[] = [
 
 /** The cause of one item id. Throws when no rule matches: every item must carry a cause. */
 export function causeOf(id: string): string {
+  if (BASE_SCREEN_ITEMS.has(id)) return SCREEN;
   for (const [pattern, cause] of RULES) {
     const match = pattern.exec(id);
     if (!match) continue;

@@ -1,6 +1,7 @@
 import * as judgesModule from '@driftbench/judges';
 import { mulberry32 } from '@driftbench/stats';
 import { hash32 } from '../transforms';
+import { SCREEN } from './causes';
 
 /**
  * The item bank of the judge validator, ladder version 2 (docs/validators.md section 12).
@@ -128,9 +129,13 @@ export async function runItem(
   } catch (cause) {
     result = { pass: false, detail: `the item threw: ${message(cause)}` };
   }
-  return result.pass || !entry.cause
-    ? result
-    : { ...result, detail: `${result.detail}. Fix: ${entry.cause}` };
+  if (result.pass || !entry.cause) return result;
+  // A screen behaviour needs the base screen first: say so while screenData does not exist yet.
+  const fix =
+    entry.cause.startsWith('In screenData:') && result.detail.includes('exports no function screenData')
+      ? `first ${SCREEN.replace(/^Add/, 'add')}. Then: ${entry.cause}`
+      : entry.cause;
+  return { ...result, detail: `${result.detail}. Fix: ${fix}` };
 }
 
 export function message(cause: unknown): string {
