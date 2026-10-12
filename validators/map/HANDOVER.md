@@ -8,26 +8,26 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | Seed | Level |
 |---|---|
 | 1 | 0 |
-| 2 | 0 |
-| 3 | 0 |
+| 2 | 2 |
+| 3 | 2 |
 | 4 | 0 |
-| 5 | 0 |
-| 6 | 0 |
-| 7 | 0 |
+| 5 | 2 |
+| 6 | 2 |
+| 7 | 2 |
 | 8 | 0 |
-| 9 | 0 |
-| 10 | 0 |
-| 11 | 0 |
+| 9 | 2 |
+| 10 | 2 |
+| 11 | 2 |
 | 12 | 0 |
 | 13 | 0 |
-| 14 | 0 |
-| 15 | 0 |
+| 14 | 2 |
+| 15 | 2 |
 | 16 | 0 |
-| 17 | 0 |
-| 18 | 0 |
+| 17 | 2 |
+| 18 | 2 |
 | 19 | 0 |
 | 20 | 0 |
-| hidden | 0 |
+| hidden | 2 |
 <!-- level-table:end -->
 
 The bank is ladder version 2 of map: 578 items over 8 levels. After the ten pilot fixes and 45 executor iterations (11 to 55): 328 of 578 pass (score 0.5675), 31 distinct causes among the failing. Level 0 of 8 on every seed.
