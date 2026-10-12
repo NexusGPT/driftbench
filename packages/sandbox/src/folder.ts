@@ -23,6 +23,7 @@ import type {
   WorkspaceSnapshot,
   WorldState,
 } from '@driftbench/core';
+import { trackFolder, untrackFolder } from './cleanup';
 import { DEFAULT_MAX_READ_BYTES, SandboxLimitError, SandboxPathError, type SnapshotLimits } from './limits';
 import { makeFoldersInside, relativeInside, resolveExisting } from './paths';
 import { diffSnapshots, takeSnapshot, walkFiles } from './walk';
@@ -46,7 +47,10 @@ export abstract class FolderSandbox implements Sandbox {
     readonly folder: string,
     protected readonly limits: SnapshotLimits,
     readonly keep: boolean,
-  ) {}
+  ) {
+    // A kept folder is the caller's to keep: the exit sweep leaves it alone.
+    if (keep) untrackFolder(folder);
+  }
 
   abstract exec(command: string, options?: ExecOptions): Promise<ExecutionRecord>;
   abstract destroy(): Promise<void>;
@@ -113,7 +117,10 @@ export abstract class FolderSandbox implements Sandbox {
 
   /** Removes the workspace folder unless the sandbox keeps it. */
   protected async removeFolder(): Promise<void> {
-    if (!this.keep) await rm(this.folder, { recursive: true, force: true });
+    if (!this.keep) {
+      await rm(this.folder, { recursive: true, force: true });
+      untrackFolder(this.folder);
+    }
   }
 
   /**
@@ -194,5 +201,7 @@ export abstract class FolderSandbox implements Sandbox {
 export async function makeWorkspaceFolder(parent: string | undefined): Promise<string> {
   const base = parent === undefined ? tmpdir() : resolve(parent);
   await mkdir(base, { recursive: true });
-  return realpath(await mkdtemp(join(base, 'driftbench-')));
+  const folder = await realpath(await mkdtemp(join(base, 'driftbench-')));
+  trackFolder(folder);
+  return folder;
 }

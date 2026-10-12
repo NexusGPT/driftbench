@@ -447,6 +447,12 @@ export const Rules = z
       .optional()
       .describe('True when the reply language must stay the same across blocks.'),
     one_message_per_turn: z.boolean().optional().describe('True when each block may send one message only.'),
+    match_case: z
+      .boolean()
+      .optional()
+      .describe(
+        'True makes must and must_not patterns case-sensitive and the trailing punctuation count. Default false: a pattern ignores the case of the reply and a trailing punctuation mark.',
+      ),
     custom: z
       .record(z.string(), z.unknown())
       .optional()

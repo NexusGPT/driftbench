@@ -13,17 +13,28 @@ function patternCheck(name: 'must' | 'must_not'): Check {
     applies: (ctx) => (ctx.expect[name]?.length ?? 0) > 0,
     evaluate(ctx) {
       const text = visibleText(ctx.observed);
+      const strict = ctx.spec.rules?.match_case === true;
+      // Default: the reply's case and a trailing punctuation mark are ignored. The strict option compares them exactly.
+      const subjects = strict ? [text] : [text, text.replace(/[.,!?;:]+$/, '')];
       return (ctx.expect[name] ?? []).map((source, index): Verdict => {
         const id = String(index);
         let pattern: RegExp;
         try {
-          pattern = new RegExp(source, 'm');
+          pattern = new RegExp(source, strict ? 'm' : 'mi');
         } catch (cause) {
           return machineVerdict(name, id, 'fail', `/${source}/ does not compile: ${message(cause)}`);
         }
-        const match = pattern.exec(text);
+        let match: RegExpExecArray | null = null;
+        let matchedIn = text;
+        for (const subject of subjects) {
+          match = pattern.exec(subject);
+          if (match) {
+            matchedIn = subject;
+            break;
+          }
+        }
         if (match) {
-          const found = `/${source}/ matched ${JSON.stringify(match[0])} at offset ${match.index}: ${around(text, match.index, match[0].length)}`;
+          const found = `/${source}/ matched ${JSON.stringify(match[0])} at offset ${match.index}: ${around(matchedIn, match.index, match[0].length)}`;
           return machineVerdict(name, id, name === 'must' ? 'pass' : 'fail', found);
         }
         const where = text === '' ? 'the block has no visible text' : `visible text ${quote(text)}`;

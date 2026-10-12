@@ -67,14 +67,19 @@ export function sha256(bytes: Uint8Array): string {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
-function checkPath(path: string): void {
+/** True when `path` is a relative path inside a version: / between folder names, no empty part, . or .. */
+export function isVersionPath(path: string): boolean {
   const parts = path.split('/');
-  if (
+  return !(
     path === '' ||
     path.includes('\\') ||
     path.startsWith('/') ||
     parts.some((part) => part === '' || part === '.' || part === '..')
-  ) {
+  );
+}
+
+export function checkPath(path: string): void {
+  if (!isVersionPath(path)) {
     throw new StoreError(
       'INVALID_RECORD',
       `"${path}" is not a relative path inside the version: use / between folder names, no . or ..`,

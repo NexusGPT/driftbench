@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { constants } from 'node:os';
 import { performance } from 'node:perf_hooks';
 import type { ExecutionRecord } from '@driftbench/core';
+import { trackGroup, untrackGroup } from './cleanup';
 import { TIMEOUT_EXIT_CODE } from './limits';
 
 /**
@@ -42,6 +43,7 @@ export function runProcess(
       detached: true,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
+    if (child.pid !== undefined) trackGroup(child.pid);
     const stdout = new Capture(options.maxOutputBytes);
     const stderr = new Capture(options.maxOutputBytes);
     child.stdout.on('data', (chunk: Buffer) => stdout.push(chunk));
@@ -81,6 +83,7 @@ export function runProcess(
       settled = true;
       clearTimeout(timer);
       if (grace) clearTimeout(grace);
+      if (child.pid !== undefined) untrackGroup(child.pid);
       const status = exit ?? { code, signal };
       const notes: string[] = [];
       if (timedOut) notes.push(`driftbench: timed out after ${options.timeoutMs} ms; the command was killed`);

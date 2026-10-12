@@ -470,6 +470,8 @@ A verdict from the Acme campaign run with a council that replays the campaign ca
 
 ## Rules for the whole spec
 
+The match_case rule sets how must and must_not read the reply. By default (false) a pattern ignores the case of the reply, and a trailing punctuation mark does not count: a pattern ending in Mbps$ matches "fiber at 300 Mbps.". With match_case true both count. Word boundaries work in both modes: a pattern with a word boundary before and after 300 does not match "3000".
+
 | Field | What it checks | Check |
 |---|---|---|
 | `max_calls` | the most calls per tool across the run; 0 forbids the tool | `forbidden` |

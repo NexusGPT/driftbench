@@ -536,6 +536,7 @@ Rules that hold for the whole conversation.
 | `forbidden_tools` | list of strings, each not empty | no |  | Tools that must never be called. |
 | `lang_stable` | boolean | no |  | True when the reply language must stay the same across blocks. |
 | `one_message_per_turn` | boolean | no |  | True when each block may send one message only. |
+| `match_case` | boolean | no |  | True makes must and must_not patterns case-sensitive and the trailing punctuation count. Default false: a pattern ignores the case of the reply and a trailing punctuation mark. |
 | `custom` | map of string to any value | no |  | Maps a registered custom check name to its options; the checks package runs it. |
 
 ## EndState

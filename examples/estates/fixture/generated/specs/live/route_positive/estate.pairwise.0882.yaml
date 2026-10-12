@@ -51,7 +51,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Add the late shipment count to this week's report, reports/2026-W41.md.
+      user: Fill in the shipments late section of the week 41 report.
     expect:
       skills:
         - name: weekly-report
@@ -73,6 +73,7 @@ metadata:
     atoms:
       - skill.weekly-report.skill-weekly-report
     planRow: pairwise.0882
+    focusVariant: 881
     cell:
       ask_class: chat
       ask_shape: correction
@@ -89,6 +90,6 @@ metadata:
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
     situation: weekly-report-update
-    phrase: 0
+    phrase: 1
     ask: bank
     outcome: bank

@@ -29,6 +29,7 @@ export {
   type EstateSpecRecord,
   findSituation,
   generateEstateSuite,
+  mapFiles,
   NEGATIVE_TESTS,
   PRIORITY_KINDS,
   REPLAY_CUSTOM_CHECKS,
