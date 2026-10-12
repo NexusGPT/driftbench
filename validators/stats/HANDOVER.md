@@ -29,51 +29,44 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 20 | 1 |
 | hidden | 1 |
 <!-- level-table:end -->
+The stats validator is ladder version 2: 651 items in seven levels, each with threshold 1. The bank score is the share of items passing on every seed (seeds 1 to 20 and the hidden seed).
 
-The stats validator is ladder version 2 (docs/validators.md section 12): a bank of 1201 items in seven levels, each with threshold 1. A level passes on a seed only when every one of its items passes. The bank score is the share of items that pass on every seed; `validators/stats/bank-scores.jsonl` holds one row per iteration, iteration 0 first. Journal row 1 is iteration 0 (the schema starts at 1); rows 2 to 11 are the ten pilot iterations.
+## State (executor exec/stats-v2, branch of lane/v-stats)
 
-After the pilot (branch `exec/stats-pilot`, statistics fixes in `packages/stats`): 466 of 1201 items pass on every seed, score 0.388; iteration 0 was 422 (0.351). Level 1 on every seed: the `degenerate` level still fails first.
+This branch does not hold the statistics fixes of the old pilot branch (exec/stats-pilot), so its starting point is iteration 0: 418 of 651 items (0.6421). After journal iterations 11 to 15 (one cause each, commits 661bc502, a3c406d1, da3879de, bdae2638, 100f64c5) the full sweep at 100f64c5 shows 435 of 651 (0.6682), 57 failing causes, level 1 on every seed. Journal rows 11 to 14 were measured on seed 1 only (one sweep at a time under load): their passing counts are not comparable to row 15.
+
+Fixed so far: mde at a baseline of 0 or 1; designEffect below its bound; zeroFailureBound at a tiny p; campaign plan uses stats.mde (new `--rho`); the report run pass interval (Wilson on effective runs, t quantile; coverage 0.97 and 0.95 on the two planted designs).
 
 ## Floor
 
-See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The floor there belongs to ladder version 1 (levels 1 and 2 of the old two-level ladder). Version 2 starts at the level its pilot reached; the maintainer sets it (section 12.5).
+See `validators/floors.json`; `pnpm driftbench validate floors` prints it. Ladder version 2 has no floor yet; the maintainer sets it.
 
 ## Open items
 
-The first failing level is `degenerate` on every seed. After the pilot its failing items are, in bank order: `cusum` was fixed last; next come `betaQuantile(NaN, 2, 3)` (returns 2.8e-17, must be NaN), `designEffect(Infinity, 0.1)`, `mde` with an infinite n or repeats, `repeatsForFloor` with an infinite variance or blocks, `neymanAllocation` with an infinite size, `krippendorffAlpha` and `cohenKappa` with an unknown level or weights, the domain items of `normalCdf`, `chiSquareSf`, `logGamma`, `incompleteBeta`, and the exact all-equal answers of `mean`, `sampleVariance`, `bootstrapCI` and `varianceComponents`. Run the ladder for the live list: each item names the call, what came back, what was expected and the file.
+1. The missing methods (55 items, 7 causes): `clusteredMeanInterval`, `designEffectFromData`, `iccOneWay`, `kishEffectiveSize`, `oneWayAnova`, `stratifiedMean`, `weightedMean`. Each item names its signature, definition and source; the cases are in `packages/validators/fixtures/stats/roadmap.json`.
+2. Degenerate inputs (about 130 items): per function, a RangeError that names the argument, the scipy limit at the edge of the special functions, exact answers on one or all-equal values. A shared finiteness helper fixes many at once (say so in the journal).
+3. Product: `sessionRate` in @driftbench/estate (4 items), the early stop (1 item), chaoCoverage just above the class count, neymanAllocation rounding (11 items).
+4. `simulation.newcombe.n30` fails on one seed of 21 (pairedRateDifference coverage); not touched yet.
 
 ## Hypotheses tried
 
-The ten pilot iterations (journal rows 2 to 11), one function each, every one confirmed by its items turning green:
-1. `pageHinkley` (drift.ts): no input check. Fixed 6 items.
-2. `mean` (basics.ts): non-finite values summed. Fixed 9 items, among them `sampleVariance` and `cusum` items that call `mean`.
-3. `quantile` (basics.ts): non-finite values and a NaN level. Fixed 4.
-4. `quantileSorted` (basics.ts): non-finite and unsorted input. Fixed 10, among them `unreliability` and `bootstrapCI`, which call it.
-5. `wilcoxonSignedRank` (paired.ts). Fixed 3.
-6. `ksTest` (drift.ts): a NaN looped forever. Fixed 4.
-7. `wilson` (intervals.ts): z unchecked. Fixed 2.
-8. `effectiveSampleSize` (intervals.ts). Fixed 2.
-9. `hillNumber` (coverage.ts): q unchecked. Fixed 1.
-10. `cusum` options (drift.ts). Fixed 3.
-Rejected: none. A shared finiteness helper would fix more items per iteration; the pilot fixed one function per iteration, as an executor reading the first failing item does.
+* A scaled percentile bootstrap (interval widened by t / z): coverage 0.898 at 6 x 5, short of 0.95. Rejected.
+* Student t interval on the spec rates: 0.889. Rejected.
+* Wilson on the effective runs with the t quantile: 0.972 and 0.950. Kept.
 
 ## Next actions
 
-1. Run `pnpm driftbench validate stats --seed 1` and read the items of the first failing level (`degenerate`). Pick one function (one source file) and fix its items only; write the test in `packages/stats/test/degenerate.test.ts` first and see it red.
-2. Run `pnpm -s vitest run packages/stats`, then score the bank: `pnpm exec tsx packages/validators/src/ladders/stats/bank/score-cli.ts --seeds 1..20 --hidden --record <next iteration number>`.
-3. Build the journal row (the metrics are the per-level pass shares from the score row) and append it with `pnpm driftbench validate stats --journal row.json`, then rewrite this file.
+1. Add the missing methods one per iteration, test first (`packages/stats/test/`), export from `packages/stats/src/index.ts`.
+2. Run the sweep one at a time: `pnpm -s driftbench validate stats --seeds 1..20 --hidden --items --json > out.json` from a copy of the tree (a sweep takes 30 to 50 minutes at a load of 140).
+3. Build the journal row from the json (`bank` block) and append it with `pnpm -s driftbench validate stats --journal row.json`.
 
 ## Pitfalls
 
-* Never edit the bank: `packages/validators/src/ladders/stats/**` and `packages/validators/fixtures/stats/**`. An item you think is wrong goes to the maintainer with the oracle's answer and a counter-example (section 12.3).
-* The degenerate-input contract has three rules. Rule 1: a statistical procedure throws a RangeError on input it cannot answer for (no data, NaN, an infinite value, a count or probability out of range, mismatched lengths, an unknown option). Rule 2: a function in `special.ts` given NaN returns NaN or throws a RangeError; at the edge of its domain it returns the scipy limit. Rule 3: on one value or all-equal values a function returns the defined answer exactly, never NaN.
-* `ksTest` with a NaN never ends: the item is stopped after 20 seconds. Each seed's bank runs in up to four child processes, so one endless loop fails one item and the run goes on.
-* A roadmap item that says "packages/stats does not export X" gives the signature, the definition and the source. Add the function to the file named, export it from `packages/stats/src/index.ts`, and the item's cases (in `packages/validators/fixtures/stats/roadmap.json`) tell you the expected values. The same method then has degenerate, purity, scale and, for rate intervals, exact-coverage items.
-* Fixing a shared helper (for example a finiteness check in `basics.ts`) can change many functions at once. That is allowed, but say so in the journal row: it is one cause.
-* Simulation items count over draws. The bars leave room for a correct estimator on every seed (measured on 21 seeds); a failure on one seed alone is still a failure.
-* One seed's bank takes about 10 to 60 seconds of wall time with four child processes, depending on the load of the machine; 21 seeds 4 to 25 minutes.
-* Timing: the one-million-row items count processor time (5 s budget), and an item is stopped after 120 s of wall time (300 s for simulation and scale items) only to catch an endless loop.
-* Several items draw their case from the seed (for example `analytic.allocation.neyman-optimal.*`): the hidden seed changes with every commit, so such an item can pass on one commit's hidden seed and fail on the next. That is a real defect on some inputs, not noise.
+* Never edit the bank: `packages/validators/src/ladders/stats/**` and `packages/validators/fixtures/stats/**`.
+* Memory is tight: vitest with `--maxWorkers=2`, only on the packages you touch; one sweep at a time.
+* The degenerate contract: Rule 1, a procedure throws a RangeError naming the argument for input it cannot answer; Rule 2, `special.ts` returns NaN or throws, and returns the scipy limit at the domain edge; Rule 3, one value or all-equal values return the defined answer, never NaN.
+* The report snapshot `packages/report/test/__snapshots__/acme-x3-scorecard.html` moved with the new interval; update it with `vitest -u` only for an interval change.
+* github.com may be unreachable; retry the push every 60 s.
 
 ## How to run
 

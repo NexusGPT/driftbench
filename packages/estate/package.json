@@ -43,6 +43,7 @@
   "dependencies": {
     "@driftbench/core": "workspace:*",
     "@driftbench/space": "workspace:*",
+    "@driftbench/stats": "workspace:*",
     "zod": "^4.6.5",
     "yaml": "^2.9.1",
     "@driftbench/generate": "workspace:*"
