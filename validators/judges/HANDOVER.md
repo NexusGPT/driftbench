@@ -114,6 +114,7 @@ Iteration 99 (cause: no per judge labels.metrics. agreement() counts tp fp tn fn
 Iteration 100 (cause: majority had no families option. Votes of one family collapse into one family vote (its majority, inconclusive on a split), each weighing 1. Test: council.test.ts majority by family. Next: pass the council config weights into majority (weights-in-the-council).)
 Iteration 101 (cause: CouncilConfig had no weights. weights pass into majority in every round. Test: council.test.ts council weights. Next: cascade never stops early on a flagged request (screenData), positionBias, swapConsistent, pair prompt tags, label checks, player index.)
 Iteration 102 (cause: swapConsistent missing; added to pairwise.ts and exported. Test: swap-consistent.test.ts (module absent before).)
+Iteration 103 (cause: positionBias missing; added to pairwise.ts and exported. Test: swap-consistent.test.ts positionBias.)
 
 ## Next actions
 
