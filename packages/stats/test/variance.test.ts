@@ -93,7 +93,7 @@ describe('icc and the measured design effect', () => {
 });
 
 describe('neymanAllocation', () => {
-  it('allocates in proportion to N_h S_h with largest-remainder rounding', () => {
+  it('allocates the whole numbers that minimise the stratified variance, matching the reference', () => {
     for (const c of fixtures.neyman) {
       const r = neymanAllocation(c);
       r.exact.forEach((x, i) => {

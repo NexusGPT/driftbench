@@ -102,6 +102,9 @@ const PATH_CODES = new Set([
 function pathError(cause: unknown): string | undefined {
   if (!(cause instanceof Error)) return undefined;
   const { code, path } = cause as Error & { code?: unknown; path?: unknown };
-  if (typeof code !== 'string' || !PATH_CODES.has(code) || typeof path !== 'string') return undefined;
-  return `cannot use ${path}: ${cause.message}`;
+  if (typeof code !== 'string' || !PATH_CODES.has(code)) return undefined;
+  // A read that fails after the open (EISDIR on a folder) carries no path: the message names the cause.
+  return typeof path === 'string'
+    ? `cannot use ${path}: ${cause.message}`
+    : `cannot read the input: ${cause.message}`;
 }

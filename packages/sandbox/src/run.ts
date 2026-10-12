@@ -1,5 +1,7 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { readdirSync, readlinkSync, realpathSync } from 'node:fs';
 import { constants } from 'node:os';
+import { sep } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import type { ExecutionRecord } from '@driftbench/core';
 import { trackGroup, untrackGroup } from './cleanup';
@@ -65,6 +67,7 @@ export function runProcess(
       } catch {
         // The group is already gone.
       }
+      if (options.cwd !== undefined) killInside(realFolder(options.cwd));
     };
 
     const timer = setTimeout(() => {
@@ -123,6 +126,64 @@ export function runProcess(
     });
     child.once('close', (code, signal) => finish(code, signal));
   });
+}
+
+function realFolder(folder: string): string {
+  try {
+    return realpathSync(folder);
+  } catch {
+    return folder;
+  }
+}
+
+/**
+ * Kills every process whose working folder is inside `root`: the children the command left behind, also
+ * one that started its own process group (the group kill does not reach it, and its parent is gone, so no
+ * walk of the process tree finds it). A child that moved to another folder is not found.
+ */
+function killInside(root: string): void {
+  for (const pid of pidsInside(root)) {
+    if (pid === process.pid) continue;
+    try {
+      process.kill(pid, 'SIGKILL');
+    } catch {
+      // It ended on its own, or it is not ours to kill.
+    }
+  }
+}
+
+function pidsInside(root: string): number[] {
+  const inside = (folder: string) => folder === root || folder.startsWith(`${root}${sep}`);
+  try {
+    if (process.platform === 'linux') {
+      const pids: number[] = [];
+      for (const entry of readdirSync('/proc')) {
+        if (!/^\d+$/.test(entry)) continue;
+        try {
+          if (inside(readlinkSync(`/proc/${entry}/cwd`))) pids.push(Number(entry));
+        } catch {
+          // Not readable: another user's process, or one that just ended.
+        }
+      }
+      return pids;
+    }
+    // lsof -Fpn prints "p<pid>" then "n<folder>" for each process; -d cwd limits it to the working folder.
+    // lsof exits 1 when it could not read some process (another user's), and still prints the others.
+    const listing = spawnSync('lsof', ['-a', '-d', 'cwd', '-Fpn'], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    }).stdout;
+    const pids: number[] = [];
+    let current = 0;
+    for (const line of (listing ?? '').split('\n')) {
+      if (line.startsWith('p')) current = Number.parseInt(line.slice(1), 10);
+      else if (line.startsWith('n') && inside(line.slice(1))) pids.push(current);
+    }
+    return pids;
+  } catch {
+    // The listing is unavailable: the group kill has still run.
+    return [];
+  }
 }
 
 /** The shell convention: a process killed by a signal exits with 128 plus the signal number. */

@@ -40,9 +40,9 @@ export type { ChatMessage, ChatToolCall } from './chat';
  * OpenAI-compatible chat completion. A completion that asks for tools is answered from `world.tools` and
  * posted again, round after round, until a completion asks for none.
  *
- * Errors: no connection, a timeout, a 429 or a 5xx is an AdapterTransportError, which the runner retries under
- * the shared policy, honouring Retry-After; any other failing status (408 included) or a body of neither shape
- * is an AgentFailure.
+ * Errors: no connection, a timeout, a 408, a 429 or a 5xx is an AdapterTransportError, which the runner retries
+ * under the shared policy, honouring Retry-After; any other failing status or a body of neither shape is an
+ * AgentFailure.
  */
 
 export const HTTP_ADAPTER_VERSION = '0.1.0';

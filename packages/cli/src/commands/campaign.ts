@@ -23,7 +23,7 @@ import {
   type LoadedSpec,
   loadSpecs,
   type MinimumDetectableEffect,
-  minimumDetectableEffect,
+  mdeLine,
   outcomeOf,
   type PlannedCell,
   type PlanOptions,
@@ -205,12 +205,14 @@ type PlanCommandOptions = {
   repeats: string;
   budgetUsd?: string;
   baselineRate: string;
+  rho?: string;
   store?: string;
   json?: boolean;
 };
 
 type RunCommandOptions = {
   dataset?: string;
+  cacheSuite?: string;
   prompt?: string[];
   target: string[];
   route?: string[];
@@ -237,6 +239,7 @@ type RetryFlags = { retryAttempts?: string; retryBaseMs?: string; retryMaxMs?: s
 type StoredCommandOptions = RetryFlags & {
   store: string;
   cache?: boolean;
+  cacheSuite?: string;
   concurrency?: string;
   budgetUsd?: string;
   processCommand?: string;
@@ -264,6 +267,7 @@ export function registerCampaignCommands(
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option('--budget-usd <usd>', 'compare the projected cost with this budget')
     .option('--baseline-rate <rate>', 'the pass rate the minimum detectable effect assumes', '0.5')
+    .option('--rho <rho>', 'the correlation of repeats of one spec, as icc measures it, from 0 to 1', '0')
     .option('--store <file>', 'read the measured unit costs from this store')
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: PlanCommandOptions) => {
@@ -288,6 +292,10 @@ export function registerCampaignCommands(
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
+    .option(
+      '--cache-suite <name>',
+      'the cache suite of this campaign: a new name starts from an empty cache, the old entries stay',
+    )
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', 'a hard stop: no cell starts once the campaign has spent this much')
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
@@ -471,12 +479,21 @@ export async function campaignPlanCommand(
   const budget =
     options.budgetUsd === undefined ? undefined : parseNumber(options.budgetUsd, '--budget-usd', io);
   const baselineRate = parseRate(options.baselineRate, io);
-  if (!shape || budget === null || baselineRate === undefined) return 2;
+  const rho = parseRho(options.rho ?? '0', io);
+  if (!shape || budget === null || baselineRate === undefined || rho === undefined) return 2;
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
   const runs = specRuns(loaded, shape.targets, io, shape.routes);
   if (!runs) return 2;
   if (tooManyCells(runs, shape, io)) return 2;
+  // A target no adapter is set up for is bad input here too (docs/running.md, "Exit codes"): the plan
+  // checks it the way run does, so a plan that prints is a plan that can run.
+  const scope = openScope();
+  try {
+    if (!(await adaptersFor(runs, deps, scope, io))) return 2;
+  } finally {
+    await closeScope(scope, io);
+  }
   if (!options.json) io.out(targetNotes(loaded, shape.targets, shape.routes));
 
   let units: CostUnit[] = [];
@@ -492,6 +509,7 @@ export async function campaignPlanCommand(
   const plan = planFor(runs, shape.modes, shape.repeats, {
     units,
     baselineRate,
+    rho,
     ...(budget === undefined ? {} : { budgetUsd: budget }),
   });
 
@@ -532,9 +550,14 @@ export async function campaignPlanCommand(
   );
   io.out(`${costLine(plan)}\n`);
   for (const line of plan.mde) {
-    const effect = line.effect === undefined ? 'no runs' : `${(line.effect * 100).toFixed(1)} points`;
+    const effect =
+      line.runsPerArm === 0
+        ? 'no runs'
+        : line.effect === undefined
+          ? 'none detectable'
+          : `${(line.effect * 100).toFixed(1)} points`;
     io.out(
-      `Minimum detectable effect, mode ${line.mode}: ${effect} on a ${(line.baselineRate * 100).toFixed(0)}% pass rate, with ${count(line.runsPerArm, 'run')} per arm (two-sided alpha ${line.alpha}, power ${line.power}).\n`,
+      `Minimum detectable effect, mode ${line.mode}: ${effect} on a ${(line.baselineRate * 100).toFixed(0)}% pass rate, with ${count(line.runsPerArm, 'run')} per arm over ${count(line.specs, 'spec')} (rho ${line.rho}, design effect ${line.designEffect.toFixed(2)}; two-sided alpha ${line.alpha}, power ${line.power}).\n`,
     );
   }
   return 0;
@@ -628,6 +651,7 @@ export async function campaignRunCommand(
       }
       return await executeCampaign(campaign, loaded, adapters, store, deps, io, {
         cache: options.cache,
+        ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
         json: options.json === true,
         kept: options.store !== undefined,
         ...pool,
@@ -759,6 +783,7 @@ export async function campaignResumeCommand(
       pool.budgetUsd ?? (stored.campaign.budgetUsd > 0 ? stored.campaign.budgetUsd : undefined);
     return await executeCampaign(stored.campaign, stored.specs, adapters, store, deps, io, {
       cache: options.cache !== false,
+      ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
       json: options.json === true,
       kept: true,
       concurrency: pool.concurrency,
@@ -815,6 +840,7 @@ async function executeCampaign(
   io: Io,
   flags: {
     cache: boolean;
+    cacheSuite?: string;
     json: boolean;
     kept: boolean;
     concurrency: number;
@@ -844,6 +870,7 @@ async function executeCampaign(
     store,
     // The runner neither replays nor caches a run in a sandbox: a replay has no workspace to read.
     ...(flags.cache ? { cache: store } : {}),
+    ...(flags.cacheSuite === undefined ? {} : { cacheSuite: flags.cacheSuite }),
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
@@ -1191,15 +1218,7 @@ function planFor(
       : { budgetUsd: options.budgetUsd, withinBudget: usd <= options.budgetUsd }),
     mde: modes.map((mode, index): MinimumDetectableEffect => {
       const runsPerArm = parts.reduce((sum, part) => sum + (part.mde[index]?.runsPerArm ?? 0), 0);
-      const effect = minimumDetectableEffect(runsPerArm, baselineRate);
-      return {
-        mode,
-        runsPerArm,
-        baselineRate,
-        alpha: 0.05,
-        power: 0.8,
-        ...(effect === undefined ? {} : { effect }),
-      };
+      return mdeLine(mode, runs.length, runsPerArm, baselineRate, options.rho);
     }),
   };
 }
@@ -1582,6 +1601,15 @@ function parseRate(text: string, io: Io): number | undefined {
   const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 1) {
     io.err(`--baseline-rate takes a number between 0 and 1, not "${text}".\n`);
+    return undefined;
+  }
+  return value;
+}
+
+function parseRho(text: string, io: Io): number | undefined {
+  const value = optionNumber(text);
+  if (!Number.isFinite(value) || value < 0 || value > 1) {
+    io.err(`--rho takes a number from 0 to 1, not "${text}".\n`);
     return undefined;
   }
   return value;

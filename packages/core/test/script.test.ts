@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   agent,
   conversation,
+  fail,
   injection,
   judge,
   proceed,
@@ -77,8 +78,10 @@ describe('the script API compiles to a spec', () => {
   });
 
   it('refuses the steps the spec cannot express, with the reason', () => {
-    expect(() => proceed()).toThrow(/simulated user/);
-    expect(() => succeed()).toThrow(/no early-stop step/);
+    expect(() => proceed(0)).toThrow(/at least one turn/);
+    expect(() => proceed(1.5)).toThrow(/whole number/);
+    expect(() => (proceed as unknown as () => unknown)()).toThrow(/how many turns/);
+    expect(succeed().kind).toBe('end');
   });
 
   it('reports a spec the loader rejects, as issues', () => {
@@ -92,5 +95,52 @@ describe('the script API compiles to a spec', () => {
     const back = parseSpecText(text, 'yaml');
     expect(back.ok).toBe(true);
     if (back.ok) expect(back.spec.blocks).toHaveLength(1);
+  });
+});
+
+describe('proceed reserves turns for the simulated user', () => {
+  it('compiles n blocks that carry the hint, and names them in the metadata', () => {
+    const result = conversation('reserved', [
+      user('I need help with my order.'),
+      proceed(2, { hint: 'Ask about the delivery date.', expect: { must_not: ['refund'] } }),
+      user('Thanks, bye.'),
+    ]);
+    expect(result.load.ok).toBe(true);
+    const blocks = result.spec.blocks as Array<Record<string, unknown>>;
+    expect(blocks).toHaveLength(4);
+    expect(blocks[1]).toEqual({
+      id: 'b2',
+      when: { user: 'Ask about the delivery date.' },
+      expect: { must_not: ['refund'] },
+    });
+    expect(blocks[2]?.when).toEqual({ user: 'Ask about the delivery date.' });
+    expect(result.spec.metadata).toEqual({ simulated_blocks: [1, 2] });
+  });
+
+  it('uses a default hint when none is given, and leaves metadata out when nothing is reserved', () => {
+    const reserved = conversation('default-hint', [proceed(1)]);
+    expect((reserved.spec.blocks as Array<Record<string, unknown>>)[0]?.when).toEqual({
+      user: 'Continue the conversation toward your goal.',
+    });
+    const plain = conversation('plain', [user('hi')]);
+    expect(plain.spec.metadata).toBeUndefined();
+  });
+});
+
+describe('succeed and fail end the script with a verdict', () => {
+  it('succeed() as the last step compiles an end verdict of success, with its reason', () => {
+    const result = conversation('ends-ok', [user('hi'), succeed('the order is placed')]);
+    expect(result.load.ok).toBe(true);
+    expect(result.spec.end).toEqual({ verdict: 'success', reason: 'the order is placed' });
+    expect(result.spec.blocks).toHaveLength(1);
+  });
+
+  it('fail() as the last step compiles an end verdict of failure', () => {
+    const result = conversation('ends-bad', [user('hi'), fail('the agent refused')]);
+    expect(result.spec.end).toEqual({ verdict: 'failure', reason: 'the agent refused' });
+  });
+
+  it('a turn after succeed() is refused: the script ends there', () => {
+    expect(() => conversation('after', [succeed('done'), user('one more')])).toThrow(/ends the script/);
   });
 });

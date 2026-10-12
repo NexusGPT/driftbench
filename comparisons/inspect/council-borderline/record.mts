@@ -1,8 +1,9 @@
+/* biome-ignore-all lint/style/noNonNullAssertion: research script; each lookup uses a key the script just built */
 // Records one model's answer to each borderline block, through the judges' own prompt and answer contract.
 // Usage: npx tsx comparisons/inspect/council-borderline/record.mts <haiku|sonnet|opus> [out.json]
 // Calls the claude command (CLAUDE_BIN, default claude). Each call is capped at PER_CALL_CAP USD (default 0.05; opus measured at about 0.012 per call).
 import { spawn } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { loadLabels } from '../../../packages/judges/src/calibration';
 import { type JudgeRequest, parseAnswerText } from '../../../packages/judges/src/contract';

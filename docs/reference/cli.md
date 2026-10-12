@@ -260,7 +260,7 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 These commands run specs on a target. Each has its options, its output and its exit codes on the [running](../running.md) page.
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--store <file>] [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--json]
 driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
@@ -287,6 +287,7 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--repeats <n>` | runs per spec, target and mode; default 1 |
 | `--budget-usd <usd>` | `plan`: compare the projected cost with this budget. `run`: no cell starts once the campaign has spent this much. `resume`: the same stop, by default the budget the campaign was run with |
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes; default 0.5 |
+| `--rho <rho>` | the correlation of repeats of one spec, from 0 to 1; default 0 |
 | `--campaign <id>` | the campaign id; without it, one is made from the content and the clock |
 | `--dataset <ref>` | `run` only: run the specs of this dataset version of the store and record it in the campaign; needs `--store`. See [datasets](../datasets.md) |
 | `--prompt <ref>` | `run` only: the agent runs with this prompt version of the store, a single text file: every target carries it in `target.prompt`, and the campaign records it; give it once; needs `--store`. Each adapter page says how the text reaches the agent |
@@ -436,7 +437,7 @@ driftbench extract approve <proposal> [--dimension <id>]... [--all] [--to <file>
 driftbench extract map <proposal> --to <file> [--all]
 ```
 
-Proposes the map of situations from an agent's prompt or policy, its inventory and its tool schemas, for a person to approve. Code reads the inventory and the tools first; a model then proposes stages, rules, personas, data and phrases, each value quoting the text that justifies it. Each dimension has a role: an `axis` enters the space map, a `detail` stays in the proposal for generation. The proposal is a valid space map. Nothing counts until a person approves it.
+Proposes the map of situations from an agent's prompt or policy, its inventory and its tool schemas, for a person to approve. Code reads the inventory and the tools first; a model then proposes stages, rules, personas, data and phrases, each value quoting the text that justifies it. Each dimension has a role: an `axis` enters the space map, a `detail` stays in the proposal for generation. The proposal is not a space map: the space commands read it only through `extract map`, which writes the map of the approved axes. Nothing counts until a person approves it.
 
 | Option | Effect |
 |---|---|
@@ -1188,7 +1189,7 @@ The run reaches level 2, so the command exits 2.
 
 ```
 $ pnpm -s driftbench validate floors
-Floors (validators/floors.json): stats = 1.
+Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 1 (ladder version 1).
 ```
 
 | Exit code | When |
@@ -1202,13 +1203,15 @@ An option error the argument parser reports (an unknown option, a missing compon
 ## `driftbench estate run` and `driftbench estate mutate`
 
 ```
-driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
+driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--progress <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
 ```
 
 `estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
 
-`estate mutate` copies the estate and deletes the quoted span of one atom (`--delete`) or replaces it by its negation from a fixed table (`--invert`), and writes the copy, `map.yaml` and `mutant.json` to `--to`. The tests derived from that atom must then go red. Exit 0 when the mutant is written, 2 on a usage or input error (nothing is written).
+With `--progress <file>`, each finished spec appends one compact JSON run line to the file as it finishes, so a stopped batch keeps the lines it finished. Stdout is unchanged: with `--json` it is the one summary document, which has `runs`, `passed`, `failed`, `undecided`, `notApplicable` and `costUsd`. A spec whose only non-passing checks are not applicable (a stage check on a run with no stage record) is counted as `notApplicable`, not as a failure, and the summary line names the count.
+
+`estate mutate` copies the estate and deletes the quoted span of one atom (`--delete`) or replaces it by its negation from a fixed table (`--invert`), and writes the copy, `map.yaml` and `mutant.json` to `--to`. The tests derived from that atom must then go red. Exit 0 when the mutant is written, 2 on a usage or input error (nothing is written). A `--delete` of a skill's `name:` line whose value equals the skill's folder name is an equivalent mutant: it is refused with exit 2 and nothing is written.
 
 On the Northwind fixture, with the stand-in command of `examples/estates/fixture/live/fake` (no model call):
 
@@ -1462,3 +1465,8 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 | `judge lint` | lint the rubric of every criterion in a folder (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
 | `judge compare` | judge two runs of the same specs side by side, in both orders, and report the winner per criterion and the position bias (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
 | `spec synth` | specs from traffic clusters | no phase assigned |
+
+## `driftbench campaign run --cache-suite`
+
+`--cache-suite <name>` names the cache suite of a campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without the flag, the keys are the ones earlier caches used.
+

@@ -189,4 +189,10 @@ describe('other bad input', () => {
     refused(result);
     expect(result.err).toContain('a campaign holds at most 1000000');
   });
+
+  it('estate approve and estate plan approve of a folder exit 2 with the reason, not a stack trace', async () => {
+    const afolder = await folder('estate-dir/afolder');
+    refused(await cli(['estate', 'approve', afolder]));
+    refused(await cli(['estate', 'plan', 'approve', afolder]));
+  });
 });
