@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { realpathSync, statSync } from 'node:fs';
+import { existsSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 
 /**
  * Ends every process a run left behind in its folders: a process whose command line names one of them, or
@@ -118,9 +118,20 @@ function bornAt(folder: string): number {
   }
 }
 
-/** The working folder of each listed process, from lsof where it exists (macOS, most Linux). */
+/** The working folder of each listed process: from /proc on Linux, else from lsof (macOS). */
 function workingFolders(pids: readonly number[]): Array<{ pid: number; cwd: string }> {
   if (pids.length === 0) return [];
+  if (existsSync('/proc/self/cwd')) {
+    const out: Array<{ pid: number; cwd: string }> = [];
+    for (const pid of pids) {
+      try {
+        out.push({ pid, cwd: readlinkSync(`/proc/${pid}/cwd`) });
+      } catch {
+        // Gone, or not ours to read.
+      }
+    }
+    return out;
+  }
   const lsof = spawnSync('lsof', ['-nP', '-a', '-d', 'cwd', '-p', pids.join(','), '-Fpn'], {
     encoding: 'utf8',
     maxBuffer: 64 << 20,

@@ -611,7 +611,9 @@ describe('estate run leaves no process behind', () => {
       daemon,
       [
         'import os, sys, time',
-        'if os.fork() > 0:',
+        'child = os.fork()',
+        'if child > 0:',
+        '    os.waitpid(child, 0)',
         '    sys.exit(0)',
         'os.setsid()',
         'if os.fork() > 0:',

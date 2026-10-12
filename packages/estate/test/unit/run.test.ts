@@ -125,7 +125,10 @@ esac
 exit 0
 `.replace(`sleep 600 ${marker}-group-placeholder`, `sh -c 'sleep 600; : ${marker}-group'`);
     const DAEMON = `import os, sys, time
-if os.fork() > 0:
+child = os.fork()
+if child > 0:
+    # The first child leaves the session before this one returns: the caller's group can go at once.
+    os.waitpid(child, 0)
     sys.exit(0)
 os.setsid()
 if os.fork() > 0:
