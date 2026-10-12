@@ -46,7 +46,7 @@ block:
 
 Inside the templates:
 
-* A text with `{column}` takes the cell of that column; `{row}` is the source row number; `{{` writes a brace.
+* A text with `{column}` takes the cell of that column; `{row}` is the source row number; two opening braces in a row write one opening brace.
 * A text that is one placeholder, such as `"{question}"`, takes the cell as it is: a spreadsheet number stays a number. An empty cell leaves the field out, and an object left empty is left out too.
 * A directive reads one column with options: `$split: "|"` makes a list, the cell split on the separator and each part trimmed; `$list: true` makes a list of the whole cell; `$as` converts to `text`, `number`, `boolean` or `json`.
 * Anything else is copied as it is.
