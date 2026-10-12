@@ -50,6 +50,8 @@ const RULES: readonly Rule[] = [
       (c.rubric.match(/"/g) ?? []).length % 2 === 1 ||
       (c.rubric.match(/\u201c/g) ?? []).length !== (c.rubric.match(/\u201d/g) ?? []).length,
   },
+  // Nothing to answer.
+  { code: 'empty-rubric', found: (c) => c.rubric.trim() === '' },
 ];
 
 const countNot = (text: string): number => (text.match(/\bnot\b/gi) ?? []).length;

@@ -121,4 +121,12 @@ describe('lintCriterion', () => {
     expect(codes('The reply says "Acme Care" and "billing".')).not.toContain('unbalanced-quotes');
     expect(codes('The reply says \u201cAcme Care\u201d.')).not.toContain('unbalanced-quotes');
   });
+
+  it('reports empty-rubric for a rubric of spaces only, and only that', () => {
+    const codes = (rubric: string) => lintCriterion({ ...clean, rubric }).issues.map((i) => i.code);
+    expect(codes('   ')).toContain('empty-rubric');
+    expect(codes('')).toContain('empty-rubric');
+    expect(codes('\n\t ')).toContain('empty-rubric');
+    expect(codes(clean.rubric)).not.toContain('empty-rubric');
+  });
 });
