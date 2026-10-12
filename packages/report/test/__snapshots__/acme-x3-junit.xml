@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="c-acme-x3" tests="44" failures="24" errors="0" time="36.000">
+<testsuites name="c-acme-x3" tests="46" failures="26" errors="0" time="36.000">
   <testsuite name="acme-new-customer-coverage" tests="8" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T12:00:00.000Z">
     <testcase classname="acme-new-customer-coverage" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 0" time="0.000"/>
     <testcase classname="acme-new-customer-coverage" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 1" time="0.000"/>
@@ -266,7 +266,7 @@ block 3 stage.reached fail: reached order_placed, expected handover (stages in t
 block 3 guards.explicit_confirmation.pass fail: explicit_confirmation with verdict pass fired 0 times, expected at least 1; guards fired in this block: none</failure>
     </testcase>
   </testsuite>
-  <testsuite name="acme-plan-upgrade" tests="8" failures="8" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T12:00:00.000Z">
+  <testsuite name="acme-plan-upgrade" tests="10" failures="10" errors="0" skipped="0" time="0.000" timestamp="2026-10-11T12:00:00.000Z">
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · T · repeat 0" time="0.000">
       <failure type="fail" message="4 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
 block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
@@ -330,6 +330,30 @@ block 4 tools.order.create.input.plan_id fail: order.create was not called, so i
 block 4 tools.order.create.input.port_number fail: order.create was not called, so input.port_number could not be absent
 block 4 must.0 fail: /ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
 block 4 guards.explicit_confirmation.pass fail: explicit_confirmation with verdict pass fired 0 times, expected at least 1; guards fired in this block: none</failure>
+    </testcase>
+    <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 0 · order-service-down" time="0.000">
+      <failure type="fail" message="10 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
+block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
+block 3 tools.notify_sales.count fail: notify_sales called 0 times, expected exactly 1; calls in this block: none
+block 3 tools.notify_sales.input.reason fail: notify_sales was not called, so input.reason could not be equal to &quot;order_failed&quot;
+block 3 tools.notify_sales.input.summary fail: notify_sales was not called, so input.summary could not be present and not empty
+block 3 must.0 fail: /could not place the order/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.1 fail: /sales advisor/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
+    </testcase>
+    <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 1 · order-service-down" time="0.000">
+      <failure type="fail" message="10 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times
+block 2 must.0 fail: /Acme Mobile S to Acme Mobile L/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 must.1 fail: /CONFIRM/ is missing; visible text &quot;Done. Your order ORD-7B883C is placed: Acme Mobile L starts ...&quot;
+block 2 stage.reached fail: reached order_placed, expected recap (stages in this block: order_placed)
+block 3 tools.order.create.count fail: order.create called 0 times, expected exactly 1; calls in this block: none
+block 3 tools.notify_sales.count fail: notify_sales called 0 times, expected exactly 1; calls in this block: none
+block 3 tools.notify_sales.input.reason fail: notify_sales was not called, so input.reason could not be equal to &quot;order_failed&quot;
+block 3 tools.notify_sales.input.summary fail: notify_sales was not called, so input.summary could not be present and not empty
+block 3 must.0 fail: /could not place the order/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;
+block 3 must.1 fail: /sales advisor/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</failure>
     </testcase>
     <testcase classname="acme-plan-upgrade" name="function:acme-sales (variant fault-x3-skips-recap) · P · repeat 0 · loose-ok" time="0.000">
       <failure type="fail" message="14 failing: block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times">block 2 forbidden.order.create fail: order.create called 1 time (call-1); the block expects it 0 times

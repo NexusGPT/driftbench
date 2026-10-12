@@ -83,7 +83,7 @@ describe('driftbench report', () => {
     expect(html).toContain('<title>Scorecard c-x3</title>');
     expect(html).not.toContain('<section id="compare">');
     const xml = readFileSync(join(dir, 'out/junit.xml'), 'utf8');
-    expect(xml).toMatch(/<testsuites name="c-x3" tests="32" failures="[1-9]\d*" errors="0"/);
+    expect(xml).toMatch(/<testsuites name="c-x3" tests="34" failures="[1-9]\d*" errors="0"/);
   });
 
   it('scores --aggregate criteria over the campaign, prints each, and refuses one it cannot read', async () => {
