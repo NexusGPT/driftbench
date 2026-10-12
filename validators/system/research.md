@@ -25,3 +25,13 @@ Sources: docs/validators.md section 12; the parity matrix (research/parity/MATRI
 Finding: no. Iteration 0 passed 519 of 665 (0.780); after ten one-cause fixes, 572 (0.860); 5.3 items fixed per iteration; forecast 17.6. The chain built in phases 1 to 3 (runner, checks, store, cache, recovery, drift classes) passes nearly every item the bank asks of it, including 179 generated fault-reach and class items and 82 precision items; what fails is phase 4 (report, compare, ci) and three scale items. Reaching a score of 0.4 would need about 800 more failing items, which the system's documented contract does not supply; padding them would break section 12.1.
 
 What to try: items with independent causes (one fix, one item): the documented verdict ids of every check (docs/reference/checks.md), every assertion kind in every position, the artifact checks per file kind through a campaign, and a breaker lane that has not read the runner (section 12.2, item 5).
+
+## 2026-10-12: the hardness pilot on bank version 3 (lane V2)
+
+Question: with families of independent causes (executable docs claims, CLI exit codes and flags, check by adapter by mode, store concurrency and corruption, twelve scale subjects, report numbers recomputed by brute force), does the bank meet section 12.4 (forecast at least 100, score at most 0.4, at least 100 distinct failing causes)?
+
+Sources: docs/validators.md section 12; docs/concepts/*.md, docs/reference/*.md, docs/cli.md (the claims); validators/system/journal.jsonl rows 0 to 10.
+
+Finding: no. Iteration 0 passed 1244 of 1280 (0.9719) with 25 distinct failing causes. After ten one-cause fixes, 1265 (0.9883) with 15 causes; 2.1 items fixed per iteration (2.0 without the glob item correction; the two report corrections only undid what the label fix broke), forecast 7.1. Of 717 docs-claim items, 14 failed at iteration 0: the chain mostly does what its pages say. The failures are real defects: three loader checks, a torn store read, a status filter, digit-only hash prefixes, a detached child surviving the timeout, a compounding interval, a pass^k interval, a quadratic per-block cost in five places.
+
+What to try: the forecast is bounded by the number of real defects, not by the bank size. More causes need a breaker lane that has not read the runner (section 12.2, item 5), and the hidden seed rotation, which found the header-cut defect on its own.

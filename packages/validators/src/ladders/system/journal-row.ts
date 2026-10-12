@@ -25,6 +25,8 @@ type Report = {
   bank: {
     size: number;
     passing: number;
+    failingCauses?: number;
+    failingWithoutCause?: number;
     failingByFamily: Record<string, number>;
     byFamilyTier: Record<string, Record<string, number>>;
     rows: { id: string; passEverySeed: boolean }[];
@@ -72,6 +74,9 @@ const row = {
   bankSize: after.bank.size,
   passing: after.bank.passing,
   failingByFamily: after.bank.failingByFamily,
+  ...(after.bank.failingCauses === undefined
+    ? {}
+    : { failingCauses: after.bank.failingCauses, failingWithoutCause: after.bank.failingWithoutCause ?? 0 }),
   bankByFamilyTier: after.bank.byFamilyTier,
   failingBefore: before.bank.rows.filter((entry) => !entry.passEverySeed).map((entry) => entry.id),
   hypothesis: option('--hypothesis') ?? 'Iteration 0: the bank measured before any fix.',
