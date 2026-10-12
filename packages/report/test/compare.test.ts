@@ -254,6 +254,12 @@ describe('underpowered criteria, planning numbers and the automatic margin', () 
     const strict = compareCampaigns(base, cand, { margin: 0.1, strict: true });
     expect(strict.verdict).toBe('unproven');
     expect(strict.reasons.some((reason) => reason.startsWith('guards: the upper bound'))).toBe(true);
+    const edge = (thin: number) =>
+      compareCampaigns(withThinCriterion('b', 60, thin), withThinCriterion('c', 60, thin), {
+        margin: 0.1,
+      }).criteria.find((row) => row.criterion === 'guards')?.underpowered;
+    expect(edge(MIN_GOLDENS - 1)).toBe(true);
+    expect(edge(MIN_GOLDENS)).toBe(false);
     const lower = compareCampaigns(base, cand, { margin: 0.1, minGoldens: 5 });
     expect(lower.criteria.find((row) => row.criterion === 'guards')?.underpowered).toBe(false);
     expect(lower.verdict).toBe('unproven');
