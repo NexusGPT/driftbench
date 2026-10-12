@@ -558,11 +558,42 @@ function field(
  */
 function resolveRef(root: YAMLMap, node: unknown): unknown {
   const ref = isMap(node) ? plain(entry(node, '$ref')?.value) : undefined;
-  if (typeof ref !== 'string' || !ref.startsWith('#/')) return node;
-  let target: unknown = root;
-  for (const part of ref.slice(2).split('/'))
-    target = mapAt(target, part.replace(/~1/g, '/').replace(/~0/g, '~')) ?? entry(target, part)?.value;
-  return isMap(target) ? target : node;
+  if (typeof ref !== 'string' || !isMap(node)) return node;
+  let target: unknown;
+  if (ref.startsWith('#/')) {
+    target = root;
+    for (const part of ref.slice(2).split('/'))
+      target = mapAt(target, part.replace(/~1/g, '/').replace(/~0/g, '~')) ?? entry(target, part)?.value;
+  } else if (/^#[A-Za-z_][\w.-]*$/.test(ref)) {
+    target = findAnchor(root, ref.slice(1));
+  }
+  if (!isMap(target)) return node;
+  // Keywords beside the $ref apply with it (JSON Schema 2020-12): the target's keywords, then the siblings'.
+  const siblings = (node.items as Pair[]).filter((pair) => keyOf(pair) !== '$ref');
+  if (siblings.length === 0) return target;
+  const merged = new YAMLMap();
+  const sibling = new Set(siblings.map(keyOf));
+  for (const pair of target.items as Pair[]) if (!sibling.has(keyOf(pair))) merged.items.push(pair);
+  merged.items.push(...siblings);
+  return merged;
+}
+
+/** The mapping that states `$anchor: <name>`, found anywhere under the root. */
+function findAnchor(node: unknown, name: string): YAMLMap | undefined {
+  if (isSeq(node)) {
+    for (const item of node.items) {
+      const found = findAnchor(item, name);
+      if (found) return found;
+    }
+    return undefined;
+  }
+  if (!isMap(node)) return undefined;
+  if (plain(entry(node, '$anchor')?.value) === name) return node;
+  for (const pair of node.items as Pair[]) {
+    const found = findAnchor(pair.value, name);
+    if (found) return found;
+  }
+  return undefined;
 }
 
 function addDimension(ctx: Walk, path: string[], partitions: Partition[]): void {

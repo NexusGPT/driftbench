@@ -455,3 +455,14 @@ Sources read:
 What others do: A conditional has two branches; a test takes each.
 
 What to try, and why: the tool pre-pass reads if, then and else
+
+## Iteration 39
+
+Question: packages/generate/src/extract/tools.ts: resolveRef drops the keywords written beside a $ref and knows JSON pointers only; schema-keywords.ref-with-siblings and ref-anchor prove it.
+
+Sources read:
+* https://json-schema.org/draft/2020-12/json-schema-core section 8.2.3.1 ($ref beside other keywords) and 8.2.2 ($anchor)
+
+What others do: In 2020-12 a $ref is an applicator beside the other keywords, and an anchor names a subschema.
+
+What to try, and why: the tool pre-pass reads keywords beside a $ref and a $ref to an $anchor

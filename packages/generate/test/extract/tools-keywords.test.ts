@@ -788,4 +788,27 @@ type = "boolean"
       'else',
     ]);
   });
+
+  it('keywords beside a $ref apply with it, and a $ref to an $anchor reads the anchored schema', () => {
+    const read = (property: Record<string, unknown>, defs: Record<string, unknown>) => {
+      const schema = { type: 'object', required: ['p'], properties: { p: property }, $defs: defs };
+      const result = toolsPrepass(
+        stringify({ tools: [{ name: 't.x', input_schema: schema }] }),
+        'tools.yaml',
+      );
+      if (!result.ok) throw new Error(JSON.stringify(result.errors));
+      return result.dimensions[0]?.values.map((v) => v.id.slice('t.x.in.p.'.length));
+    };
+    expect(read({ $ref: '#/$defs/Count', maximum: 50 }, { Count: { type: 'integer', minimum: 1 } })).toEqual([
+      'below-minimum',
+      'at-minimum',
+      'above-minimum',
+      'below-maximum',
+      'at-maximum',
+      'above-maximum',
+    ]);
+    expect(read({ $ref: '#Status' }, { S: { $anchor: 'Status', type: 'string', enum: ['a', 'b'] } })).toEqual(
+      ['a', 'b'],
+    );
+  });
 });
