@@ -274,7 +274,11 @@ function hardnessCommand(component: string, json: boolean, root: string, io: Io)
   let hardness: ReturnType<typeof measureHardness>;
   try {
     const auditPath = join(root, `${loopFolder(component)}/audit.md`);
-    hardness = measureHardness(rows, existsSync(auditPath) ? { audit: readFileSync(auditPath, 'utf8') } : {});
+    const gatePath = join(root, `${loopFolder(component)}/GATE.md`);
+    hardness = measureHardness(rows, {
+      ...(existsSync(auditPath) ? { audit: readFileSync(auditPath, 'utf8') } : {}),
+      ...(existsSync(gatePath) ? { gate: readFileSync(gatePath, 'utf8') } : {}),
+    });
   } catch (cause) {
     io.err(`${journalFile(component)}: ${message(cause)}.\n`);
     return USAGE_EXIT;
