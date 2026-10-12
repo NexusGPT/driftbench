@@ -4,6 +4,7 @@ import {
   designEffectFromData,
   iccOneWay,
   kishEffectiveSize,
+  oneWayAnova,
   weightedMean,
 } from '../src/index';
 
@@ -100,5 +101,51 @@ describe('clusteredMeanInterval', () => {
     expect(() => clusteredMeanInterval([Number.NaN, 2, 3, 4], [1, 1, 2, 2])).toThrow(RangeError);
     expect(() => clusteredMeanInterval([1, 2, 3], [1, 1, 1])).toThrow(/two clusters/);
     expect(() => clusteredMeanInterval([1, 2, 3, 4], [1, 1, 2, 2], 1.5)).toThrow(/alpha/);
+  });
+});
+
+describe('oneWayAnova', () => {
+  it('matches scipy.stats.f_oneway', () => {
+    const r = oneWayAnova([
+      [2.9, 3.0, 2.5, 2.6, 3.2],
+      [3.8, 2.7, 4.0, 2.4],
+      [2.8, 3.4, 3.7, 2.2, 2.0],
+    ]);
+    expect(r.df1).toBe(2);
+    expect(r.df2).toBe(11);
+    expect(r.statistic).toBeCloseTo(0.56007326007326, 9);
+    expect(r.pValue).toBeCloseTo(0.5866329910417377, 9);
+    const q = oneWayAnova([
+      [1.0, 2.0, 3.0, 4.5],
+      [3.0, 4.0, 5.5, 6.0],
+      [5.0, 6.5, 7.0, 8.0],
+    ]);
+    expect(q.pValue).toBeCloseTo(0.00862617881079356, 9);
+  });
+  it('gives an infinite F and a zero p when groups differ without within-group spread', () => {
+    expect(
+      oneWayAnova([
+        [1, 1],
+        [2, 2],
+      ]),
+    ).toMatchObject({ statistic: Number.POSITIVE_INFINITY, pValue: 0 });
+  });
+  it('throws a RangeError on input it cannot answer for', () => {
+    expect(() => oneWayAnova([])).toThrow(RangeError);
+    expect(() => oneWayAnova([[1, 2]])).toThrow(RangeError);
+    expect(() => oneWayAnova([[1, 2], []])).toThrow(RangeError);
+    expect(() =>
+      oneWayAnova([
+        [Number.NaN, 2],
+        [3, 4],
+      ]),
+    ).toThrow(RangeError);
+    expect(() => oneWayAnova([[1], [2]])).toThrow(RangeError);
+    expect(() =>
+      oneWayAnova([
+        [1, 1],
+        [1, 1],
+      ]),
+    ).toThrow(RangeError);
   });
 });

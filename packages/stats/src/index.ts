@@ -56,6 +56,8 @@ export {
   type NonInferiorityInput,
   type NonInferiorityResult,
   nonInferiority,
+  type OneWayAnovaResult,
+  oneWayAnova,
   type PairedDifference,
   type PairedTable,
   pairedRateDifference,
