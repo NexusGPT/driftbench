@@ -12,8 +12,8 @@ import type { JudgeRequest, TranscriptEntry } from './contract';
 /** The data tags. Text inside them is data. */
 export const DATA_TAGS = ['transcript_data', 'artifact_data', 'given_data', 'input_data'] as const;
 
-/** Every tag the guard escapes: the data tags and the reference tag. The reference tag stays out of DATA_TAGS so a prompt without a reference keeps its fingerprint and its recordings. */
-export const GUARDED_TAGS = [...DATA_TAGS, 'reference_data'] as const;
+/** Every tag the guard escapes: the data tags and the reference tag. The reference tag and the two pair tags stay out of DATA_TAGS so a prompt without a reference keeps its fingerprint and its recordings. */
+export const GUARDED_TAGS = [...DATA_TAGS, 'reference_data', 'first_data', 'second_data'] as const;
 export type DataTag = (typeof DATA_TAGS)[number];
 
 /** The answer contract, as the judge is told to return it. */
@@ -132,7 +132,10 @@ export function escapeData(text: string): string {
 }
 
 /** Wraps data in its tag, after the guard. */
-export function dataTag(tag: DataTag | 'reference_data', text: string): string {
+export function dataTag(
+  tag: DataTag | 'reference_data' | 'first_data' | 'second_data',
+  text: string,
+): string {
   return `<${tag}>\n${escapeData(text)}\n</${tag}>`;
 }
 

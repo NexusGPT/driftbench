@@ -1,6 +1,6 @@
 import type { CriterionText, TranscriptEntry } from './contract';
 import { COMPARE_SYSTEM_PROMPT } from './pairwise';
-import { renderRubric, renderTranscript } from './prompt';
+import { dataTag, renderRubric, renderTranscript } from './prompt';
 
 /**
  * The prompt of a pair judge: each candidate reply sits in its own data tag, `<first_data>` and `<second_data>`,
@@ -18,13 +18,9 @@ export function buildPairPrompt({
   const user = [
     renderRubric(criterion),
     '',
-    '<first_data>',
-    renderTranscript(first),
-    '</first_data>',
+    dataTag('first_data', renderTranscript(first)),
     '',
-    '<second_data>',
-    renderTranscript(second),
-    '</second_data>',
+    dataTag('second_data', renderTranscript(second)),
   ].join('\n');
   return { system: COMPARE_SYSTEM_PROMPT, user };
 }
