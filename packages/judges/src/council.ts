@@ -46,6 +46,8 @@ export type UnassignedCriterion = { readonly criterion: string; readonly reason:
 
 export type CouncilConfig = {
   readonly mode: CouncilMode;
+  /** Judges seated per class: a whole number of at least 1. Default 3. */
+  readonly size?: number;
   readonly judges: readonly JudgeClient[];
   /** The model family of the agent under test. `none` for an agent that is not a model. */
   readonly agentFamily: string;
@@ -101,6 +103,14 @@ export class CouncilConfigError extends Error {
 }
 
 const COUNCIL_SIZE = 3;
+
+/** The judges seated per class: the configured size, or the default of three. */
+function seatsOf(config: CouncilConfig): number {
+  const size = config.size ?? COUNCIL_SIZE;
+  if (!Number.isInteger(size) || size < 1)
+    throw new CouncilConfigError(`size must be a whole number of at least 1, got ${size}`);
+  return size;
+}
 const DEFAULT_THRESHOLD = 0.9;
 
 export type Council = {
@@ -118,9 +128,10 @@ export type Council = {
 
 export function createCouncil(config: CouncilConfig): Council {
   const byId = validateJudges(config);
+  const seats = seatsOf(config);
   const explicit = new Map<string, AssignmentRow>();
   for (const row of config.assignment ?? []) {
-    validateRow(row, config.mode, byId);
+    validateRow(row, config.mode, byId, seats);
     if (explicit.has(row.criterion)) {
       throw new CouncilConfigError(`criterion ${row.criterion} has two assignment rows`);
     }
@@ -214,6 +225,7 @@ function classesOf(mode: CouncilMode): JudgeClass[] {
 }
 
 function validateJudges(config: CouncilConfig): Map<string, JudgeClient> {
+  const seats = seatsOf(config);
   if (!config.agentFamily.trim()) {
     throw new CouncilConfigError('the agent family is not set: use none for an agent that is not a model');
   }
@@ -229,22 +241,27 @@ function validateJudges(config: CouncilConfig): Map<string, JudgeClient> {
   }
   for (const cls of classesOf(config.mode)) {
     const count = config.judges.filter((judge) => judge.cls === cls).length;
-    if (count < COUNCIL_SIZE) {
-      throw new CouncilConfigError(`mode ${config.mode} needs ${COUNCIL_SIZE} ${cls} judges, ${count} given`);
+    if (count < seats) {
+      throw new CouncilConfigError(`mode ${config.mode} needs ${seats} ${cls} judges, ${count} given`);
     }
   }
   return byId;
 }
 
-function validateRow(row: AssignmentRow, mode: CouncilMode, byId: Map<string, JudgeClient>): void {
+function validateRow(
+  row: AssignmentRow,
+  mode: CouncilMode,
+  byId: Map<string, JudgeClient>,
+  seats: number,
+): void {
   const where = `assignment of ${row.criterion}`;
   if (!classesOf(mode).includes(row.cls)) {
     throw new CouncilConfigError(`${where}: class ${row.cls} is not used in mode ${mode}`);
   }
   const check = (ids: readonly string[], cls: JudgeClass, what: string) => {
-    if (!(ids.length === COUNCIL_SIZE || (solo && ids.length === 1)) || new Set(ids).size !== ids.length) {
+    if (!(ids.length === seats || (solo && ids.length === 1)) || new Set(ids).size !== ids.length) {
       throw new CouncilConfigError(
-        `${where}: ${what} needs ${what === 'the assigned class' ? `1 or ${COUNCIL_SIZE}` : COUNCIL_SIZE} different judges`,
+        `${where}: ${what} needs ${what === 'the assigned class' ? `1 or ${seats}` : seats} different judges`,
       );
     }
     for (const id of ids) {
@@ -265,11 +282,11 @@ function validateRow(row: AssignmentRow, mode: CouncilMode, byId: Map<string, Ju
 }
 
 /** The cheapest judges of a class, cost first, then id for a stable order. */
-function cheapest(judges: readonly JudgeClient[], cls: JudgeClass): string[] {
+function cheapest(judges: readonly JudgeClient[], cls: JudgeClass, seats: number): string[] {
   return judges
     .filter((judge) => judge.cls === cls)
     .sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id))
-    .slice(0, COUNCIL_SIZE)
+    .slice(0, seats)
     .map((judge) => judge.id);
 }
 
@@ -294,8 +311,8 @@ function defaultRow(
   return {
     criterion,
     cls,
-    judges: cheapest(config.judges, cls),
-    rejudge: config.mode === 'hybrid' ? cheapest(config.judges, otherClass(cls)) : [],
+    judges: cheapest(config.judges, cls, seatsOf(config)),
+    rejudge: config.mode === 'hybrid' ? cheapest(config.judges, otherClass(cls), seatsOf(config)) : [],
     source,
   };
 }

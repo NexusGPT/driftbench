@@ -69,6 +69,32 @@ describe('majority with weights: a vote weighs its judge weight', () => {
   });
 });
 
+describe('the council seats the size it is given', () => {
+  it('seats five judges and reads a majority of them, with five calls', async () => {
+    const council = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      size: 5,
+      judges: [s1('a', [PASS()]), s1('b', [PASS()]), s1('c', [PASS()]), s1('d', [FAIL]), s1('e', [FAIL])],
+    });
+    const result = await council.judge(REQUEST);
+    expect(result.outcome).toBe('pass');
+    expect(result.votes.length).toBe(5);
+  });
+
+  it('seats one judge, whose vote is the round', async () => {
+    const council = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      size: 1,
+      judges: [s1('a', [FAIL])],
+    });
+    const result = await council.judge(REQUEST);
+    expect(result.outcome).toBe('fail');
+    expect(result.votes.length).toBe(1);
+  });
+});
+
 describe('the council reports its cost', () => {
   it('sums the cost of every judge called, cheap and full rounds alike', async () => {
     const cheap = createCouncil({
