@@ -8,26 +8,26 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | Seed | Level |
 |---|---|
 | 1 | 0 |
-| 2 | 7 |
-| 3 | 7 |
+| 2 | 8 |
+| 3 | 8 |
 | 4 | 0 |
-| 5 | 7 |
-| 6 | 7 |
-| 7 | 7 |
+| 5 | 8 |
+| 6 | 8 |
+| 7 | 8 |
 | 8 | 0 |
 | 9 | 8 |
-| 10 | 7 |
+| 10 | 8 |
 | 11 | 8 |
 | 12 | 0 |
 | 13 | 0 |
-| 14 | 7 |
+| 14 | 8 |
 | 15 | 8 |
 | 16 | 0 |
-| 17 | 7 |
-| 18 | 7 |
+| 17 | 8 |
+| 18 | 8 |
 | 19 | 0 |
 | 20 | 0 |
-| hidden | 7 |
+| hidden | 8 |
 <!-- level-table:end -->
 
 The bank is ladder version 2 of map: 578 items over 8 levels. After the ten pilot fixes and 45 executor iterations (11 to 55): 328 of 578 pass (score 0.5675), 31 distinct causes among the failing. Level 0 of 8 on every seed.
@@ -123,3 +123,13 @@ A prompt kept inside another file is sent to the model decoded, and each quote t
 Two level 2 items remain: restructured-text (a backslash before an inline-markup character) and latex (`\textbf{word}` around a word). Each needs one decoder in containers.ts: a `.rst` view that drops the backslash of an escaped character, and a `.tex` view that drops the command and braces.
 
 The Acme test `is exactly what the extractor writes...` in packages/generate/test/extract/acme.test.ts passes alone but times out at its 5 s limit when the machine load is high (load average above 100 during this run); it is not a regression of these changes.
+
+
+## Iteration 80 and state (executor, branch exec/map-v2)
+
+* Bank at iteration 80: 577 of 578 pass on seeds 1 to 20 and the hidden seed (score 0.9983). One failing item remains: inventory-forms.no-channel-list (seeds 1, 4, 8, 12, 13, 16, 19, 20, hidden).
+* Iteration 80: scale.chunk.constraints-first. A constraint stated in a chunk before the chunk that proposes its values was refused as "not a proposed value" and never retried. `acceptAnswer` now returns those constraints as `deferred`; `extractMap` retries them once after every section has run and removes the refusal when they enter the draft. Test: "keeps a constraint stated in a chunk before the chunk that proposes its values" in packages/generate/test/extract/chunks.test.ts.
+* The closed-object fix (an unknown-key dimension per closed tool input) is in: the Acme chain (proposal, approved, space, generated, gated, golden) was regenerated in one commit. Acme before to after: dimensions 46 to 51, proposal values 177 to 182, approved-map values 180 to 185, generated specs 321 to 326 (blocks 1178 to 1184, incomplete 70 to 75), gated blocks 1100 of 1106 to 1101 of 1107, holdout 58 to 56 specs. Faults: 13 of 13 scored faults still killed.
+* Remaining item, not a pre-pass fault: inventory-forms.no-channel-list expects no constraint at all, but the extractor correctly emits the behaviour-by-flow constraints that the base form expects. The validator's `code` for that form filters every constraint (packages/validators/src/ladders/map/bank/families/inventory.ts, form no-channel-list); it should drop only the channel constraints. Validator lane to fix.
+* Open for the validator lane: packages/validators/test/map/bank.test.ts ("writes a key only when the contract template shows it") and levels.test.ts ("gives roles only when the system prompt of the extractor asks for them") read the live SYSTEM_PROMPT and expect no polarity or role key; the template now states both, by design. They need a fixture template without those keys. PR 80 CI is red only on these two.
+* The earlier Open items and Hypotheses sections above are older than iteration 80; the figures there (328 of 578, level 0 at 561) are history.
