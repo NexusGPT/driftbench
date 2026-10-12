@@ -42,6 +42,8 @@ export type RunEvent =
       outputTokens?: number;
       usd?: number;
       latencyMs?: number;
+      /** When the call began: the reply time less its latency. */
+      startedAt: string;
       at: string;
     }
   | { type: 'tool_call'; index: number; label: string; error?: string; at: string }
@@ -330,6 +332,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           ...(segment.cost?.outputTokens === undefined ? {} : { outputTokens: segment.cost.outputTokens }),
           ...(segment.cost?.usd === undefined ? {} : { usd: segment.cost.usd }),
           ...(segment.latencyMs === undefined ? {} : { latencyMs: segment.latencyMs }),
+          startedAt: new Date(Date.now() - (segment.latencyMs ?? 0)).toISOString(),
           at: new Date().toISOString(),
         });
       }

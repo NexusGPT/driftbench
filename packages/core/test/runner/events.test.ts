@@ -68,5 +68,7 @@ describe('model calls on the event stream carry their token counts and latency',
       latencyMs: 640,
     });
     expect(typeof (calls[0] as { at: string }).at).toBe('string');
+    const call = calls[0] as { at: string; startedAt: string; latencyMs: number };
+    expect(Date.parse(call.at) - Date.parse(call.startedAt)).toBe(640);
   });
 });
