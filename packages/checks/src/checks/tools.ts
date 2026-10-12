@@ -144,14 +144,41 @@ function orderVerdict(mode: Mode, expected: ToolExpect[], calls: ToolCall[]): Ve
     ok = includesAll(expansion(expected), labels);
     rule = 'these calls in any order';
   }
+  const argument = mode === 'exact' ? argumentNote(expected, calls) : undefined;
   const where =
-    mode === 'exact' && !ok ? `; first difference: ${firstDifference(expansion(expected), labels)}` : '';
+    mode === 'exact' && !ok
+      ? `; first difference: ${firstDifference(expansion(expected), labels)}`
+      : argument
+        ? `; first argument difference: ${argument}`
+        : '';
   return machineVerdict(
     NAME,
     'order',
     ok ? 'pass' : 'fail',
     `${mode}: expected ${rule}: ${listed(wanted)}; saw ${saw}${where}`,
   );
+}
+
+/**
+ * The first argument, in call order, whose value fails its expected assertion, with the call's name and position.
+ * Calls are compared position by position against the expected sequence; a call with the right name still
+ * names its argument here when that argument is wrong.
+ */
+function argumentNote(expected: ToolExpect[], calls: ToolCall[]): string | undefined {
+  const tools = expected.flatMap((tool) => Array<ToolExpect>(minimumOf(tool.count)).fill(tool));
+  for (let index = 0; index < Math.min(tools.length, calls.length); index++) {
+    const tool = tools[index];
+    const call = calls[index];
+    if (!tool || !call || tool.label !== call.label) continue;
+    for (const [field, assertion] of Object.entries(tool.input ?? {})) {
+      const value = isRecord(call.input) ? call.input[field] : undefined;
+      const result = checkAssertion(value, assertion);
+      if (!result.ok) {
+        return `call ${index + 1} (${call.label}) input.${field}: expected ${result.expected}, saw ${show(value)}`;
+      }
+    }
+  }
+  return undefined;
 }
 
 /** The first call where the observed calls leave the expected ones: a difference, an extra call or a missing call. */
