@@ -31,6 +31,16 @@ function logChoose(n: number, k: number): number {
   return out;
 }
 
+/** The Wilson score interval at 95 percent, written out: the oracle of the interval items. */
+export function wilson95(agree: number, n: number): { lower: number; upper: number } {
+  const z = 1.959963984540054;
+  const p = agree / n;
+  const denom = 1 + (z * z) / n;
+  const center = (p + (z * z) / (2 * n)) / denom;
+  const half = (z / denom) * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n));
+  return { lower: Math.max(0, center - half), upper: Math.min(1, center + half) };
+}
+
 /** The exact coverage of an interval method at (n, p). */
 export function exactCoverage(method: AgreementInterval, n: number, p: number): number {
   let coverage = 0;
@@ -199,16 +209,18 @@ export function calibrationItems(): BankItem[] {
         },
       ),
       reportItem(
-        `interval-is-agreement-interval-n${n}`,
+        `interval-is-wilson-n${n}`,
         tier + 1 > 5 ? 5 : ((tier + 1) as Tier),
         (r) => ({ n, passes: Math.ceil(n / 2), agree: n - Math.floor(r() * Math.max(1, n / 4)) }),
-        (r, api) => {
+        (r) => {
           const own = firstJudge(r)?.labels;
           if (!own) return 'no calibration row';
-          const expected = fn<AgreementInterval>(api, 'agreementInterval')(own.agree, own.n);
-          return near(own.agreement.lower, expected.lower) && near(own.agreement.upper, expected.upper)
+          // docs/concepts/judges.md, calibration: "a Wilson 95% interval on the share of blocks it agrees on".
+          const expected = wilson95(own.agree, own.n);
+          return Math.abs(own.agreement.lower - expected.lower) < 1e-6 &&
+            Math.abs(own.agreement.upper - expected.upper) < 1e-6
             ? undefined
-            : `report [${own.agreement.lower}, ${own.agreement.upper}], agreementInterval [${expected.lower}, ${expected.upper}]`;
+            : `report [${own.agreement.lower}, ${own.agreement.upper}], Wilson 95% [${expected.lower}, ${expected.upper}]`;
         },
       ),
     );

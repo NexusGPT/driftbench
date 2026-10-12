@@ -151,11 +151,15 @@ const RULES: readonly (readonly [RegExp, string])[] = [
   ],
   [
     /^clients\/http-judge-wrapped-answer$/,
-    'In http-json.ts createHttpJudge: read an answer wrapped as { answer }.',
+    'In http-json.ts createHttpJudge: refuse a body wrapped as { answer }: the body is the answer contract.',
   ],
   [
     /^clients\/http-judge-text-answer$/,
-    'In createHttpJudge: read an answer given as JSON text in { text } through the contract parser.',
+    'In createHttpJudge: refuse a body given as { text }: the body is the answer contract.',
+  ],
+  [
+    /^clients\/echoed-short-header-redacted$/,
+    'In http.ts scrub: replace every echoed header value with [redacted], whatever its length.',
   ],
   [
     /^clients\/event-stream-body$/,
@@ -224,12 +228,30 @@ const RULES: readonly (readonly [RegExp, string])[] = [
     /^contract\/(brace-pair-before|example-object-before)$/,
     'In parseAnswerText: read the first object that meets the contract, past brace pairs and example objects.',
   ],
-  [/^contract\/outcome-capitals$/, 'In the contract: read the outcome without case.'],
-  [/^contract\/score-as-string$/, 'In the contract: read a score written as a number in quotes.'],
-  [/^contract\/single-quotes$/, 'In the contract: read an object written with single quotes.'],
-  [/^contract\/trailing-comma$/, 'In the contract: drop a comma before a closing brace.'],
-  [/^contract\/line-comment$/, 'In the contract: drop a line that is only a // comment.'],
-  [/^contract\/typographic-quotes$/, 'In the contract: read typographic quotes as straight quotes.'],
+  [
+    /^contract\/outcome-capitals$/,
+    'In the contract: refuse an outcome not written pass, fail or inconclusive (no case folding).',
+  ],
+  [
+    /^contract\/score-as-string$/,
+    'In the contract: refuse a score written as a string (no conversion to a number).',
+  ],
+  [
+    /^contract\/single-quotes$/,
+    'In the contract: refuse an object written with single quotes (no quote rewriting).',
+  ],
+  [
+    /^contract\/trailing-comma$/,
+    'In the contract: refuse a comma before a closing brace (no comma dropping).',
+  ],
+  [
+    /^contract\/line-comment$/,
+    'In the contract: refuse an object holding a // comment line (no comment dropping).',
+  ],
+  [
+    /^contract\/typographic-quotes$/,
+    'In the contract: refuse an object written with typographic quotes (no quote rewriting).',
+  ],
   [
     /^contract\/score-contradicts-outcome$/,
     'In the contract: refuse a pass scored under 0.5 or a fail scored over 0.5.',
@@ -638,8 +660,8 @@ const RULES: readonly (readonly [RegExp, string])[] = [
     `Add agreementInterval(agree, n) to ${S}/src/calibration.ts returning { lower, upper } with at least 93 percent coverage.`,
   ],
   [
-    /^calibration\/interval-is-agreement-interval-/,
-    'In calibrate: report labels.agreement from agreementInterval.',
+    /^calibration\/interval-is-wilson-/,
+    'In calibrate: report labels.agreement as the Wilson 95 percent interval on agree of n.',
   ],
   [/^calibration\/pabak-/, 'In calibrate: report labels.pabak = 2 * agree / n - 1.'],
   [/^calibration\/ac1-/, "In calibrate: report labels.ac1, Gwet's AC1 for two categories."],

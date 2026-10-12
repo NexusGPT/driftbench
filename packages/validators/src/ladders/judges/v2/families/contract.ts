@@ -6,10 +6,12 @@ import { type BankItem, between, filler, fn, item, type Tier } from '../bank';
  * answer in one shape a model may produce. The bank decides, per shape, whether the contract must read the
  * answer or refuse it as inconclusive:
  * - read: the answer object alone, fenced, in prose, pretty printed, with a BOM, in an XML tag, inside an array,
- *   after prose that holds a brace pair or an example object, with the outcome in capitals, the score as a
- *   numeric string, Python-style single quotes, a trailing comma, a line comment, or typographic quotes;
+ *   after prose that holds a brace pair or an example object;
  * - refuse: no object, an extra key, a score out of range, a score that contradicts the outcome, two answers
- *   that disagree, a key given twice with two values, a truncated object, a missing reasoning, a null outcome.
+ *   that disagree, a key given twice with two values, a truncated object, a missing reasoning, a null outcome;
+ *   and, because the answer is strict JSON (docs/concepts/judges.md, "The request and the answer"), an object
+ *   that is not: the outcome in capitals, the score as a string, single quotes, a trailing comma, a line
+ *   comment, typographic quotes.
  */
 
 type Answer = { outcome: 'pass' | 'fail'; score?: number; reasoning: string; evidence?: string };
@@ -71,24 +73,24 @@ const SHAPES: readonly Shape[] = [
   {
     id: 'outcome-capitals',
     tier: 3,
-    read: true,
+    read: false,
     wrap: (a) => json(a).replace(`"${a.outcome}"`, `"${a.outcome.toUpperCase()}"`),
   },
   {
     id: 'score-as-string',
     tier: 3,
-    read: true,
+    read: false,
     wrap: (a) => json(a).replace(`"score":${a.score}`, `"score":"${a.score}"`),
   },
-  { id: 'single-quotes', tier: 4, read: true, wrap: (a) => json(a).replace(/"/g, "'") },
-  { id: 'trailing-comma', tier: 4, read: true, wrap: (a) => json(a).replace(/}$/, ',}') },
+  { id: 'single-quotes', tier: 4, read: false, wrap: (a) => json(a).replace(/"/g, "'") },
+  { id: 'trailing-comma', tier: 4, read: false, wrap: (a) => json(a).replace(/}$/, ',}') },
   {
     id: 'line-comment',
     tier: 5,
-    read: true,
+    read: false,
     wrap: (a) => pretty(a).replace('{\n', '{\n  // the verdict follows\n'),
   },
-  { id: 'typographic-quotes', tier: 5, read: true, wrap: (a) => json(a).replace(/"([^"]*)"/g, '“$1”') },
+  { id: 'typographic-quotes', tier: 5, read: false, wrap: (a) => json(a).replace(/"([^"]*)"/g, '“$1”') },
   {
     id: 'two-agreeing-answers',
     tier: 2,

@@ -75,13 +75,8 @@ function duplicateTopKeys(text: string): boolean {
 
 function lenient(candidate: string): unknown {
   if (!/[:]/.test(candidate)) return undefined;
+  // The answer is strict JSON (docs/concepts/judges.md): no quote, comma or comment rewriting.
   const attempts = [candidate];
-  let text = candidate
-    .replace(/[“”]/g, '"')
-    .replace(/^\s*\/\/.*$/gm, '')
-    .replace(/,\s*([}\]])/g, '$1');
-  if (!text.includes('"')) text = text.replace(/'/g, '"');
-  attempts.push(text);
   for (const attempt of attempts) {
     try {
       if (duplicateTopKeys(attempt)) return undefined;
@@ -96,8 +91,6 @@ function lenient(candidate: string): unknown {
 function contractOf(value: unknown): JudgeAnswer | undefined {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
   const v = { ...(value as Record<string, unknown>) };
-  if (typeof v.outcome === 'string') v.outcome = v.outcome.toLowerCase();
-  if (typeof v.score === 'string' && /^\s*\d*\.?\d+\s*$/.test(v.score)) v.score = Number(v.score);
   const parsed = judges.JudgeAnswer.safeParse(v);
   if (!parsed.success) return undefined;
   const a = parsed.data;
@@ -894,7 +887,8 @@ async function calibrate(config: Parameters<typeof judges.calibrate>[0]) {
             labels: {
               ...rest,
               ...(classes.size < 2 ? {} : kappa === undefined ? {} : { kappa }),
-              agreement: n === 0 ? j.labels.agreement : { estimate: po, ...agreementInterval(agree, n) },
+              // The page names a Wilson 95% interval: the package's own report.
+              agreement: j.labels.agreement,
               pabak: 2 * po - 1,
               ac1: (po - pe) / (1 - pe),
               ...(n === 0
@@ -1115,8 +1109,7 @@ function createHttpJudge(options: ClientOptions & { url: string; family: string 
     cost: 10,
     async judge(request) {
       const payload = rec(await postWitness(options.url, { request, prompt: buildPrompt(request) }, options));
-      if (payload.answer !== undefined) return judges.parseAnswerValue(payload.answer);
-      if (typeof payload.text === 'string') return parseAnswerText(payload.text);
+      // The body is the answer contract: a wrapped body breaks it.
       return judges.parseAnswerValue(payload);
     },
   };
@@ -1150,6 +1143,30 @@ function pruneCassette(cassette: Cassette, keys: readonly string[]): Cassette {
   return { ...cassette, entries: cassette.entries.filter((e) => keys.includes(e.key)) };
 }
 
+/** postJson with every echoed header value redacted, whatever its length. */
+async function postJson(
+  url: string,
+  headers: Record<string, string>,
+  body: unknown,
+  options: Parameters<typeof judges.postJson>[3] = {},
+): Promise<unknown> {
+  try {
+    return await judges.postJson(url, headers, body, options);
+  } catch (cause) {
+    if (!(cause instanceof judges.JudgeError)) throw cause;
+    let said = cause.message;
+    for (const value of Object.values(headers)) {
+      for (const secret of [value, value.replace(/^Bearer\s+/i, '')]) {
+        if (secret.length > 0) said = said.split(secret).join('[redacted]');
+      }
+    }
+    throw new judges.JudgeError(cause.code, said, {
+      ...(cause.status === undefined ? {} : { status: cause.status }),
+      retryable: cause.retryable,
+    });
+  }
+}
+
 /** The judges package with the witness's overrides. */
 export function witnessApi(): JudgesApi {
   return {
@@ -1168,6 +1185,7 @@ export function witnessApi(): JudgesApi {
     createGoogleJudge: googleWitness,
     createJevJudge: jevWitness,
     createHttpJudge,
+    postJson,
     saveCassette,
     mergeCassettes,
     pruneCassette,

@@ -111,6 +111,32 @@ export const QUARANTINED_ITEMS: readonly string[] = [
   'render/sentences',
   // scale: chunking is not a judges operation any page names.
   'scale/chunk-transcript',
+  // Behaviours of documented functions that no page states (NEEDS.md, "Items beyond the pages", round 2).
+  'contract/score-contradicts-outcome',
+  'contract/score-contradicts-near-the-middle',
+  'contract/two-disagreeing-answers',
+  'contract/key-given-twice',
+  'clients/openai-tool-call-arguments',
+  'clients/anthropic-tool-use-input',
+  'clients/google-function-call-args',
+  'clients/openai-legacy-text',
+  'clients/openai-asks-for-the-answer-schema',
+  'clients/google-gives-a-response-schema',
+  'clients/decisions-percentage',
+  'clients/decisions-answers-by-name',
+  'clients/jev-probability-in-quotes',
+  'clients/event-stream-body',
+  'clients/retry-after-seconds',
+  'clients/retry-after-date',
+  'cassette/saved-entries-sorted',
+  'criteria/rubric-too-long-reported',
+  'criteria/fixtures-differ-only-in-spacing',
+  'criteria/fixtures-differ-only-in-case',
+  'criteria/same-pictures',
+  'criteria/pictures-same-but-spacing',
+  'check/council-that-throws-is-inconclusive',
+  'cascade/per-judge-threshold',
+  'cascade/per-judge-threshold-restores-agreement',
 ];
 
 const ITEMS = new Set(QUARANTINED_ITEMS);

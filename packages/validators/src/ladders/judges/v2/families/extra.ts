@@ -95,6 +95,11 @@ async function send(
 const OPENAI = { OPENAI_API_KEY: 'sk-bank-key-0007', OPENAI_JUDGE_MODEL: 'gpt-test' };
 const GOOGLE = { GEMINI_API_KEY: 'sk-bank-key-0008', GOOGLE_JUDGE_MODEL: 'gemini-test' };
 const DECISIONS = { OPENAI_API_KEY: 'sk-bank-key-0009', OPENAI_DECISIONS_MODEL: 'decide-test' };
+const refuses = (s: Sent) =>
+  s.result?.outcome === 'inconclusive' && s.result.unparsed
+    ? undefined
+    : `expected an inconclusive unparsed answer, the body is not the answer contract; got ${JSON.stringify(s.result ?? s.error)}`;
+
 const reads = (s: Sent, outcome = 'pass') =>
   s.result?.outcome === outcome && !s.result.unparsed
     ? undefined
@@ -204,7 +209,7 @@ export function extraItems(): BankItem[] {
       2,
       'packages/judges/src/clients/http-json.ts',
       async (api) =>
-        reads(
+        refuses(
           await send(api, 'createHttpJudge', {}, JSON.stringify({ answer: ANSWER }), {
             url: 'https://judge.example.com',
             family: 'local',
@@ -212,13 +217,38 @@ export function extraItems(): BankItem[] {
         ),
     ),
     check('clients', 'http-judge-text-answer', 3, 'packages/judges/src/clients/http-json.ts', async (api) =>
-      reads(
+      refuses(
         await send(api, 'createHttpJudge', {}, JSON.stringify({ text: `Here: ${JSON.stringify(ANSWER)}` }), {
           url: 'https://judge.example.com',
           family: 'local',
         }),
       ),
     ),
+    // docs/concepts/judges.md, judge clients: "Any header value the provider echoes back is replaced by [redacted]."
+    check('clients', 'echoed-short-header-redacted', 3, 'packages/judges/src/http.ts', async (api) => {
+      const key = 'k3y9';
+      try {
+        await fn<
+          (u: string, h: Record<string, string>, b: unknown, o: Record<string, unknown>) => Promise<unknown>
+        >(api, 'postJson')(
+          'https://judge.example.com',
+          { 'x-api-key': key },
+          {},
+          {
+            maxRetries: 0,
+            fetch: async () =>
+              new Response(`{"error":{"message":"key ${key} is not valid"}}`, { status: 401 }),
+          },
+        );
+      } catch (cause) {
+        if (cause instanceof MissingCapability) throw cause;
+        const said = cause instanceof Error ? cause.message : String(cause);
+        return said.includes(key) || !said.includes('[redacted]')
+          ? `the error shows the echoed header value: ${said}`
+          : undefined;
+      }
+      return 'a 401 gave no error';
+    }),
     check('clients', 'event-stream-body', 4, 'packages/judges/src/http.ts', async (api) =>
       reads(
         await send(
