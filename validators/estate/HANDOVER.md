@@ -30,14 +30,18 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | hidden | 0 |
 <!-- level-table:end -->
 
-The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-bank of items with threshold 1.0. Level 0 of 7 on seeds 1 to 20 and the hidden seed: the first level (reader and graph) has failing items on every seed. `pnpm driftbench validate estate --hardness` prints the bank score from the journal. Measured on origin/main d0e35c8 merged into the lane (lane commit 7513c85).
+The ladder is a bank (docs/validators.md section 12): seven levels, each a sub-bank of items with threshold 1.0. Level 0 of 7 on seeds 1 to 20 and the hidden seed: the first level (reader and graph) has failing items on every seed. `pnpm driftbench validate estate --hardness` prints the bank score from the journal. Measured on origin/main 459beea merged into the lane (lane commit f1e6ec9).
 
 | Row | Commit | Items passing on every seed | Score |
 |---|---|---|---|
-| iteration 0 | 7513c85 (lane/v-estate) | 587 of 940 | 0.624 |
-| pilot 1 to 10 | exec/v-estate-pilot2 | 607, 626, 635, 645, 652, 658, 660, 666, 668, 673 | 0.716 after pilot 10 |
+| iteration 0 | f1e6ec9 (lane/v-estate) | 704 of 1088 | 0.647 |
+| pilot 1 to 10 | exec/v-estate-pilot2 | 723, 743, 752, 762, 770, 774, 778, 782, 785, 790 | 0.726 after pilot 10 |
 
-Items fixed per pilot iteration: 20, 19, 9, 10, 7, 6, 2, 6, 2, 5; mean 8.6; none broken. Failing after the pilot: 267 items, 118 distinct causes. Forecast: 31.0 iterations. The gate of section 12.4 does not hold: forecast under 100, score above 0.4. The cause count holds (118). The audit of section 12.7 has not run (no audit.md).
+Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none broken. Failing after the pilot: 298 items, 141 distinct causes. Forecast: 34.7 iterations. The gate does not hold on the forecast and the score; the cause term holds. No audit.md yet.
+
+## The unit runner contract (frozen with the lead and the reader lane)
+
+`driftbench estate unit <specs...> --estate <root> --json` runs the unit-mode specs. It prints `{ runs: [{ spec, pass, failing: string[] }], guards: [{ guard, event, decision: "allow"|"deny"|"ask", message?: string, ms: number }], scripts: [{ script, exit: number, stdout: string }] }`. It exits 0 when every spec passes, 1 when a spec fails, and 2 on bad input. The unit.runner items read `runs[].spec` and `runs[].pass`.
 
 ## Floor
 
@@ -67,6 +71,8 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Pitfalls
 
+* Families on the Northwind fixture's generated suite (examples/estates/fixture, fictional), judged once per run (seed-free): unit.runner (26: every guard's unit specs pass, and turn red when the guard allows all, blocks all, changes its message or runs past its timeout; scripts on their fixtures), kill.fake (31: a generated live spec, green on the original, turns red on the delete or invert mutant of each atom kind, on the fake runtime), gen.task (23: every ask holds a task), gen.reads (23: no Read of a missing file), gen.coverage (25: five complete specs per atom of each kind, judged domain rules, the gap markers), maintain.fixture (20: impact on structural edits and on the two committed versions).
+* kill.fake fails on all 31: the fake runtime knows only the Northwind proof asks, so most specs naming an atom fail on the original, and the specs that pass do not change on the mutant (D15 of the bench).
 * The bank holds bench.defects (20 items from a model-free bench run: D2, D5, D6, D7, D9 and the long routing table) and five blind.* families (176 items) written by a breaker that never read packages/estate. The bench items D6 and D7 run the CLI as a child process, so a row takes several minutes on a loaded machine.
 * The scale run of this measurement ran at a load average above 100: scale.scan-250 took 7 s against 4 s. A quieter run earlier passed the scan through 2500 atoms. Measure scale alone on a quiet machine.
 * A measurement of every item except scale on seeds 1 to 20 and the hidden seed takes under a minute with six seed groups in parallel (`SKIP=scale` in `_captures/v-estate/measure-par.mts`). The scale family alone takes about 70 minutes and depends on machine load: measure it alone, on a quiet machine. Every journal row holds the scale results of the one run at iteration 0, so no load difference counts as a fix.

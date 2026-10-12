@@ -14,7 +14,8 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
  * diffed, and `estate impact` runs over the fixture's generated suite. The oracle, written without the
  * component: an atom of the old map changed when its quote, white space folded, no longer stands in its file
  * of the new version. Impact must touch (retire, regenerate or re-approve) exactly the specs that name a
- * changed atom: none for a pure reformat or reorder, all of them for a removal. Seed-free, judged once.
+ * changed atom: none for a pure reformat or reorder, all of them for a removal. A change whose meaning sits on
+ * another line than the atom's quote (a hook's matcher) has no quote oracle and is left out. Seed-free, judged once.
  */
 
 const IMPACT = 'packages/estate/src/maintain/impact.ts';
@@ -136,16 +137,7 @@ const EDITS: Edit[] = [
         delete v.hooks.Stop;
       }),
   },
-  {
-    key: 'change-hook-matcher',
-    tier: 3,
-    title: 'a hook matcher narrowed',
-    cause: RETIRE,
-    apply: (r) =>
-      json(r, (v) => {
-        v.hooks.PreToolUse[1].matcher = 'Edit';
-      }),
-  },
+
   {
     key: 'rename-guard-script',
     tier: 3,
