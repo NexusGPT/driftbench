@@ -290,3 +290,7 @@ The format of `audit.md`. One verdict per check, written by the audit helpers, n
 ```
 
 The gate. No validator merges without the audit: `--hardness` fails its gate when `audit.md` is absent, or when any of the four checks is `fail`, `pending`, or missing from the file. The gate holds only when all four read `pass`, together with the conditions of section 12.4.
+
+### 12.8 The frozen contract
+
+Owner review, 2026-10-12: the rules of sections 12.1 to 12.7 changed four times while validators were being built, and every change cost rework across six lanes. From this point the contract is frozen as written: the bank (12.1, 12.2, 12.6), the forecast and the distinct-cause count (12.4), floors per ladder version (12.5) and the independent audit with its blind view (12.7, `--blind`, `--all-levels`). A rule changes only when an audit report names a hole the current rules let through, and the change is written here, with that report as its reason, before any lane acts on it.
