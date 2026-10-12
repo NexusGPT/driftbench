@@ -126,7 +126,7 @@ describe('review queue agreement between reviewers', () => {
     ];
     let queue = enqueue(
       emptyQueue(),
-      votes.map(([id], index) => item(index)),
+      votes.map((_vote, index) => item(index)),
     );
     for (const [id, ana, ben] of votes) {
       queue = addVote(addVote(queue, 'tone', id, 'Ana', ana), 'tone', id, 'Ben', ben);

@@ -45,7 +45,7 @@ driftbench queue assign <runId>.b<index> --criterion <name> --reviewer <name> --
 
 `queue create` queues each block of the campaign once per criterion of its spec, skipping blocks already labelled. The viewer's `/queue` page lists the items. "Take" assigns an item to the viewer's reviewer, "Label it" opens its block, and saving the label there marks the item done. Another reviewer cannot take or label an item held by someone else. A label written from the queue is the same label file `judge calibrate` reads.
 
-A second reviewer records a view of a block with `driftbench queue vote`, which does not write the labels file. `driftbench queue agreement` then prints, over the items with two votes, how many agree and Cohen's kappa between the first two reviewers. Keyboard review is not built: the viewer pages carry no script.
+A second reviewer records a view of a block with `driftbench queue vote`, which does not write the labels file. `driftbench queue agreement` then prints, over the items with two votes, how many agree and Cohen's kappa between the first two reviewers. The queue page shows that agreement line too. On the queue page only, `j` and `k` move focus between the items, and Enter opens or takes the focused one. That one script is allowed by the hash of its exact text in the page's Content-Security-Policy, and nothing else on the viewer runs script. Every action works without it: each one is a link or a form that posts to the viewer. The exported HTML scorecard stays script-free.
 
 ## Labelling a block
 
