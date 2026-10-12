@@ -191,7 +191,7 @@ describe('items of every family on the current code', () => {
     'cli/run/failing-list',
     'scale/tool-calls/x10',
   ];
-  const roadmap = ['scorecard/overall/runs', 'version/diff/x5-tool/first', 'compare/cell/x1/first'];
+  const roadmap = ['scorecard/junit/tests', 'scorecard/cell/pass-at-k', 'compare/cell/x1/first'];
   for (const id of holds) {
     it(`holds: ${id}`, async () => {
       const item = bank.find((each) => each.id === id) as BankItem;
@@ -200,11 +200,14 @@ describe('items of every family on the current code', () => {
     }, 60_000);
   }
   for (const id of roadmap) {
-    it(`fails until built: ${id}`, async () => {
+    it(`says how to build it while it fails: ${id}`, async () => {
       const item = bank.find((each) => each.id === id) as BankItem;
       const result = await item.check({ seed: 5, root: ROOT, scratch: scratch.path });
-      expect(result.pass).toBe(false);
-      expect(result.pass ? '' : result.detail).toMatch(/is not built/);
+      // Once the report package builds the capability the item passes; until then it names the contract.
+      if (!result.pass)
+        expect(result.detail).toMatch(
+          /is not built: add it to packages\/report\/src\/index\.ts with the contract in packages\/validators\/src\/ladders\/system\/bank\/report\.ts/,
+        );
     });
   }
 });

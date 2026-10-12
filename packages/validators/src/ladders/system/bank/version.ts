@@ -127,7 +127,10 @@ function versionDrift(): BankItem[] {
         title: `report.diff of two runs differing by ${cls} at the ${where} block names that block and the verdicts that moved from pass to fail`,
         async check({ seed }) {
           const diff = reportFn('diff');
-          if (!diff) return fail('report.diff is not built (docs/reference/cli.md planned: report diff)');
+          if (!diff)
+            return fail(
+              'report.diff is not built: add it to packages/report/src/index.ts with the contract in packages/validators/src/ladders/system/bank/version.ts',
+            );
           const { baseline, candidate, bad, at } = await twoVersions(
             seed,
             `diff-${cls}-${where}`,
