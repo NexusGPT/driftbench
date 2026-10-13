@@ -107,7 +107,7 @@ describe('asks written by code from the atoms', () => {
       'run the tests after each edit',
     );
     expect(actOf([atom('tool.allow-read', { kind: 'tool', fields: { rule: 'Read' } })]).act).toBe(
-      'use the Read tool on the files here',
+      'read a file here with the Read tool',
     );
     expect(actOf([atom('tool.deny-rm', { kind: 'tool', fields: { rule: 'Bash(rm -rf:*)' } })]).act).toBe(
       'run rm -rf in the shell here',

@@ -292,6 +292,12 @@ function toolAct(tool: EstateAtom): string | undefined {
     ?.replace(/\s*\*$/, '')
     .trim();
   if (command) return `run ${command} in the shell here`;
+  const fileTasks: Record<string, string> = {
+    Read: 'read a file here',
+    Glob: 'find files here',
+    Grep: 'find matching text in the files here',
+  };
+  if (fileTasks[rule]) return `${fileTasks[rule]} with the ${rule} tool`;
   if (/^[A-Z][A-Za-z]+$/.test(rule)) return `use the ${rule} tool on the files here`;
   const scoped = /^([A-Z][A-Za-z]+)\((.+)\)$/.exec(rule);
   const path = scoped?.[2]?.replace(/(?:\/\*\*|\/\*|:\*)$/, '');
