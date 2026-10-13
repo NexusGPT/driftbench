@@ -44,3 +44,11 @@ The next entry records completed seed results or the final bank result. No unmea
 - Seed 1: level 5, 1788 of 2009 seed-dependent items pass. Seed 2: level 5, 1791 of 2009 pass. The same 24 global items remain pending. These counts do not claim full-bank scores.
 - The full repository run finishes with 424 passing files and 6 failing files; 5018 tests pass, 7 fail and 43 skip. The CI suite cleanup hook also times out. Three failures are stale fixture expectations now fixed; three are explicit test timeouts; the system-floor assertion reports level 2 rather than floor 7.
 - All seven failed tests have passing focused rechecks, including the exact system-floor run through level 7. The original system item failure is not captured by the test assertion, so its cause remains unconfirmed. All six affected suites are rerunning together with one worker, a 30-second default test timeout and a 60-second cleanup timeout. Explicit per-test timeouts and bank budgets remain unchanged.
+
+## 2026-10-13T04:55:24+00:00: owner pause
+
+- The owner says: "alright man, let's pause it all for now." The sweep parent and its two active children receive SIGTERM and are verified stopped. No other process is stopped, and no automatic finalizer is armed.
+- Seeds 1, 2, 3 and 4 all reach level 5. Their passing seed-dependent item counts are 1788, 1791, 1773 and 1789 of 2009. Seeds 5 through 20 plus hidden and 24 global items remain pending. [Partial evidence](evidence/options-ab-partial-sweep.json) contains every measured level and failure.
+- The six affected test suites finish before the pause: all 6 pass, with 105 tests passing and 4 skipped. This recheck uses one worker, a 30-second default test timeout and a 60-second cleanup timeout; explicit test timeouts and bank budgets are unchanged. The initial full-run failure record remains preserved above.
+- A read-only adapter audit finds a remaining option-A edge case: Claude Code replay assigns step-feed rows before the first user turn to block 0, falsely satisfying `stage_reported: true`. The repair is not started. No further adapter or runner gap is found in the audited surfaces.
+- On resume, fix that boundary with a regression while preserving old spec behavior, then finish the sweep and append native journal row 18. The stopped parent kept global scale results only in memory, so those must be recomputed.

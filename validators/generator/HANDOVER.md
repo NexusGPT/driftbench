@@ -10,7 +10,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 5 |
 <!-- level-table:end -->
 
-The fresh options A and B measurement reaches level 5 on seed 1. Levels 1 through 5 pass; level 6 passes 19 of 22 items. This stop-at-first-failure run measures 145 of 148 items passing, not the full bank score. Evidence: [seed-1 level report](evidence/options-ab-seed-1-level.json), source code `8359f453`. Seeds 1 and 2 both reach level 5, with 1788 and 1791 of 2009 seed-dependent items passing respectively; the 24 global items are pending. The full bank holds 2033 items in 26 families and 22 levels; its 21-seed sweep remains active. Row 17 (1551 of 2033 on source `4d94b132`) is the pre-change full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the partial measurement and test limitations until the full bank row is available.
+The owner pauses this work at 06:54 local time. The sweep and its active children are stopped; no finalizer is armed. Options A and B and the separate compose repair are pushed to PR 113 before the 06:40 deadline. Fresh completed seeds 1 through 4 each reach level 5, with 1788, 1791, 1773 and 1789 of 2009 seed-dependent items passing respectively. Seeds 5 through 20 plus hidden and the 24 global items remain unmeasured. This is a partial result, not a full 2033-item bank score. Source code: `8359f453`; [partial sweep evidence](evidence/options-ab-partial-sweep.json). Row 17 (1551 of 2033 on source `4d94b132`) remains the pre-change seed-1-only full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the deadline, test results and pause.
 
 ## Floor
 
@@ -25,7 +25,7 @@ Fresh seed-1 level-6 failures on source `8359f453`:
 
 ### Historical findings before options A and B
 
-The following list is historical. The full new sweep is still running.
+The following list is historical. The full new sweep is paused after four completed seed workers.
 
 Failing items per family on seed 1 after row 14: fault-code 20, fault-drift 9, fault-deviation 1, modes 47, perturbation 3, coverage 9, minimality 53, interaction-pair 286, interaction-triple 11, stability 6, scale 11, sequence 2, allocation 4, contrast 4, phrases 3, behaviours 1, adequacy 18, gate 8 (after row 16: gate 4, scale 1). Report, boundary and paths are at 0.
 
@@ -73,9 +73,11 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 
 ## Next actions
 
-1. Finish the full sweep on the final A+B source, seeds 1 to 20 plus hidden, with two seed workers. Append measured partial results to `SWEEP-JOURNAL.md` before the 06:40 push deadline if it is still running; append the full bank result to `journal.jsonl` once it finishes.
-2. Keep the 100x cap, performance and speed work on their separately owned branches. Merge their PRs into this branch only after the owner explicitly authorizes it.
-3. Use the fresh sweep's failing items to choose the next generator change. Do not treat the historical list above as a current measurement.
+1. Remain paused until the owner resumes work. No sweep, test or automatic finalizer remains active.
+2. On resume, repair the discovered Claude Code replay edge case: `session.ts:623,665` assigns a step-feed row before the first user turn to block 0, so `stage_reported: true` can falsely pass. No repair is started. Preserve legacy `stage.reached` semantics while distinguishing pre-turn reports, and add a regression before the fix.
+3. Resume the full sweep on the final source. Completed seed files 1 through 4 remain in `.exec/after-ab.json.seed-*.json`. The stopped parent did not persist global scale results; recompute those and the remaining seeds. The original hidden seed for source `8359f453` is 204710547. The standard bank script has no resume option, so do not assume it will reuse those files.
+4. Keep the 100x cap, performance and speed work on their separately owned branches. Merge their PRs into this branch only after the owner explicitly authorizes it.
+5. Append a complete native journal row only when all 2033 items across all requested seeds are measured. Partial progress belongs in `SWEEP-JOURNAL.md`.
 
 ## Approved options A and B
 
@@ -86,7 +88,7 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 - Main is merged at `e2a5acdf` (upstream `7c0b3592`); `node tools/rename-scope.mjs` reports no remaining changes. The separate performance PRs are not merged.
 - Acme generated fixtures are refreshed. Its inline-email flow phrase now carries the existing `first_message=says-everything` context, so it is not treated as equivalent to a greeting that gives no email.
 - Read-only review found that a bound numeric reply value could disagree with the synthetic tool answer. The repair injects the exact typed scalar binding and refuses ambiguous or inconsistent bindings. The bound-reply and related scenario/value tests pass (71 tests); the six-class integration recheck also passes.
-- Final typecheck and lint pass at `8359f453`. The full repository run finishes with 5018 passing tests, 7 failed tests and 43 skips; its CI cleanup hook also times out. Acme extraction, generation and budget rechecks pass all 30 tests. The 7 CLI generation tests, isolated CI action test, and 10 gate/pilot rechecks also pass. The exact system-floor recheck also passes all 1297 items through level 7 on `cf271ae8`. All seven failed tests have passing focused rechecks. The original failures are three stale fixture expectations, three test timeouts, and a system-floor assertion reporting level 2. The exact system rerun passes through level 7; the original failing item was not captured. All six affected suites are rerunning together with one worker and larger test-harness timeouts. No bank threshold changes and no full-suite pass is claimed.
+- Final typecheck and lint pass at `8359f453`. The full repository run finishes with 5018 passing tests, 7 failed tests and 43 skips; its CI cleanup hook also times out. Acme extraction, generation and budget rechecks pass all 30 tests. The 7 CLI generation tests, isolated CI action test, and 10 gate/pilot rechecks also pass. The exact system-floor recheck also passes all 1297 items through level 7 on `cf271ae8`. All six affected suites then pass together: 105 tests pass and 4 skip, with one worker and larger test-harness timeouts. The original failures are three stale fixture expectations, three test timeouts, and a system-floor assertion reporting level 2. The exact system rerun passes through level 7; the original failing item was not captured. No bank threshold changes. The initial full-suite failures and the passing recheck are reported separately.
 - No external model API calls are made by this work.
 
 ## Validator item defects (logged, not edited)
@@ -124,4 +126,4 @@ pnpm driftbench validate generator --journal .exec/row.json
 
 ## Approved composed-report repair
 
-The owner authorizes the `follower.compose` repair. A report mutation returning `null` now remains absent when composed with another mutation, in either order. This makes the bank stricter and changes no item's expected answer. The regression test `composed missing-stage reports` fails before the fix (it sees an `intake` report) and passes after the fix. Evidence: `.exec/compose-red.log` and `.exec/compose-green.log`. The next full sweep measures this repaired fault family together with options A and B.
+The owner authorizes the `follower.compose` repair. A report mutation returning `null` now remains absent when composed with another mutation, in either order. This makes the bank stricter and changes no item's expected answer. The regression test `composed missing-stage reports` fails before the fix (it sees an `intake` report) and passes after the fix. Evidence: `.exec/compose-red.log` and `.exec/compose-green.log`. The paused sweep measures this repaired fault family together with options A and B; its completed seed results are recorded above.
