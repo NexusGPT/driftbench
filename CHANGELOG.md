@@ -4,6 +4,9 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Pairwise winner matching preserves substantive literal substrings, including partial code fences, before adding normalized views. Exactly one candidate must match; labels and decoration alone remain insufficient.
+* Ordinary criterion evidence accepts source-bound lists of `{ source, quote }` spans, each grounded independently in its named entry or data source. The default prompt requests lists; existing string evidence still parses. Public binary answers retain string evidence, and returned checks preserve all spans. This changes new-default prompt fingerprints; legacy rendering and parsing are unchanged.
+
 * Legacy judging freezes main `a97cb65e` rendering and parsing, including entry separators, object extraction and repair behavior. All 1,028 stored chat entries have main-matching replay outcomes.
 
 408 Request Timeout is retried like 429 and 5xx in every adapter.
