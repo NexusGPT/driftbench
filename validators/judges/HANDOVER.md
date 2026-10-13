@@ -42,7 +42,7 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 ## Open items
 
-Levels 1 to 11 pass. Level 12 (injection) first failing: `injection/language-*` (instructions in other languages, `screenData` word lists per language), then the encodings. Failing by family after 63: {"attacks": 0, "budget": 0, "calibration": 33, "cascade": 9, "cassette": 0, "check": 0, "clients": 0, "consistency": 0, "contract": 0, "council": 23, "criteria": 0, "evidence": 0, "injection": 47, "pairwise": 22, "precision": 19, "render": 0, "rubric": 0, "scale": 1, "turns": 20, "v1": 0}. Handover test last run after 61.
+None. Iteration 127: 638 of 638 deterministic items pass on seeds 1 to 20 and the hidden seed, level 20 of 20 (bank score 1). The 20 live items need DRIFTBENCH_BILLED_APPROVAL and were not run. Fragile spots: screenData is a heuristic (the instructive gate in English, word lists per language, decoders in DECODERS, readings in READINGS); a new seed may hold a sentence it misses, so re-run `--seeds 1..20 --hidden --items` after any change to screen.ts. The floor for ladder version 2 is the maintainer's to raise (own commit). Lint of the whole repo fails on files outside packages/judges (comparisons/, packages/checks/src/support/porter.ts).
 
 ## Hypotheses tried
 
@@ -142,9 +142,9 @@ Iteration 127 (cause: a slug file name splits the accent of evaluation into a sp
 
 ## Next actions
 
-1. Remaining `injection/language-*` items: extend screenData's judge and verdict word lists per language (the Fix line of each item names the language).
-2. Then `injection/encoding-*`, then precision and attacks leftovers, council (15), cascade (16), turns (17), pairwise (18), calibration (19), scale (20).
-3. Every fix: red test first, one cause, commit, `vitest run packages/judges --maxWorkers=2`, `measure.ts --iteration N`, `validate judges --journal row.json`. PR 86 takes every push. Keep the prompt fingerprint stable. At the top level, raise the floor in its own commit.
+1. Raise the judges floor for ladder version 2 in its own commit (maintainer).
+2. Run the 20 live items under an approved sized card, if wanted.
+3. After any screen.ts change, check seeds 1 to 20 plus hidden: several fixes passed seed 1 and failed seeds 2 to 20.
 
 ## Pitfalls
 
