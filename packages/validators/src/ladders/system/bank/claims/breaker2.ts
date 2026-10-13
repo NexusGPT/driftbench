@@ -3401,10 +3401,11 @@ add(
   1,
   'adversarial',
   'driftbench view',
-  `${QVW} (every form write route: exact Host, own Origin or Referer fallback, body token, POST only)`,
-  'every discovered write route obeys the method, Host, Origin, Referer and token matrix without refused writes',
+  `${QVW} (every form write route: exact Host, own Origin or Referer fallback, body token, POST only, fresh 64-hex token at each start)`,
+  'every discovered write route obeys all runtime HTTP methods and the Host, origin and token matrix; tokens are 64 hex characters and change across identical starts',
   async (ctx) => {
-    const { request } = await import('node:http');
+    const { METHODS, request } = await import('node:http');
+    const { startViewer } = await import('../../../../../../cli/src/view/server');
     const f = await judged(ctx.scratch);
     const checks: [boolean, string][] = [];
     const fixture = freshLabels(f);
@@ -3414,18 +3415,14 @@ add(
     );
     if (created.code !== 0) return fail(`queue fixture failed: ${created.err}`);
     const queue = readFileSync(join(fixture, 'queue.json'), 'utf8');
-    const signals = ['SIGINT', 'SIGTERM'] as const;
-    const isolatedViewer = async (labels: string, body: (base: string) => Promise<void>) => {
-      const listeners = new Map(signals.map((signal) => [signal, new Set(process.listeners(signal))]));
+    // Start the real server directly: each case still gets a fresh viewer and labels folder,
+    // without CLI signal handlers or readiness polling for every runtime HTTP method.
+    const isolatedViewer = async (labels: string, body: (base: string) => Promise<void>, port = '0') => {
+      const viewer = await startViewer({ store: f.store, labels, port: Number(port) });
       try {
-        const result = await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, body);
-        if (!result.stopped) throw new Error(`viewer did not start and stop cleanly: ${result.code}`);
+        await body(viewer.url);
       } finally {
-        for (const signal of signals) {
-          for (const listener of process.listeners(signal)) {
-            if (!listeners.get(signal)?.has(listener)) process.removeListener(signal, listener);
-          }
-        }
+        await viewer.close();
       }
     };
     let routes = new Map<string, ViewerForm[]>();
@@ -3434,7 +3431,7 @@ add(
     });
     if (routes.size === 0) return fail('viewer discovery found no write routes');
     const cases = [...routes.values()].flatMap((forms) =>
-      (['POST', 'PUT', 'DELETE', 'PATCH'] as const).flatMap((method) =>
+      METHODS.flatMap((method) =>
         (['own', 'foreign', 'different-port'] as const).flatMap((host) =>
           (['own', 'foreign', 'absent'] as const).flatMap((origin) =>
             (['own', 'foreign', 'absent', 'malformed'] as const).flatMap((referer) =>
@@ -3458,10 +3455,28 @@ add(
       // and a hidden form token generated at each start."
       // "Rejected requests return HTTP 403 with a plain message and write nothing."
       // "The write routes (`/labels` and `/queue/assign`) accept POST only; after the Host and origin
-      // checks, PUT, DELETE and PATCH return HTTP 405 and write nothing."
+      // checks, PUT, DELETE, PATCH, HEAD and OPTIONS return HTTP 405 and write nothing."
+      // "GET returns HTTP 404, TRACE returns HTTP 405, and Node closes CONNECT without an HTTP
+      // response before it reaches the viewer's request handler." All other non-POST methods must
+      // also return 405 after the guards. GET, HEAD and OPTIONS are reads, so skip the origin guard.
       // Origin takes precedence over Referer. Non-POST bodies are never token-checked or written.
       const trusted = host === 'own' && (origin === 'own' || (origin === 'absent' && referer === 'own'));
-      const expected = !trusted ? 403 : method !== 'POST' ? 405 : token === 'body' ? 303 : 403;
+      const expected =
+        method === 'CONNECT'
+          ? undefined
+          : host !== 'own'
+            ? 403
+            : method === 'GET'
+              ? 404
+              : method === 'HEAD' || method === 'OPTIONS'
+                ? 405
+                : !trusted
+                  ? 403
+                  : method !== 'POST'
+                    ? 405
+                    : token === 'body'
+                      ? 303
+                      : 403;
       const context = `${method} ${source.action}, Host=${host}, Origin=${origin}, Referer=${referer}, token=${token}`;
       const labels = freshLabels(f);
       put(join(labels, 'queue.json'), queue);
@@ -3471,7 +3486,7 @@ add(
         'criterion: preserved\nlabelled_by: Fictional Reviewer\nblocks: []\n',
       );
       const before = viewerFilesSnapshot(labels);
-      let status = 0;
+      let status: number | undefined;
       let submitted: Record<string, string> = {};
       await isolatedViewer(labels, async (base) => {
         const page = await http(base, source.page);
@@ -3512,18 +3527,28 @@ add(
         // node:http preserves an explicit Host; fetch may replace it. Send a body for every method.
         const body = new URLSearchParams(form).toString();
         headers['content-length'] = String(Buffer.byteLength(body));
-        status = await new Promise<number>((resolve, reject) => {
+        status = await new Promise<number | undefined>((resolve, reject) => {
           const req = request(url, { method, headers }, (res) => {
             res.on('error', reject);
             res.on('end', () => resolve(res.statusCode ?? 0));
             res.resume();
           });
-          req.on('error', reject);
+          req.on('connect', (res, socket) => {
+            socket.destroy();
+            resolve(res.statusCode);
+          });
+          req.on('error', (error: NodeJS.ErrnoException) => {
+            if (method === 'CONNECT' && error.code === 'ECONNRESET') resolve(undefined);
+            else reject(error);
+          });
           req.end(body);
         });
       });
       const after = viewerFilesSnapshot(labels);
-      checks.push([status === expected, `${context}: expected ${expected}, got ${status}`]);
+      checks.push([
+        status === expected,
+        `${context}: expected ${expected ?? 'connection closed without HTTP response'}, got ${status ?? 'connection closed without HTTP response'}`,
+      ]);
       if (expected === 303) {
         checks.push([after !== before, `${context}: expected a persisted write from the valid page form`]);
         if ('label' in submitted && 'run' in submitted && 'block' in submitted) {
@@ -3554,6 +3579,89 @@ add(
       } else {
         checks.push([after === before, `${context}: refused request changed labels or queue.json`]);
       }
+    }
+    // docs/viewer.md: "a hidden form token generated at each start" and
+    // "Reload an old form after restarting the viewer."
+    // Hold these public inputs identical: start options, cwd, store, labels folder, reviewer and fixed port.
+    // Different tokens rule out a token derived solely from those inputs. Length is encoding capacity,
+    // not proof of cryptographic entropy. docs/viewer.md: "The token is 32 random bytes from the
+    // system's cryptographic generator (64 hex characters), generated at each start and never
+    // written to disk; an old token is refused after a restart."
+    for (const forms of routes.values()) {
+      const source = forms[Math.abs(ctx.seed) % forms.length] as ViewerForm;
+      const labels = freshLabels(f);
+      put(join(labels, 'queue.json'), queue);
+      put(
+        join(labels, 'preserved.yaml'),
+        'criterion: preserved\nlabelled_by: Fictional Reviewer\nblocks: []\n',
+      );
+      const before = viewerFilesSnapshot(labels);
+      let port = '0';
+      // Discover a free local port, then use that exact argument for both measured starts.
+      await isolatedViewer(labels, async (base) => {
+        port = new URL(base).port;
+      });
+      const readForm = async (base: string) => {
+        const page = await http(base, source.page);
+        if (page.status !== 200) throw new Error(`restart form page: expected 200, got ${page.status}`);
+        const form = viewerForms(page.text, source.page, base)[source.index];
+        if (!form || form.action !== source.action || form.method !== 'post') {
+          throw new Error(`restart form changed at ${source.page}`);
+        }
+        return form.fields;
+      };
+      let oldToken = '';
+      await isolatedViewer(
+        labels,
+        async (base) => {
+          oldToken = (await readForm(base)).csrf ?? '';
+          checks.push([
+            /^[a-f\d]{64}$/i.test(oldToken),
+            `${source.action}: first-start token must contain exactly 64 hex characters`,
+          ]);
+        },
+        port,
+      );
+      checks.push([
+        viewerFilesSnapshot(labels) === before,
+        `${source.action}: reading the first-start form changed persisted state`,
+      ]);
+      await isolatedViewer(
+        labels,
+        async (base) => {
+          const form = await readForm(base);
+          const currentToken = form.csrf ?? '';
+          checks.push(
+            [
+              /^[a-f\d]{64}$/i.test(currentToken),
+              `${source.action}: second-start token must contain exactly 64 hex characters`,
+            ],
+            [
+              oldToken !== currentToken,
+              `${source.action}: identical public arguments must not reproduce the token across starts`,
+            ],
+          );
+          const stale = await http(base, source.action, {
+            form: { ...form, csrf: oldToken },
+            headers: { Origin: base },
+          });
+          checks.push(
+            [
+              stale.status === 403,
+              `${source.action}: old token after same-port restart expected 403, got ${stale.status}`,
+            ],
+            [
+              viewerFilesSnapshot(labels) === before,
+              `${source.action}: old token after restart changed labels or queue.json`,
+            ],
+          );
+        },
+        port,
+      );
+      checks.push([
+        viewerFilesSnapshot(labels) === before,
+        `${source.action}: restart refusal did not preserve persisted state`,
+      ]);
     }
     const failures = checks.filter(([pass]) => !pass).map(([, detail]) => detail);
     return expectAll([[failures.length === 0, failures.join('; ')]]);

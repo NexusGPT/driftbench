@@ -3698,7 +3698,7 @@
       "level": 1,
       "source": "adversarial",
       "component": "driftbench view",
-      "cause": "driftbench view: every discovered write route obeys the method, Host, Origin, Referer and token matrix without refused writes"
+      "cause": "driftbench view: every discovered write route obeys all runtime HTTP methods and the Host, origin and token matrix; tokens are 64 hex characters and change across identical starts"
     },
     {
       "id": "breaker2/viewer/label-path-traversal",

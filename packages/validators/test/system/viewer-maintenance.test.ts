@@ -31,7 +31,7 @@ describe('viewer label contracts through the page form', () => {
           }
           scratch.remove();
         }
-      }, 600_000);
+      }, 1_800_000);
     }
   }
 });
