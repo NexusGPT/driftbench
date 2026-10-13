@@ -114,3 +114,10 @@ The aliases recover 36 correct outcomes: 15 hard-factuality, 16 heldout-factuali
 ## Limits
 
 This change validates where the quote occurs, not the correctness of met. A remaining hard-factuality semantic error is still counted as wrong. Alias recovery is intentionally limited to exactly one input and the listed names; it does not guess basenames, search all sources or override supplied canonical data.
+
+## Main integration after PR 185
+
+- Merged main `98d82dcf0929e647d6c51f688419e53133a9f8e9`, including the upstream escalation union fix. This draft adds no escalation changes.
+- `node tools/rename-scope.mjs` changes zero files. The focused post-merge run passes 165 tests across 11 files, including all frozen alias rows, negative grounding cases, pointwise fact-ledger replay, escalation, cassettes and legacy goldens.
+- All 11 legacy file and fixture hashes still match the initial manifest. Main changed `prompt.ts` to add pointwise fact-ledger routing; this draft's file is byte-identical to main. The default prompt fingerprint remains `398673b792c1`.
+- Frozen replay counts remain 36 fixes and zero breaks across 3,727 rows. The draft gate and missing-slice labels remain in force.
