@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import type { JudgeClient } from './client';
 import {
+  ConformanceAudit,
+  parseConformanceText,
+  parseConformanceValue,
+  validateConformanceRequest,
+} from './conformance';
+import {
   extractObject,
   inconclusive,
   type JudgeRequest,
@@ -26,6 +32,7 @@ export type RubricItem = {
 export type Assessment =
   | { readonly kind: 'pairwise' }
   | { readonly kind: 'fact-ledger' }
+  | { readonly kind: 'conformance'; readonly reference: string }
   | {
       readonly kind: 'rubric';
       readonly items: readonly RubricItem[];
@@ -95,20 +102,23 @@ export function validateAssessment(assessment: Assessment): void {
 
 /** The provider schema matches the exact answer contract of this request. */
 export function responseSchema(request: JudgeRequest): Record<string, unknown> & { properties?: unknown } {
+  if (request.assessment?.kind === 'conformance') validateConformanceRequest(request);
   const a = request.answerContract === 'legacy' ? undefined : request.assessment;
   if (a) validateAssessment(a);
   const schema =
-    a?.kind === 'fact-ledger'
-      ? FactLedgerAnswer
-      : a?.kind === 'pairwise'
-        ? PairwiseAnswer
-        : a?.kind === 'rubric'
-          ? a.pairwise
-            ? pairLedger
-            : pointLedger
-          : request.answerContract === 'legacy'
-            ? undefined
-            : CriterionLedger;
+    a?.kind === 'conformance'
+      ? ConformanceAudit
+      : a?.kind === 'fact-ledger'
+        ? FactLedgerAnswer
+        : a?.kind === 'pairwise'
+          ? PairwiseAnswer
+          : a?.kind === 'rubric'
+            ? a.pairwise
+              ? pairLedger
+              : pointLedger
+            : request.answerContract === 'legacy'
+              ? undefined
+              : CriterionLedger;
   if (!schema)
     return {
       type: 'object',
@@ -127,6 +137,10 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
 
 /** Parse only the final complete object. No binary fallback can reverse an explicit winner. */
 export function parseJudgeText(raw: string, request: JudgeRequest): JudgeResult {
+  if (request.assessment?.kind === 'conformance') {
+    validateConformanceRequest(request);
+    return parseConformanceText(raw);
+  }
   if (request.answerContract === 'legacy') return parseLegacyAnswerText(raw);
   const callerError = requirementsError(request);
   if (callerError) return invalid(raw, callerError);
@@ -152,6 +166,10 @@ export function parseJudgeValue(
   request: JudgeRequest,
   raw = JSON.stringify(value),
 ): JudgeResult {
+  if (request.assessment?.kind === 'conformance') {
+    validateConformanceRequest(request);
+    return parseConformanceValue(value, raw);
+  }
   if (request.answerContract === 'legacy') return parseLegacyAnswerValue(value, raw);
   const callerError = requirementsError(request);
   if (callerError) return invalid(raw, callerError);
