@@ -8,7 +8,7 @@ Iteration 40 at 59f4b083b merges main, including PR 274 and D11/D12. Seed 1, run
 
 ## Current v4 result
 
-Iteration 41 at aa9877712: seed 1 remains level 3. The isolated ladder stops at generation and does not measure scale: reader 641/641, lint 46/46, plan 65/65, generation 247/270. Focused runs separately show maintain.impact 33/33 and mutant.agent 38/44. The latest full baseline for agent-mutants is 46/74 and maintenance 51/53; do not label those stale counts as the fixed product's score. Scale remains 15/20 on the older loaded-host baseline and must only be remeasured on a quiet host.
+Iteration 41 at aa9877712: seed 1 remains level 3. The isolated ladder stops at generation and does not measure scale: reader 641/641, lint 46/46, plan 65/65, generation 247/270. Iteration 42, on the unchanged product tree, measures agent-mutants 47/74 and maintenance 53/53. The non-scale total is 1099/1149 across these sequential runs. Scale remains 15/20 on the older loaded-host baseline and must only be remeasured on a quiet host.
 
 The maintainer rules the negative reply-length item valid. aa9877712 fixes it: unqualified negative guard controls forbid deny, ask, warn and nudge, while ordinary allow invocations pass. Explicit verdicts remain exact. Regression red first, then 2/2; then 34/34; generate 32/32; CLI unit specs 5/5; gen.complete 84/97, up from 83/97. The earlier negative-guard ruling request below is resolved by this fix.
 
@@ -257,7 +257,7 @@ The production checks already include guard_message, guard_finished and stage_se
 
 | Item suffix under gen.complete | Evidence | Ruling needed |
 |---|---|---|
-| guard_negative-guard-reply-length-py | The guard has no registry verdict; its generated negative check counts any verdict as zero. follower.ts emits a Stop guard allow decision on every reply, including the outside ask. | Decide whether the negative means no denial or no invocation, then align the planted metadata and follower. |
+| guard_negative-guard-reply-length-py | The guard has no registry verdict; its generated negative check counts any verdict as zero. follower.ts emits a Stop guard allow decision on every reply, including the outside ask. | Resolved as valid by the maintainer: aa9877712 counts intervention verdicts and permits ordinary allow invocations. |
 | guard_register-guard-read-before-edit-py | follower.ts guardRow emits only at/event/check/verdict/session. It provides no stdout, stderr or reason. guard_message correctly reports no runtime output. | Supply the guard output the message check needs. |
 | guard_register-guard-reply-length-py | The planted guard verdict is allow; guard_message correctly says it did not block. Its trace also lacks message output. | Supply a blocking case and its message, or define an allow-message contract. |
 | hazard_recovery-hazard-after-compaction | replayOnFollower passes only asks to follow, ignoring the spec event. The returned transcript contains no compaction record. | Plant the event, so recovery can be observed. |
@@ -275,7 +275,7 @@ Sources: packages/validators/src/ladders/estate/{pipeline.ts,follower.ts,situati
 ### v4 product fixes after the baseline
 
 - f263fd3ef: match skill folder moves through a unique declared name. Rename regression red first, then 4/4; existing diff 10/10; maintain.impact 33/33. The validator planted-rename regression also passes.
-- Gate ordering now binds a named Read to its file and an unqualified read-before-edit gate to the edited file. Saved regression red first, then 3/3; then 34/34; generate 32/32. mutant.agent 38/44, up from 37/44. Full sweep pending.
+- Gate ordering now binds a named Read to its file and an unqualified read-before-edit gate to the edited file. Saved regression red first, then 3/3; then 34/34; generate 32/32. mutant.agent 38/44, up from 37/44. An isolated seed 1 ladder and separate levels 5/6 confirm the gains; scale waits for a quiet host.
 
 ### v4 remaining generation quality rulings
 
