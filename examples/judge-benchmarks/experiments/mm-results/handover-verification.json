@@ -1,0 +1,27 @@
+{
+  "time": "2026-10-13T02:22:52.648987+00:00",
+  "frozenCommit": "92d6e72a7db8352107069eafef42586a9680d62f",
+  "frozenSourceHashesMatch": true,
+  "vitest": {
+    "passed": 76,
+    "files": 14,
+    "maxWorkers": 2
+  },
+  "typechecks": [
+    "root pass",
+    "all experiments pass"
+  ],
+  "frozenInstall": "pnpm install --frozen-lockfile green, without ignore-scripts, pnpm10.30.2",
+  "francAllLicense": "MIT",
+  "rootLockfileDelta": "13 additions, 0 removals, only franc-all",
+  "unsafeB15Ancestor": false,
+  "successfulMMCalls": 6784,
+  "recordedUsd": 7.2394901,
+  "reportedProviderUsd": 0.01126255,
+  "reportedTotalUsd": 7.25075265,
+  "unknownChargeReserveUsd": 0.6,
+  "remainingBelowReportedThresholdUsd": 0.14924735000000044,
+  "nextRequestReservationUsd": 0.15,
+  "lastModelCallCompletion": "2026-10-13T02:07:56.566Z",
+  "guard": "clean before this verification artifact; rechecked at handover"
+}

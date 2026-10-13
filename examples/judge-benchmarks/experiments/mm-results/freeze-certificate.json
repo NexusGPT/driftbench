@@ -1,0 +1,15 @@
+{
+  "frozenCommit": "92d6e72a7db8352107069eafef42586a9680d62f",
+  "contractSha": "c576033232a7643d52a2b8a2d295e26f79a6b26a",
+  "design": "native explicit-winner direct plus three-sample vote on chat only",
+  "devItems": 400,
+  "officialDevScore": 0.8965091966085342,
+  "costPer100Usd": 0.2773569675,
+  "testItemsPredeclared": 950,
+  "testSeed": "mm-frozen-test-sample-v1",
+  "testsPassed": 76,
+  "typechecks": "root and experiment configurations pass",
+  "guard": "clean",
+  "contractReviewStatus": "still under independent re-review at freeze",
+  "loggedAt": "2026-10-13T00:18:54.727803+00:00"
+}

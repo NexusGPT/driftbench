@@ -1,0 +1,57 @@
+{
+  "checks": [
+    {
+      "wins": 0,
+      "losses": 0,
+      "expectedP": 1,
+      "observedP": 1,
+      "pass": true
+    },
+    {
+      "wins": 3,
+      "losses": 0,
+      "expectedP": 0.25,
+      "observedP": 0.25000000000000006,
+      "pass": true
+    },
+    {
+      "wins": 10,
+      "losses": 0,
+      "expectedP": 0.001953125,
+      "observedP": 0.0019531249999999996,
+      "pass": true
+    },
+    {
+      "wins": 2,
+      "losses": 2,
+      "expectedP": 1,
+      "observedP": 1,
+      "pass": true
+    },
+    {
+      "wins": 4,
+      "losses": 1,
+      "expectedP": 0.375,
+      "observedP": 0.375,
+      "pass": true
+    },
+    {
+      "wins": 30,
+      "losses": 7,
+      "expectedP": 0.00019107642583549023,
+      "observedP": 0.00019107642583549023,
+      "pass": true
+    },
+    {
+      "wins": 10,
+      "losses": 11,
+      "expectedP": 1,
+      "observedP": 1,
+      "pass": true
+    }
+  ],
+  "instrument": "independent Python integer combinatorics oracle",
+  "newModelCalls": 0,
+  "pairedDirectionPass": true,
+  "time": "2026-10-13T01:29:51.726Z"
+}

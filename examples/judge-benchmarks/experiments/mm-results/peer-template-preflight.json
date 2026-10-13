@@ -1,0 +1,147 @@
+{
+  "cases": [
+    {
+      "group": "reasoning",
+      "id": "7",
+      "peers": [
+        {
+          "name": "deepeval",
+          "keys": [
+            "692b168e5d4fbbeb38fd",
+            "e93f9cd872ee149b107d"
+          ],
+          "games": [
+            "B",
+            "A"
+          ]
+        },
+        {
+          "name": "promptfoo",
+          "keys": [
+            "3bc93f445db934acbe04",
+            "4ca52fb436ea43c27950"
+          ],
+          "games": [
+            "A",
+            "B"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "chat",
+      "id": "3186",
+      "peers": [
+        {
+          "name": "deepeval",
+          "keys": [
+            "61757ac702c007498f30",
+            "9dd19506da94dfe5acff"
+          ],
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "name": "promptfoo",
+          "keys": [
+            "b821c32e7ea654496ecd",
+            "6cd340f60887c77ef6af"
+          ],
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "linguistics",
+      "id": "3685",
+      "peers": [
+        {
+          "name": "deepeval",
+          "keys": [
+            "1142c8d401733e9f93ca",
+            "0e02704ca253c03c2091"
+          ],
+          "games": [
+            "A",
+            "A"
+          ]
+        },
+        {
+          "name": "promptfoo",
+          "keys": [
+            "f68d695828dbe2aa9017",
+            "f94cecbe0491b9e0609b"
+          ],
+          "games": [
+            "A",
+            "A"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "language mixing",
+      "id": "2015",
+      "peers": [
+        {
+          "name": "deepeval",
+          "keys": [
+            "b2efe612c386ebfdfa49",
+            "3a1fc6671502dc4c0cea"
+          ],
+          "games": [
+            "A",
+            "A"
+          ]
+        },
+        {
+          "name": "promptfoo",
+          "keys": [
+            "5a26fb8c9812adfc12c1",
+            "dcb0ad25233f77607406"
+          ],
+          "games": [
+            "A",
+            "A"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "safety",
+      "id": "4070",
+      "peers": [
+        {
+          "name": "deepeval",
+          "keys": [
+            "9a1158c14f327faeb515",
+            "b2724fc7de23f7c6baf8"
+          ],
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "name": "promptfoo",
+          "keys": [
+            "c83736e45dd33eed3f2b",
+            "2b3ddcdec12352052bee"
+          ],
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ]
+    }
+  ],
+  "newModelCalls": 0,
+  "verification": "Both default peer templates recover original cached prompt keys on five subset shapes, including their existing generated criterion setup.",
+  "time": "2026-10-13T01:34:49.382Z"
+}

@@ -1,0 +1,25 @@
+{
+  "label": "test sample plan",
+  "items": 950,
+  "cutoff": "2026-10-13T06:30:00+02:00",
+  "frozenAt": "2026-10-13T00:18:17.442Z",
+  "remainingSeconds": 15080.764,
+  "priorSpend": {
+    "recorded": 4.078920950000005,
+    "providerErrors": 0.0016091999999999999,
+    "total": 4.080530150000005
+  },
+  "callsPerItem": 2.3775,
+  "measuredSecondsPerCall": 5.820581977471836,
+  "concurrency": 3,
+  "timeBound": 2132,
+  "budgetBound": 957,
+  "latencyMargin": 1.35,
+  "costMargin": 1.25,
+  "reserveSeconds": 1800,
+  "estimatedCalls": 2258.625,
+  "estimatedNewSpendUsd": 2.6348911912500004,
+  "estimatedSeconds": 4382.170656289109,
+  "seed": "mm-frozen-test-sample-v1",
+  "time": "2026-10-13T00:18:39.236Z"
+}

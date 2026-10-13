@@ -148,3 +148,36 @@ The chat-label audit records a defense or uncertainty for every item where direc
 and crowd both miss at least one game. Model disagreement is not a label error.
 Only proven indefensible labels reduce the reported audit ceiling bound; that
 bound is separate from the official score and is not an empirical model ceiling.
+
+## Prior TEST exposure and matched peer comparison
+
+The Oct 12 census already evaluates the MM-Eval TEST split. This night's fixed
+950-item run is a confirmation on a previously evaluated split. The prior scoring
+and overlap are retained in `mm-results/prior-test-scoring-audit.json`.
+
+`mm-peer-paired.ts` first compares the frozen judge with unchanged DeepEval and
+promptfoo templates on the 267 earlier common TEST items inside the fixed sample.
+It also checks whether any additional frozen-judge TEST results are fully cached;
+no model caller exists in that replay script. Item-level score differences are
+paired before taking subset means. The exact two-sided paired sign test uses one
+observation per item, removes ties and tests win direction; it does not test the
+weighted subset macro difference. A separate paired stratified bootstrap gives
+that difference's interval. Holm adjustment covers the two peer comparisons.
+
+The lead authorizes `mm-peer-completion.ts` only after an inconclusive initial
+267-item comparison. It completes missing default-peer coverage inside the same
+950-item sample, in a declared hash order interleaved by subset. Selection never
+uses our correctness or preference labels. The frozen judge is not called again.
+Pooled inference after this conditional extension is exploratory; the original
+267 and additional coverage are also reported separately.
+
+At most three requests run together. A request reserves USD 0.15 for up to three
+CLI attempts capped at USD 0.05 each. Near the limit, workers wait for in-flight
+requests and then reduce parallelism. Admission preserves the USD 0.6 reserve
+for unreported earlier charges. `--resume` preserves the original peer coverage
+plan, reuses stored prompts and adds only the new invocation's spend to the ledger.
+
+A new provider refusal extends the unavailable-item set for every contestant.
+`test-sample-uniform-availability.json` re-scores the original stored frozen games
+under that shared rule; it does not change the judge, labels or raw decisions.
+The original native inference report stays in `test-sample-frozen.json`.

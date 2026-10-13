@@ -1,0 +1,2280 @@
+{
+  "label": "frozen test paired peer comparison",
+  "frozenCommit": "92d6e72a7db8352107069eafef42586a9680d62f",
+  "contractSha": "c576033232a7643d52a2b8a2d295e26f79a6b26a",
+  "newModelCalls": 0,
+  "newSpendUsd": 0,
+  "additionalFreeScoredItems": 0,
+  "conditionalPeerCoverage": {
+    "label": "paid default-peer coverage",
+    "frozenCommit": "92d6e72a7db8352107069eafef42586a9680d62f",
+    "requested": 678,
+    "completed": 211,
+    "completedIds": [
+      "3211",
+      "471",
+      "3797",
+      "2758",
+      "4759",
+      "1511",
+      "3479",
+      "2656",
+      "3939",
+      "4229",
+      "3433",
+      "848",
+      "4544",
+      "3810",
+      "2994",
+      "1514",
+      "3545",
+      "3785",
+      "2610",
+      "4149",
+      "1136",
+      "3118",
+      "3559",
+      "3789",
+      "1162",
+      "4287",
+      "3528",
+      "3904",
+      "2697",
+      "4500",
+      "894",
+      "3281",
+      "3771",
+      "2095",
+      "4785",
+      "3405",
+      "1605",
+      "4587",
+      "2066",
+      "3783",
+      "917",
+      "3351",
+      "3996",
+      "4942",
+      "2802",
+      "1532",
+      "3308",
+      "3794",
+      "2896",
+      "4767",
+      "1856",
+      "3201",
+      "2370",
+      "3705",
+      "4972",
+      "3370",
+      "1023",
+      "4563",
+      "3714",
+      "2899",
+      "3402",
+      "3778",
+      "2209",
+      "560",
+      "4683",
+      "1588",
+      "3460",
+      "2331",
+      "4920",
+      "4015",
+      "267",
+      "3282",
+      "3790",
+      "2872",
+      "4238",
+      "1112",
+      "3266",
+      "3756",
+      "4171",
+      "1521",
+      "3096",
+      "3366",
+      "3903",
+      "2827",
+      "4178",
+      "1854",
+      "3551",
+      "3767",
+      "4602",
+      "2460",
+      "1069",
+      "3968",
+      "2943",
+      "4462",
+      "3456",
+      "1921",
+      "3754",
+      "3161",
+      "3311",
+      "4331",
+      "1600",
+      "3579",
+      "3933",
+      "2975",
+      "4550",
+      "3422",
+      "1316",
+      "3670",
+      "2003",
+      "4822",
+      "3613",
+      "1781",
+      "3908",
+      "2587",
+      "4927",
+      "1370",
+      "3902",
+      "3534",
+      "3072",
+      "916",
+      "4423",
+      "3257",
+      "3634",
+      "2139",
+      "4657",
+      "1591",
+      "3183",
+      "3633",
+      "2558",
+      "4731",
+      "902",
+      "3234",
+      "3838",
+      "2430",
+      "4390",
+      "1574",
+      "3449",
+      "3811",
+      "2275",
+      "4551",
+      "3445",
+      "950",
+      "3690",
+      "2281",
+      "4441",
+      "30",
+      "3451",
+      "4018",
+      "2511",
+      "4396",
+      "3455",
+      "1939",
+      "2144",
+      "4025",
+      "4732",
+      "792",
+      "3506",
+      "4003",
+      "2335",
+      "4518",
+      "1576",
+      "3457",
+      "3669",
+      "2629",
+      "4321",
+      "1036",
+      "3553",
+      "3944",
+      "2251",
+      "4645",
+      "420",
+      "3431",
+      "4042",
+      "2307",
+      "4598",
+      "743",
+      "3255",
+      "3629",
+      "2820",
+      "4114",
+      "1860",
+      "3567",
+      "3749",
+      "2279",
+      "4528",
+      "570",
+      "3283",
+      "4058",
+      "4624",
+      "2048",
+      "678",
+      "3436",
+      "3852",
+      "2494",
+      "4451",
+      "459",
+      "3380",
+      "3644",
+      "2392",
+      "4958",
+      "105",
+      "3270",
+      "3802",
+      "2593",
+      "4078",
+      "1077",
+      "3489",
+      "3872",
+      "2805",
+      "4974",
+      "1154"
+    ],
+    "providerRefusedIds": [
+      "4624"
+    ],
+    "newCalls": 845,
+    "newSpendUsd": 0.6135237200000001,
+    "additionalCallsThisInvocation": 395,
+    "additionalSpendUsdThisInvocation": 0.2995331200000001,
+    "resumed": true,
+    "capUsd": 0.44878047000000887,
+    "priorReportedUsd": 6.9512195299999915,
+    "seed": "mm-test-peer-coverage-v1",
+    "stopped": "reported budget limit with USD0.6 reserve",
+    "time": "2026-10-13T02:07:56.566Z"
+  },
+  "sequentialInferenceNote": "Extra coverage is triggered by an inconclusive initial267 comparison. Pooled p values and intervals are exploratory after this data-dependent extension. The initial267 and separate additional-cohort contrasts are retained.",
+  "cohorts": [
+    {
+      "name": "267 earlier common test items inside tonight sample",
+      "items": 267,
+      "ids": [
+        "1928",
+        "3920",
+        "2380",
+        "4855",
+        "1455",
+        "4625",
+        "1695",
+        "2562",
+        "295",
+        "1421",
+        "3577",
+        "2272",
+        "4873",
+        "3586",
+        "2541",
+        "3499",
+        "3335",
+        "3724",
+        "2027",
+        "4442",
+        "3186",
+        "4188",
+        "4086",
+        "393",
+        "3246",
+        "573",
+        "3541",
+        "4539",
+        "3471",
+        "182",
+        "2739",
+        "2253",
+        "3704",
+        "1137",
+        "4546",
+        "3786",
+        "3886",
+        "3286",
+        "839",
+        "2776",
+        "593",
+        "4450",
+        "3959",
+        "803",
+        "3975",
+        "4308",
+        "3413",
+        "2371",
+        "3948",
+        "4684",
+        "286",
+        "2053",
+        "4381",
+        "2675",
+        "4033",
+        "3805",
+        "4656",
+        "4756",
+        "4703",
+        "1393",
+        "3263",
+        "3008",
+        "1264",
+        "3721",
+        "3274",
+        "2391",
+        "3315",
+        "4913",
+        "2828",
+        "3583",
+        "4675",
+        "2065",
+        "4882",
+        "3743",
+        "2021",
+        "1662",
+        "3685",
+        "3796",
+        "3300",
+        "2072",
+        "4918",
+        "449",
+        "1601",
+        "407",
+        "3615",
+        "4774",
+        "2298",
+        "3712",
+        "3463",
+        "3520",
+        "4923",
+        "1073",
+        "3736",
+        "3237",
+        "3831",
+        "2789",
+        "3854",
+        "4070",
+        "3770",
+        "3490",
+        "2218",
+        "4716",
+        "3511",
+        "4833",
+        "492",
+        "628",
+        "1877",
+        "3487",
+        "3728",
+        "2416",
+        "3891",
+        "1718",
+        "3120",
+        "263",
+        "4087",
+        "4053",
+        "2113",
+        "4129",
+        "2255",
+        "1747",
+        "3104",
+        "4375",
+        "4949",
+        "4801",
+        "2623",
+        "1155",
+        "3064",
+        "4909",
+        "4863",
+        "1006",
+        "3157",
+        "458",
+        "511",
+        "4254",
+        "4861",
+        "1901",
+        "4523",
+        "2186",
+        "1823",
+        "941",
+        "253",
+        "3045",
+        "1661",
+        "2464",
+        "4662",
+        "1318",
+        "2050",
+        "264",
+        "1281",
+        "2613",
+        "1379",
+        "2032",
+        "4910",
+        "39",
+        "4744",
+        "4309",
+        "1335",
+        "272",
+        "1350",
+        "2167",
+        "1091",
+        "48",
+        "3032",
+        "886",
+        "680",
+        "4755",
+        "4135",
+        "3043",
+        "4859",
+        "2213",
+        "3020",
+        "2599",
+        "589",
+        "1936",
+        "2015",
+        "4640",
+        "1088",
+        "2825",
+        "454",
+        "4464",
+        "1524",
+        "2984",
+        "2521",
+        "4926",
+        "4540",
+        "876",
+        "373",
+        "3141",
+        "2595",
+        "918",
+        "2145",
+        "4922",
+        "2993",
+        "464",
+        "2440",
+        "713",
+        "969",
+        "3142",
+        "54",
+        "1927",
+        "3166",
+        "1753",
+        "2682",
+        "1367",
+        "609",
+        "2060",
+        "1572",
+        "966",
+        "2747",
+        "24",
+        "1866",
+        "1430",
+        "2556",
+        "141",
+        "1250",
+        "1103",
+        "523",
+        "348",
+        "376",
+        "1504",
+        "804",
+        "2577",
+        "3102",
+        "2880",
+        "1784",
+        "2930",
+        "1033",
+        "566",
+        "2058",
+        "1199",
+        "660",
+        "498",
+        "1388",
+        "289",
+        "1580",
+        "502",
+        "1720",
+        "697",
+        "403",
+        "1190",
+        "1802",
+        "1763",
+        "1889",
+        "1055",
+        "7",
+        "244",
+        "1528",
+        "1104",
+        "493",
+        "1377",
+        "317",
+        "1369",
+        "682",
+        "732",
+        "1858",
+        "1803",
+        "1332",
+        "339",
+        "149",
+        "1791",
+        "1090",
+        "1037",
+        "277",
+        "1143",
+        "484",
+        "1792",
+        "739"
+      ],
+      "additionalItemsOutsideTonightSample": 0,
+      "refusedItems": 0,
+      "views": [
+        {
+          "view": "official",
+          "variants": [
+            {
+              "name": "frozen native direct plus chat vote3",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.9077303131650958,
+                  "lower": 0.8686849082248831,
+                  "upper": 0.9467757181053085
+                },
+                "n": 267,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 117,
+                    "value": 0.9423076923076923
+                  },
+                  "linguistics": {
+                    "n": 22,
+                    "value": 0.9204545454545454
+                  },
+                  "language mixing": {
+                    "n": 60,
+                    "value": 1
+                  },
+                  "safety": {
+                    "n": 46,
+                    "value": 0.8804347826086957
+                  },
+                  "chat": {
+                    "n": 22,
+                    "value": 0.7954545454545454
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.9400749063670412
+              }
+            },
+            {
+              "name": "deepeval",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.9070065200499983,
+                  "lower": 0.869579459571183,
+                  "upper": 0.9444335805288135
+                },
+                "n": 267,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 117,
+                    "value": 0.9401709401709402
+                  },
+                  "linguistics": {
+                    "n": 22,
+                    "value": 0.9545454545454546
+                  },
+                  "language mixing": {
+                    "n": 60,
+                    "value": 1
+                  },
+                  "safety": {
+                    "n": 46,
+                    "value": 0.9130434782608695
+                  },
+                  "chat": {
+                    "n": 22,
+                    "value": 0.7272727272727273
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.947565543071161
+              }
+            },
+            {
+              "name": "promptfoo",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.8792481672916456,
+                  "lower": 0.8380227868260974,
+                  "upper": 0.9204735477571937
+                },
+                "n": 267,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 117,
+                    "value": 0.9188034188034188
+                  },
+                  "linguistics": {
+                    "n": 22,
+                    "value": 0.8863636363636364
+                  },
+                  "language mixing": {
+                    "n": 60,
+                    "value": 0.9166666666666666
+                  },
+                  "safety": {
+                    "n": 46,
+                    "value": 0.9130434782608695
+                  },
+                  "chat": {
+                    "n": 22,
+                    "value": 0.7613636363636364
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.8801498127340824
+              }
+            }
+          ],
+          "pairedDifferences": [
+            {
+              "peer": "deepeval",
+              "macroDifference": 0.0007237931150974625,
+              "interval95": {
+                "lower": -0.024271139488530793,
+                "upper": 0.025098814229249013,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 9,
+              "losses": 10,
+              "ties": 248,
+              "exactPairedTest": {
+                "wins": 9,
+                "losses": 10,
+                "nonzeroPairs": 19,
+                "pTwoSided": 1,
+                "exactNumerator": "524288",
+                "exactDenominator": "524288",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 1
+            },
+            {
+              "peer": "promptfoo",
+              "macroDifference": 0.028482145873450215,
+              "interval95": {
+                "lower": -0.0014435323130975307,
+                "upper": 0.06086686260599304,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 25,
+              "losses": 11,
+              "ties": 231,
+              "exactPairedTest": {
+                "wins": 25,
+                "losses": 11,
+                "nonzeroPairs": 36,
+                "pTwoSided": 0.028816719655878863,
+                "exactNumerator": "1980269896",
+                "exactDenominator": "68719476736",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.057633439311757725
+            }
+          ]
+        },
+        {
+          "view": "refusal-excluded",
+          "variants": [
+            {
+              "name": "frozen native direct plus chat vote3",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.9077303131650958,
+                  "lower": 0.8686849082248831,
+                  "upper": 0.9467757181053085
+                },
+                "n": 267,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 117,
+                    "value": 0.9423076923076923
+                  },
+                  "linguistics": {
+                    "n": 22,
+                    "value": 0.9204545454545454
+                  },
+                  "language mixing": {
+                    "n": 60,
+                    "value": 1
+                  },
+                  "safety": {
+                    "n": 46,
+                    "value": 0.8804347826086957
+                  },
+                  "chat": {
+                    "n": 22,
+                    "value": 0.7954545454545454
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.9400749063670412
+              }
+            },
+            {
+              "name": "deepeval",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.9070065200499983,
+                  "lower": 0.869579459571183,
+                  "upper": 0.9444335805288135
+                },
+                "n": 267,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 117,
+                    "value": 0.9401709401709402
+                  },
+                  "linguistics": {
+                    "n": 22,
+                    "value": 0.9545454545454546
+                  },
+                  "language mixing": {
+                    "n": 60,
+                    "value": 1
+                  },
+                  "safety": {
+                    "n": 46,
+                    "value": 0.9130434782608695
+                  },
+                  "chat": {
+                    "n": 22,
+                    "value": 0.7272727272727273
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.947565543071161
+              }
+            },
+            {
+              "name": "promptfoo",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.8792481672916456,
+                  "lower": 0.8380227868260974,
+                  "upper": 0.9204735477571937
+                },
+                "n": 267,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 117,
+                    "value": 0.9188034188034188
+                  },
+                  "linguistics": {
+                    "n": 22,
+                    "value": 0.8863636363636364
+                  },
+                  "language mixing": {
+                    "n": 60,
+                    "value": 0.9166666666666666
+                  },
+                  "safety": {
+                    "n": 46,
+                    "value": 0.9130434782608695
+                  },
+                  "chat": {
+                    "n": 22,
+                    "value": 0.7613636363636364
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.8801498127340824
+              }
+            }
+          ],
+          "pairedDifferences": [
+            {
+              "peer": "deepeval",
+              "macroDifference": 0.0007237931150974625,
+              "interval95": {
+                "lower": -0.024271139488530793,
+                "upper": 0.025098814229249013,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 9,
+              "losses": 10,
+              "ties": 248,
+              "exactPairedTest": {
+                "wins": 9,
+                "losses": 10,
+                "nonzeroPairs": 19,
+                "pTwoSided": 1,
+                "exactNumerator": "524288",
+                "exactDenominator": "524288",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 1
+            },
+            {
+              "peer": "promptfoo",
+              "macroDifference": 0.028482145873450215,
+              "interval95": {
+                "lower": -0.0014435323130975307,
+                "upper": 0.06086686260599304,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 25,
+              "losses": 11,
+              "ties": 231,
+              "exactPairedTest": {
+                "wins": 25,
+                "losses": 11,
+                "nonzeroPairs": 36,
+                "pTwoSided": 0.028816719655878863,
+                "exactNumerator": "1980269896",
+                "exactDenominator": "68719476736",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.057633439311757725
+            }
+          ]
+        }
+      ],
+      "costs": [
+        {
+          "name": "frozen native direct plus chat vote3",
+          "recordedCostUsd": 0.7182214799999997,
+          "recordedCostPer100": 0.26899680898876394,
+          "uniqueCalls": 624,
+          "chargedCalls": 624,
+          "note": "Recorded successful inference cost plus reported refusal charges in this cohort; cached calls priced. Both views retain the requested-cohort cost denominator."
+        },
+        {
+          "name": "deepeval",
+          "recordedCostUsd": 0.4920124000000003,
+          "recordedCostPer100": 0.18427430711610496,
+          "uniqueCalls": 535,
+          "chargedCalls": 535,
+          "note": "Recorded successful inference cost plus reported refusal charges in this cohort; cached calls priced. Both views retain the requested-cohort cost denominator."
+        },
+        {
+          "name": "promptfoo",
+          "recordedCostUsd": 0.24639034999999995,
+          "recordedCostPer100": 0.0922810299625468,
+          "uniqueCalls": 534,
+          "chargedCalls": 534,
+          "note": "Recorded successful inference cost plus reported refusal charges in this cohort; cached calls priced. Both views retain the requested-cohort cost denominator."
+        }
+      ]
+    },
+    {
+      "name": "additional peer-completion items, separate from the earlier267",
+      "items": 211,
+      "ids": [
+        "3451",
+        "3771",
+        "4171",
+        "3778",
+        "4759",
+        "1574",
+        "3257",
+        "3633",
+        "4451",
+        "3944",
+        "3283",
+        "3902",
+        "2593",
+        "4528",
+        "743",
+        "3489",
+        "2460",
+        "3644",
+        "4518",
+        "3370",
+        "2095",
+        "3366",
+        "2370",
+        "3528",
+        "3789",
+        "3266",
+        "2511",
+        "4025",
+        "4551",
+        "3767",
+        "3545",
+        "3783",
+        "4732",
+        "3551",
+        "3968",
+        "3211",
+        "3756",
+        "4042",
+        "4563",
+        "3281",
+        "4500",
+        "3904",
+        "3457",
+        "4018",
+        "4550",
+        "3282",
+        "3933",
+        "3380",
+        "3161",
+        "4974",
+        "3431",
+        "3797",
+        "2805",
+        "3579",
+        "3270",
+        "3852",
+        "3534",
+        "3908",
+        "3234",
+        "3183",
+        "4015",
+        "3422",
+        "2943",
+        "848",
+        "3903",
+        "917",
+        "3405",
+        "3785",
+        "2656",
+        "3308",
+        "3872",
+        "4331",
+        "3433",
+        "1316",
+        "3705",
+        "2827",
+        "950",
+        "3811",
+        "3749",
+        "2975",
+        "267",
+        "3790",
+        "1605",
+        "3810",
+        "2144",
+        "3559",
+        "3996",
+        "902",
+        "3402",
+        "3351",
+        "1921",
+        "3311",
+        "4003",
+        "2066",
+        "4972",
+        "3255",
+        "3096",
+        "4958",
+        "3479",
+        "4462",
+        "3436",
+        "3669",
+        "3118",
+        "4058",
+        "3072",
+        "3456",
+        "3939",
+        "4731",
+        "4920",
+        "3460",
+        "2139",
+        "3629",
+        "1112",
+        "2820",
+        "4657",
+        "3553",
+        "4178",
+        "30",
+        "3506",
+        "3690",
+        "3445",
+        "3613",
+        "1069",
+        "3754",
+        "4598",
+        "3449",
+        "3634",
+        "3794",
+        "3670",
+        "4942",
+        "3567",
+        "3714",
+        "3455",
+        "3201",
+        "3802",
+        "3838",
+        "4683",
+        "2896",
+        "4544",
+        "894",
+        "678",
+        "2279",
+        "2251",
+        "4624",
+        "2872",
+        "2275",
+        "2494",
+        "1023",
+        "4149",
+        "4287",
+        "2003",
+        "2430",
+        "916",
+        "4229",
+        "2335",
+        "4390",
+        "1162",
+        "4602",
+        "4321",
+        "4238",
+        "4785",
+        "2629",
+        "4767",
+        "2558",
+        "4822",
+        "4078",
+        "2697",
+        "2392",
+        "1036",
+        "4441",
+        "4927",
+        "1576",
+        "2331",
+        "1591",
+        "4114",
+        "2758",
+        "570",
+        "4396",
+        "1511",
+        "4645",
+        "1856",
+        "4423",
+        "4587",
+        "2209",
+        "2802",
+        "2899",
+        "1077",
+        "2994",
+        "1860",
+        "2281",
+        "1588",
+        "2307",
+        "2587",
+        "2048",
+        "1532",
+        "105",
+        "2610",
+        "792",
+        "459",
+        "1521",
+        "1600",
+        "560",
+        "1136",
+        "420",
+        "471",
+        "1939",
+        "1854",
+        "1370",
+        "1781",
+        "1154",
+        "1514"
+      ],
+      "additionalItemsOutsideTonightSample": 0,
+      "refusedItems": 1,
+      "views": [
+        {
+          "view": "official",
+          "variants": [
+            {
+              "name": "frozen native direct plus chat vote3",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.9321428571428572,
+                  "lower": 0.9027347267259846,
+                  "upper": 0.9615509875597297
+                },
+                "n": 211,
+                "byGroup": {
+                  "chat": {
+                    "n": 42,
+                    "value": 0.7738095238095238
+                  },
+                  "linguistics": {
+                    "n": 42,
+                    "value": 0.9464285714285714
+                  },
+                  "safety": {
+                    "n": 42,
+                    "value": 0.9523809523809523
+                  },
+                  "reasoning": {
+                    "n": 43,
+                    "value": 1
+                  },
+                  "language mixing": {
+                    "n": 42,
+                    "value": 0.9880952380952381
+                  }
+                },
+                "missing": 2,
+                "positionConsistency": 0.95260663507109
+              }
+            },
+            {
+              "name": "deepeval",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.8786821705426358,
+                  "lower": 0.8426868941520791,
+                  "upper": 0.9146774469331924
+                },
+                "n": 211,
+                "byGroup": {
+                  "chat": {
+                    "n": 42,
+                    "value": 0.642857142857143
+                  },
+                  "linguistics": {
+                    "n": 42,
+                    "value": 0.9166666666666666
+                  },
+                  "safety": {
+                    "n": 42,
+                    "value": 0.8928571428571429
+                  },
+                  "reasoning": {
+                    "n": 43,
+                    "value": 0.9767441860465116
+                  },
+                  "language mixing": {
+                    "n": 42,
+                    "value": 0.9642857142857143
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.9052132701421801
+              }
+            },
+            {
+              "name": "promptfoo",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.8833887043189369,
+                  "lower": 0.8500457991107937,
+                  "upper": 0.9167316095270801
+                },
+                "n": 211,
+                "byGroup": {
+                  "chat": {
+                    "n": 42,
+                    "value": 0.6547619047619049
+                  },
+                  "linguistics": {
+                    "n": 42,
+                    "value": 0.9166666666666666
+                  },
+                  "safety": {
+                    "n": 42,
+                    "value": 0.9047619047619048
+                  },
+                  "reasoning": {
+                    "n": 43,
+                    "value": 0.9883720930232558
+                  },
+                  "language mixing": {
+                    "n": 42,
+                    "value": 0.9523809523809523
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.8767772511848341
+              }
+            }
+          ],
+          "pairedDifferences": [
+            {
+              "peer": "deepeval",
+              "macroDifference": 0.05346068660022148,
+              "interval95": {
+                "lower": 0.028405315614617937,
+                "upper": 0.08078626799557032,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 20,
+              "losses": 2,
+              "ties": 189,
+              "exactPairedTest": {
+                "wins": 20,
+                "losses": 2,
+                "nonzeroPairs": 22,
+                "pTwoSided": 0.00012111663818359366,
+                "exactNumerator": "508",
+                "exactDenominator": "4194304",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.0002422332763671873
+            },
+            {
+              "peer": "promptfoo",
+              "macroDifference": 0.04875415282392026,
+              "interval95": {
+                "lower": 0.020127353266888148,
+                "upper": 0.07959579180509413,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 24,
+              "losses": 8,
+              "ties": 179,
+              "exactPairedTest": {
+                "wins": 24,
+                "losses": 8,
+                "nonzeroPairs": 32,
+                "pTwoSided": 0.007000366691499949,
+                "exactNumerator": "30066346",
+                "exactDenominator": "4294967296",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.007000366691499949
+            }
+          ]
+        },
+        {
+          "view": "refusal-excluded",
+          "variants": [
+            {
+              "name": "frozen native direct plus chat vote3",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.9367886178861788,
+                  "lower": 0.9087479264430066,
+                  "upper": 0.9648293093293511
+                },
+                "n": 210,
+                "byGroup": {
+                  "chat": {
+                    "n": 42,
+                    "value": 0.7738095238095238
+                  },
+                  "linguistics": {
+                    "n": 42,
+                    "value": 0.9464285714285714
+                  },
+                  "safety": {
+                    "n": 41,
+                    "value": 0.975609756097561
+                  },
+                  "reasoning": {
+                    "n": 43,
+                    "value": 1
+                  },
+                  "language mixing": {
+                    "n": 42,
+                    "value": 0.9880952380952381
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.9571428571428572
+              }
+            },
+            {
+              "name": "deepeval",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.8830375712394998,
+                  "lower": 0.8479131391128901,
+                  "upper": 0.9181620033661094
+                },
+                "n": 210,
+                "byGroup": {
+                  "chat": {
+                    "n": 42,
+                    "value": 0.642857142857143
+                  },
+                  "linguistics": {
+                    "n": 42,
+                    "value": 0.9166666666666666
+                  },
+                  "safety": {
+                    "n": 41,
+                    "value": 0.9146341463414634
+                  },
+                  "reasoning": {
+                    "n": 43,
+                    "value": 0.9767441860465116
+                  },
+                  "language mixing": {
+                    "n": 42,
+                    "value": 0.9642857142857143
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.9095238095238095
+              }
+            },
+            {
+              "name": "promptfoo",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.8878021770250925,
+                  "lower": 0.8555123086299021,
+                  "upper": 0.9200920454202828
+                },
+                "n": 210,
+                "byGroup": {
+                  "chat": {
+                    "n": 42,
+                    "value": 0.6547619047619049
+                  },
+                  "linguistics": {
+                    "n": 42,
+                    "value": 0.9166666666666666
+                  },
+                  "safety": {
+                    "n": 41,
+                    "value": 0.926829268292683
+                  },
+                  "reasoning": {
+                    "n": 43,
+                    "value": 0.9883720930232558
+                  },
+                  "language mixing": {
+                    "n": 42,
+                    "value": 0.9523809523809523
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.8809523809523809
+              }
+            }
+          ],
+          "pairedDifferences": [
+            {
+              "peer": "deepeval",
+              "macroDifference": 0.05375104664667909,
+              "interval95": {
+                "lower": 0.028408016638305916,
+                "upper": 0.08119277206061097,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 20,
+              "losses": 2,
+              "ties": 188,
+              "exactPairedTest": {
+                "wins": 20,
+                "losses": 2,
+                "nonzeroPairs": 22,
+                "pTwoSided": 0.00012111663818359366,
+                "exactNumerator": "508",
+                "exactDenominator": "4194304",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.0002422332763671873
+            },
+            {
+              "peer": "promptfoo",
+              "macroDifference": 0.048986440861086354,
+              "interval95": {
+                "lower": 0.02012735326688815,
+                "upper": 0.07915484968803177,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 24,
+              "losses": 8,
+              "ties": 178,
+              "exactPairedTest": {
+                "wins": 24,
+                "losses": 8,
+                "nonzeroPairs": 32,
+                "pTwoSided": 0.007000366691499949,
+                "exactNumerator": "30066346",
+                "exactDenominator": "4294967296",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.007000366691499949
+            }
+          ]
+        }
+      ],
+      "costs": [
+        {
+          "name": "frozen native direct plus chat vote3",
+          "recordedCostUsd": 0.6720006000000002,
+          "recordedCostPer100": 0.31848369668246457,
+          "uniqueCalls": 594,
+          "chargedCalls": 594,
+          "note": "Recorded successful inference cost plus reported refusal charges in this cohort; cached calls priced. Both views retain the requested-cohort cost denominator."
+        },
+        {
+          "name": "deepeval",
+          "recordedCostUsd": 0.39638440000000025,
+          "recordedCostPer100": 0.18785990521327026,
+          "uniqueCalls": 423,
+          "chargedCalls": 423,
+          "note": "Recorded successful inference cost plus reported refusal charges in this cohort; cached calls priced. Both views retain the requested-cohort cost denominator."
+        },
+        {
+          "name": "promptfoo",
+          "recordedCostUsd": 0.21551612000000023,
+          "recordedCostPer100": 0.1021403412322276,
+          "uniqueCalls": 420,
+          "chargedCalls": 421,
+          "note": "Recorded successful inference cost plus reported refusal charges in this cohort; cached calls priced. Both views retain the requested-cohort cost denominator."
+        }
+      ]
+    },
+    {
+      "name": "all matched items after conditional peer completion, exploratory",
+      "items": 483,
+      "ids": [
+        "1928",
+        "3920",
+        "2380",
+        "4855",
+        "3451",
+        "3771",
+        "4171",
+        "1455",
+        "3778",
+        "4759",
+        "1574",
+        "3257",
+        "3633",
+        "4625",
+        "1695",
+        "2562",
+        "295",
+        "1421",
+        "3577",
+        "2272",
+        "4873",
+        "3586",
+        "2541",
+        "4451",
+        "3499",
+        "3944",
+        "3335",
+        "3724",
+        "2027",
+        "3283",
+        "3902",
+        "4442",
+        "3186",
+        "2593",
+        "4528",
+        "743",
+        "3489",
+        "2460",
+        "3644",
+        "4518",
+        "4188",
+        "3370",
+        "2095",
+        "3366",
+        "2370",
+        "4086",
+        "393",
+        "3528",
+        "3789",
+        "3266",
+        "3246",
+        "573",
+        "2511",
+        "4025",
+        "4551",
+        "3541",
+        "3767",
+        "3545",
+        "3783",
+        "4732",
+        "3551",
+        "4539",
+        "3471",
+        "182",
+        "3968",
+        "2739",
+        "3211",
+        "3756",
+        "2253",
+        "4042",
+        "4563",
+        "3281",
+        "3704",
+        "1137",
+        "4546",
+        "3786",
+        "3886",
+        "4500",
+        "3904",
+        "3286",
+        "839",
+        "3457",
+        "4018",
+        "2776",
+        "593",
+        "4450",
+        "4550",
+        "3959",
+        "3282",
+        "3933",
+        "803",
+        "3380",
+        "3975",
+        "3161",
+        "4308",
+        "3413",
+        "4974",
+        "3431",
+        "3797",
+        "2805",
+        "3579",
+        "2371",
+        "3948",
+        "4684",
+        "3270",
+        "286",
+        "3852",
+        "2053",
+        "3534",
+        "4381",
+        "3908",
+        "2675",
+        "4033",
+        "3234",
+        "3805",
+        "4656",
+        "3183",
+        "4015",
+        "3422",
+        "2943",
+        "4756",
+        "848",
+        "3903",
+        "917",
+        "3405",
+        "3785",
+        "2656",
+        "4703",
+        "1393",
+        "3308",
+        "3872",
+        "4331",
+        "3433",
+        "1316",
+        "3705",
+        "2827",
+        "950",
+        "3263",
+        "3811",
+        "3008",
+        "1264",
+        "3749",
+        "2975",
+        "267",
+        "3721",
+        "3274",
+        "2391",
+        "3790",
+        "3315",
+        "4913",
+        "1605",
+        "2828",
+        "3583",
+        "3810",
+        "2144",
+        "4675",
+        "3559",
+        "3996",
+        "2065",
+        "4882",
+        "902",
+        "3402",
+        "3743",
+        "2021",
+        "1662",
+        "3351",
+        "3685",
+        "1921",
+        "3796",
+        "3300",
+        "2072",
+        "4918",
+        "449",
+        "3311",
+        "4003",
+        "2066",
+        "4972",
+        "1601",
+        "3255",
+        "3096",
+        "4958",
+        "3479",
+        "4462",
+        "407",
+        "3436",
+        "3615",
+        "3669",
+        "3118",
+        "4774",
+        "4058",
+        "3072",
+        "3456",
+        "2298",
+        "3712",
+        "3939",
+        "3463",
+        "3520",
+        "4731",
+        "4920",
+        "3460",
+        "4923",
+        "2139",
+        "3629",
+        "1073",
+        "3736",
+        "1112",
+        "3237",
+        "3831",
+        "2820",
+        "4657",
+        "3553",
+        "2789",
+        "3854",
+        "4178",
+        "30",
+        "3506",
+        "3690",
+        "3445",
+        "4070",
+        "3613",
+        "3770",
+        "1069",
+        "3754",
+        "3490",
+        "4598",
+        "3449",
+        "2218",
+        "3634",
+        "4716",
+        "3511",
+        "3794",
+        "4833",
+        "492",
+        "3670",
+        "4942",
+        "3567",
+        "628",
+        "3714",
+        "3455",
+        "1877",
+        "3487",
+        "3728",
+        "3201",
+        "2416",
+        "3891",
+        "1718",
+        "3120",
+        "3802",
+        "263",
+        "3838",
+        "4087",
+        "4053",
+        "2113",
+        "4129",
+        "2255",
+        "4683",
+        "2896",
+        "1747",
+        "4544",
+        "3104",
+        "894",
+        "4375",
+        "678",
+        "2279",
+        "4949",
+        "2251",
+        "4801",
+        "2623",
+        "1155",
+        "3064",
+        "4909",
+        "4863",
+        "1006",
+        "4624",
+        "3157",
+        "2872",
+        "458",
+        "511",
+        "2275",
+        "4254",
+        "2494",
+        "4861",
+        "1023",
+        "4149",
+        "4287",
+        "2003",
+        "1901",
+        "4523",
+        "2186",
+        "2430",
+        "1823",
+        "916",
+        "4229",
+        "2335",
+        "941",
+        "253",
+        "3045",
+        "4390",
+        "1162",
+        "1661",
+        "2464",
+        "4662",
+        "4602",
+        "4321",
+        "1318",
+        "2050",
+        "264",
+        "1281",
+        "4238",
+        "4785",
+        "2613",
+        "1379",
+        "2032",
+        "2629",
+        "4910",
+        "39",
+        "4767",
+        "4744",
+        "4309",
+        "2558",
+        "1335",
+        "272",
+        "1350",
+        "2167",
+        "1091",
+        "4822",
+        "48",
+        "3032",
+        "4078",
+        "886",
+        "2697",
+        "680",
+        "2392",
+        "4755",
+        "4135",
+        "3043",
+        "4859",
+        "2213",
+        "1036",
+        "4441",
+        "3020",
+        "4927",
+        "1576",
+        "2331",
+        "1591",
+        "2599",
+        "589",
+        "1936",
+        "2015",
+        "4640",
+        "1088",
+        "2825",
+        "454",
+        "4114",
+        "4464",
+        "1524",
+        "2984",
+        "2758",
+        "570",
+        "4396",
+        "2521",
+        "4926",
+        "1511",
+        "4645",
+        "1856",
+        "4540",
+        "876",
+        "4423",
+        "373",
+        "3141",
+        "4587",
+        "2595",
+        "918",
+        "2145",
+        "4922",
+        "2993",
+        "464",
+        "2209",
+        "2802",
+        "2440",
+        "713",
+        "969",
+        "2899",
+        "3142",
+        "54",
+        "1927",
+        "1077",
+        "3166",
+        "1753",
+        "2682",
+        "1367",
+        "609",
+        "2994",
+        "2060",
+        "1572",
+        "966",
+        "2747",
+        "24",
+        "1866",
+        "1430",
+        "2556",
+        "141",
+        "1860",
+        "1250",
+        "1103",
+        "523",
+        "348",
+        "2281",
+        "1588",
+        "376",
+        "2307",
+        "2587",
+        "2048",
+        "1504",
+        "804",
+        "2577",
+        "3102",
+        "1532",
+        "2880",
+        "1784",
+        "2930",
+        "105",
+        "1033",
+        "566",
+        "2610",
+        "2058",
+        "1199",
+        "660",
+        "498",
+        "1388",
+        "792",
+        "289",
+        "1580",
+        "459",
+        "502",
+        "1720",
+        "697",
+        "403",
+        "1521",
+        "1190",
+        "1802",
+        "1600",
+        "1763",
+        "1889",
+        "1055",
+        "7",
+        "244",
+        "1528",
+        "560",
+        "1104",
+        "1136",
+        "420",
+        "493",
+        "1377",
+        "317",
+        "471",
+        "1369",
+        "682",
+        "732",
+        "1858",
+        "1939",
+        "1803",
+        "1332",
+        "339",
+        "149",
+        "1791",
+        "1090",
+        "1037",
+        "1854",
+        "1370",
+        "277",
+        "1781",
+        "1154",
+        "1143",
+        "484",
+        "1792",
+        "1514",
+        "739",
+        "4264",
+        "4172",
+        "4079",
+        "4076",
+        "4169"
+      ],
+      "additionalItemsOutsideTonightSample": 0,
+      "refusedItems": 6,
+      "views": [
+        {
+          "view": "official",
+          "variants": [
+            {
+              "name": "frozen native direct plus chat vote3",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.9074503874130297,
+                  "lower": 0.8822215313473399,
+                  "upper": 0.9326792434787196
+                },
+                "n": 483,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 160,
+                    "value": 0.9578125
+                  },
+                  "linguistics": {
+                    "n": 64,
+                    "value": 0.9375
+                  },
+                  "language mixing": {
+                    "n": 102,
+                    "value": 0.9950980392156863
+                  },
+                  "safety": {
+                    "n": 93,
+                    "value": 0.8655913978494624
+                  },
+                  "chat": {
+                    "n": 64,
+                    "value": 0.78125
+                  }
+                },
+                "missing": 12,
+                "positionConsistency": 0.9358178053830227
+              }
+            },
+            {
+              "name": "deepeval",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.8783390654648958,
+                  "lower": 0.8509780418908618,
+                  "upper": 0.9057000890389298
+                },
+                "n": 483,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 160,
+                    "value": 0.95
+                  },
+                  "linguistics": {
+                    "n": 64,
+                    "value": 0.9296875
+                  },
+                  "language mixing": {
+                    "n": 102,
+                    "value": 0.9852941176470589
+                  },
+                  "safety": {
+                    "n": 93,
+                    "value": 0.8548387096774194
+                  },
+                  "chat": {
+                    "n": 64,
+                    "value": 0.6718750000000002
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.9213250517598344
+              }
+            },
+            {
+              "name": "promptfoo",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.8653487705566099,
+                  "lower": 0.8379011765355424,
+                  "upper": 0.8927963645776773
+                },
+                "n": 483,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 160,
+                    "value": 0.9375
+                  },
+                  "linguistics": {
+                    "n": 64,
+                    "value": 0.90625
+                  },
+                  "language mixing": {
+                    "n": 102,
+                    "value": 0.9313725490196079
+                  },
+                  "safety": {
+                    "n": 93,
+                    "value": 0.8602150537634409
+                  },
+                  "chat": {
+                    "n": 64,
+                    "value": 0.6914062500000001
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.8695652173913043
+              }
+            }
+          ],
+          "pairedDifferences": [
+            {
+              "peer": "deepeval",
+              "macroDifference": 0.029111321948134095,
+              "interval95": {
+                "lower": 0.011311373339658443,
+                "upper": 0.04762867647058824,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 29,
+              "losses": 12,
+              "ties": 442,
+              "exactPairedTest": {
+                "wins": 29,
+                "losses": 12,
+                "nonzeroPairs": 41,
+                "pTwoSided": 0.011507789735333049,
+                "exactNumerator": "25305897248",
+                "exactDenominator": "2199023255552",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.011507789735333049
+            },
+            {
+              "peer": "promptfoo",
+              "macroDifference": 0.042101616856419985,
+              "interval95": {
+                "lower": 0.02013490275142315,
+                "upper": 0.06449764784946237,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 49,
+              "losses": 19,
+              "ties": 415,
+              "exactPairedTest": {
+                "wins": 49,
+                "losses": 19,
+                "nonzeroPairs": 68,
+                "pTwoSided": 0.0003579552716131699,
+                "exactNumerator": "105649748564532008",
+                "exactDenominator": "295147905179352825856",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.0007159105432263398
+            }
+          ]
+        },
+        {
+          "view": "refusal-excluded",
+          "variants": [
+            {
+              "name": "frozen native direct plus chat vote3",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.9193895791075051,
+                  "lower": 0.8956458785903869,
+                  "upper": 0.9431332796246232
+                },
+                "n": 477,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 160,
+                    "value": 0.9578125
+                  },
+                  "linguistics": {
+                    "n": 64,
+                    "value": 0.9375
+                  },
+                  "language mixing": {
+                    "n": 102,
+                    "value": 0.9950980392156863
+                  },
+                  "safety": {
+                    "n": 87,
+                    "value": 0.9252873563218391
+                  },
+                  "chat": {
+                    "n": 64,
+                    "value": 0.78125
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.9475890985324947
+              }
+            },
+            {
+              "name": "deepeval",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.890129944219067,
+                  "lower": 0.864074259006452,
+                  "upper": 0.916185629431682
+                },
+                "n": 477,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 160,
+                    "value": 0.95
+                  },
+                  "linguistics": {
+                    "n": 64,
+                    "value": 0.9296875
+                  },
+                  "language mixing": {
+                    "n": 102,
+                    "value": 0.9852941176470589
+                  },
+                  "safety": {
+                    "n": 87,
+                    "value": 0.9137931034482759
+                  },
+                  "chat": {
+                    "n": 64,
+                    "value": 0.6718750000000002
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.9308176100628931
+              }
+            },
+            {
+              "name": "promptfoo",
+              "summary": {
+                "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+                "value": {
+                  "estimate": 0.8772138057809331,
+                  "lower": 0.8511699028354522,
+                  "upper": 0.903257708726414
+                },
+                "n": 477,
+                "byGroup": {
+                  "reasoning": {
+                    "n": 160,
+                    "value": 0.9375
+                  },
+                  "linguistics": {
+                    "n": 64,
+                    "value": 0.90625
+                  },
+                  "language mixing": {
+                    "n": 102,
+                    "value": 0.9313725490196079
+                  },
+                  "safety": {
+                    "n": 87,
+                    "value": 0.9195402298850575
+                  },
+                  "chat": {
+                    "n": 64,
+                    "value": 0.6914062500000001
+                  }
+                },
+                "missing": 0,
+                "positionConsistency": 0.8805031446540881
+              }
+            }
+          ],
+          "pairedDifferences": [
+            {
+              "peer": "deepeval",
+              "macroDifference": 0.029259634888438135,
+              "interval95": {
+                "lower": 0.011091742731575389,
+                "upper": 0.04829001859364435,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 29,
+              "losses": 12,
+              "ties": 436,
+              "exactPairedTest": {
+                "wins": 29,
+                "losses": 12,
+                "nonzeroPairs": 41,
+                "pTwoSided": 0.011507789735333049,
+                "exactNumerator": "25305897248",
+                "exactDenominator": "2199023255552",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.011507789735333049
+            },
+            {
+              "peer": "promptfoo",
+              "macroDifference": 0.042175773326572005,
+              "interval95": {
+                "lower": 0.020507944557133194,
+                "upper": 0.06474877450980392,
+                "method": "paired percentile bootstrap within subsets, seed 251013, 10000 repetitions"
+              },
+              "wins": 49,
+              "losses": 19,
+              "ties": 409,
+              "exactPairedTest": {
+                "wins": 49,
+                "losses": 19,
+                "nonzeroPairs": 68,
+                "pTwoSided": 0.0003579552716131699,
+                "exactNumerator": "105649748564532008",
+                "exactDenominator": "295147905179352825856",
+                "method": "two-sided exact paired sign test on item scores; ties removed; binomial(n, 0.5)",
+                "limitation": "Tests the direction of paired item differences, not equality of the weighted subset macro mean; paired orders are not treated as independent."
+              },
+              "holmAdjustedP": 0.0007159105432263398
+            }
+          ]
+        }
+      ],
+      "costs": [
+        {
+          "name": "frozen native direct plus chat vote3",
+          "recordedCostUsd": 1.3991869100000005,
+          "recordedCostPer100": 0.2896867308488614,
+          "uniqueCalls": 1218,
+          "chargedCalls": 1223,
+          "note": "Recorded successful inference cost plus reported refusal charges in this cohort; cached calls priced. Both views retain the requested-cohort cost denominator."
+        },
+        {
+          "name": "deepeval",
+          "recordedCostUsd": 0.8897702,
+          "recordedCostPer100": 0.1842174327122153,
+          "uniqueCalls": 959,
+          "chargedCalls": 959,
+          "note": "Recorded successful inference cost plus reported refusal charges in this cohort; cached calls priced. Both views retain the requested-cohort cost denominator."
+        },
+        {
+          "name": "promptfoo",
+          "recordedCostUsd": 0.4619064700000001,
+          "recordedCostPer100": 0.09563280952380955,
+          "uniqueCalls": 954,
+          "chargedCalls": 955,
+          "note": "Recorded successful inference cost plus reported refusal charges in this cohort; cached calls priced. Both views retain the requested-cohort cost denominator."
+        }
+      ]
+    }
+  ],
+  "limitation": "Confirmation on a previously evaluated split; common recorded coverage can be selection biased. The exact sign test and the paired macro difference address different estimands. No tuning follows test.",
+  "time": "2026-10-13T02:09:24.258Z"
+}
