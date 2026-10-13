@@ -74,7 +74,7 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
 | `reply_language` | the language every reply is in, whatever the user writes | 1 |
-| `task_family` | a flow a code agent does as a task: the [task family](#task-families) folder, its stages, the values every instance holds (`holds`), and the deviation class its planted variant carries | 1 |
+| `task_family` | a flow a code agent does as a task: the [task family](#task-families) folder, its stages, the values every instance holds (`holds`), the family knob values of the instances it places (`instances`), and the deviation class its planted variant carries | 2 |
 
 A phrase may hold a `{slot}` (`It's {email}.`), may say where it fits with `when` (a flow, a stage, a data value), and may state slot values itself with `binds` (`The unlimited one, please.` binds the plan `mobile-l`). The generator fills each slot from the values the cell binds, so a tool input expected in a block is the value the block's own When states.
 
@@ -286,7 +286,7 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 | `boundary` | one spec per value of every detail data dimension, on a path that needs it; a tool output value becomes the tool's answer, a tool input value an expected or a forbidden call |
 | `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage |
 | `metamorphic` | families of specs that differ only in the phrasing of one value, with the same Then by construction |
-| `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per family, default 8), each with its corner and planted variants; see [task families](#task-families) |
+| `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per relation, default 8), each with its corner and planted variants; see [task families](#task-families) |
 | `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons |
 
 Every seeded choice comes from `--seed` (default 1), so the same map and seed give the same suite byte for byte.
@@ -659,7 +659,7 @@ A task family is one code-agent task written once with knobs, so code builds as 
 |---|---|
 | Knobs | `difficulty` (counts: rows, files, sheets), `structure` (formats, layouts, formula kinds, paths the outcome holds), `style` (wording, order, line endings, names of files the task never names, language); each a whole-number range or a list of values |
 | Constraints | `compare` (two whole-number knobs, or a knob and a number) and `implies` (`when`, `require`) |
-| Seed grammar | tables of generated rows rendered as CSV or JSON files, approved texts, and copied files |
+| Seed grammar | tables of generated rows rendered as CSV or JSON files or as a workbook (one sheet per value of a column), approved texts, and copied files |
 | Corner kinds | `empty_cell`, `duplicate_row`, `column_order`, `unit_change`; `per_instance` says how many apply to an instance |
 | Instructions | per block, parts made of approved phrase ids, one per wording; no free text |
 | Oracle | `oracle.mjs` beside the family: from the seed files and the knobs, the slots the phrases use and, per block, the expected files, workspace diff and `must` |
@@ -731,7 +731,7 @@ Limits today:
 
 ### Task families in the map
 
-A map hands a flow to a family with a `task_family` relation. The Acme one, as written in `examples/acme/map/answers.yaml`:
+A map hands a flow to a family with a `task_family` relation. A family that writes several branches of the flow gets one relation per branch, each naming the knob values of its instances (`instances`) and the cell values they hold (`holds`). The two Acme ones, as written in `examples/acme/map/answers.yaml`:
 
 ```
 - kind: task_family
@@ -739,12 +739,21 @@ A map hands a flow to a family with a `task_family` relation. The Acme one, as w
   family: ../families/price-sheet
   stages: [build_sheet, add_summary]
   holds: { user_type: [sales-operations], workspace_start: [catalog-only] }
+  instances: { start: catalog-only }
   deviations: [D6_instruction_in_data]
   source: ../README.md
   quote: "its stage, `build_sheet` or `add_summary`"
+- kind: task_family
+  flow: price-sheet
+  family: ../families/price-sheet
+  stages: [add_summary]
+  holds: { user_type: [sales-operations], workspace_start: [existing-workbook] }
+  instances: { start: existing-workbook }
+  source: ../inventory.yaml
+  quote: "title: Add a summary sheet to the existing workbook and leave every other file untouched"
 ```
 
-`generate` builds `--tasks <n>` instances of the family from the seed (default 8) and writes every variant to `specs/task/`. The family's oracle wrote each Then; the task seeder only places the spec: the values of `holds` become its tags, and a planted variant also declares its planted file as a perturbation of the relation's class at the first block, with that block's Then. A family whose phrases are not approved, whose review is missing, invalid or stale, or whose variant needs a binary seed folder is refused with its reason, and the refusal counts as a defect (exit 1). The gate runs task specs on the code agent with `--route flow:price-sheet=process:acme-ops`; `campaign` and `ci` take the same `--route`.
+`generate` builds `--tasks <n>` instances per relation from the seed (default 8) and writes every variant to `specs/task/`. Relations on one family share its draws: instances are drawn in order, and each goes to the relations whose `instances` its knobs meet. The family's oracle wrote each Then; the task seeder only places the spec: the values of `holds` become its tags, and a planted variant also declares its planted file as a perturbation of the relation's class at the first block, with that block's Then. A variant whose workspace holds a file that is not text, such as the existing workbook, is written to a folder beside its spec, `specs/task/.seed-<spec id>/`, which its `workspace_seed.from` names from the folder `generate` runs in. A relation whose family's phrases are not approved, whose review is missing, invalid or stale, whose `instances` names a knob the family lacks, or that gets no instance is refused with its reason, and the refusal counts as a defect (exit 1). The gate runs task specs on the code agent with `--route flow:price-sheet=process:acme-ops`; `campaign` and `ci` take the same `--route`.
 
 ## The variance pilot
 

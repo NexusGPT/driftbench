@@ -171,11 +171,14 @@ export function followerAdapter(session: () => FaultSession, version = 'rule-fol
   });
 }
 
-async function writeAll(root: string, files: readonly { path: string; text: string }[]): Promise<void> {
+async function writeAll(
+  root: string,
+  files: readonly { path: string; text: string; bytes?: Uint8Array }[],
+): Promise<void> {
   for (const file of files) {
     const target = join(root, file.path);
     await mkdir(dirname(target), { recursive: true });
-    await writeFile(target, file.text);
+    await writeFile(target, file.bytes ?? file.text);
   }
 }
 

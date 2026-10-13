@@ -14,6 +14,7 @@ import {
   REPORT_FILE,
   renderSummary,
   type SpecProposal,
+  seedFolderName,
 } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -201,6 +202,10 @@ export async function generateCommand(
   const built = await buildTaskInputs(loaded.prepared, dirname(mapPath), {
     n: typeof tasks === 'number' ? tasks : DEFAULT_TASKS,
     seed: typeof seed === 'number' ? seed : 1,
+    // A workspace that holds a binary file is written beside its spec; the spec names it from the folder
+    // the runner starts in.
+    seedFrom: (id: string) =>
+      portable(relative(io.cwd, join(outPath, COMPLETE_DIR, 'task', seedFolderName(id)))),
   });
   for (const entry of built.refused)
     io.err(`✗ the task family ${entry.family} builds no spec: ${entry.reason}\n`);
@@ -227,7 +232,7 @@ export async function generateCommand(
   for (const file of result.files) {
     const target = join(outPath, file.path);
     await mkdir(dirname(target), { recursive: true });
-    await writeFile(target, file.text);
+    await writeFile(target, file.bytes ?? file.text);
   }
 
   const report = result.report;

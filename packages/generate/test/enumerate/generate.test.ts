@@ -408,3 +408,48 @@ describe('iteration 23: the coverage share is read from the cached grid', () => 
     }
   });
 });
+
+describe('generateSuite with task specs whose workspace holds a binary file', () => {
+  it('writes the workspace beside the spec, in the folder its workspace_seed names, the bytes unchanged', () => {
+    const bytes = new Uint8Array([0x50, 0x4b, 3, 4, 0, 255]);
+    const spec = {
+      id: 'fam-i01-base',
+      version: '1',
+      kind: 'task',
+      title: 'A task',
+      tier: 'generated',
+      tags: ['flow:x'],
+      target: { adapter: 'process', agent: 'ops' },
+      workspace_seed: { from: 'out/specs/task/.seed-fam-i01-base' },
+      blocks: [{ id: 'b', user: 'Do the task.', expect: { execution: { ran_code: true } } }],
+    };
+    const relation = {
+      kind: 'task_family' as const,
+      flow: 'x',
+      family: '../families/fam',
+      stages: ['s'],
+      evidence: { source: 'prompt.md', quote: 'Stages, in order: greet, verify, help.' },
+      produced_by: 'model' as const,
+      approved: true,
+    };
+    const result = generateSuite(zedPrepared(), {
+      mapPath: '../map.yaml',
+      t: 2,
+      tasks: [
+        {
+          relation,
+          variants: [{ spec, seed: { text: { 'items.csv': 'a,b\n' }, binary: { 'out/book.xlsx': bytes } } }],
+        },
+      ],
+    });
+    expect(result.report.invalid).toEqual([]);
+    const seedFiles = result.files.filter((file) => file.path.startsWith('specs/task/.seed-fam-i01-base/'));
+    expect(seedFiles.map((file) => file.path).sort()).toEqual([
+      'specs/task/.seed-fam-i01-base/items.csv',
+      'specs/task/.seed-fam-i01-base/out/book.xlsx',
+    ]);
+    expect(seedFiles.find((file) => file.path.endsWith('items.csv'))?.text).toBe('a,b\n');
+    expect([...(seedFiles.find((file) => file.path.endsWith('.xlsx'))?.bytes ?? [])]).toEqual([...bytes]);
+    expect(result.files.some((file) => file.path === 'specs/task/fam-i01-base.yaml')).toBe(true);
+  });
+});
