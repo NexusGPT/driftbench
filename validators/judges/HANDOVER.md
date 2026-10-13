@@ -128,6 +128,7 @@ Iteration 113 (cause: no %XX reading. DECODERS row for four or more percent esca
 Iteration 114 (cause: no binary reading. DECODERS row for eight or more 8-bit groups. Test: screen.test.ts reads binary groups.)
 Iteration 115 (cause: only ROT13 was read. A READINGS row joins the other 23 shifts of a text up to 400 characters, one per line. Test: screen.test.ts reads every Caesar shift of a short text.)
 Iteration 116 (cause: no Turkish words. OTHER_LANGUAGES row; also the Caesar reading now holds all 24 other shifts (a range slip left shift 25 out). Test: screen.test.ts Turkish and Caesar 25.)
+Iteration 117 (cause: no Russian words. OTHER_LANGUAGES row (no rubrika: the Cyrillic-lookalike test keeps Russian text with pass unflagged). Test: screen.test.ts Russian.)
 
 ## Next actions
 
