@@ -206,9 +206,7 @@
       ]
     },
     "battery": {
-      "values": [
-        "packageName"
-      ],
+      "values": ["packageName"],
       "types": []
     },
     "checks": {
@@ -317,18 +315,8 @@
       ]
     },
     "cli": {
-      "values": [
-        "VERSION",
-        "coverageCommand",
-        "lintCommand",
-        "main",
-        "processIo",
-        "validateCommand"
-      ],
-      "types": [
-        "CoverageOptions",
-        "Io"
-      ]
+      "values": ["VERSION", "coverageCommand", "lintCommand", "main", "processIo", "validateCommand"],
+      "types": ["CoverageOptions", "Io"]
     },
     "core": {
       "values": [
@@ -2396,15 +2384,8 @@
       ]
     },
     "vitest": {
-      "values": [
-        "blockFailure",
-        "blockName",
-        "describeSpec"
-      ],
-      "types": [
-        "DescribeSpecOptions",
-        "SpecTarget"
-      ]
+      "values": ["blockFailure", "blockName", "describeSpec"],
+      "types": ["DescribeSpecOptions", "SpecTarget"]
     }
   }
 }

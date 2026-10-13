@@ -2,7 +2,7 @@
 // A pull request that adds or removes a public name fails here until it regenerates that file
 // (node tools/structure/api-surface.mjs --write), which puts the change in front of a reviewer.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,6 +36,14 @@ describe('public API', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   }, 120_000);
+
+  it('no package entry re-exports a whole module: every public name is written out', () => {
+    const packages = fileURLToPath(new URL('../../packages', import.meta.url));
+    const starred = readdirSync(packages)
+      .map((name) => join(packages, name, 'src/index.ts'))
+      .filter((file) => existsSync(file) && /^export \* from /m.test(readFileSync(file, 'utf8')));
+    expect(starred, 'write the names out: export { a, type B } from "./module"').toEqual([]);
+  });
 
   it('the frozen list is sorted and holds every package', () => {
     const frozen = JSON.parse(readFileSync(SNAPSHOT, 'utf8'));

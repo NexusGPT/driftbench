@@ -41,6 +41,7 @@ Every page says what exists today and what is not built yet, with the phase that
 
 * [Spec reference](reference/spec.md): every field of a spec, generated from the zod schemas.
 * [CLI](reference/cli.md): every `driftbench` command, its options, its output and its exit codes.
+* [Public API](reference/api.md): what a package's public API is, the frozen list of its names, and how a name is added or removed.
 * [Checks](reference/checks.md): every field of `expect`, the check that reads it, and its verdict ids.
 
 ## Adapters

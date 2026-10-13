@@ -144,6 +144,7 @@ export default defineConfig({
           { text: 'Spec reference', link: '/reference/spec' },
           { text: 'CLI', link: '/reference/cli' },
           { text: 'Checks', link: '/reference/checks' },
+          { text: 'Public API', link: '/reference/api' },
         ],
       },
       {
