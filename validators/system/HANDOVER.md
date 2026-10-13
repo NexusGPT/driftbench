@@ -51,7 +51,7 @@ Iteration 5 commits packages/core/test/runner/uncached-key-cost.test.ts with the
 * Nested stats measurements are cached by stats revision and seed only within one sweep. Dirty stats/bank code measures fresh. Disclose cache use and verify fresh/cached report equality.
 * The scale bank times CPU and keeps the minimum of repeated timings. One green micro-run is insufficient when another run fails the bound.
 * The owner skips the local estate-floor rerun: 616 seconds against 600 seconds at host load 150 is judged by CI. Do not raise the timeout.
-* Merge main 14225a2a next, then run the namespace codemod before typecheck and push. New pushes create fresh CI; cancelled runs are not rerun. The public commit-attribution address has a scoped guard:allow marker; keep it when editing this handover.
+* This branch includes main 14225a2a. The namespace codemod changes zero files; typecheck and lint pass before pushing. New pushes create fresh CI; cancelled runs are not rerun. The public commit-attribution address has a scoped guard:allow marker; keep it when editing this handover.
 
 ## How to run
 
