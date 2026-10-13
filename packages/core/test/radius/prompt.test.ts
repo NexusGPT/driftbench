@@ -27,7 +27,7 @@ const spec = {
 } as Spec;
 
 describe('prompt quote mapping', () => {
-  it('maps changed or deleted quote text to its entry and F downstream blocks', () => {
+  it('maps interior quote edits to its entry and F downstream blocks', () => {
     const result = map(old.replace('$40', '$45'));
     expect(result.changes).toHaveLength(1);
     expect(result.changes[0]).toMatchObject({ kind: 'rule', id: 'states@offer' });
@@ -35,14 +35,14 @@ describe('prompt quote mapping', () => {
     const report = radiusOf([{ spec, hash: 'h' }], result, { modes: ['T', 'F'] });
     expect(report.specs[0]?.blocks.map((b) => b.state.T)).toEqual(['direct', 'out']);
     expect(report.specs[0]?.blocks.map((b) => b.state.F)).toEqual(['direct', 'forward']);
-    expect(map(old.replace('Offer costs $40.', '')).changes[0]?.id).toBe('states@offer');
+    expect(map(old.replace('Offer costs $40.', '')).changes[0]?.global).toBe(true);
   });
   it('contains a planted language regression outside the anchor even when the price also changes', () => {
     const result = map(old.replace('$40', '$45').replace('English', 'French'));
     const report = radiusOf([{ spec, hash: 'h' }], result, { modes: ['T'] });
     expect(report.whole).not.toBeNull();
     expect(report.specs[0]?.blocks[1]?.state.T).toBe('direct');
-    expect(result.changes[0]?.note).toContain('outside');
+    expect(result.changes[0]?.note).toContain('whole suite');
   });
   it('does not treat a new instruction at an anchor boundary as part of the anchor', () => {
     expect(
@@ -61,14 +61,14 @@ describe('prompt quote mapping', () => {
     ).toBe(true);
     expect(map(old.replace('$40', '$45'), [{ ...anchor, changes: [] }]).changes[0]?.global).toBe(true);
   });
-  it('keeps a no-change version transition conservative and supports overlapping anchors', () => {
+  it('keeps a no-change version transition conservative and rejects overlapping anchors', () => {
     expect(map(old).changes[0]?.global).toBe(true);
     expect(
       map(old.replace('$40', '$45'), [
         ...anchors,
         { ...anchor, entry: 'dimensions[0]', changes: [{ kind: 'stage', id: 'offer' }] },
-      ]).changes,
-    ).toHaveLength(2);
+      ]).changes[0]?.global,
+    ).toBe(true);
   });
 });
 

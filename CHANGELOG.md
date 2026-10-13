@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+- Prompt quote mapping checks every normalized diff region on both sides; boundary edits, overlapping or ambiguous anchors select the whole suite and explain the rule.
+
 * `radius auto --prompt <old> <new> --map <approved>` maps changed prompt evidence quotes to dependencies. `radius --explain` shows the anchors and affected blocks; unanchored or uncertain edits select the whole suite.
 
 * Opt-in answer audit in the judges package: `judgeAnswerAudit`, or `assessment: { kind: 'answer-audit' }`, grades a submission against a criterion and an optional trusted reference. The request is role-separated JSON; the model settles each condition with a quote before its status and code computes the outcome. It has its own prompt fingerprint; default and legacy prompts and cassette keys are unchanged.

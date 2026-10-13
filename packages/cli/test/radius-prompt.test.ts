@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, expect, it } from 'vitest';
+import { parse } from 'yaml';
 import { main } from '../src/index';
 
 const root = fileURLToPath(new URL('../../..', import.meta.url));
@@ -29,11 +30,25 @@ it('maps the Acme offer quote, persists the anchor, and explains the selected bl
   const old = join(root, 'examples/acme/src/policy.ts');
   const text = await readFile(old, 'utf8');
   const next = join(dir, 'new.ts');
-  await writeFile(
-    next,
-    text.replace('for $${plan.monthly_usd} a month', 'for $${plan.monthly_usd + 1} a month'),
-  );
+  await writeFile(next, text.replace('plan.monthly_usd}', 'plan.monthly_usd + 1}'));
   const manifest = join(dir, 'change.yaml');
+  const fullMap = 'examples/acme/map/approved.yaml';
+  const approved = parse(await readFile(join(root, fullMap), 'utf8'));
+  const quoteMap = join(dir, 'quotes.json');
+  await writeFile(
+    quoteMap,
+    JSON.stringify({
+      ...approved,
+      dimensions: [],
+      constraints: [],
+      phrases: [],
+      relations: [
+        approved.relations.find(
+          (relation: { kind: string; to?: string }) => relation.kind === 'states' && relation.to === 'offer',
+        ),
+      ],
+    }),
+  );
   const made = await cli([
     'radius',
     'auto',
@@ -41,7 +56,9 @@ it('maps the Acme offer quote, persists the anchor, and explains the selected bl
     old,
     next,
     '--map',
-    'examples/acme/map/approved.yaml',
+    quoteMap,
+    '--source',
+    '../src/policy.ts',
     '--from-version',
     'acme-v1',
     '--to-version',
@@ -73,7 +90,9 @@ it('maps the Acme offer quote, persists the anchor, and explains the selected bl
         old,
         next,
         '--map',
-        'examples/acme/map/approved.yaml',
+        quoteMap,
+        '--source',
+        '../src/policy.ts',
         '--out',
         manifest,
       ])
@@ -81,5 +100,11 @@ it('maps the Acme offer quote, persists the anchor, and explains the selected bl
   ).toBe(0);
   const all = await cli(['radius', 'examples/acme/gated/specs', '--change', manifest, '--explain']);
   expect(all.code).toBe(1);
-  expect(all.out).toContain('no quote matched');
+  expect(all.out).toContain('region');
+  expect(all.out).toContain('whole suite');
+  // The full Acme map contains overlapping and repeated evidence: it must conservatively select all.
+  await cli(['radius', 'auto', '--prompt', old, next, '--map', fullMap, '--out', manifest]);
+  const ambiguous = await cli(['radius', 'examples/acme/gated/specs', '--change', manifest, '--explain']);
+  expect(ambiguous.code).toBe(1);
+  expect(ambiguous.out).toMatch(/ambiguous|overlapping/);
 });
