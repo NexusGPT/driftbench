@@ -80,7 +80,7 @@ describe('the fake on an ask it holds no stream for: acts read from the estate',
   });
 
   it('plays a recorded guard row only while the copy still runs that guard', async () => {
-    const spec = 'guard_positive/estate.pairwise.147.yaml';
+    const spec = 'guard_positive/estate.pairwise.471.yaml';
     expect(await pass(FIXTURE, spec)).toBe(true);
     expect(await pass(await mutant('guard.settings.pretooluse-bash-guard-block-force-push'), spec)).toBe(
       false,
