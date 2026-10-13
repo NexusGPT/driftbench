@@ -6,7 +6,7 @@
   "source_replacements": {
     "comparisons/ledger-hard/extended-run.py": {
       "original": "b4c3892eea5987e9e442e05ef2ebc0d00e4f4abe3d66d5549c09f9bc8278d49c",
-      "runtime": "ba75df8b640f646d766444a0c0fdb56134a11bf40f7d1ffaaec345e65067e516"
+      "runtime": "879891e5f9e0b0fb79cee17a5f1eb8b6a84d2d6719635b0c8ce5ff5eb6c3a531"
     },
     "comparisons/ledger-hard/extended-score.py": {
       "original": "1bea532d01f834ca8ef604e283c18c5f7cb0c837cd4f72c64f1b1525df3c5d6c",
@@ -38,6 +38,11 @@
       },
       "changed": "2026-10-13T14:10:15.979953+00:00",
       "reason": "Owner-approved CLI zero-token API-error classification correction and Sol connection circuit"
+    },
+    {
+      "prior_amendment_sha256": "da0671f5f3994c8c9286fe9ef0c7bf235a2f14f1e63181badadc4fea37d5253e",
+      "changed": "2026-10-13T14:11:48.543454+00:00",
+      "reason": "A recorded exhausted no-response attempt has no model identity. Resume integrity checks apply only to provider answers; exhausted requests stay recorded and are never re-asked."
     }
   ],
   "transport_amendments": {

@@ -243,7 +243,7 @@ def run(cell,pilot=False,cache_pilot=False):
         else:
             assert len(old)>=5,'Run five-call pilot first'
             gate=forecast(dest);assert gate['projected_usd']<=cap,'Projected cost exceeds cell cap; owner decision required'
-            assert all(x.get('model_match') and not x.get('integrity_stop') for x in old)
+            assert all(x.get('model_match') and not x.get('integrity_stop') for x in old if x.get('provider_response'))
             if cell=='sonnet-5-5' and (dest/'budget-amendment.json').exists():
                 choice=json.loads((dest/'cache-choice.json').read_text())
                 assert subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/sonnet-5-5/cache-choice.json'],cwd=ROOT)==(dest/'cache-choice.json').read_bytes()
