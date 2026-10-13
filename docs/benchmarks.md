@@ -138,4 +138,4 @@ The [CI workflow](../.github/workflows/ci.yml) runs the public API check and `be
 
 The full flag and exit-code reference is under [`driftbench bench`](reference/cli.md#driftbench-bench).
 
-Gemini metering counts candidate and thinking tokens, and discounts cached input. The introductory rates expire after December 31, 2026; recording then refuses until the rates are updated. See [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).
+Gemini metering counts candidate and thinking tokens, and discounts cached input. Reservations allow the [model's full 65,536-token output ceiling](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash), so a call requires that much budget headroom even though only measured usage is charged. The introductory rates expire after December 31, 2026; recording then refuses until the rates are updated. See [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).

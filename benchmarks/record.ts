@@ -177,11 +177,14 @@ export function makeRecordingClient(
       if (model === 'gemini-3.8-flash' && Date.now() >= Date.parse('2027-01-01T00:00:00Z'))
         throw new Error('Gemini introductory pricing expired; update the metered rates before recording');
       const prompt = buildPrompt(request);
-      // One UTF-8 byte per token is an intentionally loose upper bound, including protocol/schema overhead.
+      // One UTF-8 byte per token bounds input, including protocol/schema overhead.
+      // Reserve Gemini's full model output ceiling because thinking may overshoot the requested cap.
+      // https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash
       const reservation =
         model === 'haiku'
           ? 0.02
-          : ((Buffer.byteLength(prompt.system + prompt.user) + 8192) * rates.input + 1024 * rates.output) /
+          : ((Buffer.byteLength(prompt.system + prompt.user) + 8192) * rates.input +
+              (model === 'gemini-3.8-flash' ? 65_536 : 1024) * rates.output) /
             1_000_000;
       const token = budget.reserve(reservation);
       const data: { cost?: number; model?: string; input?: number; output?: number } = {};

@@ -148,3 +148,21 @@ it('selects medium reasoning for Luna through the public client', async () => {
   expect(bodies[0]?.reasoning_effort).toBe('medium');
   expect(JSON.parse(client.settings ?? '{}').reasoning).toBe('medium');
 });
+
+it('reserves the Gemini model output ceiling before starting a billed call', async () => {
+  const fetch = vi.fn();
+  const client = makeRecordingClient(
+    'gemini-3.8-flash',
+    new SpendBudget(0.1),
+    { GEMINI_API_KEY: 'fictional' },
+    () => {},
+    { fetch },
+  );
+  await expect(
+    client.judge({
+      criterion: { name: 'c', rubric: 'Reply politely.' },
+      transcript: [{ role: 'agent', text: 'Hello.' }],
+    }),
+  ).rejects.toThrow('spend cap reached');
+  expect(fetch).not.toHaveBeenCalled();
+});
