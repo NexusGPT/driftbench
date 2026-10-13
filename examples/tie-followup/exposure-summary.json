@@ -1,0 +1,49 @@
+{
+  "manifestSha256": "270eaf22a73176935eeefb013dd32431d142ea6051fe4b15efcf8c89c39f9aef",
+  "refCheckSha256": "8886d94744b582808d54720c7d19fdace09c8b07da14777cb2078ace29c05477",
+  "filesChecked": 5191,
+  "heldoutMatches": 0,
+  "result": "PASS",
+  "sourceHeads": {
+    "ledger-jb": "283affc64c1082e9899668af860d82a05ab3e1df",
+    "ledger-mm": "c756ac5c6f36a67501aadbfb6281f2d31d29a5f6",
+    "ledger-wp": "cd00cb04e15016cf9277b5ee1ccd4bfad1bb73c4"
+  },
+  "system1Commit": "fd18f00419a9c00ed3ba4fa86a48ab7c4bde5322",
+  "system1SealedCounts": {
+    "jb": 279,
+    "mm": 894,
+    "wp": 517
+  },
+  "devCounts": {
+    "dev-jb": 30,
+    "dev-mm": 20,
+    "dev-wp": 30
+  },
+  "freshCounts": {
+    "heldout-mm": 92,
+    "heldout-wp": 80,
+    "heldout-wp-haiku": 50
+  },
+  "writingNovelty": "Response pair identity, not question novelty against System1. Requiring System1 request novelty leaves zero.",
+  "populationCounts": {
+    "mm": 4981,
+    "mmEligible": 318,
+    "mmEligibleBySubset": {
+      "reasoning": 158,
+      "language mixing": 70,
+      "chat": 12,
+      "linguistics": 29,
+      "safety": 49
+    },
+    "wp": 1800,
+    "wpEligible": 233,
+    "wpExclusionCountsOverlap": {
+      "recorded_or_sealed_id": 1564,
+      "non_strict_preference": 3,
+      "previous_request_or_question": 1010,
+      "exact_longjudge_pair": 263
+    }
+  },
+  "scope": "Read-only audit. All JSON/JSONL files beneath each remote ledger branch owning research directory inspected, including hard and rubric paths omitted by original root glob. Primary branch exposed DEV matches are expected. Frozen files unchanged."
+}

@@ -17,6 +17,7 @@ out = ['# Pair ledger tie follow-up results', '',
        'Code: `a90c9d8b60d5bf73c73bd5d5c18b33c80c4b60ec`. Draft PR: https://github.com/achammah/driftbench/pull/294.', '',
        '## Development selection', '',
        'Equal-weight average over the nine model-by-benchmark cells chooses the variant. Exact selection ties prefer direct.', '',
+       'The [full dev tie accounting](DEV-DETAIL.md) reports 14 final ties: direct resolves 5 correctly, reasoning 6. Both beat the no-follow-up mean of 71.11%; neither beats promptfoo at 73.43%. The selected edge is one net pair in 270 equal-cell scoring units, from 240 actual model-pair evaluations.', '',
        '| Model / benchmark | Pairs | Baseline | Direct | With reasoning | Promptfoo |',
        '|---|---:|---:|---:|---:|---:|']
 for key, direct in dev['tables']['direct'].items():
@@ -27,7 +28,7 @@ for key, direct in dev['tables']['direct'].items():
 out += ['', 'Selection means: ' + ', '.join(f'{k} {pct(v)}' for k,v in dev['means'].items()) + '.', '',
         '## Fresh confirmation', '',
         'MM scores macro-average the five subsets equally. Writing scores exact matches across both directional games. Ledger reconciles its reads into one decision used for both games.',
-        'Wins, losses and ties compare the paired scores with promptfoo on unique response pairs. Two-sided exact sign tests exclude score ties.', '',
+        'Wins, losses and ties compare the paired scores with promptfoo on unique response pairs. Two-sided exact sign tests exclude score ties. P-values are unadjusted across the seven confirmation cells; no family-wise superiority claim is made.', '',
         '| Model / benchmark | Pairs | Baseline | Follow-up | Promptfoo | Wins / losses / ties | Exact p | Changed better / worse vs baseline |',
         '|---|---:|---:|---:|---:|---|---:|---|']
 for key, row in fresh.items():
@@ -55,7 +56,8 @@ out += ['', '- JudgeBench has no fresh held-out pool; no sealed JudgeBench test 
         '- Dev and fresh pairs are disjoint from each other and the enumerated ledger and System1 seals. Absence from unrecorded calls or model training cannot be proved.',
         '- Baseline calls are shared between variants. The default remains off. The new rule never branches on model identity.',
         '- MM retains the frozen computation port. No harm-policy seat is installed for any model in this experiment; safety is reported separately.',
-        '- No claim of equivalence follows from a nonsignificant result. No held-out result changes the selected variant.', '',
+        '- No claim of equivalence follows from a nonsignificant result. No held-out result changes the selected variant.',
+        '- Returned unparsed, refused or truncated judgments count as grader errors at zero; missing transport answers are recovered without re-sending returned answers.', '',
         '## Cost and execution', '',
         f'- Provider-reported API and CLI cost: USD {spent["spentUsd"]:.6f}. Unresolved reservations: USD {spent["heldUsd"]:.6f}.',
         f'- Total charged plus held: USD {spent["committedUsd"]:.6f} of USD 40. Claude calls: {spent["claudeCalls"]} of 400.',

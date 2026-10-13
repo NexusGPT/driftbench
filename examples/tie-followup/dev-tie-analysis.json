@@ -1,0 +1,65 @@
+{
+  "gpt-6.1-sol/jb": {
+    "ties": 0,
+    "directCorrect": 0,
+    "reasoningCorrect": 0,
+    "directResolved": 0,
+    "reasoningResolved": 0
+  },
+  "gpt-6.1-sol/mm": {
+    "ties": 0,
+    "directCorrect": 0,
+    "reasoningCorrect": 0,
+    "directResolved": 0,
+    "reasoningResolved": 0
+  },
+  "gpt-6.1-sol/wp": {
+    "ties": 6,
+    "directCorrect": 2,
+    "reasoningCorrect": 2,
+    "directResolved": 6,
+    "reasoningResolved": 6
+  },
+  "gpt-6-luna/jb": {
+    "ties": 2,
+    "directCorrect": 2,
+    "reasoningCorrect": 1,
+    "directResolved": 2,
+    "reasoningResolved": 2
+  },
+  "gpt-6-luna/mm": {
+    "ties": 0,
+    "directCorrect": 0,
+    "reasoningCorrect": 0,
+    "directResolved": 0,
+    "reasoningResolved": 0
+  },
+  "gpt-6-luna/wp": {
+    "ties": 0,
+    "directCorrect": 0,
+    "reasoningCorrect": 0,
+    "directResolved": 0,
+    "reasoningResolved": 0
+  },
+  "gemini-3.5-flash-lite/jb": {
+    "ties": 4,
+    "directCorrect": 1,
+    "reasoningCorrect": 2,
+    "directResolved": 4,
+    "reasoningResolved": 4
+  },
+  "gemini-3.5-flash-lite/mm": {
+    "ties": 0,
+    "directCorrect": 0,
+    "reasoningCorrect": 0,
+    "directResolved": 0,
+    "reasoningResolved": 0
+  },
+  "gemini-3.5-flash-lite/wp": {
+    "ties": 2,
+    "directCorrect": 0,
+    "reasoningCorrect": 1,
+    "directResolved": 2,
+    "reasoningResolved": 2
+  }
+}
