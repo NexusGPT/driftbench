@@ -56,6 +56,8 @@ function fromProbability(
  * this repository until a live call: the shape follows the provider's published request format.
  */
 export function createJevJudge(options: System1Options = {}): JudgeClient {
+  if (options.reasoning !== undefined)
+    throw new JudgeError('config', 'reasoning is not supported by the Jev client');
   const env = options.env ?? process.env;
   const route = env.JEV_ROUTE?.trim();
   if (route !== undefined && route !== '' && route !== 'gateway' && route !== 'typesafe')
@@ -123,6 +125,8 @@ export function createJevJudge(options: System1Options = {}): JudgeClient {
  * Its family is openai. UNVERIFIED in this repository until a live call.
  */
 export function createOpenAiDecisionsJudge(options: System1Options = {}): JudgeClient {
+  if (options.reasoning !== undefined)
+    throw new JudgeError('config', 'reasoning is not supported by the OpenAI Decisions client');
   const env = options.env ?? process.env;
   const key = requireEnv(env, 'OPENAI_API_KEY');
   const model = env.OPENAI_DECISIONS_MODEL?.trim() || options.model;
