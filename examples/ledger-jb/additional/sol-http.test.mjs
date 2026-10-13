@@ -15,7 +15,7 @@ test('connection failure retains nested cause, explicitly missing body and ident
 test('body disconnect retains partial bytes and request id without claiming zero cost',async()=>{
   let count=0;const stream=new ReadableStream({pull(c){if(!count++)c.enqueue(new TextEncoder().encode('{"id":"resp_partial",'));else c.error(Object.assign(new Error('body disconnected'),{code:'ECONNRESET'}));}});
   try{await postOne('https://example.invalid',headers,{}, {fetchFn:async()=>new Response(stream,{status:200,headers:{'x-request-id':'req_partial'}})});assert.fail('should reject');}
-  catch(error){const r=JSON.parse(error.raw);assert.equal(r.providerBody,'{"id":"resp_partial",');assert.equal(r.bodyComplete,false);assert.equal(r.requestId,'req_partial');assert.equal(r.networkCause.code,'ECONNRESET');assert.equal(error.costUsd,undefined);}
+  catch(error){const r=JSON.parse(error.raw);assert.equal(r.providerBody,'{"id":"resp_partial",');assert.equal(r.bodyComplete,false);assert.equal(r.requestId,'req_partial');assert.equal(r.responseId,'resp_partial');assert.equal(r.networkCause.code,'ECONNRESET');assert.equal(error.costUsd,undefined);}
 });
 test('any echoed secret is removed from error receipts',async()=>{
   try{await postOne('https://example.invalid',headers,{}, {fetchFn:async()=>new Response('test-secret',{status:503})});assert.fail('should reject');}

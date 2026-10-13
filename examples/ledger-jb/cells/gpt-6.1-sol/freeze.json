@@ -1,6 +1,6 @@
 {
-  "version": 4,
-  "createdAt": "2026-10-13T15:04:45.808720+00:00",
+  "version": 5,
+  "createdAt": "2026-10-13T15:22:35.212898+00:00",
   "model": "gpt-6.1-sol",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
@@ -200,12 +200,12 @@
     "examples/ledger-jb/additional/recovery-transport.mjs": "8976ba6c57414d7c10e860adbab7231c427c34c100ae81717f72534296d6d914",
     "examples/ledger-jb/additional/run-recovery.mjs": "ccfb24be39ca40beebbda688a9bfeb850322f2ba59885b6f13f551e8b9fac99e",
     "examples/ledger-jb/additional/recovery.test.mjs": "759116ce8dcb8a3f8a3bc3d0debdb28fec362ebff663f38c022f067efcfa0509",
-    "examples/ledger-jb/additional/sol-http.mjs": "00c8510803e3df025715779a9118a1d3144b6d1e457f2c01c455b7fb7bbbd77c",
+    "examples/ledger-jb/additional/sol-http.mjs": "e51e7a65049cc93eed700a25552bcdbd6a30a06d62c251a24eafc723a72be071",
     "examples/ledger-jb/additional/sol-transport.mjs": "a2c90dcfbdb8a20145953ea00b6cbb0e812189a7b396d4ac25bbee07d36137e0",
-    "examples/ledger-jb/additional/sol-http.test.mjs": "215b1b70d16f54861fc4e2866392b05c5be65238b9e5720a5a87127bf034ad50",
+    "examples/ledger-jb/additional/sol-http.test.mjs": "b83e4fb70eca8f2bab5b25ab76e11ea37989c00e26737752812da4009509a5b6",
     "examples/ledger-jb/additional/run-sol-recovery.mjs": "dd50360dabe73e209c66361f9f6b5c26fb07a5f5ba4998a1b44a7c2b56b0019e"
   },
-  "priorCellFreezeSha256": "1352f1308f275a3dbe1c7e992fef343011215262d9a776985e8d4c2a844ef8e8",
+  "priorCellFreezeSha256": "bf7ad7712291baba6c324644273936f294b4671acc4d66948bdfd69c265077b6",
   "networkRecovery": {
     "authorization": "Owner network pause: ten consecutive healthy provider probes 30 seconds apart; concurrency two, one model cell at a time; three consecutive connection failures pause ten minutes and repeat the gate; recover no-answer requests with unlimited recovery cycles; never resend a model answer; caps unchanged; no final score with transport-missing items.",
     "probe": {
@@ -230,7 +230,8 @@
     "scoreRelease": "All sealed pairs present and no transport-missing required requests.",
     "budgetAuthorization": "Owner raises gpt-6.1-sol to 35 USD including existing holds, accepts them as conservative reserves, and requires failed HTTP receipt capture plus a test before any new paid call.",
     "httpReceipt": "Each failed attempt retains nested network cause, complete or partial provider body, request id and response id where received. Missing provider fields remain explicit null. Authentication headers and key values are never retained. Partial model output is never transport-retried.",
-    "partialOutput": "A body disconnect after any model output stays on the returned-answer path; it cannot receive a transport retry. Malformed model JSON may still receive the unchanged core single schema re-ask."
+    "partialOutput": "A body disconnect after any model output stays on the returned-answer path; it cannot receive a transport retry. Malformed model JSON may still receive the unchanged core single schema re-ask.",
+    "partialResponseId": "Preserve a response ID already received in a truncated body, even if the full JSON cannot be parsed; covered by the body-disconnect test."
   },
   "runner": "examples/ledger-jb/additional/run-sol-recovery.mjs"
 }

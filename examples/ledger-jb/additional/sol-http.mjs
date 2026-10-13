@@ -7,7 +7,7 @@ export async function postOne(url, headers, body, {timeoutMs=300000,fetchFn=fetc
   let response, raw='', complete=false;
   const receipt=cause=>({httpStatus:response?.status ?? null,
     requestId:response?.headers.get('x-request-id') ?? response?.headers.get('request-id') ?? null,
-    responseId:(()=>{try{return JSON.parse(raw).id ?? null;}catch{return null;}})(),
+    responseId:(()=>{try{return JSON.parse(raw).id ?? null;}catch{return raw.match(/"id"\s*:\s*"(resp_[^"\\]*)"/)?.[1] ?? response?.headers.get('x-response-id') ?? null;}})(),
     providerBody:response?scrub(raw):null,bodyComplete:complete,
     networkCause:cause?{name:cause.name ?? null,message:scrub(cause.message ?? String(cause)),
       code:cause.code ?? null,cause:cause.cause?{name:cause.cause.name ?? null,code:cause.cause.code ?? null,message:scrub(cause.cause.message ?? '')}:null}:null});
