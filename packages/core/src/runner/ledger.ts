@@ -62,12 +62,21 @@ export function ledgerContradictions(
     if (typeof value !== 'string') continue;
     const kind = kindOf(value);
     if (!kind) continue;
-    const others = saidValues(kind, userMessages).filter((other) => !sameValue(other, value));
-    if (others.length === 0) continue;
     const stated = valuesOf(kind, observed.text);
     if (stated.length === 0) continue;
+    if (stated.some((item) => sameValue(item, value))) {
+      // A reply retaining the current value cannot contradict it. Only the existence of an older
+      // alternative determines whether this fact was checked, so stop at the first such value.
+      for (const other of saidValues(kind, userMessages)) {
+        if (sameValue(other, value)) continue;
+        checked.add(fact);
+        break;
+      }
+      continue;
+    }
+    const others = [...saidValues(kind, userMessages)].filter((other) => !sameValue(other, value));
+    if (others.length === 0) continue;
     checked.add(fact);
-    if (stated.some((item) => sameValue(item, value))) continue;
     const taken = stated.find((item) => others.some((other) => sameValue(other, item)));
     if (taken !== undefined) {
       contradictions.push({ fact, source: 'reply', ledger: value, observed: taken, where: 'reply' });
@@ -146,12 +155,10 @@ function kindOf(value: string): 'email' | 'phone' | undefined {
 const saidOf = new WeakMap<Message, { email?: string[]; phone?: string[] }>();
 
 /**
- * The values of a kind the user messages name, in order. A message is read once for the life of the message
- * (a newline ends a value, so reading the messages one by one finds what reading them joined finds), so the
- * cost of a block does not grow with the conversation before it.
+ * Yield contact values in message order, parsing each message once per kind. Callers can stop as soon
+ * as they have the evidence they need. A newline ends a value, so separate messages need no joining.
  */
-function saidValues(kind: 'email' | 'phone', messages: readonly Message[]): string[] {
-  const out: string[] = [];
+function* saidValues(kind: 'email' | 'phone', messages: readonly Message[]): Generator<string> {
   for (const message of messages) {
     let read = saidOf.get(message);
     if (!read) {
@@ -162,9 +169,8 @@ function saidValues(kind: 'email' | 'phone', messages: readonly Message[]): stri
       kind,
       typeof message.content === 'string' ? message.content : String(message.content ?? ''),
     );
-    out.push(...read[kind]);
+    yield* read[kind];
   }
-  return out;
 }
 
 function valuesOf(kind: 'email' | 'phone', text: string): string[] {

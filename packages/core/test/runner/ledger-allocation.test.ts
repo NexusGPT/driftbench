@@ -39,3 +39,81 @@ describe('ledger contact comparison cost', () => {
     }
   });
 });
+
+describe('ledger history reads', () => {
+  it.each([
+    { history: [], reply: 'current@example.test', checked: false, stale: undefined },
+    { history: ['current@example.test'], reply: 'current@example.test', checked: false, stale: undefined },
+    { history: ['old@example.test'], reply: 'unknown@example.test', checked: true, stale: undefined },
+    {
+      history: ['old@example.test'],
+      reply: 'old@example.test CURRENT@example.test',
+      checked: true,
+      stale: undefined,
+    },
+    {
+      history: ['first@example.test', 'second@example.test'],
+      reply: 'second@example.test first@example.test',
+      checked: true,
+      stale: 'second@example.test',
+    },
+  ])('preserves contact evidence for $reply with $history', ({ history, reply, checked, stale }) => {
+    const result = ledgerContradictions(
+      { email: 'current@example.test' },
+      { text: reply, toolCalls: [], segments: [], cost: {}, latencyMs: 0 },
+      history.map((content) => ({ role: 'user' as const, content })),
+    );
+    expect(result.checked).toEqual(checked ? ['email'] : []);
+    expect(result.contradictions).toEqual(
+      stale === undefined
+        ? []
+        : [
+            {
+              fact: 'email',
+              source: 'reply',
+              ledger: 'current@example.test',
+              observed: stale,
+              where: 'reply',
+            },
+          ],
+    );
+  });
+
+  it.each([40, 400])('does not scan %i old messages when the reply has no contact value', (length) => {
+    let reads = 0;
+    const messages = Array.from({ length }, (_, index) => ({
+      role: 'user' as const,
+      get content() {
+        reads += 1;
+        return `old${index}@example.test`;
+      },
+    }));
+    expect(
+      ledgerContradictions(
+        { email: 'current@example.test' },
+        { text: 'Acknowledged.', toolCalls: [], segments: [], cost: {}, latencyMs: 0 },
+        messages,
+      ),
+    ).toEqual({ checked: [], contradictions: [] });
+    expect(reads).toBe(0);
+  });
+
+  it.each([40, 400])('stops after proving an alternative exists in %i messages', (length) => {
+    let reads = 0;
+    const messages = Array.from({ length }, (_, index) => ({
+      role: 'user' as const,
+      get content() {
+        reads += 1;
+        return `old${index}@example.test`;
+      },
+    }));
+    expect(
+      ledgerContradictions(
+        { email: 'current@example.test' },
+        { text: 'current@example.test', toolCalls: [], segments: [], cost: {}, latencyMs: 0 },
+        messages,
+      ),
+    ).toEqual({ checked: ['email'], contradictions: [] });
+    expect(reads).toBeLessThanOrEqual(2);
+  });
+});
