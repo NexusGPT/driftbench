@@ -1,0 +1,50 @@
+{
+  "base": {
+    "pid": 10383,
+    "args": [
+      "/Users/assem/Documents/GitHub/driftbench/node_modules/.bin/tsx",
+      "--tsconfig",
+      "research/astra-mm/tsconfig.json",
+      "research/astra-mm/base-resume.mts",
+      "research/astra-mm/data/test.json",
+      "research/astra-mm/data/test-base.jsonl",
+      "research/astra-mm/data/test-haiku.jsonl",
+      "8",
+      "2026-10-14T00:00:00Z"
+    ],
+    "started": "2026-10-13T07:42:38.026871+00:00"
+  },
+  "panel": {
+    "pid": 10384,
+    "args": [
+      "python3",
+      "-u",
+      "research/astra-mm/run_cascade.py",
+      "test",
+      "1",
+      "--non-gemini"
+    ],
+    "started": "2026-10-13T07:42:38.028432+00:00"
+  },
+  "gemini": {
+    "pid": 10385,
+    "args": [
+      "python3",
+      "-u",
+      "research/astra-mm/run_cascade.py",
+      "test",
+      "2",
+      "--gemini-only"
+    ],
+    "started": "2026-10-13T07:42:38.029493+00:00"
+  },
+  "watch": {
+    "pid": 10386,
+    "args": [
+      "python3",
+      "-u",
+      "research/astra-mm/watch_test.py"
+    ],
+    "started": "2026-10-13T07:42:38.031224+00:00"
+  }
+}

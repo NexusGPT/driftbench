@@ -1,5 +1,5 @@
 {
-  "oneSecondSamples": 250,
+  "oneSecondSamples": 4200,
   "maximumObservedSlots": 4,
   "maximumObservedGeminiSlots": 2,
   "mechanism": "Four atomic O_EXCL slot files, Gemini thread pool limited to two."
