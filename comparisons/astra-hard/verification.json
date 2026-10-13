@@ -1,0 +1,18 @@
+{
+  "verified_at": "2026-10-13T04:00:33.981682+00:00",
+  "preregistration_commit": "9c1c2ff8783b02d7dffa1b9dcd9b638405f6dce4",
+  "preregistration_committed_at": "2026-10-13T05:30:08+02:00",
+  "first_call": "2026-10-13T03:30:16.210889+00:00",
+  "last_call": "2026-10-13T04:00:16.120330+00:00",
+  "unique_calls": 768,
+  "max_concurrent_calls_upper_bound": 2,
+  "frozen_files_verified": 117,
+  "resolved_models": [
+    "claude-haiku-5-5"
+  ],
+  "unknown_costs": 0,
+  "failed_calls": 0,
+  "retries": 0,
+  "total_cost_usd": 0.35872970000000004,
+  "old_cases_and_production_unchanged": true
+}
