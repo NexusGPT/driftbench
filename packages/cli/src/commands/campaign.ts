@@ -16,11 +16,14 @@ import {
   type CompoundingIndex,
   type CostLine,
   type CostUnit,
+  campaignRadius,
   canonicalJson,
+  carryRuns,
   compoundingIndex,
   contentHash,
   type DriftClass,
   type LoadedSpec,
+  loadChangeManifest,
   loadSpecs,
   type MinimumDetectableEffect,
   mdeLine,
@@ -29,10 +32,13 @@ import {
   type PlanOptions,
   parseCriterionRef,
   planCampaign,
+  planRadiusCampaign,
+  type RadiusPlan,
   type RegistrySource,
   type RetryOptions,
   RunMode,
   type RunResult,
+  radiusOf,
   runCampaign,
   runsByCell,
   type Spec,
@@ -251,6 +257,8 @@ type RunCommandOptions = {
   repeats: string;
   campaign?: string;
   agentVersion?: string;
+  change?: string;
+  from?: string;
   store?: string;
   cache: boolean;
   concurrency: string;
@@ -325,6 +333,11 @@ export function registerCampaignCommands(
       '--agent-version <label>',
       'the version of the agent under test, written as the variant of every target that names none',
     )
+    .option(
+      '--change <manifest>',
+      'run only the blast radius of this change manifest and carry the stored runs of the other cells; with --from',
+    )
+    .option('--from <campaign>', 'with --change: the stored campaign the carried runs are read from')
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
@@ -610,6 +623,16 @@ export async function campaignRunCommand(
   const pool = parsePool(options, io);
   const withCommand = processDeps(deps, options.processCommand, io);
   if (!shape || !pool || !withCommand) return 2;
+  if (options.from !== undefined && options.change === undefined) {
+    io.err('--from names the campaign a radius run carries from: it goes with --change <manifest>.\n');
+    return 2;
+  }
+  if (options.change !== undefined && (options.from === undefined || options.store === undefined)) {
+    io.err(
+      '--change runs a blast radius and carries the rest: it goes with --from <campaign> and --store <file>.\n',
+    );
+    return 2;
+  }
   deps = withCommand;
   const scope = openScope();
   try {
@@ -677,6 +700,12 @@ export async function campaignRunCommand(
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
       };
+      const radius =
+        options.change === undefined
+          ? undefined
+          : await radiusPlan(options, campaign, loaded, store, deps, io);
+      if (radius === null) return 2;
+      if (radius) campaign.radius = radius.record;
       try {
         await store.putCampaign(campaign);
       } catch (cause) {
@@ -689,7 +718,9 @@ export async function campaignRunCommand(
         }
         throw cause;
       }
+      if (radius) await carryRuns(store, campaignId, radius.plan.carried);
       return await executeCampaign(campaign, loaded, adapters, store, deps, io, {
+        ...(radius ? { radiusNote: radius.note } : {}),
         cache: options.cache,
         ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
         json: options.json === true,
@@ -886,6 +917,8 @@ async function executeCampaign(
     concurrency: number;
     budgetUsd?: number;
     retry?: RetryOptions;
+    /** The line a radius campaign prints before its cells: what runs and what is carried. */
+    radiusNote?: string;
   },
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
@@ -899,6 +932,7 @@ async function executeCampaign(
     // Beside the list of checks: the criteria no check of this campaign will judge.
     const unjudged = checks.includes(JUDGE_CHECK) ? undefined : notJudgedNote(specs.values());
     if (unjudged !== undefined) io.out(unjudged);
+    if (flags.radiusNote !== undefined) io.out(flags.radiusNote);
   }
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
@@ -921,12 +955,79 @@ async function executeCampaign(
     ...(flags.json ? {} : { onCell: (outcome: CellOutcome) => io.out(cellLine(outcome)) }),
   });
   if (flags.json) {
-    io.out(`${JSON.stringify(report(campaign.campaignId, outcomes, flags.kept, checks), null, 2)}\n`);
+    const document = report(campaign.campaignId, outcomes, flags.kept, checks);
+    io.out(
+      `${JSON.stringify(campaign.radius ? { ...document, radius: { ...campaign.radius, blocks: radiusBlocks(outcomes) } } : document, null, 2)}\n`,
+    );
   } else {
     io.out(`${summaryLine(outcomes)}\n`);
+    if (campaign.radius) io.out(radiusSummary(campaign.radius, outcomes));
     if (!flags.kept) io.out('The runs are not kept: pass --store <file> to keep them.\n');
   }
   return outcomes.every((outcome) => outcome.state === 'pass') ? 0 : 1;
+}
+
+/**
+ * `--change` with `--from`: the blast radius of the manifest over the campaign's cells, and which cells
+ * outside it carry their stored run. Null on bad input, with the reason printed.
+ */
+async function radiusPlan(
+  options: RunCommandOptions,
+  campaign: Campaign,
+  loaded: readonly LoadedSpec[],
+  store: Store,
+  deps: CampaignDeps,
+  io: Io,
+): Promise<{ plan: RadiusPlan; record: NonNullable<Campaign['radius']>; note: string } | null> {
+  if (options.change === undefined || options.from === undefined || options.store === undefined) {
+    io.err(
+      '--change runs a blast radius and carries the rest: it goes with --from <campaign> and --store <file>.\n',
+    );
+    return null;
+  }
+  const manifest = await loadChangeManifest(resolve(io.cwd, options.change));
+  if (!manifest.ok) {
+    io.err(`✗ ${options.change}\n`);
+    for (const error of manifest.errors) io.err(`    ${error}\n`);
+    io.err('The change manifest is invalid, so nothing was run.\n');
+    return null;
+  }
+  const baseline = await store.getCampaign(options.from);
+  if (!baseline) {
+    io.err(
+      `No campaign ${options.from} in ${options.store}: --from names the stored campaign to carry from.\n`,
+    );
+    return null;
+  }
+  const cells = planOf(campaign, loaded).cells;
+  const radius = radiusOf(
+    loaded.map((entry) => ({ spec: entry.spec, hash: entry.hash })),
+    manifest.manifest,
+    { modes: campaign.modes },
+  );
+  const plan = planRadiusCampaign(
+    cells,
+    radius,
+    manifest.manifest,
+    { campaignId: baseline.campaignId, runs: await store.listRuns({ campaignId: baseline.campaignId }) },
+    { now: deps.now() },
+  );
+  const record = campaignRadius(plan, radius, manifest.manifest, manifest.hash, baseline.campaignId);
+  const changes = record.changes.length === 0 ? 'no change' : record.changes.join(', ');
+  const lines = [
+    `Blast radius of ${record.fromVersion} to ${record.toVersion} (manifest ${record.manifest}): ${changes}.`,
+  ];
+  if (plan.nothing !== undefined) {
+    lines.push(`Nothing is carried, every cell runs: ${plan.nothing}.`);
+  } else {
+    lines.push(
+      `${plan.inside.length} of ${count(cells.length, 'cell')} in the radius. ${count(plan.fresh.length, 'cell')} run fresh, ${plan.carried.length} carried from ${baseline.campaignId}.`,
+    );
+    for (const entry of record.refused) {
+      lines.push(`  ${count(entry.cells, 'cell')} outside the radius run fresh: ${entry.reason}.`);
+    }
+  }
+  return { plan, record, note: `${lines.join('\n')}\n` };
 }
 
 /** The name of the check a council of @agent-nexus/driftbench-judges adds to the checks. */
@@ -1371,8 +1472,13 @@ function cellLine(outcome: CellOutcome): string {
     `repeat ${cell.repeat}`,
     ...(cell.perturbationId === undefined ? [] : [cell.perturbationId]),
   ].join(' · ');
+  const carried = run?.carried;
   const notes = [
-    ...(outcome.reused ? ['reused'] : []),
+    ...(carried
+      ? [`carried from ${carried.fromCampaign}, age ${count(carried.age.campaigns, 'campaign')}`]
+      : outcome.reused
+        ? ['reused']
+        : []),
     ...(run?.cacheHit && !outcome.reused ? ['replayed from the cache'] : []),
   ];
   let detail = '';
@@ -1389,7 +1495,8 @@ function cellLine(outcome: CellOutcome): string {
 function summaryLine(outcomes: readonly CellOutcome[]): string {
   const states = (state: CellOutcome['state']) =>
     outcomes.filter((outcome) => outcome.state === state).length;
-  const reused = outcomes.filter((outcome) => outcome.reused).length;
+  const carried = outcomes.filter((outcome) => outcome.run?.carried).length;
+  const reused = outcomes.filter((outcome) => outcome.reused && !outcome.run?.carried).length;
   const budgetStops = outcomes.filter((outcome) => outcome.budgetStop).length;
   const parts = [
     `${states('pass')} pass`,
@@ -1401,7 +1508,28 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
   const spent = outcomes
     .filter((outcome) => outcome.run && !outcome.reused && !outcome.run.cacheHit)
     .reduce((sum, outcome) => sum + (outcome.run?.cost ?? 0), 0);
-  return `${count(outcomes.length, 'cell')}: ${parts.join(', ')}${reused > 0 ? `, ${reused} reused` : ''}. Spent ${usd(spent)}.`;
+  return `${count(outcomes.length, 'cell')}: ${parts.join(', ')}${reused > 0 ? `, ${reused} reused` : ''}${carried > 0 ? `, ${carried} carried` : ''}. Spent ${usd(spent)}.`;
+}
+
+/** Blocks a radius campaign sent to the agent, and blocks it carried without sending them. */
+function radiusBlocks(outcomes: readonly CellOutcome[]): { sent: number; carried: number } {
+  const blocks = (carried: boolean) =>
+    outcomes
+      .filter((outcome) => outcome.run !== undefined && (outcome.run.carried !== undefined) === carried)
+      .reduce((sum, outcome) => sum + (outcome.run?.blocks.length ?? 0), 0);
+  return { sent: blocks(false), carried: blocks(true) };
+}
+
+/** The closing lines of a radius campaign: fresh against carried, in cells and in blocks, and the saving. */
+function radiusSummary(radius: NonNullable<Campaign['radius']>, outcomes: readonly CellOutcome[]): string {
+  const { sent, carried } = radiusBlocks(outcomes);
+  const total = sent + carried;
+  const saved = total === 0 ? 0 : (carried / total) * 100;
+  const lines = [
+    `Fresh: ${count(radius.fresh, 'cell')}, ${count(sent, 'block')} sent to the agent. Carried from ${radius.from}: ${count(radius.carried, 'cell')}, ${count(carried, 'block')} not sent (agent version ${radius.fromVersion}; this campaign runs ${radius.toVersion}).`,
+    `Saved: ${carried} of ${count(total, 'block')}, ${saved.toFixed(1)}%. The pass and fail counts above merge fresh and carried results.`,
+  ];
+  return `${lines.join('\n')}\n`;
 }
 
 function report(campaignId: string, outcomes: readonly CellOutcome[], kept: boolean, checks: string[]) {

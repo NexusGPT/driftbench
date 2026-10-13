@@ -1,5 +1,16 @@
 /** Blast radius: which blocks a change to the agent can affect. See docs/concepts/blast-radius.md. */
 export {
+  type CarriedCell,
+  type CarryLimits,
+  campaignRadius,
+  carriedRun,
+  carryRuns,
+  DEFAULT_MAX_AGE_DAYS,
+  DEFAULT_MAX_CARRY,
+  planRadiusCampaign,
+  type RadiusPlan,
+} from './carry';
+export {
   CHANGE_KINDS,
   Change,
   type ChangeKind,
