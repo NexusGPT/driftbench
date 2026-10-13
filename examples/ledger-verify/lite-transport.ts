@@ -99,7 +99,7 @@ try {
     const response=await withQuotaBackoff(async()=>{
       await acquire();
       if(process.env.VERIFY_LITE_NETWORK_RECOVERY==='1') {
-        const claim=JSON.parse(execFileSync('python3',[resolve(base,'../lite-recovery-claim.py'),callFingerprint!,id],{encoding:'utf8'}));
+        const claim=JSON.parse(execFileSync('python3',[resolve(base,'../lite-recovery-claim.py'),callFingerprint!,id,process.env.VERIFY_LITE_RECOVERY_SET??'network'],{encoding:'utf8'}));
         // This invocation has only seen rejected 429s if its physical submission allowance is exhausted here.
         if(!claim.allowed)throw new QuotaPending('Authorized recovery submission allowance exhausted; no judge answer');
       }

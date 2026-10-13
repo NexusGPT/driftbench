@@ -124,3 +124,12 @@
 - Owner raises the separate Flash Lite cap from 18 USD to 24 USD to finish all 221 sealed TEST items.
 - Every existing uncertain-charge hold remains. Model, medium reasoning, 300-second timeout, eight workers, sealed order and scoring stay fixed.
 - Source: lite/evidence/cap24-amendment.json.
+
+## 2026-10-13T13:14:32.822525+00:00 TEST connection recovery
+
+- Owner authorizes recovery of 25 no-answer TEST requests, up to three total submissions each, after a connectivity probe. Flash Lite now uses four workers.
+- The 24 fetch-stage connect-timeout holds release 7.20 USD. The HTTP-200 response-body hold and 35 earlier holds remain: 10.80 USD total.
+- The 117 completed item outcomes remain fixed, including five returned parse failures. Offline continuation checks all 117 with zero provider calls.
+- Driver PID 48002, exec session 47258. Source: lite/evidence/test-recovery-amendment.json and test-network-hold-release.json.
+
+- TEST recovery returns all 25 on one additional submission each. Source: lite/evidence/test-network-recovery-result.json. Four-worker TEST continues under PID48002; finalizer exec session11726 waits.

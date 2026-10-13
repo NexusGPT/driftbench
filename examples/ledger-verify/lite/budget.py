@@ -26,7 +26,7 @@ def transact(path, action, token, amount=0.5, model='', pid=None):
             for key,entry in list(active.items()):
                 try: os.kill(entry['pid'],0)
                 except ProcessLookupError: del active[key]
-            limits={'gemini-3.5-flash-lite':8}
+            limits={'gemini-3.5-flash-lite':4}
             if model=='haiku':
                 pacing=state.get('haikuPacing',{})
                 if time.time()-pacing.get('observedAt',0)>=5:

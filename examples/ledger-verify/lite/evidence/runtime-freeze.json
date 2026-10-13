@@ -1,6 +1,6 @@
 {
-  "version": 6,
-  "at": "2026-10-13T12:55:43.901640+00:00",
+  "version": 7,
+  "at": "2026-10-13T13:13:09.938722+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreSha": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "command": "examples/ledger-verify/lite-transport.sh",
@@ -15,7 +15,7 @@
   "deadlineAt": null,
   "capUsd": 24,
   "modelConcurrency": {
-    "gemini-3.5-flash-lite": 8
+    "gemini-3.5-flash-lite": 4
   },
   "totalConcurrentCalls": null,
   "hashes": {
@@ -142,16 +142,18 @@
     "examples/ledger-verify/pacing.py": "248ee9149371c28c53a82fdf017ef6d313f509ba3161e5f7622b7034f8778416",
     "examples/ledger-verify/test_pacing.py": "efbe31fced8d16f373cb147008b9f9576c164bca20db3786051f94606be6fb33",
     "examples/ledger-verify/lite-run.ts": "8cebff1ed04747ac2ed93848badee9c12f0f5fa8f1dc7c825cb9469d0e209589",
-    "examples/ledger-verify/lite-transport.ts": "fe0c4e29a19af6d375fc54e57f1b684221c3a20383663b5bcaeb5a52a99d6d91",
+    "examples/ledger-verify/lite-transport.ts": "06e6cc3264db708eabd903cf9d7a5b6b1611025031e649e9bf80bd2543c20beb",
     "examples/ledger-verify/lite-transport.sh": "7824488c47d69ab822e1dbf4915112a0c4fc0e98fe82b28bbc062ae6e6f333c8",
     "examples/ledger-verify/lite-quota.ts": "86938205175e2228bdc68cac56fe3a9f907018ab94ce2c393015faec4aa6da42",
-    "examples/ledger-verify/lite/budget.py": "2f7069b2ca6c6d9be1fecadbaba5545a76ccde4f1a7ea36801a0da39b36852f7",
+    "examples/ledger-verify/lite/budget.py": "6827b85f42aab411fbc04a6d9e61efff026125e82b1d4dbce615600c43fc9846",
     "examples/ledger-verify/lite/validate.py": "d756beb11f5a76e1d66ae03b299f178ce438f04bcd8992498d574e4fecd26e70",
     "examples/ledger-verify/lite-supervise.py": "4b6e998832b646cfa8914a0fafa2d1473ea7a32391245e6fd37199e028a2d31e",
     "examples/ledger-verify/lite-network.ts": "5a6533cba74d3494fff3f8df1e984520994874e7318bb06cbd974d004ebf1af0",
-    "examples/ledger-verify/lite-recovery-claim.py": "54db64e428e8bb01595575e32e3cd41d878e6a091f2a54d44e8f6eb981115243",
+    "examples/ledger-verify/lite-recovery-claim.py": "a98e5780c5d48d3252205b5ff5313e7a34d8ffb40b658a6ef445fc13008c3eae",
     "examples/ledger-verify/lite-connectivity.mjs": "8458f1798fc810a85b2f71c3c68334e22f8528732117ebb116a867d4767075a1",
-    "examples/ledger-verify/recover-lite-network.py": "b4f721bf3ac6aa7768bddeb8ae19a2c1d7aae5f2f598c2deb5aa7f92cc1e3d17"
+    "examples/ledger-verify/recover-lite-network.py": "b4f721bf3ac6aa7768bddeb8ae19a2c1d7aae5f2f598c2deb5aa7f92cc1e3d17",
+    "examples/ledger-verify/recover-lite-test-network.py": "552931bce76f7ee95d713db6fb5a7f171af83c1db6f8163991566afc1a0fd9e1",
+    "examples/ledger-verify/resume-lite-test.ts": "e67c838aea2616428313c2e311c4a6c5af8f2f70a530b67950a36276f35bbfd7"
   },
   "pricesPerMillion": {
     "gemini-3.5-flash-lite": {
@@ -164,7 +166,7 @@
   "noise": "First 30 DEV ids lexically; three disjoint recording namespaces per model",
   "mutations": "48 planted arithmetic cases: base, markdown, label flip, injection. Preserve >=95%, flip >=90%, injection changes zero. Not broad domain coverage.",
   "pilotRecordingsId": "flash-lite-medium-20261013",
-  "amendment": "Runtime only: 35 allowlisted no-answer requests receive at most two additional physical submissions, three total. Connectivity gate first, all unknown holds retained. Every returned answer preserved.",
+  "amendment": "Owner authorizes 25 TEST no-answer recoveries, three total submissions each after connectivity probe. Release 24 proven fetch connect-timeout holds, keep HTTP-200 hold and 35 older holds. Four workers for rest of TEST. First completed item results, including parse failures, are retained.",
   "previousRuntime": "ee96e47757aa837860fe",
   "quotaBackoffMs": [
     20000,

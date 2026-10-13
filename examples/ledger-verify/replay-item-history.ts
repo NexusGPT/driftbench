@@ -8,7 +8,8 @@ import {contestantById} from '../judge-benchmarks/src/contestants';
 import {CRITERIA} from '../judge-benchmarks/src/data';
 import {schemaFor} from './schemas';
 const base=resolve('examples/ledger-verify/lite'),source=resolve('examples/judge-benchmarks/src');
-const prepareRecovery=process.argv.includes('--prepare-recovery');
+const prepareTest=process.argv.includes('--prepare-test-recovery');
+const prepareRecovery=process.argv.includes('--prepare-recovery')||prepareTest;
 const generated=resolve(base,'cache/item-history');await mkdir(generated,{recursive:true});
 const runtime=JSON.parse(await readFile(resolve(base,'evidence/runtime-freeze.json'),'utf8'));
 const call=await readFile(resolve(source,'call.ts'),'utf8'),run=await readFile(resolve(source,'run.ts'),'utf8');
@@ -28,20 +29,22 @@ function imports(text:string,callPath?:string){return text.replace(/from '\.\/([
 await writeFile(resolve(generated,'call.ts'),imports(call.replace(anchor,replacement)));
 await writeFile(resolve(generated,'run.ts'),imports(run,resolve(generated,'call')));
 const {runBenchmark}=await import(pathToFileURL(resolve(generated,'run.ts')).href);
-const wave=JSON.parse(await readFile(resolve(base,'evidence/network-wave.json'),'utf8'));
+const wave=JSON.parse(await readFile(resolve(base,`evidence/${prepareTest?'test-network':'network'}-wave.json`),'utf8'));
 const allowed=new Set(wave.errors.map((r:any)=>r.fingerprint));
 const ctx={allowed,requests:new Map<string,any>(),core:runtime.coreSha,schemaFor,entries:[] as any[],rows:[] as any[],phase:'',choice:{} as any,branches:[] as any[]};(globalThis as any).__itemHistory=ctx;
 const phases=[];
 for(const phase of ['pilot','validity','noise-0','noise-1','noise-2','results']){
  const model='gemini-3.5-flash-lite';let saved:any;
- if(prepareRecovery&&['noise-1','noise-2','results'].includes(phase))continue;
- try{saved=JSON.parse(await readFile(resolve(base,phase,`${model}${prepareRecovery&&phase==='noise-0'?'.pre-network-recovery':''}.json`),'utf8'));}catch(e:any){if(e.code==='ENOENT')continue;throw e;}
+ if(prepareTest&&phase!=='results')continue;
+ if(prepareRecovery&&!prepareTest&&['noise-1','noise-2','results'].includes(phase))continue;
+ const archive=prepareTest?'.pre-test-network-recovery':prepareRecovery&&phase==='noise-0'?'.pre-network-recovery':'';
+ try{saved=JSON.parse(await readFile(resolve(base,phase,`${model}${archive}.json`),'utf8'));}catch(e:any){if(e.code==='ENOENT')continue;throw e;}
  const name=phase==='validity'?'validity-items':phase==='results'?'pool':'dev';
  let items=JSON.parse(await readFile(resolve(base,'evidence',`${name}.json`),'utf8'));
  if(name==='dev')items=items.sort((a:any,b:any)=>a.id.localeCompare(b.id)).slice(0,phase==='pilot'?20:30);
  ctx.phase=phase==='results'?'test':phase;
  const dir=resolve(base,'recordings',phase==='pilot'?runtime.pilotRecordingsId:runtime.recordingsId,ctx.phase);
- const phaseEntries=(await readFile(resolve(dir,'longjudge-verify',`${model}${prepareRecovery&&phase==='noise-0'?'.pre-network-recovery':''}.jsonl`),'utf8')).trim().split('\n').filter(Boolean).map(JSON.parse);
+ const phaseEntries=(await readFile(resolve(dir,'longjudge-verify',`${model}${archive}.jsonl`),'utf8')).trim().split('\n').filter(Boolean).map(JSON.parse);
  let preserved:any[]=[];let before:any[]=[];
  if(phase==='noise-0'&&!prepareRecovery){
   try{
@@ -86,8 +89,9 @@ if(!prepareRecovery){
  await writeFile(resolve(base,'evidence/history-request-attribution.json'),JSON.stringify({at:new Date().toISOString(),rows:ctx.rows,newModelCalls:0},null,2)+'\n');
 }else{
  assert.equal(ctx.requests.size,allowed.size,'Every authorized request must be reconstructed exactly');
- await mkdir(resolve(base,'cache/network-recovery'),{recursive:true});
- await writeFile(resolve(base,'cache/network-recovery/requests.json'),JSON.stringify([...ctx.requests.values()],null,2)+'\n');
+ const folder=resolve(base,`cache/${prepareTest?'test-network':'network'}-recovery`);
+ await mkdir(folder,{recursive:true});
+ await writeFile(resolve(folder,'requests.json'),JSON.stringify([...ctx.requests.values()],null,2)+'\n');
 }
 console.log(JSON.stringify(phases.map(p=>({...p,changed:p.changed.length}))));
 assert(phases.filter(p=>!p.originalStopped).every(p=>p.identicalDecisions),'Completed phase differs; inspect without paid retries');

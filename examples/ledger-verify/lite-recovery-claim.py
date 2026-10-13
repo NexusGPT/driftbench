@@ -16,5 +16,7 @@ def claim(path,allowed,fingerprint,receipt):
 
 if __name__=='__main__':
     base=Path(__file__).resolve().parent/'lite'
-    wave=json.loads((base/'evidence/network-wave.json').read_text())
-    print(json.dumps(claim(base/'receipts/network-recovery-claims.json',{r['fingerprint'] for r in wave['errors']},sys.argv[1],sys.argv[2])))
+    name=sys.argv[3] if len(sys.argv)>3 else 'network'
+    assert name in ['network','test-network']
+    wave=json.loads((base/f'evidence/{name}-wave.json').read_text())
+    print(json.dumps(claim(base/f'receipts/{name}-recovery-claims.json',{r['fingerprint'] for r in wave['errors']},sys.argv[1],sys.argv[2])))
