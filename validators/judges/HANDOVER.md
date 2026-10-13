@@ -126,6 +126,7 @@ Iteration 111 (cause: the player scanned every entry on every call. playerClient
 Iteration 112 (cause: no \\uXXXX reading. DECODERS row for runs of four or more escapes. Test: screen.test.ts reads uXXXX escapes.)
 Iteration 113 (cause: no %XX reading. DECODERS row for four or more percent escapes. Test: screen.test.ts reads percent escapes.)
 Iteration 114 (cause: no binary reading. DECODERS row for eight or more 8-bit groups. Test: screen.test.ts reads binary groups.)
+Iteration 115 (cause: only ROT13 was read. A READINGS row joins the other 23 shifts of a text up to 400 characters, one per line. Test: screen.test.ts reads every Caesar shift of a short text.)
 
 ## Next actions
 
