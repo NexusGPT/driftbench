@@ -35,3 +35,21 @@ Sources: docs/validators.md section 12; docs/concepts/*.md, docs/reference/*.md,
 Finding: no. Iteration 0 passed 1244 of 1280 (0.9719) with 25 distinct failing causes. After ten one-cause fixes, 1265 (0.9883) with 15 causes; 2.1 items fixed per iteration (2.0 without the glob item correction; the two report corrections only undid what the label fix broke), forecast 7.1. Of 717 docs-claim items, 14 failed at iteration 0: the chain mostly does what its pages say. The failures are real defects: three loader checks, a torn store read, a status filter, digit-only hash prefixes, a detached child surviving the timeout, a compounding interval, a pass^k interval, a quadratic per-block cost in five places.
 
 What to try: the forecast is bounded by the number of real defects, not by the bank size. More causes need a breaker lane that has not read the runner (section 12.2, item 5), and the hidden seed rotation, which found the header-cut defect on its own.
+
+## 2026-10-13: the per-block cost of a growing history (executor, bank version 5)
+
+Question: scale/flow-blocks/growth fails on some seeds and scale/flow-blocks-teacher-forced/growth on every seed. Which part of the work that grows with the history is the runner's own, and which part is the callback contract of the function adapter ("Every argument is a copy", docs/adapters/function.md)?
+
+Sources: the message meter of the bank (packages/validators/src/ladders/system/bank/growth.ts, PR 212, with its evidence tables); PR 118 (the copy-on-write history view, packages/core/src/contracts/history.ts on codex/system-v3); packages/core/src/spec/hash.ts, runner/run.ts, runner/ledger.ts, runner/given.ts; packages/adapters/src/function/index.ts; MDN, Object.freeze (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze): a write to a frozen object throws a TypeError in strict mode and does nothing otherwise, and a freeze covers the object's own properties only; Immer, performance (https://immerjs.github.io/immer/performance/): a Proxy draft costs two to three times a hand-written update and every value read through a draft becomes a draft.
+
+What was measured, with the meter, on a 400-block flow over a 40-block flow (linear is 10, the bound is 11):
+
+* main a0a3e5d7, mode F: 887389 visits at 400, 93 times. By site: cloneJson 482034 (the adapter's copies), itemText in spec/hash.ts 164670, the user-message filter in runner/run.ts 156187, saidValues in runner/ledger.ts 79840.
+* The runner's three sites, fixed (this branch): mode F 87.3 times, mode T 94.1 times. Every remaining visit is cloneJson in the function adapter: the copy of the prefix when a session opens (once per block in mode T) and the copy of the history handed to the agent function on every turn.
+* The same branch with the two adapter copies replaced by a new list of the same messages (a local trial, not committed): 790 visits at 40 and 7990 at 400 in both modes, 10.11 times; best CPU growth 19.4 (F) and 16.1 (T).
+
+What others do: a library that shares state with callers either freezes it (a write then throws in strict mode, MDN) or hands out copy-on-write views (Immer). PR 118 took the second way; PR 212 measured it at 62 times on the count, because a view still registers or wraps every message it is read through.
+
+Finding: the runner's own work is linear after this branch. The teacher-forced growth item cannot pass while the function adapter hands the agent a deep copy of the whole history on every turn; that is the documented contract, so the change is the owner's decision. The free-running item (one sample, CPU time only, bound 25) measured 25.6 and 28.1 on main and 21.9 and 23.7 on this branch, on a loaded host, and failed on 4 seeds of 21 in one sweep of main and on 9 in the next: its rule is the one PR 212 replaced for the teacher-forced item, with the false failures that PR measured.
+
+What to try: nothing more in the runner. The two options for the owner are in HANDOVER.md, "The growth item".
