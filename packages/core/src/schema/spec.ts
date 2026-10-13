@@ -364,6 +364,10 @@ export const Expect = z
       })
       .optional()
       .describe('The SQL the agent ran must return the same rows as the golden query on the database.'),
+    regex: z
+      .array(Pattern)
+      .optional()
+      .describe('Regular expressions the visible text must match, case-sensitive; must ignores case instead.'),
     injection: z
       .boolean()
       .optional()
@@ -377,6 +381,10 @@ export const Expect = z
       .describe(
         'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers.',
       ),
+    exact_strict: z
+      .boolean()
+      .optional()
+      .describe('Compare exact byte for byte after trimming the ends, instead of ignoring case, punctuation and spacing.'),
     json: JsonExpect.optional().describe('The reply is valid JSON, optionally with a schema and paths.'),
     tool_f1: z
       .strictObject({
@@ -388,6 +396,20 @@ export const Expect = z
       .enum(['refuses', 'answers'])
       .optional()
       .describe('Whether the reply must be a refusal, read from refusal phrases in seven languages.'),
+    markup: z
+      .enum(['xml', 'html', 'sql'])
+      .optional()
+      .describe('The reply is well-formed XML, HTML or SQL (syntax only).'),
+    starts_with: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The reply, without leading space, starts with this text.'),
+    finish_reason: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The reason the model stopped, as the runtime reports it.'),
     length: z
       .strictObject({
         words: LengthBound.optional().describe('Bounds on the words of the visible text.'),

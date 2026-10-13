@@ -2,7 +2,7 @@
 
 A check reads one part of what the agent did and returns verdicts with their evidence: the text that matched or is missing, the call, the diff. A report never says fail without the fact.
 
-Every machine check ships in `@agent-nexus/driftbench-checks`, phase 1. `defaultChecks()` returns 33 checks, in the order the runner applies them: `tools`, `tools_offered`, `forbidden`, `must`, `must_not`, `exact`, `injection`, `length`, `json`, `tool_f1`, `refusal`, `rouge_l`, `bleu`, `sql`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 33 and then the `judge` check, which judges the criteria a block names with a judge council of `@agent-nexus/driftbench-judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
+Every machine check ships in `@agent-nexus/driftbench-checks`, phase 1. `defaultChecks()` returns 37 checks, in the order the runner applies them: `tools`, `tools_offered`, `forbidden`, `must`, `must_not`, `regex`, `exact`, `injection`, `length`, `markup`, `starts_with`, `finish_reason`, `json`, `tool_f1`, `refusal`, `rouge_l`, `bleu`, `sql`, `similarity`, `relevancy`, `knowledge_retention`, `lang`, `pii`, `cards`, `stage`, `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`, `artifacts`, `schema_strict`, `budget`, `end_state`, `custom`. `defaultChecks({ judges: council })` returns the same 37 and then the `judge` check, which judges the criteria a block names with a judge council of `@agent-nexus/driftbench-judges`, phase 2; see [judged criteria](#judged-criteria). The runner adds two more kinds of verdict after the checks, in code with no model: `ledger.<fact>` from the ledger check and `flow.stage` or `flow.order` from the stage classifier. See [drift](../concepts/drift.md#the-ledger-check).
 
 The checks read the agent's runtime through four concepts: tools, skills, guards and stages. The runtime trace may also list the tools the runtime offered the agent (`offered`): `tools_offered` reads it, so a tool a setting denies, or a deny rule removed, shows even when the agent never calls the tool. See [block](../concepts/block.md#tools-skills-guards-and-stages). Two more fields of the runtime trace record what the agent consulted and delegated: the files it read (`references`) and the helpers it dispatched (`subagents`).
 
@@ -37,6 +37,9 @@ Two kinds of verdict are inconclusive:
 | `injection` | `expect.injection` is true: the block is a prompt-injection or jailbreak attempt | `injection.attack`, `injection.resist` |
 | `length` | `expect.length` holds a bound on words or characters | `length.words`, `length.chars` |
 | `json` | `expect.json` is set | `json.valid`, `json.schema`, `json.path.<index>` |
+| `markup` | `expect.markup` is `xml` or `html` | `markup.valid` |
+| `starts_with` | `expect.starts_with` is set | `starts_with.0` |
+| `finish_reason` | `expect.finish_reason` is set | `finish_reason.reason` |
 | `tool_f1` | `expect.tool_f1` is set | `tool_f1.f1` |
 | `refusal` | `expect.refusal` is set | `refusal.verdict` |
 | `rouge_l` | `expect.rouge_l` holds a reference text and a minimum: the word-level ROUGE-L F measure must reach it | `rouge_l.0` |
@@ -104,6 +107,9 @@ Every field is optional and open to both kinds of block.
 | `injection` | the block is an attempt to override the agent, and the reply must not obey it | `injection` |
 | `length` | a minimum and a maximum for the words, and for the characters, of the customer-visible text | `length` |
 | `json` | the reply is valid JSON, matches an optional schema, and has the values its paths name | `json` |
+| `markup` | the reply is well-formed XML, HTML or SQL (structure only; SQL by syntax) | `markup` |
+| `starts_with` | the whole reply, without leading space, starts with a text | `starts_with` |
+| `finish_reason` | the runtime reports the reason the model stopped, and it is the expected one | `finish_reason` |
 | `refusal` | the reply is, or is not, a refusal in seven languages | `refusal` |
 | `tool_f1` | the precision, recall and F1 of the tool calls against the expected ones, with argument matching | `tool_f1` |
 | `similarity` | each reference text the reply must be close to: `reference` and `min`, from 0 to 1 | `similarity` |
@@ -229,6 +235,12 @@ expect:
     chars: { min: 1, max: 480 }
 ```
 
+* `markup` checks that the reply is well-formed XML or HTML by its tags: each close matches the open element, and HTML void elements need no close. It checks structure only, not a schema or attributes. With `markup: sql` the reply's statements are parsed by SQLite's own parser, split on semicolons outside strings. Only syntax errors fail: a statement that names a table not in any schema is valid here.
+* `exact` ignores case, punctuation and spacing by default. `exact_strict: true` compares the reply byte for byte after trimming its ends, for the case where those differences count.
+* A failing `must` on a literal names the closest span of the reply and how far it differs: the same text in another case, or the number of characters that differ. A failing `cost_usd` or `latency_ms` names how far over the limit it is.
+* `regex` takes a list of regular expressions the visible text must match. Matching is case-sensitive, as a regular expression is by default, and each pattern gets its own verdict. `must` and `must_not` ignore case instead.
+* `starts_with` checks the start of the whole reply, where a `^` pattern checks the start of any line.
+* `finish_reason` reads `observed.runtime.finishReason`, the reason the model stopped. An expected `stop` fails a reply cut at a `length` limit. When the runtime reports no reason, the verdict is inconclusive and does not gate.
 * `json` reads the customer-visible text as JSON. A reply that is one Markdown code fence of JSON is read as that JSON. `expect.json.schema` takes a JSON Schema, checked strictly: a key it does not declare fails. `expect.json.paths` takes a list of `{ path, assert }`. A path is dotted, and a number indexes an array. The assertion is the spec's own vocabulary: a bare value or `exact` for equality, `{ contains }`, `{ regex }`, `{ one_of }`, `{ nonempty }`, `{ absent }`, `{ subset }`. A reply that is not JSON fails `json.valid`, and every path after it fails with the reason. With `expect.json.embedded: true` the reply may hold JSON among its prose: the whole reply is read first, and otherwise the first JSON object or array found in the text is read. The default is off, so a reply with prose around its JSON fails `json.valid`.
 * `refusal` is `refuses` or `answers`. The verdict reads the reply for a refusal phrase in English, French, Dutch, German, Spanish, Italian and Portuguese. It names the phrase and its language. A refusal worded outside those phrases is missed, so judge that with a criterion.
 * `tool_f1` scores the tool calls of the block as one set. Each expected tool counts as many times as its count says. A call matches an expectation when its label is the same and its input satisfies each argument assertion. Each call matches at most one expectation. The verdict gives precision, recall and F1, and names the unexpected calls and the missed ones.
