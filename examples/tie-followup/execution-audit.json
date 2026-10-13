@@ -1,0 +1,75 @@
+{
+  "checks": {
+    "supervisorCompleted": true,
+    "duplicateAnsweredRequests": 0,
+    "peakConcurrency": 2,
+    "unreservedSubmissions": 0,
+    "orphanReservations": 0,
+    "freezeHashMatches": true,
+    "freezeCommittedBeforeFresh": true,
+    "claudeCalls": 202,
+    "spentUsd": 11.41716177,
+    "heldUsd": 0.162354,
+    "totalCommittedUsd": 11.57951577
+  },
+  "healthGates": [
+    {
+      "provider": "openai",
+      "start": "2026-10-13T19:40:22.394Z",
+      "end": "2026-10-13T19:45:04.005Z",
+      "minimumSpacingSeconds": 30.68
+    },
+    {
+      "provider": "google",
+      "start": "2026-10-13T20:35:09.625Z",
+      "end": "2026-10-13T20:39:41.984Z",
+      "minimumSpacingSeconds": 30.172
+    },
+    {
+      "provider": "openai",
+      "start": "2026-10-13T20:49:08.304Z",
+      "end": "2026-10-13T20:53:47.596Z",
+      "minimumSpacingSeconds": 30.612
+    },
+    {
+      "provider": "google",
+      "start": "2026-10-13T22:18:09.108Z",
+      "end": "2026-10-13T22:22:40.569Z",
+      "minimumSpacingSeconds": 30.133
+    },
+    {
+      "provider": "anthropic",
+      "start": "2026-10-13T22:37:21.650Z",
+      "end": "2026-10-13T22:41:53.701Z",
+      "minimumSpacingSeconds": 30.21
+    }
+  ],
+  "supervisorPid": 49521,
+  "freezeCommittedAt": "2026-10-13T20:49:06.747803+00:00",
+  "firstFreshCallAt": "2026-10-13T20:53:47.682000+00:00",
+  "decisionRows": 2658,
+  "callReceipts": 3252,
+  "returnedAnswers": 3250,
+  "missingTransportResponses": 2,
+  "callsByModel": {
+    "gpt-6.1-sol": 1022,
+    "gpt-6-luna": 997,
+    "gemini-3.5-flash-lite": 1031,
+    "claude-haiku-5-5": 202
+  },
+  "graderErrorsByPhaseVariant": {
+    "('dev', 'baseline')": 1,
+    "('dev', 'direct')": 1,
+    "('dev', 'reasoning')": 1,
+    "('dev', 'promptfoo')": 2,
+    "('fresh', 'baseline')": 1,
+    "('fresh', 'reasoning')": 1
+  },
+  "receiptHashes": {
+    "calls.jsonl": "4c508e6ad9dffb4d1a804f7ab34c52ca7cf3cde165b26a3c5272c29b888bbb7a",
+    "spend.jsonl": "230b6dc7db58e6a0b33ebd04a34c65274a5868dd557e9383caf54c5f1eba95f0",
+    "decisions.jsonl": "1ed01b5943a73a4ff4b42f19edce5c420d8590f7ff625cdeeac10191756333ba",
+    "probes.jsonl": "31fff39b1ee13effaf81710a4f6aa08382a5410d7844ece663bc6209ca8ce126",
+    "supervisor.jsonl": "06c3af376d06a2cb55dbac20ebdbaa050b2ff6d12b8b2cd4f5a4c5c77e7ac0ac"
+  }
+}

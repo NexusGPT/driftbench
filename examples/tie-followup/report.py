@@ -28,7 +28,7 @@ for key, direct in dev['tables']['direct'].items():
 out += ['', 'Selection means: ' + ', '.join(f'{k} {pct(v)}' for k,v in dev['means'].items()) + '.', '',
         '## Fresh confirmation', '',
         'MM scores macro-average the five subsets equally. Writing scores exact matches across both directional games. Ledger reconciles its reads into one decision used for both games.',
-        'Wins, losses and ties compare the paired scores with promptfoo on unique response pairs. Two-sided exact sign tests exclude score ties. P-values are unadjusted across the seven confirmation cells; no family-wise superiority claim is made.', '',
+        'Wins, losses and ties compare the paired scores with promptfoo on unique response pairs. Two-sided exact sign tests exclude score ties. These tests count the direction of each pair difference; they do not weight its magnitude or reproduce the MM subset macro weights. P-values are unadjusted across the seven confirmation cells; no family-wise superiority claim is made.', '',
         '| Model / benchmark | Pairs | Baseline | Follow-up | Promptfoo | Wins / losses / ties | Exact p | Changed better / worse vs baseline |',
         '|---|---:|---:|---:|---:|---|---:|---|']
 for key, row in fresh.items():
@@ -53,6 +53,7 @@ for key,row in fresh.items():
 out += ['', '- JudgeBench has no fresh held-out pool; no sealed JudgeBench test item was reused.',
         '- MM contains 12 fresh chat pairs and 20 each in the other categories; the macro score preserves equal subset weight.',
         '- Writing contains unseen response pairs, not unseen questions. Prior System1 questions can recur. Original LongJudge exclusions remain.',
+        '- Pair-level inference assumes independent pairs. The 80 writing pairs span 67 prompts, the 50 Haiku pairs span 47 prompts, and the 92 MM pairs span 85 prompts. Repeated prompts can correlate errors; the reported pair tests do not adjust for this clustering.',
         '- Dev and fresh pairs are disjoint from each other and the enumerated ledger and System1 seals. Absence from unrecorded calls or model training cannot be proved.',
         '- Baseline calls are shared between variants. The default remains off. The new rule never branches on model identity.',
         '- MM retains the frozen computation port. No harm-policy seat is installed for any model in this experiment; safety is reported separately.',
@@ -63,6 +64,7 @@ out += ['', '- JudgeBench has no fresh held-out pool; no sealed JudgeBench test 
         f'- Total charged plus held: USD {spent["committedUsd"]:.6f} of USD 40. Claude calls: {spent["claudeCalls"]} of 400.',
         '- Global concurrency is 2. The detached supervisor records health probes, reservations and raw receipts. Answered requests are never resubmitted.',
         '- Research data and raw receipts remain outside the repository. Public files contain code, hashes and aggregate results only.', '']
+out += ['', '## Execution audit', '', '- [Receipt audit](execution-audit.json): 3,252 submissions, 3,250 returned answers, zero repeated answered requests, zero unreserved submissions, peak concurrency 2.', '- Five provider/phase health gates each contain ten healthy probes, at least 30 seconds apart. Freeze commit precedes the first fresh call.', '- The two unanswered transport attempts retain USD 0.162354 in conservative reservations. Missing-only recovery completes every planned pair.', '- Haiku uses 202 CLI calls, all on writing, below the 400 cap. No session-limit stop occurs. Supervisor PID 49521 exits after the completed report.', '- Grader errors count at zero. Dev Gemini JudgeBench has one ledger error shared by baseline and both variants, plus two promptfoo errors. Fresh Gemini writing has one ledger error shared by baseline and follow-up. Other cells have no grader errors.', '- Fresh follow-up improves six of seven cell scores and preserves Luna writing. Versus promptfoo, two cells score higher, one matches and four score lower. No higher-scoring cell passes the unadjusted two-sided 0.05 sign test.']
 text='\n'.join(out)
 if '\u2013' in text or '\u2014' in text:
     raise ValueError('Forbidden dash in repo prose')
