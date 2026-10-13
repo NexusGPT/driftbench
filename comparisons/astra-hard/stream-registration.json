@@ -1,0 +1,17 @@
+{
+  "registered_at": "2026-10-13T04:12:32.689506+00:00",
+  "owner_authorization": "Up to6 concurrent calls, USD20 cap, map after candidate, last new call06:35, push06:40 local.",
+  "method": "Keep six workers occupied by replacing each completed request. No batch barriers. Frozen case and request order retained; only transport scheduling changes.",
+  "cases_and_procedures_registration": "25fee06e9213a377116f00fba510b7bb701548d4",
+  "new_calls": 1008,
+  "concurrency": 6,
+  "shared_cap_usd": 20,
+  "last_dispatch": "2026-10-13T06:35:00+02:00",
+  "report_and_push": "2026-10-13T06:40:00+02:00",
+  "sha256": {
+    "comparisons/astra-hard/stream_map.py": "741923cd6d4972a8e0ca6df2fcfb8be4f738fe7ca87df8d6e06a80eaa7a5e944",
+    "comparisons/astra-hard/stream_analysis.py": "56ae1b68e950ddfe892f04f629b7795944e4ff29bf7adc3c3caf8b998ef5c32f",
+    "comparisons/astra-hard/map/preregistration.json": "9128a2b232747c639644c608add50f5070e46ea28053556a4718e57606e095f0",
+    "comparisons/astra-hard/operations-registration.json": "00e00bce45a67bcc743f1c0a03b7cc706f0c7ec29140386ece358711a77f1b2b"
+  }
+}
