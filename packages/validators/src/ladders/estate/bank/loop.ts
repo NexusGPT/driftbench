@@ -733,15 +733,24 @@ export function mutantFamily(): Family {
       }
       const out = new Map<string, ItemResult>();
       for (const cls of MUTANT_CLASSES) {
-        const list = byClass.get(cls) ?? [];
+        const every = byClass.get(cls) ?? [];
+        // A mutant the follower's session cannot show is no kill target: it is named, not counted alive.
+        const same = every.filter((mutant) => mutant.equivalent);
+        const list = every.filter((mutant) => !mutant.equivalent);
         const alive = list.filter((mutant) => !mutant.killed);
+        const noted =
+          same.length === 0
+            ? ''
+            : ` (${same.length} of ${every.length} not judged, the follower's session is the same without it: ${same[0]?.atom})`;
         out.set(`${family}.${keyOf(cls)}`, {
           pass: alive.length === 0,
           detail:
             alive.length === 0
-              ? list.length === 0
+              ? every.length === 0
                 ? 'no atom of the class on this seed'
-                : 'holds'
+                : list.length === 0
+                  ? `no atom of the class changes the follower's session on this seed${noted}`
+                  : `holds${noted}`
               : `${alive.length} of ${list.length} live: ${alive[0]?.atom} ${alive[0]?.reason ?? ''}`,
         });
       }
