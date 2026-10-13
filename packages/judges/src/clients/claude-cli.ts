@@ -7,6 +7,7 @@ import type { ClientOptions, JudgeClient } from '../client';
 import { inconclusive, type JudgeRequest, type JudgeResult } from '../contract';
 import { isRecord, JudgeError } from '../http';
 import { buildPrompt } from '../prompt';
+import { JUDGE_DIALECTS, withJudgeDialect } from './dialects';
 
 /**
  * A system 2 judge behind the local `claude` command (Claude Code in print mode), for a machine where the
@@ -46,7 +47,7 @@ export function claudeCost(model: string): number {
 }
 
 /** The flags that shape every answer: no tool, no settings file, no MCP server, no session, one turn. */
-const JUDGE_FLAGS = [
+export const CLAUDE_JUDGE_FLAGS = [
   '--tools',
   '',
   '--setting-sources',
@@ -58,7 +59,7 @@ const JUDGE_FLAGS = [
 ] as const;
 
 /** The client settings a cassette keys on: the print-mode format and the judge flags (not the spend cap). */
-export const CLAUDE_SETTINGS = JSON.stringify(['-p', '--output-format', 'json', ...JUDGE_FLAGS]);
+export const CLAUDE_SETTINGS = JSON.stringify(['-p', '--output-format', 'json', ...CLAUDE_JUDGE_FLAGS]);
 
 type Ran = { code: number | null; stdout: string; stderr: string };
 
@@ -79,9 +80,11 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
     family: 'anthropic',
     cls: 'system2',
     model,
+    dialect: JUDGE_DIALECTS['claude-cli'].id,
     cost: options.cost ?? claudeCost(model),
     settings: CLAUDE_SETTINGS,
-    async judge(request) {
+    async judge(original) {
+      const request = withJudgeDialect(original, JUDGE_DIALECTS['claude-cli'].id);
       const prompt = buildPrompt(request);
       const args = [
         ...(options.commandArgs ?? []),
@@ -92,10 +95,10 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
         model,
         '--system-prompt',
         prompt.system,
-        ...JUDGE_FLAGS,
+        ...CLAUDE_JUDGE_FLAGS,
         ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
       ];
-      const ran = await run(command, args, prompt.user, { cwd: workdir(), env, timeoutMs });
+      const ran = await runClaudeCommand(command, args, prompt.user, { cwd: workdir(), env, timeoutMs });
       return readResult(ran, model, request);
     },
   };
@@ -135,7 +138,8 @@ function readResult(ran: Ran, model: string, request: JudgeRequest): JudgeResult
   return { ...parseJudgeText(text, request), ...cost };
 }
 
-function run(
+/** Shared isolated-process mechanics for contract-aware judges and raw dialect transports. */
+export function runClaudeCommand(
   command: string,
   args: readonly string[],
   input: string,

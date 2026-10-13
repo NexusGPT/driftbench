@@ -24,6 +24,10 @@ export interface JudgeClient {
    * Part of the cassette key: a recording made with other settings never replays.
    */
   readonly settings?: string;
+  /** The provider's ledger output dialect, included in ledger recording keys. */
+  readonly dialect?: string;
+  /** A client default; an explicit request reasoning setting takes precedence. */
+  readonly reasoning?: ClientOptions['reasoning'];
   judge(request: JudgeRequest): Promise<JudgeResult>;
   /** Own both supplied presentation orders as one comparison, preserving every request field. */
   judgeComparison?(ordered: JudgeRequest, swapped: JudgeRequest): Promise<JudgeResult>;
@@ -39,7 +43,7 @@ export type ClientOptions = HttpOptions & {
   model?: string;
   /**
    * Reasoning effort for OpenAI chat and Google Gemini clients, on models supporting the level.
-   * Unset preserves the provider default. Anthropic chat, Jev, OpenAI Decisions and HTTP judges reject it.
+   * Unset preserves the provider default. HTTP ledger requests forward it; unsupported paths reject it.
    */
   reasoning?: 'low' | 'medium' | 'high';
   /** Relative cost. Defaults: 1 for system 1 clients, 10 for chat models. */
