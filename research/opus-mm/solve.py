@@ -21,7 +21,8 @@ NUM = re.compile(r"-?\d[\d,.   ]*")
 
 def last_number(text):
     # Normalize native digits to ASCII first.
-    t = "".join(str(int(c)) if c.isdigit() and not c.isascii() else c for c in text)
+    import unicodedata
+    t = "".join(str(unicodedata.decimal(c)) if not c.isascii() and unicodedata.decimal(c, None) is not None else (c if c.isascii() or not c.isdigit() else " ") for c in text)
     found = re.findall(r"-?\d+(?:[.,   ]\d{3})*(?:[.,]\d+)?", t)
     if not found:
         return None
