@@ -4,7 +4,8 @@ import { join } from 'node:path';
 import type { ClientOptions } from '../client';
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { promptFingerprint } from '../prompt';
-import { CLAUDE_JUDGE_FLAGS, CLAUDE_SETTINGS, runClaudeCommand } from './claude-cli';
+import type { ClaudeCliOptions, ClaudeThinkingRecovery } from './claude-cli';
+import { CLAUDE_JUDGE_FLAGS, CLAUDE_SETTINGS, runClaudeJudgeCommand } from './claude-cli';
 import { googleResponseSchema, JUDGE_DIALECTS, type JudgeDialect } from './dialects';
 import { type TokenUsage, usageFromResponse } from './usage';
 
@@ -27,6 +28,7 @@ export type DialectCompletionRequest = {
 };
 
 export type DialectCompletion = {
+  readonly thinkingRecovery?: ClaudeThinkingRecovery;
   readonly text: string;
   readonly raw: string;
   readonly dialect: JudgeDialect;
@@ -40,14 +42,15 @@ export type DialectCompletion = {
   readonly refusal?: string;
 };
 
-export type DialectTransportOptions = ClientOptions & {
-  provider: DialectProvider;
-  /** Output limit. Defaults to 4096; native Claude CLI owns its own token limit. */
-  maxTokens?: number;
-  command?: string;
-  commandArgs?: readonly string[];
-  maxBudgetUsd?: number;
-};
+export type DialectTransportOptions = ClientOptions &
+  Pick<ClaudeCliOptions, 'claudeEffort' | 'retryMaxCostUsd'> & {
+    provider: DialectProvider;
+    /** Output limit. Defaults to 4096; native Claude CLI owns its own token limit. */
+    maxTokens?: number;
+    command?: string;
+    commandArgs?: readonly string[];
+    maxBudgetUsd?: number;
+  };
 
 export type DialectTransport = {
   readonly dialect: JudgeDialect;
@@ -152,6 +155,8 @@ export function buildDialectRequest(
 /** Raw text transport for any prompt or schema, including pointwise uncertainty cascades. No verdict parser runs. */
 export function createDialectTransport(options: DialectTransportOptions): DialectTransport {
   const provider = options.provider;
+  if (options.claudeEffort !== undefined && provider !== 'claude-cli')
+    throw new JudgeError('config', 'claudeEffort requires claude-cli');
   const env = options.env ?? process.env;
   const variables = {
     openai: 'OPENAI_JUDGE_MODEL',
@@ -200,6 +205,7 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
     dialect,
     model,
     maxTokens,
+    ...(options.claudeEffort === undefined ? {} : { claudeEffort: options.claudeEffort }),
     base,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     ...(provider !== 'claude-cli'
@@ -221,7 +227,7 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
       };
       if (provider === 'claude-cli') {
         folder ??= mkdtempSync(join(tmpdir(), 'driftbench-claude-transport-'));
-        const ran = await runClaudeCommand(
+        const sent = await runClaudeJudgeCommand(
           options.command ?? 'claude',
           [
             ...(options.commandArgs ?? []),
@@ -236,8 +242,9 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
             ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
           ],
           built.payload.user as string,
-          { cwd: folder, env, timeoutMs: options.timeoutMs ?? 120_000 },
+          { ...options, cwd: folder, env, timeoutMs: options.timeoutMs ?? 120_000 },
         );
+        const ran = sent.ran;
         let value: unknown;
         try {
           value = JSON.parse(ran.stdout);
@@ -263,6 +270,10 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
           raw: ran.stdout,
           text: typeof value.result === 'string' ? value.result : '',
           ...(cost === undefined ? {} : { costUsd: cost }),
+          ...sent.accounting,
+          ...(sent.accounting.thinkingRecovery
+            ? { fingerprint: promptFingerprint({ initial: identity.fingerprint, recoveryEffort: 'low' }) }
+            : {}),
           ...(typeof value.subtype === 'string' ? { finishReason: value.subtype } : {}),
           ...(value.subtype === 'success' ? {} : { truncated: true }),
         };
