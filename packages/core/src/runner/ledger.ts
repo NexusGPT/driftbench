@@ -30,7 +30,7 @@ export type LedgerContradiction = {
 export function ledgerContradictions(
   ledger: Readonly<Record<string, unknown>>,
   observed: Observed,
-  userMessages: readonly Message[],
+  userMessages: Iterable<Message>,
 ): { checked: string[]; contradictions: LedgerContradiction[] } {
   const checked = new Set<string>();
   const contradictions: LedgerContradiction[] = [];
@@ -92,7 +92,7 @@ export function ledgerContradictions(
 export function ledgerVerdicts(
   ledger: Readonly<Record<string, unknown>>,
   observed: Observed,
-  userMessages: readonly Message[],
+  userMessages: Iterable<Message>,
 ): { verdicts: Verdict[]; contradictions: LedgerContradiction[] } {
   const { checked, contradictions } = ledgerContradictions(ledger, observed, userMessages);
   const verdicts = checked.map((fact) => {
@@ -158,7 +158,7 @@ const saidOf = new WeakMap<Message, { email?: string[]; phone?: string[] }>();
  * Yield contact values in message order, parsing each message once per kind. Callers can stop as soon
  * as they have the evidence they need. A newline ends a value, so separate messages need no joining.
  */
-function* saidValues(kind: 'email' | 'phone', messages: readonly Message[]): Generator<string> {
+function* saidValues(kind: 'email' | 'phone', messages: Iterable<Message>): Generator<string> {
   for (const message of messages) {
     let read = saidOf.get(message);
     if (!read) {

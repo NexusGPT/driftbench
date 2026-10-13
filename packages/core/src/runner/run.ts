@@ -426,7 +426,14 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         signatures: run.signatures,
       });
       const flow = flowVerdicts(spec, planned.expect, reading, previous);
-      const userMessages = [...given.prefix, ...user].filter((message) => message.role === 'user');
+      // Each fact can restart this iterable, but a reply needing no history allocates no message list.
+      const userMessages: Iterable<Message> = {
+        *[Symbol.iterator]() {
+          for (const messages of [given.prefix, user]) {
+            for (const message of messages) if (message.role === 'user') yield message;
+          }
+        },
+      };
       const ledger = ledgerVerdicts(facts.ledger, observed, userMessages);
       const all = [...verdicts, ...flow, ...ledger.verdicts];
       const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
