@@ -1,0 +1,31 @@
+{
+  "preregistration_commit": "25fee06e9213a377116f00fba510b7bb701548d4",
+  "committed_at": "2026-10-13T05:57:31+02:00",
+  "first_call": "2026-10-13T04:14:37.443207+00:00",
+  "last_call": "2026-10-13T04:34:47.593062+00:00",
+  "calls": 1008,
+  "max_concurrency_all_runs": 6,
+  "resolved_models": [
+    "claude-haiku-5-5"
+  ],
+  "unknown_costs": 0,
+  "failed_calls": 0,
+  "retries": 0,
+  "map_cost_usd": 0.6281795600000001,
+  "all_runs_cost_usd": 1.15513756,
+  "saturation": {
+    "promptfoo-rubric": {
+      "all-correct": 141,
+      "all-wrong": 0,
+      "discordant": 15
+    },
+    "langfuse-reference": {
+      "all-correct": 155,
+      "all-wrong": 0,
+      "discordant": 25
+    }
+  },
+  "operational_amendment_commit": "f0745ef485e6306e14a7ba0f5e7345e174e9337e",
+  "all_dispatches_before_0635_local": true,
+  "owner_cap_usd": 20
+}

@@ -1,0 +1,94 @@
+{
+  "promptfoo-rubric": {
+    "exact_mcnemar_two_sided": {
+      "statistic": 1,
+      "pValue": 0.0018310546875000013,
+      "method": "exact",
+      "b": 13,
+      "c": 1
+    },
+    "ours_wilson95": {
+      "estimate": 0.9871794871794872,
+      "lower": 0.9544651890044474,
+      "upper": 0.9964770829283277
+    },
+    "peer_wilson95": {
+      "estimate": 0.9102564102564102,
+      "lower": 0.8550045066026877,
+      "upper": 0.9457889855512283
+    },
+    "ours_family_bootstrap95": {
+      "estimate": 0.9871794871794872,
+      "lower": 0.9685534591194969,
+      "upper": 1,
+      "iterations": 20000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 2619092984
+    },
+    "peer_family_bootstrap95": {
+      "estimate": 0.9102564102564102,
+      "lower": 0.7484662576687117,
+      "upper": 1,
+      "iterations": 20000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 2619092984
+    },
+    "paired_difference_family_bootstrap95": {
+      "estimate": 0.07692307692307693,
+      "lower": -0.013605442176870748,
+      "upper": 0.22784810126582278,
+      "iterations": 20000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 2619092984
+    }
+  },
+  "langfuse-reference": {
+    "exact_mcnemar_two_sided": {
+      "statistic": 7,
+      "pValue": 0.06391465663909772,
+      "method": "exact",
+      "b": 17,
+      "c": 7
+    },
+    "ours_wilson95": {
+      "estimate": 0.9611111111111111,
+      "lower": 0.9219152218849264,
+      "upper": 0.981036707809586
+    },
+    "peer_wilson95": {
+      "estimate": 0.9055555555555556,
+      "lower": 0.8539663712230409,
+      "upper": 0.9401961693516506
+    },
+    "ours_family_bootstrap95": {
+      "estimate": 0.9611111111111111,
+      "lower": 0.9044943820224719,
+      "upper": 1,
+      "iterations": 20000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 2619092984
+    },
+    "peer_family_bootstrap95": {
+      "estimate": 0.9055555555555556,
+      "lower": 0.7377049180327869,
+      "upper": 1,
+      "iterations": 20000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 2619092984
+    },
+    "paired_difference_family_bootstrap95": {
+      "estimate": 0.05555555555555555,
+      "lower": -0.06976744186046512,
+      "upper": 0.24294175484595903,
+      "iterations": 20000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 2619092984
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "verified_at": "2026-10-13T04:36:35.926117+00:00",
+  "all_calls": 2160,
+  "total_judge_cost_usd": 1.15513756,
+  "last_started": "2026-10-13T04:34:42.023116+00:00",
+  "last_finished": "2026-10-13T04:34:47.593062+00:00",
+  "source_changes_confined_to_owned_comparison_directory": true,
+  "scratch_report_matches_committed_report_content": true,
+  "report_sha256": "1865a6e8add3805a65413ff269bd29283efdbfd4d84badd6e29263a9d8815877",
+  "transport_amendments": [
+    "75ffb919",
+    "f0745ef4"
+  ],
+  "registrations_unchanged": [
+    "9c1c2ff8",
+    "b63b9103",
+    "25fee06e"
+  ]
+}

@@ -40,6 +40,7 @@ def main():
     cs = read(HERE / 'candidates/supplement.json') if candidate else None
     cv = read(HERE / 'candidates/verification.json') if candidate else None
     mapped = (HERE / 'map/verification.json').exists()
+    incomplete = read(HERE / 'map/incomplete.json') if (HERE / 'map/incomplete.json').exists() and not mapped else None
     cohorts = [('Original 12 families', [('Main default', primary, ps), *([('Frozen candidate', candidate, cs)] if candidate else [])])]
     if mapped:
         cohorts.append(('Separate map replication', [
@@ -86,6 +87,7 @@ def main():
             lines.append(f'| {title} | {correct} | {wrong} | {len(values) - correct - wrong} |')
         lines += ['']
     lines += ['## Tests and interpretation', '',
+        *(['Main default remains equal on both original-family rows. In the separate map replication, its rubric row meets the two-sided bar and its reference row stays equal. Frozen candidates meet the requested one-sided bar on both rows in both cohorts. Every family-clustered interval for the paired accuracy difference includes or touches zero. The nominal leads remain sensitive to which construction families are sampled.', ''] if mapped else []),
         'For W wins and L losses, the exact one-sided sign test is sum(comb(W+L,k), k=W..W+L) / 2**(W+L). This is also the directional exact McNemar test. The two-sided exact McNemar p is min(1, 2 * sum(comb(W+L,k), k=0..min(W,L)) / 2**(W+L)). Zero discordant pairs gives p=1. Inconclusive predictions count as wrong.', '',
         'Main default requires higher accuracy and two-sided exact McNemar p below 0.05 for a lead. The frozen candidate uses the requested higher-accuracy and exact one-sided p below 0.05 bar. Otherwise the row stays equal. Equal is the decision label, not a demonstrated equivalence margin. No cohorts are pooled and no multiple-test adjustment is applied.', '',
         'The bootstrap resamples all 12 construction families with replacement, carrying every paired case within each sampled family. It reports case-weighted means and their paired difference, using 20,000 draws, percentile 95% intervals and seed 2619092984. Exact p-values are nominal case-level tests; repeated templates and shared profiles limit independence. Twelve clusters and a narrow fictional domain also limit generalization. A bootstrap interval of [0,0] at saturation does not establish population equivalence.', '',
@@ -122,6 +124,8 @@ def main():
         for name, title in NAMES.items():
             s = mv['saturation'][name]
             lines.append(f'| {title} | {s["all-correct"]} | {s["all-wrong"]} | {s["discordant"]} |')
+    elif incomplete:
+        lines += [f'The sealed map run stopped at the owner\'s fixed last-call cutoff after {incomplete["calls"]}/1008 recorded calls. All answers are retained; no case, label or outcome was filtered. The full cohort is incomplete, so no map inferential result or lead is claimed. Registration remains `25fee06e`; its 156 rubric cases and 180 reference cases are unchanged. The complete primary and candidate results above are unaffected.', '', f'Recorded calls by row: {incomplete["row_counts"]}. The code gates and isolated 72-item audit preceded sealing; all 72 labels matched, with the three disclosed monthly-modifier ambiguities retained unchanged.']
     else:
         lines += ['The independently registered map cohort is pending. No map results are included here.']
     lines += ['', '## Calls, chronology and spend', '',
@@ -134,6 +138,9 @@ def main():
     if mapped:
         total += mv['map_cost_usd']
         lines.append(f'| Separate map replication | 1008 | {mv["first_call"]} | {mv["last_call"]} | ${mv["map_cost_usd"]:.8f} |')
+    elif incomplete:
+        total += incomplete['map_cost_usd']
+        lines.append(f'| Map, incomplete at cutoff | {incomplete["calls"]} | {incomplete["first_call"]} | {incomplete["last_call"]} | ${incomplete["map_cost_usd"]:.8f} |')
     lines += ['', f'Total reported judge-call spend: **${total:.8f} of $20.00**. Costs are CLI-reported run costs, including cache behavior; orchestration and the isolated audit agent are not metered by this runner. Per-row and per-side start/completion rows are appended to `scratchpad/spend-ledger.md`. Reused primary peer calls are charged once.', '',
         'Completed-run integrity checks verify request uniqueness, committed hashes, resolved model equality, cost completeness, the required run order and maximum concurrency of six (two for the primary). All amended dispatches occurred before 06:35 Europe/Brussels, and completed calls finished before 06:40. There were zero failed calls, unknown costs or retries.', '',
         '## Family accuracy counts', '', '| Cohort | Row | Family | Cases | Main default | Candidate | Peer |', '|---|---|---|---:|---:|---:|---:|']
