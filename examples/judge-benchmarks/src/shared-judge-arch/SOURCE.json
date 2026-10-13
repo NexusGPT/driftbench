@@ -1,0 +1,24 @@
+{
+  "repository": "achammah/driftbench",
+  "branch": "codex/judge-arch",
+  "commit": "1270e1cb1eb324b2f3efbca816aa43fbcb092ae6",
+  "sourceRoot": "packages/judges/src/",
+  "files": [
+    "assessment.ts",
+    "client.ts",
+    "contract.ts",
+    "criterion-ledger.ts",
+    "evidence.ts",
+    "fact-audit.ts",
+    "http.ts",
+    "legacy-prompt.ts",
+    "pairwise.ts",
+    "prompt.ts",
+    "legacy-contract.ts"
+  ],
+  "policy": "Verbatim snapshots. Explicit score ledgers and shared deterministic aggregation used; raw replies retained. No winnerQuote matching enters criterion decisions.",
+  "approvedForNew": true,
+  "approval": "Owner: You may use 1270e1cb1eb324b2f3efbca816aa43fbcb092ae6 for the full run and freeze; report it was still under review at freeze.",
+  "legacyCommit": "35b7ad973e3e2a2cde726205fe3342d88fc44057",
+  "reviewStatus": "Independent re-review running; owner authorizes full run and freeze"
+}
