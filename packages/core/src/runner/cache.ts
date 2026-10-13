@@ -23,6 +23,8 @@ export type BlockKeyParts = {
   adapterVersion: string;
   /** The suite the run belongs to, when it names one. Absent keeps the key every earlier cache used. */
   suite?: string;
+  /** The agent version, when supplied. Absent preserves every earlier cache key. */
+  agentVersion?: string;
 };
 
 /**
