@@ -16,7 +16,7 @@
     "timeoutMs": 300000,
     "transportTries": 3,
     "maxRetries": 0,
-    "capUsd": 35,
+    "capUsd": 45,
     "reserveUsd": 0.1,
     "concurrency": 12,
     "testOrderSeed": "ledger-rb-test-order-v1",
@@ -59,7 +59,7 @@
     "retryPolicy": "Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero."
   },
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "18a266098bf8c86b572428fc66bd58677c380e0179ea600ccca85388e877e343",
+    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "f0d23c81d49c983c6e01dd0b911680a7054cd17adf1a84ebf623b5228a5b589c",
     "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "42741beb2a7a7ff474ac3ff7d001ffef1834a79980cd31eca3f28f2b38bf2d6e",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",

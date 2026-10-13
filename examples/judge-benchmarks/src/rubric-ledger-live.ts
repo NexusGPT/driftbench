@@ -19,7 +19,7 @@ export type Model = typeof MODELS[number];
 export const SETTINGS = {
   coreCommit: '35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd', corePr: 168,
   models: MODELS, reasoning: { 'claude-haiku-5-5': null, 'gpt-6-luna': 'medium', 'gemini-3.8-flash': 'medium' },
-  maxTokens: 8192, timeoutMs: 300000, transportTries: 3, maxRetries: 0, capUsd: 35, reserveUsd: 0.10,
+  maxTokens: 8192, timeoutMs: 300000, transportTries: 3, maxRetries: 0, capUsd: 45, reserveUsd: 0.10,
   concurrency: 12, testOrderSeed: 'ledger-rb-test-order-v1',
   modelConcurrency: { 'claude-haiku-5-5': 2, 'gpt-6-luna': 8, 'gemini-3.8-flash': 2 },
   rateLimitWaitMs: [60000, 120000, 240000],
