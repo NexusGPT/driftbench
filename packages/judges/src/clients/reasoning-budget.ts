@@ -148,6 +148,15 @@ export async function postReasoningJson(
   const body = budgetBody(provider, original, options.tokenBudget);
   const attempts: { raw: string; usage: TokenUsage; costUsd?: number }[] = [];
   let requestCount = 0;
+  let reasked = false;
+  const fetchFn = options.fetch ?? ((url: string, init: RequestInit) => fetch(url, init));
+  const countedOptions: HttpOptions = {
+    ...options,
+    fetch: (url, init) => {
+      requestCount++;
+      return fetchFn(url, init);
+    },
+  };
   const receipt = (payload: unknown) => {
     let usage = usageFromResponse(provider, payload);
     if (provider === 'google' && isRecord(payload) && isRecord(payload.usageMetadata)) {
@@ -167,7 +176,7 @@ export async function postReasoningJson(
       output: attempts.reduce((n, a) => n + (a.usage.output ?? 0), 0),
     },
     requestCount,
-    ...(requestCount > 1 ? { reaskReason: 'reasoning-budget-exhausted' as const } : {}),
+    ...(reasked ? { reaskReason: 'reasoning-budget-exhausted' as const } : {}),
     ...(meter ? { costUsd: attempts.reduce((n, a) => n + (a.costUsd ?? 0), 0) } : {}),
     usageComplete:
       attempts.length === requestCount &&
@@ -180,8 +189,7 @@ export async function postReasoningJson(
     attempts,
     ...(retrySkipped ? { retrySkipped } : {}),
   });
-  requestCount++;
-  const first = await postJson(url, headers, body, options);
+  const first = await postJson(url, headers, body, countedOptions);
   receipt(first);
   if (!emptyLength(provider, first)) return { payload: first, accounting: meter ? accounting() : undefined };
   const spent = accounting();
@@ -192,10 +200,15 @@ export async function postReasoningJson(
       (spent.costUsd ?? 0) + meter.maxRetryCostUsd > meter.maxCostUsd)
   )
     throw new ReasoningBudgetError(recovery('spend-cap'));
-  requestCount++;
+  reasked = true;
   let second: unknown;
   try {
-    second = await postJson(url, headers, recoveryBody(provider, body), options);
+    // The reservation covers one submission, not another transport retry loop.
+    second = await postJson(url, headers, recoveryBody(provider, body), {
+      ...countedOptions,
+      maxRetries: 0,
+      retry: { ...options.retry, maxAttempts: 1 },
+    });
   } catch (cause) {
     const error = new ReasoningBudgetError(recovery());
     error.cause = cause;

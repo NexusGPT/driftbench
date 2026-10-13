@@ -255,3 +255,57 @@ it('recovers the later Gemini thinking exhaustion with a short partial answer', 
   expect(result.answer.outcome).toBe('pass');
   expect(calls).toBe(2);
 });
+
+it('counts physical HTTP submissions before a recovery and marks missing usage', async () => {
+  let calls = 0;
+  const result = await createOpenAiJudge({
+    model: 'fictional',
+    env,
+    sleep: async () => {},
+    metering: { costOfUsage: () => 0.01 },
+    fetch: async () => {
+      calls++;
+      if (calls === 1) return new Response('{}', { status: 503 });
+      return new Response(
+        JSON.stringify(
+          calls === 2 ? empty.openai : { ...ok.openai, usage: { prompt_tokens: 1, completion_tokens: 2 } },
+        ),
+      );
+    },
+  }).judge(request);
+  expect(calls).toBe(3);
+  expect(result.requestCount).toBe(3);
+  expect(result.recovery).toMatchObject({ usageComplete: false, costComplete: false });
+});
+it('never hides extra HTTP retries inside the single recovery reservation', async () => {
+  let calls = 0;
+  await expect(
+    createOpenAiJudge({
+      model: 'fictional',
+      env,
+      sleep: async () => {},
+      retry: { maxAttempts: 4 },
+      fetch: async () => {
+        calls++;
+        return calls === 1 ? new Response(JSON.stringify(empty.openai)) : new Response('{}', { status: 503 });
+      },
+    }).judge(request),
+  ).rejects.toMatchObject({ requestCount: 2, code: 'reasoning-budget-exhausted' });
+  expect(calls).toBe(2);
+});
+it('denies recovery when an earlier HTTP submission has unknown billed usage', async () => {
+  let calls = 0;
+  await expect(
+    createOpenAiJudge({
+      model: 'fictional',
+      env,
+      sleep: async () => {},
+      metering: { costOfUsage: () => 0.01, maxCostUsd: 1, maxRetryCostUsd: 0.1 },
+      fetch: async () => {
+        calls++;
+        return calls === 1 ? new Response('{}', { status: 503 }) : new Response(JSON.stringify(empty.openai));
+      },
+    }).judge(request),
+  ).rejects.toMatchObject({ requestCount: 2, recovery: { retrySkipped: 'spend-cap' } });
+  expect(calls).toBe(2);
+});
