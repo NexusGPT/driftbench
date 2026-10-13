@@ -35,6 +35,16 @@ def main():
     calls=records('results/calls.jsonl')
     decisions=records('results/decisions.jsonl')
     validity=load('results/validity-checks.json',{})
+    reasks=[]
+    for scope in ['all phases','test']:
+        for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
+            selected=[r for r in decisions if r['contestant']=='pair-ledger' and r['model']==model and (scope=='all phases' or r['split']=='test')]
+            reads=[read for row in selected for read in row['details']['reads']]
+            repeated=[read for read in reads if any(step['ruleId']=='ledger.reask' for step in read['parseSteps'])]
+            reasks.append({'scope':scope,'model':model,'completedPairs':len(selected),'orderedReadings':len(reads),
+                           'schemaReasks':len(repeated),'recovered':sum(not read['result'].get('unparsed',False) for read in repeated),
+                           'reaskCostUsd':sum(attempt.get('costUsd',0) for read in repeated for attempt in read['attempts'][1:])})
+    (HERE/'results/reasks.json').write_text(json.dumps(reasks,indent=2)+'\n')
     head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT).decode().strip()
     lines=['# LongJudge writing pair ledger study','',f"Measured state: {datetime.datetime.now(datetime.timezone.utc).isoformat()}. Branch `research/ledger-wp`, local head `{head}`.",'',
         '## Outcome','',
@@ -103,6 +113,11 @@ def main():
             limited=sum(r.get('providerMeta',{}).get('finishReason') in ['MAX_TOKENS','length'] for r in subset)
             lines.append(f"| {model} | {contestant} | {len(subset)} | {limited} | {sum(bool(r.get('providerError')) for r in subset)} |")
     lines+=['','The common HTTP output limit can truncate a reasoning-heavy response. This is recorded, not repaired outside the frozen contract. In the separate reader-first row, an invalid ballot can still yield the frozen length fallback. Source: `results/calls.jsonl`.','',
+        '| Scope | Model | Ordered readings | Schema re-asks | Recovered | Re-ask USD, already in total |',
+        '|---|---|---:|---:|---:|---:|']
+    for row in reasks:
+        lines.append(f"| {row['scope']} | {row['model']} | {row['orderedReadings']} | {row['schemaReasks']} | {row['recovered']} | {f(row['reaskCostUsd'],8)} |")
+    lines+=['','The owner explicitly preserves the frozen core single schema re-ask after malformed JSON. The no-returned-answer-retry rule applies to transport wrappers. Frequencies count `ledger.reask` in completed pair readings; their second attempt cost is included in each decision and the overall spend. Source: `results/reasks.json` and `results/decisions.jsonl`.','',
         '## Freeze and execution','',
         '- Core: [PR 168](https://github.com/achammah/driftbench/pull/168), `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`, remote hash verified before calls.',
         '- Reader-first: [PR 157](https://github.com/achammah/driftbench/pull/157), source snapshot `c50b2dc3`.',

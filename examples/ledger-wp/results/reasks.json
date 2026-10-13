@@ -1,0 +1,56 @@
+[
+  {
+    "scope": "all phases",
+    "model": "haiku",
+    "completedPairs": 38,
+    "orderedReadings": 81,
+    "schemaReasks": 0,
+    "recovered": 0,
+    "reaskCostUsd": 0
+  },
+  {
+    "scope": "all phases",
+    "model": "gpt-6-luna",
+    "completedPairs": 38,
+    "orderedReadings": 82,
+    "schemaReasks": 0,
+    "recovered": 0,
+    "reaskCostUsd": 0
+  },
+  {
+    "scope": "all phases",
+    "model": "gemini-3.8-flash",
+    "completedPairs": 38,
+    "orderedReadings": 80,
+    "schemaReasks": 0,
+    "recovered": 0,
+    "reaskCostUsd": 0
+  },
+  {
+    "scope": "test",
+    "model": "haiku",
+    "completedPairs": 0,
+    "orderedReadings": 0,
+    "schemaReasks": 0,
+    "recovered": 0,
+    "reaskCostUsd": 0
+  },
+  {
+    "scope": "test",
+    "model": "gpt-6-luna",
+    "completedPairs": 0,
+    "orderedReadings": 0,
+    "schemaReasks": 0,
+    "recovered": 0,
+    "reaskCostUsd": 0
+  },
+  {
+    "scope": "test",
+    "model": "gemini-3.8-flash",
+    "completedPairs": 0,
+    "orderedReadings": 0,
+    "schemaReasks": 0,
+    "recovered": 0,
+    "reaskCostUsd": 0
+  }
+]
