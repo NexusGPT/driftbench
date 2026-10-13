@@ -1,0 +1,7 @@
+# A change manifest for driftbench radius. Fictional data only.
+# The handler of deviation D8 changed: a tool that fails.
+from: acme-v1
+to: acme-v2
+changes:
+  - kind: deviation
+    id: D8
