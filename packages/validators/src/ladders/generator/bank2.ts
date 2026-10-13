@@ -2,6 +2,7 @@ import type { Spec } from '@agent-nexus/driftbench-core';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
 import { DEVIATION_POOL, type HiddenSpec, type ToolRole } from './hidden';
 import type { Generation } from './measure';
+import { impossiblePairs } from './possible';
 
 /**
  * The research and parity families of the generator bank (docs/validators.md section 12.2, items 1 to 3):
@@ -291,7 +292,19 @@ function sequenceItems(): BankItem[] {
               .filter((path) => flows.includes(path.flow))
               .flatMap((path) => path.stages.slice(1, -1)),
           );
-          const reachable = [...stages].filter((stage) => allowed(hidden, { deviation: cls, stage }));
+          const impossible =
+            cls === 'D8_tool_failure'
+              ? await data.memoized('sequence-impossible-pairs', async () => impossiblePairs(hidden))
+              : [];
+          const reachable = [...stages].filter((stage) => {
+            const cell: Record<string, string> = { deviation: cls, stage };
+            return (
+              allowed(hidden, cell) &&
+              !impossible.some(({ forbid }) =>
+                Object.entries(forbid).every(([dimension, value]) => cell[dimension] === value),
+              )
+            );
+          });
           const probedAt = new Set<string>();
           for (const { spec } of generated.complete) {
             spec.blocks.forEach((block, index) => {
