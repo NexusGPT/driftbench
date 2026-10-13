@@ -3,7 +3,7 @@
 The metric classes, their templates and the Haiku model adapter are the earlier comparison's own
 (comparisons/deepeval/hard/run.py `metrics`), unchanged. Only the recorder differs: prompt caching disabled,
 network probe gate, a pause after three consecutive failures, missing-only reruns, one shared 25 USD cap.
-Usage, with deepeval==4.2.8 installed: python comparisons/hard-peers/deepeval_run.py <task|knowledge|completeness> [--replay]
+Usage, with deepeval==4.2.8 installed: python comparisons/hard-peers/deepeval_run.py <task|knowledge|completeness> [--replay] [--limit N] [--max-fresh N]
 """
 import argparse
 import hashlib
@@ -67,8 +67,8 @@ class Missing(Exception):
 
 
 class Recorder:
-    def __init__(self, row, replay):
-        self.row, self.replay = row, replay
+    def __init__(self, row, replay, max_fresh=None):
+        self.row, self.replay, self.max_fresh = row, replay, max_fresh
         self.path = HERE / f'calls/deepeval-theirs-{row}.jsonl'
         self.failures = HERE / f'calls/failures-deepeval-{row}.jsonl'
         self.cache = {}
@@ -92,7 +92,7 @@ class Recorder:
         self.keys.append(key)
         if key in self.cache:
             return self.cache[key]['text']
-        if self.replay:
+        if self.replay or (self.max_fresh is not None and self.fresh >= self.max_fresh):
             raise Missing(key)
         if self.spent + PER_CALL_USD > CAP_USD:
             raise SystemExit(f'Budget cap {CAP_USD} USD reached')
@@ -147,6 +147,7 @@ def main():
     ap.add_argument('row', choices=list(METRIC))
     ap.add_argument('--replay', action='store_true')
     ap.add_argument('--limit', type=int)
+    ap.add_argument('--max-fresh', type=int)
     args = ap.parse_args()
     if importlib.metadata.version('deepeval') != '4.2.8':
         raise SystemExit('Requires deepeval==4.2.8')
@@ -156,7 +157,7 @@ def main():
     from run import metrics  # the earlier comparison's metric wiring and model adapter, unchanged
     (HERE / 'calls').mkdir(exist_ok=True)
     (HERE / 'results').mkdir(exist_ok=True)
-    recorder = Recorder(args.row, args.replay)
+    recorder = Recorder(args.row, args.replay, args.max_fresh)
     measure = metrics(recorder)
     items = json.loads((HERE / f'sets/deepeval-{args.row}.json').read_text())[:args.limit]
     if not args.replay:

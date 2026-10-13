@@ -28,7 +28,7 @@ Run from the repository root:
 python3 comparisons/hard-peers/generate.py
 python3 comparisons/hard-peers/render_peers.py
 python3 -m unittest discover -s comparisons/hard-peers -p test_hard_peers.py
-pnpm exec tsx comparisons/hard-peers/run.mts promptfoo rubric audit --replay
+pnpm exec tsx comparisons/hard-peers/run.mts promptfoo rubric:audit,rubric:default,rubric:theirs --replay
 python3 comparisons/hard-peers/score.py
 ```
 

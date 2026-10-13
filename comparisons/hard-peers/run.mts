@@ -13,23 +13,33 @@ import {
 } from '../../packages/judges/src/index';
 import { type Item, type Mode, requestFor } from './request';
 
-// Scores the judge this checkout ships, and the competitor's own default prompt, on one frozen held-out row.
-// Usage: run.mts <promptfoo|langfuse|deepeval> <row> <default|audit|theirs> [--replay] [--limit N]
-// deepeval theirs runs in deepeval_run.py. Every answered call is recorded once and never sent again.
+// Scores the judge this checkout ships, and the competitor's own default prompt, on frozen held-out rows.
+// Usage: run.mts <promptfoo|langfuse|deepeval> <row>:<default|audit|theirs>[,...] [--replay] [--limit N] [--max-fresh N]
+// Jobs run in order in one process, after one probe gate. deepeval theirs runs in deepeval_run.py.
+// Every answered call is recorded once and never sent again.
 const here = fileURLToPath(new URL('./', import.meta.url));
 const repo = fileURLToPath(new URL('../../', import.meta.url));
-const [competitor, row, contestant] = process.argv.slice(2) as [string, string, Mode | 'theirs'];
+const competitor = process.argv[2] as string;
+const jobs = (process.argv[3] ?? '').split(',').map((job) => job.split(':') as [string, Mode | 'theirs']);
 const replay = process.argv.includes('--replay');
-const limitAt = process.argv.indexOf('--limit');
-const limit = limitAt < 0 ? undefined : Number(process.argv[limitAt + 1]);
+const option = (name: string) => {
+  const at = process.argv.indexOf(name);
+  return at < 0 ? undefined : Number(process.argv[at + 1]);
+};
+const limit = option('--limit');
+const maxFresh = option('--max-fresh');
 if (
   !['promptfoo', 'langfuse', 'deepeval'].includes(competitor) ||
-  !['default', 'audit', 'theirs'].includes(contestant) ||
-  (competitor === 'deepeval' && contestant === 'theirs')
+  jobs.some(
+    ([r, c]) =>
+      !r || !['default', 'audit', 'theirs'].includes(c) || (competitor === 'deepeval' && c === 'theirs'),
+  )
 )
   throw new Error(
-    'Usage: run.mts <promptfoo|langfuse|deepeval> <row> <default|audit|theirs> [--replay] [--limit N]',
+    'Usage: run.mts <promptfoo|langfuse|deepeval> <row>:<default|audit|theirs>[,...] [--replay] [--limit N] [--max-fresh N]',
   );
+let row = '';
+let contestant: Mode | 'theirs' = 'default';
 
 // Nothing runs against a set, prompt, judge source or runner that differs from the freeze.
 const freeze = JSON.parse(readFileSync(`${here}freeze.json`, 'utf8')) as { sha256: Record<string, string> };
@@ -171,7 +181,7 @@ async function ask(id: string, prompt: { system: string; user: string }, attempt
   const key = keyOf(prompt, attempt);
   const old = cache.get(key);
   if (old) return old;
-  if (replay) return undefined;
+  if (replay || (maxFresh !== undefined && fresh + reserved / PER_CALL_USD >= maxFresh)) return undefined;
   await waitForGate();
   if (spent + reserved + PER_CALL_USD > CAP_USD) throw new Error(`Budget cap ${CAP_USD} USD reached`);
   reserved += PER_CALL_USD;
@@ -278,49 +288,58 @@ async function ours(item: Item, mode: Mode) {
   };
 }
 
-const items = (JSON.parse(readFileSync(`${here}sets/${competitor}-${row}.json`, 'utf8')) as Item[]).slice(
-  0,
-  limit,
-);
-const theirs =
-  contestant === 'theirs'
-    ? (JSON.parse(readFileSync(`${here}prompts/${competitor}-${row}-theirs.json`, 'utf8')) as Record<
-        string,
-        { system: string; user: string }
-      >)
-    : undefined;
 if (!replay) await probeGate('start');
-const results: Record<string, unknown>[] = new Array(items.length);
-let next = 0;
-async function worker() {
-  for (;;) {
-    const index = next++;
-    if (index >= items.length) return;
-    const item = items[index] as Item;
-    const base = { id: item.id, kind: item.kind, pair: item.pair, truth: item.truth };
-    try {
-      if (theirs) {
-        const call = await ask(item.id, theirs[item.id] as { system: string; user: string }, 0);
-        results[index] = call
-          ? { ...base, complete: true, keys: [call.key], costUsd: call.costUsd }
-          : { ...base, complete: false };
-      } else results[index] = { ...base, complete: true, ...(await ours(item, contestant as Mode)) };
-    } catch (error) {
-      if (!(error instanceof Missing)) throw error;
-      results[index] = { ...base, complete: false };
+for ([row, contestant] of jobs) {
+  const items = (JSON.parse(readFileSync(`${here}sets/${competitor}-${row}.json`, 'utf8')) as Item[]).slice(
+    0,
+    limit,
+  );
+  const theirs =
+    contestant === 'theirs'
+      ? (JSON.parse(readFileSync(`${here}prompts/${competitor}-${row}-theirs.json`, 'utf8')) as Record<
+          string,
+          { system: string; user: string }
+        >)
+      : undefined;
+  const results: Record<string, unknown>[] = new Array(items.length);
+  let next = 0;
+  const worker = async () => {
+    for (;;) {
+      const index = next++;
+      if (index >= items.length) return;
+      const item = items[index] as Item;
+      const base = { id: item.id, kind: item.kind, pair: item.pair, truth: item.truth };
+      try {
+        if (theirs) {
+          const call = await ask(item.id, theirs[item.id] as { system: string; user: string }, 0);
+          results[index] = call
+            ? { ...base, complete: true, keys: [call.key], costUsd: call.costUsd }
+            : { ...base, complete: false };
+        } else results[index] = { ...base, complete: true, ...(await ours(item, contestant as Mode)) };
+      } catch (error) {
+        if (!(error instanceof Missing)) throw error;
+        results[index] = { ...base, complete: false };
+      }
+      if (index % 10 === 9)
+        console.log(
+          JSON.stringify({
+            competitor,
+            row,
+            contestant,
+            done: index + 1,
+            fresh,
+            spentUsd: +spent.toFixed(4),
+          }),
+        );
     }
-    if (index % 10 === 9)
-      console.log(
-        JSON.stringify({ competitor, row, contestant, done: index + 1, fresh, spentUsd: +spent.toFixed(4) }),
-      );
-  }
+  };
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+  const complete = results.filter((r) => r.complete).length;
+  writeFileSync(
+    `${here}results/${competitor}-${row}-${contestant}.json`,
+    `${JSON.stringify({ competitor, row, contestant, model: 'haiku', items: items.length, complete, results }, null, 2)}\n`,
+  );
+  console.log(
+    JSON.stringify({ competitor, row, contestant, items: items.length, complete, fresh, spentUsd: spent }),
+  );
 }
-await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-const complete = results.filter((r) => r.complete).length;
-writeFileSync(
-  `${here}results/${competitor}-${row}-${contestant}.json`,
-  `${JSON.stringify({ competitor, row, contestant, model: 'haiku', items: items.length, complete, results }, null, 2)}\n`,
-);
-console.log(
-  JSON.stringify({ competitor, row, contestant, items: items.length, complete, fresh, spentUsd: spent }),
-);
