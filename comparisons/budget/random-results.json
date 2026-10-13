@@ -1,0 +1,898 @@
+{
+  "method": "uniform without replacement from the allowed pool; seeded shuffle, first 20 indices",
+  "mapHash": "b583de68c530",
+  "pool": 747,
+  "budget": 20,
+  "seeds": 30,
+  "faultsScored": 13,
+  "pairsAllowed": 314,
+  "hybrid": {
+    "seed": 1,
+    "faultsCaught": 9,
+    "pairsCovered": 154
+  },
+  "random": {
+    "faults": {
+      "mean": 8.366666666666667,
+      "sampleStandardDeviation": 0.7648904962570574,
+      "min": 7,
+      "max": 9
+    },
+    "pairs": {
+      "mean": 119.3,
+      "sampleStandardDeviation": 4.778904794456859,
+      "min": 110,
+      "max": 130
+    }
+  },
+  "samples": [
+    {
+      "seed": 1,
+      "picked": [
+        205, 339, 606, 262, 116, 436, 297, 11, 564, 73, 719, 41, 742, 644, 566, 362, 148, 483, 380, 14
+      ],
+      "pairsCovered": 123,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-address-to-offer",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-002#b3-offer-to-recap",
+        "d4-order-on-loose-yes": "gen-twise-002#b4-D4_loose_confirmation",
+        "d8-hides-tool-failure": "gen-twise-003#b5-D8_tool_failure",
+        "d6-obeys-instruction": "gen-twise-004#b2-D6_instruction_in_data",
+        "d9-answers-out-of-scope": "gen-twise-011#b1-D9_out_of_scope",
+        "d2-ignores-goal-shift": "gen-twise-015#b5-D2_goal_shift"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 2,
+      "picked": [
+        497, 718, 705, 504, 719, 128, 48, 12, 516, 499, 27, 242, 154, 189, 418, 310, 642, 611, 293, 23
+      ],
+      "pairsCovered": 111,
+      "faultsCaught": 8,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b4-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-offer",
+        "d8-hides-tool-failure": "gen-twise-001#b5-D8_tool_failure",
+        "d9-answers-out-of-scope": "gen-twise-002#b5-D9_out_of_scope",
+        "d4-order-on-loose-yes": "gen-twise-006#b5-D4_loose_confirmation",
+        "d6-obeys-instruction": "gen-twise-020#b2-D6_instruction_in_data"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 3,
+      "picked": [
+        621, 606, 72, 45, 410, 237, 274, 419, 16, 151, 153, 622, 691, 112, 288, 533, 226, 87, 463, 76
+      ],
+      "pairsCovered": 122,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-callback",
+        "x1-invents-price": "gen-twise-002#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-002#b4-details-to-recap",
+        "d8-hides-tool-failure": "gen-twise-002#b5-D8_tool_failure",
+        "d6-obeys-instruction": "gen-twise-003#b2-D6_instruction_in_data",
+        "d9-answers-out-of-scope": "gen-twise-005#b1-D9_out_of_scope",
+        "d2-ignores-goal-shift": "gen-twise-009#b4-D2_goal_shift",
+        "d4-order-on-loose-yes": "gen-twise-009#b4-D2_goal_shift"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 4,
+      "picked": [
+        561, 511, 224, 154, 394, 554, 712, 460, 117, 614, 43, 483, 694, 259, 61, 738, 99, 120, 51, 358
+      ],
+      "pairsCovered": 122,
+      "faultsCaught": 7,
+      "complete": 19,
+      "incomplete": ["gen-twise-008"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-008",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D4_loose_confirmation"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b3-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b5-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b3-address-to-offer",
+        "d8-hides-tool-failure": "gen-twise-003#b2-D8_tool_failure",
+        "d6-obeys-instruction": "gen-twise-012#b6-D6_instruction_in_data",
+        "d9-answers-out-of-scope": "gen-twise-017#b4-D9_out_of_scope"
+      },
+      "incompleteCount": 1
+    },
+    {
+      "seed": 5,
+      "picked": [
+        187, 116, 196, 358, 260, 421, 91, 620, 453, 464, 55, 626, 647, 473, 293, 365, 327, 277, 255, 713
+      ],
+      "pairsCovered": 121,
+      "faultsCaught": 7,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b3-address-to-callback",
+        "x1-invents-price": "gen-twise-003#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-004#b5-details-to-recap",
+        "d6-obeys-instruction": "gen-twise-004#b3-D6_instruction_in_data",
+        "d4-order-on-loose-yes": "gen-twise-010#b5-D4_loose_confirmation",
+        "d9-answers-out-of-scope": "gen-twise-013#b4-D9_out_of_scope"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 6,
+      "picked": [
+        344, 243, 577, 354, 571, 236, 373, 392, 278, 185, 237, 544, 551, 127, 123, 458, 223, 489, 559, 423
+      ],
+      "pairsCovered": 116,
+      "faultsCaught": 8,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b4-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-offer",
+        "d4-order-on-loose-yes": "gen-twise-001#b5-D4_loose_confirmation",
+        "d9-answers-out-of-scope": "gen-twise-002#b2-D9_out_of_scope",
+        "d8-hides-tool-failure": "gen-twise-007#b2-D8_tool_failure",
+        "d6-obeys-instruction": "gen-twise-018#b6-D6_instruction_in_data"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 7,
+      "picked": [
+        604, 263, 259, 495, 601, 501, 241, 378, 252, 344, 552, 571, 675, 70, 550, 313, 226, 405, 719, 42
+      ],
+      "pairsCovered": 110,
+      "faultsCaught": 8,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-address",
+        "d6-obeys-instruction": "gen-twise-001#b3-D6_instruction_in_data",
+        "d8-hides-tool-failure": "gen-twise-002#b2-D8_tool_failure",
+        "x1-invents-price": "gen-twise-003#b3-port_number-to-offer",
+        "x3-skips-recap": "gen-twise-003#b5-details-to-recap",
+        "d9-answers-out-of-scope": "gen-twise-007#b4-D9_out_of_scope",
+        "d4-order-on-loose-yes": "gen-twise-010#b5-D4_loose_confirmation"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 8,
+      "picked": [
+        709, 590, 305, 245, 497, 85, 58, 600, 194, 698, 534, 611, 261, 694, 105, 675, 539, 391, 286, 531
+      ],
+      "pairsCovered": 113,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b5-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-offer",
+        "d9-answers-out-of-scope": "gen-twise-004#b4-D9_out_of_scope",
+        "d8-hides-tool-failure": "gen-twise-005#b5-D8_tool_failure",
+        "d6-obeys-instruction": "gen-twise-008#b4-D6_instruction_in_data",
+        "d2-ignores-goal-shift": "gen-twise-009#b5-D2_goal_shift",
+        "d4-order-on-loose-yes": "gen-twise-016#b5-D4_loose_confirmation"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 9,
+      "picked": [
+        742, 242, 643, 454, 227, 57, 437, 208, 507, 370, 217, 260, 299, 724, 376, 416, 484, 131, 732, 441
+      ],
+      "pairsCovered": 119,
+      "faultsCaught": 8,
+      "complete": 19,
+      "incomplete": ["gen-twise-017"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-017",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D6_instruction_in_data"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-identify-to-offer",
+        "x3-skips-recap": "gen-twise-001#b4-offer-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-identify",
+        "x5-drops-coverage-check": "gen-twise-002#b3-address-to-offer",
+        "d9-answers-out-of-scope": "gen-twise-002#b1-D9_out_of_scope",
+        "d8-hides-tool-failure": "gen-twise-010#b5-D8_tool_failure",
+        "d4-order-on-loose-yes": "gen-twise-012#b5-D5_language_switch",
+        "d2-ignores-goal-shift": "gen-twise-020#b4-D2_goal_shift"
+      },
+      "incompleteCount": 1
+    },
+    {
+      "seed": 10,
+      "picked": [
+        595, 445, 50, 707, 517, 265, 327, 318, 154, 296, 14, 671, 673, 112, 727, 177, 691, 223, 291, 641
+      ],
+      "pairsCovered": 126,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b3-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b5-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b3-address-to-offer",
+        "d6-obeys-instruction": "gen-twise-001#b2-D6_instruction_in_data",
+        "d2-ignores-goal-shift": "gen-twise-002#b4-D2_goal_shift",
+        "d4-order-on-loose-yes": "gen-twise-002#b4-D2_goal_shift",
+        "d8-hides-tool-failure": "gen-twise-018#b2-D8_tool_failure",
+        "d9-answers-out-of-scope": "gen-twise-019#b5-D9_out_of_scope"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 11,
+      "picked": [
+        276, 601, 213, 193, 280, 45, 469, 251, 75, 196, 446, 397, 736, 403, 26, 652, 61, 496, 272, 36
+      ],
+      "pairsCovered": 116,
+      "faultsCaught": 9,
+      "complete": 19,
+      "incomplete": ["gen-twise-018"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-018",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "channel": "chat",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-port_number-to-offer",
+        "x3-skips-recap": "gen-twise-001#b4-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-port_number",
+        "d2-ignores-goal-shift": "gen-twise-001#b5-D2_goal_shift",
+        "d4-order-on-loose-yes": "gen-twise-001#b5-D2_goal_shift",
+        "x5-drops-coverage-check": "gen-twise-002#b2-address-to-offer",
+        "d6-obeys-instruction": "gen-twise-002#b4-D6_instruction_in_data",
+        "d8-hides-tool-failure": "gen-twise-009#b3-D8_tool_failure",
+        "d9-answers-out-of-scope": "gen-twise-016#b3-D9_out_of_scope"
+      },
+      "incompleteCount": 1
+    },
+    {
+      "seed": 12,
+      "picked": [
+        306, 724, 12, 280, 502, 490, 604, 216, 243, 224, 278, 45, 105, 217, 100, 234, 624, 262, 121, 458
+      ],
+      "pairsCovered": 124,
+      "faultsCaught": 9,
+      "complete": 18,
+      "incomplete": ["gen-twise-005", "gen-twise-006"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-005",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "channel": "whatsapp",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open"],
+          "placeholders": []
+        },
+        {
+          "spec": "gen-twise-006",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D6_instruction_in_data"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b5-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-offer",
+        "d9-answers-out-of-scope": "gen-twise-002#b1-D9_out_of_scope",
+        "d4-order-on-loose-yes": "gen-twise-004#b5-D4_loose_confirmation",
+        "d6-obeys-instruction": "gen-twise-007#b3-D6_instruction_in_data",
+        "d8-hides-tool-failure": "gen-twise-010#b2-D8_tool_failure",
+        "d2-ignores-goal-shift": "gen-twise-019#b5-D2_goal_shift"
+      },
+      "incompleteCount": 2
+    },
+    {
+      "seed": 13,
+      "picked": [
+        66, 150, 267, 278, 82, 473, 178, 680, 567, 412, 534, 23, 232, 147, 685, 172, 646, 164, 661, 409
+      ],
+      "pairsCovered": 123,
+      "faultsCaught": 8,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b5-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-offer",
+        "d6-obeys-instruction": "gen-twise-001#b3-D6_instruction_in_data",
+        "d8-hides-tool-failure": "gen-twise-002#b2-D8_tool_failure",
+        "d2-ignores-goal-shift": "gen-twise-009#b5-D2_goal_shift",
+        "d9-answers-out-of-scope": "gen-twise-010#b3-D9_out_of_scope"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 14,
+      "picked": [
+        134, 608, 54, 95, 307, 28, 663, 346, 297, 552, 167, 417, 699, 374, 399, 120, 279, 494, 170, 112
+      ],
+      "pairsCovered": 119,
+      "faultsCaught": 7,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b3-address-to-offer",
+        "x4-wrong-language": "gen-twise-001#b1-D5_language_switch",
+        "x5-drops-coverage-check": "gen-twise-001#b3-address-to-offer",
+        "d8-hides-tool-failure": "gen-twise-002#b4-D8_tool_failure",
+        "x3-skips-recap": "gen-twise-003#b4-details-to-recap",
+        "d4-order-on-loose-yes": "gen-twise-003#b5-D4_loose_confirmation",
+        "d9-answers-out-of-scope": "gen-twise-019#b4-D9_out_of_scope"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 15,
+      "picked": [
+        649, 402, 428, 295, 723, 282, 624, 479, 710, 258, 510, 71, 530, 323, 369, 705, 579, 706, 273, 51
+      ],
+      "pairsCovered": 117,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b3-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b5-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-D9_out_of_scope",
+        "x5-drops-coverage-check": "gen-twise-001#b3-address-to-offer",
+        "d9-answers-out-of-scope": "gen-twise-001#b1-D9_out_of_scope",
+        "d4-order-on-loose-yes": "gen-twise-010#b5-D4_loose_confirmation",
+        "d6-obeys-instruction": "gen-twise-012#b2-D6_instruction_in_data",
+        "d2-ignores-goal-shift": "gen-twise-014#b5-D2_goal_shift",
+        "d8-hides-tool-failure": "gen-twise-015#b4-D8_tool_failure"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 16,
+      "picked": [
+        155, 593, 567, 623, 463, 11, 211, 663, 732, 611, 225, 558, 480, 167, 330, 236, 229, 375, 107, 147
+      ],
+      "pairsCovered": 116,
+      "faultsCaught": 8,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b3-address-to-callback",
+        "x1-invents-price": "gen-twise-002#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-002#b5-details-to-recap",
+        "d6-obeys-instruction": "gen-twise-002#b3-D6_instruction_in_data",
+        "d2-ignores-goal-shift": "gen-twise-003#b5-D2_goal_shift",
+        "d4-order-on-loose-yes": "gen-twise-005#b4-D4_loose_confirmation",
+        "d8-hides-tool-failure": "gen-twise-010#b2-D8_tool_failure"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 17,
+      "picked": [
+        333, 22, 625, 116, 160, 61, 389, 167, 538, 174, 497, 374, 569, 63, 237, 725, 712, 327, 45, 366
+      ],
+      "pairsCovered": 123,
+      "faultsCaught": 8,
+      "complete": 19,
+      "incomplete": ["gen-twise-009"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-009",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D9_out_of_scope"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-identify-to-offer",
+        "x3-skips-recap": "gen-twise-001#b3-offer-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-identify",
+        "d4-order-on-loose-yes": "gen-twise-001#b4-D4_loose_confirmation",
+        "x5-drops-coverage-check": "gen-twise-003#b2-address-to-offer",
+        "d9-answers-out-of-scope": "gen-twise-010#b4-D9_out_of_scope",
+        "d8-hides-tool-failure": "gen-twise-011#b5-D8_tool_failure",
+        "d6-obeys-instruction": "gen-twise-020#b5-D6_instruction_in_data"
+      },
+      "incompleteCount": 1
+    },
+    {
+      "seed": 18,
+      "picked": [
+        282, 721, 69, 674, 249, 15, 245, 361, 257, 676, 668, 378, 26, 167, 484, 691, 684, 6, 728, 419
+      ],
+      "pairsCovered": 119,
+      "faultsCaught": 9,
+      "complete": 19,
+      "incomplete": ["gen-twise-015"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-015",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D6_instruction_in_data"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b3-port_number-to-offer",
+        "x3-skips-recap": "gen-twise-001#b5-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-D5_language_switch",
+        "x5-drops-coverage-check": "gen-twise-002#b2-address-to-offer",
+        "d9-answers-out-of-scope": "gen-twise-002#b3-D9_out_of_scope",
+        "d6-obeys-instruction": "gen-twise-003#b2-D6_instruction_in_data",
+        "d4-order-on-loose-yes": "gen-twise-004#b5-D4_loose_confirmation",
+        "d2-ignores-goal-shift": "gen-twise-006#b4-D2_goal_shift",
+        "d8-hides-tool-failure": "gen-twise-012#b5-D8_tool_failure"
+      },
+      "incompleteCount": 1
+    },
+    {
+      "seed": 19,
+      "picked": [
+        97, 501, 487, 446, 379, 561, 390, 186, 99, 137, 423, 92, 560, 131, 703, 262, 594, 621, 200, 420
+      ],
+      "pairsCovered": 118,
+      "faultsCaught": 9,
+      "complete": 19,
+      "incomplete": ["gen-twise-020"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-020",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "none",
+            "channel": "chat",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b4-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-offer",
+        "d9-answers-out-of-scope": "gen-twise-001#b6-D9_out_of_scope",
+        "d8-hides-tool-failure": "gen-twise-002#b2-D8_tool_failure",
+        "d6-obeys-instruction": "gen-twise-003#b1-D6_instruction_in_data",
+        "d2-ignores-goal-shift": "gen-twise-004#b5-D2_goal_shift",
+        "d4-order-on-loose-yes": "gen-twise-019#b5-D4_loose_confirmation"
+      },
+      "incompleteCount": 1
+    },
+    {
+      "seed": 20,
+      "picked": [
+        268, 276, 381, 664, 250, 586, 595, 59, 424, 217, 573, 744, 79, 642, 448, 42, 705, 617, 500, 374
+      ],
+      "pairsCovered": 120,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b3-port_number-to-offer",
+        "x3-skips-recap": "gen-twise-001#b5-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-port_number",
+        "d2-ignores-goal-shift": "gen-twise-002#b5-D2_goal_shift",
+        "d4-order-on-loose-yes": "gen-twise-002#b5-D2_goal_shift",
+        "x5-drops-coverage-check": "gen-twise-004#b2-address-to-address",
+        "d6-obeys-instruction": "gen-twise-007#b3-D6_instruction_in_data",
+        "d8-hides-tool-failure": "gen-twise-010#b2-D8_tool_failure",
+        "d9-answers-out-of-scope": "gen-twise-014#b4-D9_out_of_scope"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 21,
+      "picked": [
+        44, 515, 602, 523, 308, 670, 598, 346, 45, 564, 96, 612, 234, 89, 281, 634, 135, 236, 179, 228
+      ],
+      "pairsCovered": 113,
+      "faultsCaught": 8,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-address",
+        "x1-invents-price": "gen-twise-002#b3-address-to-offer",
+        "x3-skips-recap": "gen-twise-002#b5-details-to-recap",
+        "d6-obeys-instruction": "gen-twise-003#b1-D6_instruction_in_data",
+        "d4-order-on-loose-yes": "gen-twise-004#b4-D7_silence_or_burst",
+        "d2-ignores-goal-shift": "gen-twise-006#b5-D2_goal_shift",
+        "d8-hides-tool-failure": "gen-twise-012#b2-D8_tool_failure"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 22,
+      "picked": [
+        135, 683, 669, 392, 410, 600, 377, 307, 297, 20, 639, 37, 147, 470, 482, 236, 521, 525, 53, 159
+      ],
+      "pairsCovered": 122,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b3-address-to-callback",
+        "x1-invents-price": "gen-twise-003#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-003#b4-details-to-recap",
+        "d2-ignores-goal-shift": "gen-twise-003#b5-D2_goal_shift",
+        "d9-answers-out-of-scope": "gen-twise-005#b7-D9_out_of_scope",
+        "d6-obeys-instruction": "gen-twise-006#b2-D6_instruction_in_data",
+        "d8-hides-tool-failure": "gen-twise-007#b2-D8_tool_failure",
+        "d4-order-on-loose-yes": "gen-twise-010#b4-D4_loose_confirmation"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 23,
+      "picked": [
+        238, 260, 612, 293, 354, 411, 190, 521, 307, 294, 160, 392, 466, 356, 324, 212, 682, 640, 475, 97
+      ],
+      "pairsCovered": 114,
+      "faultsCaught": 9,
+      "complete": 19,
+      "incomplete": ["gen-twise-013"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-013",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D4_loose_confirmation",
+            "channel": "whatsapp",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D4_loose_confirmation"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-address-to-offer",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-002#b4-details-to-recap",
+        "d4-order-on-loose-yes": "gen-twise-002#b5-D5_language_switch",
+        "d8-hides-tool-failure": "gen-twise-003#b2-D8_tool_failure",
+        "d9-answers-out-of-scope": "gen-twise-006#b6-D9_out_of_scope",
+        "d2-ignores-goal-shift": "gen-twise-015#b5-D2_goal_shift",
+        "d6-obeys-instruction": "gen-twise-016#b1-D6_instruction_in_data"
+      },
+      "incompleteCount": 1
+    },
+    {
+      "seed": 24,
+      "picked": [
+        287, 732, 554, 659, 507, 484, 681, 526, 653, 662, 725, 741, 2, 55, 219, 43, 27, 335, 705, 184
+      ],
+      "pairsCovered": 123,
+      "faultsCaught": 7,
+      "complete": 18,
+      "incomplete": ["gen-twise-006", "gen-twise-008"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-006",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D6_instruction_in_data"],
+          "placeholders": []
+        },
+        {
+          "spec": "gen-twise-008",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D7_silence_or_burst"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-port_number-to-offer",
+        "x3-skips-recap": "gen-twise-001#b5-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-port_number",
+        "x5-drops-coverage-check": "gen-twise-003#b2-address-to-offer",
+        "d4-order-on-loose-yes": "gen-twise-003#b5-D1_off_topic",
+        "d2-ignores-goal-shift": "gen-twise-013#b4-D2_goal_shift",
+        "d8-hides-tool-failure": "gen-twise-015#b3-D8_tool_failure"
+      },
+      "incompleteCount": 2
+    },
+    {
+      "seed": 25,
+      "picked": [
+        163, 568, 317, 73, 87, 619, 565, 505, 403, 594, 4, 542, 103, 481, 581, 156, 576, 611, 714, 70
+      ],
+      "pairsCovered": 114,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-callback",
+        "x1-invents-price": "gen-twise-002#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-002#b4-details-to-recap",
+        "d2-ignores-goal-shift": "gen-twise-002#b5-D2_goal_shift",
+        "d4-order-on-loose-yes": "gen-twise-003#b4-D2_goal_shift",
+        "d8-hides-tool-failure": "gen-twise-004#b2-D8_tool_failure",
+        "d6-obeys-instruction": "gen-twise-010#b3-D6_instruction_in_data",
+        "d9-answers-out-of-scope": "gen-twise-013#b2-D9_out_of_scope"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 26,
+      "picked": [
+        26, 268, 635, 557, 706, 320, 720, 715, 453, 83, 221, 586, 673, 598, 671, 89, 366, 377, 126, 575
+      ],
+      "pairsCovered": 124,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-identify",
+        "d8-hides-tool-failure": "gen-twise-001#b2-D8_tool_failure",
+        "x1-invents-price": "gen-twise-002#b2-port_number-to-offer",
+        "x3-skips-recap": "gen-twise-002#b5-details-to-recap",
+        "x5-drops-coverage-check": "gen-twise-003#b2-address-to-offer",
+        "d2-ignores-goal-shift": "gen-twise-006#b5-D2_goal_shift",
+        "d9-answers-out-of-scope": "gen-twise-007#b3-D9_out_of_scope",
+        "d4-order-on-loose-yes": "gen-twise-013#b5-D4_loose_confirmation",
+        "d6-obeys-instruction": "gen-twise-014#b1-D6_instruction_in_data"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 27,
+      "picked": [
+        365, 418, 262, 291, 440, 584, 188, 438, 245, 691, 256, 612, 353, 51, 398, 620, 400, 76, 587, 49
+      ],
+      "pairsCovered": 122,
+      "faultsCaught": 9,
+      "complete": 19,
+      "incomplete": ["gen-twise-008"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-008",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D1_off_topic"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-001#b4-details-to-recap",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-address-to-offer",
+        "d4-order-on-loose-yes": "gen-twise-001#b5-D6_instruction_in_data",
+        "d6-obeys-instruction": "gen-twise-001#b5-D6_instruction_in_data",
+        "d9-answers-out-of-scope": "gen-twise-004#b5-D9_out_of_scope",
+        "d8-hides-tool-failure": "gen-twise-012#b2-D8_tool_failure",
+        "d2-ignores-goal-shift": "gen-twise-020#b5-D2_goal_shift"
+      },
+      "incompleteCount": 1
+    },
+    {
+      "seed": 28,
+      "picked": [
+        606, 461, 672, 300, 442, 120, 487, 481, 733, 213, 107, 344, 336, 507, 480, 380, 658, 108, 385, 198
+      ],
+      "pairsCovered": 115,
+      "faultsCaught": 8,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b2-D8_tool_failure",
+        "d8-hides-tool-failure": "gen-twise-001#b2-D8_tool_failure",
+        "x1-invents-price": "gen-twise-002#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-002#b4-details-to-recap",
+        "d4-order-on-loose-yes": "gen-twise-002#b5-D4_loose_confirmation",
+        "d2-ignores-goal-shift": "gen-twise-005#b5-D2_goal_shift",
+        "d6-obeys-instruction": "gen-twise-007#b1-D6_instruction_in_data"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 29,
+      "picked": [
+        159, 659, 117, 453, 40, 254, 238, 279, 562, 95, 418, 588, 607, 498, 333, 268, 504, 408, 220, 215
+      ],
+      "pairsCovered": 124,
+      "faultsCaught": 9,
+      "complete": 20,
+      "incomplete": [],
+      "incompleteCells": [],
+      "referenceFailures": [],
+      "witnesses": {
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-address",
+        "x5-drops-coverage-check": "gen-twise-001#b3-address-to-callback",
+        "x1-invents-price": "gen-twise-003#b2-address-to-offer",
+        "x3-skips-recap": "gen-twise-003#b5-details-to-recap",
+        "d2-ignores-goal-shift": "gen-twise-006#b5-D2_goal_shift",
+        "d4-order-on-loose-yes": "gen-twise-006#b5-D2_goal_shift",
+        "d8-hides-tool-failure": "gen-twise-013#b2-D8_tool_failure",
+        "d9-answers-out-of-scope": "gen-twise-018#b5-D9_out_of_scope",
+        "d6-obeys-instruction": "gen-twise-020#b5-D6_instruction_in_data"
+      },
+      "incompleteCount": 0
+    },
+    {
+      "seed": 30,
+      "picked": [
+        523, 183, 534, 459, 381, 67, 343, 514, 282, 92, 727, 653, 11, 569, 4, 44, 161, 134, 654, 440
+      ],
+      "pairsCovered": 130,
+      "faultsCaught": 7,
+      "complete": 19,
+      "incomplete": ["gen-twise-008"],
+      "incompleteCells": [
+        {
+          "spec": "gen-twise-008",
+          "cell": {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "channel": "whatsapp",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          "noThen": ["b1-open", "b2-D10_return"],
+          "placeholders": []
+        }
+      ],
+      "referenceFailures": [],
+      "witnesses": {
+        "x1-invents-price": "gen-twise-001#b2-identify-to-offer",
+        "x4-wrong-language": "gen-twise-001#b1-needs-to-identify",
+        "x5-drops-coverage-check": "gen-twise-002#b2-address-to-callback",
+        "x3-skips-recap": "gen-twise-003#b4-details-to-recap",
+        "d4-order-on-loose-yes": "gen-twise-003#b5-D9_out_of_scope",
+        "d9-answers-out-of-scope": "gen-twise-003#b5-D9_out_of_scope",
+        "d6-obeys-instruction": "gen-twise-006#b4-D6_instruction_in_data"
+      },
+      "incompleteCount": 1
+    }
+  ]
+}
