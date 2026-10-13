@@ -1,0 +1,45 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "b85f97f0de6f2cb6dd7b9321e6f5e0ff234d2fa5cd1e4ef5fa9e3d5c0dff8529",
+        "reason": "D shows that arthritis can occur despite wearing more, but that does not rule out wearing less as a contributing cause; the people cited are also mostly middle-aged or elderly. C is the stronger, more comparable counterexample: her sister shares the city and winter-skirt habit but does not have arthritis.",
+        "usd": 0.0004035
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "2214f4d6695d9161baf8d178062822676919319c5088939d7341bbd8c8d04ff8",
+        "reason": "The provided solution correctly analyzes the logical structure of the argument and identifies the option that most effectively questions the causal claim by showing that the effect occurs even in the absence of the proposed cause.",
+        "usd": 0.00256725
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "54cf184f0fa48c9f79fb793084a0db674023fcdb5a2537c475d11b0954f5a828",
+        "reason": "The reply's final answer D is incorrect. C is the intended answer: Ms. Zhang's sister lives with her, wears skirts in winter for years, and has no arthritis. That directly undermines the claim that wearing less causes arthritis. D only shows that some people who wear more also get arthritis, which points to other causes but does not show that wearing less fails to cause it. The reply also reasons inconsistently, treating D as refuting necessity when it does not.",
+        "usd": 0.001347
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "b85f97f0de6f2cb6dd7b9321e6f5e0ff234d2fa5cd1e4ef5fa9e3d5c0dff8529",
+      "usd": 0.0004035
+    },
+    {
+      "provider": "gemini",
+      "key": "2214f4d6695d9161baf8d178062822676919319c5088939d7341bbd8c8d04ff8",
+      "usd": 0.00256725
+    },
+    {
+      "provider": "haiku",
+      "key": "54cf184f0fa48c9f79fb793084a0db674023fcdb5a2537c475d11b0954f5a828",
+      "usd": 0.001347
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "e12fcc8fa971f7a889f37c392f1fd9ba03065539c16a33bb8dfbd049c646e97a",
+        "reason": "The reply selects B, the likely intended non-example: the Maya people and elements of their culture persisted, so saying they disappeared together is inaccurate. The other choices illustrate cultural loss or change through environmental disaster, contact, or invention.",
+        "usd": 0.0008567999999999999
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "d1400c37b38ff5f686b012aab007f7523d0e2b57d91e185fe28b5a4ba34f359c",
+        "reason": "The response correctly identifies that option B is not a valid example of complete cultural extinction/change according to historical continuity, while options A, C, and D clearly align with the provided definition of cultural change.",
+        "usd": 0.00416775
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "225a2530e26b45b2ba115beaf73ccd7bb97f28ff5291fa3fb4b9d09bd4d11faf",
+        "reason": "The final answer, B, is the most defensible choice. A volcanic eruption is an ecological change that removes cultural elements without substitution, which the definition explicitly counts as cultural change. C and D are clear cases of contact and invention. B describes the Maya and their culture dying out together, which reads as extinction of the group rather than a change in its culture. The reply's justification is muddled and partly relies on the claim that Maya culture survived, but the chosen option is correct.",
+        "usd": 0.0020616000000000002
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e12fcc8fa971f7a889f37c392f1fd9ba03065539c16a33bb8dfbd049c646e97a",
+      "count": 1,
+      "usd": 0.0008567999999999999
+    },
+    {
+      "provider": "gemini",
+      "key": "d1400c37b38ff5f686b012aab007f7523d0e2b57d91e185fe28b5a4ba34f359c",
+      "count": 1,
+      "usd": 0.00416775
+    },
+    {
+      "provider": "haiku",
+      "key": "225a2530e26b45b2ba115beaf73ccd7bb97f28ff5291fa3fb4b9d09bd4d11faf",
+      "count": 1,
+      "usd": 0.0020616000000000002
+    }
+  ]
+}

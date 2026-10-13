@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "3b3e42ad3a7de74c6b1a5a78e404c2cad82a2ed1145f7b37559b418cc2a26cf6",
+        "reason": "The known items leave $2.50 for soda in total, but the number of cups is unspecified. The per-cup cost cannot be determined without assuming a quantity; the reply’s $0.50 answer depends on an unsupported assumption of one cup per friend.",
+        "usd": 0.00020830000000000002
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "2787bbfa9ad977dff6f11219a22fa5e3ef4fca74421b46614fcab170f9743589",
+        "reason": "The response correctly sets up the equation for the total bill minus the soda, finds that the total cost of all sodas is $2.50, and correctly deduces the cost per cup of soda assuming each of the 5 friends ordered 1 cup (or otherwise uses the standard interpretation where the number of sodas equals the number of friends). The final answer of 0.5 is mathematically consistent with standard interpretations of this well-known word problem.",
+        "usd": 0.0011625
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "a6b7bf511898ce2f260839565e7153dc92b7f3ef63c5ae8cf68873f006ce124c",
+        "reason": "Arithmetic checks out: hamburgers 15 + fries 4.80 + spaghetti 2.70 = 22.50, so soda must total 25 − 22.50 = 2.50. The final answer of $0.50 per cup matches the intended problem, which has 5 cups of soda (the request omits the count). The reasoning is muddled and the 5-cup assumption is weakly justified, but the final answer is correct.",
+        "usd": 0.0007505999999999999
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "3b3e42ad3a7de74c6b1a5a78e404c2cad82a2ed1145f7b37559b418cc2a26cf6",
+      "count": 1,
+      "usd": 0.00020830000000000002
+    },
+    {
+      "provider": "gemini",
+      "key": "2787bbfa9ad977dff6f11219a22fa5e3ef4fca74421b46614fcab170f9743589",
+      "count": 1,
+      "usd": 0.0011625
+    },
+    {
+      "provider": "haiku",
+      "key": "a6b7bf511898ce2f260839565e7153dc92b7f3ef63c5ae8cf68873f006ce124c",
+      "count": 1,
+      "usd": 0.0007505999999999999
+    }
+  ]
+}

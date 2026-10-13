@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "89d245169217cc82318a84d12cccfca4a4216ca00062f2dfaa94e16fb328bb3e",
+        "reason": "The input already ends with `[ ( [ ]`, leaving only `[` and `(` open, so the needed completion is `) ]`. The reply instead appends extra, mismatched closers.",
+        "usd": 0.0012177
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "bc64436c1cab8fcfe3ca399a4d49d5e2543820a6c0f8bbd0e0650675ab378443",
+        "reason": "The provided solution correctly tracks the stack of open delimiters, identifies the remaining unclosed brackets after the input string, and appends the exact sequence of closing characters in the correct reverse order (] ) ] ).",
+        "usd": 0.00714975
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "494ce95b023341e51e5c0663ad0bc898ed537a0991d79e2d262761946ada273e",
+        "reason": "Tracing the input's bracket stack gives an unclosed '[' then '(' at the end, so the correct completion is \") ]\". The reply appends \"] ) ] )\", which starts with ']' while the top of the stack is '(', so it mismatches and adds two extra closers. Its stack trace also goes wrong early on, at the '{' and '(' after the first group, and it leaves a bogus four-element stack.",
+        "usd": 0.0033222
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "89d245169217cc82318a84d12cccfca4a4216ca00062f2dfaa94e16fb328bb3e",
+      "count": 1,
+      "usd": 0.0012177
+    },
+    {
+      "provider": "gemini",
+      "key": "bc64436c1cab8fcfe3ca399a4d49d5e2543820a6c0f8bbd0e0650675ab378443",
+      "count": 1,
+      "usd": 0.00714975
+    },
+    {
+      "provider": "haiku",
+      "key": "494ce95b023341e51e5c0663ad0bc898ed537a0991d79e2d262761946ada273e",
+      "count": 1,
+      "usd": 0.0033222
+    }
+  ]
+}

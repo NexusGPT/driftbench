@@ -1,0 +1,45 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "142906ad2b16d8260929c28eaae4e6cc78dfdeb966ee500c157f43488c858301",
+        "reason": "The intersection points are correctly represented as (4, π/6) and (4, 7π/6), and the line’s unit-speed parameterization gives MN = |t₁−t₂| = 4√5. The explanation about rejecting negative ρ is inconsistent, but the final coordinates correctly represent both intersections.",
+        "usd": 0.0003473
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "25b52776df60c035a60ff19cf61ed34c4270868581f3614474720b56cd46a61f",
+        "reason": "The response correctly finds the polar coordinates for points A and B, and accurately determines the length of the segment MN using Cartesian and parametric conversions.",
+        "usd": 0.00126525
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "801abf1892d294442eed7a286e362a2175b464ec6152536372bb61a72e07a7c6",
+        "reason": "Part II checks out: substituting the line into x² − y² = 8 gives t² + 4√3t − 8 = 0, with roots t = −2√3 ± 2√5, so |MN| = 4√5 since the direction vector is unit length. Part I's points (4, π/6) and (4, 7π/6) are correct for the full line θ = π/6. The justification is slightly inconsistent, because it discards ρ = −4 and then uses the point (4, 7π/6) that comes from ρ = −4, but the final answers are correct.",
+        "usd": 0.0012642999999999999
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "142906ad2b16d8260929c28eaae4e6cc78dfdeb966ee500c157f43488c858301",
+      "usd": 0.0003473
+    },
+    {
+      "provider": "gemini",
+      "key": "25b52776df60c035a60ff19cf61ed34c4270868581f3614474720b56cd46a61f",
+      "usd": 0.00126525
+    },
+    {
+      "provider": "haiku",
+      "key": "801abf1892d294442eed7a286e362a2175b464ec6152536372bb61a72e07a7c6",
+      "usd": 0.0012642999999999999
+    }
+  ]
+}

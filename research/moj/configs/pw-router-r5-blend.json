@@ -1,0 +1,10 @@
+{
+  "name": "pw-router-r5-blend",
+  "reference": true,
+  "reasoning_guard": true,
+  "panel": true,
+  "panel_below": 0.7,
+  "typed": "blend",
+  "hypothesis": "Equal blending of typed comparison and rubric rows is more reliable than either view alone.",
+  "split_version": "moj-split-v2"
+}

@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "2a5ff989cb013fb55b5f6296fe4f9dd33e28d3851a3da9ef03e76c77a2e0d555",
+        "reason": "K is correct: every option has at least one adjective-order inversion, such as placing a purpose adjective before size or placing material/origin before size.",
+        "usd": 0.00066
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "946df24ae3c424a045abdb1b0f9c0b0f900454f882619d0ba1a187ec133e9e53",
+        "reason": "The model correctly analyzed the adjective order from the examples (Opinion, Size, Age, Shape, Color, Origin, Material, Purpose) and determined that none of the provided options A-J follow this order, correctly selecting option K.",
+        "usd": 0.00290475
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "abf9f28dfb746aa1f6230950b976f682a893f6329779bc8fec5f36f41c2a7622",
+        "reason": "The examples establish an order of Opinion, Size, Color, Age, Shape, Material, Origin, Purpose (e.g., 'good gray archaic piano', 'steel turkish fire extinguisher', 'lovely snorkeling banana'). Every option A-J violates it: A, B, F, G, and I place Purpose too early; C, E, H, and J put Origin or Material before Size or Color, or Material before Origin in the wrong place; D starts with Material. So none are correct and the answer is K, which the reply gives.",
+        "usd": 0.0023550000000000003
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "2a5ff989cb013fb55b5f6296fe4f9dd33e28d3851a3da9ef03e76c77a2e0d555",
+      "count": 1,
+      "usd": 0.00066
+    },
+    {
+      "provider": "gemini",
+      "key": "946df24ae3c424a045abdb1b0f9c0b0f900454f882619d0ba1a187ec133e9e53",
+      "count": 1,
+      "usd": 0.00290475
+    },
+    {
+      "provider": "haiku",
+      "key": "abf9f28dfb746aa1f6230950b976f682a893f6329779bc8fec5f36f41c2a7622",
+      "count": 1,
+      "usd": 0.0023550000000000003
+    }
+  ]
+}

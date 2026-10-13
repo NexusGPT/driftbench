@@ -1,0 +1,45 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "51a3ddfc1ececa6b58840f46fb28bf2c590a3c59649a9783df39b82d8dfacb46",
+        "reason": "The reply selects B, the intended non-supporting option: greater accuracy in evaluating sweetness undermines the claim that lower ratings reflect reduced taste sensitivity.",
+        "usd": 0.000865
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "01836e03d50d9f4f684a802648966ce175de70dd9f0ae95cd356a3841f802430",
+        "reason": "The provided response correctly identifies the option that does not support the argument (Option B) and explains the underlying logical reasoning regarding accuracy versus subjective perception.",
+        "usd": 0.006117
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "4eb542cf1b054bcb45e3296a4011f2668e1abd48770d1336b64909f1face2761",
+        "reason": "The reply's final answer is B. Options A, C, and D each support a link in the argument: valid measurement, the craving cycle, and subconscious satisfaction. B concerns only how accurately volunteers rated sweetness and does not bear on the sensitivity-to-overconsumption chain, so it is the option that does not support the argument. The reasoning is verbose and wavers, but the final choice is correct.",
+        "usd": 0.0029857000000000004
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "51a3ddfc1ececa6b58840f46fb28bf2c590a3c59649a9783df39b82d8dfacb46",
+      "usd": 0.000865
+    },
+    {
+      "provider": "gemini",
+      "key": "01836e03d50d9f4f684a802648966ce175de70dd9f0ae95cd356a3841f802430",
+      "usd": 0.006117
+    },
+    {
+      "provider": "haiku",
+      "key": "4eb542cf1b054bcb45e3296a4011f2668e1abd48770d1336b64909f1face2761",
+      "usd": 0.0029857000000000004
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "c42469ef4c6d38aed792f827e8453bd17c313d6c58eae7136886a6138bb213f6",
+        "reason": "The correct final price is $60(0.80)(0.80)(0.85)=$32.64, or 54.4% of the original price. The reply’s final answer is 54%, which is not the exact requested percentage.",
+        "usd": 0.0002759
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "ae51edb6add4d08ef7a98700d6a3558300fce411f6d52f387054e774772c6b27",
+        "reason": "The response gets completely confused, repeatedly recalculating with wrong arithmetic (e.g. 38.4 * 0.85 = 32.44 instead of 32.64, or varying interpretations of the percentages) and finally guesses an integer 54 without consistent logical derivation.",
+        "usd": 0.001941
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "36fc76f752078df0a4ef1b2190999eb0877f808b36586fd040ab6e17fb3d70cc",
+        "reason": "The correct final price is 60×0.80×0.80×0.85 = 32.64, which is 54.4% of the original price. The reply's boxed final answer is 54, which is wrong. The reply also contains many contradictory computations (17%, 433.8%, 474%, 540.67%, 54.1%, 54.4%) and never settles on the correct result.",
+        "usd": 0.0007358
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "c42469ef4c6d38aed792f827e8453bd17c313d6c58eae7136886a6138bb213f6",
+      "count": 1,
+      "usd": 0.0002759
+    },
+    {
+      "provider": "gemini",
+      "key": "ae51edb6add4d08ef7a98700d6a3558300fce411f6d52f387054e774772c6b27",
+      "count": 1,
+      "usd": 0.001941
+    },
+    {
+      "provider": "haiku",
+      "key": "36fc76f752078df0a4ef1b2190999eb0877f808b36586fd040ab6e17fb3d70cc",
+      "count": 1,
+      "usd": 0.0007358
+    }
+  ]
+}

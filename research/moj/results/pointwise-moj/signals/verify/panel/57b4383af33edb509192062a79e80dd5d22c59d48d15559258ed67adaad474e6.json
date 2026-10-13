@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "801e4fa6eb64ebc24213388f071147358b957a41cd7459cf2902e476f5a54326",
+        "reason": "Natalie’s age is 2767 days, not 2770: the interval from March 22, 2008 to October 19, 2015 is 2767 days. Thus Y′ is 11, not 14, so the derived exam date and the ordered list are incorrect.",
+        "usd": 0.000425
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "9c581ec25fcefc01688208cc4d2539b5aeb95917b8dd6ea90899f6089ffdf1f2",
+        "reason": "The model correctly computed X = 2013, Y = 2770, Z = 6, derived X' = 21, Y' = 14, Z' = 1879, and accurately sorted the specified dates in descending order.",
+        "usd": 0.002394
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "d434a5e105f12cf6faca806a7bf73fa100cf2f5a19a0d645a6c93db84083f327",
+        "reason": "Question 2 is wrong. From 2008-03-22 to 2015-10-19 the correct count is 2767 days (7×365 + 1 leap day for 2012 = 2556, plus 211 days from March 22 to October 19 2015). The reply's own working gives 2768, then it arbitrarily adjusts to 2770. This error propagates to Y' (should be 11, not 14). The Question 4 ordering happens to come out the same, but the reply misreads X'-Y'-Z' as an invalid 21-14-1879 and invents a February date, so its reasoning is also unsound.",
+        "usd": 0.0013257
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "801e4fa6eb64ebc24213388f071147358b957a41cd7459cf2902e476f5a54326",
+      "count": 1,
+      "usd": 0.000425
+    },
+    {
+      "provider": "gemini",
+      "key": "9c581ec25fcefc01688208cc4d2539b5aeb95917b8dd6ea90899f6089ffdf1f2",
+      "count": 1,
+      "usd": 0.002394
+    },
+    {
+      "provider": "haiku",
+      "key": "d434a5e105f12cf6faca806a7bf73fa100cf2f5a19a0d645a6c93db84083f327",
+      "count": 1,
+      "usd": 0.0013257
+    }
+  ]
+}

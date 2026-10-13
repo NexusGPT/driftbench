@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "0b1268334cc27383b33a583179e70519aaca356946602dcc610b0e5bb47df8bf",
+        "reason": "Neither response provides the requested evaluation checklist or its required four-section structure. A is still an explanation, but B additionally attempts to correct and rewrite the code, directly violating the checklist-only requirement.",
+        "usd": 0.0002656
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "31c617b72df66228a1e908db8f79f4c06c62e5ce8a506dc370c2afeba64bc509",
+        "reason": "Model B provides a helpful code review, identifies errors in the provided snippet (such as missing imports, incorrect method names for Prophet, and undefined variables), and supplies corrected code. Response A gives a high-level summary but misses the syntax and logic errors in the code snippet.",
+        "usd": 0.00186825
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "de30260c67eac88be62996a745e7972acaa4a42ecd99e8a0057a39e73e64ee2b",
+        "reason": "Neither response produces the required four-section evaluation checklist, so both fail rb_2 and rb_3. Response B at least analyzes the code for concrete defects (missing train_test_split import, undefined y_test, nonexistent make_future_predictions), which partially meets rb_1, rb_5, and the error-identification intent. It does violate rb_7 by rewriting the code. Response A only explains the code, accepts the invalid make_future_predictions call as correct, and identifies no errors, so it meets fewer rubric items.",
+        "usd": 0.0011492
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "0b1268334cc27383b33a583179e70519aaca356946602dcc610b0e5bb47df8bf",
+      "count": 1,
+      "usd": 0.0002656
+    },
+    {
+      "provider": "gemini",
+      "key": "31c617b72df66228a1e908db8f79f4c06c62e5ce8a506dc370c2afeba64bc509",
+      "count": 1,
+      "usd": 0.00186825
+    },
+    {
+      "provider": "haiku",
+      "key": "de30260c67eac88be62996a745e7972acaa4a42ecd99e8a0057a39e73e64ee2b",
+      "count": 1,
+      "usd": 0.0011492
+    }
+  ]
+}

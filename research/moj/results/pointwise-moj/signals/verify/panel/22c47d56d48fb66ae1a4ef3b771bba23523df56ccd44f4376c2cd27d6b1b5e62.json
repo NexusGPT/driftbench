@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "42bb2ef9137ae3af0cd845ff583d4ba79442519dda5d757d4a6e8ab454166158",
+        "reason": "The examples support the order material → origin → age → purpose → opinion → color → size → shape. Options B, D, F, and H follow it, so the answer is not K.",
+        "usd": 0.0007052
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "6e1f62907cbbf0b13a35e360a8ebf2328c004a97fdbaf03f2d569822fd3823a9",
+        "reason": "The model correctly evaluated the adjective order based on the provided dataset and determined that none of the options A through J followed the correct sequence, selecting 'K' as the final answer.",
+        "usd": 0.0022995
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "ab3a1859fb8e6ec579e66c871a65c7c88bbd5f4d45992d3f769d49d07597599f",
+        "reason": "The reply answers K (none correct), but Option E is consistent with every unambiguous pairing in the examples: material before origin (\"wood chinese\", \"plastic egyptian\"), origin before age (\"turkish old green\"), age before purpose (\"ancient drinking candle\"), purpose before opinion (\"cardboard typing lovely\"), opinion before color (\"silly violet fork\"), and color before type. The reply's own analysis misapplied its ordering, so K cannot be the correct answer.",
+        "usd": 0.0039105
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "42bb2ef9137ae3af0cd845ff583d4ba79442519dda5d757d4a6e8ab454166158",
+      "count": 1,
+      "usd": 0.0007052
+    },
+    {
+      "provider": "gemini",
+      "key": "6e1f62907cbbf0b13a35e360a8ebf2328c004a97fdbaf03f2d569822fd3823a9",
+      "count": 1,
+      "usd": 0.0022995
+    },
+    {
+      "provider": "haiku",
+      "key": "ab3a1859fb8e6ec579e66c871a65c7c88bbd5f4d45992d3f769d49d07597599f",
+      "count": 1,
+      "usd": 0.0039105
+    }
+  ]
+}

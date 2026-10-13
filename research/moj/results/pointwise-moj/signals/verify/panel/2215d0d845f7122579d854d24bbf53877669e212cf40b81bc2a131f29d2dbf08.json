@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "8426365f7abe7bb679b1d64f0b19cdb6e801286bbd6b1cefcfc6fb463875e02d",
+        "reason": "Option A can be true. For example, day 1: Reynaldo–H, Seamus–G, Theresa–J, Yuki–F; day 2: Reynaldo–G, Seamus–F, Theresa–H, Yuki–J. This satisfies all the conditions.",
+        "usd": 0.0005195
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "7dbd347ed19f558c2f40f99965af10d3b6d6f010e0b7fc47579bd706c9cc9d83",
+        "reason": "The response correctly analyzes the logical deductions from the given rules and the hypothetical condition (Theresa tests J on the first day) and arrives at the correct option (A).",
+        "usd": 0.001152
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "bfb1b0f0d0b4f2b9d0e14d64e4c8ce73b4b8034a5bab1af28e8500a0739c9e73",
+        "reason": "The reply's final answer A is wrong. With Theresa on J day 1, Theresa must test H day 2. Enumerating day 1 for Reynaldo, Seamus, and Yuki on F, G, H (Reynaldo not F) gives three valid cases, and in all of them Reynaldo tests J on day 2, so A is false. Option B (Seamus tests H on day 1, with Reynaldo G, Yuki F, Seamus H, Theresa J; day 2 Reynaldo J, Seamus F, Yuki G, Theresa H) satisfies every condition, so B is the correct answer. The reply's justification for A ignores the day-2 constraints.",
+        "usd": 0.0012291
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "8426365f7abe7bb679b1d64f0b19cdb6e801286bbd6b1cefcfc6fb463875e02d",
+      "count": 1,
+      "usd": 0.0005195
+    },
+    {
+      "provider": "gemini",
+      "key": "7dbd347ed19f558c2f40f99965af10d3b6d6f010e0b7fc47579bd706c9cc9d83",
+      "count": 1,
+      "usd": 0.001152
+    },
+    {
+      "provider": "haiku",
+      "key": "bfb1b0f0d0b4f2b9d0e14d64e4c8ce73b4b8034a5bab1af28e8500a0739c9e73",
+      "count": 1,
+      "usd": 0.0012291
+    }
+  ]
+}

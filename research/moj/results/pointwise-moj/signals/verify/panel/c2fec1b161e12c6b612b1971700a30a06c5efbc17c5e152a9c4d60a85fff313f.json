@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "a35454abd3f7ca2cb2b5dc5be1974633c75975fe1bb7058b777766b4f29a7c73",
+        "reason": "On the diagram, the collinear points are ordered B–E–G–F, so EF contains GF and must be longer than GF. The given EF = 15 and GF = 20 are inconsistent; the reply instead treats 15 as EG and derives an answer for different data.",
+        "usd": 0.001563
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "af4740e6a696ee7a7502f54fb03470190bec5ffcb5bc6d1184d4929b8ee92d8b",
+        "reason": "The final answer 5\\sqrt{21} is mathematically correct, derived correctly using similar triangles and Menelaus' theorem.",
+        "usd": 0.01124775
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "7cb9406c3ae28ac238fb0d29ff4840c7833455f1157914279c43961991c18568",
+        "reason": "The final answer 5√21 is not supported by a consistent derivation. The reply's own coordinate check gave BE≈3.3, which it dismissed without resolving. Its quadratic for t comes from an unjustified Menelaus/ratio setup. Independently, the similarity relations BE/EF = BC/AF, BG/GF = BC/FD, and FD/FA = FG/FB, combined with EF=15, GF=20, give x²−30x+300=0 (no real solution), so the reply's configuration is inconsistent and it never reconciles this. The answer is unverified and likely incorrect (the expected value for this known problem is 12).",
+        "usd": 0.0068582999999999995
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "a35454abd3f7ca2cb2b5dc5be1974633c75975fe1bb7058b777766b4f29a7c73",
+      "count": 1,
+      "usd": 0.001563
+    },
+    {
+      "provider": "gemini",
+      "key": "af4740e6a696ee7a7502f54fb03470190bec5ffcb5bc6d1184d4929b8ee92d8b",
+      "count": 1,
+      "usd": 0.01124775
+    },
+    {
+      "provider": "haiku",
+      "key": "7cb9406c3ae28ac238fb0d29ff4840c7833455f1157914279c43961991c18568",
+      "count": 1,
+      "usd": 0.0068582999999999995
+    }
+  ]
+}

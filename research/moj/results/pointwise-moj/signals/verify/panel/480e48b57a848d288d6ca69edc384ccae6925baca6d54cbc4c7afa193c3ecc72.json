@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "f288460f29f8681932954fa2fd7a0febf9d01dbd66174425f6c0e292afc19815",
+        "reason": "The date 91 days after 2014-06-26 is 2014-09-25. Thus Y′=9 and Z′=0, giving 09:00; both locations are UTC+0000, so it is the same day.",
+        "usd": 0.0005636
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "720f5ea1917c05ce6d84a57581eae5e7faf00b1e81da75a7ac87e18db19a3969",
+        "reason": "The response correctly determines the date 91 days after June 26, 2014, as 2014-09-25. It then extracts Y=09 and Z=25, calculates Y'=9 and Z'=0, and determines the correct time and day for Question 2 (same_day, 09:00).",
+        "usd": 0.00365775
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "d815c9b7ad34d81e12fc438543b9aa722592a192fb02edd615bcd4f4be905103",
+        "reason": "Independent check: 'day before tomorrow' is June 27, so today is June 26, 2014. Adding 91 days gives June 30 (+4), July 31 (+35), August 31 (+66), then +25 into September, so 2014-09-25. Y'=9 and Z'=0, so the call is at 09:00 in UTC+0. Zoe is also UTC+0, so the answer is same_day, 09:00. Both final answers are correct, though the working is verbose and repetitive.",
+        "usd": 0.0014390000000000002
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "f288460f29f8681932954fa2fd7a0febf9d01dbd66174425f6c0e292afc19815",
+      "count": 1,
+      "usd": 0.0005636
+    },
+    {
+      "provider": "gemini",
+      "key": "720f5ea1917c05ce6d84a57581eae5e7faf00b1e81da75a7ac87e18db19a3969",
+      "count": 1,
+      "usd": 0.00365775
+    },
+    {
+      "provider": "haiku",
+      "key": "d815c9b7ad34d81e12fc438543b9aa722592a192fb02edd615bcd4f4be905103",
+      "count": 1,
+      "usd": 0.0014390000000000002
+    }
+  ]
+}

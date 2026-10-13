@@ -1,0 +1,2557 @@
+{
+  "config_digest": "0f987a5cf764493c87c698e7af7cdcf1e0a336a6ff8935e4a4dde6f80a686e99",
+  "split_version": "moj-split-v2",
+  "benchmarks": {
+    "rubricbench": {
+      "rows": {
+        "MoJ": {
+          "n": 46,
+          "accuracy": 0.9130434782608695,
+          "balanced": 0.9147727272727273,
+          "sensitivity": 0.875,
+          "specificity": 0.9545454545454546,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.796750643647758,
+            0.9656646881232924
+          ],
+          "s2_per_100": 45.65217391304348,
+          "s1_per_100": 300.0,
+          "known_usd_per_100": 0.020493586956521738
+        },
+        "pw-router-v1": {
+          "n": 46,
+          "accuracy": 0.9130434782608695,
+          "balanced": 0.9147727272727273,
+          "sensitivity": 0.875,
+          "specificity": 0.9545454545454546,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.796750643647758,
+            0.9656646881232924
+          ],
+          "s2_per_100": 45.65217391304348,
+          "s1_per_100": 300.0,
+          "known_usd_per_100": 0.020493586956521738,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "pw_whole": {
+          "n": 46,
+          "accuracy": 0.9021739130434783,
+          "balanced": 0.9024621212121212,
+          "sensitivity": 0.8958333333333334,
+          "specificity": 0.9090909090909091,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.7830661586716683,
+            0.9592856117369863
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 200.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              -6.521739130434782,
+              8.695652173913043
+            ]
+          }
+        },
+        "pw-s1-whole": {
+          "n": 46,
+          "accuracy": 0.9021739130434783,
+          "balanced": 0.9024621212121212,
+          "sensitivity": 0.8958333333333334,
+          "specificity": 0.9090909090909091,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.7830661586716683,
+            0.9592856117369863
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 200.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              -6.521739130434782,
+              8.695652173913043
+            ]
+          }
+        },
+        "pw-s1-rows": {
+          "n": 46,
+          "accuracy": 0.9347826086956522,
+          "balanced": 0.9375,
+          "sensitivity": 0.875,
+          "specificity": 1.0,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.8249699089621865,
+            0.9775725455336564
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 200.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              -10.869565217391305,
+              4.3478260869565215
+            ]
+          }
+        },
+        "pw-moj-luna": {
+          "n": 46,
+          "accuracy": 0.9347826086956522,
+          "balanced": 0.9356060606060606,
+          "sensitivity": 0.9166666666666666,
+          "specificity": 0.9545454545454546,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.8249699089621865,
+            0.9775725455336564
+          ],
+          "s2_per_100": 43.47826086956522,
+          "s1_per_100": 300.0,
+          "known_usd_per_100": 0.015108695652173912,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              -6.521739130434782,
+              0.0
+            ]
+          }
+        },
+        "pw-moj-mix": {
+          "n": 46,
+          "accuracy": 0.9130434782608695,
+          "balanced": 0.9128787878787878,
+          "sensitivity": 0.9166666666666666,
+          "specificity": 0.9090909090909091,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.796750643647758,
+            0.9656646881232924
+          ],
+          "s2_per_100": 126.08695652173913,
+          "s1_per_100": 300.0,
+          "known_usd_per_100": 0.26563260869565214,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              -6.521739130434782,
+              6.521739130434782
+            ]
+          }
+        },
+        "pw_ledger": {
+          "n": 22,
+          "accuracy": 0.8409090909090909,
+          "balanced": 0.8458333333333333,
+          "sensitivity": 0.7916666666666666,
+          "specificity": 0.9,
+          "positive_n": 12,
+          "negative_n": 10,
+          "ci95": [
+            0.6403757157943607,
+            0.940083698483393
+          ],
+          "s2_per_100": 213.63636363636363,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": null,
+          "moj_same_items": {
+            "n": 22,
+            "accuracy": 0.8636363636363636,
+            "balanced": 0.8666666666666667,
+            "sensitivity": 0.8333333333333334,
+            "specificity": 0.9,
+            "positive_n": 12,
+            "negative_n": 10,
+            "ci95": [
+              0.6666458812053,
+              0.9525108273576373
+            ],
+            "s2_per_100": 68.18181818181819,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.0302775
+          },
+          "paired_delta": {
+            "groups": 22,
+            "draws": 20000,
+            "ci95_points": [
+              -11.363636363636363,
+              15.909090909090908
+            ]
+          }
+        },
+        "pw_seat": {
+          "n": 26,
+          "accuracy": 0.9807692307692307,
+          "balanced": 0.9807692307692308,
+          "sensitivity": 1.0,
+          "specificity": 0.9615384615384616,
+          "positive_n": 13,
+          "negative_n": 13,
+          "ci95": [
+            0.8397676060619168,
+            0.9979890825874853
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": null,
+          "moj_same_items": {
+            "n": 26,
+            "accuracy": 0.9615384615384616,
+            "balanced": 0.9615384615384616,
+            "sensitivity": 0.9230769230769231,
+            "specificity": 1.0,
+            "positive_n": 13,
+            "negative_n": 13,
+            "ci95": [
+              0.811068230080416,
+              0.9931781910230102
+            ],
+            "s2_per_100": 23.076923076923077,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.010638461538461538
+          },
+          "paired_delta": {
+            "groups": 26,
+            "draws": 20000,
+            "ci95_points": [
+              -11.538461538461538,
+              5.769230769230769
+            ]
+          }
+        },
+        "pw_promptfoo": {
+          "n": 5,
+          "accuracy": 0.8,
+          "balanced": 0.8333333333333333,
+          "sensitivity": 1.0,
+          "specificity": 0.6666666666666666,
+          "positive_n": 2,
+          "negative_n": 3,
+          "ci95": [
+            0.3755282641185388,
+            0.9637768390302125
+          ],
+          "s2_per_100": 200.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": null,
+          "moj_same_items": {
+            "n": 5,
+            "accuracy": 0.8,
+            "balanced": 0.8333333333333333,
+            "sensitivity": 1.0,
+            "specificity": 0.6666666666666666,
+            "positive_n": 2,
+            "negative_n": 3,
+            "ci95": [
+              0.3755282641185388,
+              0.9637768390302125
+            ],
+            "s2_per_100": 40.0,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.02016
+          },
+          "paired_delta": {
+            "groups": 5,
+            "draws": 20000,
+            "ci95_points": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "pw_s2v_luna": {
+          "n": 46,
+          "accuracy": 0.8804347826086957,
+          "balanced": 0.8816287878787878,
+          "sensitivity": 0.8541666666666666,
+          "specificity": 0.9090909090909091,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.7563834069575537,
+            0.9458412407263088
+          ],
+          "s2_per_100": 200.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.04371086956521739,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              -2.1739130434782608,
+              9.782608695652174
+            ]
+          }
+        },
+        "pw_s2v_gemini": {
+          "n": 42,
+          "accuracy": 0.7738095238095238,
+          "balanced": 0.7727272727272727,
+          "sensitivity": 0.75,
+          "specificity": 0.7954545454545454,
+          "positive_n": 20,
+          "negative_n": 22,
+          "ci95": [
+            0.627599243714796,
+            0.8741284446730438
+          ],
+          "s2_per_100": 200.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.6905190476190476,
+          "moj_same_items": {
+            "n": 42,
+            "accuracy": 0.9047619047619048,
+            "balanced": 0.9022727272727273,
+            "sensitivity": 0.85,
+            "specificity": 0.9545454545454546,
+            "positive_n": 20,
+            "negative_n": 22,
+            "ci95": [
+              0.7793460477494668,
+              0.9623383611716879
+            ],
+            "s2_per_100": 45.23809523809524,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.01844297619047619
+          },
+          "paired_delta": {
+            "groups": 42,
+            "draws": 20000,
+            "ci95_points": [
+              3.571428571428571,
+              23.809523809523807
+            ]
+          }
+        },
+        "pw_s2v_haiku": {
+          "n": 46,
+          "accuracy": 0.8043478260869565,
+          "balanced": 0.8020833333333333,
+          "sensitivity": 0.8541666666666666,
+          "specificity": 0.75,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.668284622588308,
+            0.893495095558782
+          ],
+          "s2_per_100": 200.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.1305282608695652,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              2.1739130434782608,
+              19.565217391304348
+            ]
+          }
+        },
+        "length": {
+          "n": 46,
+          "accuracy": 0.391304347826087,
+          "balanced": 0.38825757575757575,
+          "sensitivity": 0.4583333333333333,
+          "specificity": 0.3181818181818182,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.2639302235524884,
+            0.5354341628235508
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              36.95652173913043,
+              67.3913043478261
+            ]
+          }
+        },
+        "first": {
+          "n": 46,
+          "accuracy": 0.5,
+          "balanced": 0.5,
+          "sensitivity": 0.5,
+          "specificity": 0.5,
+          "positive_n": 24,
+          "negative_n": 22,
+          "ci95": [
+            0.3611870167007236,
+            0.6388129832992764
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 46,
+            "accuracy": 0.9130434782608695,
+            "balanced": 0.9147727272727273,
+            "sensitivity": 0.875,
+            "specificity": 0.9545454545454546,
+            "positive_n": 24,
+            "negative_n": 22,
+            "ci95": [
+              0.796750643647758,
+              0.9656646881232924
+            ],
+            "s2_per_100": 45.65217391304348,
+            "s1_per_100": 300.0,
+            "known_usd_per_100": 0.020493586956521738
+          },
+          "paired_delta": {
+            "groups": 46,
+            "draws": 20000,
+            "ci95_points": [
+              32.608695652173914,
+              47.82608695652174
+            ]
+          }
+        }
+      },
+      "noise_floor_points": 3.3,
+      "noise_source": "maximum existing moj/noise.py recorded range, conservative proxy; no fresh repeated answers",
+      "comparisons": {
+        "pw-router-v1": {
+          "delta_points_matched": 0.0,
+          "met": false,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_whole": {
+          "delta_points_matched": 1.0869565217391242,
+          "met": false,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-s1-whole": {
+          "delta_points_matched": 1.0869565217391242,
+          "met": false,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-s1-rows": {
+          "delta_points_matched": -2.1739130434782705,
+          "met": false,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-moj-luna": {
+          "delta_points_matched": -2.1739130434782705,
+          "met": false,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-moj-mix": {
+          "delta_points_matched": 0.0,
+          "met": false,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_ledger": {
+          "delta_points_matched": 2.2727272727272707,
+          "met": false,
+          "n": 22,
+          "primary": false,
+          "target": "lead beyond noise"
+        },
+        "pw_seat": {
+          "delta_points_matched": -1.9230769230769162,
+          "met": true,
+          "n": 26,
+          "primary": false,
+          "target": "tie within noise at fewer S2 calls"
+        },
+        "pw_promptfoo": {
+          "delta_points_matched": 0.0,
+          "met": false,
+          "n": 5,
+          "primary": false,
+          "target": "lead beyond noise"
+        },
+        "pw_s2v_luna": {
+          "delta_points_matched": 3.2608695652173836,
+          "met": false,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_s2v_gemini": {
+          "delta_points_matched": 13.095238095238093,
+          "met": true,
+          "n": 42,
+          "primary": false,
+          "target": "lead beyond noise"
+        },
+        "pw_s2v_haiku": {
+          "delta_points_matched": 10.869565217391298,
+          "met": true,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "length": {
+          "delta_points_matched": 52.17391304347825,
+          "met": true,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "first": {
+          "delta_points_matched": 41.30434782608695,
+          "met": true,
+          "n": 46,
+          "primary": true,
+          "target": "lead beyond noise"
+        }
+      },
+      "met": false,
+      "diagnostic_label_overlap_with_vanilla_tune": 0
+    },
+    "hardrows": {
+      "rows": {
+        "MoJ": {
+          "n": 54,
+          "accuracy": 0.9259259259259259,
+          "balanced": 0.9199999999999999,
+          "sensitivity": 1.0,
+          "specificity": 0.84,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.8244564280657937,
+            0.9708189446763159
+          ],
+          "s2_per_100": 3.7037037037037037,
+          "s1_per_100": 200.0,
+          "known_usd_per_100": 0.00021851851851851852
+        },
+        "pw-router-v1": {
+          "n": 54,
+          "accuracy": 0.9629629629629629,
+          "balanced": 0.96,
+          "sensitivity": 1.0,
+          "specificity": 0.92,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.8746459065659669,
+            0.9897838464145869
+          ],
+          "s2_per_100": 14.814814814814815,
+          "s1_per_100": 255.55555555555554,
+          "known_usd_per_100": 0.0016925925925925925,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -9.615384615384617,
+              0.0
+            ]
+          }
+        },
+        "pw_whole": {
+          "n": 54,
+          "accuracy": 0.9259259259259259,
+          "balanced": 0.9199999999999999,
+          "sensitivity": 1.0,
+          "specificity": 0.84,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.8244564280657937,
+            0.9708189446763159
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "pw-s1-whole": {
+          "n": 54,
+          "accuracy": 0.9444444444444444,
+          "balanced": 0.94,
+          "sensitivity": 1.0,
+          "specificity": 0.88,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.8489254853651705,
+            0.980927077496161
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -5.88235294117647,
+              0.0
+            ]
+          }
+        },
+        "pw-s1-rows": {
+          "n": 54,
+          "accuracy": 0.9722222222222222,
+          "balanced": 0.9713793103448276,
+          "sensitivity": 0.9827586206896551,
+          "specificity": 0.96,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.8881592767706276,
+            0.9935590712695374
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -11.864406779661017,
+              0.9433962264150944
+            ]
+          }
+        },
+        "pw-moj-luna": {
+          "n": 54,
+          "accuracy": 0.9814814814814815,
+          "balanced": 0.98,
+          "sensitivity": 1.0,
+          "specificity": 0.96,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.902283346415128,
+            0.996723596684648
+          ],
+          "s2_per_100": 14.814814814814815,
+          "s1_per_100": 207.40740740740742,
+          "known_usd_per_100": 0.0014888888888888888,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -12.727272727272727,
+              0.0
+            ]
+          }
+        },
+        "pw-moj-mix": {
+          "n": 54,
+          "accuracy": 0.9814814814814815,
+          "balanced": 0.98,
+          "sensitivity": 1.0,
+          "specificity": 0.96,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.902283346415128,
+            0.996723596684648
+          ],
+          "s2_per_100": 29.62962962962963,
+          "s1_per_100": 207.40740740740742,
+          "known_usd_per_100": 0.016887037037037034,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -12.727272727272727,
+              0.0
+            ]
+          }
+        },
+        "pw_ledger": {
+          "n": 54,
+          "accuracy": 1.0,
+          "balanced": 1.0,
+          "sensitivity": 1.0,
+          "specificity": 1.0,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.9335841332189981,
+            1.0
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.03892937037037037,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -15.384615384615385,
+              -1.7543859649122806
+            ]
+          }
+        },
+        "pw_shipped": {
+          "n": 54,
+          "accuracy": 0.9629629629629629,
+          "balanced": 0.9655172413793103,
+          "sensitivity": 0.9310344827586207,
+          "specificity": 1.0,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.8746459065659669,
+            0.9897838464145869
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.03429648148148148,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -12.962962962962962,
+              5.357142857142857
+            ]
+          }
+        },
+        "pw_promptfoo": {
+          "n": 54,
+          "accuracy": 0.8888888888888888,
+          "balanced": 0.896551724137931,
+          "sensitivity": 0.7931034482758621,
+          "specificity": 1.0,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.7780505106792327,
+            0.9480704818244324
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.03435592592592593,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -7.547169811320755,
+              15.686274509803921
+            ]
+          }
+        },
+        "pw_s2v_luna": {
+          "n": 54,
+          "accuracy": 1.0,
+          "balanced": 1.0,
+          "sensitivity": 1.0,
+          "specificity": 1.0,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.9335841332189981,
+            1.0
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.009096296296296295,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -15.384615384615385,
+              -1.7543859649122806
+            ]
+          }
+        },
+        "pw_s2v_gemini": {
+          "n": 54,
+          "accuracy": 1.0,
+          "balanced": 1.0,
+          "sensitivity": 1.0,
+          "specificity": 1.0,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.9335841332189981,
+            1.0
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.15005925925925928,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -15.384615384615385,
+              -1.7543859649122806
+            ]
+          }
+        },
+        "pw_s2v_haiku": {
+          "n": 54,
+          "accuracy": 0.9259259259259259,
+          "balanced": 0.9310344827586207,
+          "sensitivity": 0.8620689655172413,
+          "specificity": 1.0,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.8244564280657937,
+            0.9708189446763159
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.032799999999999996,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              -10.344827586206897,
+              10.714285714285714
+            ]
+          }
+        },
+        "const_fail": {
+          "n": 54,
+          "accuracy": 0.46296296296296297,
+          "balanced": 0.5,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.33689688992410527,
+            0.5939487298374504
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              30.18867924528302,
+              61.40350877192983
+            ]
+          }
+        },
+        "const_pass": {
+          "n": 54,
+          "accuracy": 0.5370370370370371,
+          "balanced": 0.5,
+          "sensitivity": 1.0,
+          "specificity": 0.0,
+          "positive_n": 29,
+          "negative_n": 25,
+          "ci95": [
+            0.4060512701625496,
+            0.6631031100758948
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 54,
+            "accuracy": 0.9259259259259259,
+            "balanced": 0.9199999999999999,
+            "sensitivity": 1.0,
+            "specificity": 0.84,
+            "positive_n": 29,
+            "negative_n": 25,
+            "ci95": [
+              0.8244564280657937,
+              0.9708189446763159
+            ],
+            "s2_per_100": 3.7037037037037037,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.00021851851851851852
+          },
+          "paired_delta": {
+            "groups": 47,
+            "draws": 20000,
+            "ci95_points": [
+              27.77777777777778,
+              50.0
+            ]
+          }
+        }
+      },
+      "noise_floor_points": 1.7,
+      "noise_source": "maximum existing moj/noise.py recorded range, conservative proxy; no fresh repeated answers",
+      "comparisons": {
+        "pw-router-v1": {
+          "delta_points_matched": -3.703703703703698,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_whole": {
+          "delta_points_matched": 0.0,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-s1-whole": {
+          "delta_points_matched": -1.851851851851849,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-s1-rows": {
+          "delta_points_matched": -4.629629629629628,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-moj-luna": {
+          "delta_points_matched": -5.555555555555558,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-moj-mix": {
+          "delta_points_matched": -5.555555555555558,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_ledger": {
+          "delta_points_matched": -7.4074074074074066,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "tie within noise at fewer S2 calls"
+        },
+        "pw_shipped": {
+          "delta_points_matched": -3.703703703703698,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_promptfoo": {
+          "delta_points_matched": 3.703703703703709,
+          "met": true,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_s2v_luna": {
+          "delta_points_matched": -7.4074074074074066,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "tie within noise at fewer S2 calls"
+        },
+        "pw_s2v_gemini": {
+          "delta_points_matched": -7.4074074074074066,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "tie within noise at fewer S2 calls"
+        },
+        "pw_s2v_haiku": {
+          "delta_points_matched": 0.0,
+          "met": false,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "const_fail": {
+          "delta_points_matched": 46.2962962962963,
+          "met": true,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "const_pass": {
+          "delta_points_matched": 38.888888888888886,
+          "met": true,
+          "n": 54,
+          "primary": true,
+          "target": "lead beyond noise"
+        }
+      },
+      "met": false,
+      "diagnostic_label_overlap_with_vanilla_tune": 0
+    },
+    "verify": {
+      "rows": {
+        "MoJ": {
+          "n": 49,
+          "accuracy": 0.6122448979591837,
+          "balanced": 0.5952380952380952,
+          "sensitivity": 0.5714285714285714,
+          "specificity": 0.6190476190476191,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.4724574648805242,
+            0.735711856260395
+          ],
+          "s2_per_100": 469.38775510204084,
+          "s1_per_100": 277.55102040816325,
+          "known_usd_per_100": 0.5963187755102042
+        },
+        "pw-router-v1": {
+          "n": 49,
+          "accuracy": 0.6122448979591837,
+          "balanced": 0.5952380952380952,
+          "sensitivity": 0.5714285714285714,
+          "specificity": 0.6190476190476191,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.4724574648805242,
+            0.735711856260395
+          ],
+          "s2_per_100": 469.38775510204084,
+          "s1_per_100": 277.55102040816325,
+          "known_usd_per_100": 0.5963187755102042,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "pw_whole": {
+          "n": 49,
+          "accuracy": 0.5510204081632653,
+          "balanced": 0.5,
+          "sensitivity": 0.42857142857142855,
+          "specificity": 0.5714285714285714,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.41314866799678107,
+            0.6814737507036366
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              -4.081632653061225,
+              16.3265306122449
+            ]
+          }
+        },
+        "pw_ref_luna": {
+          "n": 49,
+          "accuracy": 0.8163265306122449,
+          "balanced": 0.7738095238095238,
+          "sensitivity": 0.7142857142857143,
+          "specificity": 0.8333333333333334,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.6864212843271743,
+            0.9002377116154164
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.04738367346938776,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              -32.6530612244898,
+              -8.16326530612245
+            ]
+          }
+        },
+        "pw-s1-whole": {
+          "n": 49,
+          "accuracy": 0.6020408163265306,
+          "balanced": 0.44047619047619047,
+          "sensitivity": 0.21428571428571427,
+          "specificity": 0.6666666666666666,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.4624364608315428,
+            0.726808376569293
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              -22.448979591836736,
+              24.489795918367346
+            ]
+          }
+        },
+        "pw-s1-rows": {
+          "n": 49,
+          "accuracy": 0.5510204081632653,
+          "balanced": 0.5,
+          "sensitivity": 0.42857142857142855,
+          "specificity": 0.5714285714285714,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.41314866799678107,
+            0.6814737507036366
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              -18.367346938775512,
+              30.612244897959183
+            ]
+          }
+        },
+        "pw-moj-luna": {
+          "n": 49,
+          "accuracy": 0.7346938775510204,
+          "balanced": 0.7857142857142857,
+          "sensitivity": 0.8571428571428571,
+          "specificity": 0.7142857142857143,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.5973744384734165,
+            0.8378886875485057
+          ],
+          "s2_per_100": 118.36734693877551,
+          "s1_per_100": 300.0,
+          "known_usd_per_100": 0.05461836734693877,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              -32.6530612244898,
+              8.16326530612245
+            ]
+          }
+        },
+        "pw-moj-mix": {
+          "n": 49,
+          "accuracy": 0.7142857142857143,
+          "balanced": 0.7738095238095237,
+          "sensitivity": 0.8571428571428571,
+          "specificity": 0.6904761904761905,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.5759085079389967,
+            0.8215056506027583
+          ],
+          "s2_per_100": 159.18367346938774,
+          "s1_per_100": 300.0,
+          "known_usd_per_100": 0.16592857142857143,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              -30.612244897959183,
+              10.204081632653061
+            ]
+          }
+        },
+        "pw_ledger": {
+          "n": 17,
+          "accuracy": 0.8235294117647058,
+          "balanced": 0.6833333333333333,
+          "sensitivity": 0.5,
+          "specificity": 0.8666666666666667,
+          "positive_n": 2,
+          "negative_n": 15,
+          "ci95": [
+            0.5897007098262422,
+            0.9380898628745101
+          ],
+          "s2_per_100": 465.88235294117646,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.5564294117647058,
+          "moj_same_items": {
+            "n": 17,
+            "accuracy": 0.47058823529411764,
+            "balanced": 0.26666666666666666,
+            "sensitivity": 0.0,
+            "specificity": 0.5333333333333333,
+            "positive_n": 2,
+            "negative_n": 15,
+            "ci95": [
+              0.26164801196088106,
+              0.6903710268845051
+            ],
+            "s2_per_100": 476.47058823529414,
+            "s1_per_100": 276.47058823529414,
+            "known_usd_per_100": 0.7388773529411764
+          },
+          "paired_delta": {
+            "groups": 17,
+            "draws": 20000,
+            "ci95_points": [
+              -58.82352941176471,
+              -11.76470588235294
+            ]
+          }
+        },
+        "pw_promptfoo": {
+          "n": 17,
+          "accuracy": 0.7058823529411765,
+          "balanced": 0.6166666666666667,
+          "sensitivity": 0.5,
+          "specificity": 0.7333333333333333,
+          "positive_n": 2,
+          "negative_n": 15,
+          "ci95": [
+            0.468664666737861,
+            0.8672020613444361
+          ],
+          "s2_per_100": 97.11764705882354,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.07425294117647059,
+          "moj_same_items": {
+            "n": 17,
+            "accuracy": 0.47058823529411764,
+            "balanced": 0.26666666666666666,
+            "sensitivity": 0.0,
+            "specificity": 0.5333333333333333,
+            "positive_n": 2,
+            "negative_n": 15,
+            "ci95": [
+              0.26164801196088106,
+              0.6903710268845051
+            ],
+            "s2_per_100": 476.47058823529414,
+            "s1_per_100": 276.47058823529414,
+            "known_usd_per_100": 0.7388773529411764
+          },
+          "paired_delta": {
+            "groups": 17,
+            "draws": 20000,
+            "ci95_points": [
+              -47.05882352941176,
+              0.0
+            ]
+          }
+        },
+        "pw_s2v_luna": {
+          "n": 44,
+          "accuracy": 0.7727272727272727,
+          "balanced": 0.7490347490347491,
+          "sensitivity": 0.7142857142857143,
+          "specificity": 0.7837837837837838,
+          "positive_n": 7,
+          "negative_n": 37,
+          "ci95": [
+            0.6300735713298432,
+            0.8715818916981491
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.06359545454545455,
+          "moj_same_items": {
+            "n": 44,
+            "accuracy": 0.5909090909090909,
+            "balanced": 0.583011583011583,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.5945945945945946,
+            "positive_n": 7,
+            "negative_n": 37,
+            "ci95": [
+              0.44409492646606574,
+              0.7231235612099317
+            ],
+            "s2_per_100": 465.90909090909093,
+            "s1_per_100": 275.0,
+            "known_usd_per_100": 0.6060210227272728
+          },
+          "paired_delta": {
+            "groups": 44,
+            "draws": 20000,
+            "ci95_points": [
+              -31.818181818181817,
+              -4.545454545454546
+            ]
+          }
+        },
+        "pw_s2v_gemini": {
+          "n": 49,
+          "accuracy": 0.8367346938775511,
+          "balanced": 0.7857142857142857,
+          "sensitivity": 0.7142857142857143,
+          "specificity": 0.8571428571428571,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.7096339333048477,
+            0.9148740301179102
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.7121,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              -36.734693877551024,
+              -10.204081632653061
+            ]
+          }
+        },
+        "pw_s2v_haiku": {
+          "n": 49,
+          "accuracy": 0.6938775510204082,
+          "balanced": 0.7023809523809523,
+          "sensitivity": 0.7142857142857143,
+          "specificity": 0.6904761904761905,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.5547184259930626,
+            0.8048467650685251
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.15923673469387756,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              -20.408163265306122,
+              4.081632653061225
+            ]
+          }
+        },
+        "const_fail": {
+          "n": 49,
+          "accuracy": 0.8571428571428571,
+          "balanced": 0.5,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.7333202681083708,
+            0.9290366627945541
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              -40.816326530612244,
+              -8.16326530612245
+            ]
+          }
+        },
+        "const_pass": {
+          "n": 49,
+          "accuracy": 0.14285714285714285,
+          "balanced": 0.5,
+          "sensitivity": 1.0,
+          "specificity": 0.0,
+          "positive_n": 7,
+          "negative_n": 42,
+          "ci95": [
+            0.07096333720544586,
+            0.2666797318916292
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 49,
+            "accuracy": 0.6122448979591837,
+            "balanced": 0.5952380952380952,
+            "sensitivity": 0.5714285714285714,
+            "specificity": 0.6190476190476191,
+            "positive_n": 7,
+            "negative_n": 42,
+            "ci95": [
+              0.4724574648805242,
+              0.735711856260395
+            ],
+            "s2_per_100": 469.38775510204084,
+            "s1_per_100": 277.55102040816325,
+            "known_usd_per_100": 0.5963187755102042
+          },
+          "paired_delta": {
+            "groups": 49,
+            "draws": 20000,
+            "ci95_points": [
+              28.57142857142857,
+              63.26530612244898
+            ]
+          }
+        }
+      },
+      "noise_floor_points": 3.3,
+      "noise_source": "maximum existing moj/noise.py recorded range, conservative proxy; no fresh repeated answers",
+      "comparisons": {
+        "pw-router-v1": {
+          "delta_points_matched": 0.0,
+          "met": false,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_whole": {
+          "delta_points_matched": 6.1224489795918435,
+          "met": true,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_ref_luna": {
+          "delta_points_matched": -20.408163265306122,
+          "met": false,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-s1-whole": {
+          "delta_points_matched": 1.0204081632653073,
+          "met": false,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-s1-rows": {
+          "delta_points_matched": 6.1224489795918435,
+          "met": true,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-moj-luna": {
+          "delta_points_matched": -12.244897959183676,
+          "met": false,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-moj-mix": {
+          "delta_points_matched": -10.204081632653061,
+          "met": false,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_ledger": {
+          "delta_points_matched": -35.29411764705882,
+          "met": false,
+          "n": 17,
+          "primary": false,
+          "target": "lead beyond noise"
+        },
+        "pw_promptfoo": {
+          "delta_points_matched": -23.529411764705888,
+          "met": false,
+          "n": 17,
+          "primary": false,
+          "target": "lead beyond noise"
+        },
+        "pw_s2v_luna": {
+          "delta_points_matched": -18.181818181818176,
+          "met": false,
+          "n": 44,
+          "primary": false,
+          "target": "lead beyond noise"
+        },
+        "pw_s2v_gemini": {
+          "delta_points_matched": -22.44897959183674,
+          "met": false,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_s2v_haiku": {
+          "delta_points_matched": -8.163265306122447,
+          "met": false,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "const_fail": {
+          "delta_points_matched": -24.489795918367342,
+          "met": false,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "const_pass": {
+          "delta_points_matched": 46.93877551020408,
+          "met": true,
+          "n": 49,
+          "primary": true,
+          "target": "lead beyond noise"
+        }
+      },
+      "met": false,
+      "diagnostic_label_overlap_with_vanilla_tune": 0
+    },
+    "verify-with-reference": {
+      "rows": {
+        "MoJ": {
+          "n": 55,
+          "accuracy": 0.9636363636363636,
+          "balanced": 0.9388888888888889,
+          "sensitivity": 0.9,
+          "specificity": 0.9777777777777777,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.8767630702509827,
+            0.989970669144275
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 200.0,
+          "known_usd_per_100": 0.0
+        },
+        "pw-router-v1": {
+          "n": 55,
+          "accuracy": 0.8,
+          "balanced": 0.5666666666666667,
+          "sensitivity": 0.2,
+          "specificity": 0.9333333333333333,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.6763486849309407,
+            0.8844790287954026
+          ],
+          "s2_per_100": 87.27272727272727,
+          "s1_per_100": 300.0,
+          "known_usd_per_100": 0.06633454545454545,
+          "moj_same_items": {
+            "n": 55,
+            "accuracy": 0.9636363636363636,
+            "balanced": 0.9388888888888889,
+            "sensitivity": 0.9,
+            "specificity": 0.9777777777777777,
+            "positive_n": 10,
+            "negative_n": 45,
+            "ci95": [
+              0.8767630702509827,
+              0.989970669144275
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 55,
+            "draws": 20000,
+            "ci95_points": [
+              7.2727272727272725,
+              27.27272727272727
+            ]
+          }
+        },
+        "pw_whole": {
+          "n": 55,
+          "accuracy": 0.9636363636363636,
+          "balanced": 0.9388888888888889,
+          "sensitivity": 0.9,
+          "specificity": 0.9777777777777777,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.8767630702509827,
+            0.989970669144275
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 55,
+            "accuracy": 0.9636363636363636,
+            "balanced": 0.9388888888888889,
+            "sensitivity": 0.9,
+            "specificity": 0.9777777777777777,
+            "positive_n": 10,
+            "negative_n": 45,
+            "ci95": [
+              0.8767630702509827,
+              0.989970669144275
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 55,
+            "draws": 20000,
+            "ci95_points": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "pw-s1-whole": {
+          "n": 55,
+          "accuracy": 0.9636363636363636,
+          "balanced": 0.9388888888888889,
+          "sensitivity": 0.9,
+          "specificity": 0.9777777777777777,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.8767630702509827,
+            0.989970669144275
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 55,
+            "accuracy": 0.9636363636363636,
+            "balanced": 0.9388888888888889,
+            "sensitivity": 0.9,
+            "specificity": 0.9777777777777777,
+            "positive_n": 10,
+            "negative_n": 45,
+            "ci95": [
+              0.8767630702509827,
+              0.989970669144275
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 55,
+            "draws": 20000,
+            "ci95_points": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "pw-s1-rows": {
+          "n": 55,
+          "accuracy": 0.8,
+          "balanced": 0.8777777777777778,
+          "sensitivity": 1.0,
+          "specificity": 0.7555555555555555,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.6763486849309407,
+            0.8844790287954026
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 55,
+            "accuracy": 0.9636363636363636,
+            "balanced": 0.9388888888888889,
+            "sensitivity": 0.9,
+            "specificity": 0.9777777777777777,
+            "positive_n": 10,
+            "negative_n": 45,
+            "ci95": [
+              0.8767630702509827,
+              0.989970669144275
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 55,
+            "draws": 20000,
+            "ci95_points": [
+              5.454545454545454,
+              27.27272727272727
+            ]
+          }
+        },
+        "pw-moj-luna": {
+          "n": 55,
+          "accuracy": 0.8181818181818182,
+          "balanced": 0.8500000000000001,
+          "sensitivity": 0.9,
+          "specificity": 0.8,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.6966928866143076,
+            0.898124385519693
+          ],
+          "s2_per_100": 10.909090909090908,
+          "s1_per_100": 200.0,
+          "known_usd_per_100": 0.009741818181818181,
+          "moj_same_items": {
+            "n": 55,
+            "accuracy": 0.9636363636363636,
+            "balanced": 0.9388888888888889,
+            "sensitivity": 0.9,
+            "specificity": 0.9777777777777777,
+            "positive_n": 10,
+            "negative_n": 45,
+            "ci95": [
+              0.8767630702509827,
+              0.989970669144275
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 55,
+            "draws": 20000,
+            "ci95_points": [
+              5.454545454545454,
+              23.636363636363637
+            ]
+          }
+        },
+        "pw-moj-mix": {
+          "n": 55,
+          "accuracy": 0.8181818181818182,
+          "balanced": 0.8500000000000001,
+          "sensitivity": 0.9,
+          "specificity": 0.8,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.6966928866143076,
+            0.898124385519693
+          ],
+          "s2_per_100": 10.909090909090908,
+          "s1_per_100": 200.0,
+          "known_usd_per_100": 0.009741818181818181,
+          "moj_same_items": {
+            "n": 55,
+            "accuracy": 0.9636363636363636,
+            "balanced": 0.9388888888888889,
+            "sensitivity": 0.9,
+            "specificity": 0.9777777777777777,
+            "positive_n": 10,
+            "negative_n": 45,
+            "ci95": [
+              0.8767630702509827,
+              0.989970669144275
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 55,
+            "draws": 20000,
+            "ci95_points": [
+              5.454545454545454,
+              23.636363636363637
+            ]
+          }
+        },
+        "reference-first-recorded": {
+          "n": 55,
+          "accuracy": 0.9545454545454546,
+          "balanced": 0.9333333333333333,
+          "sensitivity": 0.9,
+          "specificity": 0.9666666666666667,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.8639320522572979,
+            0.9858069079341313
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 100.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 55,
+            "accuracy": 0.9636363636363636,
+            "balanced": 0.9388888888888889,
+            "sensitivity": 0.9,
+            "specificity": 0.9777777777777777,
+            "positive_n": 10,
+            "negative_n": 45,
+            "ci95": [
+              0.8767630702509827,
+              0.989970669144275
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 55,
+            "draws": 20000,
+            "ci95_points": [
+              -4.545454545454546,
+              6.363636363636363
+            ]
+          }
+        },
+        "pw_s2v_luna": {
+          "n": 45,
+          "accuracy": 0.7777777777777778,
+          "balanced": 0.47297297297297297,
+          "sensitivity": 0.0,
+          "specificity": 0.9459459459459459,
+          "positive_n": 8,
+          "negative_n": 37,
+          "ci95": [
+            0.637304262026367,
+            0.8745544813399436
+          ],
+          "s2_per_100": 100.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.06911333333333333,
+          "moj_same_items": {
+            "n": 45,
+            "accuracy": 0.9555555555555556,
+            "balanced": 0.9239864864864865,
+            "sensitivity": 0.875,
+            "specificity": 0.972972972972973,
+            "positive_n": 8,
+            "negative_n": 37,
+            "ci95": [
+              0.8517222081611939,
+              0.9877261309595557
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 45,
+            "draws": 20000,
+            "ci95_points": [
+              6.666666666666667,
+              28.888888888888886
+            ]
+          }
+        },
+        "const_fail": {
+          "n": 55,
+          "accuracy": 0.8181818181818182,
+          "balanced": 0.5,
+          "sensitivity": 0.0,
+          "specificity": 1.0,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.6966928866143076,
+            0.898124385519693
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 55,
+            "accuracy": 0.9636363636363636,
+            "balanced": 0.9388888888888889,
+            "sensitivity": 0.9,
+            "specificity": 0.9777777777777777,
+            "positive_n": 10,
+            "negative_n": 45,
+            "ci95": [
+              0.8767630702509827,
+              0.989970669144275
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 55,
+            "draws": 20000,
+            "ci95_points": [
+              3.6363636363636362,
+              25.454545454545453
+            ]
+          }
+        },
+        "const_pass": {
+          "n": 55,
+          "accuracy": 0.18181818181818182,
+          "balanced": 0.5,
+          "sensitivity": 1.0,
+          "specificity": 0.0,
+          "positive_n": 10,
+          "negative_n": 45,
+          "ci95": [
+            0.10187561448030712,
+            0.3033071133856924
+          ],
+          "s2_per_100": 0.0,
+          "s1_per_100": 0.0,
+          "known_usd_per_100": 0.0,
+          "moj_same_items": {
+            "n": 55,
+            "accuracy": 0.9636363636363636,
+            "balanced": 0.9388888888888889,
+            "sensitivity": 0.9,
+            "specificity": 0.9777777777777777,
+            "positive_n": 10,
+            "negative_n": 45,
+            "ci95": [
+              0.8767630702509827,
+              0.989970669144275
+            ],
+            "s2_per_100": 0.0,
+            "s1_per_100": 200.0,
+            "known_usd_per_100": 0.0
+          },
+          "paired_delta": {
+            "groups": 55,
+            "draws": 20000,
+            "ci95_points": [
+              65.45454545454545,
+              89.0909090909091
+            ]
+          }
+        }
+      },
+      "noise_floor_points": null,
+      "noise_source": "maximum existing moj/noise.py recorded range, conservative proxy; no fresh repeated answers",
+      "comparisons": {
+        "pw-router-v1": {
+          "delta_points_matched": 16.36363636363636,
+          "met": true,
+          "n": 55,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_whole": {
+          "delta_points_matched": 0.0,
+          "met": false,
+          "n": 55,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-s1-whole": {
+          "delta_points_matched": 0.0,
+          "met": false,
+          "n": 55,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-s1-rows": {
+          "delta_points_matched": 16.36363636363636,
+          "met": true,
+          "n": 55,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-moj-luna": {
+          "delta_points_matched": 14.54545454545454,
+          "met": true,
+          "n": 55,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw-moj-mix": {
+          "delta_points_matched": 14.54545454545454,
+          "met": true,
+          "n": 55,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "reference-first-recorded": {
+          "delta_points_matched": 0.9090909090909038,
+          "met": true,
+          "n": 55,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "pw_s2v_luna": {
+          "delta_points_matched": 17.777777777777782,
+          "met": true,
+          "n": 45,
+          "primary": false,
+          "target": "lead beyond noise"
+        },
+        "const_fail": {
+          "delta_points_matched": 14.54545454545454,
+          "met": true,
+          "n": 55,
+          "primary": true,
+          "target": "lead beyond noise"
+        },
+        "const_pass": {
+          "delta_points_matched": 78.18181818181817,
+          "met": true,
+          "n": 55,
+          "primary": true,
+          "target": "lead beyond noise"
+        }
+      },
+      "met": false,
+      "diagnostic_label_overlap_with_vanilla_tune": 29
+    }
+  },
+  "residual": 3,
+  "matched_subset_unmet": 5,
+  "spend_upper_estimate_usd": 0.7502442300000001
+}

@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "289b6390e8b3a8f2c0dc58275eb1a9ec9b103b802cf4d7cec17188974f1e9f6d",
+        "reason": "Several choices follow the adjective order evidenced by the examples: A, C, D, E, G, and J. The reply incorrectly selects K.",
+        "usd": 0.0010073
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "c1c2f1ad8497584d4201d3ac0d0f829d0df27673777f3025b5a5beca7a45eb5c",
+        "reason": "The model correctly analyzed the patterns in the provided examples (e.g., material before age, color/opinion order variations, size/purpose/nationality constraints) and correctly determined that none of the given options (A-J) follow the derived adjective order rules, thus selecting K.",
+        "usd": 0.0062445
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "1919e8c352e9e14638f690206186c0e1ad576eb5961238d836184ef596b62b12",
+        "reason": "The reply answers K (none correct), but the examples contradict its assumed standard order. They show nationality < shape (e.g., 'bangladeshi spherical spoon'), shape < size ('triangular large new house'), size < purpose ('medium-size hiking plate'), purpose < material ('iranian eating glass screwdriver'), and material < age ('wood ancient ball'). Option J (nationality, shape, size, purpose, material, age) follows every one of these pairwise constraints, so K is wrong. The reply's reasoning also overrode the examples with a generic English order.",
+        "usd": 0.0060879
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "289b6390e8b3a8f2c0dc58275eb1a9ec9b103b802cf4d7cec17188974f1e9f6d",
+      "count": 1,
+      "usd": 0.0010073
+    },
+    {
+      "provider": "gemini",
+      "key": "c1c2f1ad8497584d4201d3ac0d0f829d0df27673777f3025b5a5beca7a45eb5c",
+      "count": 1,
+      "usd": 0.0062445
+    },
+    {
+      "provider": "haiku",
+      "key": "1919e8c352e9e14638f690206186c0e1ad576eb5961238d836184ef596b62b12",
+      "count": 1,
+      "usd": 0.0060879
+    }
+  ]
+}

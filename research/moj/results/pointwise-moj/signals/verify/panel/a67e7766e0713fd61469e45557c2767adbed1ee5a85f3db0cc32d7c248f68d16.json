@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "8f5856db7db75a014c3264bde449d979a3489e3d93bd5ec5a56b4d2f6a375849",
+        "reason": "The claimed factor 1,578,419 is composite: 1,578,419 = 131 × 12,049. So the listed factors are not the complete prime factorization.",
+        "usd": 0.000357
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "7505e38f143326b7a290a4fe4162eaf10205bd34096bc2b7a0e97942cb199f3c",
+        "reason": "The prime factors of 33146799 are correctly identified as 3, 7, and 1578419 ($3 \times 7 \times 1578419 = 33146799$, and 1578419 is prime).",
+        "usd": 0.00187125
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "5ba70141fac5e347f2e3cdb6d5199770a86ee4e648109b417f5f8081f49f8e72",
+        "reason": "The factorization 33146799 = 3 × 7 × 1578419 is arithmetically correct, but the reply never establishes that 1578419 is prime. It checks primes only up to 131 even though it notes √1578419 ≈ 1256, then asserts primality with 'It turns out that 1578419 is prime.' Trial division by the primes from 137 to 251 that I checked also finds no factor, but the reply does not show the remaining checks, so the final prime factor list is unsupported.",
+        "usd": 0.0013357
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "8f5856db7db75a014c3264bde449d979a3489e3d93bd5ec5a56b4d2f6a375849",
+      "count": 1,
+      "usd": 0.000357
+    },
+    {
+      "provider": "gemini",
+      "key": "7505e38f143326b7a290a4fe4162eaf10205bd34096bc2b7a0e97942cb199f3c",
+      "count": 1,
+      "usd": 0.00187125
+    },
+    {
+      "provider": "haiku",
+      "key": "5ba70141fac5e347f2e3cdb6d5199770a86ee4e648109b417f5f8081f49f8e72",
+      "count": 1,
+      "usd": 0.0013357
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "cf69be4bf01695b83e057dfa77da1f6f3a8751fa9e0c05ea3cdb628ce00b3baf",
+        "reason": "The final date answer happens to be “unanswerable,” but the reply incorrectly computes Question 1’s average and does not correctly solve Question 2, so it fails the requested task overall.",
+        "usd": 0.0003443
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "f4115d51fb7cd3b33776ebe152b599db6c22e8980215f0a5535cf301fcdaa50a",
+        "reason": "The model correctly identified that the problem setup for Question 3 led to an unanswerable or nonsensical date (due to placeholder variable manipulation) and correctly output the required final answer `\boxed{unanswerable}`.",
+        "usd": 0.00156
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "c24e712309cf535e996bdb6db0e46d56d9db376022b741a78d1dbe172de19733",
+        "reason": "Question 1 is wrong: the four durations total 20840 s, and dividing by 4 rounds gives 5210 s = 1:26:50, not 5:07:07 (the reply divided by 60 instead of 4). This makes Question 2 wrong as well: with X=1, Y=26, Z=50, the student times are 2:50:50, 2:30:10 and 2:50:30, averaging 2:43:50, but the reply produces incoherent values (e.g., a negative seconds value and a 'not possible' claim). Question 3's 'unanswerable' matches the invalid date 1991-06-34, but it is reached through a broken chain and is not justified in the reply.",
+        "usd": 0.0011058
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "cf69be4bf01695b83e057dfa77da1f6f3a8751fa9e0c05ea3cdb628ce00b3baf",
+      "count": 1,
+      "usd": 0.0003443
+    },
+    {
+      "provider": "gemini",
+      "key": "f4115d51fb7cd3b33776ebe152b599db6c22e8980215f0a5535cf301fcdaa50a",
+      "count": 1,
+      "usd": 0.00156
+    },
+    {
+      "provider": "haiku",
+      "key": "c24e712309cf535e996bdb6db0e46d56d9db376022b741a78d1dbe172de19733",
+      "count": 1,
+      "usd": 0.0011058
+    }
+  ]
+}

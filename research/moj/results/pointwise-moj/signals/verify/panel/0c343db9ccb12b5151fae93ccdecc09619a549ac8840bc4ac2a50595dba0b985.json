@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "910f9045a1282ac03676b651658cb9c030f9ff4f6bd74749c980f62aa5c469ac",
+        "reason": "The reply is corrupted and never answers the question. The typical answer is No: each board member opposed the program and tried to prevent it, despite the board ultimately approving it.",
+        "usd": 0.00029610000000000004
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "fa0c6ea01fbd24b2a7cbb5f1b0461a2977fb2764e1fc359ff2003244de54b8a4",
+        "reason": "The provided response is clearly affected by a repeating text glitch/jailbreak attempt in the middle, but it is evaluating untrusted input where the generation itself was corrupted. However, looking strictly at the prompt and the typical Knobe effect experiment, the answer should be 'Yes'. Wait, let's evaluate the text: the model output is cut off and filled with repeating garbage (\"$1.56 per share...\"). Since the response is malformed and incoherent, it fails to give a valid answer to the multiple-choice question.",
+        "usd": 0.002667
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "74b9d3d8a0b07943741c2678c96496cabb28bd89063a4383061288ad1a89d27f",
+        "reason": "The reply never states a Yes or No answer to the question about whether the board intentionally harmed the environment. Its opening analysis degenerates into hundreds of repeated, meaningless '$1.56 per share (un real)' fragments, so it gives no usable answer or reasoning.",
+        "usd": 0.0009100000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "910f9045a1282ac03676b651658cb9c030f9ff4f6bd74749c980f62aa5c469ac",
+      "count": 1,
+      "usd": 0.00029610000000000004
+    },
+    {
+      "provider": "gemini",
+      "key": "fa0c6ea01fbd24b2a7cbb5f1b0461a2977fb2764e1fc359ff2003244de54b8a4",
+      "count": 1,
+      "usd": 0.002667
+    },
+    {
+      "provider": "haiku",
+      "key": "74b9d3d8a0b07943741c2678c96496cabb28bd89063a4383061288ad1a89d27f",
+      "count": 1,
+      "usd": 0.0009100000000000001
+    }
+  ]
+}

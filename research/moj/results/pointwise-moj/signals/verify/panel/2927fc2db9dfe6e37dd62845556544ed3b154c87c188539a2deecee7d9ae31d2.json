@@ -1,0 +1,45 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "cf1161b9cd969c52c4448268df0b81acb6be2a25de09fb71cfc2abe3de939f65",
+        "reason": "The correct arrangement is C: Germany, Britain, France, South Korea. The British can communicate with only the German neighbor; the French cannot communicate with either neighbor; and the Korean’s only neighbor is French. The reply’s D arrangement makes the British adjacent to both German and Korean, with whom they can communicate.",
+        "usd": 0.0011955
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "81d49f4d706ccd8e7a4b9a430c6535385d492b452334e262490a099dd4ce4d0b",
+        "reason": "The response correctly deduces the order of nationalities by room number based on the clues and selects option D.",
+        "usd": 0.00825
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "9c13a582448657351d214b2cbd59016eebd685114252a06463aab0667092961e",
+        "reason": "The reply's final answer D is wrong. Its own check of D shows the British expert in room 2 communicating with both neighbors, contradicting that statement, and it then rationalizes the contradiction. The arrangement 1 German, 2 British, 3 French, 4 Korean satisfies every statement: the Korean (room 4) is larger than the German (room 1), the French has no common language with either neighbor, the British communicates only with the German, and the Korean has no common language with the French. That arrangement corresponds to option C.",
+        "usd": 0.0038886
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "cf1161b9cd969c52c4448268df0b81acb6be2a25de09fb71cfc2abe3de939f65",
+      "usd": 0.0011955
+    },
+    {
+      "provider": "gemini",
+      "key": "81d49f4d706ccd8e7a4b9a430c6535385d492b452334e262490a099dd4ce4d0b",
+      "usd": 0.00825
+    },
+    {
+      "provider": "haiku",
+      "key": "9c13a582448657351d214b2cbd59016eebd685114252a06463aab0667092961e",
+      "usd": 0.0038886
+    }
+  ]
+}

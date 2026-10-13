@@ -1,0 +1,45 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "8d437bb8255d40d7abe3724eef92f283f0426acc841fe3e60cfe49426c94d5dc",
+        "reason": "Option B also evaluates to true: its first disjunct is true, and its second disjunct is a triple negation of false, hence true. So C is not the only true option.",
+        "usd": 0.0016325
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "3127d91462b4cc690ebede4bb8293f444ced9e56e856b9b17a1d7dcae542b2a6",
+        "reason": "The response correctly evaluates the options and concludes that option (C) is the only expression that evaluates to true.",
+        "usd": 0.009624
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "9830dca20239120105fd8b407f233552dae562ceec069cfa99aa72d96b1ab1bb",
+        "reason": "The reply's answer C is wrong. In C, the top level is `not not not (A and B) and not not (R)`. The first conjunct is True: A is True, B is False (18 ≤ 3 is false), so A and B is False and three nots give True. The second conjunct is `not not (R)`, where R = `(...) and ((False) and (Armenia is Yerevan))`. The inner `(False and True)` is False, so R is False and C = True and False = False. The reply wrongly folded the final `and not not(...)` into the parenthesized group, so its claim that C is the unique true option is unsupported.",
+        "usd": 0.0048418
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "8d437bb8255d40d7abe3724eef92f283f0426acc841fe3e60cfe49426c94d5dc",
+      "usd": 0.0016325
+    },
+    {
+      "provider": "gemini",
+      "key": "3127d91462b4cc690ebede4bb8293f444ced9e56e856b9b17a1d7dcae542b2a6",
+      "usd": 0.009624
+    },
+    {
+      "provider": "haiku",
+      "key": "9830dca20239120105fd8b407f233552dae562ceec069cfa99aa72d96b1ab1bb",
+      "usd": 0.0048418
+    }
+  ]
+}

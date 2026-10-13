@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "e4e4184f66b36fa3ec79ac1aa348dc9a7b37e19ce363a38765343e7329541c26",
+        "reason": "The calculations are correct: discount-day spending exceeds increased-price-day spending by $5.50q_A + $17.25q_B + $36q_C, where the q values are the initially planned quantities. Since those quantities are unspecified, a symbolic difference is appropriate.",
+        "usd": 0.0002637
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "ac30baee65b7e7e4630f78f92a182816db8c500762fd8e627bea52bca7c0872e",
+        "reason": "The response correctly interprets the problem, sets up the equations for both scenarios based on the prompt's instructions, and correctly calculates the algebraic difference in total costs.",
+        "usd": 0.00126375
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "6da58feaa2f23d2b27d0af6e61f697cff3a5c83cf6423f651b7e6129d512b270",
+        "reason": "I rechecked every step. Increase-day prices (110, 172.50, 240) and costs (99qA, 146.625qB, 192qC) are correct. Discount-day prices (95, 142.50, 190) and costs (104.5qA, 163.875qB, 228qC) are correct, with quantities taken as 1.1qA, 1.15qB, 1.2qC. The differences 5.5qA + 17.25qB + 36qC are correct. The only weakness is that the reply states the difference as discount-day minus increase-day without saying so, but the magnitude is right.",
+        "usd": 0.0009765
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e4e4184f66b36fa3ec79ac1aa348dc9a7b37e19ce363a38765343e7329541c26",
+      "count": 1,
+      "usd": 0.0002637
+    },
+    {
+      "provider": "gemini",
+      "key": "ac30baee65b7e7e4630f78f92a182816db8c500762fd8e627bea52bca7c0872e",
+      "count": 1,
+      "usd": 0.00126375
+    },
+    {
+      "provider": "haiku",
+      "key": "6da58feaa2f23d2b27d0af6e61f697cff3a5c83cf6423f651b7e6129d512b270",
+      "count": 1,
+      "usd": 0.0009765
+    }
+  ]
+}

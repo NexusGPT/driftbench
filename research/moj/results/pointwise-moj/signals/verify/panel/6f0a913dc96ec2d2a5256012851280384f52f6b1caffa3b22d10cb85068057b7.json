@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "0003a5fe132aad36a95f28fb26b30e3ab287e95aef0a01bf1c175bb6bfff4326",
+        "reason": "D is not entailed: the passage says other things may differ but never identifies processing quality as a factor. The reply treats a merely possible factor as a conclusion.",
+        "usd": 0.0005481
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "d174ff654eece683206229d0c2d14639a2ddc92ccb7d1b3ec2137eadc8ea4695",
+        "reason": "The response correctly analyzes the options based on the provided text, ruling out incorrect or out-of-scope answers (A, B, C) and correctly identifying the logical inference regarding the multi-factor determination of unit value (D).",
+        "usd": 0.00371475
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "4e541fd28a094cfba0833f78545f834bde1651f831b12dddff23a8abe39d6685",
+        "reason": "The intended answer is A. If a Laokeng jade had the highest transparency, then, other things being equal, it would have the highest unit value, which the passage says does not exist. The reply rejects A by citing the 'glass-like' top grade, but that does not break this inference. D is not supported because the passage never mentions processing quality.",
+        "usd": 0.0017355
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "0003a5fe132aad36a95f28fb26b30e3ab287e95aef0a01bf1c175bb6bfff4326",
+      "count": 1,
+      "usd": 0.0005481
+    },
+    {
+      "provider": "gemini",
+      "key": "d174ff654eece683206229d0c2d14639a2ddc92ccb7d1b3ec2137eadc8ea4695",
+      "count": 1,
+      "usd": 0.00371475
+    },
+    {
+      "provider": "haiku",
+      "key": "4e541fd28a094cfba0833f78545f834bde1651f831b12dddff23a8abe39d6685",
+      "count": 1,
+      "usd": 0.0017355
+    }
+  ]
+}

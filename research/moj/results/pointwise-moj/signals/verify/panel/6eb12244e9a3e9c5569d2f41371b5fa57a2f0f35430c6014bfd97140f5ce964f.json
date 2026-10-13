@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "7fe009e58147a53716e550f6daeafe31b2f87f217cfb1ac9f9326b796003841b",
+        "reason": "The first integral is ∫₀^ε ln(1+t)/t² dt, which tends to −∞ as ε→0⁺ (it behaves like ∫₀^ε dt/t). The integral near 3 tends to 0, so the limit is −∞, not 1.",
+        "usd": 0.000329
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "b1e539977f9ba3ee2da0884de548c6ce9913d8754ce46efd705a3056ad9968f8",
+        "reason": "The response does not correctly evaluate the limit or the integrals, instead wandering through confused substitutions and guessing the answer 1.",
+        "usd": 0.001695
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "9681128de85eb5ef9e78c8a15381a5d26218d3612e51ef83a24dc632f708a24d",
+        "reason": "Near x=2, ln(x-1) ≈ (x-2), so the integrand behaves like 1/(x-2). Then ∫_2^{2+ε} ln(x-1)/(x-2)^2 dx diverges to +∞ as ε→0, while the ∫_{3-ε}^{3} term tends to 0. The limit is therefore +∞, not 1. The reply's derivation is also circular and never evaluates the integral, so the boxed answer 1 is wrong.",
+        "usd": 0.0010652
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "7fe009e58147a53716e550f6daeafe31b2f87f217cfb1ac9f9326b796003841b",
+      "count": 1,
+      "usd": 0.000329
+    },
+    {
+      "provider": "gemini",
+      "key": "b1e539977f9ba3ee2da0884de548c6ce9913d8754ce46efd705a3056ad9968f8",
+      "count": 1,
+      "usd": 0.001695
+    },
+    {
+      "provider": "haiku",
+      "key": "9681128de85eb5ef9e78c8a15381a5d26218d3612e51ef83a24dc632f708a24d",
+      "count": 1,
+      "usd": 0.0010652
+    }
+  ]
+}

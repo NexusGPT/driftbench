@@ -1,0 +1,45 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "eb5190f647a5413b6fd225999d13d628ae438c52d3278b3c99153b9a1411f38b",
+        "reason": "B is the best answer: the advice against eating out-of-season vegetables presupposes that such vegetables existed in Confucius’s era.",
+        "usd": 0.00035769999999999997
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "a4a2d25028d756d7b5d2245c0d7a5792823201267a04fba8831af713839d8d60",
+        "reason": "The model correctly identifies the assumption needed for the argument (that out-of-season vegetables existed/were available to be advised against) and selects option B.",
+        "usd": 0.00107025
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "7f7cf89e3c3df3e35641fc5120b25c170d8d85ffce6daea3ae2f3903aff9ea24",
+        "reason": "Option B is a necessary premise: the advice against eating out-of-season vegetables only has meaning if such vegetables existed in Confucius's era. The reply identifies this correctly, and its elimination of A and D is sound. Option C is a plausible competitor, so the grade is not certain, but B is defensible as the intended answer.",
+        "usd": 0.0010486
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "eb5190f647a5413b6fd225999d13d628ae438c52d3278b3c99153b9a1411f38b",
+      "usd": 0.00035769999999999997
+    },
+    {
+      "provider": "gemini",
+      "key": "a4a2d25028d756d7b5d2245c0d7a5792823201267a04fba8831af713839d8d60",
+      "usd": 0.00107025
+    },
+    {
+      "provider": "haiku",
+      "key": "7f7cf89e3c3df3e35641fc5120b25c170d8d85ffce6daea3ae2f3903aff9ea24",
+      "usd": 0.0010486
+    }
+  ]
+}

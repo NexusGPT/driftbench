@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "5b6529e7352cb6cf24d129b380a109b11a3c79a6fbc9dab7b0be94331d2f8247",
+        "reason": "The expected value is the sum of the two draws’ expectations: each draw has mean (2+3+4+5+6+7)/6 = 4.5, so the expected sum is 9.",
+        "usd": 0.0003137
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "f49af7015231f774c3d3e277ece2e561e6bd8c5ff8d6ad2865597efa25fd218b",
+        "reason": "The text correctly calculates the expected value using both linearity of expectation and exhaustive listing of pairs, arriving at the correct final answer of 9.",
+        "usd": 0.0025635
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "1147c2f2cd959278a016d3ff33370070d57600212545805eb26ba1ba2fa7c853",
+        "reason": "The final answer of 9 is correct. Linearity gives E[X]=27/6=4.5, so E[X+Y]=9. Enumerating all 15 pairs gives sums totaling 135, and 135/15=9. The pair sums listed are all correct, and the cross-check 5·27/15=9 agrees.",
+        "usd": 0.0010972999999999998
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "5b6529e7352cb6cf24d129b380a109b11a3c79a6fbc9dab7b0be94331d2f8247",
+      "count": 1,
+      "usd": 0.0003137
+    },
+    {
+      "provider": "gemini",
+      "key": "f49af7015231f774c3d3e277ece2e561e6bd8c5ff8d6ad2865597efa25fd218b",
+      "count": 1,
+      "usd": 0.0025635
+    },
+    {
+      "provider": "haiku",
+      "key": "1147c2f2cd959278a016d3ff33370070d57600212545805eb26ba1ba2fa7c853",
+      "count": 1,
+      "usd": 0.0010972999999999998
+    }
+  ]
+}

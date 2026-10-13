@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "94a855017b1677249b120d7a84dfb8a16bd644908ecc8f525bc270a01dfe5487",
+        "reason": "E is possible: Trustcorp can trade King and Ortiz (two class 2 buildings) to RealProp for Garza Tower, retaining Meyer. So the reply’s claim that acquiring Garza requires giving up Meyer is false.",
+        "usd": 0.0009331000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "00e351b8501eb5d31982af59b01086b8782bdc3d97ee88e314fb02f7ceaaf5eb",
+        "reason": "The model correctly identifies that option E is impossible because Trustcorp would have to trade away two class 2 buildings to acquire Garza Tower, meaning they cannot simultaneously retain the Meyer Building (class 2) while owning Garza.",
+        "usd": 0.00367425
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "70667dd3098ff9e3819140f6b7cf9b1b7d0db1f7da9bccc0556c54cf90879613",
+        "reason": "The reply's answer E is achievable. Trustcorp can trade its King and Ortiz buildings (two class 2s) to RealProp for Garza Tower (class 1), a permitted trade. That leaves Trustcorp with Garza and Meyer, so the reply's claim that Meyer must be traded away is false. The reasoning error invalidates the selected answer.",
+        "usd": 0.005485299999999999
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "94a855017b1677249b120d7a84dfb8a16bd644908ecc8f525bc270a01dfe5487",
+      "count": 1,
+      "usd": 0.0009331000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "00e351b8501eb5d31982af59b01086b8782bdc3d97ee88e314fb02f7ceaaf5eb",
+      "count": 1,
+      "usd": 0.00367425
+    },
+    {
+      "provider": "haiku",
+      "key": "70667dd3098ff9e3819140f6b7cf9b1b7d0db1f7da9bccc0556c54cf90879613",
+      "count": 1,
+      "usd": 0.005485299999999999
+    }
+  ]
+}

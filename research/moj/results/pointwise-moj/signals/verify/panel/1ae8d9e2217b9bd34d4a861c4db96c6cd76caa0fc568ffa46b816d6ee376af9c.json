@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "45faa004963fd244ac04655e97312e3861107b1938528f5ff3b72224bc9cbf78",
+        "reason": "The only way a word containing G can be last is for G to be paired with F, with H–L paired bijectively to A–E. This gives 5! favorable pairings out of 11!!, so the probability is 8/693 and m+n=701.",
+        "usd": 0.0007553000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "f3817afd9bebd9601d3a9fbbb9e13592bb2e1dca5184b9b10bc71298f9a0ba53",
+        "reason": "The solution correctly computes the probability as 8/693 and the sum m+n as 701 using combinatorial logic.",
+        "usd": 0.00439575
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "fa85e7abec6f6fb405969b371eea0355392839fba50ead004d786cb0c6400d3d",
+        "reason": "The reply misses the case where G is paired with a letter from H–L. If G pairs with Y in H–L, the word GY is last provided each of the other four high letters pairs with a letter below G. That gives 5 × P(6,4) × 1 = 1800 favorable pairings, plus 120 from the FG case, for 1920 total. Then 1920/10395 = 128/693, so m+n = 821, not 701.",
+        "usd": 0.0024462
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "45faa004963fd244ac04655e97312e3861107b1938528f5ff3b72224bc9cbf78",
+      "count": 1,
+      "usd": 0.0007553000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "f3817afd9bebd9601d3a9fbbb9e13592bb2e1dca5184b9b10bc71298f9a0ba53",
+      "count": 1,
+      "usd": 0.00439575
+    },
+    {
+      "provider": "haiku",
+      "key": "fa85e7abec6f6fb405969b371eea0355392839fba50ead004d786cb0c6400d3d",
+      "count": 1,
+      "usd": 0.0024462
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "14748ffdb36a259ba0cfa0884625d6c353497d5b60094ec47bfa6503630272ee",
+        "reason": "The blue card triggers Rule4, and Rule12 then establishes that the gadwall does not hug the pelikan. The couch triggers Rule7, so Rule3 establishes that the mannikin does not unite with the pelikan. Both conditions of Rule5 are met, proving the pelikan will never swear to the lizard.",
+        "usd": 0.0003636
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "30c6847ba63ee1c4e35119c890dd0b1082521a3ae73f79e2fad00f92d8eb8c4a",
+        "reason": "The model correctly traces the rules and game state to determine that the gadwall does not hug the pelikan (via Rule 4 and Rule 12) and the mannikin does not unite with the pelikan (via Rule 7 and Rule 3). According to Rule 5, these two conditions allow us to conclude that the pelikan will never swear to the lizard, making the statement proved.",
+        "usd": 0.0023235
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "d0242e4df132c102bf414efe648cad31d8be2a938f44add69ef6311ed9657640",
+        "reason": "The rules establish that the pelikan will never swear to the lizard (Rule5's two conditions hold: gadwall doesn't hug the pelikan via Rules 4 and 12, and mannikin doesn't unite via Rules 7 and 3). The question asks whether the pelikan swears to the lizard, so the correct label is 'disproved'. The reply answers 'Proven', which labels the wrong proposition and gives the wrong final answer.",
+        "usd": 0.0014694999999999999
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "14748ffdb36a259ba0cfa0884625d6c353497d5b60094ec47bfa6503630272ee",
+      "count": 1,
+      "usd": 0.0003636
+    },
+    {
+      "provider": "gemini",
+      "key": "30c6847ba63ee1c4e35119c890dd0b1082521a3ae73f79e2fad00f92d8eb8c4a",
+      "count": 1,
+      "usd": 0.0023235
+    },
+    {
+      "provider": "haiku",
+      "key": "d0242e4df132c102bf414efe648cad31d8be2a938f44add69ef6311ed9657640",
+      "count": 1,
+      "usd": 0.0014694999999999999
+    }
+  ]
+}

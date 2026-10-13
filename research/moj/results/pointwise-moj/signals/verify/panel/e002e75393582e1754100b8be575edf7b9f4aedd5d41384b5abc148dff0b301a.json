@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "9ec8fb6d1023e8b1a6f7be98cd82fdc639a9993b226dcb0bc243306d1f4ee5ff",
+        "reason": "A and C are opposite vertices: their squared distance is 72, while AB² = 24 and BC² = 48 (edge and face-diagonal lengths). Thus the center is their midpoint, (3,2,4), not the stated final answer (2,3,4).",
+        "usd": 0.0002923
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "795368d3b8aca108a54ac839c4b244dd7c411e455a175390cad3bbd40431e640",
+        "reason": "The response correctly identifies that the center of the cube can be found by averaging the coordinates of three mutually adjacent vertices (or using the center of mass of three vertices of a face), leading to the correct center (2, 3, 4).",
+        "usd": 0.0014025
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "dee74cb647e003992f3a4d3e7d0f2d84e77e83e65a6364b84bfdd810996454e7",
+        "reason": "The correct center is (3,2,4), not (2,3,4). Squared distances are |AB|²=24, |BC|²=48, |AC|²=72, which fit a cube with side² = 24, with AC a space diagonal (72 = 3s²). The center is the midpoint of AC: ((2+4)/2, (3+1)/2, (0+8)/2) = (3,2,4). The reply's answer comes from averaging the three vertices, which has no geometric justification, and the reply itself computes the correct midpoint (3,2,4) but then discards it.",
+        "usd": 0.0017020999999999998
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "9ec8fb6d1023e8b1a6f7be98cd82fdc639a9993b226dcb0bc243306d1f4ee5ff",
+      "count": 1,
+      "usd": 0.0002923
+    },
+    {
+      "provider": "gemini",
+      "key": "795368d3b8aca108a54ac839c4b244dd7c411e455a175390cad3bbd40431e640",
+      "count": 1,
+      "usd": 0.0014025
+    },
+    {
+      "provider": "haiku",
+      "key": "dee74cb647e003992f3a4d3e7d0f2d84e77e83e65a6364b84bfdd810996454e7",
+      "count": 1,
+      "usd": 0.0017020999999999998
+    }
+  ]
+}

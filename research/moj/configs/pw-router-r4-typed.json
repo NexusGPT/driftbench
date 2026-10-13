@@ -1,0 +1,10 @@
+{
+  "name": "pw-router-r4-typed",
+  "reference": true,
+  "reasoning_guard": true,
+  "panel": true,
+  "panel_below": 0.7,
+  "typed": true,
+  "hypothesis": "Naming rubric-comparison terrain and cancelling pair order improves rubric judging.",
+  "split_version": "moj-split-v2"
+}

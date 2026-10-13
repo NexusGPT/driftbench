@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "39c90bb1ead7403deca831e414a052b41bd8ad573454beb3091987cdea9d35df",
+        "reason": "The listed lines do not close the claimed rectangle, triangles, or parallelogram: key sides are missing. The clear closed listed shape is the square at x=10.2141–18.2141, y=14.67885–22.67885, so the answer is (A), only 2—not (F).",
+        "usd": 0.0013053000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "102dd2c3df7bdc2d0565c82d5411942ca894384068886ad1f2ea61bccd494403",
+        "reason": "The model correctly analyzed the SVG path commands, deduced the geometric shapes formed (square, rectangle, triangles, and parallelogram), identified that none of the available multiple choice combinations correctly match (or that 'F' is the correct choice since no standard options perfectly list the exact valid combination of shapes), and output F.",
+        "usd": 0.00894825
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "53a03cc2c794989a1a4f0c7056ca3e2ce935625f030f5424a0550164f4fc44ea",
+        "reason": "The lines form a closed concave pentagon (0,0)-(5.107,8.846)-(10.214,0)-(10.214,14.679)-(0,14.679), so option 8 is present. The right square (x 10.214 to 18.214, y 14.679 to 22.679) is present, so option 2 is present. The left 'rectangle' and 'triangle' are not closed because the x=0 edge from y 14.679 to 22.679 is missing, so options 1 and 3 do not hold. The correct answer is (I) 2 and 8, not (F). The reply's own analysis also contradicted itself by listing shapes that match no option and then answering F.",
+        "usd": 0.0043454999999999995
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "39c90bb1ead7403deca831e414a052b41bd8ad573454beb3091987cdea9d35df",
+      "count": 1,
+      "usd": 0.0013053000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "102dd2c3df7bdc2d0565c82d5411942ca894384068886ad1f2ea61bccd494403",
+      "count": 1,
+      "usd": 0.00894825
+    },
+    {
+      "provider": "haiku",
+      "key": "53a03cc2c794989a1a4f0c7056ca3e2ce935625f030f5424a0550164f4fc44ea",
+      "count": 1,
+      "usd": 0.0043454999999999995
+    }
+  ]
+}

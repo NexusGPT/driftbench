@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": null,
+        "key": "085b651d5385e73747c37186ad36d8b65ed60dd14d1ce38e83b9f087835d75c9",
+        "reason": null,
+        "usd": 0.00023940000000000002
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "113652aef80371b8b7776f795d71a00a15daf821bda1e091a98fc9e96a2c2462",
+        "reason": "The response correctly determines that it is possible (answering 'yes'), although the reasoning uses circular trials, the conclusion aligns with standard complex analysis (e.g., functions with poles on the boundary or using Blaschke-like products/extensions/conformal maps or Herglotz representations can have radial limits of infinity at given boundary points).",
+        "usd": 0.0013725
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "8393ab3e87e59a4185fcb268c6093e28a9349650cefc186d7f1d77e627faabaa",
+        "reason": "The final answer 'yes' is correct (e.g., f(z)=Σ over points of 1/(z-z_k) is not holomorphic on the disk, but f(z)=exp((1+z)/(1-z)) blows up... more simply, a function with boundary singularities at multiple points exists, such as f(z)=1/(1-z)+1/(1+z) is holomorphic on D and tends to infinity at ±1), but the reply's justification is incoherent: it repeatedly claims candidate functions are non-holomorphic when they are, computes 1/z^2 incorrectly as blowing up nowhere, and never gives a valid construction. The reasoning contains false statements and no valid proof, so it does not satisfy the criterion.",
+        "usd": 0.000637
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "085b651d5385e73747c37186ad36d8b65ed60dd14d1ce38e83b9f087835d75c9",
+      "count": 1,
+      "usd": 0.00023940000000000002
+    },
+    {
+      "provider": "gemini",
+      "key": "113652aef80371b8b7776f795d71a00a15daf821bda1e091a98fc9e96a2c2462",
+      "count": 1,
+      "usd": 0.0013725
+    },
+    {
+      "provider": "haiku",
+      "key": "8393ab3e87e59a4185fcb268c6093e28a9349650cefc186d7f1d77e627faabaa",
+      "count": 1,
+      "usd": 0.000637
+    }
+  ]
+}

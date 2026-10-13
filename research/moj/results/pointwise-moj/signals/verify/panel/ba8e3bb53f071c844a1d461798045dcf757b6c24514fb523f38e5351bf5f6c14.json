@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "b22b07008a7f545247ef674be90fb5aa82b575f497c8d9e6fba541eaf811afaf",
+        "reason": "Greg’s color is not stated; the reply correctly gives “not specified” as its final answer.",
+        "usd": 0.00017370000000000002
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "440c22456830f140b24fd02d26142236f83ec6bea70908ac9d6b02be62289452",
+        "reason": "The model correctly identifies that the context does not specify Greg's color.",
+        "usd": 0.001215
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "6723786ef76a6f43e9cbeffbed8274fff7256a6aaa7ae0310034dbcd776f7582",
+        "reason": "The context never states Greg's color, and the reply's bolded final answer is that the context does not specify it, which is correct. It also offers 'yellow' as a tentative guess based on Brian, but it explicitly labels that as an assumption rather than the answer. The reply is verbose and leaks its reasoning, but it does not contradict the context.",
+        "usd": 0.0007531
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "b22b07008a7f545247ef674be90fb5aa82b575f497c8d9e6fba541eaf811afaf",
+      "count": 1,
+      "usd": 0.00017370000000000002
+    },
+    {
+      "provider": "gemini",
+      "key": "440c22456830f140b24fd02d26142236f83ec6bea70908ac9d6b02be62289452",
+      "count": 1,
+      "usd": 0.001215
+    },
+    {
+      "provider": "haiku",
+      "key": "6723786ef76a6f43e9cbeffbed8274fff7256a6aaa7ae0310034dbcd776f7582",
+      "count": 1,
+      "usd": 0.0007531
+    }
+  ]
+}

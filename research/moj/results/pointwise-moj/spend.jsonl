@@ -1,0 +1,596 @@
+{"attempt": "22bde8f4adc3831cf7cb3f140c0c5a9d0d12fe6fb52ba2f59c7fa3578aea400b:1", "provider": "luna", "reserved": 0.03436625}
+{"attempt": "22bde8f4adc3831cf7cb3f140c0c5a9d0d12fe6fb52ba2f59c7fa3578aea400b:1", "provider": "luna", "reserved": 0.03436625, "usd": 0.0002915}
+{"attempt": "83a15149e93ddab29fde2b0a934c3d5e53785104cf2e2fe68057fa5dc87e15b5:1", "provider": "gemini", "reserved": 0.03436625}
+{"attempt": "83a15149e93ddab29fde2b0a934c3d5e53785104cf2e2fe68057fa5dc87e15b5:1", "provider": "gemini", "reserved": 0.03436625, "usd": 0.001323}
+{"attempt": "fcf10f739a055d3021000d1380d8ae584f78d8178bfad0a313fdb61df031c845:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "fcf10f739a055d3021000d1380d8ae584f78d8178bfad0a313fdb61df031c845:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008589000000000001}
+{"attempt": "142906ad2b16d8260929c28eaae4e6cc78dfdeb966ee500c157f43488c858301:1", "provider": "luna", "reserved": 0.022651249999999998}
+{"attempt": "142906ad2b16d8260929c28eaae4e6cc78dfdeb966ee500c157f43488c858301:1", "provider": "luna", "reserved": 0.022651249999999998, "usd": 0.0003473}
+{"attempt": "25b52776df60c035a60ff19cf61ed34c4270868581f3614474720b56cd46a61f:1", "provider": "gemini", "reserved": 0.022651249999999998}
+{"attempt": "25b52776df60c035a60ff19cf61ed34c4270868581f3614474720b56cd46a61f:1", "provider": "gemini", "reserved": 0.022651249999999998, "usd": 0.00126525}
+{"attempt": "801abf1892d294442eed7a286e362a2175b464ec6152536372bb61a72e07a7c6:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "801abf1892d294442eed7a286e362a2175b464ec6152536372bb61a72e07a7c6:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0012642999999999999}
+{"attempt": "eb5190f647a5413b6fd225999d13d628ae438c52d3278b3c99153b9a1411f38b:1", "provider": "luna", "reserved": 0.02819375}
+{"attempt": "eb5190f647a5413b6fd225999d13d628ae438c52d3278b3c99153b9a1411f38b:1", "provider": "luna", "reserved": 0.02819375, "usd": 0.00035769999999999997}
+{"attempt": "a4a2d25028d756d7b5d2245c0d7a5792823201267a04fba8831af713839d8d60:1", "provider": "gemini", "reserved": 0.02819375}
+{"attempt": "a4a2d25028d756d7b5d2245c0d7a5792823201267a04fba8831af713839d8d60:1", "provider": "gemini", "reserved": 0.02819375, "usd": 0.00107025}
+{"attempt": "7f7cf89e3c3df3e35641fc5120b25c170d8d85ffce6daea3ae2f3903aff9ea24:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "7f7cf89e3c3df3e35641fc5120b25c170d8d85ffce6daea3ae2f3903aff9ea24:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0010486}
+{"attempt": "b85f97f0de6f2cb6dd7b9321e6f5e0ff234d2fa5cd1e4ef5fa9e3d5c0dff8529:1", "provider": "luna", "reserved": 0.05931875}
+{"attempt": "b85f97f0de6f2cb6dd7b9321e6f5e0ff234d2fa5cd1e4ef5fa9e3d5c0dff8529:1", "provider": "luna", "reserved": 0.05931875, "usd": 0.0004035}
+{"attempt": "2214f4d6695d9161baf8d178062822676919319c5088939d7341bbd8c8d04ff8:1", "provider": "gemini", "reserved": 0.05931875}
+{"attempt": "2214f4d6695d9161baf8d178062822676919319c5088939d7341bbd8c8d04ff8:1", "provider": "gemini", "reserved": 0.05931875, "usd": 0.00256725}
+{"attempt": "54cf184f0fa48c9f79fb793084a0db674023fcdb5a2537c475d11b0954f5a828:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "54cf184f0fa48c9f79fb793084a0db674023fcdb5a2537c475d11b0954f5a828:1", "provider": "haiku", "reserved": 0.1, "usd": 0.001347}
+{"attempt": "cf1161b9cd969c52c4448268df0b81acb6be2a25de09fb71cfc2abe3de939f65:1", "provider": "luna", "reserved": 0.1635125}
+{"attempt": "cf1161b9cd969c52c4448268df0b81acb6be2a25de09fb71cfc2abe3de939f65:1", "provider": "luna", "reserved": 0.1635125, "usd": 0.0011955}
+{"attempt": "81d49f4d706ccd8e7a4b9a430c6535385d492b452334e262490a099dd4ce4d0b:1", "provider": "gemini", "reserved": 0.1635125}
+{"attempt": "81d49f4d706ccd8e7a4b9a430c6535385d492b452334e262490a099dd4ce4d0b:1", "provider": "gemini", "reserved": 0.1635125, "usd": 0.00825}
+{"attempt": "9c13a582448657351d214b2cbd59016eebd685114252a06463aab0667092961e:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "9c13a582448657351d214b2cbd59016eebd685114252a06463aab0667092961e:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0038886}
+{"attempt": "51a3ddfc1ececa6b58840f46fb28bf2c590a3c59649a9783df39b82d8dfacb46:1", "provider": "luna", "reserved": 0.14756375}
+{"attempt": "51a3ddfc1ececa6b58840f46fb28bf2c590a3c59649a9783df39b82d8dfacb46:1", "provider": "luna", "reserved": 0.14756375, "usd": 0.000865}
+{"attempt": "01836e03d50d9f4f684a802648966ce175de70dd9f0ae95cd356a3841f802430:1", "provider": "gemini", "reserved": 0.14756375}
+{"attempt": "01836e03d50d9f4f684a802648966ce175de70dd9f0ae95cd356a3841f802430:1", "provider": "gemini", "reserved": 0.14756375, "usd": 0.006117}
+{"attempt": "4eb542cf1b054bcb45e3296a4011f2668e1abd48770d1336b64909f1face2761:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "4eb542cf1b054bcb45e3296a4011f2668e1abd48770d1336b64909f1face2761:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0029857000000000004}
+{"attempt": "5d3634e51067653bcf4c2c59621dc27d54d466ef0a9b13385c827ca32f07ebc4:1", "provider": "luna", "reserved": 0.0263825}
+{"attempt": "5d3634e51067653bcf4c2c59621dc27d54d466ef0a9b13385c827ca32f07ebc4:1", "provider": "luna", "reserved": 0.0263825, "usd": 0.00032910000000000003}
+{"attempt": "7074b5ed7e40fb6ff2277865da845dbf4f5d810417e81732890b99fa8f1b7187:1", "provider": "gemini", "reserved": 0.0263825}
+{"attempt": "7074b5ed7e40fb6ff2277865da845dbf4f5d810417e81732890b99fa8f1b7187:1", "provider": "gemini", "reserved": 0.0263825, "usd": 0.0017175}
+{"attempt": "cbee5af801c36f0c582f29801c58a73cea38a6beaf496f03d679833f161a3e03:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "cbee5af801c36f0c582f29801c58a73cea38a6beaf496f03d679833f161a3e03:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0014190000000000001}
+{"attempt": "8d437bb8255d40d7abe3724eef92f283f0426acc841fe3e60cfe49426c94d5dc:1", "provider": "luna", "reserved": 0.14886875}
+{"attempt": "8d437bb8255d40d7abe3724eef92f283f0426acc841fe3e60cfe49426c94d5dc:1", "provider": "luna", "reserved": 0.14886875, "usd": 0.0016325}
+{"attempt": "3127d91462b4cc690ebede4bb8293f444ced9e56e856b9b17a1d7dcae542b2a6:1", "provider": "gemini", "reserved": 0.14886875}
+{"attempt": "3127d91462b4cc690ebede4bb8293f444ced9e56e856b9b17a1d7dcae542b2a6:1", "provider": "gemini", "reserved": 0.14886875, "usd": 0.009624}
+{"attempt": "9830dca20239120105fd8b407f233552dae562ceec069cfa99aa72d96b1ab1bb:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "9830dca20239120105fd8b407f233552dae562ceec069cfa99aa72d96b1ab1bb:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0048418}
+{"attempt": "fad8fe4af80eb9f0c6aff027f6f85bf08de15c62c94c12ea40360d1a7ede7e75:1", "provider": "luna", "reserved": 0.13508}
+{"attempt": "fad8fe4af80eb9f0c6aff027f6f85bf08de15c62c94c12ea40360d1a7ede7e75:2", "provider": "luna", "reserved": 0.13508}
+{"attempt": "7134252357b7d82ce430db4e3802a27d983e9b2378baea747a7252b1f1ed4195:1", "provider": "luna", "reserved": 0.024485}
+{"attempt": "cf69be4bf01695b83e057dfa77da1f6f3a8751fa9e0c05ea3cdb628ce00b3baf:1", "provider": "luna", "reserved": 0.02497625}
+{"attempt": "e01cb19537a45c5d762f110001474521742c673cf442f9bbeb180458125c2cdb:1", "provider": "luna", "reserved": 0.18836375}
+{"attempt": "7134252357b7d82ce430db4e3802a27d983e9b2378baea747a7252b1f1ed4195:1", "provider": "luna", "reserved": 0.024485, "usd": 0.0002598}
+{"attempt": "bb907259a4f2ec647956fe2baba61ce65f3038f4131b89cc0245ec42c037af9b:1", "provider": "gemini", "reserved": 0.024485}
+{"attempt": "bb907259a4f2ec647956fe2baba61ce65f3038f4131b89cc0245ec42c037af9b:1", "provider": "gemini", "reserved": 0.024485, "usd": 0.00150075}
+{"attempt": "0f9c055a56343ca4b945b7ed7261b397ed7abde2ac0ef2b64ada3bfd2cbbb6e2:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "e01cb19537a45c5d762f110001474521742c673cf442f9bbeb180458125c2cdb:1", "provider": "luna", "reserved": 0.18836375, "usd": 0.0018151}
+{"attempt": "ec7ff52a414575ec79a09ee93a366fe739bb3d90771b345efaaff2a12e5e516f:1", "provider": "gemini", "reserved": 0.18836375}
+{"attempt": "cf69be4bf01695b83e057dfa77da1f6f3a8751fa9e0c05ea3cdb628ce00b3baf:1", "provider": "luna", "reserved": 0.02497625, "usd": 0.0003443}
+{"attempt": "f4115d51fb7cd3b33776ebe152b599db6c22e8980215f0a5535cf301fcdaa50a:1", "provider": "gemini", "reserved": 0.02497625}
+{"attempt": "f4115d51fb7cd3b33776ebe152b599db6c22e8980215f0a5535cf301fcdaa50a:1", "provider": "gemini", "reserved": 0.02497625, "usd": 0.00156}
+{"attempt": "c24e712309cf535e996bdb6db0e46d56d9db376022b741a78d1dbe172de19733:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "ec7ff52a414575ec79a09ee93a366fe739bb3d90771b345efaaff2a12e5e516f:1", "provider": "gemini", "reserved": 0.18836375, "usd": 0.01900575}
+{"attempt": "fad8fe4af80eb9f0c6aff027f6f85bf08de15c62c94c12ea40360d1a7ede7e75:2", "provider": "luna", "reserved": 0.13508, "usd": 0.00075875}
+{"attempt": "47ee1293d7aaf69ecfc6ae9d3480f55ad490927302ff9beaadd7990da1937cc7:1", "provider": "gemini", "reserved": 0.13508}
+{"attempt": "47ee1293d7aaf69ecfc6ae9d3480f55ad490927302ff9beaadd7990da1937cc7:1", "provider": "gemini", "reserved": 0.13508, "usd": 0.01370175}
+{"attempt": "0f9c055a56343ca4b945b7ed7261b397ed7abde2ac0ef2b64ada3bfd2cbbb6e2:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0009683000000000001}
+{"attempt": "f51d6f6f2c6a54cce16f87feecb974a8488dbe5110c02f2495ef44f8ac67a135:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "c24e712309cf535e996bdb6db0e46d56d9db376022b741a78d1dbe172de19733:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0011058}
+{"attempt": "2a44d79395ff42121144525efc13a6b5c057c89338a381082a9fa4b2a72e1ee2:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "f51d6f6f2c6a54cce16f87feecb974a8488dbe5110c02f2495ef44f8ac67a135:1", "provider": "haiku", "reserved": 0.1, "usd": 0.005289100000000001}
+{"attempt": "2a44d79395ff42121144525efc13a6b5c057c89338a381082a9fa4b2a72e1ee2:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0051815}
+{"attempt": "f3d9db901a1b3fb6447bf97b5f97d6a28ab21c6a8e8ee442a6896b29620137b0:1", "provider": "luna", "reserved": 0.06326}
+{"attempt": "42bb2ef9137ae3af0cd845ff583d4ba79442519dda5d757d4a6e8ab454166158:1", "provider": "luna", "reserved": 0.04784375}
+{"attempt": "14317f5bb8e15c2149a12b69267324fc6486d60f80bb20e317d37969ee7809da:1", "provider": "luna", "reserved": 0.02808125}
+{"attempt": "78d432e971d1322bed71535fa7f59de17943f50821a0af45452c7bc7e55fdccc:1", "provider": "luna", "reserved": 0.02603}
+{"attempt": "2a7b4b8ce910ca399294fc79363ac9d8c2fc8b2c46cf04d61327093b0eb93f61:1", "provider": "luna", "reserved": 0.03719375}
+{"attempt": "d2c1aff3df79bac030337ccdf17be9f90a7ffb8ef4c6a8ff17a82c09a0a9d960:1", "provider": "luna", "reserved": 0.11581250000000001}
+{"attempt": "8426365f7abe7bb679b1d64f0b19cdb6e801286bbd6b1cefcfc6fb463875e02d:1", "provider": "luna", "reserved": 0.02643875}
+{"attempt": "2bc1310ffe0ff77c938e31b05c7116da37b5571d85e31a64b4c3552cf9379492:1", "provider": "luna", "reserved": 0.021788750000000003}
+{"attempt": "2bc1310ffe0ff77c938e31b05c7116da37b5571d85e31a64b4c3552cf9379492:1", "provider": "luna", "reserved": 0.021788750000000003, "usd": 0.00016519999999999998}
+{"attempt": "8ed4c6f5cbaece88af937ebc24ddfa579a0fa09a026ef4e3d136bc38d0907c66:1", "provider": "gemini", "reserved": 0.021788750000000003}
+{"attempt": "d2c1aff3df79bac030337ccdf17be9f90a7ffb8ef4c6a8ff17a82c09a0a9d960:1", "provider": "luna", "reserved": 0.11581250000000001, "usd": 0.0007823000000000001}
+{"attempt": "f24a1e131e4620e8952d23804597a55036e576593540c4fc706082d1cd659c2a:1", "provider": "gemini", "reserved": 0.11581250000000001}
+{"attempt": "f24a1e131e4620e8952d23804597a55036e576593540c4fc706082d1cd659c2a:1", "provider": "gemini", "reserved": 0.11581250000000001, "usd": 0.00556725}
+{"attempt": "27614711ceff5b771a5468fe9226d33d2839a18a516719b4014b0ffcfdc0db23:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "78d432e971d1322bed71535fa7f59de17943f50821a0af45452c7bc7e55fdccc:1", "provider": "luna", "reserved": 0.02603, "usd": 0.00039089999999999996}
+{"attempt": "e552893b37d6f0be45a96ba4abb5b9411d5a0b2ea6c20e96f478beea7c9d210e:1", "provider": "gemini", "reserved": 0.02603}
+{"attempt": "f3d9db901a1b3fb6447bf97b5f97d6a28ab21c6a8e8ee442a6896b29620137b0:1", "provider": "luna", "reserved": 0.06326, "usd": 0.0004813}
+{"attempt": "18b6abb6d376f7b0aefa576a52f16bac5bf2758b3dbd0aabbaa0bbe6bf8ca93b:1", "provider": "gemini", "reserved": 0.06326}
+{"attempt": "2a7b4b8ce910ca399294fc79363ac9d8c2fc8b2c46cf04d61327093b0eb93f61:1", "provider": "luna", "reserved": 0.03719375, "usd": 0.00037410000000000004}
+{"attempt": "fd69d13552cf01d74e755edd9a3c6d7e120e64a0827f33865ff388d6f0a96fef:1", "provider": "gemini", "reserved": 0.03719375}
+{"attempt": "18b6abb6d376f7b0aefa576a52f16bac5bf2758b3dbd0aabbaa0bbe6bf8ca93b:1", "provider": "gemini", "reserved": 0.06326, "usd": 0.0025545}
+{"attempt": "61165eca6fa9273d4f79e7e024e2939ddc1d168717ec91fbd083afacbc71ce17:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "fd69d13552cf01d74e755edd9a3c6d7e120e64a0827f33865ff388d6f0a96fef:1", "provider": "gemini", "reserved": 0.03719375, "usd": 0.00149625}
+{"attempt": "14317f5bb8e15c2149a12b69267324fc6486d60f80bb20e317d37969ee7809da:1", "provider": "luna", "reserved": 0.02808125, "usd": 0.0005164}
+{"attempt": "224cfc2057ec2a0b1864021c00a935f033902245d033a4ce6f01e238cc88a69f:1", "provider": "gemini", "reserved": 0.02808125}
+{"attempt": "e552893b37d6f0be45a96ba4abb5b9411d5a0b2ea6c20e96f478beea7c9d210e:1", "provider": "gemini", "reserved": 0.02603, "usd": 0.002565}
+{"attempt": "224cfc2057ec2a0b1864021c00a935f033902245d033a4ce6f01e238cc88a69f:1", "provider": "gemini", "reserved": 0.02808125, "usd": 0.00247575}
+{"attempt": "42bb2ef9137ae3af0cd845ff583d4ba79442519dda5d757d4a6e8ab454166158:1", "provider": "luna", "reserved": 0.04784375, "usd": 0.0007052}
+{"attempt": "6e1f62907cbbf0b13a35e360a8ebf2328c004a97fdbaf03f2d569822fd3823a9:1", "provider": "gemini", "reserved": 0.04784375}
+{"attempt": "8426365f7abe7bb679b1d64f0b19cdb6e801286bbd6b1cefcfc6fb463875e02d:1", "provider": "luna", "reserved": 0.02643875, "usd": 0.0005195}
+{"attempt": "7dbd347ed19f558c2f40f99965af10d3b6d6f010e0b7fc47579bd706c9cc9d83:1", "provider": "gemini", "reserved": 0.02643875}
+{"attempt": "6e1f62907cbbf0b13a35e360a8ebf2328c004a97fdbaf03f2d569822fd3823a9:1", "provider": "gemini", "reserved": 0.04784375, "usd": 0.0022995}
+{"attempt": "7dbd347ed19f558c2f40f99965af10d3b6d6f010e0b7fc47579bd706c9cc9d83:1", "provider": "gemini", "reserved": 0.02643875, "usd": 0.001152}
+{"attempt": "8ed4c6f5cbaece88af937ebc24ddfa579a0fa09a026ef4e3d136bc38d0907c66:1", "provider": "gemini", "reserved": 0.021788750000000003, "usd": 0.00101775}
+{"attempt": "27614711ceff5b771a5468fe9226d33d2839a18a516719b4014b0ffcfdc0db23:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0027778000000000004}
+{"attempt": "d3c64642d33bada4c944bacaf66f3dc15787d35657fabe4675b73e0df3a589dc:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "27ceff82663931c23255aa6096ea5f9fb5e29c689fa66de56b7170a7f40a6917:1", "provider": "luna", "reserved": 0.10829}
+{"attempt": "61165eca6fa9273d4f79e7e024e2939ddc1d168717ec91fbd083afacbc71ce17:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0017959}
+{"attempt": "7d487b4833b05b1277852a3cadfe7add4c0564c3fd7347a5e963c690e742d008:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "27a36bce7abbeaa7d4b2dd0a9bb5a1d08197fb89d3f777bcd87210effed72d39:1", "provider": "luna", "reserved": 0.0787775}
+{"attempt": "27a36bce7abbeaa7d4b2dd0a9bb5a1d08197fb89d3f777bcd87210effed72d39:1", "provider": "luna", "reserved": 0.0787775, "usd": 0.0005679000000000001}
+{"attempt": "d4bd4b1e43e7b7960720a21767a8510105ac5ee042638cb346a994e5d6dc627f:1", "provider": "gemini", "reserved": 0.0787775}
+{"attempt": "d4bd4b1e43e7b7960720a21767a8510105ac5ee042638cb346a994e5d6dc627f:1", "provider": "gemini", "reserved": 0.0787775, "usd": 0.003816}
+{"attempt": "d3c64642d33bada4c944bacaf66f3dc15787d35657fabe4675b73e0df3a589dc:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0011057000000000003}
+{"attempt": "9ed771c61ea7f9d217f80c9331d00806a0b01816e3b78c6c5d5be20fd3024fce:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "e12fcc8fa971f7a889f37c392f1fd9ba03065539c16a33bb8dfbd049c646e97a:1", "provider": "luna", "reserved": 0.10014500000000001}
+{"attempt": "7d487b4833b05b1277852a3cadfe7add4c0564c3fd7347a5e963c690e742d008:1", "provider": "haiku", "reserved": 0.1, "usd": 0.00106}
+{"attempt": "ab3a1859fb8e6ec579e66c871a65c7c88bbd5f4d45992d3f769d49d07597599f:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "a35454abd3f7ca2cb2b5dc5be1974633c75975fe1bb7058b777766b4f29a7c73:1", "provider": "luna", "reserved": 0.14879}
+{"attempt": "27ceff82663931c23255aa6096ea5f9fb5e29c689fa66de56b7170a7f40a6917:1", "provider": "luna", "reserved": 0.10829, "usd": 0.0015844000000000001}
+{"attempt": "b3c54f7adfa57502b3a6f64950eed086398d132015d2e593c7962e5b75f53788:1", "provider": "gemini", "reserved": 0.10829}
+{"attempt": "b3c54f7adfa57502b3a6f64950eed086398d132015d2e593c7962e5b75f53788:1", "provider": "gemini", "reserved": 0.10829, "usd": 0.00757125}
+{"attempt": "a35454abd3f7ca2cb2b5dc5be1974633c75975fe1bb7058b777766b4f29a7c73:1", "provider": "luna", "reserved": 0.14879, "usd": 0.001563}
+{"attempt": "af4740e6a696ee7a7502f54fb03470190bec5ffcb5bc6d1184d4929b8ee92d8b:1", "provider": "gemini", "reserved": 0.14879}
+{"attempt": "e12fcc8fa971f7a889f37c392f1fd9ba03065539c16a33bb8dfbd049c646e97a:1", "provider": "luna", "reserved": 0.10014500000000001, "usd": 0.0008567999999999999}
+{"attempt": "d1400c37b38ff5f686b012aab007f7523d0e2b57d91e185fe28b5a4ba34f359c:1", "provider": "gemini", "reserved": 0.10014500000000001}
+{"attempt": "af4740e6a696ee7a7502f54fb03470190bec5ffcb5bc6d1184d4929b8ee92d8b:1", "provider": "gemini", "reserved": 0.14879, "usd": 0.01124775}
+{"attempt": "d1400c37b38ff5f686b012aab007f7523d0e2b57d91e185fe28b5a4ba34f359c:1", "provider": "gemini", "reserved": 0.10014500000000001, "usd": 0.00416775}
+{"attempt": "ab3a1859fb8e6ec579e66c871a65c7c88bbd5f4d45992d3f769d49d07597599f:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0039105}
+{"attempt": "bfb1b0f0d0b4f2b9d0e14d64e4c8ce73b4b8034a5bab1af28e8500a0739c9e73:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "bfb1b0f0d0b4f2b9d0e14d64e4c8ce73b4b8034a5bab1af28e8500a0739c9e73:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0012291}
+{"attempt": "40345457b8c12d0d3d69557cb2f176713df2bf63e9126da8108dd8059d74671b:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "9ed771c61ea7f9d217f80c9331d00806a0b01816e3b78c6c5d5be20fd3024fce:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0055964}
+{"attempt": "a230ed703c7554ab166b3a9afb892c01d0f11cd7f7baa74d231e134acacbf0c9:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "40345457b8c12d0d3d69557cb2f176713df2bf63e9126da8108dd8059d74671b:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0006096000000000001}
+{"attempt": "2159e0dbd880329d73c2d5da2213dc5a9a5867c649d561af9da91fc76e55bdbc:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "a230ed703c7554ab166b3a9afb892c01d0f11cd7f7baa74d231e134acacbf0c9:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0021575}
+{"attempt": "7cb9406c3ae28ac238fb0d29ff4840c7833455f1157914279c43961991c18568:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "2159e0dbd880329d73c2d5da2213dc5a9a5867c649d561af9da91fc76e55bdbc:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0038429000000000002}
+{"attempt": "225a2530e26b45b2ba115beaf73ccd7bb97f28ff5291fa3fb4b9d09bd4d11faf:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "225a2530e26b45b2ba115beaf73ccd7bb97f28ff5291fa3fb4b9d09bd4d11faf:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0020616000000000002}
+{"attempt": "7cb9406c3ae28ac238fb0d29ff4840c7833455f1157914279c43961991c18568:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0068582999999999995}
+{"attempt": "8cd9088c9d56026c5b6d6a10af0f85c3671a77827105ca8d1355d2d045f15ad4:1", "provider": "luna", "reserved": 0.02874875}
+{"attempt": "b4643f6ca6a76770ef289dff6307cbaf1a7df98b24612549d102852263a409d4:1", "provider": "luna", "reserved": 0.03988625}
+{"attempt": "1bbeba6ed14c8b850f8b673266f35accdecdbce52ced2e500480679be154f114:1", "provider": "luna", "reserved": 0.028587500000000002}
+{"attempt": "910f9045a1282ac03676b651658cb9c030f9ff4f6bd74749c980f62aa5c469ac:1", "provider": "luna", "reserved": 0.0364175}
+{"attempt": "b28bea52c36886fc9a7c492d851232f84908e44fc7551ce8423ffeb74ffbb77d:1", "provider": "luna", "reserved": 0.029285}
+{"attempt": "ac28edbce98675de52fa1f137f14120f18446fcd4d79f3742e4925e9c5ce310b:1", "provider": "luna", "reserved": 0.02389625}
+{"attempt": "330981ea3caaece724d97d3d2b2d0e32948888065dcf8af17677547dde9563ba:1", "provider": "luna", "reserved": 0.05827625}
+{"attempt": "910f9045a1282ac03676b651658cb9c030f9ff4f6bd74749c980f62aa5c469ac:1", "provider": "luna", "reserved": 0.0364175, "usd": 0.00029610000000000004}
+{"attempt": "fa0c6ea01fbd24b2a7cbb5f1b0461a2977fb2764e1fc359ff2003244de54b8a4:1", "provider": "gemini", "reserved": 0.0364175}
+{"attempt": "330981ea3caaece724d97d3d2b2d0e32948888065dcf8af17677547dde9563ba:1", "provider": "luna", "reserved": 0.05827625, "usd": 0.0004509}
+{"attempt": "1803f60a54c3a4d4e15bbecb9e28091eb4df2eaf6a1c80728bd8135b112b746e:1", "provider": "gemini", "reserved": 0.05827625}
+{"attempt": "8cd9088c9d56026c5b6d6a10af0f85c3671a77827105ca8d1355d2d045f15ad4:1", "provider": "luna", "reserved": 0.02874875, "usd": 0.0003368}
+{"attempt": "3f9e194b7965279e2c8870a1d9d45b5043ea4225c466ce56fd6f8c7127cff581:1", "provider": "gemini", "reserved": 0.02874875}
+{"attempt": "1803f60a54c3a4d4e15bbecb9e28091eb4df2eaf6a1c80728bd8135b112b746e:1", "provider": "gemini", "reserved": 0.05827625, "usd": 0.003387}
+{"attempt": "898739690165d06656de184622424bb8f2120d5ff42c315da93b02e4806b9963:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "1bbeba6ed14c8b850f8b673266f35accdecdbce52ced2e500480679be154f114:1", "provider": "luna", "reserved": 0.028587500000000002, "usd": 0.0002571}
+{"attempt": "7ce152513dd47a3ce93b919f84763ea8babb85eebf4a2c6df47330e4ba36cc1a:1", "provider": "gemini", "reserved": 0.028587500000000002}
+{"attempt": "ac28edbce98675de52fa1f137f14120f18446fcd4d79f3742e4925e9c5ce310b:1", "provider": "luna", "reserved": 0.02389625, "usd": 0.0002899}
+{"attempt": "1bdc83c02998145426b1a20cc19372fabdb591f8061965621e6f605ca1021774:1", "provider": "gemini", "reserved": 0.02389625}
+{"attempt": "3f9e194b7965279e2c8870a1d9d45b5043ea4225c466ce56fd6f8c7127cff581:1", "provider": "gemini", "reserved": 0.02874875, "usd": 0.002226}
+{"attempt": "ec0a2c9d0b8a6c03dbf862926eb593ba7928990ab143fe9055f4e6b8e4dffa86:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "b4643f6ca6a76770ef289dff6307cbaf1a7df98b24612549d102852263a409d4:1", "provider": "luna", "reserved": 0.03988625, "usd": 0.00036420000000000007}
+{"attempt": "ae67aa4de50ce0ae9a69993dd3645f404d87a2f67868bac187c10b78bac516cf:1", "provider": "gemini", "reserved": 0.03988625}
+{"attempt": "7ce152513dd47a3ce93b919f84763ea8babb85eebf4a2c6df47330e4ba36cc1a:1", "provider": "gemini", "reserved": 0.028587500000000002, "usd": 0.001131}
+{"attempt": "fa0c6ea01fbd24b2a7cbb5f1b0461a2977fb2764e1fc359ff2003244de54b8a4:1", "provider": "gemini", "reserved": 0.0364175, "usd": 0.002667}
+{"attempt": "898739690165d06656de184622424bb8f2120d5ff42c315da93b02e4806b9963:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0012967}
+{"attempt": "38706132cca031f3c61058890538613f57ff2287160ce87faf3f250911f4749a:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "b28bea52c36886fc9a7c492d851232f84908e44fc7551ce8423ffeb74ffbb77d:1", "provider": "luna", "reserved": 0.029285, "usd": 0.00035210000000000005}
+{"attempt": "ebd44e6d90493dd58931ffaa34cf55291fb445c11fc6954629c0e684681327dd:1", "provider": "gemini", "reserved": 0.029285}
+{"attempt": "ae67aa4de50ce0ae9a69993dd3645f404d87a2f67868bac187c10b78bac516cf:1", "provider": "gemini", "reserved": 0.03988625, "usd": 0.0016695}
+{"attempt": "1bdc83c02998145426b1a20cc19372fabdb591f8061965621e6f605ca1021774:1", "provider": "gemini", "reserved": 0.02389625, "usd": 0.00245175}
+{"attempt": "ebd44e6d90493dd58931ffaa34cf55291fb445c11fc6954629c0e684681327dd:1", "provider": "gemini", "reserved": 0.029285, "usd": 0.00208875}
+{"attempt": "ec0a2c9d0b8a6c03dbf862926eb593ba7928990ab143fe9055f4e6b8e4dffa86:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0009426}
+{"attempt": "74b9d3d8a0b07943741c2678c96496cabb28bd89063a4383061288ad1a89d27f:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "74b9d3d8a0b07943741c2678c96496cabb28bd89063a4383061288ad1a89d27f:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0009100000000000001}
+{"attempt": "ada8a52de18b1a3e8b0881211d1b15d7ab0fedddd5558d2ffc9ee746ed48e3fa:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "38706132cca031f3c61058890538613f57ff2287160ce87faf3f250911f4749a:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008817}
+{"attempt": "8af3d31c10ecfe48303f2218deb40e4b8820d1e72809ccb873f93aedea78d82e:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "8af3d31c10ecfe48303f2218deb40e4b8820d1e72809ccb873f93aedea78d82e:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008866}
+{"attempt": "d40645dfb49c98bcf8084389cf7b058f3d0d89f9e69f4f191d4261d56c5d1e8a:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "ada8a52de18b1a3e8b0881211d1b15d7ab0fedddd5558d2ffc9ee746ed48e3fa:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0017911999999999997}
+{"attempt": "d40645dfb49c98bcf8084389cf7b058f3d0d89f9e69f4f191d4261d56c5d1e8a:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0022927}
+{"attempt": "a56d342b00e573940184b33b76a447c13c4bfee0b7e4a7b51e637671c6f51c1d:1", "provider": "luna", "reserved": 0.13691375}
+{"attempt": "04e0567953084ea63fc162968b0f552357845df1320f9df72f8c01d79fcce4c3:1", "provider": "luna", "reserved": 0.02184125}
+{"attempt": "155f41937d4a823beebfbbd337fa9a0fed2721f085e80f2e648bee8af8260532:1", "provider": "luna", "reserved": 0.04245125}
+{"attempt": "e4e4184f66b36fa3ec79ac1aa348dc9a7b37e19ce363a38765343e7329541c26:1", "provider": "luna", "reserved": 0.0236675}
+{"attempt": "39c90bb1ead7403deca831e414a052b41bd8ad573454beb3091987cdea9d35df:1", "provider": "luna", "reserved": 0.10237625}
+{"attempt": "c8d084811b492039e83c186d31fa52ac24e90fe6e4ba718e313aaed6e4c14c3d:1", "provider": "luna", "reserved": 0.02490125}
+{"attempt": "94a855017b1677249b120d7a84dfb8a16bd644908ecc8f525bc270a01dfe5487:1", "provider": "luna", "reserved": 0.07206499999999999}
+{"attempt": "fe99adc59713e22cf8793b63a76c6b3463b483976c38e27f73ce0bd4dda7f70e:1", "provider": "luna", "reserved": 0.02843375}
+{"attempt": "155f41937d4a823beebfbbd337fa9a0fed2721f085e80f2e648bee8af8260532:1", "provider": "luna", "reserved": 0.04245125, "usd": 0.00042510000000000003}
+{"attempt": "9dfc2c8cb8b8ed4391d34f71a65e0a9f7a99f0d6f38cc25367f9630c6bb81cfd:1", "provider": "gemini", "reserved": 0.04245125}
+{"attempt": "04e0567953084ea63fc162968b0f552357845df1320f9df72f8c01d79fcce4c3:1", "provider": "luna", "reserved": 0.02184125, "usd": 0.0002232}
+{"attempt": "b9e894c92164e05288c1e483ea58880b4ac83cf6eb29f76dd71c8b12e29690b0:1", "provider": "gemini", "reserved": 0.02184125}
+{"attempt": "b9e894c92164e05288c1e483ea58880b4ac83cf6eb29f76dd71c8b12e29690b0:1", "provider": "gemini", "reserved": 0.02184125, "usd": 0.00167925}
+{"attempt": "a74ebec1f7ecb8a2f7a9325c587620e1c67948ac9b2c3566a34d881dd002e486:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "9dfc2c8cb8b8ed4391d34f71a65e0a9f7a99f0d6f38cc25367f9630c6bb81cfd:1", "provider": "gemini", "reserved": 0.04245125, "usd": 0.0028455}
+{"attempt": "f6519efb84b665be88931c744f69cc1618d4048643892d90bd71364620402a74:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "e4e4184f66b36fa3ec79ac1aa348dc9a7b37e19ce363a38765343e7329541c26:1", "provider": "luna", "reserved": 0.0236675, "usd": 0.0002637}
+{"attempt": "ac30baee65b7e7e4630f78f92a182816db8c500762fd8e627bea52bca7c0872e:1", "provider": "gemini", "reserved": 0.0236675}
+{"attempt": "ac30baee65b7e7e4630f78f92a182816db8c500762fd8e627bea52bca7c0872e:1", "provider": "gemini", "reserved": 0.0236675, "usd": 0.00126375}
+{"attempt": "c8d084811b492039e83c186d31fa52ac24e90fe6e4ba718e313aaed6e4c14c3d:1", "provider": "luna", "reserved": 0.02490125, "usd": 0.0003053}
+{"attempt": "1cae6fd138a839f635effe2adc93788269b74a3511ab85db3827edd79661146d:1", "provider": "gemini", "reserved": 0.02490125}
+{"attempt": "f6519efb84b665be88931c744f69cc1618d4048643892d90bd71364620402a74:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0011895}
+{"attempt": "6da58feaa2f23d2b27d0af6e61f697cff3a5c83cf6423f651b7e6129d512b270:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "1cae6fd138a839f635effe2adc93788269b74a3511ab85db3827edd79661146d:1", "provider": "gemini", "reserved": 0.02490125, "usd": 0.001614}
+{"attempt": "a56d342b00e573940184b33b76a447c13c4bfee0b7e4a7b51e637671c6f51c1d:1", "provider": "luna", "reserved": 0.13691375, "usd": 0.0014544}
+{"attempt": "930b2ed0a3defd3938de630bf024f885f16797b21306ce467c6c87bee9c3954f:1", "provider": "gemini", "reserved": 0.13691375}
+{"attempt": "a74ebec1f7ecb8a2f7a9325c587620e1c67948ac9b2c3566a34d881dd002e486:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008463000000000001}
+{"attempt": "fd9b2ea6c23dda6686afc27d2a05d47a26111e248df1012efb66d59ff83d0f48:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "930b2ed0a3defd3938de630bf024f885f16797b21306ce467c6c87bee9c3954f:1", "provider": "gemini", "reserved": 0.13691375, "usd": 0.00983475}
+{"attempt": "39c90bb1ead7403deca831e414a052b41bd8ad573454beb3091987cdea9d35df:1", "provider": "luna", "reserved": 0.10237625, "usd": 0.0013053000000000001}
+{"attempt": "102dd2c3df7bdc2d0565c82d5411942ca894384068886ad1f2ea61bccd494403:1", "provider": "gemini", "reserved": 0.10237625}
+{"attempt": "94a855017b1677249b120d7a84dfb8a16bd644908ecc8f525bc270a01dfe5487:1", "provider": "luna", "reserved": 0.07206499999999999, "usd": 0.0009331000000000001}
+{"attempt": "00e351b8501eb5d31982af59b01086b8782bdc3d97ee88e314fb02f7ceaaf5eb:1", "provider": "gemini", "reserved": 0.07206499999999999}
+{"attempt": "102dd2c3df7bdc2d0565c82d5411942ca894384068886ad1f2ea61bccd494403:1", "provider": "gemini", "reserved": 0.10237625, "usd": 0.00894825}
+{"attempt": "00e351b8501eb5d31982af59b01086b8782bdc3d97ee88e314fb02f7ceaaf5eb:1", "provider": "gemini", "reserved": 0.07206499999999999, "usd": 0.00367425}
+{"attempt": "fd9b2ea6c23dda6686afc27d2a05d47a26111e248df1012efb66d59ff83d0f48:1", "provider": "haiku", "reserved": 0.1, "usd": 0.000845}
+{"attempt": "4003c9e94362322f9d748237d7dd12804a3d213e3957b6f56f55e9f3371f2fcd:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "6da58feaa2f23d2b27d0af6e61f697cff3a5c83cf6423f651b7e6129d512b270:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0009765}
+{"attempt": "53a03cc2c794989a1a4f0c7056ca3e2ce935625f030f5424a0550164f4fc44ea:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "fe99adc59713e22cf8793b63a76c6b3463b483976c38e27f73ce0bd4dda7f70e:1", "provider": "luna", "reserved": 0.02843375, "usd": 0.0008286}
+{"attempt": "fb488404caedf39105ad5483ccf691cfd285e08a0673864767147af2094cc98f:1", "provider": "gemini", "reserved": 0.02843375}
+{"attempt": "fb488404caedf39105ad5483ccf691cfd285e08a0673864767147af2094cc98f:1", "provider": "gemini", "reserved": 0.02843375, "usd": 0.00300525}
+{"attempt": "4003c9e94362322f9d748237d7dd12804a3d213e3957b6f56f55e9f3371f2fcd:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0038891000000000004}
+{"attempt": "70667dd3098ff9e3819140f6b7cf9b1b7d0db1f7da9bccc0556c54cf90879613:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "53a03cc2c794989a1a4f0c7056ca3e2ce935625f030f5424a0550164f4fc44ea:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0043454999999999995}
+{"attempt": "8a50247a2419422a62c8b94806fd5d30756574ebe44a55c04ec9b7bd4e5b15c2:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "70667dd3098ff9e3819140f6b7cf9b1b7d0db1f7da9bccc0556c54cf90879613:1", "provider": "haiku", "reserved": 0.1, "usd": 0.005485299999999999}
+{"attempt": "8a50247a2419422a62c8b94806fd5d30756574ebe44a55c04ec9b7bd4e5b15c2:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0050805}
+{"attempt": "c2e855b2bfb89fe07b6211ab4785631cb0531d180beb4a0d139cb1fe14ce6e07:1", "provider": "luna", "reserved": 0.0450725}
+{"attempt": "f16cd80716f4b9dee4c352b0c3e3c1bc4a10e09d231015b3fa99766ffe1cec02:1", "provider": "luna", "reserved": 0.09406624999999999}
+{"attempt": "28ef600a33f06d774de35d09dc4a132a2330f61e25d7d9e7d0965e7c36a23848:1", "provider": "luna", "reserved": 0.037595}
+{"attempt": "415160fc121b8b80a7a7274de6e49a9bdc7f118ec047e34e636e7fa7ccdcbbbb:1", "provider": "luna", "reserved": 0.05927375}
+{"attempt": "0003a5fe132aad36a95f28fb26b30e3ab287e95aef0a01bf1c175bb6bfff4326:1", "provider": "luna", "reserved": 0.08820875}
+{"attempt": "279bf11d7e06adaa1bae0a4eb20405bf82bcda9bf0ad52d1a92d577df49f51fd:1", "provider": "luna", "reserved": 0.03608375}
+{"attempt": "279bf11d7e06adaa1bae0a4eb20405bf82bcda9bf0ad52d1a92d577df49f51fd:1", "provider": "luna", "reserved": 0.03608375, "usd": 0.000321}
+{"attempt": "d8437c3a09f5bd21c6c6101d7ba6a0d2f9298a48bf745104c245dbfd649612c1:1", "provider": "gemini", "reserved": 0.03608375}
+{"attempt": "0003a5fe132aad36a95f28fb26b30e3ab287e95aef0a01bf1c175bb6bfff4326:1", "provider": "luna", "reserved": 0.08820875, "usd": 0.0005481}
+{"attempt": "d174ff654eece683206229d0c2d14639a2ddc92ccb7d1b3ec2137eadc8ea4695:1", "provider": "gemini", "reserved": 0.08820875}
+{"attempt": "c2e855b2bfb89fe07b6211ab4785631cb0531d180beb4a0d139cb1fe14ce6e07:1", "provider": "luna", "reserved": 0.0450725, "usd": 0.00032060000000000004}
+{"attempt": "0b2c3df62fea283621ba2d6d5cd14cb8de2c7f6dd987287b26e0108e5ba5c3ab:1", "provider": "gemini", "reserved": 0.0450725}
+{"attempt": "415160fc121b8b80a7a7274de6e49a9bdc7f118ec047e34e636e7fa7ccdcbbbb:1", "provider": "luna", "reserved": 0.05927375, "usd": 0.0005369000000000001}
+{"attempt": "e18344041435eb8166f32c3f3caa3878b1accbdec21bcd55c8aa322224fbf48c:1", "provider": "gemini", "reserved": 0.05927375}
+{"attempt": "0b2c3df62fea283621ba2d6d5cd14cb8de2c7f6dd987287b26e0108e5ba5c3ab:1", "provider": "gemini", "reserved": 0.0450725, "usd": 0.00169875}
+{"attempt": "e6db25ad442800242c8c9f809af6db09ad387105a1e6228442f4fb0f6e0d05db:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "d174ff654eece683206229d0c2d14639a2ddc92ccb7d1b3ec2137eadc8ea4695:1", "provider": "gemini", "reserved": 0.08820875, "usd": 0.00371475}
+{"attempt": "4e541fd28a094cfba0833f78545f834bde1651f831b12dddff23a8abe39d6685:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "d8437c3a09f5bd21c6c6101d7ba6a0d2f9298a48bf745104c245dbfd649612c1:1", "provider": "gemini", "reserved": 0.03608375, "usd": 0.00194775}
+{"attempt": "f16cd80716f4b9dee4c352b0c3e3c1bc4a10e09d231015b3fa99766ffe1cec02:1", "provider": "luna", "reserved": 0.09406624999999999, "usd": 0.0009372}
+{"attempt": "e68f276d92ce12ee712a986f04966552577d1b2d1ff7afc962cedb798e92b75a:1", "provider": "gemini", "reserved": 0.09406624999999999}
+{"attempt": "e18344041435eb8166f32c3f3caa3878b1accbdec21bcd55c8aa322224fbf48c:1", "provider": "gemini", "reserved": 0.05927375, "usd": 0.0033885}
+{"attempt": "e68f276d92ce12ee712a986f04966552577d1b2d1ff7afc962cedb798e92b75a:1", "provider": "gemini", "reserved": 0.09406624999999999, "usd": 0.00567975}
+{"attempt": "e6db25ad442800242c8c9f809af6db09ad387105a1e6228442f4fb0f6e0d05db:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0009853000000000002}
+{"attempt": "1e7c2e323759cbd21366fb37bdc8ca4e9c9be8367953bd39d6e4810bc4b6f25d:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "28ef600a33f06d774de35d09dc4a132a2330f61e25d7d9e7d0965e7c36a23848:1", "provider": "luna", "reserved": 0.037595, "usd": 0.0007478}
+{"attempt": "0dc24ffa62256e904048eaefdbb4d922e3c573608c76521667f1cfd887d58a95:1", "provider": "gemini", "reserved": 0.037595}
+{"attempt": "4e541fd28a094cfba0833f78545f834bde1651f831b12dddff23a8abe39d6685:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0017355}
+{"attempt": "639926625945935597394324e743989441755eb6edd85590fb28d9543b6a74f2:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "0dc24ffa62256e904048eaefdbb4d922e3c573608c76521667f1cfd887d58a95:1", "provider": "gemini", "reserved": 0.037595, "usd": 0.00266625}
+{"attempt": "1e7c2e323759cbd21366fb37bdc8ca4e9c9be8367953bd39d6e4810bc4b6f25d:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0009851}
+{"attempt": "a128f28818eb1d8d2505e765064f56a4eb85090e78639215ed9744c4569d45a7:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "a128f28818eb1d8d2505e765064f56a4eb85090e78639215ed9744c4569d45a7:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0026545}
+{"attempt": "15e207062fb22303d65b7c7ae961e85cc3fac470238306281df78c930ce73521:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "639926625945935597394324e743989441755eb6edd85590fb28d9543b6a74f2:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0020767}
+{"attempt": "15e207062fb22303d65b7c7ae961e85cc3fac470238306281df78c930ce73521:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0021774}
+{"attempt": "6efd64c18458608a07896f8906afabfb349c9f1158116e7528be13bcaf0d19a9:1", "provider": "luna", "reserved": 0.037835}
+{"attempt": "6efd64c18458608a07896f8906afabfb349c9f1158116e7528be13bcaf0d19a9:1", "provider": "luna", "reserved": 0.037835, "usd": 0.0004675}
+{"attempt": "861ab7aae97b44e15bd99a91b6ab781b917259bafd27ed73cf431d4d0ff4ee4d:1", "provider": "gemini", "reserved": 0.037835}
+{"attempt": "861ab7aae97b44e15bd99a91b6ab781b917259bafd27ed73cf431d4d0ff4ee4d:1", "provider": "gemini", "reserved": 0.037835, "usd": 0.0040155}
+{"attempt": "2ce4807c88c94ac06304b5155b111c2d0bc39a81e1046f883ebce6ba89045f38:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "2ce4807c88c94ac06304b5155b111c2d0bc39a81e1046f883ebce6ba89045f38:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0015018000000000002}
+{"attempt": "90bae28d4005e80fcec0b5e28abc9b6f8ae1ddec137d92fce77dbe3c4cef19d5:1", "provider": "luna", "reserved": 0.02}
+{"attempt": "90bae28d4005e80fcec0b5e28abc9b6f8ae1ddec137d92fce77dbe3c4cef19d5:1", "provider": "luna", "reserved": 0.02, "usd": 0.000171}
+{"attempt": "4ad939dac1e7600370a01894338f7bb5ca8462302c603e18c3d54a3130c5a304:1", "provider": "gemini", "reserved": 0.02}
+{"attempt": "4ad939dac1e7600370a01894338f7bb5ca8462302c603e18c3d54a3130c5a304:1", "provider": "gemini", "reserved": 0.02, "usd": 0.00069075}
+{"attempt": "8b93dad8f25991e11b9628b7a5001b4eaa9734c08ddd74ef5108f42a25d0d40b:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "8b93dad8f25991e11b9628b7a5001b4eaa9734c08ddd74ef5108f42a25d0d40b:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0007475000000000001}
+{"attempt": "219455ec87330d50e18d4920800da600c64eecccefbe17a0cf990c82bbedc694:1", "provider": "luna", "reserved": 0.041105}
+{"attempt": "219455ec87330d50e18d4920800da600c64eecccefbe17a0cf990c82bbedc694:2", "provider": "luna", "reserved": 0.041105}
+{"attempt": "219455ec87330d50e18d4920800da600c64eecccefbe17a0cf990c82bbedc694:2", "provider": "luna", "reserved": 0.041105, "usd": 0.00014738}
+{"attempt": "69ad13ccab19dd4f7bf51b50052f36898255180b5215e44db0c69b768fa3aab2:1", "provider": "gemini", "reserved": 0.041105}
+{"attempt": "69ad13ccab19dd4f7bf51b50052f36898255180b5215e44db0c69b768fa3aab2:1", "provider": "gemini", "reserved": 0.041105, "usd": 0.001614}
+{"attempt": "3cb27514395ea0dd9559a36a7e0e6059cc0bf4eee93e68bf5c9b45e520cea450:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "3cb27514395ea0dd9559a36a7e0e6059cc0bf4eee93e68bf5c9b45e520cea450:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0007735000000000001}
+{"attempt": "0b1268334cc27383b33a583179e70519aaca356946602dcc610b0e5bb47df8bf:1", "provider": "luna", "reserved": 0.035585}
+{"attempt": "7fe009e58147a53716e550f6daeafe31b2f87f217cfb1ac9f9326b796003841b:1", "provider": "luna", "reserved": 0.025715000000000002}
+{"attempt": "99b5090c5d9201e716043c6c896b00a8edee2d50b423412ee95f9f662b7c304e:1", "provider": "luna", "reserved": 0.033203750000000004}
+{"attempt": "fad0d9607d5e49311c13cacc5554c59286328965ba51723d262b38ea96a787eb:1", "provider": "luna", "reserved": 0.020945}
+{"attempt": "5561adf2d9a7572b98fc443e66c4856477bf0773969a04db1519cec9f74fa1f7:1", "provider": "luna", "reserved": 0.06729125}
+{"attempt": "289b6390e8b3a8f2c0dc58275eb1a9ec9b103b802cf4d7cec17188974f1e9f6d:1", "provider": "luna", "reserved": 0.117785}
+{"attempt": "205bd7f9ac958e7668b6d81a50d91bcc9f4d0b0ee7a75452f658dd69a8b40bea:1", "provider": "luna", "reserved": 0.08165375}
+{"attempt": "8f5856db7db75a014c3264bde449d979a3489e3d93bd5ec5a56b4d2f6a375849:1", "provider": "luna", "reserved": 0.0240575}
+{"attempt": "5561adf2d9a7572b98fc443e66c4856477bf0773969a04db1519cec9f74fa1f7:1", "provider": "luna", "reserved": 0.06729125, "usd": 0.0005713000000000001}
+{"attempt": "727ef71f880efb17584eed712c919a1f88562775841503550f14205cd49bb6bb:1", "provider": "gemini", "reserved": 0.06729125}
+{"attempt": "727ef71f880efb17584eed712c919a1f88562775841503550f14205cd49bb6bb:1", "provider": "gemini", "reserved": 0.06729125, "usd": 0.00439725}
+{"attempt": "599a86ba0309ba03d0c6392f9d92812b53e0868647dc7a8e51e10946737b57ab:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "fad0d9607d5e49311c13cacc5554c59286328965ba51723d262b38ea96a787eb:1", "provider": "luna", "reserved": 0.020945, "usd": 0.0002642}
+{"attempt": "5e6cb687138882367cb51830d766e6824f5d32a67f5adda10f37307ecafd4856:1", "provider": "gemini", "reserved": 0.020945}
+{"attempt": "0b1268334cc27383b33a583179e70519aaca356946602dcc610b0e5bb47df8bf:1", "provider": "luna", "reserved": 0.035585, "usd": 0.0002656}
+{"attempt": "31c617b72df66228a1e908db8f79f4c06c62e5ce8a506dc370c2afeba64bc509:1", "provider": "gemini", "reserved": 0.035585}
+{"attempt": "99b5090c5d9201e716043c6c896b00a8edee2d50b423412ee95f9f662b7c304e:1", "provider": "luna", "reserved": 0.033203750000000004, "usd": 0.0004507}
+{"attempt": "3c258275642210a73cd3f5baf745cff193daeb8f28033ae62e1c5bd7a9effd6f:1", "provider": "gemini", "reserved": 0.033203750000000004}
+{"attempt": "5e6cb687138882367cb51830d766e6824f5d32a67f5adda10f37307ecafd4856:1", "provider": "gemini", "reserved": 0.020945, "usd": 0.00148275}
+{"attempt": "4924f8f2323844e645e47175678555cdcbeceaf4d528b2a57fce060627a84c45:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "31c617b72df66228a1e908db8f79f4c06c62e5ce8a506dc370c2afeba64bc509:1", "provider": "gemini", "reserved": 0.035585, "usd": 0.00186825}
+{"attempt": "8f5856db7db75a014c3264bde449d979a3489e3d93bd5ec5a56b4d2f6a375849:1", "provider": "luna", "reserved": 0.0240575, "usd": 0.000357}
+{"attempt": "7505e38f143326b7a290a4fe4162eaf10205bd34096bc2b7a0e97942cb199f3c:1", "provider": "gemini", "reserved": 0.0240575}
+{"attempt": "205bd7f9ac958e7668b6d81a50d91bcc9f4d0b0ee7a75452f658dd69a8b40bea:1", "provider": "luna", "reserved": 0.08165375, "usd": 0.0007835}
+{"attempt": "cbb17cb22bed42e155607d1c453d636509040d67d2b58c8aefb78e84b0349a03:1", "provider": "gemini", "reserved": 0.08165375}
+{"attempt": "599a86ba0309ba03d0c6392f9d92812b53e0868647dc7a8e51e10946737b57ab:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0019039}
+{"attempt": "de30260c67eac88be62996a745e7972acaa4a42ecd99e8a0057a39e73e64ee2b:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "7876106a4479c1e434af4aff9a000098f26769e3703ecf4013f2f754e5a43f90:1", "provider": "luna", "reserved": 0.023127500000000002}
+{"attempt": "3c258275642210a73cd3f5baf745cff193daeb8f28033ae62e1c5bd7a9effd6f:1", "provider": "gemini", "reserved": 0.033203750000000004, "usd": 0.00405525}
+{"attempt": "7505e38f143326b7a290a4fe4162eaf10205bd34096bc2b7a0e97942cb199f3c:1", "provider": "gemini", "reserved": 0.0240575, "usd": 0.00187125}
+{"attempt": "289b6390e8b3a8f2c0dc58275eb1a9ec9b103b802cf4d7cec17188974f1e9f6d:1", "provider": "luna", "reserved": 0.117785, "usd": 0.0010073}
+{"attempt": "c1c2f1ad8497584d4201d3ac0d0f829d0df27673777f3025b5a5beca7a45eb5c:1", "provider": "gemini", "reserved": 0.117785}
+{"attempt": "cbb17cb22bed42e155607d1c453d636509040d67d2b58c8aefb78e84b0349a03:1", "provider": "gemini", "reserved": 0.08165375, "usd": 0.00466875}
+{"attempt": "c1c2f1ad8497584d4201d3ac0d0f829d0df27673777f3025b5a5beca7a45eb5c:1", "provider": "gemini", "reserved": 0.117785, "usd": 0.0062445}
+{"attempt": "4924f8f2323844e645e47175678555cdcbeceaf4d528b2a57fce060627a84c45:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0009105000000000001}
+{"attempt": "0984a8d539dc96b93940474e39911799ffa596a7b7276c3fb801bc3bbc6f889f:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "77e707d97155ca0e62834bc9ba31652aeaf52b8e66ad9fe58a4a5a859314dc7c:1", "provider": "luna", "reserved": 0.04182875}
+{"attempt": "7876106a4479c1e434af4aff9a000098f26769e3703ecf4013f2f754e5a43f90:1", "provider": "luna", "reserved": 0.023127500000000002, "usd": 0.0002939}
+{"attempt": "084c9b5dedef805e7f5fe6833de2c97b3cc041be5edf1974ecc7b054b7025a8e:1", "provider": "gemini", "reserved": 0.023127500000000002}
+{"attempt": "7fe009e58147a53716e550f6daeafe31b2f87f217cfb1ac9f9326b796003841b:1", "provider": "luna", "reserved": 0.025715000000000002, "usd": 0.000329}
+{"attempt": "b1e539977f9ba3ee2da0884de548c6ce9913d8754ce46efd705a3056ad9968f8:1", "provider": "gemini", "reserved": 0.025715000000000002}
+{"attempt": "77e707d97155ca0e62834bc9ba31652aeaf52b8e66ad9fe58a4a5a859314dc7c:1", "provider": "luna", "reserved": 0.04182875, "usd": 0.00025889999999999995}
+{"attempt": "ab264609061a3a179e6678b58a68461998f56fcd0f63f76995521a94e1364a6c:1", "provider": "gemini", "reserved": 0.04182875}
+{"attempt": "ab264609061a3a179e6678b58a68461998f56fcd0f63f76995521a94e1364a6c:1", "provider": "gemini", "reserved": 0.04182875, "usd": 0.00192375}
+{"attempt": "de30260c67eac88be62996a745e7972acaa4a42ecd99e8a0057a39e73e64ee2b:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0011492}
+{"attempt": "801e4fa6eb64ebc24213388f071147358b957a41cd7459cf2902e476f5a54326:1", "provider": "luna", "reserved": 0.03245}
+{"attempt": "5ba70141fac5e347f2e3cdb6d5199770a86ee4e648109b417f5f8081f49f8e72:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "084c9b5dedef805e7f5fe6833de2c97b3cc041be5edf1974ecc7b054b7025a8e:1", "provider": "gemini", "reserved": 0.023127500000000002, "usd": 0.0018195}
+{"attempt": "b1e539977f9ba3ee2da0884de548c6ce9913d8754ce46efd705a3056ad9968f8:1", "provider": "gemini", "reserved": 0.025715000000000002, "usd": 0.001695}
+{"attempt": "0984a8d539dc96b93940474e39911799ffa596a7b7276c3fb801bc3bbc6f889f:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0014360000000000002}
+{"attempt": "2ef32a2bbe45fe31c804b88fcafaa0f51e807284820dcf8d469198a19ced4e6c:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "06ca97834a6585e422549f9bd2c6912db6fae080e367b97d39b54b41eb00029a:1", "provider": "luna", "reserved": 0.02}
+{"attempt": "801e4fa6eb64ebc24213388f071147358b957a41cd7459cf2902e476f5a54326:1", "provider": "luna", "reserved": 0.03245, "usd": 0.000425}
+{"attempt": "9c581ec25fcefc01688208cc4d2539b5aeb95917b8dd6ea90899f6089ffdf1f2:1", "provider": "gemini", "reserved": 0.03245}
+{"attempt": "9c581ec25fcefc01688208cc4d2539b5aeb95917b8dd6ea90899f6089ffdf1f2:1", "provider": "gemini", "reserved": 0.03245, "usd": 0.002394}
+{"attempt": "2ef32a2bbe45fe31c804b88fcafaa0f51e807284820dcf8d469198a19ced4e6c:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0021544}
+{"attempt": "1919e8c352e9e14638f690206186c0e1ad576eb5961238d836184ef596b62b12:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "cffd1180c167009020d4e6103c6bf98f687042d6f63bc513a52f9dce68d608ff:1", "provider": "luna", "reserved": 0.04535}
+{"attempt": "06ca97834a6585e422549f9bd2c6912db6fae080e367b97d39b54b41eb00029a:1", "provider": "luna", "reserved": 0.02, "usd": 0.00037860000000000004}
+{"attempt": "8833d17178833e05c185bd9359e225851ae379f3ccd77d95ede21c3f642e9c8b:1", "provider": "gemini", "reserved": 0.02}
+{"attempt": "5ba70141fac5e347f2e3cdb6d5199770a86ee4e648109b417f5f8081f49f8e72:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0013357}
+{"attempt": "1cc22d95b4a4784560baafc63388edd306fe23540bf25d7b84fb6b9d8883c571:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "96a5a1e5c0acbba53f1205f28be8d876df295b2809e35a79210b5971a7896c0c:1", "provider": "luna", "reserved": 0.10412374999999999}
+{"attempt": "8833d17178833e05c185bd9359e225851ae379f3ccd77d95ede21c3f642e9c8b:1", "provider": "gemini", "reserved": 0.02, "usd": 0.00100275}
+{"attempt": "96a5a1e5c0acbba53f1205f28be8d876df295b2809e35a79210b5971a7896c0c:1", "provider": "luna", "reserved": 0.10412374999999999, "usd": 0.0006531}
+{"attempt": "695a7f196308d23da550ab54dec3698af1e751a851eb5b683f7fe2dbae2ebe0e:1", "provider": "gemini", "reserved": 0.10412374999999999}
+{"attempt": "695a7f196308d23da550ab54dec3698af1e751a851eb5b683f7fe2dbae2ebe0e:1", "provider": "gemini", "reserved": 0.10412374999999999, "usd": 0.00500925}
+{"attempt": "1cc22d95b4a4784560baafc63388edd306fe23540bf25d7b84fb6b9d8883c571:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008964}
+{"attempt": "46504967a4c8af6602aeafa880f60fe5c31c57939111a0551353f2d422384270:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "89d245169217cc82318a84d12cccfca4a4216ca00062f2dfaa94e16fb328bb3e:1", "provider": "luna", "reserved": 0.09972875}
+{"attempt": "46504967a4c8af6602aeafa880f60fe5c31c57939111a0551353f2d422384270:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008629}
+{"attempt": "9681128de85eb5ef9e78c8a15381a5d26218d3612e51ef83a24dc632f708a24d:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "14748ffdb36a259ba0cfa0884625d6c353497d5b60094ec47bfa6503630272ee:1", "provider": "luna", "reserved": 0.04649375}
+{"attempt": "cffd1180c167009020d4e6103c6bf98f687042d6f63bc513a52f9dce68d608ff:1", "provider": "luna", "reserved": 0.04535, "usd": 0.000786}
+{"attempt": "c11aae3ae21450a1589cc0a2f42994e35f92d0a5cc04adf1e4f938f9e23a4af3:1", "provider": "gemini", "reserved": 0.04535}
+{"attempt": "c11aae3ae21450a1589cc0a2f42994e35f92d0a5cc04adf1e4f938f9e23a4af3:1", "provider": "gemini", "reserved": 0.04535, "usd": 0.00386025}
+{"attempt": "14748ffdb36a259ba0cfa0884625d6c353497d5b60094ec47bfa6503630272ee:1", "provider": "luna", "reserved": 0.04649375, "usd": 0.0003636}
+{"attempt": "30c6847ba63ee1c4e35119c890dd0b1082521a3ae73f79e2fad00f92d8eb8c4a:1", "provider": "gemini", "reserved": 0.04649375}
+{"attempt": "9681128de85eb5ef9e78c8a15381a5d26218d3612e51ef83a24dc632f708a24d:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0010652}
+{"attempt": "d434a5e105f12cf6faca806a7bf73fa100cf2f5a19a0d645a6c93db84083f327:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "6108b59de8d53dd966daa87142afbb023cae7e0d999544bf915eda9c3c7141c0:1", "provider": "luna", "reserved": 0.03743375}
+{"attempt": "30c6847ba63ee1c4e35119c890dd0b1082521a3ae73f79e2fad00f92d8eb8c4a:1", "provider": "gemini", "reserved": 0.04649375, "usd": 0.0023235}
+{"attempt": "89d245169217cc82318a84d12cccfca4a4216ca00062f2dfaa94e16fb328bb3e:1", "provider": "luna", "reserved": 0.09972875, "usd": 0.0012177}
+{"attempt": "bc64436c1cab8fcfe3ca399a4d49d5e2543820a6c0f8bbd0e0650675ab378443:1", "provider": "gemini", "reserved": 0.09972875}
+{"attempt": "bc64436c1cab8fcfe3ca399a4d49d5e2543820a6c0f8bbd0e0650675ab378443:1", "provider": "gemini", "reserved": 0.09972875, "usd": 0.00714975}
+{"attempt": "d434a5e105f12cf6faca806a7bf73fa100cf2f5a19a0d645a6c93db84083f327:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0013257}
+{"attempt": "515238487faebffa981ba1d3eb2dbb0a001a9693794f969e5cef89685b563955:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "2a5ff989cb013fb55b5f6296fe4f9dd33e28d3851a3da9ef03e76c77a2e0d555:1", "provider": "luna", "reserved": 0.05552}
+{"attempt": "6108b59de8d53dd966daa87142afbb023cae7e0d999544bf915eda9c3c7141c0:1", "provider": "luna", "reserved": 0.03743375, "usd": 0.000562}
+{"attempt": "0fc7ca4bb63f7d94d50110a0023b7a011546df533751e4d35d57c7c324cf173b:1", "provider": "gemini", "reserved": 0.03743375}
+{"attempt": "0fc7ca4bb63f7d94d50110a0023b7a011546df533751e4d35d57c7c324cf173b:1", "provider": "gemini", "reserved": 0.03743375, "usd": 0.0027795}
+{"attempt": "515238487faebffa981ba1d3eb2dbb0a001a9693794f969e5cef89685b563955:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0007008}
+{"attempt": "be7ef3a582c88d4e69cb1c06c348de3178f5f5aeab4e5926545627c16f4c6be9:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "68c1f25fd9545ed656d4b842652572cc1d29587e0afd0f8d03a3ec8b82919f1d:1", "provider": "luna", "reserved": 0.08360000000000001}
+{"attempt": "68c1f25fd9545ed656d4b842652572cc1d29587e0afd0f8d03a3ec8b82919f1d:1", "provider": "luna", "reserved": 0.08360000000000001, "usd": 0.0007548}
+{"attempt": "6968a6be9e432b002c0d3a9b3ac9cb5505558e55a19a17addf942405f0d4b2a0:1", "provider": "gemini", "reserved": 0.08360000000000001}
+{"attempt": "2a5ff989cb013fb55b5f6296fe4f9dd33e28d3851a3da9ef03e76c77a2e0d555:1", "provider": "luna", "reserved": 0.05552, "usd": 0.00066}
+{"attempt": "946df24ae3c424a045abdb1b0f9c0b0f900454f882619d0ba1a187ec133e9e53:1", "provider": "gemini", "reserved": 0.05552}
+{"attempt": "946df24ae3c424a045abdb1b0f9c0b0f900454f882619d0ba1a187ec133e9e53:1", "provider": "gemini", "reserved": 0.05552, "usd": 0.00290475}
+{"attempt": "1919e8c352e9e14638f690206186c0e1ad576eb5961238d836184ef596b62b12:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0060879}
+{"attempt": "e3a5293ae0f489eb82748b5002c2cb94cacb589ca9520448ddbc123e93568be2:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "0431f1d27d08199572ef40548326c94a5da2654f1670152e3500ca4ac5871257:1", "provider": "luna", "reserved": 0.03568625}
+{"attempt": "6968a6be9e432b002c0d3a9b3ac9cb5505558e55a19a17addf942405f0d4b2a0:1", "provider": "gemini", "reserved": 0.08360000000000001, "usd": 0.008106}
+{"attempt": "0431f1d27d08199572ef40548326c94a5da2654f1670152e3500ca4ac5871257:1", "provider": "luna", "reserved": 0.03568625, "usd": 0.00020970000000000003}
+{"attempt": "f3b9c2ec8d9b72e32fa7b3189239cfaac763958bc0b16d2c9dc41163ba764e4d:1", "provider": "gemini", "reserved": 0.03568625}
+{"attempt": "be7ef3a582c88d4e69cb1c06c348de3178f5f5aeab4e5926545627c16f4c6be9:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0029077}
+{"attempt": "d0242e4df132c102bf414efe648cad31d8be2a938f44add69ef6311ed9657640:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "476621c65f706f1161ac02f1c12ebee473ed2fa362fb144ff36a10883383a7aa:1", "provider": "luna", "reserved": 0.07846249999999999}
+{"attempt": "f3b9c2ec8d9b72e32fa7b3189239cfaac763958bc0b16d2c9dc41163ba764e4d:1", "provider": "gemini", "reserved": 0.03568625, "usd": 0.0015345}
+{"attempt": "476621c65f706f1161ac02f1c12ebee473ed2fa362fb144ff36a10883383a7aa:1", "provider": "luna", "reserved": 0.07846249999999999, "usd": 0.0006874000000000001}
+{"attempt": "d40ffd3ac82efbbd634752ef399f4992e100854656c570a6467dcf71a08651c7:1", "provider": "gemini", "reserved": 0.07846249999999999}
+{"attempt": "d0242e4df132c102bf414efe648cad31d8be2a938f44add69ef6311ed9657640:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0014694999999999999}
+{"attempt": "494ce95b023341e51e5c0663ad0bc898ed537a0991d79e2d262761946ada273e:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "0a093a9ce817c30a28bdce247d09f35930ed183f95b36cae68e5ff40c57220ff:1", "provider": "luna", "reserved": 0.04176125}
+{"attempt": "d40ffd3ac82efbbd634752ef399f4992e100854656c570a6467dcf71a08651c7:1", "provider": "gemini", "reserved": 0.07846249999999999, "usd": 0.0039045}
+{"attempt": "e3a5293ae0f489eb82748b5002c2cb94cacb589ca9520448ddbc123e93568be2:1", "provider": "haiku", "reserved": 0.1, "usd": 0.002234}
+{"attempt": "0653eef6c2fbb11ba47ed7a572a1b7111a78e992572aea34fb251dd6bcdc7e42:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "0d0f9aefd9f7336cfc6c8adcaa9cac93d59060f821a3a0fb49c15af1641d65c8:1", "provider": "luna", "reserved": 0.060485}
+{"attempt": "0d0f9aefd9f7336cfc6c8adcaa9cac93d59060f821a3a0fb49c15af1641d65c8:1", "provider": "luna", "reserved": 0.060485, "usd": 0.0005507}
+{"attempt": "b36970d93affaae25467ff3752deddf3d59c1c73a81fce1dda3b2539d82d0756:1", "provider": "gemini", "reserved": 0.060485}
+{"attempt": "0a093a9ce817c30a28bdce247d09f35930ed183f95b36cae68e5ff40c57220ff:1", "provider": "luna", "reserved": 0.04176125, "usd": 0.00038730000000000004}
+{"attempt": "f121c1d3c2a9055a67012c5a8ba826f17555b02596423d2f03a82c849aaa45eb:1", "provider": "gemini", "reserved": 0.04176125}
+{"attempt": "b36970d93affaae25467ff3752deddf3d59c1c73a81fce1dda3b2539d82d0756:1", "provider": "gemini", "reserved": 0.060485, "usd": 0.00396675}
+{"attempt": "494ce95b023341e51e5c0663ad0bc898ed537a0991d79e2d262761946ada273e:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0033222}
+{"attempt": "abf9f28dfb746aa1f6230950b976f682a893f6329779bc8fec5f36f41c2a7622:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "f288460f29f8681932954fa2fd7a0febf9d01dbd66174425f6c0e292afc19815:1", "provider": "luna", "reserved": 0.05528}
+{"attempt": "f121c1d3c2a9055a67012c5a8ba826f17555b02596423d2f03a82c849aaa45eb:1", "provider": "gemini", "reserved": 0.04176125, "usd": 0.00187875}
+{"attempt": "f288460f29f8681932954fa2fd7a0febf9d01dbd66174425f6c0e292afc19815:1", "provider": "luna", "reserved": 0.05528, "usd": 0.0005636}
+{"attempt": "720f5ea1917c05ce6d84a57581eae5e7faf00b1e81da75a7ac87e18db19a3969:1", "provider": "gemini", "reserved": 0.05528}
+{"attempt": "720f5ea1917c05ce6d84a57581eae5e7faf00b1e81da75a7ac87e18db19a3969:1", "provider": "gemini", "reserved": 0.05528, "usd": 0.00365775}
+{"attempt": "abf9f28dfb746aa1f6230950b976f682a893f6329779bc8fec5f36f41c2a7622:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0023550000000000003}
+{"attempt": "c42469ef4c6d38aed792f827e8453bd17c313d6c58eae7136886a6138bb213f6:1", "provider": "luna", "reserved": 0.0274625}
+{"attempt": "7baf5605953a948f78797da147165bef986fafdd21e9aab7e98936221578fec1:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "c42469ef4c6d38aed792f827e8453bd17c313d6c58eae7136886a6138bb213f6:1", "provider": "luna", "reserved": 0.0274625, "usd": 0.0002759}
+{"attempt": "ae51edb6add4d08ef7a98700d6a3558300fce411f6d52f387054e774772c6b27:1", "provider": "gemini", "reserved": 0.0274625}
+{"attempt": "7baf5605953a948f78797da147165bef986fafdd21e9aab7e98936221578fec1:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0021757}
+{"attempt": "a1e5a97226b18ef9e13c7133abc804dbecff6e3219165b14a42cca710c7a8af8:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "887bcb57c8bbf779485b5230582be14fec8870ae0edd500d504f4f2501643328:1", "provider": "luna", "reserved": 0.02820125}
+{"attempt": "ae51edb6add4d08ef7a98700d6a3558300fce411f6d52f387054e774772c6b27:1", "provider": "gemini", "reserved": 0.0274625, "usd": 0.001941}
+{"attempt": "a1e5a97226b18ef9e13c7133abc804dbecff6e3219165b14a42cca710c7a8af8:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008671000000000001}
+{"attempt": "1aa394cafd2609a972f791fd1e9f80fc4ad41fbd945afc4b46a07fd07214de84:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "f7ef25dbbeadeb16f547a742d7b464cf09e028a17f2227ef5cd2cadec87340ab:1", "provider": "luna", "reserved": 0.11802499999999999}
+{"attempt": "887bcb57c8bbf779485b5230582be14fec8870ae0edd500d504f4f2501643328:1", "provider": "luna", "reserved": 0.02820125, "usd": 0.0005161}
+{"attempt": "c092b144ef7b605b22908d322f376db056d777fc2cce1719292f1c62e25c0710:1", "provider": "gemini", "reserved": 0.02820125}
+{"attempt": "f7ef25dbbeadeb16f547a742d7b464cf09e028a17f2227ef5cd2cadec87340ab:1", "provider": "luna", "reserved": 0.11802499999999999, "usd": 0.0009887000000000001}
+{"attempt": "0ab34cc270e13160ed4ec3f204bc0d7559b79fe21d314d5fba7b5462b07bd715:1", "provider": "gemini", "reserved": 0.11802499999999999}
+{"attempt": "c092b144ef7b605b22908d322f376db056d777fc2cce1719292f1c62e25c0710:1", "provider": "gemini", "reserved": 0.02820125, "usd": 0.00162675}
+{"attempt": "0ab34cc270e13160ed4ec3f204bc0d7559b79fe21d314d5fba7b5462b07bd715:1", "provider": "gemini", "reserved": 0.11802499999999999, "usd": 0.00677325}
+{"attempt": "1aa394cafd2609a972f791fd1e9f80fc4ad41fbd945afc4b46a07fd07214de84:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0024294}
+{"attempt": "9b27330b487de1c6bbab8ba1b54e76a97cf6e80dfb28f96f2888dde931ad1e15:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "3b3e42ad3a7de74c6b1a5a78e404c2cad82a2ed1145f7b37559b418cc2a26cf6:1", "provider": "luna", "reserved": 0.02}
+{"attempt": "3b3e42ad3a7de74c6b1a5a78e404c2cad82a2ed1145f7b37559b418cc2a26cf6:1", "provider": "luna", "reserved": 0.02, "usd": 0.00020830000000000002}
+{"attempt": "2787bbfa9ad977dff6f11219a22fa5e3ef4fca74421b46614fcab170f9743589:1", "provider": "gemini", "reserved": 0.02}
+{"attempt": "9b27330b487de1c6bbab8ba1b54e76a97cf6e80dfb28f96f2888dde931ad1e15:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0017433000000000001}
+{"attempt": "6899f6af6bad6f4fe37f15f7f4873a09bef7432db7996e1bcbcede95ae9004aa:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "4456ee1b6b7899d1c19306ce3a08b565f06f457597653afe568b4e79c3dcc6a2:1", "provider": "luna", "reserved": 0.030695}
+{"attempt": "2787bbfa9ad977dff6f11219a22fa5e3ef4fca74421b46614fcab170f9743589:1", "provider": "gemini", "reserved": 0.02, "usd": 0.0011625}
+{"attempt": "4456ee1b6b7899d1c19306ce3a08b565f06f457597653afe568b4e79c3dcc6a2:1", "provider": "luna", "reserved": 0.030695, "usd": 0.0003705}
+{"attempt": "608be4cc975ad99bea6f0595173108d456cd2e1177ec028afcc76c61315fa7aa:1", "provider": "gemini", "reserved": 0.030695}
+{"attempt": "6899f6af6bad6f4fe37f15f7f4873a09bef7432db7996e1bcbcede95ae9004aa:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0011610000000000001}
+{"attempt": "d815c9b7ad34d81e12fc438543b9aa722592a192fb02edd615bcd4f4be905103:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "f318b937494ad2801e7d6fec55672a249180d5fe392e18c5f39edf21f3b985b7:1", "provider": "luna", "reserved": 0.02381375}
+{"attempt": "608be4cc975ad99bea6f0595173108d456cd2e1177ec028afcc76c61315fa7aa:1", "provider": "gemini", "reserved": 0.030695, "usd": 0.0026055}
+{"attempt": "0653eef6c2fbb11ba47ed7a572a1b7111a78e992572aea34fb251dd6bcdc7e42:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0056248}
+{"attempt": "36fc76f752078df0a4ef1b2190999eb0877f808b36586fd040ab6e17fb3d70cc:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "bdafc5e860bc982e02763b9b22218bdc593ca13a4f60ac50790670868c6e32b3:1", "provider": "luna", "reserved": 0.02196125}
+{"attempt": "d815c9b7ad34d81e12fc438543b9aa722592a192fb02edd615bcd4f4be905103:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0014390000000000002}
+{"attempt": "c1746f6f62a25b773b76bec8fabd5fcd9fc12f66bbfc851aacfd9ff7c394fd8c:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "c8b7489ef288b009b2f33f23a004f5e460ebe9c477dfaba2d4b55141bb8ec390:1", "provider": "luna", "reserved": 0.05502125}
+{"attempt": "f318b937494ad2801e7d6fec55672a249180d5fe392e18c5f39edf21f3b985b7:1", "provider": "luna", "reserved": 0.02381375, "usd": 0.0002983}
+{"attempt": "f4a0bfa90cc89f5d864c1f91c14bafcac52039287db381b681d85c341fb02d70:1", "provider": "gemini", "reserved": 0.02381375}
+{"attempt": "f4a0bfa90cc89f5d864c1f91c14bafcac52039287db381b681d85c341fb02d70:1", "provider": "gemini", "reserved": 0.02381375, "usd": 0.00121575}
+{"attempt": "36fc76f752078df0a4ef1b2190999eb0877f808b36586fd040ab6e17fb3d70cc:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0007358}
+{"attempt": "7fcab0480e7a9cfc28aaee9ac2c6616f2f5aa9353dd419ceac709a12338a5bca:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "5b6529e7352cb6cf24d129b380a109b11a3c79a6fbc9dab7b0be94331d2f8247:1", "provider": "luna", "reserved": 0.0418925}
+{"attempt": "bdafc5e860bc982e02763b9b22218bdc593ca13a4f60ac50790670868c6e32b3:1", "provider": "luna", "reserved": 0.02196125, "usd": 0.0002599}
+{"attempt": "632859ae9c9de8d57c9b91c156c4893d71fcbada20a789291421a437892722fe:1", "provider": "gemini", "reserved": 0.02196125}
+{"attempt": "5b6529e7352cb6cf24d129b380a109b11a3c79a6fbc9dab7b0be94331d2f8247:1", "provider": "luna", "reserved": 0.0418925, "usd": 0.0003137}
+{"attempt": "f49af7015231f774c3d3e277ece2e561e6bd8c5ff8d6ad2865597efa25fd218b:1", "provider": "gemini", "reserved": 0.0418925}
+{"attempt": "632859ae9c9de8d57c9b91c156c4893d71fcbada20a789291421a437892722fe:1", "provider": "gemini", "reserved": 0.02196125, "usd": 0.00145125}
+{"attempt": "c8b7489ef288b009b2f33f23a004f5e460ebe9c477dfaba2d4b55141bb8ec390:1", "provider": "luna", "reserved": 0.05502125, "usd": 0.0003844}
+{"attempt": "ca010da84967985dee78b12669ed0e554cf112cb76c27bb8b4d92d3087a89491:1", "provider": "gemini", "reserved": 0.05502125}
+{"attempt": "f49af7015231f774c3d3e277ece2e561e6bd8c5ff8d6ad2865597efa25fd218b:1", "provider": "gemini", "reserved": 0.0418925, "usd": 0.0025635}
+{"attempt": "ca010da84967985dee78b12669ed0e554cf112cb76c27bb8b4d92d3087a89491:1", "provider": "gemini", "reserved": 0.05502125, "usd": 0.002499}
+{"attempt": "7fcab0480e7a9cfc28aaee9ac2c6616f2f5aa9353dd419ceac709a12338a5bca:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0034758000000000002}
+{"attempt": "a6b7bf511898ce2f260839565e7153dc92b7f3ef63c5ae8cf68873f006ce124c:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "5185fa8c375b75ce7654386e3d33c9f534a5f606b02aa2d24cd07f43b5bfd0a1:1", "provider": "luna", "reserved": 0.023412500000000003}
+{"attempt": "c1746f6f62a25b773b76bec8fabd5fcd9fc12f66bbfc851aacfd9ff7c394fd8c:1", "provider": "haiku", "reserved": 0.1, "usd": 0.001929}
+{"attempt": "34064808cbcafa8b8263fa9daaf3a441eb8dfcaf61885c32745242a05b694e89:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "79756ee01e11900dc5e58768c11343f4b2049ef7d8aa764e29dab4fecdd48598:1", "provider": "luna", "reserved": 0.02}
+{"attempt": "a6b7bf511898ce2f260839565e7153dc92b7f3ef63c5ae8cf68873f006ce124c:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0007505999999999999}
+{"attempt": "2f49be2f5f045a8b978c808d0aaab96c91a7865ab132b23a495b11b21357453f:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "085b651d5385e73747c37186ad36d8b65ed60dd14d1ce38e83b9f087835d75c9:1", "provider": "luna", "reserved": 0.020825}
+{"attempt": "34064808cbcafa8b8263fa9daaf3a441eb8dfcaf61885c32745242a05b694e89:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0011033}
+{"attempt": "7293486193c66559f64504d2e8aabd2b9fe06fccf977172de709813ca55429a9:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "27f4f30be6a6dcf38466b6535dd6943f05b0d4e3e3bec0f967002550aa6f4fb8:1", "provider": "luna", "reserved": 0.08595125}
+{"attempt": "5185fa8c375b75ce7654386e3d33c9f534a5f606b02aa2d24cd07f43b5bfd0a1:1", "provider": "luna", "reserved": 0.023412500000000003, "usd": 0.0002918}
+{"attempt": "8a81127bf9a37c59577d767a013338da4468c05c530fd538ed475834a86e7bc5:1", "provider": "gemini", "reserved": 0.023412500000000003}
+{"attempt": "79756ee01e11900dc5e58768c11343f4b2049ef7d8aa764e29dab4fecdd48598:1", "provider": "luna", "reserved": 0.02, "usd": 0.0001854}
+{"attempt": "273418fb89146d40bc1beaa51725a7b8e9463bb73d8dc433b090e5ad991bc6b7:1", "provider": "gemini", "reserved": 0.02}
+{"attempt": "273418fb89146d40bc1beaa51725a7b8e9463bb73d8dc433b090e5ad991bc6b7:1", "provider": "gemini", "reserved": 0.02, "usd": 0.000996}
+{"attempt": "8a81127bf9a37c59577d767a013338da4468c05c530fd538ed475834a86e7bc5:1", "provider": "gemini", "reserved": 0.023412500000000003, "usd": 0.00168825}
+{"attempt": "2f49be2f5f045a8b978c808d0aaab96c91a7865ab132b23a495b11b21357453f:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008371000000000001}
+{"attempt": "1147c2f2cd959278a016d3ff33370070d57600212545805eb26ba1ba2fa7c853:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "4c236b392eabe2ed0284b5289f1608eb26a08676f58216c4db37c15f9ab62d11:1", "provider": "luna", "reserved": 0.020945}
+{"attempt": "085b651d5385e73747c37186ad36d8b65ed60dd14d1ce38e83b9f087835d75c9:1", "provider": "luna", "reserved": 0.020825, "usd": 0.00023940000000000002}
+{"attempt": "113652aef80371b8b7776f795d71a00a15daf821bda1e091a98fc9e96a2c2462:1", "provider": "gemini", "reserved": 0.020825}
+{"attempt": "27f4f30be6a6dcf38466b6535dd6943f05b0d4e3e3bec0f967002550aa6f4fb8:1", "provider": "luna", "reserved": 0.08595125, "usd": 0.0007044000000000001}
+{"attempt": "5d093b7d00d2086b087c7068d2f80c7328aff330abcbc6e320043d78a7b422ee:1", "provider": "gemini", "reserved": 0.08595125}
+{"attempt": "7293486193c66559f64504d2e8aabd2b9fe06fccf977172de709813ca55429a9:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008277}
+{"attempt": "e168025f91c593898eb03ea5f5811c06cbf96581298f32ab62222fbb89b1297c:1", "provider": "luna", "reserved": 0.08928875}
+{"attempt": "6dc34848a43d184c6e8dbe5ddd6594a9bbb4551d03f1be7711df14bb45969778:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "113652aef80371b8b7776f795d71a00a15daf821bda1e091a98fc9e96a2c2462:1", "provider": "gemini", "reserved": 0.020825, "usd": 0.0013725}
+{"attempt": "4c236b392eabe2ed0284b5289f1608eb26a08676f58216c4db37c15f9ab62d11:1", "provider": "luna", "reserved": 0.020945, "usd": 0.0002151}
+{"attempt": "ef58a841caaa6d28477be08c5099ca9c7d8a198dc1d12f2cb628ede6c5e85b5f:1", "provider": "gemini", "reserved": 0.020945}
+{"attempt": "1147c2f2cd959278a016d3ff33370070d57600212545805eb26ba1ba2fa7c853:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0010972999999999998}
+{"attempt": "4db72004116f3e9d566b4e2e47d42f22ca5a9c87e7eff2ba84a9e3f2ecd03473:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "7e75e16311b6fcfb1dfb0e080f4edeccea0f3aa012a14bf6938070c5bc36f298:1", "provider": "luna", "reserved": 0.180185}
+{"attempt": "5d093b7d00d2086b087c7068d2f80c7328aff330abcbc6e320043d78a7b422ee:1", "provider": "gemini", "reserved": 0.08595125, "usd": 0.00487875}
+{"attempt": "ef58a841caaa6d28477be08c5099ca9c7d8a198dc1d12f2cb628ede6c5e85b5f:1", "provider": "gemini", "reserved": 0.020945, "usd": 0.0014655}
+{"attempt": "7e75e16311b6fcfb1dfb0e080f4edeccea0f3aa012a14bf6938070c5bc36f298:1", "provider": "luna", "reserved": 0.180185, "usd": 0.0012346000000000002}
+{"attempt": "89025363f260f1727bef1e6dcc9789eb0ec7c024f2ec660d2d508a7da0e42cae:1", "provider": "gemini", "reserved": 0.180185}
+{"attempt": "6dc34848a43d184c6e8dbe5ddd6594a9bbb4551d03f1be7711df14bb45969778:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0012966}
+{"attempt": "97399c826157f701e24a0c7226a39d58300a116c3ae8ba396b17c26a90d3c819:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "45faa004963fd244ac04655e97312e3861107b1938528f5ff3b72224bc9cbf78:1", "provider": "luna", "reserved": 0.07805375}
+{"attempt": "89025363f260f1727bef1e6dcc9789eb0ec7c024f2ec660d2d508a7da0e42cae:1", "provider": "gemini", "reserved": 0.180185, "usd": 0.01000875}
+{"attempt": "e168025f91c593898eb03ea5f5811c06cbf96581298f32ab62222fbb89b1297c:1", "provider": "luna", "reserved": 0.08928875, "usd": 0.0007937}
+{"attempt": "61634b950a7f619d8838cb7e7a1c9c304c40b94da4b736bd3f7b7e1a9d1fa17d:1", "provider": "gemini", "reserved": 0.08928875}
+{"attempt": "4db72004116f3e9d566b4e2e47d42f22ca5a9c87e7eff2ba84a9e3f2ecd03473:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0006828}
+{"attempt": "8393ab3e87e59a4185fcb268c6093e28a9349650cefc186d7f1d77e627faabaa:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "e5e8688871d7663ac0c8b67864f89d2cad3cf912f79ed5fe95d52762500069b0:1", "provider": "luna", "reserved": 0.03674375}
+{"attempt": "61634b950a7f619d8838cb7e7a1c9c304c40b94da4b736bd3f7b7e1a9d1fa17d:1", "provider": "gemini", "reserved": 0.08928875, "usd": 0.00564075}
+{"attempt": "97399c826157f701e24a0c7226a39d58300a116c3ae8ba396b17c26a90d3c819:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008336000000000001}
+{"attempt": "af1b532248ddccb89e3be3dc7321d91fa0f8b59ac264b7fbd27d9cf3b232d8d0:1", "provider": "luna", "reserved": 0.0269525}
+{"attempt": "56f5d16d971cf344022728a0ea5faba13c28e44fe25a5c522905ed3981721b36:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "e5e8688871d7663ac0c8b67864f89d2cad3cf912f79ed5fe95d52762500069b0:1", "provider": "luna", "reserved": 0.03674375, "usd": 0.0002531}
+{"attempt": "792ad02e5397674c2ae250e77f5ce6ad7ea1741449ef583e850d72c8e956d793:1", "provider": "gemini", "reserved": 0.03674375}
+{"attempt": "8393ab3e87e59a4185fcb268c6093e28a9349650cefc186d7f1d77e627faabaa:1", "provider": "haiku", "reserved": 0.1, "usd": 0.000637}
+{"attempt": "ed629573abe7a16c7fff4f594f48fffea7377c25c22cafb90c571a17e652376d:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "d9e013ca313af8abfec3eda078856d6b924a9e98b0ee0799c728537a7f253bb1:1", "provider": "luna", "reserved": 0.02}
+{"attempt": "792ad02e5397674c2ae250e77f5ce6ad7ea1741449ef583e850d72c8e956d793:1", "provider": "gemini", "reserved": 0.03674375, "usd": 0.00151575}
+{"attempt": "af1b532248ddccb89e3be3dc7321d91fa0f8b59ac264b7fbd27d9cf3b232d8d0:1", "provider": "luna", "reserved": 0.0269525, "usd": 0.00022559999999999998}
+{"attempt": "a78ebf1d88237e0191426ba5aa2a83e7157029ae97c9f0a570c4c872b562f96d:1", "provider": "gemini", "reserved": 0.0269525}
+{"attempt": "a78ebf1d88237e0191426ba5aa2a83e7157029ae97c9f0a570c4c872b562f96d:1", "provider": "gemini", "reserved": 0.0269525, "usd": 0.00123825}
+{"attempt": "ed629573abe7a16c7fff4f594f48fffea7377c25c22cafb90c571a17e652376d:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008329000000000001}
+{"attempt": "243f967de69d405f0179a89d690af576d2f6d548e6027ea89f8461dd5840dfba:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "1e07709c9690f82104d350459d9cf51b97bf2f5615f8755eb6aaa565a6040b0d:1", "provider": "luna", "reserved": 0.02}
+{"attempt": "56f5d16d971cf344022728a0ea5faba13c28e44fe25a5c522905ed3981721b36:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0024972}
+{"attempt": "2816c3d3c1ecb2c894b888405662a66652fd8cdb704d319f6c65c0ddf448f690:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "509fd04727e3b6d343463295d577ea329a20c3fc211e86ae5909f71fd131ee06:1", "provider": "luna", "reserved": 0.02799125}
+{"attempt": "d9e013ca313af8abfec3eda078856d6b924a9e98b0ee0799c728537a7f253bb1:1", "provider": "luna", "reserved": 0.02, "usd": 0.0003576}
+{"attempt": "148a232e823547e1c461256e9d7edb565162424cc9be15d636e6b5e301820177:1", "provider": "gemini", "reserved": 0.02}
+{"attempt": "1e07709c9690f82104d350459d9cf51b97bf2f5615f8755eb6aaa565a6040b0d:1", "provider": "luna", "reserved": 0.02, "usd": 0.0002483}
+{"attempt": "80d6ccc3db3fa319376c8b1593e11eed96cd4cf771b34eb03a196601fbfe4eb7:1", "provider": "gemini", "reserved": 0.02}
+{"attempt": "148a232e823547e1c461256e9d7edb565162424cc9be15d636e6b5e301820177:1", "provider": "gemini", "reserved": 0.02, "usd": 0.00126675}
+{"attempt": "243f967de69d405f0179a89d690af576d2f6d548e6027ea89f8461dd5840dfba:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0044222}
+{"attempt": "18aea5a47cf21c1dda71fdeb74a563bc77348ab87e61581b0505bef6b1812d7c:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "b22b07008a7f545247ef674be90fb5aa82b575f497c8d9e6fba541eaf811afaf:1", "provider": "luna", "reserved": 0.0315275}
+{"attempt": "80d6ccc3db3fa319376c8b1593e11eed96cd4cf771b34eb03a196601fbfe4eb7:1", "provider": "gemini", "reserved": 0.02, "usd": 0.00134175}
+{"attempt": "509fd04727e3b6d343463295d577ea329a20c3fc211e86ae5909f71fd131ee06:1", "provider": "luna", "reserved": 0.02799125, "usd": 0.0003146}
+{"attempt": "a4e330febf18a1137bc77fde5c36d44ee4a54aa2a5c54eea079ebff50644ae55:1", "provider": "gemini", "reserved": 0.02799125}
+{"attempt": "45faa004963fd244ac04655e97312e3861107b1938528f5ff3b72224bc9cbf78:1", "provider": "luna", "reserved": 0.07805375, "usd": 0.0007553000000000001}
+{"attempt": "f3817afd9bebd9601d3a9fbbb9e13592bb2e1dca5184b9b10bc71298f9a0ba53:1", "provider": "gemini", "reserved": 0.07805375}
+{"attempt": "f3817afd9bebd9601d3a9fbbb9e13592bb2e1dca5184b9b10bc71298f9a0ba53:1", "provider": "gemini", "reserved": 0.07805375, "usd": 0.00439575}
+{"attempt": "2816c3d3c1ecb2c894b888405662a66652fd8cdb704d319f6c65c0ddf448f690:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0024361}
+{"attempt": "2c3ab1c8aaee2b3ef44fc0501f1d1ab09aec46c54e51b7e6b6e5ce124c523061:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "43fd01d6f3e9450963a49f20d9634cb6f794eb0d9a5ae5d8874a1fe86ba95f4c:1", "provider": "luna", "reserved": 0.02822}
+{"attempt": "a4e330febf18a1137bc77fde5c36d44ee4a54aa2a5c54eea079ebff50644ae55:1", "provider": "gemini", "reserved": 0.02799125, "usd": 0.0016635}
+{"attempt": "18aea5a47cf21c1dda71fdeb74a563bc77348ab87e61581b0505bef6b1812d7c:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008743000000000001}
+{"attempt": "d8bbcbc95e86b98bd939d7cf298f09d5285901ec86e447b22dbc81d7c4fbf42e:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "4be2363803edc6db026e422f1273366eb63acaf25d87923a8a5f83ba1fec630b:1", "provider": "luna", "reserved": 0.02136875}
+{"attempt": "b22b07008a7f545247ef674be90fb5aa82b575f497c8d9e6fba541eaf811afaf:1", "provider": "luna", "reserved": 0.0315275, "usd": 0.00017370000000000002}
+{"attempt": "440c22456830f140b24fd02d26142236f83ec6bea70908ac9d6b02be62289452:1", "provider": "gemini", "reserved": 0.0315275}
+{"attempt": "43fd01d6f3e9450963a49f20d9634cb6f794eb0d9a5ae5d8874a1fe86ba95f4c:1", "provider": "luna", "reserved": 0.02822, "usd": 0.0002486}
+{"attempt": "587ca5e3ff13bb64ac10cf1bb16575a7109161ebc566300eac0020117b9bc614:1", "provider": "gemini", "reserved": 0.02822}
+{"attempt": "440c22456830f140b24fd02d26142236f83ec6bea70908ac9d6b02be62289452:1", "provider": "gemini", "reserved": 0.0315275, "usd": 0.001215}
+{"attempt": "4be2363803edc6db026e422f1273366eb63acaf25d87923a8a5f83ba1fec630b:1", "provider": "luna", "reserved": 0.02136875, "usd": 0.0002266}
+{"attempt": "7a48a2d859266668d6c42a7e085f7909d517aaf17a606ebc4dfe1caeeaa5b826:1", "provider": "gemini", "reserved": 0.02136875}
+{"attempt": "587ca5e3ff13bb64ac10cf1bb16575a7109161ebc566300eac0020117b9bc614:1", "provider": "gemini", "reserved": 0.02822, "usd": 0.00202275}
+{"attempt": "d8bbcbc95e86b98bd939d7cf298f09d5285901ec86e447b22dbc81d7c4fbf42e:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0007991000000000001}
+{"attempt": "91d3db841b14b9b8200b4e5b7841550fe9a6565e0b64f715e3503efd28865652:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "2c3ab1c8aaee2b3ef44fc0501f1d1ab09aec46c54e51b7e6b6e5ce124c523061:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008841999999999999}
+{"attempt": "fa85e7abec6f6fb405969b371eea0355392839fba50ead004d786cb0c6400d3d:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "7a48a2d859266668d6c42a7e085f7909d517aaf17a606ebc4dfe1caeeaa5b826:1", "provider": "gemini", "reserved": 0.02136875, "usd": 0.0013725}
+{"attempt": "91d3db841b14b9b8200b4e5b7841550fe9a6565e0b64f715e3503efd28865652:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0008661}
+{"attempt": "be8d0563e23aaef4ba966d4a292a523558c3eb8621a0b3aef44c5318cc18c001:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "be8d0563e23aaef4ba966d4a292a523558c3eb8621a0b3aef44c5318cc18c001:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0010714000000000001}
+{"attempt": "6723786ef76a6f43e9cbeffbed8274fff7256a6aaa7ae0310034dbcd776f7582:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "6723786ef76a6f43e9cbeffbed8274fff7256a6aaa7ae0310034dbcd776f7582:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0007531}
+{"attempt": "33177cd8bd7101e441c28d64b4f4fe0b09de5a2571dfdcc7374acd4921bc7144:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "fa85e7abec6f6fb405969b371eea0355392839fba50ead004d786cb0c6400d3d:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0024462}
+{"attempt": "087d9b27d8f312da8047199a57693e2fac92aad17077df2a1d010302636ab1ee:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "087d9b27d8f312da8047199a57693e2fac92aad17077df2a1d010302636ab1ee:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0007114}
+{"attempt": "33177cd8bd7101e441c28d64b4f4fe0b09de5a2571dfdcc7374acd4921bc7144:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0009914}
+{"attempt": "9ec8fb6d1023e8b1a6f7be98cd82fdc639a9993b226dcb0bc243306d1f4ee5ff:1", "provider": "luna", "reserved": 0.02172125}
+{"attempt": "9ec8fb6d1023e8b1a6f7be98cd82fdc639a9993b226dcb0bc243306d1f4ee5ff:1", "provider": "luna", "reserved": 0.02172125, "usd": 0.0002923}
+{"attempt": "795368d3b8aca108a54ac839c4b244dd7c411e455a175390cad3bbd40431e640:1", "provider": "gemini", "reserved": 0.02172125}
+{"attempt": "795368d3b8aca108a54ac839c4b244dd7c411e455a175390cad3bbd40431e640:1", "provider": "gemini", "reserved": 0.02172125, "usd": 0.0014025}
+{"attempt": "dee74cb647e003992f3a4d3e7d0f2d84e77e83e65a6364b84bfdd810996454e7:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "dee74cb647e003992f3a4d3e7d0f2d84e77e83e65a6364b84bfdd810996454e7:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0017020999999999998}
+{"attempt": "98ff29af4ab50c751e95b3199188caa18daa6daae4762b59417820e00c120eb5:1", "provider": "luna", "reserved": 0.10272125000000001}
+{"attempt": "98ff29af4ab50c751e95b3199188caa18daa6daae4762b59417820e00c120eb5:1", "provider": "luna", "reserved": 0.10272125000000001, "usd": 0.0009683000000000001}
+{"attempt": "c375e5e1b6b9cd37aa53077d70e45270006d76a4204b4fe0c427e5fc4c0fad72:1", "provider": "gemini", "reserved": 0.10272125000000001}
+{"attempt": "c375e5e1b6b9cd37aa53077d70e45270006d76a4204b4fe0c427e5fc4c0fad72:1", "provider": "gemini", "reserved": 0.10272125000000001, "usd": 0.0071955}
+{"attempt": "665fe8a1c2af1cc41dcc8d496590f1c3f5b61a2ff22ef470c0ad9ffd5392e67f:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "665fe8a1c2af1cc41dcc8d496590f1c3f5b61a2ff22ef470c0ad9ffd5392e67f:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0028183}

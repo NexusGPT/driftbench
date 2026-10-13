@@ -1,0 +1,9 @@
+{
+  "name": "pw-router-r3-reasoning",
+  "reference": true,
+  "reasoning_guard": true,
+  "panel": true,
+  "panel_below": 0.7,
+  "hypothesis": "Arithmetic and long-context evidence cases need Luna even when System 1 is confident.",
+  "split_version": "moj-split-v2"
+}

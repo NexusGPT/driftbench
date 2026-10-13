@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "155f41937d4a823beebfbbd337fa9a0fed2721f085e80f2e648bee8af8260532",
+        "reason": "The reply is truncated and never identifies which expression is true. It also makes logical errors, such as claiming `not not (True)` is false.",
+        "usd": 0.00042510000000000003
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "9dfc2c8cb8b8ed4391d34f71a65e0a9f7a99f0d6f38cc25367f9630c6bb81cfd",
+        "reason": "The model's response is cut off and incomplete, failing to identify which expression is true.",
+        "usd": 0.0028455
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "f6519efb84b665be88931c744f69cc1618d4048643892d90bd71364620402a74",
+        "reason": "The reply never states which expression is true. It is garbled and truncated mid-evaluation, repeats the same clauses, and contains evaluation errors (e.g., step 9 turns -4 - (-8/-7) into a logical value and step 10 treats 6 > 6 as True). It gives no final answer to the question.",
+        "usd": 0.0011895
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "155f41937d4a823beebfbbd337fa9a0fed2721f085e80f2e648bee8af8260532",
+      "count": 1,
+      "usd": 0.00042510000000000003
+    },
+    {
+      "provider": "gemini",
+      "key": "9dfc2c8cb8b8ed4391d34f71a65e0a9f7a99f0d6f38cc25367f9630c6bb81cfd",
+      "count": 1,
+      "usd": 0.0028455
+    },
+    {
+      "provider": "haiku",
+      "key": "f6519efb84b665be88931c744f69cc1618d4048643892d90bd71364620402a74",
+      "count": 1,
+      "usd": 0.0011895
+    }
+  ]
+}

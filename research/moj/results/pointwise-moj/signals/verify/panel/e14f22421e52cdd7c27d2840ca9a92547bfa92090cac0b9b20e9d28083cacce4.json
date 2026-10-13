@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "a56d342b00e573940184b33b76a447c13c4bfee0b7e4a7b51e637671c6f51c1d",
+        "reason": "B contains “The capital of Armenia is Gyumri” as a required conjunct, and that statement is false. C evaluates to true, so the reply gives the wrong answer.",
+        "usd": 0.0014544
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "930b2ed0a3defd3938de630bf024f885f16797b21306ce467c6c87bee9c3954f",
+        "reason": "The selected expression (B) is the only one among the choices that correctly evaluates to true under standard boolean and mathematical logic.",
+        "usd": 0.00983475
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "4003c9e94362322f9d748237d7dd12804a3d213e3957b6f56f55e9f3371f2fcd",
+        "reason": "The reply answers B, but B is false. B's top-level structure ANDs the subexpression with \"The capital of Armenia is Gyumri,\" which is false (Armenia's capital is Yerevan), so B evaluates to false regardless of the other terms. The reply's own notes flag Gyumri as false, then it wrongly concludes B is true. The final answer is incorrect.",
+        "usd": 0.0038891000000000004
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "a56d342b00e573940184b33b76a447c13c4bfee0b7e4a7b51e637671c6f51c1d",
+      "count": 1,
+      "usd": 0.0014544
+    },
+    {
+      "provider": "gemini",
+      "key": "930b2ed0a3defd3938de630bf024f885f16797b21306ce467c6c87bee9c3954f",
+      "count": 1,
+      "usd": 0.00983475
+    },
+    {
+      "provider": "haiku",
+      "key": "4003c9e94362322f9d748237d7dd12804a3d213e3957b6f56f55e9f3371f2fcd",
+      "count": 1,
+      "usd": 0.0038891000000000004
+    }
+  ]
+}

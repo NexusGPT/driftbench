@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "af1b532248ddccb89e3be3dc7321d91fa0f8b59ac264b7fbd27d9cf3b232d8d0",
+        "reason": "The input ends with only `{ [` still open, so it should be completed with `] }`. The reply adds an extra `]`. ",
+        "usd": 0.00022559999999999998
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "a78ebf1d88237e0191426ba5aa2a83e7157029ae97c9f0a570c4c872b562f96d",
+        "reason": "The response correctly parses the input using a stack approach, identifies the remaining open brackets, and provides the correct closing sequence: ] ] }.",
+        "usd": 0.00123825
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "2c3ab1c8aaee2b3ef44fc0501f1d1ab09aec46c54e51b7e6b6e5ce124c523061",
+        "reason": "The input { [ [ ] [ ] leaves two brackets open (the '{' and one '['), so the correct completion is '] }', giving { [ [ ] [ ] ] }. The reply appends '] ] }', adding an extra ']' that has no matching open bracket, so its final sequence and boxed answer are unbalanced and incorrect.",
+        "usd": 0.0008841999999999999
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "af1b532248ddccb89e3be3dc7321d91fa0f8b59ac264b7fbd27d9cf3b232d8d0",
+      "count": 1,
+      "usd": 0.00022559999999999998
+    },
+    {
+      "provider": "gemini",
+      "key": "a78ebf1d88237e0191426ba5aa2a83e7157029ae97c9f0a570c4c872b562f96d",
+      "count": 1,
+      "usd": 0.00123825
+    },
+    {
+      "provider": "haiku",
+      "key": "2c3ab1c8aaee2b3ef44fc0501f1d1ab09aec46c54e51b7e6b6e5ce124c523061",
+      "count": 1,
+      "usd": 0.0008841999999999999
+    }
+  ]
+}

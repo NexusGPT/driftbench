@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "5185fa8c375b75ce7654386e3d33c9f534a5f606b02aa2d24cd07f43b5bfd0a1",
+        "reason": "The equations give f=4, q=-2, and b=2, so the descending order is 5, b, 1. The reply instead gives inconsistent values and does not provide the requested ordering.",
+        "usd": 0.0002918
+      },
+      "gemini": {
+        "pA": null,
+        "key": "8a81127bf9a37c59577d767a013338da4468c05c530fd538ed475834a86e7bc5",
+        "reason": null,
+        "usd": 0.00168825
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "97399c826157f701e24a0c7226a39d58300a116c3ae8ba396b17c26a90d3c819",
+        "reason": "The reply ignores the second constraint f + 2q = -0*f (i.e., f + 2q = 0). With that, the system gives f = 4, q = -2, so b = (4/14)/(3/21) = 2 and the descending order is 5, b, 1. The reply instead derives f = √10 from a wrong substitution, contains a self-acknowledged contradiction (10 = -10), and boxes √10 as the final answer, which does not answer the ordering question.",
+        "usd": 0.0008336000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "5185fa8c375b75ce7654386e3d33c9f534a5f606b02aa2d24cd07f43b5bfd0a1",
+      "count": 1,
+      "usd": 0.0002918
+    },
+    {
+      "provider": "gemini",
+      "key": "8a81127bf9a37c59577d767a013338da4468c05c530fd538ed475834a86e7bc5",
+      "count": 1,
+      "usd": 0.00168825
+    },
+    {
+      "provider": "haiku",
+      "key": "97399c826157f701e24a0c7226a39d58300a116c3ae8ba396b17c26a90d3c819",
+      "count": 1,
+      "usd": 0.0008336000000000001
+    }
+  ]
+}

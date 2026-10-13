@@ -1,0 +1,66 @@
+{
+  "results/pointwise/noise/pw-s1-rows.json": {
+    "sha256": "5947c6c8b12604a5da6e33bdce0c1f471b43f1fb39787196af364e95f256d494",
+    "checked": {
+      "rubricbench": {
+        "range_points": 3.3,
+        "accuracy_per_repeat": [
+          83.3,
+          86.7,
+          86.7
+        ],
+        "n": 30
+      },
+      "verify": {
+        "range_points": 0.0,
+        "accuracy_per_repeat": [
+          80.0,
+          80.0,
+          80.0
+        ],
+        "n": 30
+      },
+      "hardrows": {
+        "range_points": 1.7,
+        "accuracy_per_repeat": [
+          95.0,
+          96.7,
+          96.7
+        ],
+        "n": 30
+      }
+    }
+  },
+  "results/pointwise/noise/pw-moj-luna.json": {
+    "sha256": "2ad544152abc737183088991691cf5366249fb04ed6eac1cc74357396dd6fa87",
+    "checked": {
+      "rubricbench": {
+        "range_points": 3.3,
+        "accuracy_per_repeat": [
+          86.7,
+          86.7,
+          83.3
+        ],
+        "n": 30
+      },
+      "verify": {
+        "range_points": 3.3,
+        "accuracy_per_repeat": [
+          83.3,
+          86.7,
+          86.7
+        ],
+        "n": 30
+      },
+      "hardrows": {
+        "range_points": 0.0,
+        "accuracy_per_repeat": [
+          96.7,
+          96.7,
+          96.7
+        ],
+        "n": 30
+      }
+    }
+  }
+}

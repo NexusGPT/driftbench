@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "8cd9088c9d56026c5b6d6a10af0f85c3671a77827105ca8d1355d2d045f15ad4",
+        "reason": "The stated conditions are inconsistent: 29 coins worth $5.45 cannot be made from quarters and 1-cent coins (they imply 7.5 pennies). The final answer 12 is a coin count, not the value of the other type.",
+        "usd": 0.0003368
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "3f9e194b7965279e2c8870a1d9d45b5043ea4225c466ce56fd6f8c7127cff581",
+        "reason": "The text contradicts itself multiple times, gets confused by the nonsensical problem statement ('he has 17 of each coin' combined with a total of 29 coins), and ultimately guesses an incorrect final answer of 12.",
+        "usd": 0.002226
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "ec0a2c9d0b8a6c03dbf862926eb593ba7928990ab143fe9055f4e6b8e4dffa86",
+        "reason": "The system of equations x+y=29 and 0.25x+0.01y=5.45 gives x=21.5, so the problem as stated has no integer solution. The reply's boxed answer of 12 comes from assuming x=17, which the reply itself shows yields a total of $4.37, not $5.45. The reply also contradicts itself repeatedly, including once deriving y=7.5, and never identifies the inconsistency cleanly.",
+        "usd": 0.0009426
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "8cd9088c9d56026c5b6d6a10af0f85c3671a77827105ca8d1355d2d045f15ad4",
+      "count": 1,
+      "usd": 0.0003368
+    },
+    {
+      "provider": "gemini",
+      "key": "3f9e194b7965279e2c8870a1d9d45b5043ea4225c466ce56fd6f8c7127cff581",
+      "count": 1,
+      "usd": 0.002226
+    },
+    {
+      "provider": "haiku",
+      "key": "ec0a2c9d0b8a6c03dbf862926eb593ba7928990ab143fe9055f4e6b8e4dffa86",
+      "count": 1,
+      "usd": 0.0009426
+    }
+  ]
+}

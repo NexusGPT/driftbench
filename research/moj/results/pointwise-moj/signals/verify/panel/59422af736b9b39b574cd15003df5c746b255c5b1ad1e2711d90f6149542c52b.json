@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "27a36bce7abbeaa7d4b2dd0a9bb5a1d08197fb89d3f777bcd87210effed72d39",
+        "reason": "The reply assumes, without evidence, that the basenji does not destroy the leopard’s wall, so Rule7 cannot establish that she does not hide her cards. The goat’s negotiation triggers Rule3; with Rule6’s beetle condition unestablished, Rule5 implies the goat surrenders, triggering Rule4. The supported conclusion is that the basenji hides her cards.",
+        "usd": 0.0005679000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "d4bd4b1e43e7b7960720a21767a8510105ac5ee042638cb346a994e5d6dc627f",
+        "reason": "The text correctly evaluates the rules and game state to determine that the basenji does not hide her cards from the songbird, concluding with 'proved'.",
+        "usd": 0.003816
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "a230ed703c7554ab166b3a9afb892c01d0f11cd7f7baa74d231e134acacbf0c9",
+        "reason": "The reply's substantive conclusion (basenji does not hide her cards) matches the closed-world reading, but its final label 'Proved' answers the wrong question. The question asks whether she hides the cards, so the correct label is 'disproved' under closed-world assumptions, or 'unknown' under open-world. The reasoning also assumes the beetle and wall facts inconsistently: it says the beetle is unknown, yet relies on the wall being intact to fire Rule7.",
+        "usd": 0.0021575
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "27a36bce7abbeaa7d4b2dd0a9bb5a1d08197fb89d3f777bcd87210effed72d39",
+      "count": 1,
+      "usd": 0.0005679000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "d4bd4b1e43e7b7960720a21767a8510105ac5ee042638cb346a994e5d6dc627f",
+      "count": 1,
+      "usd": 0.003816
+    },
+    {
+      "provider": "haiku",
+      "key": "a230ed703c7554ab166b3a9afb892c01d0f11cd7f7baa74d231e134acacbf0c9",
+      "count": 1,
+      "usd": 0.0021575
+    }
+  ]
+}

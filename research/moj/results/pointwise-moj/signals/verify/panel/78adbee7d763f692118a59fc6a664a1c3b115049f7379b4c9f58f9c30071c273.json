@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "d2c1aff3df79bac030337ccdf17be9f90a7ffb8ef4c6a8ff17a82c09a0a9d960",
+        "reason": "The translation replaces the named entity “Čertovy skály” with “the town,” so (D) is a valid error category, even though the translation also contains other errors.",
+        "usd": 0.0007823000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "f24a1e131e4620e8952d23804597a55036e576593540c4fc706082d1cd659c2a",
+        "reason": "The translation changes the proper named entity 'Čertovy skály' to 'the town', which fits the Named Entities error category.",
+        "usd": 0.00556725
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "27614711ceff5b771a5468fe9226d33d2839a18a516719b4014b0ffcfdc0db23",
+        "reason": "The translation has several errors, and the reply's pick of Named Entities is doubtful. The change from '0,15 ha' to '0.15 km' is an unambiguous unit change, which is the Numerical Values category (B), and the reply itself acknowledges it. The 'sand stone information' error looks like a pre-existing mistranslation rather than the single injected error. The reply's choice of D rests on a weaker argument, so the answer is more likely B.",
+        "usd": 0.0027778000000000004
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "d2c1aff3df79bac030337ccdf17be9f90a7ffb8ef4c6a8ff17a82c09a0a9d960",
+      "count": 1,
+      "usd": 0.0007823000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "f24a1e131e4620e8952d23804597a55036e576593540c4fc706082d1cd659c2a",
+      "count": 1,
+      "usd": 0.00556725
+    },
+    {
+      "provider": "haiku",
+      "key": "27614711ceff5b771a5468fe9226d33d2839a18a516719b4014b0ffcfdc0db23",
+      "count": 1,
+      "usd": 0.0027778000000000004
+    }
+  ]
+}

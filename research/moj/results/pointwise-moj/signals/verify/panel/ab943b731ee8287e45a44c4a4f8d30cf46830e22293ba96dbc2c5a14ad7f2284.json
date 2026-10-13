@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "330981ea3caaece724d97d3d2b2d0e32948888065dcf8af17677547dde9563ba",
+        "reason": "The reply is truncated and never gives a final object name; its purported move trace also does not follow the supplied sequence.",
+        "usd": 0.0004509
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "1803f60a54c3a4d4e15bbecb9e28091eb4df2eaf6a1c80728bd8135b112b746e",
+        "reason": "The response is truncated and does not provide the final object name.",
+        "usd": 0.003387
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "898739690165d06656de184622424bb8f2120d5ff42c315da93b02e4806b9963",
+        "reason": "The reply never gives a final answer. It is a truncated, repetitive trace that stops mid-sequence at move 127 without naming any object. Its coordinate model is also unjustified: it assumes a fixed mapping, but 'left' and 'right' moves are never defined consistently with it, so the trace cannot be trusted.",
+        "usd": 0.0012967
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "330981ea3caaece724d97d3d2b2d0e32948888065dcf8af17677547dde9563ba",
+      "count": 1,
+      "usd": 0.0004509
+    },
+    {
+      "provider": "gemini",
+      "key": "1803f60a54c3a4d4e15bbecb9e28091eb4df2eaf6a1c80728bd8135b112b746e",
+      "count": 1,
+      "usd": 0.003387
+    },
+    {
+      "provider": "haiku",
+      "key": "898739690165d06656de184622424bb8f2120d5ff42c315da93b02e4806b9963",
+      "count": 1,
+      "usd": 0.0012967
+    }
+  ]
+}

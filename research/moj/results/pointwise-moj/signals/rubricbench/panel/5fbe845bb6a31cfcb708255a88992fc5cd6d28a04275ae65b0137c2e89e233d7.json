@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "f3d9db901a1b3fb6447bf97b5f97d6a28ab21c6a8e8ee442a6896b29620137b0",
+        "reason": "A preserves all requested points and their client details. B omits several points and misattributes Scanliving’s kids’ furniture to Clawz, despite its cleaner formatting.",
+        "usd": 0.0004813
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "18b6abb6d376f7b0aefa576a52f16bac5bf2758b3dbd0aabbaa0bbe6bf8ca93b",
+        "reason": "Response B followed the formatting instructions much better, avoiding the use of bullet points in the descriptions (which Response A failed to do by using asterisks as bullet points). Response B also correctly followed the negative constraint regarding numbering.",
+        "usd": 0.0025545
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "61165eca6fa9273d4f79e7e024e2939ddc1d168717ec91fbd083afacbc71ce17",
+        "reason": "Response A's titles often exceed the 3-5 word limit (e.g., 'Photorealistic Interior-Exterior Rendering for Georgia Villa' and 'Reliable Partner for BDI Furniture's Online Marketing' are 7 words), and its descriptions are long and repetitive. Response B keeps titles within 3-5 words, uses shorter and less repetitive descriptions, and is more concise. Both use bullet-like markers, so neither fully satisfies the no-bullets rule, but B's violation is less pronounced.",
+        "usd": 0.0017959
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "f3d9db901a1b3fb6447bf97b5f97d6a28ab21c6a8e8ee442a6896b29620137b0",
+      "count": 1,
+      "usd": 0.0004813
+    },
+    {
+      "provider": "gemini",
+      "key": "18b6abb6d376f7b0aefa576a52f16bac5bf2758b3dbd0aabbaa0bbe6bf8ca93b",
+      "count": 1,
+      "usd": 0.0025545
+    },
+    {
+      "provider": "haiku",
+      "key": "61165eca6fa9273d4f79e7e024e2939ddc1d168717ec91fbd083afacbc71ce17",
+      "count": 1,
+      "usd": 0.0017959
+    }
+  ]
+}

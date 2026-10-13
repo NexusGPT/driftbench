@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "77e707d97155ca0e62834bc9ba31652aeaf52b8e66ad9fe58a4a5a859314dc7c",
+        "reason": "The reply never identifies an option; it only says the answer is one of the options that evaluates to true.",
+        "usd": 0.00025889999999999995
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "ab264609061a3a179e6678b58a68461998f56fcd0f63f76995521a94e1364a6c",
+        "reason": "The provided reply completely fails to evaluate the expressions and instead outputs a vague, evasive essay that never selects a final answer or computes the correct expression.",
+        "usd": 0.00192375
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "1cc22d95b4a4784560baafc63388edd306fe23540bf25d7b84fb6b9d8883c571",
+        "reason": "The reply never selects an option. It says only that 'the answer is one of the options' and explicitly declines to evaluate the expressions, so it gives no final answer to check.",
+        "usd": 0.0008964
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "77e707d97155ca0e62834bc9ba31652aeaf52b8e66ad9fe58a4a5a859314dc7c",
+      "count": 1,
+      "usd": 0.00025889999999999995
+    },
+    {
+      "provider": "gemini",
+      "key": "ab264609061a3a179e6678b58a68461998f56fcd0f63f76995521a94e1364a6c",
+      "count": 1,
+      "usd": 0.00192375
+    },
+    {
+      "provider": "haiku",
+      "key": "1cc22d95b4a4784560baafc63388edd306fe23540bf25d7b84fb6b9d8883c571",
+      "count": 1,
+      "usd": 0.0008964
+    }
+  ]
+}

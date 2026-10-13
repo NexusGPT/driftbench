@@ -1,0 +1,23 @@
+{
+  "pA": 0.44999999999999996,
+  "detail": {
+    "order_probabilities": [
+      0.42,
+      0.48
+    ]
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "dc4ec8a360c7c46bea974214788166031b17fb4ada33c39fe2b694d1d43793fa",
+      "seconds": 0.833,
+      "usd": 0
+    },
+    {
+      "provider": "jev",
+      "key": "8710708154cba1e43b86a8a7a5dd156b6ba97bd450376d21dcdb77076ec1d25f",
+      "seconds": 0.318,
+      "usd": 0
+    }
+  ]
+}

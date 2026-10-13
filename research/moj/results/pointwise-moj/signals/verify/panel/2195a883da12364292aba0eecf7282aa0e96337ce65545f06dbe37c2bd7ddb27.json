@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "28ef600a33f06d774de35d09dc4a132a2330f61e25d7d9e7d0965e7c36a23848",
+        "reason": "The answer omits solutions with \\(\\cos 2x=-\\tfrac12\\), namely \\(x=\\pm\\tfrac{\\pi}{3}+k\\pi\\). Substituting \\(\\cos 2x=-\\tfrac12\\) makes both sides zero, so the stated solution set is incomplete.",
+        "usd": 0.0007478
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "0dc24ffa62256e904048eaefdbb4d922e3c573608c76521667f1cfd887d58a95",
+        "reason": "The provided solution correctly simplifies both sides of the trigonometric equation, uses substitution and case analysis based on the absolute value, tests particular values, finds valid solutions, and states the correct general solution.",
+        "usd": 0.00266625
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "15e207062fb22303d65b7c7ae961e85cc3fac470238306281df78c930ce73521",
+        "reason": "With c = cos 2x, the RHS reduces to 1 + 2c − c² − 2c³, and the equation becomes (2c−1)(2c+1)(4c²−4c−3)=0 on c ≥ −1/2 (no solutions for c < −1/2). So cos 2x = ±1/2, giving x = ±π/6 + kπ and x = ±π/3 + kπ. The reply omits the x = ±π/3 + kπ family. Check: x = π/3 gives LHS = (7/4+1)·|0| = 0 and RHS = (1/2)(1/2−1/2) = 0, so it is a solution the reply misses. The final boxed answer is therefore incomplete.",
+        "usd": 0.0021774
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "28ef600a33f06d774de35d09dc4a132a2330f61e25d7d9e7d0965e7c36a23848",
+      "count": 1,
+      "usd": 0.0007478
+    },
+    {
+      "provider": "gemini",
+      "key": "0dc24ffa62256e904048eaefdbb4d922e3c573608c76521667f1cfd887d58a95",
+      "count": 1,
+      "usd": 0.00266625
+    },
+    {
+      "provider": "haiku",
+      "key": "15e207062fb22303d65b7c7ae961e85cc3fac470238306281df78c930ce73521",
+      "count": 1,
+      "usd": 0.0021774
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "pA": null,
+  "detail": {
+    "has_reference": 0.14,
+    "needs_reasoning": 0.09,
+    "safety": 0.03,
+    "long_context": 0.08,
+    "subjective_writing": 0.04,
+    "chars": 279
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "ee49ee1d738c4b15b52c53e9c7cee48f3961b6fcf1fc5e6d2eed46b2dc576f2b",
+      "seconds": 0.603,
+      "usd": 0
+    }
+  ]
+}

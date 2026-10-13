@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "27f4f30be6a6dcf38466b6535dd6943f05b0d4e3e3bec0f967002550aa6f4fb8",
+        "reason": "The first error is in Thought 5: “chaos” has second letter H, not A. The reply identifies Thought 7 instead.",
+        "usd": 0.0007044000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "5d093b7d00d2086b087c7068d2f80c7328aff330abcbc6e320043d78a7b422ee",
+        "reason": "The response correctly identifies that Thought 7 contains a mistake in determining the third letters of the words ('cancelling' third letter is 'n', not 'c'), which is the first reasoning error in the sorting sequence.",
+        "usd": 0.00487875
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "56f5d16d971cf344022728a0ea5faba13c28e44fe25a5c522905ed3981721b36",
+        "reason": "Thought 7 is the first real error. Its third letters are wrong: \"cancelling\" is C-A-N (third letter N, not C) and \"chaos\" is C-H-A (third letter A, not O). The correct order is chaos < cancelling < catharsis, so Thought 8 is wrong. The reply's answer of 7 matches. Its note that the Thought 9 letter for \"insufferable\" is wrong (N, not U) doesn't change the answer, since it comes later and doesn't alter the order.",
+        "usd": 0.0024972
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "27f4f30be6a6dcf38466b6535dd6943f05b0d4e3e3bec0f967002550aa6f4fb8",
+      "count": 1,
+      "usd": 0.0007044000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "5d093b7d00d2086b087c7068d2f80c7328aff330abcbc6e320043d78a7b422ee",
+      "count": 1,
+      "usd": 0.00487875
+    },
+    {
+      "provider": "haiku",
+      "key": "56f5d16d971cf344022728a0ea5faba13c28e44fe25a5c522905ed3981721b36",
+      "count": 1,
+      "usd": 0.0024972
+    }
+  ]
+}

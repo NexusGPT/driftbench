@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "78d432e971d1322bed71535fa7f59de17943f50821a0af45452c7bc7e55fdccc",
+        "reason": "Taking B and C as the foci, their distance is 4, and A’s distances to them are √21 and 5. Thus 2a = 5 − √21 and the focal half-distance is 2, so e = 2/a = 4/(5 − √21) = 5 + √21, matching the final answer.",
+        "usd": 0.00039089999999999996
+      },
+      "gemini": {
+        "pA": null,
+        "key": "e552893b37d6f0be45a96ba4abb5b9411d5a0b2ea6c20e96f478beea7c9d210e",
+        "reason": null,
+        "usd": 0.002565
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "7d487b4833b05b1277852a3cadfe7add4c0564c3fd7347a5e963c690e742d008",
+        "reason": "The final answer 5+√21 (option C) is correct. The foci are B and C with focal distance a=4, so c'=2. The real axis is 2a'=|AB−AC|=|√21−5|=5−√21, so e=2/((5−√21)/2)=4/(5−√21)=5+√21. The reply's derivation is incoherent and self-contradictory, with dead-end attempts and an unjustified jump to the boxed answer, but the final result matches.",
+        "usd": 0.00106
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "78d432e971d1322bed71535fa7f59de17943f50821a0af45452c7bc7e55fdccc",
+      "count": 1,
+      "usd": 0.00039089999999999996
+    },
+    {
+      "provider": "gemini",
+      "key": "e552893b37d6f0be45a96ba4abb5b9411d5a0b2ea6c20e96f478beea7c9d210e",
+      "count": 1,
+      "usd": 0.002565
+    },
+    {
+      "provider": "haiku",
+      "key": "7d487b4833b05b1277852a3cadfe7add4c0564c3fd7347a5e963c690e742d008",
+      "count": 1,
+      "usd": 0.00106
+    }
+  ]
+}
