@@ -4,7 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
-* Block cache keys include an explicit agent version, including for pinned targets; campaign resume retains it. Runs without an agent version preserve their earlier keys. Process adapter identity includes its command and arguments.
+* Block cache keys include an explicit agent version, including for pinned targets; campaign resume retains it. Runs without an agent version preserve their earlier keys. The process adapter keeps version `0.1.0`; a separate cache identity includes its command and arguments.
 
 * Opt-in answer audit in the judges package: `judgeAnswerAudit`, or `assessment: { kind: 'answer-audit' }`, grades a submission against a criterion and an optional trusted reference. The request is role-separated JSON; the model settles each condition with a quote before its status and code computes the outcome. It has its own prompt fingerprint; default and legacy prompts and cassette keys are unchanged.
 * Opt-in `createEscalation` routes reference disagreement, order splits, inconclusive results and low confidence to a cross-family council. It preserves comparison diagnostics and recorded replay, supports deployable-route calibration and checks constituent model families. The offline MM-Eval DEV400 example reproduces 91.16 from pinned recordings, with unknown historical generator families disclosed.

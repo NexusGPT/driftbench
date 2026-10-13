@@ -341,6 +341,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         target: run.target,
         adapter: run.adapter.id,
         adapterVersion: run.adapter.version,
+        ...(run.adapter.cacheIdentity === undefined
+          ? {}
+          : { adapterCacheIdentity: run.adapter.cacheIdentity }),
         ...(run.suite === undefined ? {} : { suite: run.suite }),
         ...(run.agentVersion === undefined ? {} : { agentVersion: run.agentVersion }),
       });

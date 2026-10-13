@@ -9,6 +9,7 @@ function key(command: string, args?: string[]) {
     ...(args === undefined ? {} : { args }),
     provider: localProvider(),
   });
+  expect(adapter.version).toBe('0.1.0');
   const target = { adapter: 'process', agent: 'fictional-echo' };
   return blockCacheKey({
     specHash: 'spec',
@@ -19,6 +20,7 @@ function key(command: string, args?: string[]) {
     target,
     adapter: adapter.id,
     adapterVersion: adapter.version,
+    adapterCacheIdentity: adapter.cacheIdentity,
   });
 }
 

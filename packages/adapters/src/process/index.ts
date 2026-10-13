@@ -108,9 +108,10 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
   return {
     id: 'process',
     // The command is configuration, not the target name. Preserve argument boundaries in its identity.
-    version: `0.1.0:${createHash('sha256')
+    version: '0.1.0',
+    cacheIdentity: createHash('sha256')
       .update(canonicalJson({ command: options.command, args: options.args ?? [] }))
-      .digest('hex')}`,
+      .digest('hex'),
     capabilities: () => ({ ...capabilities }),
 
     async open(given: ResolvedGiven): Promise<Session> {
