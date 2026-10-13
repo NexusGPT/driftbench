@@ -1,11 +1,11 @@
 import type { DriftClass, RunEvent, Verdict } from '@agent-nexus/driftbench-core';
 import type { CompareResult } from './compare';
 import type { Estimate } from './estimate';
-import { count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';
+import { carriedLines, count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';
 import type { PilotReport } from './pilot';
 import type { RecoverySummary, ReliabilityLine } from './reliability';
 import type { CriterionRepeat } from './repeats';
-import type { BlockDetail, RunDetail, Scorecard } from './scorecard';
+import type { BlockDetail, RunDetail, Scorecard, StoppedRun } from './scorecard';
 import type { CellSpread, Spread } from './spread';
 
 const DRIFT_NAMES: Record<DriftClass, string> = {
@@ -132,9 +132,13 @@ function summary(card: Scorecard): string {
     );
   }
   const verdict = card.compare ? verdictBanner(card.compare) : '';
+  // A campaign that carried results says so above every rate: the rates below merge fresh and carried.
+  const merged = carriedLines(card.carried)
+    .map((line) => `<p class="note">${esc(line.trim())}</p>`)
+    .join('\n');
   return `<section id="summary">
 <h2>Summary</h2>
-${verdict}
+${verdict}${merged === '' ? '' : `\n${merged}`}
 <div class="tiles">
 ${tiles.join('\n')}
 </div>
@@ -576,6 +580,7 @@ function blockDetail(block: BlockDetail, extra = ''): string {
 <p class="block-head"><span class="badge ${block.pass ? 'ok' : 'bad'}">${block.pass ? 'pass' : 'fail'}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
 ${block.stimulus === undefined ? '' : `<p class="label">User</p><pre class="msg">${esc(block.stimulus)}</pre>`}
 <p class="label">Agent</p><pre class="msg">${esc(block.text || '(no text)')}</pre>
+<p class="label">Cache key</p><pre class="mono">${esc(block.cacheKey ?? 'not cached')}</pre>
 <p class="label">Tool calls</p>${tools}
 ${shown.length > 0 ? table('Verdicts with evidence: every one that did not pass, every judged one', verdictHead, shown.map(verdictRow)) : ''}
 ${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}${extra === '' ? '' : `\n${extra}`}
@@ -607,6 +612,11 @@ function runDetail(run: RunDetail, options: RenderOptions = {}): string {
   const s = run.succession;
   const facts = [
     `status ${run.status}`,
+    ...(run.carried
+      ? [
+          `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+        ]
+      : []),
     `${count(run.blocks.length, 'block')}`,
     `first drift ${s.firstDriftBlock === undefined ? 'none' : `block ${s.firstDriftBlock}`}`,
     `${s.driftCount} drifting`,
@@ -666,7 +676,25 @@ export function renderRun(run: RunDetail, blockExtra: (block: BlockDetail) => st
 ${header.replace('</details>', '')}
 ${timelineSection(run.events)}
 ${run.blocks.map((block) => blockDetail(block, blockExtra(block))).join('\n')}
+${stoppedSection(run.stopped)}
 </details>
+</section>`;
+}
+
+/** A verdict that stopped the run early: where it stopped, and the blocks it skipped. Empty when none did. */
+export function stoppedSection(stopped: StoppedRun | undefined): string {
+  if (stopped === undefined) return '';
+  const reason = stopped.reason === undefined ? '' : ` (${esc(stopped.reason)})`;
+  const rows = stopped.skipped
+    .map(
+      (block) =>
+        `<li><span class="mono">${esc(block.id)}</span>${block.stimulus === undefined ? '' : `: ${esc(block.stimulus)}`}</li>`,
+    )
+    .join('');
+  return `<section class="stopped">
+<h3>Stopped by verdict: ${esc(stopped.verdict)}${reason}</h3>
+<p>The run stopped after block ${stopped.after + 1}. These blocks were skipped by the verdict, so they did not run and do not count.</p>
+<ol start="${stopped.after + 2}">${rows}</ol>
 </section>`;
 }
 

@@ -43,8 +43,10 @@
   "dependencies": {
     "@agent-nexus/driftbench-core": "workspace:*",
     "@agent-nexus/driftbench-stats": "workspace:*",
-    "@agent-nexus/driftbench-store": "workspace:*",
     "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@agent-nexus/driftbench-store": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

@@ -33,7 +33,7 @@ const BASELINES = {
     requestKey: 'd303f86f20d7',
   },
   google: {
-    body: 'fa627ea55dfc71d217437cb76d78c2a3677e31628f264ebd49f128697f4bb454',
+    body: '4f7d2632bf19e108f4c8884d58fcaa23bef77ce4ed4868a7bb4b6333aebb4951',
     settings:
       '{"client":"google-generate-content","temperature":0,"maxTokens":{"normal":1024,"large":4096},"responseMimeType":"application/json"}',
     requestKey: 'e3e89f430f19',
@@ -104,10 +104,18 @@ describe('explicit reasoning on chat clients', () => {
   it('rejects unsupported Anthropic reasoning before any request', () => {
     expect(() => createAnthropicJudge({ env, reasoning: 'high' })).toThrow(/reasoning.*not supported/i);
   });
-  it('rejects unsupported HTTP reasoning before any request', () => {
-    expect(() =>
-      createHttpJudge({ url: 'https://judge.example.test', family: 'custom', reasoning: 'high' }),
-    ).toThrow('reasoning is not supported by the HTTP judge client');
+  it('rejects HTTP reasoning on a non-ledger request before sending it', async () => {
+    const client = createHttpJudge({
+      url: 'https://judge.example.test',
+      family: 'custom',
+      reasoning: 'high',
+      fetch: async () => {
+        throw new Error('Unexpected network request');
+      },
+    });
+    await expect(client.judge(REQUEST)).rejects.toThrow(
+      'reasoning is supported only by HTTP pair-ledger requests',
+    );
   });
   for (const [name, make] of [
     ['Jev', createJevJudge],

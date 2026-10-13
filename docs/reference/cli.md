@@ -1,10 +1,10 @@
 # CLI
 
-`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), imports specs from a CSV file or a spreadsheet (`import`), versions spec sets and prompts in the store (`dataset`, `prompt`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
+`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), prints the blocks a change to the agent can affect (`radius`), imports specs from a CSV file or a spreadsheet (`import`), versions spec sets and prompts in the store (`dataset`, `prompt`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
 
 ## Running it
 
-The package is not on npm yet: version 0.1.0 is prepared as `@agent-nexus/driftbench` and not published (see [Releasing](../releasing.md)). From a clone of the repository:
+Version 0.1.0 is on npm: `npm install @agent-nexus/driftbench`, then `npx driftbench <command>`. From a clone of the repository:
 
 ```sh
 pnpm install
@@ -261,7 +261,7 @@ These commands run specs on a target. Each has its options, its output and its e
 
 ```
 driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--json]
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
 driftbench campaign export <campaignId> --store <file> --out <dir>
@@ -288,6 +288,12 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--budget-usd <usd>` | `plan`: compare the projected cost with this budget. `run`: no cell starts once the campaign has spent this much. `resume`: the same stop, by default the budget the campaign was run with |
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes; default 0.5 |
 | `--rho <rho>` | the correlation of repeats of one spec, from 0 to 1; default 0 |
+| `--agent-version <label>` | the version of the agent under test. It is written as the `variant` of every target that names none, so the runs record which agent produced them. The target is part of the cell id and of the cache key: a run under `v2` never reuses a run or a cached block of `v1`. With `--prompt`, the prompt hash is the version and the label is recorded beside it. |
+| `--change <manifest>` | run only the [blast radius](../concepts/blast-radius.md) of this change manifest, and carry the stored run of every other cell from the `--from` campaign. It needs `--from`, `--store` and an agent version. Without it, nothing changes: every cell runs |
+| `--from <campaign>` | with `--change`: the stored campaign the carried runs are read from |
+| `--audit <n>` | with `--change`: draw n of the cells about to be carried, run them fresh and compare each with its stored run on every gating verdict. One that differs is a radius miss: nothing is carried, every cell runs, and the command exits 1. `--audit-seed <n>` sets the draw (default 1) |
+| `--max-carry <n>` | with `--change`: the most campaigns in a row a result is carried (default 5). A result past it runs fresh |
+| `--max-age <days>` | with `--change`: the most days since a carried result was measured (default 7) |
 | `--campaign <id>` | the campaign id; without it, one is made from the content and the clock |
 | `--dataset <ref>` | `run` only: run the specs of this dataset version of the store and record it in the campaign; needs `--store`. See [datasets](../datasets.md) |
 | `--prompt <ref>` | `run` only: the agent runs with this prompt version of the store, a single text file: every target carries it in `target.prompt`, and the campaign records it; give it once; needs `--store`. Each adapter page says how the text reaches the agent |
@@ -1284,10 +1290,12 @@ New flags always gate, and so does an underpowered criterion whose regression Be
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--change <manifest>] [--agent-version <label>] [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--json]
 ```
 
 `--route` sends the specs carrying a tag to another target, as in `campaign run`: with a fault candidate on a mixed suite, `--target fault:<id>` runs the conversations and `--route flow:price-sheet=process:acme-ops` keeps the task specs on the code agent.
+
+`--process-command` runs the candidate of any `process:<name>` target other than `process:acme-ops` with your own command, as in [`campaign run`](../running.md): a JSON list of strings or words split on spaces. Run the baseline campaign with the same option, then gate: `driftbench ci --specs specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]" --baseline baseline --store runs.db`. Without it, `ci` reaches the bundled Acme targets only.
 
 A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
 
@@ -1315,6 +1323,8 @@ $ pnpm driftbench ci --specs examples/acme/golden/specs --target fault:x3-skips-
 Verdict: REGRESSION. Exit 1.
 ```
 
+With `--change <manifest>`, `ci` runs only the [blast radius](../concepts/blast-radius.md) of the change and carries the other cells from the baseline, which must then be a campaign of the `--store` file. `--agent-version` names the candidate's version, the manifest's `to`. Carried goldens are not paired: the parity test reads the fresh ones. `--audit <n>` runs n of the cells about to be carried and compares each with its stored run; one that differs gives the verdict `radius-miss`, exit 1, and the candidate then runs whole. The summary gains a `radius` block: the manifest, the cells fresh and carried, the blocks sent and carried, and the audit. `--max-carry` and `--max-age` are the staleness limits of `campaign run`. Without `--change`, the summary and the verdict are what they were.
+
 ## `driftbench monitor`
 
 Watches one metric for a shift with CUSUM, Page-Hinkley and a sliding two-sample KS test, and alarms when two of the three agree. The series is the campaigns of a store, or time windows of production traces. See [production traces](../traces.md#monitoring-driftbench-monitor---source-traces).
@@ -1341,6 +1351,8 @@ driftbench monitor --source traces <path> --metric latency|cost|tokens|tool_call
 | 1 | a shift: two or three detectors alarmed |
 | 2 | bad input: an unknown metric for the source, no store or no path, a bad `--every` or `--window`, too few points |
 
+Too few points is what a young store answers, not a broken one: the series needs two windows, 40 campaigns at the default `--window 20`. The message names the largest window the store allows, and the smallest window, `--window 2`, needs 4 campaigns. The example below runs on a store of six campaigns with `--window 2`.
+
 On a store:
 
 ```
@@ -1366,7 +1378,7 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 
 `select` chooses the golden set from the gated specs: the fewest conversations covering the cells of the map on every subset of `--t` dimensions, then the `--k` best. Sealed specs never count. Exit 0 when the set is written and covers every required cell, 1 when it is written and a required cell stays empty, 2 on a usage or input error.
 
-`holdout seal` seals a share of the gated specs (the gate's own sealed split when it has one). `holdout score` runs the sealed specs once through the runner and prints the pass rate with its Wilson interval, never which spec passed; each score spends one query of the budget. Seal: exit 0 when written, 2 on bad input. Score: exit 0 when scored, 1 when the budget is spent, 2 on bad input.
+`holdout seal` seals a share of the gated specs (the gate's own sealed split when it has one). Give `--specs` the gate's output folder, the one that holds `specs/` and `holdout/`, such as `examples/acme/gated`: its `specs/` subfolder alone does not hold the sealed files, and `holdout seal` refuses it and names the folder to pass. `holdout score` runs the sealed specs once through the runner and prints the pass rate with its Wilson interval, never which spec passed; each score spends one query of the budget. Seal: exit 0 when written, 2 on bad input. Score: exit 0 when scored, 1 when the budget is spent, 2 on bad input.
 
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
@@ -1389,6 +1401,37 @@ Budget: 1 of 3 queries used, 2 left. Which conversation passed is not shown: the
 (exit 0)
 ```
 
+## `driftbench radius`
+
+```
+driftbench radius <paths...> --change <manifest> [--mode <modes>] [--json]
+```
+
+Prints the [blast radius](../concepts/blast-radius.md) of a change: the blocks of the specs the change can affect, against the whole suite. It is read only: nothing runs and nothing is written.
+
+| Option | Meaning |
+|---|---|
+| `--change <manifest>` | the change manifest, YAML or JSON: `from`, `to` and the list of `changes`, each with a `kind`, an `id` and, for a tool, a `part` |
+| `--mode <modes>` | the run modes to plan for, separated by commas; default `F`. In `F` and `P` every block after a direct block of the same run is in; in `T` a block runs alone |
+| `--json` | one JSON document: the manifest and its hash, the totals per mode, and every block with its state (`direct`, `forward` or `out`) and its reasons |
+
+A block is in directly when its dependencies name a change, and forward when it follows such a block in the same run. A block with unknown dependencies is in every radius. A change that cannot be mapped, or that no block declares, makes the radius the whole suite, and the output says which change and why.
+
+Exit 0 when the radius is smaller than the suite, 1 when it is the whole suite, 2 on a usage or input error.
+
+```
+$ pnpm -s driftbench radius examples/acme/gated/specs --change examples/acme/radius/deviation-goal-shift.yaml
+Blast radius of acme-v1 to acme-v2 (manifest a393cc307eff): deviation:D2.
+195 specs, 861 blocks scored (6 more run with their spec and are not scored: a gate rejected them).
+Mode F, free-running: 22 of 861 blocks in the radius (9 direct, 13 forward), 839 out. 9 of 195 cells.
+  A cell reruns whole: 55 of 861 blocks sent, 93.6% saved; 186 of 195 cells left to carry.
+In the radius, mode F:
+  spec           blocks in  from              why
+  gen-twise-003  3 of 6     b4-D2_goal_shift  deviation:D2
+  (8 more rows)
+(exit 0)
+```
+
 ## `driftbench queue`
 
 ```
@@ -1404,10 +1447,10 @@ The review queue of blocks to label, kept beside the labels as `queue.json`. `cr
 ## `driftbench view`
 
 ```
-driftbench view [--store <file>] [--port <n>] [--labels <dir>] [--labelled-by <name>]
+driftbench view [--store <file>] [--port <n>] [--labels <dir>] [--labelled-by <name>] [--config <file>]
 ```
 
-Serves a store on `127.0.0.1` as a local website: the campaigns, each campaign's scorecard with its spread view, one page per run with every block in full, and the comparison of two campaigns. Under every block a form saves a pass or fail label per criterion, with a note, to the labels folder `judge calibrate --labels` reads. `--store` defaults to `driftbench.db`, `--port` to `4317` (`0` picks a free one), `--labels` to `labels`. It runs until Ctrl+C. Exit 0 after a stop; 2 when the store is missing, the port is not a number, or the port cannot be opened. See [viewer](../viewer.md).
+Serves a store on `127.0.0.1` as a local website: the campaigns, each campaign's scorecard with its spread view, one page per run with every block in full, and the comparison of two campaigns. Under every block a form saves a pass or fail label per criterion, with a note, to the labels folder `judge calibrate --labels` reads. `--store` defaults to `driftbench.db`, `--port` to `4317` (`0` picks a free one), `--labels` to `labels`. `--config` names the config whose `scales:` bound each criterion's queue score; it defaults to `driftbench.yaml` when that file exists, and a config that does not parse exits 2. It runs until Ctrl+C. Exit 0 after a stop; 2 when the store is missing, the port is not a number, or the port cannot be opened. See [viewer](../viewer.md).
 
 ## `driftbench import`
 
@@ -1472,4 +1515,3 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 ## `driftbench campaign run --cache-suite`
 
 `--cache-suite <name>` names the cache suite of a campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without the flag, the keys are the ones earlier caches used.
-

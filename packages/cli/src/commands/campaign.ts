@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
@@ -9,6 +9,9 @@ import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
+  auditBound,
+  auditSample,
+  auditVerdict,
   type Campaign,
   type CampaignPlan,
   type CellOutcome,
@@ -16,22 +19,31 @@ import {
   type CompoundingIndex,
   type CostLine,
   type CostUnit,
+  campaignRadius,
   canonicalJson,
+  carryRuns,
   compoundingIndex,
   contentHash,
+  DEFAULT_MAX_AGE_DAYS,
+  DEFAULT_MAX_CARRY,
   type DriftClass,
   type LoadedSpec,
+  loadChangeManifest,
   loadSpecs,
   type MinimumDetectableEffect,
   mdeLine,
   outcomeOf,
   type PlannedCell,
   type PlanOptions,
+  parseCriterionRef,
   planCampaign,
+  planRadiusCampaign,
+  type RadiusPlan,
   type RegistrySource,
   type RetryOptions,
   RunMode,
   type RunResult,
+  radiusOf,
   runCampaign,
   runsByCell,
   type Spec,
@@ -39,8 +51,10 @@ import {
   type TargetPrompt,
   TargetRef,
   type UserDriver,
+  withAgentVersion,
 } from '@agent-nexus/driftbench-core';
 import { portFromEnv } from '@agent-nexus/driftbench-generate';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import {
@@ -107,7 +121,7 @@ const ROUTE_HELP =
   'with --target: run the specs a tag marks on this target instead, such as flow:price-sheet=process:acme-ops; repeat for several';
 
 const PROCESS_COMMAND_HELP =
-  'the agent command for a process target other than process:acme-ops: a JSON list such as ["python3","agent.py"], or words split on spaces';
+  'the agent command for a process target other than process:acme-ops: a JSON list such as ["python3","/path/to/agent.py"], or words split on spaces; it runs in the sandbox workspace, so give absolute paths';
 
 /**
  * `--process-command`: a JSON list of strings, or a command line split on spaces (no quoting). Undefined
@@ -165,7 +179,31 @@ function processDeps(deps: CampaignDeps, text: string | undefined, io: Io): Camp
     );
     return undefined;
   }
+  const stranded = strandedFiles(command, io.cwd);
+  if (stranded.length > 0) {
+    const [first = ''] = stranded;
+    const is = stranded.length === 1 ? 'is a file' : 'are files';
+    io.err(
+      `Note: --process-command runs in the workspace of each sandbox, a temporary folder, not in the working folder. ${stranded.join(', ')} ${is} of the working folder, which the sandbox does not hold unless a spec seeds it: give the absolute path, ${JSON.stringify(resolve(io.cwd, first))}.\n`,
+    );
+  }
   return withProcessCommand(deps, command);
+}
+
+/**
+ * The words of a process command that name a file of the working folder by a relative path. The command
+ * runs in the sandbox's workspace, where such a path finds nothing unless a spec seeds the same file. A
+ * binary without a slash is looked up on the PATH, so it is not one of them.
+ */
+function strandedFiles(command: readonly string[], cwd: string): string[] {
+  return command.filter((word, index) => {
+    if (isAbsolute(word) || (index === 0 && !word.includes('/'))) return false;
+    try {
+      return statSync(resolve(cwd, word)).isFile();
+    } catch {
+      return false;
+    }
+  });
 }
 
 /** The targets this build reaches, for the message of a target it does not. */
@@ -223,6 +261,13 @@ type RunCommandOptions = {
   mode: string;
   repeats: string;
   campaign?: string;
+  agentVersion?: string;
+  change?: string;
+  from?: string;
+  audit?: string;
+  auditSeed?: string;
+  maxCarry?: string;
+  maxAge?: string;
   store?: string;
   cache: boolean;
   concurrency: string;
@@ -293,6 +338,28 @@ export function registerCampaignCommands(
     .option('--route <tag=target>', ROUTE_HELP, collect, [])
     .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
+    .option(
+      '--agent-version <label>',
+      'the version of the agent under test, written as the variant of every target that names none',
+    )
+    .option(
+      '--change <manifest>',
+      'run only the blast radius of this change manifest and carry the stored runs of the other cells; with --from',
+    )
+    .option('--from <campaign>', 'with --change: the stored campaign the carried runs are read from')
+    .option(
+      '--audit <n>',
+      'with --change: run n of the cells about to be carried and compare each with its stored run; one miss carries nothing',
+    )
+    .option('--audit-seed <n>', 'with --audit: the seed of the draw (default 1)')
+    .option(
+      '--max-carry <n>',
+      `with --change: the most campaigns in a row a result is carried (default ${DEFAULT_MAX_CARRY})`,
+    )
+    .option(
+      '--max-age <days>',
+      `with --change: the most days since a carried result was measured (default ${DEFAULT_MAX_AGE_DAYS})`,
+    )
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
@@ -578,6 +645,27 @@ export async function campaignRunCommand(
   const pool = parsePool(options, io);
   const withCommand = processDeps(deps, options.processCommand, io);
   if (!shape || !pool || !withCommand) return 2;
+  if (options.from !== undefined && options.change === undefined) {
+    io.err('--from names the campaign a radius run carries from: it goes with --change <manifest>.\n');
+    return 2;
+  }
+  for (const [flag, value] of [
+    ['--audit', options.audit],
+    ['--audit-seed', options.auditSeed],
+    ['--max-carry', options.maxCarry],
+    ['--max-age', options.maxAge],
+  ] as const) {
+    if (value !== undefined && options.change === undefined) {
+      io.err(`${flag} sets how a radius run carries: it goes with --change <manifest>.\n`);
+      return 2;
+    }
+  }
+  if (options.change !== undefined && (options.from === undefined || options.store === undefined)) {
+    io.err(
+      '--change runs a blast radius and carries the rest: it goes with --from <campaign> and --store <file>.\n',
+    );
+    return 2;
+  }
   deps = withCommand;
   const scope = openScope();
   try {
@@ -587,8 +675,12 @@ export async function campaignRunCommand(
     if (!read) return 2;
     // A spec restored from a dataset is stored under its dataset reference, never the temporary folder.
     const loaded = read.map((entry) => ({ ...entry, path: datasetPath(entry.path, registry.folders) }));
+    // --prompt pins the registry prompt; --agent-version names the agent under test where no variant does.
     const withPrompt = (target: TargetRef): TargetRef =>
-      registry.prompt === undefined ? target : { ...target, prompt: registry.prompt };
+      withAgentVersion(
+        registry.prompt === undefined ? target : { ...target, prompt: registry.prompt },
+        options.agentVersion,
+      );
     const targets = shape.targets.map(withPrompt);
     const runs = specRuns(loaded, targets, io, shape.routes)?.map((each) =>
       each.pinned === undefined
@@ -641,6 +733,41 @@ export async function campaignRunCommand(
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
       };
+      const radius =
+        options.change === undefined
+          ? undefined
+          : await radiusPlan(options, campaign, loaded, store, deps, io, async (cells) => {
+              // The audit runs before the campaign is stored, in a store of its own: what it finds
+              // decides what the campaign carries, and a campaign record never changes once written.
+              const memory = await deps.openStore(undefined);
+              try {
+                for (const entry of loaded) await memory.putSpec(entry);
+                await memory.putCampaign(campaign);
+                const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
+                const outcomes = await runCampaign({
+                  campaignId,
+                  cells,
+                  recordEvents: true,
+                  specFor: (cell) =>
+                    required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
+                  adapterFor: (target) =>
+                    required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
+                  driver: (cell, spec) => deps.driver(cell, spec),
+                  ...(deps.consequential ? { consequential: deps.consequential } : {}),
+                  checks: deps.checks,
+                  ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
+                  store: memory,
+                  now: () => deps.now(),
+                  concurrency: pool.concurrency,
+                  ...(pool.retry ? { retry: pool.retry } : {}),
+                });
+                return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
+              } finally {
+                await memory.close();
+              }
+            });
+      if (radius === null) return 2;
+      if (radius) campaign.radius = radius.record;
       try {
         await store.putCampaign(campaign);
       } catch (cause) {
@@ -653,13 +780,21 @@ export async function campaignRunCommand(
         }
         throw cause;
       }
-      return await executeCampaign(campaign, loaded, adapters, store, deps, io, {
+      if (radius) {
+        await carryRuns(store, campaignId, radius.plan.carried);
+        // The audit runs are fresh runs of this campaign's own cells: they are kept, and not run twice.
+        for (const run of radius.auditRuns) await store.putRun(campaignId, run);
+      }
+      const exit = await executeCampaign(campaign, loaded, adapters, store, deps, io, {
+        ...(radius ? { radiusNote: radius.note } : {}),
         cache: options.cache,
         ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
         json: options.json === true,
         kept: options.store !== undefined,
         ...pool,
       });
+      // A radius miss fails closed, whatever the cells say: the manifest left out part of the change.
+      return (radius?.record.audit?.misses ?? 0) > 0 ? 1 : exit;
     } finally {
       await store.close();
     }
@@ -850,6 +985,8 @@ async function executeCampaign(
     concurrency: number;
     budgetUsd?: number;
     retry?: RetryOptions;
+    /** The line a radius campaign prints before its cells: what runs and what is carried. */
+    radiusNote?: string;
   },
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
@@ -860,6 +997,10 @@ async function executeCampaign(
     io.out(
       `Campaign ${campaign.campaignId}: ${count(plan.cells.length, 'cell')}, ${flags.concurrency} at a time.${budget} Checks: ${checks.length > 0 ? checks.join(', ') : 'none loaded'}.\n`,
     );
+    // Beside the list of checks: the criteria no check of this campaign will judge.
+    const unjudged = checks.includes(JUDGE_CHECK) ? undefined : notJudgedNote(specs.values());
+    if (unjudged !== undefined) io.out(unjudged);
+    if (flags.radiusNote !== undefined) io.out(flags.radiusNote);
   }
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
@@ -882,12 +1023,200 @@ async function executeCampaign(
     ...(flags.json ? {} : { onCell: (outcome: CellOutcome) => io.out(cellLine(outcome)) }),
   });
   if (flags.json) {
-    io.out(`${JSON.stringify(report(campaign.campaignId, outcomes, flags.kept, checks), null, 2)}\n`);
+    const document = report(campaign.campaignId, outcomes, flags.kept, checks);
+    io.out(
+      `${JSON.stringify(campaign.radius ? { ...document, radius: { ...campaign.radius, blocks: radiusBlocks(outcomes) } } : document, null, 2)}\n`,
+    );
   } else {
     io.out(`${summaryLine(outcomes)}\n`);
+    if (campaign.radius) io.out(radiusSummary(campaign.radius, outcomes));
     if (!flags.kept) io.out('The runs are not kept: pass --store <file> to keep them.\n');
   }
   return outcomes.every((outcome) => outcome.state === 'pass') ? 0 : 1;
+}
+
+/**
+ * `--change` with `--from`: the blast radius of the manifest over the campaign's cells, and which cells
+ * outside it carry their stored run. Null on bad input, with the reason printed.
+ */
+async function radiusPlan(
+  options: RunCommandOptions,
+  campaign: Campaign,
+  loaded: readonly LoadedSpec[],
+  store: Store,
+  deps: CampaignDeps,
+  io: Io,
+  runAudit: (cells: PlannedCell[]) => Promise<RunResult[]>,
+): Promise<{
+  plan: RadiusPlan;
+  record: NonNullable<Campaign['radius']>;
+  note: string;
+  auditRuns: RunResult[];
+} | null> {
+  if (options.change === undefined || options.from === undefined || options.store === undefined) {
+    io.err(
+      '--change runs a blast radius and carries the rest: it goes with --from <campaign> and --store <file>.\n',
+    );
+    return null;
+  }
+  const manifest = await loadChangeManifest(resolve(io.cwd, options.change));
+  if (!manifest.ok) {
+    io.err(`✗ ${options.change}\n`);
+    for (const error of manifest.errors) io.err(`    ${error}\n`);
+    io.err('The change manifest is invalid, so nothing was run.\n');
+    return null;
+  }
+  const whole = (text: string | undefined, flag: string, min: number): number | undefined | null => {
+    if (text === undefined) return undefined;
+    const value = optionNumber(text);
+    if (Number.isInteger(value) && value >= min) return value;
+    io.err(`${flag} takes a whole number of at least ${min}, not "${text}".\n`);
+    return null;
+  };
+  const auditSize = whole(options.audit, '--audit', 1);
+  const auditSeed = whole(options.auditSeed, '--audit-seed', 0);
+  const maxCarry = whole(options.maxCarry, '--max-carry', 0);
+  const maxAge = options.maxAge === undefined ? undefined : optionNumber(options.maxAge);
+  if (maxAge !== undefined && !(maxAge >= 0)) {
+    io.err(`--max-age takes a number of days of at least 0, not "${options.maxAge}".\n`);
+    return null;
+  }
+  if (auditSize === null || auditSeed === null || maxCarry === null) return null;
+  if (auditSeed !== undefined && auditSize === undefined) {
+    io.err('--audit-seed sets the draw of an audit: it goes with --audit <n>.\n');
+    return null;
+  }
+  const baseline = await store.getCampaign(options.from);
+  if (!baseline) {
+    io.err(
+      `No campaign ${options.from} in ${options.store}: --from names the stored campaign to carry from.\n`,
+    );
+    return null;
+  }
+  const cells = planOf(campaign, loaded).cells;
+  const radius = radiusOf(
+    loaded.map((entry) => ({ spec: entry.spec, hash: entry.hash })),
+    manifest.manifest,
+    { modes: campaign.modes },
+  );
+  let plan = planRadiusCampaign(
+    cells,
+    radius,
+    manifest.manifest,
+    { campaignId: baseline.campaignId, runs: await store.listRuns({ campaignId: baseline.campaignId }) },
+    {
+      now: deps.now(),
+      ...(maxCarry === undefined ? {} : { maxCarry }),
+      ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
+    },
+  );
+  const outside = plan.carried.length;
+  let audit: NonNullable<NonNullable<Campaign['radius']>['audit']> | undefined;
+  const auditRuns: RunResult[] = [];
+  if (auditSize !== undefined && plan.nothing === undefined) {
+    const seed = auditSeed ?? 1;
+    const sample = auditSample(plan.carried, auditSize, seed);
+    const fresh = new Map((await runAudit(sample.map((entry) => entry.cell))).map((run) => [run.runId, run]));
+    const missed: NonNullable<NonNullable<Campaign['radius']>['audit']>['missed'] = [];
+    for (const entry of sample) {
+      const run = fresh.get(entry.cell.cellId);
+      const verdict = run
+        ? auditVerdict(run, entry.source)
+        : { agree: false, differing: ['the audit run did not finish'] };
+      if (run) auditRuns.push(run);
+      if (!verdict.agree) {
+        missed.push({ specId: entry.cell.specId, cellId: entry.cell.cellId, differing: verdict.differing });
+      }
+    }
+    audit = { sampled: sample.length, misses: missed.length, seed, missed };
+    if (missed.length > 0) {
+      plan = {
+        fresh: [...cells],
+        carried: [],
+        refused: [],
+        inside: plan.inside,
+        nothing: `the audit found ${missed.length} of ${count(sample.length, 'carried result')} the new agent does not reproduce`,
+      };
+    } else {
+      const drawn = new Set(sample.map((entry) => entry.cell.cellId));
+      plan = {
+        ...plan,
+        carried: plan.carried.filter((entry) => !drawn.has(entry.cell.cellId)),
+        fresh: [...plan.fresh, ...sample.map((entry) => entry.cell)],
+        refused: [
+          ...plan.refused,
+          ...sample.map((entry) => ({ cell: entry.cell, reason: 'drawn for the audit' })),
+        ],
+      };
+    }
+  }
+  const record = {
+    ...campaignRadius(plan, radius, manifest.manifest, manifest.hash, baseline.campaignId),
+    ...(audit ? { audit } : {}),
+  };
+  const changes = record.changes.length === 0 ? 'no change' : record.changes.join(', ');
+  const lines = [
+    `Blast radius of ${record.fromVersion} to ${record.toVersion} (manifest ${record.manifest}): ${changes}.`,
+  ];
+  if (audit) {
+    const bound = auditBound(audit.sampled);
+    lines.push(
+      `Audit: ${count(audit.sampled, 'cell')} drawn from the ${outside} outside the radius (seed ${audit.seed}) and run fresh: ${audit.misses} ${audit.misses === 1 ? 'miss' : 'misses'}.${audit.misses === 0 && bound !== undefined ? ` At 95% confidence, under ${(bound * 100).toFixed(1)}% of the carried cells would disagree.` : ''}`,
+    );
+    for (const entry of audit.missed) lines.push(`  ${entry.specId}: ${entry.differing.join('; ')}`);
+    if (audit.misses > 0) {
+      lines.push(
+        'RADIUS MISS: the change reaches cells the manifest left out of the radius. The gate fails closed.',
+      );
+    }
+  }
+  if (plan.nothing !== undefined) {
+    lines.push(`Nothing is carried, every cell runs: ${plan.nothing}.`);
+  } else {
+    lines.push(
+      `${plan.inside.length} of ${count(cells.length, 'cell')} in the radius. ${count(plan.fresh.length, 'cell')} run fresh, ${plan.carried.length} carried from ${baseline.campaignId}.`,
+    );
+    for (const entry of record.refused) {
+      lines.push(`  ${count(entry.cells, 'cell')} outside the radius run fresh: ${entry.reason}.`);
+    }
+  }
+  return { plan, record, note: `${lines.join('\n')}\n`, auditRuns };
+}
+
+/** The name of the check a council of @agent-nexus/driftbench-judges adds to the checks. */
+const JUDGE_CHECK = 'judge';
+
+/**
+ * What a campaign without a judge left unjudged: the criteria its specs name in a block or a perturbation.
+ * Such a criterion gets no verdict, so a run can read pass with a gating criterion never looked at.
+ * Undefined when no spec names a criterion.
+ */
+function notJudgedNote(specs: Iterable<Spec>): string | undefined {
+  const names = new Set<string>();
+  const gating = new Set<string>();
+  let blocks = 0;
+  let withCriteria = 0;
+  for (const spec of specs) {
+    const always = new Set((spec.criteria ?? []).filter((each) => each.gating).map((each) => each.name));
+    const before = blocks;
+    for (const expect of [...spec.blocks, ...(spec.perturbations ?? [])].map((each) => each.expect)) {
+      const refs = (expect?.criteria ?? []).flatMap((ref) => parseCriterionRef(ref) ?? []);
+      if (refs.length === 0) continue;
+      blocks += 1;
+      for (const ref of refs) {
+        names.add(ref.name);
+        if (ref.gating || always.has(ref.name)) gating.add(ref.name);
+      }
+    }
+    if (blocks > before) withCriteria += 1;
+  }
+  if (names.size === 0) return undefined;
+  const listed = [...names].slice(0, 5).join(', ') + (names.size > 5 ? `, and ${names.size - 5} more` : '');
+  const criteria = names.size === 1 ? '1 criterion' : `${names.size} criteria`;
+  const these =
+    names.size === 1 ? 'it has no verdict and counts' : 'these criteria have no verdict and count';
+  const gates = gating.size === 0 ? 'none of them gating' : `${gating.size} of them gating`;
+  return `Not judged: ${criteria} in ${count(blocks, 'block')} of ${count(withCriteria, 'spec')} (${listed}), ${gates}. This campaign loads no judge, so ${these} in no pass or fail. See docs/concepts/judges.md.\n`;
 }
 
 async function openReported(
@@ -1296,8 +1625,13 @@ function cellLine(outcome: CellOutcome): string {
     `repeat ${cell.repeat}`,
     ...(cell.perturbationId === undefined ? [] : [cell.perturbationId]),
   ].join(' · ');
+  const carried = run?.carried;
   const notes = [
-    ...(outcome.reused ? ['reused'] : []),
+    ...(carried
+      ? [`carried from ${carried.fromCampaign}, age ${count(carried.age.campaigns, 'campaign')}`]
+      : outcome.reused
+        ? ['reused']
+        : []),
     ...(run?.cacheHit && !outcome.reused ? ['replayed from the cache'] : []),
   ];
   let detail = '';
@@ -1314,7 +1648,8 @@ function cellLine(outcome: CellOutcome): string {
 function summaryLine(outcomes: readonly CellOutcome[]): string {
   const states = (state: CellOutcome['state']) =>
     outcomes.filter((outcome) => outcome.state === state).length;
-  const reused = outcomes.filter((outcome) => outcome.reused).length;
+  const carried = outcomes.filter((outcome) => outcome.run?.carried).length;
+  const reused = outcomes.filter((outcome) => outcome.reused && !outcome.run?.carried).length;
   const budgetStops = outcomes.filter((outcome) => outcome.budgetStop).length;
   const parts = [
     `${states('pass')} pass`,
@@ -1326,7 +1661,28 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
   const spent = outcomes
     .filter((outcome) => outcome.run && !outcome.reused && !outcome.run.cacheHit)
     .reduce((sum, outcome) => sum + (outcome.run?.cost ?? 0), 0);
-  return `${count(outcomes.length, 'cell')}: ${parts.join(', ')}${reused > 0 ? `, ${reused} reused` : ''}. Spent ${usd(spent)}.`;
+  return `${count(outcomes.length, 'cell')}: ${parts.join(', ')}${reused > 0 ? `, ${reused} reused` : ''}${carried > 0 ? `, ${carried} carried` : ''}. Spent ${usd(spent)}.`;
+}
+
+/** Blocks a radius campaign sent to the agent, and blocks it carried without sending them. */
+function radiusBlocks(outcomes: readonly CellOutcome[]): { sent: number; carried: number } {
+  const blocks = (carried: boolean) =>
+    outcomes
+      .filter((outcome) => outcome.run !== undefined && (outcome.run.carried !== undefined) === carried)
+      .reduce((sum, outcome) => sum + (outcome.run?.blocks.length ?? 0), 0);
+  return { sent: blocks(false), carried: blocks(true) };
+}
+
+/** The closing lines of a radius campaign: fresh against carried, in cells and in blocks, and the saving. */
+function radiusSummary(radius: NonNullable<Campaign['radius']>, outcomes: readonly CellOutcome[]): string {
+  const { sent, carried } = radiusBlocks(outcomes);
+  const total = sent + carried;
+  const saved = total === 0 ? 0 : (carried / total) * 100;
+  const lines = [
+    `Fresh: ${count(radius.fresh, 'cell')}, ${count(sent, 'block')} sent to the agent. Carried from ${radius.from}: ${count(radius.carried, 'cell')}, ${count(carried, 'block')} not sent (agent version ${radius.fromVersion}; this campaign runs ${radius.toVersion}).`,
+    `Saved: ${carried} of ${count(total, 'block')}, ${saved.toFixed(1)}%. The pass and fail counts above merge fresh and carried results.`,
+  ];
+  return `${lines.join('\n')}\n`;
 }
 
 function report(campaignId: string, outcomes: readonly CellOutcome[], kept: boolean, checks: string[]) {
@@ -1626,19 +1982,6 @@ function collect(value: string, previous: string[]): string[] {
 function required<T>(value: T | undefined, what: string): T {
   if (value === undefined) throw new Error(`campaign: no ${what}`);
   return value;
-}
-
-/** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
 }
 
 /**

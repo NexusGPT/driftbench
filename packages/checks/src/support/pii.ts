@@ -164,8 +164,17 @@ export function isAllowedEmail(address: string): boolean {
   );
 }
 
+export type ScanOptions = {
+  /**
+   * `exclude` (default): reserved domains (example.org, .test and the like) are fictional and never findings.
+   * `include`: they are findings too, for a comparison with a detector that does not know the convention. Technical
+   * addresses such as git@github.com stay excluded either way.
+   */
+  reservedDomains?: 'exclude' | 'include';
+};
+
 /** Every piece of personal data in a text, in order of appearance. */
-export function scanPii(text: string): PiiFinding[] {
+export function scanPii(text: string, options: ScanOptions = {}): PiiFinding[] {
   const findings: PiiFinding[] = [];
   for (const match of text.matchAll(IBAN_CANDIDATE)) {
     const compact = match[0].replace(/[\s ]/g, '');
@@ -189,7 +198,11 @@ export function scanPii(text: string): PiiFinding[] {
     findings.push({ kind: 'phone', value: match[0], offset: match.index });
   }
   for (const match of text.matchAll(EMAIL)) {
-    if (!isAllowedEmail(match[0])) findings.push({ kind: 'email', value: match[0], offset: match.index });
+    const excluded =
+      options.reservedDomains === 'include'
+        ? ALLOWED_EMAILS.has(match[0].toLowerCase())
+        : isAllowedEmail(match[0]);
+    if (!excluded) findings.push({ kind: 'email', value: match[0], offset: match.index });
   }
   return findings.sort((a, b) => a.offset - b.offset);
 }

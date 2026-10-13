@@ -1,8 +1,9 @@
-import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { join, relative, resolve } from 'node:path';
+import { readFile, stat, writeFile } from 'node:fs/promises';
+import { relative, resolve } from 'node:path';
 import { RUNTIMES, readerFor, runUnitTests, type UnitResult } from '@agent-nexus/driftbench-estate';
 import { formatJson, UnitTest } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
+import { jsonFiles } from '../files';
 import type { Io } from '../io';
 import { runUnitSpecs } from './estate-unit-specs';
 
@@ -256,14 +257,4 @@ function report(
     '',
   );
   return lines.join('\n');
-}
-
-async function jsonFiles(dir: string): Promise<string[]> {
-  const out: string[] = [];
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await jsonFiles(full)));
-    else if (entry.name.endsWith('.json')) out.push(full);
-  }
-  return out;
 }

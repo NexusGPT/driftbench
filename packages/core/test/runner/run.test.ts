@@ -1188,6 +1188,39 @@ describe('the cache', () => {
     expect(result.status).toBe('completed');
   });
 
+  it('a script that ends mid-spec runs only the blocks before its stop, and the run keeps its verdict', async () => {
+    const full = spec();
+    expect(full.blocks.length).toBeGreaterThan(1);
+    const stopped = { ...full, end: { verdict: 'success' as const, reason: 'served', atBlock: 0 } };
+    const result = await runSpec(stopped, {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+    });
+    expectValid(result);
+    expect(result.blocks).toHaveLength(1);
+    expect(result.endVerdict).toBe('success');
+    expect(result.status).toBe('completed');
+  });
+
+  it('each block of a cached run records the key it was stored under', async () => {
+    const cache = memoryCache();
+    const first = await runSpec(spec(), {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+    });
+    for (const block of first.blocks) {
+      expect(block.cacheKey).toMatch(/^block:[0-9a-f]{64}$/);
+      expect(await cache.cacheGet(block.cacheKey as string)).toEqual(block.observed);
+    }
+  });
+
   it('a run in another suite does not replay the cache of the first suite', async () => {
     const cache = memoryCache();
     await runSpec(spec(), {

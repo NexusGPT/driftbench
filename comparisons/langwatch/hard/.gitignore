@@ -1,0 +1,9 @@
+.call-*/
+.model-lock/
+.deadline
+.pr115-source/
+.test-tmp/
+.resume.json
+recorded/calls.jsonl
+pii/hard.json
+pii/heldout.json

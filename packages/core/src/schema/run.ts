@@ -26,6 +26,8 @@ export type ResolvedGiven = z.infer<typeof ResolvedGiven>;
 
 export const ToolCall = z.strictObject({
   id: z.string().optional(),
+  /** The trace span the call ran in, when the adapter has one (an OpenTelemetry span id). */
+  spanId: z.string().optional(),
   label: z.string().min(1),
   input: z.unknown(),
   output: z.unknown().optional(),
@@ -150,6 +152,8 @@ export const RuntimeTrace = z.strictObject({
     .optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */
   references: z.array(z.strictObject({ path: z.string(), at: z.string().optional() })).optional(),
+  /** Why the model stopped, such as stop or length. Absent when the runtime does not report it. */
+  finishReason: z.string().optional(),
   /** The tools the runtime offered the agent in the block, by name. Absent when the runtime does not report them. */
   offered: z.array(z.string()).optional(),
   /** Helpers the agent dispatched during the block. Absent when the runtime does not report them. */
@@ -224,6 +228,8 @@ export const BlockResult = z.strictObject({
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
   givenHash: z.string().min(1),
+  /** The key the block's observed record is cached under: what a replay looked up. */
+  cacheKey: z.string().min(1).optional(),
   observed: Observed,
   verdicts: z.array(Verdict),
   stageObserved: z.string().optional(),
@@ -270,6 +276,7 @@ export const RunEvent = z.discriminatedUnion('type', [
     type: z.literal('tool_call'),
     index: z.number().int().min(0),
     label: z.string().min(1),
+    spanId: z.string().optional(),
     error: z.string().optional(),
     at: z.string().min(1),
   }),
@@ -287,6 +294,26 @@ export const RunEvent = z.discriminatedUnion('type', [
   }),
 ]);
 export type RunEvent = z.infer<typeof RunEvent>;
+
+/**
+ * Where a carried run comes from. A campaign that runs the blast radius of a change copies the stored run
+ * of every cell outside the radius: the copy is the baseline result, not a new measurement.
+ */
+export const CarriedFrom = z.strictObject({
+  /** The campaign that ran the cell fresh, however many campaigns carried it since. */
+  fromCampaign: z.string().min(1),
+  /** The run id of that fresh run. */
+  fromRun: z.string().min(1),
+  /** The agent version that produced the result, when the fresh run named one. */
+  agentVersion: z.string().min(1).optional(),
+  age: z.strictObject({
+    /** Consecutive campaigns that carried the result: 1 on its first carry. */
+    campaigns: z.number().int().min(1),
+    /** Days between the end of the fresh run and the start of the campaign that carries it. */
+    days: z.number().nonnegative(),
+  }),
+});
+export type CarriedFrom = z.infer<typeof CarriedFrom>;
 
 export const RunResult = z.strictObject({
   runId: z.string().min(1),
@@ -316,6 +343,8 @@ export const RunResult = z.strictObject({
   cacheHit: z.boolean(),
   /** The events the run reported, in order, when the run recorded them. Absent otherwise. */
   events: z.array(RunEvent).optional(),
+  /** Set on a run carried from an earlier campaign: no agent ran for it in this campaign. Absent on a fresh run. */
+  carried: CarriedFrom.optional(),
 });
 export type RunResult = z.infer<typeof RunResult>;
 
@@ -333,6 +362,47 @@ export const RegistrySource = z.strictObject({
   hash: z.string().regex(/^[0-9a-f]{64}$/),
 });
 export type RegistrySource = z.infer<typeof RegistrySource>;
+
+/** What a radius campaign ran fresh and what it carried, and from where. */
+export const CampaignRadius = z.strictObject({
+  /** The content hash of the change manifest. */
+  manifest: z.string().min(1),
+  /** The agent versions the manifest goes from and to. */
+  fromVersion: z.string().min(1),
+  toVersion: z.string().min(1),
+  /** The changes of the manifest, as the radius prints them. */
+  changes: z.array(z.string()),
+  /** The campaign the carried runs were read from. */
+  from: z.string().min(1),
+  /** Set when the radius was the whole suite, with the reason. */
+  whole: z.strictObject({ change: z.string(), reason: z.string() }).optional(),
+  /** Cells run fresh, cells carried, and cells outside the radius (carried, or refused and run fresh). */
+  fresh: z.number().int().min(0),
+  carried: z.number().int().min(0),
+  outside: z.number().int().min(0),
+  /** Why cells outside the radius ran fresh all the same, with how many. */
+  refused: z.array(z.strictObject({ reason: z.string().min(1), cells: z.number().int().min(1) })),
+  /**
+   * The audit sample, when one was asked for: cells about to be carried, run fresh and compared with the
+   * stored run. One miss fails closed: the campaign then carried nothing.
+   */
+  audit: z
+    .strictObject({
+      sampled: z.number().int().min(0),
+      misses: z.number().int().min(0),
+      seed: z.number().int(),
+      /** The cells whose fresh run disagreed with the stored one, with what differed. */
+      missed: z.array(
+        z.strictObject({
+          specId: z.string().min(1),
+          cellId: z.string().min(1),
+          differing: z.array(z.string()),
+        }),
+      ),
+    })
+    .optional(),
+});
+export type CampaignRadius = z.infer<typeof CampaignRadius>;
 
 /** A campaign pins spec versions, targets, modes and repeats. A re-run is a new campaign. */
 export const Campaign = z.strictObject({
@@ -359,5 +429,7 @@ export const Campaign = z.strictObject({
   createdAt: z.string().min(1),
   /** The registry versions the campaign ran: the dataset its specs came from, the prompts it pinned. */
   sources: z.array(RegistrySource).optional(),
+  /** Set when the campaign ran the blast radius of a change and carried the rest. Absent on a full campaign. */
+  radius: CampaignRadius.optional(),
 });
 export type Campaign = z.infer<typeof Campaign>;

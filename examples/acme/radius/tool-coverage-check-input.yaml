@@ -1,0 +1,8 @@
+# A change manifest for driftbench radius. Fictional data only.
+# The input of coverage.check changed. A block that never calls the tool cannot read it.
+from: acme-v1
+to: acme-v2
+changes:
+  - kind: tool
+    id: coverage.check
+    part: input

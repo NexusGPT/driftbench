@@ -50,10 +50,14 @@ export function enqueue(
   return { version: 1, entries };
 }
 
-/** A score, when given, is a number from 0 to 1: the reviewer's confidence that the block passes. */
-function checkScore(score: number | undefined): void {
-  if (score !== undefined && !(Number.isFinite(score) && score >= 0 && score <= 1)) {
-    throw new Error(`score must be from 0 to 1, not ${score}`);
+/** A score's scale: the lowest and highest value it may take. The default is 0 to 1. */
+export type ScoreScale = { min: number; max: number };
+
+/** A score, when given, lies on its scale: by default 0 to 1, the reviewer's confidence that the block passes. */
+function checkScore(score: number | undefined, scale: ScoreScale): void {
+  if (score === undefined) return;
+  if (!(Number.isFinite(score) && score >= scale.min && score <= scale.max)) {
+    throw new Error(`score ${score} is outside the scale ${scale.min} to ${scale.max}`);
   }
 }
 
@@ -94,8 +98,9 @@ export async function completeItem(
   reviewer: string,
   block: LabelledBlock,
   score?: number,
+  scale: ScoreScale = { min: 0, max: 1 },
 ): Promise<ReviewQueue> {
-  checkScore(score);
+  checkScore(score, scale);
   const entry = entryOf(queue, criterion, id);
   if (entry.state === 'done') throw new Error(`${id} is already done`);
   if (entry.state === 'open') throw new Error(`${id} is not assigned: assign it first`);

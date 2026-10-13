@@ -53,6 +53,8 @@ python3 comparisons/langfuse/hard/run.py audit --sides ours-audit --cap-usd 0
 python3 comparisons/langfuse/hard/analyse.py
 ```
 
+An `analyse.py` run that reproduces the committed numbers leaves `scores.json` and `heldout-scores.json` byte for byte.
+
 The ledger has model-dependent fact extraction. Code validates its shape and rejects empty ledgers, duplicate reference strings and invalid status values. Shape validation does not prove that the model extracted every fact correctly. No unseen-set score is claimed.
 
 ## Fresh held-out check
@@ -99,3 +101,23 @@ python3 comparisons/langfuse/hard/pr115-analyse.py
 ```
 
 The original renderer now explicitly selects the legacy contract for the old row. Its check mode verifies that every original model input is identical, without rewriting the frozen prompts. The PR 115 renderer selects the default through absent options. Neither renderer sends case IDs or labels to the model.
+
+## Pinned PR 115 replay on a fresh clone
+
+The replay reproduces judge commit `8195902dd20c84267f85feba268c17868e00dfbe`,
+not the current production judge. `pinned-judge/` preserves its verbatim source
+and transitive judge dependencies. Its manifest records each source hash. The
+original `pr115-manifest.json` stays unchanged; its native hashes are checked
+against those copies. The original runner and renderer are also archived there
+to keep the pre-call harness hashes independently verifiable.
+
+```sh
+pnpm install --frozen-lockfile
+python3 -m unittest discover -s comparisons/langfuse/hard -p test_pr115.py
+python3 comparisons/langfuse/hard/pr115-run.py --cap-usd 0
+```
+
+The zero-cap command recomputes every score from recorded answers using that
+pinned judge, requires equality with `pr115-scores.json`, and preserves its
+original timestamp and bytes. No model calls, credentials, or Git history are
+needed. The command prints the judge commit it reproduces.

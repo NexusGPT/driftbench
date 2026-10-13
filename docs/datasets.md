@@ -152,6 +152,7 @@ Between the two pushes, one line was added to `plan-upgrade.yaml`. `diff` withou
 ```
 $ pnpm -s driftbench campaign run --dataset acme-specs@1 --prompt acme-sales --target function:acme --campaign c-demo --store _demo/store.db
 Campaign c-demo: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass  5 blocks
 ✓ acme-off-topic-return · function:acme · F · repeat 0  pass  5 blocks

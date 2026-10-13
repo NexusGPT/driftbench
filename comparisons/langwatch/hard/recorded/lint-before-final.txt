@@ -1,0 +1,879 @@
+comparisons/langwatch/hard/criteria-v2.mts:52:7 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    50 │     writeFileSync(
+    51 │       join(here, 'recorded', `${long ? 'longtrace-v2' : 'adapter-v2'}-${variant}.json`),
+  > 52 │       JSON.stringify(
+       │       ^^^^^^^^^^^^^^^
+  > 53 │         {
+        ...
+  > 68 │         2,
+  > 69 │       ) + '\n',
+       │       ^^^^^^^^
+    70 │     );
+    71 │   try {
+  
+  i Unsafe fix: Use a template literal.
+  
+     50  50 │       writeFileSync(
+     51  51 │         join(here, 'recorded', `${long ? 'longtrace-v2' : 'adapter-v2'}-${variant}.json`),
+     52     │ - ······JSON.stringify(
+         52 │ + ······`${JSON.stringify(
+     53  53 │           {
+     54  54 │             variant,
+    ······· │ 
+     67  67 │           null,
+     68  68 │           2,
+     69     │ - ······)·+·'\n',
+         69 │ + ······)}\n`,
+     70  70 │       );
+     71  71 │     try {
+  
+
+comparisons/langwatch/hard/freeze-compliance.mts:35:58 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    33 │ };
+    34 │ if (process.argv.includes('--dry-run')) console.log(JSON.stringify(manifest));
+  > 35 │ else writeFileSync(join(here, 'compliance-freeze.json'), JSON.stringify(manifest, null, 2) + '\n');
+       │                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    36 │ 
+  
+  i Unsafe fix: Use a template literal.
+  
+    33 33 │   };
+    34 34 │   if (process.argv.includes('--dry-run')) console.log(JSON.stringify(manifest));
+    35    │ - else·writeFileSync(join(here,·'compliance-freeze.json'),·JSON.stringify(manifest,·null,·2)·+·'\n');
+       35 │ + else·writeFileSync(join(here,·'compliance-freeze.json'),·`${JSON.stringify(manifest,·null,·2)}\n`);
+    36 36 │   
+  
+
+comparisons/langwatch/hard/pr115-criteria.mts:27:7 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    25 │         longtrace ? 'longtrace-pr115.json' : `judges-pr115${heldout ? '-heldout' : ''}.json`,
+    26 │       ),
+  > 27 │       JSON.stringify(
+       │       ^^^^^^^^^^^^^^^
+  > 28 │         {
+        ...
+  > 41 │         2,
+  > 42 │       ) + '\n',
+       │       ^^^^^^^^
+    43 │     );
+    44 │   try {
+  
+  i Unsafe fix: Use a template literal.
+  
+    25 25 │           longtrace ? 'longtrace-pr115.json' : `judges-pr115${heldout ? '-heldout' : ''}.json`,
+    26 26 │         ),
+    27    │ - ······JSON.stringify(
+       27 │ + ······`${JSON.stringify(
+    28 28 │           {
+    29 29 │             variant: 'PR 115 default',
+    ····· │ 
+    40 40 │           null,
+    41 41 │           2,
+    42    │ - ······)·+·'\n',
+       42 │ + ······)}\n`,
+    43 43 │       );
+    44 44 │     try {
+  
+
+comparisons/langwatch/hard/pr115.mts:92:7 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+     90 │     writeFileSync(
+     91 │       join(here, 'recorded', `pairwise-pr115${heldout ? '-heldout' : ''}.json`),
+   > 92 │       JSON.stringify(
+        │       ^^^^^^^^^^^^^^^
+   > 93 │         {
+         ...
+  > 104 │         2,
+  > 105 │       ) + '\n',
+        │       ^^^^^^^^
+    106 │     );
+    107 │   try {
+  
+  i Unsafe fix: Use a template literal.
+  
+     90  90 │       writeFileSync(
+     91  91 │         join(here, 'recorded', `pairwise-pr115${heldout ? '-heldout' : ''}.json`),
+     92     │ - ······JSON.stringify(
+         92 │ + ······`${JSON.stringify(
+     93  93 │           {
+     94  94 │             variant: 'PR 115 default',
+    ······· │ 
+    103 103 │           null,
+    104 104 │           2,
+    105     │ - ······)·+·'\n',
+        105 │ + ······)}\n`,
+    106 106 │       );
+    107 107 │     try {
+  
+
+comparisons/langwatch/hard/rename-request-digests.mjs:245:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    243 │ writeFileSync(
+    244 │   compliancePath,
+  > 245 │   JSON.stringify(
+        │   ^^^^^^^^^^^^^^^
+  > 246 │     {
+         ...
+  > 252 │     2,
+  > 253 │   ) + '\n',
+        │   ^^^^^^^^
+    254 │ );
+    255 │ 
+  
+  i Unsafe fix: Use a template literal.
+  
+    243 243 │   writeFileSync(
+    244 244 │     compliancePath,
+    245     │ - ··JSON.stringify(
+        245 │ + ··`${JSON.stringify(
+    246 246 │       {
+    247 247 │         ...complianceOriginal,
+    ······· │ 
+    251 251 │       null,
+    252 252 │       2,
+    253     │ - ··)·+·'\n',
+        253 │ + ··)}\n`,
+    254 254 │   );
+    255 255 │   
+  
+
+comparisons/langwatch/hard/extras-batch.mts:3:26 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+    1 │ import { spawn } from 'node:child_process';
+    2 │ import { createHash } from 'node:crypto';
+  > 3 │ import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+      │                          ^^^^^^^^^^
+    4 │ import { join } from 'node:path';
+    5 │ import { here } from './runner.mts';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    3 │ import·{·appendFileSync,·existsSync,·readFileSync·}·from·'node:fs';
+      │                          ------------                              
+
+comparisons/langwatch/hard/freeze-compliance.mts:15:23 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    13 │   ...JSON.parse(read('judges-heldout-v4.json').toString()),
+    14 │ ];
+  > 15 │ const signature = (c: any) => JSON.stringify([c.scenario, c.criteria, c.transcript]);
+       │                       ^^^
+    16 │ assert.equal(fresh.length, 60);
+    17 │ assert.equal(fresh.filter((c: any) => old.some((o: any) => signature(c) === signature(o))).length, 0);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+comparisons/langwatch/hard/freeze-compliance.mts:17:31 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    15 │ const signature = (c: any) => JSON.stringify([c.scenario, c.criteria, c.transcript]);
+    16 │ assert.equal(fresh.length, 60);
+  > 17 │ assert.equal(fresh.filter((c: any) => old.some((o: any) => signature(c) === signature(o))).length, 0);
+       │                               ^^^
+    18 │ const manifest = {
+    19 │   createdAt: new Date().toISOString(),
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+comparisons/langwatch/hard/freeze-compliance.mts:17:52 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    15 │ const signature = (c: any) => JSON.stringify([c.scenario, c.criteria, c.transcript]);
+    16 │ assert.equal(fresh.length, 60);
+  > 17 │ assert.equal(fresh.filter((c: any) => old.some((o: any) => signature(c) === signature(o))).length, 0);
+       │                                                    ^^^
+    18 │ const manifest = {
+    19 │   createdAt: new Date().toISOString(),
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+comparisons/langwatch/hard/longtrace-v2/hard.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The size of the file is 4.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+  
+
+comparisons/langwatch/hard/longtrace/hard.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+  
+
+comparisons/langwatch/hard/recorded/gitleaks-before.json check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The size of the file is 1.5 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+  
+
+comparisons/langwatch/hard/adapter-v2-freeze.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     2  2 │     "version": 2,
+     3  3 │     "createdAt": "2026-10-13T01:39:41.711950+00:00",
+     4    │ - ··"seeds":·[
+     5    │ - ····20261019,
+     6    │ - ····20261020
+     7    │ - ··],
+        4 │ + ··"seeds":·[20261019,·20261020],
+     8  5 │     "casesEach": 120,
+     9    │ - ··"procedures":·[
+    10    │ - ····"ours",
+    11    │ - ····"audit",
+    12    │ - ····"theirs",
+    13    │ - ····"compliance",
+    14    │ - ····"pr115"
+    15    │ - ··],
+        6 │ + ··"procedures":·["ours",·"audit",·"theirs",·"compliance",·"pr115"],
+    16  7 │     "hashes": {
+    17  8 │       "trusted-adapter-v2.mts": "b5ea569cfbdfbb82ec205a0d325f7f71feeb2dd2038eee704d966b94e2c78a27",
+  
+
+comparisons/langwatch/hard/criteria-v2.mts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     22  22 │       const absolute = join(here, path);
+     23  23 │       if (sha(readFileSync(absolute)) !== digest) throw new Error(`Frozen adapter/source changed: ${path}`);
+     24     │ - ····const·committed·=·execFileSync('git',·['show',·`HEAD:${relative(root,·absolute)}`],·{·cwd:·root,·maxBuffer:·64·*·1024·*·1024·});
+         24 │ + ····const·committed·=·execFileSync('git',·['show',·`HEAD:${relative(root,·absolute)}`],·{
+         25 │ + ······cwd:·root,
+         26 │ + ······maxBuffer:·64·*·1024·*·1024,
+         27 │ + ····});
+     25  28 │       if (sha(committed) !== digest) throw new Error(`Preregistration must be committed: ${path}`);
+     26  29 │     }
+  
+
+comparisons/langwatch/hard/judges-entries-v2.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+      24   24 │       ],
+      25   25 │       "transcript": "[agent] Case receipt: reference T101Z19.\n[user] Apply the requested plan or action check now.\n[agent] R858517 costs EUR 64 each month.",
+      26      │ - ····"truth":·[
+      27      │ - ······"pass",
+      28      │ - ······"pass"
+      29      │ - ····],
+           26 │ + ····"truth":·["pass",·"pass"],
+      30   27 │       "receiptToken": "T101Z19",
+      31   28 │       "rationale": "near_price: primary evidence constructed as pass; independent receipt constructed as pass."
+    ········· │ 
+      55   52 │       ],
+      56   53 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] After carefully reviewing the plan, R322241 costs EUR 39 per month. This clear monthly amount helps your budget.",
+      57      │ - ····"truth":·[
+      58      │ - ······"fail",
+      59      │ - ······"fail"
+      60      │ - ····],
+           54 │ + ····"truth":·["fail",·"fail"],
+      61   55 │       "receiptToken": "T102Z19",
+      62   56 │       "rationale": "near_price: primary evidence constructed as fail; independent receipt constructed as fail."
+    ········· │ 
+      86   80 │       ],
+      87   81 │       "transcript": "[agent] Case receipt: reference T103Z19.\n[user] Apply the requested plan or action check now.\n[context] The conversation ends before the agent replies to this request.",
+      88      │ - ····"truth":·[
+      89      │ - ······"inconclusive",
+      90      │ - ······"pass"
+      91      │ - ····],
+           82 │ + ····"truth":·["inconclusive",·"pass"],
+      92   83 │       "receiptToken": "T103Z19",
+      93   84 │       "rationale": "near_price: primary evidence constructed as inconclusive; independent receipt constructed as pass."
+    ········· │ 
+     117  108 │       ],
+     118  109 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] R379771 costs EUR 60 each month.",
+     119      │ - ····"truth":·[
+     120      │ - ······"pass",
+     121      │ - ······"fail"
+     122      │ - ····],
+          110 │ + ····"truth":·["pass",·"fail"],
+     123  111 │       "receiptToken": "T104Z19",
+     124  112 │       "rationale": "near_price: primary evidence constructed as pass; independent receipt constructed as fail."
+    ········· │ 
+     148  136 │       ],
+     149  137 │       "transcript": "[agent] Case receipt: reference T105Z19.\n[user] Apply the requested plan or action check now.\n[agent] After carefully reviewing the plan, R465679 costs EUR 27 per month. This clear monthly amount helps your budget.",
+     150      │ - ····"truth":·[
+     151      │ - ······"fail",
+     152      │ - ······"pass"
+     153      │ - ····],
+          138 │ + ····"truth":·["fail",·"pass"],
+     154  139 │       "receiptToken": "T105Z19",
+     155  140 │       "rationale": "near_price: primary evidence constructed as fail; independent receipt constructed as pass."
+    ········· │ 
+     179  164 │       ],
+     180  165 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] R105809 costs EUR 40 each month.",
+     181      │ - ····"truth":·[
+     182      │ - ······"pass",
+     183      │ - ······"fail"
+     184      │ - ····],
+          166 │ + ····"truth":·["pass",·"fail"],
+     185  167 │       "receiptToken": "T106Z19",
+     186  168 │       "rationale": "near_price: primary evidence constructed as pass; independent receipt constructed as fail."
+    ········· │ 
+     210  192 │       ],
+     211  193 │       "transcript": "[agent] Case receipt: reference T107Z19.\n[user] Apply the requested plan or action check now.\n[agent] After carefully reviewing the plan, R561589 costs EUR 61 per month. This clear monthly amount helps your budget.",
+     212      │ - ····"truth":·[
+     213      │ - ······"fail",
+     214      │ - ······"pass"
+     215      │ - ····],
+          194 │ + ····"truth":·["fail",·"pass"],
+     216  195 │       "receiptToken": "T107Z19",
+     217  196 │       "rationale": "near_price: primary evidence constructed as fail; independent receipt constructed as pass."
+    ········· │ 
+     241  220 │       ],
+     242  221 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[context] The conversation ends before the agent replies to this request.",
+     243      │ - ····"truth":·[
+     244      │ - ······"inconclusive",
+     245      │ - ······"fail"
+     246      │ - ····],
+          222 │ + ····"truth":·["inconclusive",·"fail"],
+     247  223 │       "receiptToken": "T108Z19",
+     248  224 │       "rationale": "near_price: primary evidence constructed as inconclusive; independent receipt constructed as fail."
+    ········· │ 
+     272  248 │       ],
+     273  249 │       "transcript": "[agent] Case receipt: reference T109Z19.\n[user] Apply the requested plan or action check now.\n[agent] R180907 costs EUR 63 each month.",
+     274      │ - ····"truth":·[
+     275      │ - ······"pass",
+     276      │ - ······"pass"
+     277      │ - ····],
+          250 │ + ····"truth":·["pass",·"pass"],
+     278  251 │       "receiptToken": "T109Z19",
+     279  252 │       "rationale": "near_price: primary evidence constructed as pass; independent receipt constructed as pass."
+    ········· │ 
+     303  276 │       ],
+     304  277 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] After carefully reviewing the plan, R503656 costs EUR 34 per month. This clear monthly amount helps your budget.",
+     305      │ - ····"truth":·[
+     306      │ - ······"fail",
+     307      │ - ······"fail"
+     308      │ - ····],
+          278 │ + ····"truth":·["fail",·"fail"],
+     309  279 │       "receiptToken": "T110Z19",
+     310  280 │       "rationale": "near_price: primary evidence constructed as fail; independent receipt constructed as fail."
+    ········· │ 
+     334  304 │       ],
+     335  305 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] You get 55000 MB monthly, with unlimited calls.",
+     336      │ - ····"truth":·[
+     337      │ - ······"pass",
+     338      │ - ······"fail"
+     339      │ - ····],
+          306 │ + ····"truth":·["pass",·"fail"],
+     340  307 │       "receiptToken": "T201Z19",
+     341  308 │       "rationale": "units: primary evidence constructed as pass; independent receipt constructed as fail."
+    ········· │ 
+     365  332 │       ],
+     366  333 │       "transcript": "[agent] Case receipt: reference T202Z19.\n[user] Apply the requested plan or action check now.\n[agent] You get 80 MB monthly, plus unlimited calls and helpful service.",
+     367      │ - ····"truth":·[
+     368      │ - ······"fail",
+     369      │ - ······"pass"
+     370      │ - ····],
+          334 │ + ····"truth":·["fail",·"pass"],
+     371  335 │       "receiptToken": "T202Z19",
+     372  336 │       "rationale": "units: primary evidence constructed as fail; independent receipt constructed as pass."
+    ········· │ 
+     396  360 │       ],
+     397  361 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[context] The conversation ends before the agent replies to this request.",
+     398      │ - ····"truth":·[
+     399      │ - ······"inconclusive",
+     400      │ - ······"fail"
+     401      │ - ····],
+          362 │ + ····"truth":·["inconclusive",·"fail"],
+     402  363 │       "receiptToken": "T203Z19",
+     403  364 │       "rationale": "units: primary evidence constructed as inconclusive; independent receipt constructed as fail."
+    ········· │ 
+     427  388 │       ],
+     428  389 │       "transcript": "[agent] Case receipt: reference T204Z19.\n[user] Apply the requested plan or action check now.\n[agent] You get 66000 MB monthly, with unlimited calls.",
+     429      │ - ····"truth":·[
+     430      │ - ······"pass",
+     431      │ - ······"pass"
+     432      │ - ····],
+          390 │ + ····"truth":·["pass",·"pass"],
+     433  391 │       "receiptToken": "T204Z19",
+     434  392 │       "rationale": "units: primary evidence constructed as pass; independent receipt constructed as pass."
+    ········· │ 
+     458  416 │       ],
+     459  417 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] You get 65 MB monthly, plus unlimited calls and helpful service.",
+     460      │ - ····"truth":·[
+     461      │ - ······"fail",
+     462      │ - ······"fail"
+     463      │ - ····],
+          418 │ + ····"truth":·["fail",·"fail"],
+     464  419 │       "receiptToken": "T205Z19",
+     465  420 │       "rationale": "units: primary evidence constructed as fail; independent receipt constructed as fail."
+    ········· │ 
+     489  444 │       ],
+     490  445 │       "transcript": "[agent] Case receipt: reference T206Z19.\n[user] Apply the requested plan or action check now.\n[agent] You get 46000 MB monthly, with unlimited calls.",
+     491      │ - ····"truth":·[
+     492      │ - ······"pass",
+     493      │ - ······"pass"
+     494      │ - ····],
+          446 │ + ····"truth":·["pass",·"pass"],
+     495  447 │       "receiptToken": "T206Z19",
+     496  448 │       "rationale": "units: primary evidence constructed as pass; independent receipt constructed as pass."
+    ········· │ 
+     520  472 │       ],
+     521  473 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] You get 35 MB monthly, plus unlimited calls and helpful service.",
+     522      │ - ····"truth":·[
+     523      │ - ······"fail",
+     524      │ - ······"fail"
+     525      │ - ····],
+  930 more lines truncated
+  
+
+comparisons/langwatch/hard/judges-heldout-v2.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+      9   9 │       ],
+     10  10 │       "transcript": "[agent] Case receipt: reference T101Z18.\n[user] Apply the requested plan or action check now.\n[agent] R445469 costs EUR 48 each month.",
+     11     │ - ····"truth":·[
+     12     │ - ······"pass",
+     13     │ - ······"pass"
+     14     │ - ····],
+         11 │ + ····"truth":·["pass",·"pass"],
+     15  12 │       "receiptToken": "T101Z18",
+     16  13 │       "rationale": "near_price: primary evidence constructed as pass; independent receipt constructed as pass."
+    ······· │ 
+     25  22 │       ],
+     26  23 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] After carefully reviewing the plan, R579547 costs EUR 32 per month. This clear monthly amount helps your budget.",
+     27     │ - ····"truth":·[
+     28     │ - ······"fail",
+     29     │ - ······"fail"
+     30     │ - ····],
+         24 │ + ····"truth":·["fail",·"fail"],
+     31  25 │       "receiptToken": "T102Z18",
+     32  26 │       "rationale": "near_price: primary evidence constructed as fail; independent receipt constructed as fail."
+    ······· │ 
+     41  35 │       ],
+     42  36 │       "transcript": "[agent] Case receipt: reference T103Z18.\n[user] Apply the requested plan or action check now.\n[context] The conversation ends before the agent replies to this request.",
+     43     │ - ····"truth":·[
+     44     │ - ······"inconclusive",
+     45     │ - ······"pass"
+     46     │ - ····],
+         37 │ + ····"truth":·["inconclusive",·"pass"],
+     47  38 │       "receiptToken": "T103Z18",
+     48  39 │       "rationale": "near_price: primary evidence constructed as inconclusive; independent receipt constructed as pass."
+    ······· │ 
+     57  48 │       ],
+     58  49 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] R973414 costs EUR 37 each month.",
+     59     │ - ····"truth":·[
+     60     │ - ······"pass",
+     61     │ - ······"fail"
+     62     │ - ····],
+         50 │ + ····"truth":·["pass",·"fail"],
+     63  51 │       "receiptToken": "T104Z18",
+     64  52 │       "rationale": "near_price: primary evidence constructed as pass; independent receipt constructed as fail."
+    ······· │ 
+     73  61 │       ],
+     74  62 │       "transcript": "[agent] Case receipt: reference T105Z18.\n[user] Apply the requested plan or action check now.\n[agent] After carefully reviewing the plan, R158734 costs EUR 52 per month. This clear monthly amount helps your budget.",
+     75     │ - ····"truth":·[
+     76     │ - ······"fail",
+     77     │ - ······"pass"
+     78     │ - ····],
+         63 │ + ····"truth":·["fail",·"pass"],
+     79  64 │       "receiptToken": "T105Z18",
+     80  65 │       "rationale": "near_price: primary evidence constructed as fail; independent receipt constructed as pass."
+    ······· │ 
+     89  74 │       ],
+     90  75 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] You get 57000 MB monthly, with unlimited calls.",
+     91     │ - ····"truth":·[
+     92     │ - ······"pass",
+     93     │ - ······"fail"
+     94     │ - ····],
+         76 │ + ····"truth":·["pass",·"fail"],
+     95  77 │       "receiptToken": "T201Z18",
+     96  78 │       "rationale": "units: primary evidence constructed as pass; independent receipt constructed as fail."
+    ······· │ 
+    105  87 │       ],
+    106  88 │       "transcript": "[agent] Case receipt: reference T202Z18.\n[user] Apply the requested plan or action check now.\n[agent] You get 46 MB monthly, plus unlimited calls and helpful service.",
+    107     │ - ····"truth":·[
+    108     │ - ······"fail",
+    109     │ - ······"pass"
+    110     │ - ····],
+         89 │ + ····"truth":·["fail",·"pass"],
+    111  90 │       "receiptToken": "T202Z18",
+    112  91 │       "rationale": "units: primary evidence constructed as fail; independent receipt constructed as pass."
+    ······· │ 
+    121 100 │       ],
+    122 101 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[context] The conversation ends before the agent replies to this request.",
+    123     │ - ····"truth":·[
+    124     │ - ······"inconclusive",
+    125     │ - ······"fail"
+    126     │ - ····],
+        102 │ + ····"truth":·["inconclusive",·"fail"],
+    127 103 │       "receiptToken": "T203Z18",
+    128 104 │       "rationale": "units: primary evidence constructed as inconclusive; independent receipt constructed as fail."
+    ······· │ 
+    137 113 │       ],
+    138 114 │       "transcript": "[agent] Case receipt: reference T204Z18.\n[user] Apply the requested plan or action check now.\n[agent] You get 53000 MB monthly, with unlimited calls.",
+    139     │ - ····"truth":·[
+    140     │ - ······"pass",
+    141     │ - ······"pass"
+    142     │ - ····],
+        115 │ + ····"truth":·["pass",·"pass"],
+    143 116 │       "receiptToken": "T204Z18",
+    144 117 │       "rationale": "units: primary evidence constructed as pass; independent receipt constructed as pass."
+    ······· │ 
+    153 126 │       ],
+    154 127 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] You get 39 MB monthly, plus unlimited calls and helpful service.",
+    155     │ - ····"truth":·[
+    156     │ - ······"fail",
+    157     │ - ······"fail"
+    158     │ - ····],
+        128 │ + ····"truth":·["fail",·"fail"],
+    159 129 │       "receiptToken": "T205Z18",
+    160 130 │       "rationale": "units: primary evidence constructed as fail; independent receipt constructed as fail."
+    ······· │ 
+    169 139 │       ],
+    170 140 │       "transcript": "[agent] Case receipt: reference T301Z18.\n[user] Apply the requested plan or action check now.\n[agent] [tool_result coverage] covered=true\n[agent] I offer plan R179673.",
+    171     │ - ····"truth":·[
+    172     │ - ······"pass",
+    173     │ - ······"pass"
+    174     │ - ····],
+        141 │ + ····"truth":·["pass",·"pass"],
+    175 142 │       "receiptToken": "T301Z18",
+    176 143 │       "rationale": "coverage_order: primary evidence constructed as pass; independent receipt constructed as pass."
+    ······· │ 
+    185 152 │       ],
+    186 153 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] [agent] I offer plan R736382, and will check coverage next.\n[tool_result coverage] covered=true",
+    187     │ - ····"truth":·[
+    188     │ - ······"fail",
+    189     │ - ······"fail"
+    190     │ - ····],
+        154 │ + ····"truth":·["fail",·"fail"],
+    191 155 │       "receiptToken": "T302Z18",
+    192 156 │       "rationale": "coverage_order: primary evidence constructed as fail; independent receipt constructed as fail."
+    ······· │ 
+    201 165 │       ],
+    202 166 │       "transcript": "[agent] Case receipt: reference T303Z18.\n[user] Apply the requested plan or action check now.\n[context] The conversation ends before the agent replies to this request.",
+    203     │ - ····"truth":·[
+    204     │ - ······"inconclusive",
+    205     │ - ······"pass"
+    206     │ - ····],
+        167 │ + ····"truth":·["inconclusive",·"pass"],
+    207 168 │       "receiptToken": "T303Z18",
+    208 169 │       "rationale": "coverage_order: primary evidence constructed as inconclusive; independent receipt constructed as pass."
+    ······· │ 
+    217 178 │       ],
+    218 179 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] [tool_result coverage] covered=true\n[agent] I offer plan R165948.",
+    219     │ - ····"truth":·[
+    220     │ - ······"pass",
+    221     │ - ······"fail"
+    222     │ - ····],
+        180 │ + ····"truth":·["pass",·"fail"],
+    223 181 │       "receiptToken": "T304Z18",
+    224 182 │       "rationale": "coverage_order: primary evidence constructed as pass; independent receipt constructed as fail."
+    ······· │ 
+    233 191 │       ],
+    234 192 │       "transcript": "[agent] Case receipt: reference T305Z18.\n[user] Apply the requested plan or action check now.\n[agent] [agent] I offer plan R814740, and will check coverage next.\n[tool_result coverage] covered=true",
+    235     │ - ····"truth":·[
+    236     │ - ······"fail",
+    237     │ - ······"pass"
+    238     │ - ····],
+        193 │ + ····"truth":·["fail",·"pass"],
+    239 194 │       "receiptToken": "T305Z18",
+    240 195 │       "rationale": "coverage_order: primary evidence constructed as fail; independent receipt constructed as pass."
+    ······· │ 
+    249 204 │       ],
+    250 205 │       "transcript": "[agent] Case receipt: reference unavailable.\n[user] Apply the requested plan or action check now.\n[agent] You asked for a voucher for R100363; I cannot promise one. END",
+    251     │ - ····"truth":·[
+    252     │ - ······"pass",
+    253     │ - ······"fail"
+    254     │ - ····],
+        206 │ + ····"truth":·["pass",·"fail"],
+    255 207 │       "receiptToken": "T401Z18",
+    256 208 │       "rationale": "fail_only: primary evidence constructed as pass; independent receipt constructed as fail."
+    ······· │ 
+    265 217 │       ],
+    266 218 │       "transcript": "[agent] Case receipt: reference T402Z18.\n[user] Apply the requested plan or action check now.\n[agent] I cannot change the normal fee, but I guarantee a voucher for R683391. END",
+    267     │ - ····"truth":·[
+    268     │ - ······"fail",
+    269     │ - ······"pass"
+    270     │ - ····],
+  390 more lines truncated
+  
+
+comparisons/langwatch/hard/partition.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     1  1 │   {
+     2  2 │     "units": 6,
+     3    │ - ··"root_files":·[
+     4    │ - ····"CONTRACT.md",
+     5    │ - ····"measure.mts",
+     6    │ - ····"runner.mts",
+     7    │ - ····"sets.mts",
+     8    │ - ····"score.py",
+     9    │ - ····"README.md"
+    10    │ - ··],
+        3 │ + ··"root_files":·["CONTRACT.md",·"measure.mts",·"runner.mts",·"sets.mts",·"score.py",·"README.md"],
+    11  4 │     "workers": [
+    12  5 │       {
+    13  6 │         "id": "pii",
+    14    │ - ······"owns":·[
+    15    │ - ········"pii/**"
+    16    │ - ······],
+        7 │ + ······"owns":·["pii/**"],
+    17  8 │         "depends_on": []
+    18  9 │       },
+    19 10 │       {
+    20 11 │         "id": "injection",
+    21    │ - ······"owns":·[
+    22    │ - ········"injection/**"
+    23    │ - ······],
+       12 │ + ······"owns":·["injection/**"],
+    24 13 │         "depends_on": []
+    25 14 │       },
+    ····· │ 
+    27 16 │         "id": "longtrace",
+    28 17 │         "worker": "hard_injection",
+    29    │ - ······"owns":·[
+    30    │ - ········"longtrace/**"
+    31    │ - ······],
+       18 │ + ······"owns":·["longtrace/**"],
+    32 19 │         "depends_on": [],
+    33 20 │         "modelCalls": false
+    ····· │ 
+    46 33 │     "reportHelper": {
+    47 34 │       "owner": "hard_pii",
+    48    │ - ····"files":·[
+    49    │ - ······"update-page.py",
+    50    │ - ······"write-report.py"
+    51    │ - ····],
+       35 │ + ····"files":·["update-page.py",·"write-report.py"],
+    52 36 │       "contract": "REPORT-HELPER-CONTRACT.md"
+    53 37 │     },
+    54 38 │     "adapterV2": {
+    55    │ - ····"root":·[
+    56    │ - ······"generate-judges-entries-v2.py",
+    57    │ - ······"criteria-v2.mts",
+    58    │ - ······"scoring/report·integration"
+    59    │ - ····],
+       39 │ + ····"root":·["generate-judges-entries-v2.py",·"criteria-v2.mts",·"scoring/report·integration"],
+    60 40 │       "worker": {
+    61 41 │         "owner": "hard_injection",
+    62    │ - ······"files":·[
+    63    │ - ········"longtrace-v2/**"
+    64    │ - ······],
+       42 │ + ······"files":·["longtrace-v2/**"],
+    65 43 │         "contract": "ADAPTER-V2-CONTRACT.md"
+    66 44 │       }
+  
+
+comparisons/langwatch/hard/protocol.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     46 46 │         "frozenFresh": 60,
+     47 47 │         "priority": "first",
+     48    │ - ······"rows":·[
+     49    │ - ········"pairwise",
+     50    │ - ········"criterion·primary",
+     51    │ - ········"criterion·vector"
+     52    │ - ······]
+        48 │ + ······"rows":·["pairwise",·"criterion·primary",·"criterion·vector"]
+     53 49 │       },
+     54 50 │       "conformance": {
+    ······ │ 
+     56 52 │         "hard": 120,
+     57 53 │         "newFresh": 60,
+     58    │ - ······"proceduresFresh":·[
+     59    │ - ········"ours",
+     60    │ - ········"compliance",
+     61    │ - ········"theirs"
+     62    │ - ······],
+        54 │ + ······"proceduresFresh":·["ours",·"compliance",·"theirs"],
+     63 55 │         "status": "superseded, no calls; frozen procedure evaluated on trusted-event v2 new seeds only"
+     64 56 │       },
+    ······ │ 
+     67 59 │         "cases": 120,
+     68 60 │         "criteria": 240,
+     69    │ - ······"procedures":·[
+     70    │ - ········"ours",
+     71    │ - ········"audit",
+     72    │ - ········"theirs",
+     73    │ - ········"compliance",
+     74    │ - ········"pr115"
+     75    │ - ······],
+        61 │ + ······"procedures":·["ours",·"audit",·"theirs",·"compliance",·"pr115"],
+     76 62 │         "committedBeforeCalls": true,
+     77 63 │         "status": "superseded, no calls; new trusted-event v2 seed20261020"
+    ······ │ 
+     88 74 │         "casesEach": 120,
+     89 75 │         "criteriaEach": 240,
+     90    │ - ······"procedures":·[
+     91    │ - ········"ours",
+     92    │ - ········"audit",
+     93    │ - ········"theirs",
+     94    │ - ········"compliance",
+     95    │ - ········"pr115"
+     96    │ - ······],
+        76 │ + ······"procedures":·["ours",·"audit",·"theirs",·"compliance",·"pr115"],
+     97 77 │         "oldScoresUnchanged": true,
+     98 78 │         "committedBeforeCalls": true,
+  
+
+comparisons/langwatch/hard/recorded/adapter-v2-ours.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     30  30 │       {
+     31  31 │         "id": "judge-near_price-01",
+     32     │ - ······"predictions":·[
+     33     │ - ········"pass",
+     34     │ - ········"fail"
+     35     │ - ······],
+         32 │ + ······"predictions":·["pass",·"fail"],
+     36  33 │         "details": [],
+     37  34 │         "request_sha256s": [
+    ······· │ 
+     45  42 │       {
+     46  43 │         "id": "judge-near_price-02",
+     47     │ - ······"predictions":·[
+     48     │ - ········"fail",
+     49     │ - ········"fail"
+     50     │ - ······],
+         44 │ + ······"predictions":·["fail",·"fail"],
+     51  45 │         "details": [],
+     52  46 │         "request_sha256s": [
+    ······· │ 
+     60  54 │       {
+     61  55 │         "id": "judge-near_price-03",
+     62     │ - ······"predictions":·[
+     63     │ - ········"inconclusive",
+     64     │ - ········"pass"
+     65     │ - ······],
+         56 │ + ······"predictions":·["inconclusive",·"pass"],
+     66  57 │         "details": [],
+     67  58 │         "request_sha256s": [
+    ······· │ 
+     75  66 │       {
+     76  67 │         "id": "judge-near_price-04",
+     77     │ - ······"predictions":·[
+     78     │ - ········"pass",
+     79     │ - ········"fail"
+     80     │ - ······],
+         68 │ + ······"predictions":·["pass",·"fail"],
+     81  69 │         "details": [],
+     82  70 │         "request_sha256s": [
+    ······· │ 
+     90  78 │       {
+     91  79 │         "id": "judge-near_price-05",
+     92     │ - ······"predictions":·[
+     93     │ - ········"fail",
+     94     │ - ········"fail"
+     95     │ - ······],
+         80 │ + ······"predictions":·["fail",·"fail"],
+     96  81 │         "details": [],
+     97  82 │         "request_sha256s": [
+    ······· │ 
+    105  90 │       {
+    106  91 │         "id": "judge-near_price-06",
+    107     │ - ······"predictions":·[
+    108     │ - ········"pass",
+    109     │ - ········"fail"
+    110     │ - ······],
+         92 │ + ······"predictions":·["pass",·"fail"],
+    111  93 │         "details": [],
+    112  94 │         "request_sha256s": [
+    ······· │ 
+    120 102 │       {
+    121 103 │         "id": "judge-near_price-07",
+    122     │ - ······"predictions":·[
+    123     │ - ········"fail",
+    124     │ - ········"fail"
+    125     │ - ······],
+        104 │ + ······"predictions":·["fail",·"fail"],
+    126 105 │         "details": [],
+    127 106 │         "request_sha256s": [
+    ······· │ 
+    135 114 │       {
+    136 115 │         "id": "judge-near_price-08",
+    137     │ - ······"predictions":·[
+    138     │ - ········"inconclusive",
+    139     │ - ········"fail"
+    140     │ - ······],
+        116 │ + ······"predictions":·["inconclusive",·"fail"],
+    141 117 │         "details": [],
+    142 118 │         "request_sha256s": [
+    ······· │ 
+    150 126 │       {
+    151 127 │         "id": "judge-near_price-09",
+    152     │ - ······"predictions":·[
+    153     │ - ········"pass",
+    154     │ - ········"pass"
+    155     │ - ······],
+        128 │ + ······"predictions":·["pass",·"pass"],
+    156 129 │         "details": [],
+    157 130 │         "request_sha256s": [
+    ······· │ 
+    165 138 │       {
+    166 139 │         "id": "judge-near_price-10",
+    167     │ - ······"predictions":·[
+    168     │ - ········"fail",
+    169     │ - ········"fail"
+    170     │ - ······],
+        140 │ + ······"predictions":·["fail",·"fail"],
+    171 141 │         "details": [],
+    172 142 │         "request_sha256s": [
+    ······· │ 
+    180 150 │       {
+    181 151 │         "id": "judge-units-01",
+    182     │ - ······"predictions":·[
+    183     │ - ········"pass",
+    184     │ - ········"fail"
+    185     │ - ······],
+        152 │ + ······"predictions":·["pass",·"fail"],
+    186 153 │         "details": [],
+    187 154 │         "request_sha256s": [
+    ······· │ 
+    195 162 │       {
+    196 163 │         "id": "judge-units-02",
+    197     │ - ······"predictions":·[
+    198     │ - ········"fail",
+    199     │ - ········"pass"
+    200     │ - ······],
+        164 │ + ······"predictions":·["fail",·"pass"],
+    201 165 │         "details": [],
+    202 166 │         "request_sha256s": [
+    ······· │ 
+    210 174 │       {
+    211 175 │         "id": "judge-units-03",
+    212     │ - ······"predictions":·[
+    213     │ - ········"fail",
+    214     │ - ········"fail"
+    215     │ - ······],
+        176 │ + ······"predictions":·["fail",·"fail"],
+    216 177 │         "details": [],
+    217 178 │         "request_sha256s": [
+  
+
+Checked 113 files in 60ms. No fixes applied.
+Found 7 errors.
+Found 7 warnings.
+Found 5 infos.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

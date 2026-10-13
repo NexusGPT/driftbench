@@ -796,7 +796,7 @@ Exit codes: 0 when the report is printed; 2 on a usage or input error (a map, pl
 Atoms match by id. An atom whose provenance hash changed is one of three things:
 
 * moved: the same quote at another span (a line was added or removed above it); no test changes;
-* white space: the quotes are equal once runs of white space become one space and the ends are trimmed; its tests are regenerated, no person is needed;
+* white space: the quotes are equal once runs of white space become one space and the ends are trimmed; no test changes, since nothing a test checks changed (a change reruns only what it can affect);
 * semantic: anything else (case and punctuation count); its tests are regenerated and its phrasings go back for approval.
 
 An atom with the same hash whose evidence, enforcement, situation, title, role or kind fields differ is restated: its tests are regenerated. Approval alone is never a change. Edges compare as `from kind to`.
@@ -897,7 +897,7 @@ The state of the first Northwind version sits in `examples/estates/fixture-v2/ma
 
 Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate` writes them). A spec without `metadata.estate` is counted as other. A spec with any `metadata.retired` value, a key beside `metadata.estate`, is no longer live. The lists:
 
-* regenerate: every test with a changed, restated or guard-state atom, or with a removed atom while other atoms remain, with the reason per atom;
+* regenerate: every test with a semantic, restated or guard-state atom, or with a removed atom while other atoms remain, with the reason per atom; a change of white space alone touches no test (the respaced supplier rule leaves `northwind-supplier-yes` untouched);
 * re-approve: every semantic change, with its tests;
 * retire: every test whose atoms are all removed, with the reason `atom <id> removed`;
 * new: added atoms no live test names.
@@ -905,13 +905,12 @@ Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate`
 ```
 $ pnpm -s driftbench estate impact _captures/docs3/estate/diff.json --tests examples/estates/fixture-v2/tests
 Impact of the estate diff ab256ba636f4 to 48cac5d0c4c3 on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 5, re-approve 2, retire 1, new 2; 2 tests untouched, 24 atoms moved with the same quote.
+  Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 24 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.never-send-a-supplier-email-without white space, instruction.standing.keep-an-unconfirmed-draft-unsent removed
+  northwind-draft-pair (draft-pair.yaml): instruction.standing.keep-an-unconfirmed-draft-unsent removed
   northwind-late-shipment (late-shipment.yaml): instruction.standing.tell-the-user-about-a-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
-  northwind-supplier-yes (supplier-yes.yaml): instruction.standing.never-send-a-supplier-email-without white space
 Re-approve, the meaning changed:
   route.standing.an-ask-to-plan-the-delivery (route): | plan the delivery routes for the next two days | the `route-planner` agent |
       tests: northwind-route-planner

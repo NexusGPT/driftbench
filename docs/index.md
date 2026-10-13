@@ -11,6 +11,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Block](concepts/block.md): the unit of evaluation, the four runtime concepts (tools, skills, guards, stages), one conversation spec and one task spec.
 * [Given, When, Then](concepts/given-when-then.md): the initial conditions, the stimulus and the expected result of a block.
 * [Run modes](concepts/run-modes.md): teacher-forced, free-running and perturbed runs of the same spec.
+* [Blast radius](concepts/blast-radius.md): which blocks a change to the agent can affect, so a fix reruns its radius and not the whole suite.
 * [Drift](concepts/drift.md): the five drift classes, and the metrics across a succession of blocks.
 * [Recovery](concepts/recovery.md): the ten deviation classes, and how fast the agent comes back.
 * [Script](concepts/script.md): writing a conversation spec in code, with the steps `user`, `agent`, `judge` and `injection`, and the steps that have no spec form.
@@ -33,6 +34,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Production traces](traces.md): `driftbench import traces` drafts specs from OpenTelemetry, Nexus or Claude Code traces; `driftbench monitor --source traces` watches production for drift in time windows, with the measured delay and false alarms.
 * [Releasing](releasing.md): the 0.1.0 packages, the release check and the tag-only release workflow.
 * [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.
+* [Benchmark floors](benchmarks.md): the shipped default judge on immutable fictional slices, recorded responses, free replay, and regression floors in CI.
 
 ## Reference
 

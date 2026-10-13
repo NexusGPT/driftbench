@@ -262,7 +262,7 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^scan\.decoys\.guard-message-overlap$/, 'tie a guard to a rule by its row or label, not by quoted words'],
   [/^scan\.decoys\.script-name-in-prose$/, 'anchor a script only where it is run'],
   // Plan.
-  [/^plan\.contract\.journey-route$/, 'walk every route edge in a journey'],
+  [/^plan\.contract\.journey-route$/, 'walk every route the standing instructions state in a journey'],
   [/^plan\.relevance\./, 'cross each situation only with the atom kinds it acts on'],
   // Generation and agent mutants: the gap marker the generated specs carry.
   [/^(gen\.asks\.|gen\.complete\.route_positive-)/, 'ask k distinct positive phrases per route'],

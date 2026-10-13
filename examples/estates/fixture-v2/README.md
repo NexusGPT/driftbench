@@ -17,7 +17,7 @@ What changed from the first version:
 | The ledger guard promoted from warn to enforce, with decision evidence | `guard-state.yaml` | guard promoted |
 
 R2's wrap, R12's removal and the two new rules shift lines, so 24 atoms move with the same quote; a move
-touches no test. The size invariant of the standing file is restated (its measured size changed).
+touches no test, and neither does R2's wrap (white space only). The size invariant of the standing file is restated (its measured size changed).
 
 Files:
 

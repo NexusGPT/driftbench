@@ -43,6 +43,7 @@ Ten one-cause fixes were measured against bank version 3 on branch exec/system-p
 * Use files of your own, never /tmp/<common name>.
 * The scale items time CPU, not wall time; the growth bound is 25 from ten to a hundred times the size.
 * The variance family holds three Monte Carlo items; each can fail a correct chain on about 2 seeds in 1000 (packages/validators/fixtures/system/design.json).
+* variance/design-effect-calibration plants 20 specs by 4 runs, always balanced, and truncates the correlation at zero itself. So it cannot see an ANOVA that is right on balanced data only, nor a correlation left negative: both give the verdicts of a correct implementation. Unbalanced data and the untruncated value need items of their own.
 * An item that is wrong is the maintainer's to fix, in a commit of its own on a non-executor branch, never the executor's.
 * docs/concepts/*.md is the contract the bank follows; docs/running.md and cli.md lag in places (cli.md still says report, compare and ci are not built).
 

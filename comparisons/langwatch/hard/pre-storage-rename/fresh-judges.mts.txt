@@ -1,0 +1,109 @@
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { parseAnswerText } from '../../../packages/judges/src/contract.ts';
+import { buildPrompt } from '../../../packages/judges/src/prompt.ts';
+import { AUDIT, auditPrediction, type JudgeCase, keyOf, nativePrompt, nativeSchema } from './judges.mts';
+import { here, Runner } from './runner.mts';
+export async function measureJudges(variant: string, runner: Runner) {
+  if (!['ours', 'theirs'].includes(variant)) throw new Error('Unknown judge variant');
+  const frozen = JSON.parse(readFileSync(join(here, 'compliance-freeze.json'), 'utf8'));
+  for (const [path, digest] of Object.entries(frozen.sourceHashes))
+    if (
+      createHash('sha256')
+        .update(readFileSync(join(here, path)))
+        .digest('hex') !== digest
+    )
+      throw new Error(`Frozen baseline/candidate source changed: ${path}`);
+  if (
+    createHash('sha256')
+      .update(readFileSync(join(here, 'judges-heldout-v2.json')))
+      .digest('hex') !== frozen.fixtureSha256
+  )
+    throw new Error('Fresh fixture changed');
+  const heldout = true;
+  const population = JSON.parse(readFileSync(join(here, 'judges-heldout-v2.json'), 'utf8')) as JudgeCase[];
+  const at = process.argv.indexOf('--limit');
+  const items = at >= 0 ? population.slice(0, Number(process.argv[at + 1])) : population;
+  const answers: unknown[] = [];
+  const path = join(here, 'recorded', `judges-${variant}${heldout ? '-heldout-v2' : ''}.json`);
+  const save = () =>
+    writeFileSync(
+      path,
+      `${JSON.stringify({ row: 'criteria-and-verdict', variant, set: heldout ? 'heldout' : 'hard', candidateLabel: variant === 'audit' ? 'not yet the shipped default' : undefined, model: 'haiku', expected: population.length, complete: answers.length === population.length, freshUsd: runner.fresh, newCalls: runner.calls, answers }, null, 2)}\n`,
+    );
+  try {
+    for (const item of items) {
+      const keys: string[] = [];
+      const predictions: Array<string | null> = [];
+      let costUsd = 0;
+      let transportRecovered = false;
+      let unscored = false;
+      if (variant === 'theirs') {
+        const user = `\n<transcript>\n${item.transcript}\n</transcript>\n<opentelemetry_traces>\n\n</opentelemetry_traces>\n`;
+        let call = await runner.ask(nativePrompt(item), user, nativeSchema(item.criteria));
+        keys.push(call.key);
+        costUsd += call.costUsd;
+        if (call.failed && !call.text && !call.structured) {
+          call = await runner.ask(nativePrompt(item), user, nativeSchema(item.criteria), 6);
+          keys.push(call.key);
+          costUsd += call.costUsd;
+          transportRecovered = !call.failed && call.structured !== undefined;
+          unscored = !transportRecovered;
+        }
+        let value: { criteria?: Record<string, { status?: string }> } = {};
+        if (!call.failed)
+          try {
+            value = (call.structured as typeof value) ?? JSON.parse(call.text);
+          } catch {
+            /* Missing is incorrect, not a negative classification. */
+          }
+        for (const criterion of item.criteria) {
+          const status = value.criteria?.[keyOf(criterion)]?.status;
+          predictions.push(
+            status === 'passed'
+              ? 'pass'
+              : status === 'failed'
+                ? 'fail'
+                : status === 'inconclusive'
+                  ? 'inconclusive'
+                  : null,
+          );
+        }
+      } else {
+        for (const [index, rubric] of item.criteria.entries()) {
+          const prompt = buildPrompt({
+            criterion: { name: `requirement_${index + 1}`, rubric, scope: 'conversation' },
+            transcript: [
+              { role: 'context', text: item.scenario },
+              { role: 'agent', text: item.transcript },
+            ],
+          });
+          const call = await runner.ask(variant === 'audit' ? AUDIT : prompt.system, prompt.user);
+          keys.push(call.key);
+          costUsd += call.costUsd;
+          if (call.failed) predictions.push(null);
+          else if (variant === 'audit') predictions.push(auditPrediction(call.text));
+          else {
+            const parsed = parseAnswerText(call.text);
+            predictions.push(parsed.unparsed ? null : parsed.answer.outcome);
+          }
+        }
+      }
+      answers.push({ id: item.id, predictions, keys, costUsd, transportRecovered, unscored });
+      save();
+      if (answers.length % 10 === 0)
+        console.log(
+          `judges ${variant}: ${answers.length}/${items.length}, new USD ${runner.fresh.toFixed(6)}`,
+        );
+    }
+  } finally {
+    save();
+  }
+}
+if (process.argv[1] && new URL(import.meta.url).pathname === process.argv[1]) {
+  measureJudges(process.argv[2] ?? 'ours', new Runner(process.argv.includes('--replay'))).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

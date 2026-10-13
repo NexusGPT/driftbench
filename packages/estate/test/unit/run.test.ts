@@ -562,7 +562,7 @@ describe('a TypeScript script', () => {
     }
   }, 60_000);
 
-  it('runs offline in the sandbox, with no package fetched, in well under its timeout', async () => {
+  it('runs offline in the sandbox, with no package fetched and no call to npx', async () => {
     const root = await estate({
       'CLAUDE.md': RULES,
       '.claude/skills/sum/scripts/sum.ts':
@@ -584,10 +584,24 @@ describe('a TypeScript script', () => {
       target: { kind: 'script', path: '.claude/skills/sum/scripts/sum.ts' },
       cases: [],
     };
-    const started = performance.now();
-    const run = await runUnitTests([test], { root, reader: new ClaudeCodeReader() });
-    expect([run.results[0]?.status, run.results[0]?.detail]).toEqual(['pass', '1 of 1 fixtures as declared']);
-    expect(performance.now() - started).toBeLessThan(20_000);
+    // The slow path is `npx tsx`: it reaches for the network, which the sandbox closes, and waits out the
+    // timeout. A stand-in npx, first on the path, fails at once, so a pass proves npx was never called.
+    const bin = join(root, 'stand-in-bin');
+    await mkdir(bin);
+    await writeFile(join(bin, 'npx'), '#!/bin/sh\necho "npx was called" >&2\nexit 3\n');
+    await chmod(join(bin, 'npx'), 0o755);
+    const previous = process.env.PATH;
+    process.env.PATH = `${bin}:${previous ?? '/usr/bin:/bin'}`;
+    try {
+      const run = await runUnitTests([test], { root, reader: new ClaudeCodeReader() });
+      expect([run.results[0]?.status, run.results[0]?.detail]).toEqual([
+        'pass',
+        '1 of 1 fixtures as declared',
+      ]);
+    } finally {
+      if (previous === undefined) delete process.env.PATH;
+      else process.env.PATH = previous;
+    }
   }, 60_000);
 });
 

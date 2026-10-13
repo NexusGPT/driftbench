@@ -10,6 +10,7 @@ export {
   type TableInput,
   type TableMapping,
 } from './import/table';
+export * from './radius';
 export * from './retry';
 export * from './runner';
 export * from './schema/common';
@@ -41,3 +42,4 @@ export {
   normaliseText,
   wordsOf,
 } from './text/grams';
+export * from './text/openai-embedder';

@@ -156,6 +156,27 @@ describe('the anchor options offer tool-output fields and runtime events', () =>
   });
 });
 
+describe('a timeline event with a trace span id is anchored by the span id', () => {
+  it('offers span:<id> with the span id in the anchor, so the label names the real span', async () => {
+    const { anchorOptions } = await import('../src/view/server');
+    const block = {
+      index: 0,
+      injected: false,
+      pass: true,
+      latencyMs: 0,
+      retries: 0,
+      drift: [],
+      text: 'Yes.',
+      toolCalls: [],
+      verdicts: [],
+      timelineEvents: [{ id: 'a100000000000003', label: 'tool coverage.check' }],
+    } as never;
+    const option = anchorOptions(block).find((entry) => entry.value === 'span:a100000000000003');
+    expect(option?.label).toBe('tool coverage.check');
+    expect(option?.anchor).toEqual({ kind: 'span', span_id: 'a100000000000003' });
+  });
+});
+
 describe('a score typed with the label is kept on the queue vote', () => {
   it('stores the score of a queued item when the label completes it', async () => {
     const { emptyQueue, enqueue, readQueue, writeQueue } = await import('@agent-nexus/driftbench-judges');
@@ -178,5 +199,32 @@ describe('a score typed with the label is kept on the queue vote', () => {
     expect(queue.entries.find((entry) => entry.id === `${runId}.b2`)?.votes).toEqual([
       { reviewer: 'a reviewer', label: 'pass', score: 0.7 },
     ]);
+  });
+});
+
+describe('a timeline event of a block is a span anchor', () => {
+  it('offers each recorded event of the block by its id, and saves it as a span anchor', async () => {
+    const { anchorOptions } = await import('../src/view/server');
+    const block = {
+      index: 1,
+      injected: false,
+      pass: true,
+      latencyMs: 0,
+      retries: 0,
+      drift: [],
+      text: 'ok',
+      toolCalls: [],
+      verdicts: [],
+      timelineEvents: [
+        { id: 'event:4', label: 'tool coverage.lookup' },
+        { id: 'event:5', label: 'model call' },
+      ],
+    } as never;
+    const options = anchorOptions(block);
+    expect(options.map((option) => option.value)).toContain('span:event:4');
+    expect(options.find((option) => option.value === 'span:event:4')?.anchor).toEqual({
+      kind: 'span',
+      span_id: 'event:4',
+    });
   });
 });
