@@ -140,7 +140,10 @@ function ledgerSchema(schema: Record<string, unknown> | undefined, openApi = fal
     const variants = field?.anyOf as Record<string, unknown>[] | undefined;
     return variants?.some((v) => v.type === type) && variants.some((v) => v.type === 'null');
   };
+  // Gemini form only: no null type anywhere under the row, no type list. A null member beside nullable: true is still a 400.
+  const rejectedByGemini = openApi && /"type":\s*(\[|"null")/.test(JSON.stringify(row ?? {}));
   return (
+    !rejectedByGemini &&
     schema?.type === 'object' &&
     !props?.outcome &&
     checks?.type === 'array' &&
