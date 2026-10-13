@@ -83,6 +83,12 @@ export const ToolExpect = z
       .record(z.string(), Assertion)
       .optional()
       .describe('Assertions on the arguments, by argument name.'),
+    input_closed: z
+      .boolean()
+      .optional()
+      .describe(
+        'True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed.',
+      ),
   })
   .describe('One expected tool call.');
 export type ToolExpect = z.infer<typeof ToolExpect>;
@@ -262,6 +268,12 @@ export const Expect = z
       .min(1)
       .optional()
       .describe('The stage the agent must reach after the block, one of the spec stages.'),
+    stage_reported: z
+      .boolean()
+      .optional()
+      .describe(
+        'True requires the runtime to report a non-empty stage in this block. A carried or inferred stage does not count. False or absent leaves reporting optional.',
+      ),
     ledger_add: z
       .record(z.string(), z.unknown())
       .optional()

@@ -2344,6 +2344,7 @@ phrases:
     value: upgrade
     text: Can I get more data? My account email is sam.lee@example.com
     lang: en
+    when: { first_message: [ says-everything ] }
     produced_by: model
     approved: true
   - dimension: flow
