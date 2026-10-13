@@ -7,6 +7,12 @@ import type { ClientOptions, JudgeClient } from '../client';
 import { inconclusive, type JudgeRequest, type JudgeResult } from '../contract';
 import { isRecord, JudgeError } from '../http';
 import { buildPrompt } from '../prompt';
+import {
+  CLAUDE_SUBMISSION_CEILING,
+  type ClaudeRetryReceipt,
+  ClaudeTransportError,
+  withClaudeErrorRetries,
+} from './claude-errors';
 import { JUDGE_DIALECTS, withJudgeDialect } from './dialects';
 import type { TokenUsage } from './usage';
 
@@ -22,12 +28,16 @@ import type { TokenUsage } from './usage';
  * project file, memory or hook of the caller reaches the judge. The answer is the `result` text of the
  * JSON result, read through the answer contract; the cost is its `total_cost_usd`.
  *
- * Errors: an API error result is retryable and gives no answer; a run that stopped at its turn limit is an
- * unparsed answer, never a pass. An output-limit error gets one lower-effort recovery, subject to the
- * caller spend cap. Reads CLAUDE_JUDGE_MODEL when no model is given.
+ * Errors: an output-limit error gets one lower-effort recovery, subject to the caller spend cap; transient
+ * API errors without an answer are retried; other errors retain sanitized diagnostics. Recovery and retries
+ * share one ceiling of three submissions. A run that stopped at its turn limit is an unparsed answer, never
+ * a pass. Reads CLAUDE_JUDGE_MODEL when no model is given.
  */
 
-export type ClaudeCliOptions = Pick<ClientOptions, 'env' | 'id' | 'model' | 'cost' | 'timeoutMs'> & {
+export type ClaudeCliOptions = Pick<
+  ClientOptions,
+  'env' | 'id' | 'model' | 'cost' | 'timeoutMs' | 'retry' | 'maxRetries' | 'sleep'
+> & {
   /** The command to run. Default `claude`. */
   command?: string;
   /** Arguments before the judge's own, such as a script path for a fake command. */
@@ -111,6 +121,7 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
         cwd: workdir(),
         env,
         timeoutMs,
+        system: prompt.system,
       });
       return { ...readResult(sent.ran, model, request), ...sent.accounting };
     },
@@ -200,13 +211,16 @@ function clip(text: string): string {
   return flat.length > 200 ? `${flat.slice(0, 200)}...` : flat;
 }
 
+type ClaudeThinkingAttempt = { raw: string; usage: TokenUsage; costUsd?: number };
 export type ClaudeThinkingRecovery = {
   readonly reason: 'reasoning-budget-exhausted';
+  /** The exhausted submission and the low-effort one that settled it; transient failures are retry receipts. */
   readonly requestCount: number;
-  readonly attempts: readonly { raw: string; usage: TokenUsage; costUsd?: number }[];
-  readonly retrySkipped?: 'spend-cap';
+  readonly attempts: readonly ClaudeThinkingAttempt[];
+  readonly retrySkipped?: 'spend-cap' | 'submission-ceiling';
 };
 export class ClaudeThinkingError extends JudgeError {
+  readonly category = 'output-limit' as const;
   constructor(
     readonly thinkingRecovery: ClaudeThinkingRecovery,
     readonly usage: TokenUsage,
@@ -215,45 +229,64 @@ export class ClaudeThinkingError extends JudgeError {
     super('reasoning-budget-exhausted', 'Claude exhausted its output budget before producing an answer');
   }
 }
-/** Keeps native receipts and cumulative billing even when a recovery fails. */
+export type ClaudeAccounting = {
+  thinkingRecovery?: ClaudeThinkingRecovery;
+  retryReceipts?: readonly ClaudeRetryReceipt[];
+  requestCount?: number;
+  usage?: TokenUsage;
+  costUsd?: number;
+};
+/**
+ * One judge call: thinking recovery inside each attempt, then failure classification and transient retries.
+ * Both draw on CLAUDE_SUBMISSION_CEILING processes in total. Native receipts and cumulative billing of every
+ * process survive a failed recovery or retry.
+ */
 export async function runClaudeJudgeCommand(
   command: string,
   args: readonly string[],
   input: string,
-  options: ClaudeCliOptions & { cwd: string; env: Record<string, string | undefined>; timeoutMs: number },
-): Promise<{
-  ran: Ran;
-  accounting: { thinkingRecovery?: ClaudeThinkingRecovery; usage?: TokenUsage; costUsd?: number };
-}> {
+  options: ClaudeCliOptions & {
+    cwd: string;
+    env: Record<string, string | undefined>;
+    timeoutMs: number;
+    /** The system prompt inside args, redacted from failure diagnostics with the input. */
+    system: string;
+  },
+): Promise<{ ran: Ran; accounting: ClaudeAccounting }> {
   for (const n of [options.maxBudgetUsd, options.retryMaxCostUsd])
     if (n !== undefined && (!Number.isFinite(n) || n <= 0))
       throw new RangeError('spend limits must be positive and finite');
-  const attempts: { raw: string; usage: TokenUsage; costUsd?: number }[] = [];
+  // Every process that returned, in order; `launched` also counts one that never returned.
+  const returned: ClaudeThinkingAttempt[] = [];
+  const thinking: ClaudeThinkingAttempt[] = [];
+  let launched = 0;
+  let low = false;
   const totals = () => {
     const usage: Record<string, number> = {};
     for (const key of ['input', 'output'] as const)
-      if (attempts.every((a) => a.usage[key] !== undefined))
-        usage[key] = attempts.reduce((n, a) => n + (a.usage[key] ?? 0), 0);
-    const costUsd = attempts.every((a) => a.costUsd !== undefined)
-      ? attempts.reduce((n, a) => n + (a.costUsd ?? 0), 0)
+      if (returned.every((a) => a.usage[key] !== undefined))
+        usage[key] = returned.reduce((n, a) => n + (a.usage[key] ?? 0), 0);
+    const costUsd = returned.every((a) => a.costUsd !== undefined)
+      ? returned.reduce((n, a) => n + (a.costUsd ?? 0), 0)
       : undefined;
     return { usage, ...(costUsd === undefined ? {} : { costUsd }) };
   };
-  const recovery = (retrySkipped?: 'spend-cap'): ClaudeThinkingRecovery => ({
+  const recovery = (retrySkipped?: ClaudeThinkingRecovery['retrySkipped']): ClaudeThinkingRecovery => ({
     reason: 'reasoning-budget-exhausted',
-    requestCount: attempts.length,
-    attempts,
+    requestCount: thinking.length,
+    attempts: [...thinking],
     ...(retrySkipped ? { retrySkipped } : {}),
   });
-  const fail = (skipped?: 'spend-cap') => {
+  const fail = (skipped?: ClaudeThinkingRecovery['retrySkipped']) => {
     const t = totals();
     return new ClaudeThinkingError(recovery(skipped), t.usage, t.costUsd);
   };
-  for (let n = 0; n < 2; n++) {
-    const effort = n ? 'low' : options.claudeEffort;
+  const submit = async () => {
+    const effort = low ? 'low' : options.claudeEffort;
     const nextArgs = [...args];
     if (effort !== undefined) nextArgs.push('--effort', effort);
-    if (n && options.maxBudgetUsd !== undefined) {
+    if (low && options.maxBudgetUsd !== undefined) {
+      // Every earlier process, failed retries included, counts against the cap before a recovery process.
       const spent = totals().costUsd;
       if (
         spent === undefined ||
@@ -264,11 +297,12 @@ export async function runClaudeJudgeCommand(
       const at = nextArgs.indexOf('--max-budget-usd');
       if (at >= 0) nextArgs[at + 1] = String(options.maxBudgetUsd - spent);
     }
+    launched++;
     let ran: Ran;
     try {
       ran = await runClaudeCommand(command, nextArgs, input, options);
     } catch (cause) {
-      if (n) {
+      if (low) {
         const error = fail();
         error.cause = cause;
         throw error;
@@ -284,23 +318,65 @@ export async function runClaudeJudgeCommand(
     const value = isRecord(payload) ? payload : {};
     const u = isRecord(value.usage) ? value.usage : {};
     const valid = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x) && x >= 0;
-    attempts.push({
+    const receipt: ClaudeThinkingAttempt = {
       raw: ran.stdout,
       usage: {
         ...(valid(u.input_tokens) ? { input: u.input_tokens } : {}),
         ...(valid(u.output_tokens) ? { output: u.output_tokens } : {}),
       },
       ...(valid(value.total_cost_usd) ? { costUsd: value.total_cost_usd } : {}),
-    });
-    const exhausted =
-      value.is_error === true &&
-      (value.api_error === 'max_output_tokens' ||
-        (typeof value.result === 'string' &&
-          /^API Error: Claude's response exceeded the \d+ output token maximum\./.test(value.result)));
-    if (!exhausted) {
-      if (n && (ran.code !== 0 || value.is_error === true || value.type !== 'result')) throw fail();
-      return { ran, accounting: n ? { ...totals(), thinkingRecovery: recovery() } : {} };
+    };
+    returned.push(receipt);
+    return {
+      ran,
+      receipt,
+      answered: ran.code === 0 && value.type === 'result' && value.is_error !== true,
+      exhausted:
+        value.is_error === true &&
+        (value.api_error === 'max_output_tokens' ||
+          (typeof value.result === 'string' &&
+            /^API Error: Claude's response exceeded the \d+ output token maximum\./.test(value.result))),
+    };
+  };
+  // One retry attempt. An exhausted answer is recovered here, before the retry layer classifies the result.
+  const attempt = async (): Promise<Ran> => {
+    let sent = await submit();
+    if (sent.exhausted && !low) {
+      thinking.push(sent.receipt);
+      if (launched >= CLAUDE_SUBMISSION_CEILING) throw fail('submission-ceiling');
+      low = true;
+      sent = await submit();
     }
+    if (sent.exhausted) {
+      thinking.push(sent.receipt);
+      throw fail();
+    }
+    if (low && sent.answered) thinking.push(sent.receipt);
+    return sent.ran;
+  };
+  let sent: Awaited<ReturnType<typeof withClaudeErrorRetries<Ran>>>;
+  try {
+    sent = await withClaudeErrorRetries(
+      attempt,
+      { system: options.system, user: input, env: options.env },
+      options,
+      () => launched,
+    );
+  } catch (error) {
+    // A classified failure after a recovery keeps the thinking receipts and the cost of every process.
+    if (thinking.length && error instanceof ClaudeTransportError)
+      Object.assign(error, { thinkingRecovery: recovery(), costUsd: totals().costUsd });
+    throw error;
   }
-  throw fail();
+  const t = totals();
+  return {
+    ran: sent.ran,
+    accounting: {
+      ...(thinking.length ? { ...t, thinkingRecovery: recovery() } : {}),
+      ...(sent.retryReceipts
+        ? { retryReceipts: sent.retryReceipts, costUsd: thinking.length ? t.costUsd : sent.costUsd }
+        : {}),
+      ...(launched > 1 ? { requestCount: launched } : {}),
+    },
+  };
 }

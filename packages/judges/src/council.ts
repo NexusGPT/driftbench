@@ -481,10 +481,9 @@ async function castVote(
   const ask = async (asked: Budget) => {
     counter.cost += judge.cost;
     const result = await retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
-    if (result.thinkingRecovery) {
-      counter.errors++;
-      counter.cost += judge.cost * (result.thinkingRecovery.requestCount - 1);
-    }
+    if (result.thinkingRecovery) counter.errors++;
+    // Every further process of the call is billed: the thinking recovery and each transient retry.
+    counter.cost += judge.cost * ((result.requestCount ?? result.thinkingRecovery?.requestCount ?? 1) - 1);
     return result;
   };
   try {
@@ -515,9 +514,10 @@ async function castVote(
     };
   } catch (cause) {
     counter.errors += 1;
-    if (cause instanceof Error && 'thinkingRecovery' in cause) {
-      const recovery = cause.thinkingRecovery as { requestCount: number };
-      counter.cost += judge.cost * Math.max(0, recovery.requestCount - 1);
+    if (cause instanceof Error && ('thinkingRecovery' in cause || 'requestCount' in cause)) {
+      const counted = cause as { requestCount?: number; thinkingRecovery?: { requestCount: number } };
+      const requests = counted.requestCount ?? counted.thinkingRecovery?.requestCount ?? 1;
+      counter.cost += judge.cost * Math.max(0, requests - 1);
     }
     const why = cause instanceof Error ? cause.message : String(cause);
     return {

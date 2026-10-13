@@ -93,6 +93,7 @@ export {
   claudeCost,
   createClaudeCliJudge,
 } from './clients/claude-cli';
+export type { ClaudeFailureCategory, ClaudeRetryReceipt } from './clients/claude-errors';
 export { googleResponseSchema, JUDGE_DIALECTS, type JudgeDialect } from './clients/dialects';
 export { type FakeAnswer, FakeJudge } from './clients/fake';
 export { createHttpJudge, type HttpJudgeOptions } from './clients/http-json';

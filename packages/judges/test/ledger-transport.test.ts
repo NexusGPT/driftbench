@@ -198,8 +198,10 @@ describe('schema-independent dialect transport', () => {
       });
       await expect(client.complete(prompt)).rejects.toMatchObject({
         code: 'http',
-        message: 'claude returned an error result',
-        raw,
+        message: expect.stringContaining('provider unavailable after partial generation'),
+        raw: raw.trim(),
+        category: 'other',
+        retryable: false,
         exitCode,
         usage,
         costUsd: 0.0123,

@@ -6,6 +6,10 @@ import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { promptFingerprint } from '../prompt';
 import type { ClaudeCliOptions, ClaudeThinkingRecovery } from './claude-cli';
 import { CLAUDE_JUDGE_FLAGS, CLAUDE_SETTINGS, runClaudeJudgeCommand } from './claude-cli';
+import { type ClaudeRetryReceipt, ClaudeTransportError } from './claude-errors';
+
+export { ClaudeTransportError } from './claude-errors';
+
 import { googleResponseSchema, JUDGE_DIALECTS, type JudgeDialect } from './dialects';
 import { assertNotProviderBlocked, quoteAssessmentMaterial } from './provider-block';
 import { type TokenUsage, usageFromResponse } from './usage';
@@ -31,6 +35,9 @@ export type DialectCompletionRequest = {
 
 export type DialectCompletion = {
   readonly thinkingRecovery?: ClaudeThinkingRecovery;
+  readonly retryReceipts?: readonly ClaudeRetryReceipt[];
+  /** Every Claude CLI process started for this completion, recovery and retries included. */
+  readonly requestCount?: number;
   readonly text: string;
   readonly raw: string;
   readonly dialect: JudgeDialect;
@@ -61,36 +68,6 @@ export type DialectTransport = {
   readonly fingerprint: string;
   complete(request: DialectCompletionRequest): Promise<DialectCompletion>;
 };
-
-/** A completed Claude CLI process failed; retain its receipt so failed calls remain accountable. */
-export class ClaudeTransportError extends JudgeError {
-  readonly raw: string;
-  readonly exitCode: number | null;
-  /** Original provider counters, including cache creation and cache read usage. */
-  readonly usage?: Readonly<Record<string, unknown>>;
-  readonly costUsd?: number;
-
-  constructor(
-    code: 'http' | 'bad_response',
-    message: string,
-    processResult: { readonly stdout: string; readonly code: number | null },
-    payload?: unknown,
-  ) {
-    super(code, message);
-    this.name = 'ClaudeTransportError';
-    this.raw = processResult.stdout;
-    this.exitCode = processResult.code;
-    if (isRecord(payload)) {
-      if (isRecord(payload.usage)) this.usage = payload.usage;
-      if (
-        typeof payload.total_cost_usd === 'number' &&
-        Number.isFinite(payload.total_cost_usd) &&
-        payload.total_cost_usd >= 0
-      )
-        this.costUsd = payload.total_cost_usd;
-    }
-  }
-}
 
 /** Provider payload only: it carries no model, credentials, token budget or assessment contract. */
 export function buildDialectRequest(
@@ -250,7 +227,13 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
             ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
           ],
           built.payload.user as string,
-          { ...options, cwd: folder, env, timeoutMs: options.timeoutMs ?? 120_000 },
+          {
+            ...options,
+            cwd: folder,
+            env,
+            timeoutMs: options.timeoutMs ?? 120_000,
+            system: built.payload.system as string,
+          },
         );
         const ran = sent.ran;
         let value: unknown;
