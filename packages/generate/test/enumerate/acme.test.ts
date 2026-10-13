@@ -38,7 +38,12 @@ describe('generate on the approved Acme map', () => {
     const hand = await loadSpecs([`${ACME}specs`]);
     handWritten = hand.filter((entry): entry is LoadedSpec => entry.ok).map((entry) => entry.spec);
     // The price-sheet task family builds its instances first, as `driftbench generate` does (8 by default).
-    const tasks = await buildTaskInputs(prepared, dirname(ACME_MAP), { n: 8, seed: 1 });
+    const tasks = await buildTaskInputs(prepared, dirname(ACME_MAP), {
+      n: 8,
+      seed: 1,
+      // As `driftbench generate` names it from the repository root: the folder beside the spec.
+      seedFrom: (id) => `examples/acme/generated/specs/task/.seed-${id}`,
+    });
     expect(tasks.refused).toEqual([]);
     // The committed suite is written at strength 2 (`--t 2`); the default is 3.
     result = generateSuite(prepared, {
@@ -55,7 +60,7 @@ describe('generate on the approved Acme map', () => {
     // relations rule out (extract/derive.ts).
     const derived = prepared.map.constraints.filter((constraint) => constraint.reason.startsWith('derived'));
     expect(prepared.map.constraints.length - derived.length).toBe(111);
-    expect(prepared.map.constraints).toHaveLength(471);
+    expect(prepared.map.constraints).toHaveLength(463);
     expect(prepared.phrases).toHaveLength(55);
     expect(prepared.relations.paths).toHaveLength(12);
     expect(prepared.relations.usesTools).toHaveLength(14);
@@ -82,7 +87,9 @@ describe('generate on the approved Acme map', () => {
     const committed = (await files(GENERATED)).map((path) => relative(GENERATED, path));
     expect(committed).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) {
-      expect(await readFile(join(GENERATED, file.path), 'utf8'), file.path).toBe(file.text);
+      // A workbook of a seed folder is compared by its bytes; every other file by its text.
+      if (file.bytes) expect([...(await readFile(join(GENERATED, file.path)))], file.path).toEqual([...file.bytes]);
+      else expect(await readFile(join(GENERATED, file.path), 'utf8'), file.path).toBe(file.text);
     }
   });
 
@@ -115,7 +122,7 @@ describe('generate on the approved Acme map', () => {
     expect(twise.allowed).toBe(356);
     // Every row of the array is one t-wise spec.
     expect(twise.rows).toBe(result.report.seeders.twise.specs);
-    expect(result.report.constraints.applied).toBe(471);
+    expect(result.report.constraints.applied).toBe(463);
     const space = compileSpace(prepared.map);
     for (const spec of result.all.filter(
       (entry) => (entry.metadata as { generated: { seeder: string } }).generated.seeder === 'twise',
@@ -130,7 +137,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 291, incomplete: 75 });
+    expect(result.report.summary).toMatchObject({ complete: 324, incomplete: 75 });
   });
 
   it('never walks a spec on a path of a flow its behaviours do not belong to', () => {
@@ -223,7 +230,7 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(291);
+    expect(result.complete).toHaveLength(324);
     // A task spec's Then comes from its family's oracle, not from a path: the task seeder is checked apart.
     for (const spec of result.complete.filter((entry) => entry.kind !== 'task')) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
@@ -284,11 +291,9 @@ describe('generate on the approved Acme map', () => {
       const phrase = (generated.needs_phrase as unknown[] | undefined) ?? [];
       expect(why.length + phrase.length, spec.id).toBeGreaterThan(0);
     }
-    // The price-sheet task family never starts from an existing workbook: no allowed pair holds that value,
-    // and the report says so.
-    expect(result.report.cover.unreachable).toEqual([
-      { dimension: 'workspace_start', value: 'existing-workbook' },
-    ]);
+    // The price-sheet task family starts from the catalog or from an existing workbook, one branch of its
+    // relation each: an allowed pair holds every value of the map.
+    expect(result.report.cover.unreachable).toEqual([]);
   });
 
   it('builds a scenario for each allowed pair the other seeders leave uncovered, and names why the rest cannot be', () => {
@@ -301,11 +306,11 @@ describe('generate on the approved Acme map', () => {
       expect(entry.cell.stage).toBe('needs');
       expect(entry.reasons.length).toBeGreaterThan(0);
     }
-    expect(result.report.coverage.complete.covered).toBe(688);
+    expect(result.report.coverage.complete.covered).toBe(695);
     expect(result.report.coverage.allowed - result.report.coverage.complete.covered).toBe(
       cover.unbuilt.length,
     );
-    expect(result.report.coverage.allowed).toBe(701);
+    expect(result.report.coverage.allowed).toBe(708);
   });
 
   it('counts coverage on the axis map that extract map writes, as space coverage does', async () => {
@@ -314,8 +319,8 @@ describe('generate on the approved Acme map', () => {
     expect(prepared.axisMap.dimensions).toEqual(written.map.dimensions);
     expect(prepared.axisMap.constraints).toEqual(written.map.constraints);
     const coverage = result.report.coverage;
-    // The hand-written baseline: 237 of the 701 pairs the map allows.
-    expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 701, covered: 237 });
+    // The hand-written baseline: 237 of the 708 pairs the map allows.
+    expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 708, covered: 237 });
     expect(coverage.complete.covered).toBeGreaterThan(2 * (coverage.baseline?.covered ?? 0));
     const generated = await loadSpecs([GENERATED]);
     const counted = spaceCoverage(written.map, generated, { t: 2 });
@@ -329,6 +334,6 @@ describe('generate on the approved Acme map', () => {
     expect(loaded.ok).toBe(false);
     if (loaded.ok) return;
     expect(loaded.code).toBe('MAP_NOT_APPROVED');
-    expect(loaded.message).toContain('290 of 290 entries are not approved');
+    expect(loaded.message).toContain('291 of 291 entries are not approved');
   });
 });

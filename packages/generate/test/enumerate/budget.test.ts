@@ -19,7 +19,12 @@ describe('budget mode on the approved Acme map', () => {
     const loaded = await loadApprovedMap(ACME_MAP);
     if (!loaded.ok) throw new Error(`${loaded.code}: ${loaded.message}`);
     prepared = loaded.prepared;
-    const built = await buildTaskInputs(prepared, dirname(ACME_MAP), { n: 8, seed: 1 });
+    const built = await buildTaskInputs(prepared, dirname(ACME_MAP), {
+      n: 8,
+      seed: 1,
+      // As `driftbench generate` names it from the repository root: the folder beside the spec.
+      seedFrom: (id) => `examples/acme/generated/specs/task/.seed-${id}`,
+    });
     taskInputs = built.inputs;
     const hand = await loadSpecs([`${ACME}specs`]);
     handWritten = hand.filter((entry): entry is LoadedSpec => entry.ok).map((entry) => entry.spec);

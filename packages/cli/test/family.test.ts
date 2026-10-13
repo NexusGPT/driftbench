@@ -1,6 +1,6 @@
 import { cp, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
@@ -169,7 +169,7 @@ describe('driftbench family instances', () => {
     const result = await run(['family', 'instances', family, '--n', '2', '--seed', '1', '--out', 'out'], cwd);
     expect(result.code).toBe(1);
     expect(result.err).toMatch(
-      /A style knob changes the expected outcome[^\n]*nothing is written:\n {2}i01 base: wording = [bc]: the block build expects another must/,
+      /A style knob changes the expected outcome[^\n]*nothing is written:\n {2}i01 base: wording = [abc]: the block build expects another must/,
     );
     expect(await readdir(cwd)).toEqual([]);
   });
@@ -186,7 +186,13 @@ describe('the committed Acme instances', () => {
     expect(result.code).toBe(0);
     const committed = await tree(join(ACME_FAMILY, 'instances'));
     delete committed['verify-report.json'];
-    expect(await tree(out)).toEqual(committed);
+    // A spec whose workspace holds a workbook names its seed folder from the folder the command runs in.
+    const written = await tree(out);
+    const here = relative(repo, out).split(sep).join('/');
+    for (const [path, text] of Object.entries(written)) {
+      written[path] = text.split(`from: ${here}/`).join('from: examples/acme/families/price-sheet/instances/');
+    }
+    expect(written).toEqual(committed);
   }, 60_000);
 });
 
@@ -212,7 +218,7 @@ describe('driftbench family verify', () => {
   it('ships every instance of both seed formats the reference passes, and rejects one whose expectation is wrong', async () => {
     const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
     const built = await run(
-      ['family', 'instances', ACME_FAMILY, '--n', '3', '--seed', '7', '--out', 'out'],
+      ['family', 'instances', ACME_FAMILY, '--n', '3', '--seed', '8', '--out', 'out'],
       cwd,
     );
     expect(built.code).toBe(0);
