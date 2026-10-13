@@ -4,10 +4,12 @@
  * CPU covers one map load, generation, file write and YAML reload. Fault-run CPU is reported separately.
  */
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { cpus } from 'node:os';
 import { dirname } from 'node:path';
 import { cellsOf, generateSuite, measuredCoverage } from '../../packages/generate/src/enumerate/generate';
+import { seederOf } from '../../packages/generate/src/enumerate/spec-cap';
 import { FAULT_CLASSES, faultFamily } from '../../packages/validators/src/ladders/generator/faults';
 import {
   type Generation,
@@ -100,6 +102,23 @@ async function measure(factor: number, cap: number | undefined) {
   const files = [...generated.first.keys()].filter((path) => path.endsWith('.yaml'));
   if (files.length !== generated.report.summary.specs || generated.loaded.some((entry) => !entry.ok))
     throw new Error('written spec count or YAML reload differs from the report');
+  const fileHashes = new Map(
+    [...generated.first]
+      .filter(([path]) => path.endsWith('.yaml'))
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([path, text]) => [path, createHash('sha256').update(text).digest('hex')]),
+  );
+  const ready = new Set(generated.complete.map((entry) => entry.spec.id));
+  const protectedFiles = generated.loaded.flatMap((entry) =>
+    entry.ok && (!ready.has(entry.spec.id) || !['twise', 'cover'].includes(seederOf(entry.spec)))
+      ? [{ id: entry.spec.id, path: entry.path, sha256: fileHashes.get(entry.path) }]
+      : [],
+  );
+  if (protectedFiles.some((entry) => entry.sha256 === undefined))
+    throw new Error('protected spec is absent from written files');
+  const suiteManifestSha256 = createHash('sha256')
+    .update([...fileHashes].map(([path, hash]) => `${path}\t${hash}\n`).join(''))
+    .digest('hex');
   const faults = await faultsOf(generated);
   if (faults.errors.length > 0 || faults.followerFailures > 0)
     throw new Error(`follower or runner failed: ${JSON.stringify(faults)}`);
@@ -107,6 +126,9 @@ async function measure(factor: number, cap: number | undefined) {
     factor,
     cap: cap ?? null,
     specs: files.length,
+    fileHashes,
+    suiteManifestSha256,
+    protectedFiles,
     generationCpuMs,
     pair: measuredCoverage(generated.prepared, specs, 2),
     triple: measuredCoverage(generated.prepared, specs, 3),
@@ -129,10 +151,12 @@ const numbers = (text: string) =>
     return number;
   });
 const rows: Array<
-  Awaited<ReturnType<typeof measure>> & {
+  Omit<Awaited<ReturnType<typeof measure>>, 'fileHashes'> & {
     pairsLost: number;
     triplesLost: number;
     faultsLost: string[];
+    changedFiles: string[];
+    protectedLost: string[];
     passes: boolean;
   }
 > = [];
@@ -152,15 +176,28 @@ for (const factor of numbers(factorText)) {
   for (const cap of [undefined, ...numbers(capText)]) {
     const row = cap === undefined ? baseline : await measure(factor, cap);
     const faultsLost = baseline.faults.caught.filter((id) => !row.faults.caught.includes(id));
+    const changedFiles = [...row.fileHashes]
+      .filter(([path, hash]) => baseline.fileHashes.get(path) !== hash)
+      .map(([path]) => path);
+    const protectedLost = baseline.protectedFiles
+      .filter((entry) => row.fileHashes.get(entry.path) !== entry.sha256)
+      .map((entry) => entry.path);
     const lost = row.uncoveredPairs.filter(
       (pair) => !baseline.uncoveredPairs.some((other) => JSON.stringify(pair) === JSON.stringify(other)),
     );
+    const { fileHashes: _fileHashes, ...evidence } = row;
     rows.push({
-      ...row,
+      ...evidence,
       pairsLost: lost.length,
       triplesLost: baseline.triple.covered - row.triple.covered,
       faultsLost,
-      passes: lost.length === 0 && faultsLost.length === 0,
+      changedFiles,
+      protectedLost,
+      passes:
+        lost.length === 0 &&
+        faultsLost.length === 0 &&
+        changedFiles.length === 0 &&
+        protectedLost.length === 0,
     });
     await writeFile(output, `${JSON.stringify({ stamp, rows }, null, 2)}\n`);
     process.stdout.write(
