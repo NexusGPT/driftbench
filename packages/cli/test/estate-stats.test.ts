@@ -2,7 +2,7 @@ import { copyFile, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadEstateMap } from '@driftbench/estate';
+import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
 

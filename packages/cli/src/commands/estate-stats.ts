@@ -1,8 +1,8 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { readSession, replayAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { type LoadedSpec, loadSpecFile, type Observed, runSpec } from '@driftbench/core';
+import { readSession, replayAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { type LoadedSpec, loadSpecFile, type Observed, runSpec } from '@agent-nexus/driftbench-core';
 import {
   type Atom,
   AtomKind,
@@ -11,9 +11,9 @@ import {
   loadEstateMap,
   type Plan,
   parsePlanText,
-} from '@driftbench/estate';
-import { StaticTest } from '@driftbench/generate';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-estate';
+import { StaticTest } from '@agent-nexus/driftbench-generate';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { alignReplaySpecs, replayChecks, replaySessionFor, type SessionEntry } from './replay';
