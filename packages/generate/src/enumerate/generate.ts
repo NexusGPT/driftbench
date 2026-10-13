@@ -1,4 +1,4 @@
-import { type Issue, type LoadResult, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
+import { type Issue, type LoadResult, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import {
   assertGridSize,
   type CompiledSpace,
@@ -217,7 +217,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     for (const draft of list) {
       const rendered: Rendered = renderDraft(prepared, draft, run);
       const text = specText(rendered, run, prepared.hash);
-      const loaded = parseSpecText(text, 'yaml', rendered.id);
+      const loaded = validateSpec(rendered.spec, rendered.id);
       if (!loaded.ok) {
         invalid.push({ id: rendered.id, errors: loaded.errors });
         continue;
@@ -273,7 +273,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   ].join('\n');
   for (const { id, spec } of taskSpecs(prepared, options.tasks ?? [], run)) {
     const text = `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
-    const loaded = parseSpecText(text, 'yaml', id);
+    const loaded = validateSpec(spec, id);
     const totals = seeders.task;
     if (!loaded.ok) {
       invalid.push({ id, errors: loaded.errors });

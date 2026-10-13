@@ -362,3 +362,19 @@ describe('iteration 21: the cells a spec reaches come from one projection of the
     }
   });
 });
+
+describe('iteration 22: a spec is validated as built, not parsed back from its text', () => {
+  it('holds the spec a reader gets from the written file, with the same hash and warnings', () => {
+    const { files, all } = run();
+    const byId = new Map(all.map((spec) => [spec.id, spec]));
+    let compared = 0;
+    for (const file of files) {
+      if (!file.path.endsWith('.yaml')) continue;
+      const loaded = parseSpecText(file.text, 'yaml', file.path);
+      if (!loaded.ok) throw new Error(`${file.path} does not load`);
+      expect(byId.get(loaded.spec.id), file.path).toEqual(loaded.spec);
+      compared += 1;
+    }
+    expect(compared).toBe(all.length);
+  });
+});
