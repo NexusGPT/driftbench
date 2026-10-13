@@ -381,45 +381,50 @@ In the repo: [the Acme map proposal](examples/acme/map/README.md)
 
 ## Test generation
 
-driftbench builds tests from an approved map of the situations an agent can face. Code reads the behaviour inventory and tool schemas; an optional model proposes entries from those sources and the prompt. Each entry quotes its source, and a person approves it before generation.
+driftbench writes tests from a map of the situations an agent can face. A person approves every entry of the map, and each entry quotes the source that justifies it. Code then writes the blocks and derives each expected outcome from the map, never from an agent's reply.
 
-Code derives each block's expected outcome from approved relations, independently of the agent's reply. Covering arrays place tests over allowed combinations of categorical values. Graph paths, boundary values, deviation probes, metamorphic variants and task families add tests, and coverage completion fills supported gaps. A block with no approved phrase or machine-checkable outcome stays in `incomplete/`. The validity gate checks candidate blocks against a reference agent, planted faults and trivial controls.
+Generate the Acme suite from its approved map. No model is called:
+
+```bash
+pnpm driftbench generate --map examples/acme/map/approved.yaml --out _captures/readme/generated --t 2
+```
+
+The map line, the table of seeders, the coverage line and the last line:
+
+```
+Map acme (../../../examples/acme/map/approved.yaml), hash ed9e4089e9c5: 51 dimensions, 185 values, 457 constraints, 51 approved phrases.
+
+Seeder        specs  blocks  complete  incomplete
+graph            12      48        12           0
+twise           132     675       131           1
+boundary         85     146        13          72
+deviation        17      90        17           0
+metamorphic      38     168        38           0
+task             34      47        34           0
+cover             7      38         7           0
+
+Coverage on the axis map at t = 2: complete specs 624 of 637 (98.0%), all specs 624 (98.0%).
+Wrote 326 files to _captures/readme/generated.
+```
+
+A spec with no approved phrase or no machine-checkable outcome goes to `incomplete/`, and the command then exits 1. Complete specs go to `specs/`.
 
 ### Budget mode
 
-`driftbench generate --budget N` replaces the covering-array conversation rows with a fixed number of selections. The hybrid selector picks the cell that adds the most uncovered allowed pairs, then favours underused values, then resolves ties with a seeded order. Constraints still apply. Without numeric settings, it selects up to N distinct cells. With numeric settings, categorical cells can repeat to place N samples. The other seeders still run, so N does not cap the whole suite, executed blocks or spend.
+`driftbench generate --budget N` replaces the covering-array rows with N conversations. Each pick is the one that covers the most new pairs of values, then the one that balances the values best. The other seeders still run, so N does not cap the whole suite.
 
-Approved numeric ranges use sliced Latin hypercube sampling (LHS). Rows with the same selected categorical combination form a slice. Each setting occupies every quantile band once globally and once within each slice, and the sampled values enter the spec through `given.vars`. Integer values can repeat. These properties apply to selected rows; removing incomplete rows or gating the suite can change the remaining balance.
+The [paired budget study](comparisons/budget/full-study.md) measures it on Acme over seeds 1 through 30, with scripted agents and 0 model calls. Mean faults caught, out of 13:
 
-### Measured comparison
-
-The [paired budget study](comparisons/budget/full-study.md) compares selected conversation rows on the fictional Acme system over selection and rendering seeds 1 through 30. Execution uses scripted reference and faulty agents, with 0 model calls and $0 model/tool spend. The table quotes mean fault catches from the study, with a common denominator of 13 scored faults.
-
-| Budget | Hybrid faults / 13 | Pairwise faults / 13 | Random faults / 13 |
+| Budget | Budget mode (hybrid) | Pairwise | Random |
 | --- | --- | --- | --- |
 | 20 | 9.00 | 8.00 | 8.37 |
 | 50 | 9.00 | 9.00 | 8.97 |
 | 100 | 9.00 | 9.00 | 9.00 |
 | 200 | 9.00 | 9.00 | 9.00 |
 
-At budget 20, the exact two-sided paired fault test gives p = 1.862645149230957e-09 for hybrid versus pairwise and p = 0.0001220703125 for hybrid versus random. These p-values are unadjusted and assume exchangeable method labels within each seed pair and independent swaps across pairs.
+At budget 20, budget mode catches one more fault than pairwise in every seed. From budget 50 up, the study measures no difference between the two. The other four faults need task specs, which the full generator writes. This is one map with scripted faults, not a result on other agents.
 
-At budgets 50, 100 and 200, hybrid and pairwise show no measured difference in fault catches; each paired p-value is 1. Hybrid versus random also has p = 1 at these budgets, although its budget-50 mean differs. This is evidence from this map and its scripted faults; it does not establish performance on other agents.
-
-At budget 200, pairwise catches 9 of 13 faults with 132 selected rows; hybrid catches 9 of 13 with 200 rows. Both cover 314.00 drawn pairs out of 314. Selected-row counts describe the selector's output, not whole-suite cost. Drawn pair coverage includes incomplete rows; fault scoring runs only complete rows.
-
-### Faults that need task specs
-
-The selected conversation space cannot reach these four operations faults. The full generator catches them through task-family specs, with the witness `acme-price-sheet-i01-base#build`:
-
-| Fault | What the task checks |
-| --- | --- |
-| `ops-x1-wrong-price` | The first Mobile workbook price and its yearly result are wrong while the reply stays unchanged. |
-| `ops-x4-narrates` | The reply narrates internal steps and omits the file name. |
-| `ops-x5-skips-check` | The block records no read-back command. |
-| `ops-d6-deletes-readme` | An instruction planted in the workspace makes the agent remove README.txt. |
-
-The numeric ablation measures global and within-slice stratification against uniform sampling. It measures no numeric fault-detection outcome. See [Generating tests](docs/generating.md) for the approved map, covering arrays, budget reports, task families, validity gate and commands. The [full study](comparisons/budget/full-study.md) retains intervals, raw records, fault witnesses and reproduction commands.
+In the docs: [Generating tests](docs/generating.md)
 
 ## The anatomy of driftbench
 
