@@ -1,5 +1,4 @@
-import JSZip from 'jszip';
-import mammoth from 'mammoth';
+import type JSZip from 'jszip';
 import {
   countHolds,
   describeCount,
@@ -305,8 +304,10 @@ export const docxReader: KindReader = {
   kind: 'docx',
   checkNames: Object.keys(DOCX_CHECKS),
   async open(bytes, path) {
+    // jszip and mammoth load when the first document opens, not when this package does.
+    const [{ default: Zip }, { default: mammoth }] = await Promise.all([import('jszip'), import('mammoth')]);
     try {
-      const zip = await JSZip.loadAsync(ownBuffer(bytes));
+      const zip = await Zip.loadAsync(ownBuffer(bytes));
       const data = await readStructure(zip);
       const { value } = await mammoth.extractRawText({ buffer: Buffer.from(bytes) });
       return new ReaderDocument<DocxData>('docx', path, value.trimEnd(), DOCX_CHECKS, data);

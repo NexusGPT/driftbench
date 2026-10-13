@@ -41,4 +41,21 @@ describe('what loads at start', () => {
       expect(packages[name], name).toBeUndefined();
     }
   }, 120_000);
+
+  it('loads no document or archive parser with the artifacts package', () => {
+    const { status, packages } = loaded(importOnly('packages/artifacts/src/index.ts'));
+    expect(status).toBe(0);
+    for (const name of ['jszip', 'mammoth', 'pako', 'xmlbuilder']) {
+      expect(packages[name], name).toBeUndefined();
+    }
+  }, 120_000);
+
+  it('loads no file parser to print the help of the CLI', () => {
+    const { status, stdout, packages } = loaded([join(ROOT, 'packages/cli/src/bin.ts'), '--help']);
+    expect(status).toBe(0);
+    expect(stdout).toContain('Usage: driftbench');
+    for (const name of ['exceljs', 'pdf-parse', '@napi-rs/canvas', 'jszip', 'mammoth']) {
+      expect(packages[name], name).toBeUndefined();
+    }
+  }, 120_000);
 });
