@@ -126,7 +126,7 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
     tool_order: in_order
 ```
 
-`input_closed: true` requires each call input to be an object containing only the top-level keys listed in `input`. Missing or non-object inputs fail. With no `input`, only an empty object is allowed. Nested values keep their normal assertion semantics. This gives a gating `tools.<label>.input_closed` verdict; it does not change argument accuracy. No calls satisfy closure when the count permits zero. Omitted or false leaves extra keys allowed.
+`input_closed: true` requires each call input to be an object containing only the top-level keys listed in `input`. Missing or non-object inputs fail. With no `input`, only an empty object is allowed. Nested values keep their normal assertion semantics. This gives a gating `tools.<label>.input_closed` verdict; it does not change argument accuracy. Zero calls pass closure; the count assertion remains independent. Omitted or false leaves extra keys allowed.
 
 `count: 0` means the call must not happen. The `forbidden` check reports that fact, not `tools`, so it is never reported twice.
 

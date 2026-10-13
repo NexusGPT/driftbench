@@ -16,7 +16,9 @@ The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes w
 
 See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The lane proposes a floor of 1 for generator, ladder version 2 (a maintainer change after the merge).
 
-## Historical open items before options A and B
+## Open items
+
+The following list is historical, measured before options A and B. The new sweep is running at source commit `8359f453`.
 
 Failing items per family on seed 1 after row 14: fault-code 20, fault-drift 9, fault-deviation 1, modes 47, perturbation 3, coverage 9, minimality 53, interaction-pair 286, interaction-triple 11, stability 6, scale 11, sequence 2, allocation 4, contrast 4, phrases 3, behaviours 1, adequacy 18, gate 8 (after row 16: gate 4, scale 1). Report, boundary and paths are at 0.
 
@@ -77,13 +79,14 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 - Main is merged at `e2a5acdf` (upstream `7c0b3592`); `node tools/rename-scope.mjs` reports no remaining changes. The separate performance PRs are not merged.
 - Acme generated fixtures are refreshed. Its inline-email flow phrase now carries the existing `first_message=says-everything` context, so it is not treated as equivalent to a greeting that gives no email.
 - Read-only review found that a bound numeric reply value could disagree with the synthetic tool answer. The repair injects the exact typed scalar binding and refuses ambiguous or inconsistent bindings. The bound-reply and related scenario/value tests pass (71 tests); the six-class integration recheck also passes.
+- Final typecheck and lint pass at `8359f453`. Full repository tests and the 21-seed sweep are running; their final outcomes are not yet recorded.
 - No external model API calls are made by this work.
 
 ## Validator item defects (logged, not edited)
 
 - `gate.shortcut.passed-by-first-tool` on single-turn tool output reads: the follower returns no argument for a read, so no generator Then separates it from the cheater without an input the map does not give.
 - `contrast.write.integer.*`: the follower ignores the write tool's integer argument.
-- `fault.X3.no-report`: the check it needs does not exist in `packages/checks`.
+- Resolved by option A: `fault.X3.no-report` now has the `stage.reported` check. Its composed variant also retains absent reports after the authorized repair.
 
 ## Tools
 
@@ -93,7 +96,7 @@ Gate funnel and fault table on the generated suite: a script with `SeedData(1, {
 
 * Do not change bank item expected answers. The owner authorizes the rendered-map reply relations and the separate composed-report repair described below.
 * An echo agent repeats every literal word of the spec's `must` patterns: words alone never kill it.
-* Acme items read `examples/acme`. The Acme regeneration waits for three other pull requests; five tests in `test/enumerate/acme.test.ts` fail until it runs. Regenerate with `pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out examples/acme/generated --baseline examples/acme/specs --t 2 --force` then `pnpm -s biome check --write examples`; pinned counts live in `packages/generate/test/enumerate/acme.test.ts` and `test/gate/acme-generated.test.ts`.
+* Acme items read `examples/acme`. The fixtures are regenerated on this branch. For later map changes, regenerate with `pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out examples/acme/generated --baseline examples/acme/specs --t 2 --force` then `pnpm -s biome check --write examples`; pinned counts live in `packages/generate/test/enumerate/acme.test.ts` and `test/gate/acme-generated.test.ts`.
 * Memory is tight: vitest with `--maxWorkers=2`, bank-run with `--jobs 2`, one sweep at a time, about 25 minutes each.
 * Measurements live in `.exec/` (untracked, excluded in the git common dir).
 
