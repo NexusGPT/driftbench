@@ -1,4 +1,10 @@
-import { type Check, machineVerdict, parseCriterionRef, type ToolCall, type Verdict } from '@driftbench/core';
+import {
+  type Check,
+  machineVerdict,
+  parseCriterionRef,
+  type ToolCall,
+  type Verdict,
+} from '@agent-nexus/driftbench-core';
 import { quote, visibleText } from '../support/text';
 import { isRecord } from '../support/values';
 

@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import type { FaultDef } from '@driftbench/generate';
+import type { FaultDef } from '@agent-nexus/driftbench-generate';
 
 /**
  * Faulty Acme ops agents: Node scripts in ops/ that run the real agent (examples/acme/ops/agent.mjs) and

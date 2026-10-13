@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { DeviationClass } from '@driftbench/core';
+import { DeviationClass } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { registeredLadders } from '../../src/index';
 import { LEVELS } from '../../src/ladders/map/bank/types';

@@ -5,7 +5,7 @@ import {
   globMatches,
   machineVerdict,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { checkAssertion } from '../support/assert';
 import { countAllows, describeCount } from '../support/count';
 import { classifyCommand, classifyTool } from '../support/operations';

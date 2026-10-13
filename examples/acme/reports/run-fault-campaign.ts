@@ -14,8 +14,8 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { defaultReaders } from '@driftbench/artifacts';
-import { classifyTool, defaultChecks } from '@driftbench/checks';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type Campaign,
@@ -27,11 +27,11 @@ import {
   RunMode,
   runCampaign,
   type TargetRef,
-} from '@driftbench/core';
-import { type FaultDef, faultAdapter } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
-import { openStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { type FaultDef, faultAdapter } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { openStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { faults } from '../faults/index';
 
 const { values } = parseArgs({

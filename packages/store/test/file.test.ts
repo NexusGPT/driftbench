@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { parseSpecText, type RunFilter } from '@driftbench/core';
+import { parseSpecText, type RunFilter } from '@agent-nexus/driftbench-core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   assertNodeVersion,

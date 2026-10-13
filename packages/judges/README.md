@@ -1,4 +1,4 @@
-# @driftbench/judges
+# @agent-nexus/driftbench-judges
 
 Judge clients, the judge council, calibration, the prompt kit and cassettes for judged criteria in driftbench.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/judges
+npm install @agent-nexus/driftbench-judges
 ```
 
 Node.js 22 or newer. ESM only, with TypeScript types.

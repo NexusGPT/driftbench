@@ -45,7 +45,7 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. Ladde
 
 1. The missing methods (55 items, 7 causes): `clusteredMeanInterval`, `designEffectFromData`, `iccOneWay`, `kishEffectiveSize`, `oneWayAnova`, `stratifiedMean`, `weightedMean`. Each item names its signature, definition and source; the cases are in `packages/validators/fixtures/stats/roadmap.json`.
 2. Degenerate inputs (about 130 items): per function, a RangeError that names the argument, the scipy limit at the edge of the special functions, exact answers on one or all-equal values. A shared finiteness helper fixes many at once (say so in the journal).
-3. Product: `sessionRate` in @driftbench/estate (4 items), the early stop (1 item), chaoCoverage just above the class count, neymanAllocation rounding (11 items).
+3. Product: `sessionRate` in @agent-nexus/driftbench-estate (4 items), the early stop (1 item), chaoCoverage just above the class count, neymanAllocation rounding (11 items).
 4. `simulation.newcombe.n30` fails on one seed of 21 (pairedRateDifference coverage); not touched yet.
 
 ## Hypotheses tried

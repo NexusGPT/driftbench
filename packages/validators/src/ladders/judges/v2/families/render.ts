@@ -1,4 +1,4 @@
-import type { JudgeRequest, TranscriptEntry } from '@driftbench/judges';
+import type { JudgeRequest, TranscriptEntry } from '@agent-nexus/driftbench-judges';
 import { type Item, loadPool } from '../../pool';
 import { defaultTransforms, loadPhraseBank, type PhraseBank } from '../../transforms';
 import { type BankItem, filler, fn, shuffled, type Tier } from '../bank';

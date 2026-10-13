@@ -6,7 +6,7 @@ import {
   type LoadedSpec,
   type LoadResult,
   error as specError,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { effectiveSampleSize } from './estimators';
 import {
   assertGridSize,

@@ -34,12 +34,12 @@ One session runs the whole conversation. The user turns come from the spec; the 
 
 A free-running run with one deviation injected before a chosen block. Recovery metrics are on. See [recovery](recovery.md).
 
-The driver that injects the deviation is the perturbing driver of `@driftbench/users` (`createPerturbingDriver`). It wraps another driver (the scripted driver by default) and injects one deviation once, before block `inject_at`: a perturbation the spec declares, one written out, or one of the ten classes drawn from a red-team pack by class, position and seed (`driftbench perturb`). `campaign run` uses it for every P cell. `injectingDriver` of `@driftbench/core` keeps the same rule for a spec's own perturbations, from code:
+The driver that injects the deviation is the perturbing driver of `@agent-nexus/driftbench-users` (`createPerturbingDriver`). It wraps another driver (the scripted driver by default) and injects one deviation once, before block `inject_at`: a perturbation the spec declares, one written out, or one of the ten classes drawn from a red-team pack by class, position and seed (`driftbench perturb`). `campaign run` uses it for every P cell. `injectingDriver` of `@agent-nexus/driftbench-core` keeps the same rule for a spec's own perturbations, from code:
 
 * A perturbation that writes `user` or `burst` is a block of its own, sent before block `inject_at`. The run has one block more than the spec.
 * A perturbation that writes only a `world`, such as a tool forced to fail, runs under its own block: the injected block sends block `inject_at`'s own stimulus with the perturbation's world and expectations, and stands in for that block. The base driver resumes at the block after it, so the run has as many blocks as the spec.
 
-The simulated user of `@driftbench/users` (`createSimulatedUser`) writes the user turns with a model, from a persona and a goal; it is used from code, and no command drives it yet.
+The simulated user of `@agent-nexus/driftbench-users` (`createSimulatedUser`) writes the user turns with a model, from a persona and a goal; it is used from code, and no command drives it yet.
 
 In mode P the spec's end state describes the unperturbed run, so it is neither read nor compared.
 
@@ -47,11 +47,11 @@ In mode P the spec's end state describes the unperturbed run, so it is neither r
 
 Run the same spec in T and in F mode. The compounding index is the T pass rate minus the F pass rate, over the spec blocks both modes ran. High T with low F means the agent is right block by block and fragile across the succession. Only F shows it.
 
-`compoundingIndex(runs, { interval })` of `@driftbench/core` computes it per spec and target:
+`compoundingIndex(runs, { interval })` of `@agent-nexus/driftbench-core` computes it per spec and target:
 
 * A block's pass rate in a mode is the share of the mode's runs, among those that reached the block, where the block passed. Blocks a driver injected are left out; runs in mode P are ignored.
 * The index of a spec is the mean, over the shared blocks, of the T rate minus the F rate.
-* The interval function is passed in. `campaign status --detail` passes the clustered bootstrap of `@driftbench/stats`: the block is the resampling unit within a spec, and the spec is the unit across the campaign. A campaign with one spec gets no interval on its overall index: one spec is one cluster.
+* The interval function is passed in. `campaign status --detail` passes the clustered bootstrap of `@agent-nexus/driftbench-stats`: the block is the resampling unit within a spec, and the spec is the unit across the campaign. A campaign with one spec gets no interval on its overall index: one spec is one cluster.
 
 The Acme agent is deterministic and right in every block, so its index is 0 on every spec (see the output under [running](../running.md#campaign-status---detail)). The same command on a copy of the Acme agent that loses the thread once it has written three replies of its own, the agent of the CLI's own `--detail` test, prints this table for `acme-plan-upgrade` in T, F and P:
 

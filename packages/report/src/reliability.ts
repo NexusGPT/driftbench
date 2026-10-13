@@ -1,5 +1,5 @@
-import type { DriftClass, RunMode, RunResult, TargetRef } from '@driftbench/core';
-import { passAtK, passK, unreliability } from '@driftbench/stats';
+import type { DriftClass, RunMode, RunResult, TargetRef } from '@agent-nexus/driftbench-core';
+import { passAtK, passK, unreliability } from '@agent-nexus/driftbench-stats';
 import { blockScore, type CampaignData, deviationOf, groupBy, lineKey, runPassed, specOfRun } from './data';
 import { clustered, type Estimate, median, type Rate, rate } from './estimate';
 

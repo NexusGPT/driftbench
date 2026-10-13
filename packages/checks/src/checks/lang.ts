@@ -1,4 +1,10 @@
-import { type Check, type CheckContext, machineVerdict, type Observed, type Verdict } from '@driftbench/core';
+import {
+  type Check,
+  type CheckContext,
+  machineVerdict,
+  type Observed,
+  type Verdict,
+} from '@agent-nexus/driftbench-core';
 import {
   bestScore,
   confidentLanguage,

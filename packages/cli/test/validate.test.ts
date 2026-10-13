@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { registeredLadders } from '@driftbench/validators';
+import { registeredLadders } from '@agent-nexus/driftbench-validators';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   bankLadder,

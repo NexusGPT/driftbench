@@ -1,5 +1,5 @@
 /**
- * Writes docs/reference/spec.md from the zod schemas exported by @driftbench/core: the spec, the
+ * Writes docs/reference/spec.md from the zod schemas exported by @agent-nexus/driftbench-core: the spec, the
  * drift classes of run records, and the behaviour inventory that `spec coverage` reads.
  *
  * zod's own toJSONSchema turns the schemas into JSON Schema. Each exported schema keeps its export
@@ -17,7 +17,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import * as core from '@driftbench/core';
+import * as core from '@agent-nexus/driftbench-core';
 import { slug } from './check-links';
 
 type Node = { [key: string]: unknown };

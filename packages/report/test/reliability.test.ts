@@ -1,5 +1,5 @@
-import { passAtK, passK, unreliability, wilson } from '@driftbench/stats';
-import { openMemoryStore } from '@driftbench/store';
+import { passAtK, passK, unreliability, wilson } from '@agent-nexus/driftbench-stats';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { describe, expect, it } from 'vitest';
 import { blockScore, loadCampaign, ReportInputError, runPassed } from '../src/data';
 import { modeReliability, recoveryOf, reliability, successionOf } from '../src/reliability';

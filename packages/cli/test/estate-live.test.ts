@@ -3,7 +3,7 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadEstateMap } from '@driftbench/estate';
+import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { lineOf } from '../src/commands/estate-live';
 import { type Io, main } from '../src/index';
@@ -219,7 +219,7 @@ function outcomes(json: RunJson | undefined): Record<string, string> {
 
 /** The ids of the proof specs whose metadata names the atom. */
 async function specsOfAtom(atom: string): Promise<string[]> {
-  const { loadSpecFile } = await import('@driftbench/core');
+  const { loadSpecFile } = await import('@agent-nexus/driftbench-core');
   const out: string[] = [];
   for (const path of proofSpecs()) {
     const loaded = await loadSpecFile(path);
@@ -269,7 +269,7 @@ describe('driftbench estate run', () => {
       [true, [], 0],
       [false, ['block 0: forbidden.WebFetch'], 0],
     ]);
-    const { openStore } = await import('@driftbench/store');
+    const { openStore } = await import('@agent-nexus/driftbench-store');
     const store = await openStore(result.store);
     const runs = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
     await store.close();
@@ -319,7 +319,7 @@ describe('driftbench estate run', () => {
       const secret = join(await folder(), 'secrets');
       const result = await estateRun(FIXTURE, [spec], '--lock-deny', secret);
       expect(result.code).toBe(0);
-      const { openStore } = await import('@driftbench/store');
+      const { openStore } = await import('@agent-nexus/driftbench-store');
       const store = await openStore(result.store);
       const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
       await store.close();
@@ -630,5 +630,71 @@ describe('estate run --progress appends a line per finished spec', () => {
     const ids = lines.map((line) => (JSON.parse(line) as RunJson['runs'][number]).spec);
     expect(ids.sort()).toEqual(Object.keys(outcomes(result.json)).sort());
     expect(result.json?.runs).toHaveLength(2);
+  }, 120_000);
+});
+
+describe('estate run leaves no process behind', () => {
+  it('ends a daemon the run started from the estate copy, after the run', async () => {
+    const { spawnSync } = await import('node:child_process');
+    const dir = await folder();
+    const marker = `live-daemon-${Date.now()}`;
+    const daemon = join(dir, 'daemon.py');
+    await writeFile(
+      daemon,
+      [
+        'import os, sys, time',
+        'child = os.fork()',
+        'if child > 0:',
+        '    os.waitpid(child, 0)',
+        '    sys.exit(0)',
+        'os.setsid()',
+        'if os.fork() > 0:',
+        '    sys.exit(0)',
+        'null = os.open(os.devnull, os.O_RDWR)',
+        'for fd in (0, 1, 2):',
+        '    os.dup2(null, fd)',
+        'time.sleep(600)',
+        '',
+      ].join('\n'),
+    );
+    // A stand-in that, like an estate's session daemon, leaves a process running in the copy it works in,
+    // in its own session, then answers as the fake does.
+    const wrapper = join(dir, 'leaky-claude.sh');
+    await writeFile(
+      wrapper,
+      `#!/bin/sh\n# @driftbench-stand-in\ncp "${daemon}" "$PWD/daemon.py"\npython3 "$PWD/daemon.py" ${marker} </dev/null >/dev/null 2>&1\nexec node "${FAKE}" "$@"\n`,
+    );
+    const { chmod } = await import('node:fs/promises');
+    await chmod(wrapper, 0o755);
+    const running = () =>
+      (spawnSync('ps', ['-A', '-ww', '-o', 'pid=,command='], { encoding: 'utf8' }).stdout ?? '')
+        .split('\n')
+        .filter((line) => line.includes(marker) && !line.includes('-o pid=,command='))
+        .map((line) => Number.parseInt(line.trim(), 10));
+    try {
+      const spec = join(LIVE, PROOF.route_positive ?? '');
+      const store = join(dir, 'runs.db');
+      const result = await run([
+        'estate',
+        'run',
+        spec,
+        '--estate',
+        FIXTURE,
+        '--runtime',
+        'claude-code',
+        '--command',
+        wrapper,
+        '--store',
+        store,
+        '--states',
+        STATES,
+        '--json',
+      ]);
+      expect(result.err).toBe('');
+      expect((JSON.parse(result.out) as RunJson).runs[0]?.status).toBe('completed');
+      expect(running()).toEqual([]);
+    } finally {
+      for (const pid of running()) process.kill(pid, 'SIGKILL');
+    }
   }, 120_000);
 });
