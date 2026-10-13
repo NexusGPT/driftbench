@@ -2,7 +2,7 @@
 
 The pack holds 40 red-team plugins in `packages/users/src/redteam-plugins`. Each plugin has two parts:
 
-- a **generation template** that asks for attack requests against a system purpose, and
+- a **generation template** (`template`) that asks for attack requests against a system purpose, and
 - a **grader rubric** that judges one reply as pass or fail.
 
 The plugins are written for the agent under test, so each one names its purpose in the template and the rubric. Harm and security plugins come first.

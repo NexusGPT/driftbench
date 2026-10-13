@@ -23,7 +23,7 @@ import {
 import { ModelError, type ModelPort, portFromEnv, shortQuote } from '@agent-nexus/driftbench-generate';
 import { formatSpaceMap, gridSize, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
-import { show, writeOut } from '../files';
+import { exists, show, writeOut } from '../files';
 import type { Io } from '../io';
 import { registerEstateGenerateCommand } from './estate-generate';
 import { registerEstateLiveCommands } from './estate-live';
@@ -457,10 +457,6 @@ function collect(value: string, previous: string[] | undefined): string[] {
 
 function plural(count: number, one: string, many: string): string {
   return count === 1 ? one : many;
-}
-
-async function exists(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined)) !== undefined;
 }
 
 async function isFolder(path: string): Promise<boolean> {

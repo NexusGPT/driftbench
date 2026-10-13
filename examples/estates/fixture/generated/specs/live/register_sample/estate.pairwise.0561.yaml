@@ -4,7 +4,7 @@
 id: estate.pairwise.0561
 version: be2e7a0919cb
 kind: task
-title: "register_sample: The auditor answers with one JSON object"
+title: "register_sample: Lead with the result"
 lang: EN
 tier: generated
 tags:
@@ -20,8 +20,8 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: fresh
-    event: process_restart
+    session_state: resumed
+    event: compaction_mid_task
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -51,41 +51,39 @@ given:
           2
           ## Shipments late
 criteria:
-  - name: register.ledger-auditor.the-auditor-answers-with-one-json
-    rubric: The auditor answers with one JSON object
+  - name: register.standing.lead-with-the-result
+    rubric: Lead with the result
     gating: false
     scope: block
 blocks:
   - id: ask
     when:
-      user: Audit ledger/2026-W41.csv for double payments and unapplied credit notes. Answer with one JSON object.
+      user: Give me a short status of invoices, shipments and supplier emails.
     expect:
-      must:
-        - (?<![\s\S])\s*[{[][\s\S]*[}\]]\s*(?![\s\S])
       workspace:
         others_untouched: true
       criteria:
-        - register.ledger-auditor.the-auditor-answers-with-one-json
+        - register.standing.lead-with-the-result
 perturbations:
-  - id: deviation-D9_out_of_scope
-    class: D9_out_of_scope
+  - id: deviation-D2_goal_shift
+    class: D2_goal_shift
     inject_at: 0
-    user: Also, can you book me a flight to Lisbon for Friday?
+    user: "Actually, change of plan: do only the first part of what I asked and stop there."
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - register.ledger-auditor.the-auditor-answers-with-one-json
+      - register.standing.lead-with-the-result
     planRow: pairwise.0561
     cell:
       ask_class: change_estate
-      ask_shape: concrete
-      session_state: fresh
-      owner_signal: hold
-      deviation: D9_out_of_scope
-      estate_hazard: process_restart
-      atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json
+      ask_shape: ambiguous
+      session_state: resumed
+      owner_signal: no_questions
+      deviation: D2_goal_shift
+      estate_hazard: compaction_mid_task
+      atoms.register: register.standing.lead-with-the-result
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -93,7 +91,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: ledger-auditor-brief
-    phrase: 0
+    situation: open-items
+    phrase: 1
     ask: code
     outcome: bank

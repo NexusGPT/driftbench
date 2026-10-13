@@ -468,7 +468,7 @@ async function readBaseline(
 }
 
 /** The campaign deps with `fault:<id>` targets resolved from a fault set. */
-async function faultDeps(
+export async function faultDeps(
   deps: CampaignDeps,
   faults: string | undefined,
   io: Io,

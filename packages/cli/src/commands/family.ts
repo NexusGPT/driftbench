@@ -139,8 +139,8 @@ export async function familyInstancesCommand(
     n: n as number,
     seed: seed as number,
     review: review.state,
-    seedFrom: (instance: string, variant: string) =>
-      portable(relative(io.cwd, join(outDir, instance, seedFolderName(variant)))),
+    // The seed folder sits beside the variant's spec, in its instance folder; the spec names it relative to itself.
+    seedFrom: (_instance: string, variant: string) => `./${seedFolderName(variant)}`,
   };
   let instances: Instance[];
   try {
