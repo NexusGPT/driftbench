@@ -1,6 +1,6 @@
 # LongJudge writing pair ledger study
 
-Measured state: 2026-10-13T10:05:27.987379+00:00. Branch `research/ledger-wp`, local head `7d68a4d70c4f54e5aeff1b63fc5c6ced38eddcb3`.
+Measured state: 2026-10-13T10:19:58.844438+00:00. Branch `research/ledger-wp`, local head `780ac49b0dd8875dfe8344efc442fcbc54550681`.
 
 ## Outcome
 
@@ -10,9 +10,9 @@ haiku: pending; gpt-6-luna: TIE; gemini-3.8-flash: pending. TIE follows the prer
 
 Preregistered development validity fails the cheater bar for haiku, gpt-6-luna. The full test runs under explicit owner authorization without tuning. This study cannot claim that all validity gates pass. Source: `results/phase-report.json`.
 
-Gemini is parked pending an owner-confirmed credit top-up. The owner reports depleted prepaid credits from another cell; this cell makes no new Gemini probe. Haiku and Luna continue.
+Provider status follows the coverage table below.
 
-Actual recorded model spend: 5.72896990 USD. Unsettled reservations: 2.95000000 USD. Total lane cap: 35 USD. Recorded call attempts: 3533. Source: `results/spend.jsonl` and `results/calls.jsonl`.
+Actual recorded model spend: 5.95316704 USD. Unsettled reservations: 2.45000000 USD. Total lane cap: 35 USD. Recorded call attempts: 3664. Source: `results/spend.jsonl` and `results/calls.jsonl`.
 
 ## Licence and label provenance
 
@@ -44,9 +44,9 @@ Scores use normalized presentation games. Ties and unparsed pair-ledger or promp
 
 | Model | Contestant | Pairs / 173 | Correct games | Accuracy % | Wilson 95% | Errors | USD / 100 pairs | USD / 100 games |
 |---|---|---:|---:|---:|---|---:|---:|---:|
-| haiku | pair-ledger | 35 | 46/70 | 65.71 | 54.04 to 75.75 | 0 | 0.44213 | 0.22107 |
-| haiku | reader-first-c50b2dc3 | 34 | 48/68 | 70.59 | 58.89 to 80.08 | 17 | 0.56213 | 0.28107 |
-| haiku | promptfoo | 35 | 46/70 | 65.71 | 54.04 to 75.75 | 1 | 0.20938 | 0.10469 |
+| haiku | pair-ledger | 60 | 68/120 | 56.67 | 47.73 to 65.19 | 0 | 0.42846 | 0.21423 |
+| haiku | reader-first-c50b2dc3 | 60 | 86/120 | 71.67 | 63.03 to 78.96 | 27 | 0.54724 | 0.27362 |
+| haiku | promptfoo | 59 | 66/118 | 55.93 | 46.93 to 64.56 | 1 | 0.20103 | 0.10052 |
 | gpt-6-luna | pair-ledger | 173 | 186/346 | 53.76 | 48.49 to 58.94 | 0 | 0.15114 | 0.07557 |
 | gpt-6-luna | reader-first-c50b2dc3 | 173 | 234/346 | 67.63 | 62.53 to 72.34 | 135 | 0.24011 | 0.12005 |
 | gpt-6-luna | promptfoo | 173 | 197/346 | 56.94 | 51.67 to 62.05 | 0 | 0.06837 | 0.03418 |
@@ -58,8 +58,8 @@ Reader-first is the separate opt-in PR 157 row at `c50b2dc3`. It has a length pr
 
 | Model | Challenger vs promptfoo | Matched pairs | Wins / losses | Difference, points | Request-cluster 95% | Exact two-sided p | Holm-18 |
 |---|---|---:|---:|---:|---|---:|---|
-| haiku | pair-ledger | 35 | 10/10 | 0.00 | -14.29 to 12.86 | 1.000000 | pending full primary family |
-| haiku | reader-first-c50b2dc3 | 34 | 18/14 | 5.88 | -13.64 to 25.71 | 0.596615 | not applicable, exploratory |
+| haiku | pair-ledger | 59 | 18/16 | 1.69 | -9.32 to 12.30 | 0.864166 | pending full primary family |
+| haiku | reader-first-c50b2dc3 | 59 | 35/17 | 15.25 | 1.72 to 28.81 | 0.017533 | not applicable, exploratory |
 | gpt-6-luna | pair-ledger | 173 | 31/42 | -3.18 | -8.72 to 2.68 | 0.241645 | pending full primary family |
 | gpt-6-luna | reader-first-c50b2dc3 | 173 | 109/72 | 10.69 | 0.86 to 20.71 | 0.007284 | not applicable, exploratory |
 | gemini-3.8-flash | pair-ledger | 0 | 0/0 | pending | pending | pending | pending full primary family |
@@ -79,7 +79,7 @@ Longer-wins uses whitespace units in English and Han characters in Chinese, matc
 
 | Separate reader-first row | Observed test pairs | Identical choices to longer-wins | Different choices |
 |---|---:|---:|---:|
-| haiku | 39 | 39 | 0 |
+| haiku | 60 | 60 | 0 |
 | gpt-6-luna | 173 | 173 | 0 |
 | gemini-3.8-flash | 0 | 0 | 0 |
 
@@ -155,9 +155,9 @@ Edit consistency compares each variant with the first sealed fixture reading. Re
 
 | Model | Contestant | Recorded attempts | Output-limit finishes | Provider errors | HTTP 429, all / test |
 |---|---|---:|---:|---:|---:|
-| haiku | pair-ledger | 429 | 0 | 0 | 0/0 |
-| haiku | reader-first-c50b2dc3 | 374 | 0 | 0 | 0/0 |
-| haiku | promptfoo | 373 | 0 | 0 | 0/0 |
+| haiku | pair-ledger | 477 | 0 | 0 | 0/0 |
+| haiku | reader-first-c50b2dc3 | 416 | 0 | 0 | 0/0 |
+| haiku | promptfoo | 414 | 0 | 0 | 0/0 |
 | gpt-6-luna | pair-ledger | 731 | 0 | 3 | 0/0 |
 | gpt-6-luna | reader-first-c50b2dc3 | 645 | 0 | 3 | 0/0 |
 | gpt-6-luna | promptfoo | 642 | 0 | 0 | 0/0 |
@@ -169,10 +169,10 @@ The common HTTP output limit can truncate a reasoning-heavy response. This is re
 
 | Scope | Model | Ordered readings | Schema re-asks | Recovered | Re-ask USD, already in total |
 |---|---|---:|---:|---:|---:|
-| all phases | haiku | 429 | 0 | 0 | 0.00000000 |
+| all phases | haiku | 477 | 0 | 0 | 0.00000000 |
 | all phases | gpt-6-luna | 728 | 0 | 0 | 0.00000000 |
 | all phases | gemini-3.8-flash | 116 | 0 | 0 | 0.00000000 |
-| test | haiku | 95 | 0 | 0 | 0.00000000 |
+| test | haiku | 143 | 0 | 0 | 0.00000000 |
 | test | gpt-6-luna | 398 | 0 | 0 | 0.00000000 |
 | test | gemini-3.8-flash | 0 | 0 | 0 | 0.00000000 |
 
@@ -183,16 +183,16 @@ The owner explicitly preserves the frozen core single schema re-ask after malfor
 - Core: [PR 168](https://github.com/achammah/driftbench/pull/168), `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`, remote hash verified before calls.
 - Reader-first: [PR 157](https://github.com/achammah/driftbench/pull/157), source snapshot `c50b2dc3`.
 - Promptfoo select-best: `801428268b5e421b2f6994332f6a06f86b27bb1f`, verbatim attributed template and MIT notice.
-- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `921c085acf73242d59d99b63e060bf06f42e2f60120367599ecc51f81be7a197`. The 191 exact file hashes are in `freeze.json`.
+- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `ec5bc526505e49a7253d11ad862b0a66ff510b83ee16ce7db821881c736b8279`. The 191 exact file hashes are in `freeze.json`.
 - Runtime amendments set the spending cap to 35 USD, transport timeouts to 300 seconds, and the per-model scheduling limits below. Judge contracts, parser behavior, models, medium reasoning, output limits, statistics and sealed order are unchanged.
 - The first plugin crash interrupts six pilot calls; their 0.90 USD reservations remain uncertain. A second reconnect finds one Gemini fetch failure and three unfinished native calls. All uncertain reservations remain counted. See `runtime-recovery.json`, `runtime-recovery-2.json`, and `results/spend.jsonl`.
 - The latest owner authorization permits three retries after an initial HTTP 429, with waits of 60, 120 and 240 seconds. Other transport failures allow three submissions total. Timeouts are 300 seconds. Returned model answers never receive transport retries.
 - The latest pacing amendment runs all three models side by side: gpt-6-luna uses at most eight plain HTTP calls, Gemini two calls, and Haiku two calls. Each model keeps its sealed order and phase prerequisites. All queues share one spending ledger.
 - This supersedes the earlier Haiku/Luna-first schedule. HTTP 429 returns no model answer and is counted separately per cell, never as a judge failure. Exhausted Gemini rate-limit recovery parks only Gemini while other models continue.
-- A later owner instruction parks Gemini until prepaid credits are replenished. An observed HTTP 402 immediately stops all Gemini submissions and releases only holds for proven HTTP 402 rejections. Other interrupted holds remain uncertain; provider failures never become judge decisions.
+- The owner confirms a Gemini credit top-up after the temporary hold. Gemini resumes missing-only: the first missing sealed call probes alone, then its returned answer opens the two-call queue. Cached answers remain unchanged. Probe evidence is in `results/gemini-resume-probe.json` when available. An observed HTTP 402 immediately stops all Gemini submissions and releases only holds for proven HTTP 402 rejections. Other interrupted holds remain uncertain; provider failures never become judge decisions.
 - Two named Luna development calls exhaust three transport submissions with no answer. The owner authorizes one additional cycle of at most three submissions each after a successful connectivity probe. The exact call keys and expected unauthenticated HTTP 401 probe are in `freeze.json`; a second exhaustion remains missing and does not block the full test.
 - Last-call cutoff: `2026-10-13T16:00:00Z`. The owner extends it from 13:00 to 16:00 UTC because shared Gemini quota requires model reordering. This changes no source hash, seal or spending cap; the authorization is in `freeze.json`.
 - Both HTTP models use medium reasoning for every contestant and the same 4096 output-token cap. Haiku uses native Claude CLI without an exposed reasoning setting.
 - The owner unblocks Gemini billing and restricts key files to `openai.key` and `gemini-driftbench.key`. Keys load inside each command and are not printed.
-- Six analysis tests and twelve harness tests pass before the new pacing run. Coverage includes source tamper rejection, shared spend reservations, proven HTTP 402 hold release, transport backoff, per-model concurrency, sealed queue order, provider isolation, output polarity and the pushed-core adapter.
+- Six analysis tests and fourteen harness tests pass before the Gemini restart. Coverage includes the single-probe barrier, rejection blocking, source tamper rejection, shared spend reservations, proven HTTP 402 hold release, transport backoff, per-model concurrency, sealed queue order, provider isolation, output polarity and the pushed-core adapter.
 - All paths above are relative to `examples/ledger-wp` unless prefixed otherwise. The branch is [research/ledger-wp](https://github.com/achammah/driftbench/tree/research/ledger-wp). Remote delivery is verified separately at handoff.

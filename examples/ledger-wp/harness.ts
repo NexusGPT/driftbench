@@ -59,6 +59,20 @@ export async function runLimitedJobs<T>(jobs:T[], limit:number, run:(job:T)=>Pro
   return !stopped;
 }
 
+// A returned answer, including malformed content, opens the provider queue.
+export class FirstAnswerGate {
+  private probe:Promise<unknown>|undefined;
+  constructor(passed=false) {if(passed)this.probe=Promise.resolve();}
+  async run<T>(submit:()=>Promise<T>,observe:(value:T)=>void):Promise<T> {
+    if(this.probe) {await this.probe;return submit();}
+    const pending=submit();
+    this.probe=pending;
+    const value=await pending;
+    observe(value);
+    return value;
+  }
+}
+
 export class Budget {
   readonly file: string;
   readonly cap: number;
@@ -177,7 +191,7 @@ async function main() {
     }
   };
   process.on('SIGTERM',()=>{stop=true;progress();});
-  const calls=async(prompt:any,meta:any,schema?:any)=> {
+  const submit=async(prompt:any,meta:any,schema?:any)=> {
     const key=sha(JSON.stringify([meta,prompt,schema,freeze.reasoning]));
     if(recorded.has(key) && !recorded.get(key).providerError) return recorded.get(key);
     if(process.argv.includes('--replay-only'))throw Error('REPLAY_MISS '+key);
@@ -242,6 +256,21 @@ async function main() {
       lastError=entry.text;
     }
     throw Error((recovery?'AUTHORIZED_RECOVERY_EXHAUSTED '+key:'Transport attempts exhausted')+'; uncertain reservations retained');
+  };
+  const resumeAt=freeze.geminiResumeAmendment?.at;
+  const probeGate=new FirstAnswerGate(history.some(r=>r.model==='gemini-3.8-flash'&&!r.providerError&&resumeAt&&r.startedAt>=resumeAt));
+  const calls=async(prompt:any,meta:any,schema?:any)=> {
+    const key=sha(JSON.stringify([meta,prompt,schema,freeze.reasoning]));
+    const cached=recorded.get(key);
+    if(cached&&!cached.providerError)return cached;
+    if(meta.model!=='gemini-3.8-flash'||!resumeAt)return submit(prompt,meta,schema);
+    return probeGate.run(()=>submit(prompt,meta,schema),entry=>{
+      writeFileSync(resolve(HERE,'results/gemini-resume-probe.json'),JSON.stringify({
+        amendmentAt:resumeAt,status:'answered',key:entry.key,logicalKey:entry.logicalKey,
+        transportAttempt:entry.transportAttempt,startedAt:entry.startedAt,finishedAt:entry.finishedAt,
+        costUsd:entry.costUsd,policy:'First missing sealed call; returned answer retained regardless of content validity.',
+      },null,2)+'\n');
+    });
   };
   async function runModel(model:string) {
     for(const split of phases) {

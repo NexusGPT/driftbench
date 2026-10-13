@@ -22,7 +22,7 @@ Keys are loaded only inside an invoking command. They never appear in command ou
 
 `python3 examples/ledger-wp/run_remaining.py` resumes the three independent model queues in one process. Within each model, fixtures, validity, development and test stay sequential, with sealed item order inside each phase. The earlier `run_schedule.py` handoff is retired. The last-call cutoff is 16:00 UTC on 2026-10-13.
 
-The later Gemini credit hold temporarily excludes Gemini until the owner confirms a top-up. HTTP 402 stops all Gemini calls without retry; only holds tied to observed HTTP 402 rejections are released. The freeze also names two Luna development calls authorized for one additional three-submission recovery cycle after the recorded connectivity probe. Exhaustion leaves those calls missing and the remaining work proceeds.
+The owner confirms a Gemini top-up after the credit hold. The first missing sealed call runs alone as the probe; a returned answer opens the two-call queue. Cached answers are reused, including malformed content. HTTP 402 stops all Gemini calls without retry; only holds tied to observed HTTP 402 rejections are released. The freeze also names two Luna development calls authorized for one additional three-submission recovery cycle after the recorded connectivity probe. Both recover on their first fresh submission.
 
 Run `--phase pilot`, review the cost projection, then `--phase dev`. Dev uses independent recording keys for three repeats. A failed validity criterion stays visible; no source or parser tuning follows the freeze. Record the disposition before running `--phase test`. Test follows the sealed hash order. Cap exhaustion stops submissions and reports partial coverage without selecting by score.
 

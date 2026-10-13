@@ -45,7 +45,7 @@
   },
   "files": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-wp/harness.ts": "5ee1d318c92d54a77213eb80170065c7e99ca77b5a80b229789a291b42a236bc",
+    "examples/ledger-wp/harness.ts": "376c85563ae8b854b2ba714a9b5479fbc1761c2a1635476be172238594f7226b",
     "examples/ledger-wp/phase_report.py": "adabe9c88210b02720345d6e7ae2ca74908fb9aac7357bce405c5bf9dd9f2e1a",
     "examples/ledger-wp/prepare.py": "12e81d34a14a2f00f2ab821d41a1911b29d2de91466fd71a998c7c3a33d76d2d",
     "examples/ledger-wp/seal_validity.py": "527d73e3b1ffdd0f5943d854c1e468b26b318703ae8eeb4d4369accbff5d66b2",
@@ -289,12 +289,13 @@
     "transition": "Existing Haiku/Luna development phase drains before this scheduler starts; no returned answer is resubmitted."
   },
   "geminiCreditHold": {
-    "active": true,
+    "active": false,
     "at": "2026-10-13T09:37:46.580113+00:00",
     "authorization": "Gemini prepaid credits are depleted (HTTP 402 \"prepayment credits are depleted\" seen by another cell). On 402: stop all Gemini calls at once, no retries, release holds only for proven rejections, never count it as a judge error. Finish Haiku and gpt-6-luna fully. Gemini resumes missing-only after the owner tops up.",
     "source": "Owner reports HTTP 402 from another cell; no new Gemini call made to reproduce it.",
     "resume": "Owner confirms top-up; resume only missing calls",
-    "http402Policy": "Stop all Gemini submissions immediately, abort in-flight HTTP requests, release only reservations with an observed HTTP 402 response; retain uncertain interrupted holds."
+    "http402Policy": "Stop all Gemini submissions immediately, abort in-flight HTTP requests, release only reservations with an observed HTTP 402 response; retain uncertain interrupted holds.",
+    "liftedAt": "2026-10-13T10:19:24.908634+00:00"
   },
   "lunaRecoveryAmendment": {
     "at": "2026-10-13T09:37:46.580113+00:00",
@@ -314,5 +315,26 @@
       "meaning": "Expected unauthenticated response proves DNS, TLS and HTTP connectivity; no model call."
     },
     "onExhaustion": "Record those development calls as missing and continue remaining work, including full test."
+  },
+  "geminiResumeAmendment": {
+    "at": "2026-10-13T10:19:24.908634+00:00",
+    "parentFreezeSha256": "921c085acf73242d59d99b63e060bf06f42e2f60120367599ecc51f81be7a197",
+    "authorization": "The owner topped up Gemini. Resume Gemini missing-only: one probe call first; if it answers, continue at 2 calls at a time with the 429 waits and the 402 circuit break. Never re-send an answered call.",
+    "probe": "First missing sealed call, alone until it returns an answer; then at most two calls. Successful cached answers are never resubmitted.",
+    "maxConcurrentCalls": 2,
+    "http429BackoffSeconds": [
+      60,
+      120,
+      240
+    ],
+    "max429Submissions": 4,
+    "maxOtherTransportSubmissions": 3,
+    "http402Policy": "Stop all Gemini submissions immediately, no retries; release only proven HTTP 402 rejections.",
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false,
+    "capUsd": 35,
+    "changedFrozenFiles": [
+      "examples/ledger-wp/harness.ts"
+    ]
   }
 }

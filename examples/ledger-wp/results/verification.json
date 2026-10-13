@@ -1,37 +1,39 @@
 {
-  "at": "2026-10-13T10:05:28.427381+00:00",
+  "at": "2026-10-13T10:19:50.520721+00:00",
   "failures": [],
-  "complete": true,
+  "complete": false,
   "modelsChecked": [
-    "gpt-6-luna"
+    "haiku",
+    "gpt-6-luna",
+    "gemini-3.8-flash"
   ],
   "sourceHashes": 191,
   "sealHashes": 5,
-  "actualUsd": 5.7289699,
-  "uncertainOrInflightUsd": 2.95,
+  "actualUsd": 5.95316704,
+  "uncertainOrInflightUsd": 2.45,
   "capUsd": 35,
-  "returnedCalls": 3533,
-  "completedDecisions": 1689,
+  "returnedCalls": 3664,
+  "completedDecisions": 1752,
   "coverage": [
     {
       "split": "test",
       "model": "haiku",
       "contestant": "pair-ledger",
-      "recorded": 39,
+      "recorded": 60,
       "expected": 173
     },
     {
       "split": "test",
       "model": "haiku",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 39,
+      "recorded": 60,
       "expected": 173
     },
     {
       "split": "test",
       "model": "haiku",
       "contestant": "promptfoo",
-      "recorded": 38,
+      "recorded": 59,
       "expected": 173
     },
     {

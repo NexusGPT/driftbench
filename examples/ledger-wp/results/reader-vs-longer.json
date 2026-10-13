@@ -1,8 +1,8 @@
 [
   {
     "model": "haiku",
-    "observedPairs": 39,
-    "identicalToLongerWins": 39,
+    "observedPairs": 60,
+    "identicalToLongerWins": 60,
     "differentFromLongerWins": 0
   },
   {

@@ -1,8 +1,9 @@
 {
   "pid": 72456,
-  "status": "running",
+  "status": "stopped",
   "phase": "remaining",
-  "at": "2026-10-13T09:39:28.267159+00:00",
+  "at": "2026-10-13T10:17:46.420936+00:00",
+  "exitCode": 1,
   "models": "haiku,gpt-6-luna",
   "limits": {
     "haiku": 2,

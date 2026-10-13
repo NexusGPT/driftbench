@@ -3,15 +3,15 @@
     "model": "haiku",
     "verdict": "pending",
     "comparison": {
-      "matchedPairs": 35,
-      "wins": 10,
-      "losses": 10,
-      "deltaPoints": 0.0,
+      "matchedPairs": 59,
+      "wins": 18,
+      "losses": 16,
+      "deltaPoints": 1.694915254237288,
       "requestCluster95": [
-        -14.285714285714286,
-        12.857142857142858
+        -9.322033898305085,
+        12.295081967213115
       ],
-      "mcnemarTwoSided": 1.0,
+      "mcnemarTwoSided": 0.8641662404406816,
       "holm18": null,
       "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
     }

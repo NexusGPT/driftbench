@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Budget, cheater, HERE, isTransportFailure, parsePromptfoo, promptfoo, runLimitedJobs, sha, transportBackoffMs, verifyFreeze } from './harness';
+import { Budget, cheater, FirstAnswerGate, HERE, isTransportFailure, parsePromptfoo, promptfoo, runLimitedJobs, sha, transportBackoffMs, verifyFreeze } from './harness';
 import { judgePairLedger, pairLedgerRequest } from '../../packages/judges/src/pair-ledger';
 import { responseSchema } from '../../packages/judges/src/assessment';
 import { buildPrompt } from '../../packages/judges/src/prompt';
@@ -48,6 +48,21 @@ test('an exhausted provider stops its queue without stopping another provider',a
     runLimitedJobs(jobs,2,async job=>{healthy.push(job);return true;}),
   ]);
   assert.deepEqual(results,[false,true]);assert.deepEqual(failed,[0]);assert.deepEqual(healthy,jobs);
+});
+test('Gemini submits one missing probe before allowing a second call',async()=>{
+  const gate=new FirstAnswerGate();const starts:number[]=[];let finish!:(value:string)=>void;
+  const probe=new Promise<string>(resolve=>finish=resolve);let observed='';
+  const first=gate.run(()=>{starts.push(1);return probe;},value=>observed=value);
+  const second=gate.run(async()=>{starts.push(2);return 'next';},()=>assert.fail('Second call is not a probe'));
+  await Promise.resolve();assert.deepEqual(starts,[1]);
+  finish('malformed returned answer');await Promise.all([first,second]);
+  assert.equal(observed,'malformed returned answer');assert.deepEqual(starts,[1,2]);
+});
+test('a rejected Gemini probe parks waiting submissions',async()=>{
+  const gate=new FirstAnswerGate();let submissions=0;
+  const attempt=()=>gate.run(async()=>{submissions++;throw Error('Provider 402');},()=>assert.fail());
+  const results=await Promise.allSettled([attempt(),attempt()]);
+  assert.equal(submissions,1);assert.ok(results.every(r=>r.status==='rejected'));
 });
 test('upstream rendering has byte-identical two-output format and opaque input',()=>{
   const out=promptfoo('Brief','first','second');

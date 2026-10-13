@@ -2,8 +2,8 @@
   {
     "scope": "all phases",
     "model": "haiku",
-    "completedPairs": 187,
-    "orderedReadings": 429,
+    "completedPairs": 208,
+    "orderedReadings": 477,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0
@@ -29,8 +29,8 @@
   {
     "scope": "test",
     "model": "haiku",
-    "completedPairs": 39,
-    "orderedReadings": 95,
+    "completedPairs": 60,
+    "orderedReadings": 143,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0

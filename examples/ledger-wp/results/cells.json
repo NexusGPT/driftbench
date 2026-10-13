@@ -7,29 +7,29 @@
       "model": "haiku",
       "contestant": "pair-ledger",
       "status": "pending or partial",
-      "pairs": 35,
-      "games": 70,
-      "correct": 46,
-      "accuracy": 65.71428571428571,
+      "pairs": 60,
+      "games": 120,
+      "correct": 68,
+      "accuracy": 56.666666666666664,
       "wilson95": [
-        54.03954969794421,
-        75.75401119773312
+        47.729920885539045,
+        65.18982356221157
       ],
-      "recipeUsd": 0.1547469,
+      "recipeUsd": 0.25707863,
       "graderErrors": 0,
       "ties": 4,
-      "usdPer100Pairs": 0.44213399999999997,
-      "usdPer100Games": 0.22106699999999999,
+      "usdPer100Pairs": 0.42846438333333325,
+      "usdPer100Games": 0.21423219166666663,
       "comparison": {
-        "matchedPairs": 35,
-        "wins": 10,
-        "losses": 10,
-        "deltaPoints": 0.0,
+        "matchedPairs": 59,
+        "wins": 18,
+        "losses": 16,
+        "deltaPoints": 1.694915254237288,
         "requestCluster95": [
-          -14.285714285714286,
-          12.857142857142858
+          -9.322033898305085,
+          12.295081967213115
         ],
-        "mcnemarTwoSided": 1.0,
+        "mcnemarTwoSided": 0.8641662404406816,
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       }
@@ -38,29 +38,29 @@
       "model": "haiku",
       "contestant": "reader-first-c50b2dc3",
       "status": "pending or partial",
-      "pairs": 34,
-      "games": 68,
-      "correct": 48,
-      "accuracy": 70.58823529411765,
+      "pairs": 60,
+      "games": 120,
+      "correct": 86,
+      "accuracy": 71.66666666666667,
       "wilson95": [
-        58.89372027651877,
-        80.08098939618421
+        63.029797546945964,
+        78.95937190824355
       ],
-      "recipeUsd": 0.19112518,
-      "graderErrors": 17,
+      "recipeUsd": 0.32834420000000003,
+      "graderErrors": 27,
       "ties": 0,
-      "usdPer100Pairs": 0.5621328823529412,
-      "usdPer100Games": 0.2810664411764706,
+      "usdPer100Pairs": 0.5472403333333333,
+      "usdPer100Games": 0.27362016666666666,
       "comparison": {
-        "matchedPairs": 34,
-        "wins": 18,
-        "losses": 14,
-        "deltaPoints": 5.882352941176471,
+        "matchedPairs": 59,
+        "wins": 35,
+        "losses": 17,
+        "deltaPoints": 15.254237288135593,
         "requestCluster95": [
-          -13.636363636363637,
-          25.714285714285715
+          1.7241379310344827,
+          28.8135593220339
         ],
-        "mcnemarTwoSided": 0.5966148958541453,
+        "mcnemarTwoSided": 0.017533235299084904,
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       }
@@ -69,19 +69,19 @@
       "model": "haiku",
       "contestant": "promptfoo",
       "status": "pending or partial",
-      "pairs": 35,
-      "games": 70,
-      "correct": 46,
-      "accuracy": 65.71428571428571,
+      "pairs": 59,
+      "games": 118,
+      "correct": 66,
+      "accuracy": 55.932203389830505,
       "wilson95": [
-        54.03954969794421,
-        75.75401119773312
+        46.92778385518203,
+        64.56255788522905
       ],
-      "recipeUsd": 0.0732841,
+      "recipeUsd": 0.11860780000000001,
       "graderErrors": 1,
       "ties": 1,
-      "usdPer100Pairs": 0.20938314285714288,
-      "usdPer100Games": 0.10469157142857144
+      "usdPer100Pairs": 0.20103016949152547,
+      "usdPer100Games": 0.10051508474576273
     },
     {
       "model": "gpt-6-luna",
