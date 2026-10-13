@@ -4,12 +4,18 @@ import { quote, visibleText } from '../support/text';
 const NAME = 'exact';
 
 /**
- * Drops everything that is not a letter, a digit or a space, trims, and lowers case. Both sides of an exact
- * comparison pass through it.
+ * Ignores punctuation except numeric separators and signs, trims, and lowers case.
+ * Decimal commas remain literal: no locale or thousands separator is inferred.
  */
 export function normaliseExact(text: string): string {
   return [...text.trim()]
-    .filter((char) => /[\p{L}\p{N}\s]/u.test(char))
+    .filter((char, index, chars) => {
+      if (/[\p{L}\p{N}\s]/u.test(char)) return true;
+      const next = chars[index + 1] ?? '';
+      // Keep leading decimals (.5), internal separators (3,5), and exponent signs (1e-3).
+      if (/[.,+-]/.test(char) && /\d/.test(next)) return true;
+      return /[+-]/.test(char) && /[.,]/.test(next) && /\d/.test(chars[index + 2] ?? '');
+    })
     .join('')
     .replace(/\s+/g, ' ')
     .toLowerCase();

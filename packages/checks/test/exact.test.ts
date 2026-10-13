@@ -32,6 +32,25 @@ describe('exact: the reply equals the reference after normalising', () => {
     expect(await judge('3.50', '350')).toBe('fail');
   });
 
+  it.each([
+    ['3,5', '3.5'],
+    ['1,5', '15'],
+    ['value 3,5', 'value 3.5'],
+    ['value 3.5', 'value 35'],
+    ['value .5', 'value 5'],
+    ['value -.5', 'value .5'],
+    ['value -3,5', 'value 3,5'],
+    ['value 1e-3', 'value 1e3'],
+  ])('keeps numeric punctuation distinct: %s versus %s', async (reply, reference) => {
+    expect(await judge(reply, reference)).toBe('fail');
+    expect(await judge(reference, reply)).toBe('fail');
+  });
+
+  it('keeps a decimal comma literal without inferring a locale', async () => {
+    expect(await judge('3,5', '3,5')).toBe('pass');
+    expect(await judge('3,50', '3,5')).toBe('fail');
+  });
+
   it('reads true and false as 1 and 0 when the other side is a number', async () => {
     expect(await judge('true', '1')).toBe('pass');
     expect(await judge('false', '1')).toBe('fail');
