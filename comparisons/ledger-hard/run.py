@@ -10,11 +10,24 @@ def append(path, value):
 
 def ledger(note, n, measured, unknown=0):
     with LEDGER.open('a') as f:
-        f.write(f'\n| {stamp()} | ledger-hard {note} | {n} calls | {measured:.8f} measured USD; {unknown} unknown-price calls | 10 USD cap; gpt-6-luna price not published |\n')
+        f.write(f'\n| {stamp()} | ledger-hard {note} | {n} calls | {measured:.8f} measured USD | 10 USD cap; Luna token pricing corrected by owner 2026-10-13 |\n')
+
+def priced(record):
+    if record['model'] != 'gpt-6-luna':
+        return record['measured_usd']
+    usage = record.get('usage')
+    if not usage:
+        return None
+    prompt_tokens = usage['prompt_tokens']
+    cached = min(prompt_tokens, (usage.get('prompt_tokens_details') or {}).get('cached_tokens', 0))
+    return ((prompt_tokens-cached)*0.10 + cached*0.01 + usage['completion_tokens']*0.50)/1e6
 
 def verify_seal():
     seal = json.loads((HERE / 'seal.json').read_text())
-    for path, expected in seal['sha256'].items():
+    amendment = json.loads((HERE / 'accounting-amendment.json').read_text())
+    head_amendment = subprocess.check_output(['git', 'show', 'HEAD:comparisons/ledger-hard/accounting-amendment.json'], cwd=ROOT)
+    assert head_amendment == (HERE / 'accounting-amendment.json').read_bytes(), 'Accounting amendment must be committed'
+    for path, expected in (seal['sha256'] | amendment['sha256']).items():
         assert digest(ROOT / path) == expected, f'Frozen file changed: {path}'
     assert native.procedure_fingerprint() == seal['candidate_procedure_sha256']
     head_seal = subprocess.check_output(['git', 'show', 'HEAD:comparisons/ledger-hard/seal.json'], cwd=ROOT)
@@ -53,7 +66,9 @@ def call(request):
             choice = obj.get('choices', [{}])[0]
             result.update(success=bool(choice.get('message')) and choice.get('finish_reason') == 'stop',
                           text=choice.get('message', {}).get('content') or '', measured_usd=None, cap_accounted_usd=0,
-                          price_note='price not published', usage=obj.get('usage'), resolved_model=obj.get('model'), provider_response=obj)
+                          price_note='USD/1M tokens: input 0.10, cached input 0.01, output 0.50; https://developers.openai.com/api/docs/models/gpt-6-luna verified 2026-10-13 by owner', usage=obj.get('usage'), resolved_model=obj.get('model'), provider_response=obj)
+            result['measured_usd'] = priced(result)
+            result['cap_accounted_usd'] = result['measured_usd'] if result['measured_usd'] is not None else .02
     except urllib.error.HTTPError as error:
         result.update(success=False, text='', measured_usd=None, cap_accounted_usd=0,
                       error={'status': error.code, 'body': error.read().decode(errors='replace')})
@@ -103,8 +118,8 @@ def main():
         for r in requests(args.models, args.limit):
             unique.setdefault(r['request_sha256'], r)
         pending = [r for key, r in unique.items() if key not in completed]
-        measured = sum(r['measured_usd'] or 0 for r in previous)
-        spent = sum(r['cap_accounted_usd'] for r in previous)
+        measured = sum(priced(r) or 0 for r in previous)
+        spent = sum(priced(r) if priced(r) is not None else r['cap_accounted_usd'] for r in previous)
         print(json.dumps({'selected_unique': len(unique), 'pending_unique': len(pending), 'measured_usd': measured, 'execute': args.execute}), flush=True)
         if not args.execute:
             return
@@ -118,8 +133,8 @@ def main():
                     now = datetime.datetime.now(datetime.timezone.utc)
                     if now >= datetime.datetime.fromisoformat(seal['last_call_cutoff']):
                         stop_reason = 'last-call cutoff'; break
-                    reserve = sum(.02 for x in inflight.values() if x['model'] == 'haiku')
-                    if spent + reserve + (.02 if r['model'] == 'haiku' else 0) > seal['cap_measured_usd']:
+                    reserve = .02 * len(inflight)
+                    if spent + reserve + .02 > seal['cap_measured_usd']:
                         stop_reason = 'cap reserve'; break
                     if failures.get(r['model'], 0) >= 3:
                         stop_reason = f'three transport failures on {r["model"]}'; break

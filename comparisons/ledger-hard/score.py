@@ -1,7 +1,7 @@
 """Free paired analysis from sealed requests and immutable recorded answers."""
 import collections, fractions, math, random, subprocess
 from common import *
-from run import requests
+from run import requests, priced
 
 DOSSIER = Path('/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-hard.md')
 
@@ -54,6 +54,9 @@ def holm(values, total=None):
 
 def main():
     seal=json.loads((HERE/'seal.json').read_text()); calls=records()
+    for c in calls:
+        c['measured_usd']=priced(c)
+        if c['measured_usd'] is not None:c['cap_accounted_usd']=c['measured_usd']
     by_key={r['request_sha256']:r for r in calls}
     assert len(by_key)==len(calls), 'Duplicate recorded request'
     lookup={(r['model'],r['id'],r['side']):r for r in requests(MODELS,None)}
@@ -78,10 +81,10 @@ def main():
                 for side,field in [('ours','ours_request'),('peer','peer_request')]:
                     used={u[field] for u in units}; selected=[by_key[k] for k in used]
                     entry[side+'_usage']={'unique_calls':len(used),'measured_usd':sum(c['measured_usd'] or 0 for c in selected),
-                       'price_note':'price not published' if model=='gpt-6-luna' else 'CLI-reported',
+                       'price_note':'Provider pricing verified by owner 2026-10-13' if model=='gpt-6-luna' else 'CLI-reported',
                        'prompt_tokens':sum((c.get('usage') or {}).get('prompt_tokens',(c.get('usage') or {}).get('input_tokens',0)) for c in selected),
                        'completion_tokens':sum((c.get('usage') or {}).get('completion_tokens',(c.get('usage') or {}).get('output_tokens',0)) for c in selected)}
-                    entry[side+'_usage']['measured_usd_per_100']=entry[side+'_usage']['measured_usd']/len(units)*100 if units and model=='haiku' else None
+                    entry[side+'_usage']['measured_usd_per_100']=entry[side+'_usage']['measured_usd']/len(units)*100 if units else None
                 entry['discordant_ids']=[u['id'] for u in units if u['ours_right']!=u['peer_right']]
                 tables.append(entry)
         for equal in (False,True):
@@ -96,7 +99,7 @@ def main():
         if t['row']=='pooled-default':t['holm18_missing_as_one']=adjusted[t['model']]
     output={'generated':stamp(),'seal_sha256':digest(HERE/'seal.json'),'tables':tables,'unique_calls':len(calls),
             'measured_usd':sum(c['measured_usd'] or 0 for c in calls),'cap_accounted_usd':sum(c['cap_accounted_usd'] for c in calls),
-            'failed_calls':sum(not c['success'] for c in calls),'luna_calls_price_not_published':sum(c['model']=='gpt-6-luna' for c in calls),
+            'failed_calls':sum(not c['success'] for c in calls),'luna_calls_token_priced':sum(c['model']=='gpt-6-luna' for c in calls),
             'gemini':'pending billing','dialect_variant':'pending core dossier',
             'resolved_models':sorted({m for c in calls for m in (c.get('resolved_model') if isinstance(c.get('resolved_model'),list) else [c.get('resolved_model')]) if m})}
     dump(HERE/'scores.json',output); dump(HERE/'decisions.json',all_units)
@@ -115,7 +118,7 @@ def main():
             '## Uncertainty and usage','', '| Model | Row / evidence | Wilson ours | Wilson peer | Family bootstrap difference | Inconclusive ours/peer | USD/100 ours/peer |','|---|---|---|---|---|---|---|']
     def interval(v):return 'pending' if v is None else '['+', '.join(f'{100*x:.3f}%' for x in v)+']'
     for t in tables:
-        cost='price not published' if t['model']=='gpt-6-luna' else '/'.join(f'{t[s+"_usage"]["measured_usd_per_100"]:.6f}' if t[s+'_usage']['measured_usd_per_100'] is not None else 'pending' for s in ('ours','peer')) if 'ours_usage' in t else 'see row costs'
+        cost='/'.join(f'{t[s+"_usage"]["measured_usd_per_100"]:.6f}' if t[s+'_usage']['measured_usd_per_100'] is not None else 'pending' for s in ('ours','peer')) if 'ours_usage' in t else 'see row costs'
         lines.append(f'| {t["model"]} | {t["row"]}/{t["comparator"]} | {interval(t["ours_wilson95"])} | {interval(t["peer_wilson95"])} | {interval(t["family_bootstrap95"]["difference"] if t["family_bootstrap95"] else None)} | {t["ours_inconclusive"]}/{t["peer_inconclusive"]} | {cost} |')
     lines+=['','## Method and limits','',
             '- Exact one-sided p = sum(C(W+L,k), k=W..W+L) / 2^(W+L). Two-sided McNemar doubles the smaller binomial tail, capped at one. Zero discordance gives one.',
@@ -125,14 +128,14 @@ def main():
             '- Global Holm correction across 18 benchmark/model cells belongs to the final collator. `holm18_missing_as_one` is a conservative interim correction for pooled-default only. Per-row leads are nominal.',
             '- Constant-pass and constant-fail cheaters each score 192/384 by planted balance. Repeated-read noise floor and perturbation validity are not measured in this sealed primary run; no stability claim is made.',
             '- Original frozen prompts and decoding are unchanged. The goal peer uses pinned trajectory summary; its ablation adds the persisted final state without editing the pinned prompt.',
-            '- gpt-6-luna uses provider-default reasoning and no temperature field for both sides. Price is not published. Tokens are recorded per call and summarized per row. No dollar price is imputed.',
+            '- gpt-6-luna uses provider-default reasoning and no temperature field for both sides. Tokens are recorded per call. Owner-verified pricing on 2026-10-13: USD 0.10 input, 0.01 cached input, 0.50 output per million tokens. Source: https://developers.openai.com/api/docs/models/gpt-6-luna. Accounting amendment is separate from the original seal.',
             '- The pilot is a transport and cost check on the first 20 sealed cases per row, retained once in final results. No labels or outcomes select continuation or change the procedure. No content retries.',
             '', '## Freeze and spend','',
             f'- Candidate procedure: `{seal["candidate_procedure_sha256"]}`.',
             f'- Seal SHA-256: `{digest(HERE/"seal.json")}`. The seal holds every frozen source, case and prompt hash.',
             f'- Current branch commit: `{subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()}`.',
             f'- {len(calls)} unique completed attempts; {output["failed_calls"]} transport failures; measured spend USD {output["measured_usd"]:.8f} of USD 10.',
-            f'- {output["luna_calls_price_not_published"]} gpt-6-luna calls have unpublished pricing. These calls are not described as free.',
+            f'- {output["luna_calls_token_priced"]} gpt-6-luna calls use recorded usage and the corrected provider prices. Earlier raw records remain unchanged; current totals reprice those records.',
             f'- Resolved models: {output["resolved_models"]}.',
             '- Artifacts: `comparisons/ledger-hard/{seal,seeds,prior-census,prompts,scores,decisions}.json`, row case JSON, `starts.jsonl`, `calls.jsonl`, and the source scripts.','']
     content='\n'.join(lines)
