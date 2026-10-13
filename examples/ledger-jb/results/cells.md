@@ -8,6 +8,13 @@ Pool: 270 Claude-response pairs. 159 source-question IDs overlap earlier GPT eva
 | gpt-6-luna | 0/270 | pending | pending | pending | pending | pending global family | pending / pending | pending / pending | PENDING_CORE |
 | gemini-3.8-flash | 0/270 | pending | pending | pending | pending | pending | pending | pending | PENDING_BILLING |
 
+| Cheater | GPT dev accuracy | Claude test-pool accuracy |
+|---|---|---|
+| constant-first | 0/121 (0.00%) | 0/270 (0.00%) |
+| constant-original-A | 65/121 (53.72%) | 143/270 (52.96%) |
+| longer-wins | 55/121 (45.45%) | 118/270 (43.70%) |
+| refusal-wins | 0/121 (0.00%) | 0/270 (0.00%) |
+
 Measured spend: 0.00000000 USD. Completed calls: 0. Unresolved calls: 0.
 
 TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected.

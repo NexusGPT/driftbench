@@ -112,3 +112,26 @@ export function noiseFloor(items, rows) {
   return { planned: items.length, completed: complete, changedItems: changed, gameFlips, comparisons,
     rate: comparisons ? gameFlips / comparisons : null, method: 'Each repeat compared to repeat zero, per order; all errors retain their null decisions.' };
 }
+
+export function validity(items, rows) {
+  const byId = new Map(rows.map(row => [row.itemId, row]));
+  const result = {};
+  for (const variant of ['base','relabel','markdown-stripped','injection','changed-finals']) {
+    const group = items.filter(item => item.variant === variant);
+    const present = group.filter(item => byId.has(item.id));
+    const correct = present.filter(item => {
+      const row = byId.get(item.id);
+      return row.games.every(game => game === item.label) && !row.graderErrors;
+    }).length;
+    // Both baseline and variant must be correct. An unchanged wrong answer cannot pass.
+    const passed = present.filter(item => {
+      const base = items.find(x => x.id === item.baseId), a = byId.get(item.baseId), b = byId.get(item.id);
+      return a && a.games.every(game => game === base.label) && b.games.every(game => game === item.label) && !a.graderErrors && !b.graderErrors;
+    }).length;
+    const threshold = variant === 'changed-finals' ? .9 : variant === 'relabel' || variant === 'markdown-stripped' ? .95 : 1;
+    result[variant] = { expected: group.length, measured: present.length, correct, preservedOrFlipped: passed,
+      rate: present.length ? passed / present.length : null, threshold,
+      passed: present.length === group.length && passed / group.length >= threshold };
+  }
+  return result;
+}

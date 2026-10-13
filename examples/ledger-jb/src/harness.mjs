@@ -28,10 +28,10 @@ export function parsePromptfoo(text, order) {
 
 export function jobs(data, phase, model) {
   if (!['claude-haiku-5-5', 'gpt-6-luna'].includes(model)) throw new Error(`Cell unavailable: ${model}`);
-  const file = { fixtures: 'fixtures', pilot: 'pilot', noise: 'noise', test: 'pool' }[phase];
+  const file = { fixtures: 'fixtures', pilot: 'pilot', noise: 'noise', test: 'pool', validity: 'validity' }[phase];
   if (!file) throw new Error(`Unknown phase ${phase}`);
   const repeats = ['fixtures', 'noise'].includes(phase) ? 3 : 1;
-  const contestants = phase === 'fixtures' ? ['ledger'] : ['ledger', 'promptfoo'];
+  const contestants = ['fixtures', 'validity'].includes(phase) ? ['ledger'] : ['ledger', 'promptfoo'];
   const out = [];
   for (const item of data[file]) for (let repeat = 0; repeat < repeats; repeat++) for (const contestant of contestants)
     out.push({ key: `${phase}:${model}:${item.id}:${repeat}:${contestant}`, item, itemId: item.id, repeat, contestant, model, phase });
@@ -42,6 +42,11 @@ export function verifySeal(root) {
   const seal = readJson(join(root, 'data/seal.json'));
   for (const [file, expected] of Object.entries(seal.hashes))
     if (hash(readFileSync(join(root, 'data', file))) !== expected) throw new Error(`Sealed input changed: ${file}`);
+  const extra = join(root, 'data/validity-seal.json');
+  if (existsSync(extra)) {
+    const value = readJson(extra);
+    if (hash(readFileSync(join(root, 'data', value.file))) !== value.sha256) throw new Error('Sealed validity input changed');
+  }
   return seal;
 }
 

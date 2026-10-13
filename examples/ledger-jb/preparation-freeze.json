@@ -1,7 +1,8 @@
 {
-  "version": 1,
+  "version": 2,
+  "previousSha256": "e4728cc710af0a49d0afd57b5012ba0e22acb8d1accef2e1ff5a227668d94946",
   "kind": "offline pool and protocol freeze",
-  "createdAt": "2026-10-13T07:14:02.152853+00:00",
+  "createdAt": "2026-10-13T07:22:11.569408+00:00",
   "coreStatus": "pending PR; no paid calls allowed",
   "capUsd": 25,
   "models": {
@@ -9,20 +10,22 @@
       "reasoning": "not exposed by claude CLI"
     },
     "gpt-6-luna": {
-      "reasoning": "pending core dossier and PR"
+      "reasoning": "medium, as recorded by the core owner; verify export after PR"
     }
   },
   "gemini": "pending billing",
   "hashes": {
-    "examples/ledger-jb/README.md": "f2ce87ebfaa3137653d086f7ce1b0e8c540e96b97789219a50a962c8315d8cc7",
+    "examples/ledger-jb/README.md": "4833e3d3fc67bf65d0d0d3acdba50c474302c8a5cbff43420366d4d6d7c38b2c",
     "examples/ledger-jb/data/promptfoo-upstream-verification.json": "b96c7f7042dbb79a8c9833f19f5511b5a1d91f4577e37eb60b0c9459c5cef5eb",
     "examples/ledger-jb/data/seal.json": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
-    "examples/ledger-jb/src/harness.mjs": "0a63104459f82324c5f3261832a5a05cc05e5a29049ec7411dc1a45f9b0b3be6",
-    "examples/ledger-jb/src/report.mjs": "924aad708b631b3997e1e008f71bdedb6ded3ad89d48832ccb9fcbd85921e06c",
-    "examples/ledger-jb/src/run.mjs": "4055db266f38475d10f5ed7526d09d74b1ce7a716f163352c55da4619170429a",
+    "examples/ledger-jb/data/validity-seal.json": "045f7282e15a35d2fee0384b79c7db78d76fc90c5ab52336fba2e70fe36b3f14",
+    "examples/ledger-jb/data/validity.json": "1b1412dfbecdc614529a3381027c7df7987e4320da2db8da56b6e7c9743dea13",
+    "examples/ledger-jb/src/harness.mjs": "3eb8877b23ccbd006d04196961bf788b3c434cf24596f1eb96749232625fe833",
+    "examples/ledger-jb/src/report.mjs": "a2a65a0067da2ce5736eebcf4f73ffd17da09dca1f98eaaabcdecd1fc293e322",
+    "examples/ledger-jb/src/run.mjs": "847b0fc0ad5b92445add2f6d6353716c863211af508a92afd8cc4be34fe0de78",
     "examples/ledger-jb/src/seal.py": "67996a4242a2856364eb193f3912708848c41a29972979941f0fcbe0a05ec706",
-    "examples/ledger-jb/src/statistics.mjs": "6d8b52df1e93cc419b740e0a6047ffcf3e14d286d26661e23f6b083e088e1b60",
-    "examples/ledger-jb/test/harness.test.mjs": "d637a1f89aeea21c70166117f189f4505c1063b4b7c5252fd8f88923e29631fb",
-    "examples/ledger-jb/test/statistics.test.mjs": "5638a9012b39a7d4f7a1304c66625b76611fb5cab3ff0a899bedfa3eed137b53"
+    "examples/ledger-jb/src/statistics.mjs": "898081d2408c2045ac9efe3d3b550ff6b45cacb2493f192d96b2328175e9db6f",
+    "examples/ledger-jb/test/harness.test.mjs": "6442db4b3df13d1708eadce37e699510c0a099ea893602f48dd93915e6279396",
+    "examples/ledger-jb/test/statistics.test.mjs": "5e150346ca3a38310b2f7f59b267fee4c52cccab239fbdc15f746cb0bd6d1e53"
   }
 }

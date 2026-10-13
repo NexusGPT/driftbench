@@ -34,12 +34,14 @@ Claude test pool. Fixture, pilot and noise sets are mutually disjoint:
 - Pilot: 20 pairs per available model, both contestants and both orders. It measures cost and throughput; it does not tune on test outcomes.
 - Noise: 30 pairs, three independent repeats, both contestants and both orders. Repeat identifiers are part of every recording key.
 - Cheaters: constant presented-FIRST, constant original-A, longer-wins and refusal-wins. The first two are reported separately because only the latter keeps a fixed identity after swapping.
+- Validity: 10 planted arithmetic families with candidate relabelling, markdown removal, an injected position instruction and changed final answers. These checks measure mechanical invariance, not domain reasoning.
 - Test: every sealed pair, both orders and both contestants. There are no content retries outside the frozen core's repair contract.
 
 The requirement IDs are `final_correct` (hard, weight 2), `format_followed`
 (weight 1), and `derivation_sound` (weight 1). The adapter calls the actual core
 implementation. It must not recreate the ledger prompt or verdict rules locally.
-Fixture failures do not earn a category. They cannot be hidden by a new label or
+The cheater threshold uses the same 68 preparation pairs on both sides, with one
+independent baseline verdict per pair. Fixture failures do not earn a category. They cannot be hidden by a new label or
 by evaluating only the categories the model passed.
 
 The promptfoo template is the exact two-output expansion in the existing harness,
@@ -61,7 +63,8 @@ Holm correction is computed across the complete 18-cell family by the collator.
 This row never substitutes correction across completed cells. The 18-times-p bound
 is reported only as a conservative bound, never mislabeled as the final Holm p.
 
-Budget interruption keeps the deterministic prefix and reports partial coverage.
+Jobs enter the queue in sealed order. Budget interruption reports partial coverage,
+including incomplete in-flight jobs; no selection uses model outcomes.
 The report publishes planned and matched counts. Missing cells do not become ties.
 Costs use recorded provider usage and verified prices, or recorded Claude cost.
 Unpriced calls are blocked because they cannot enforce the 25 USD cap.

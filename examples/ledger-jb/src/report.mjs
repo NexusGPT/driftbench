@@ -3,14 +3,14 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hash, readJson, readJsonl, verifySeal } from './harness.mjs';
-import { compare, cheaters, noiseFloor, kappa, officialCorrect } from './statistics.mjs';
+import { compare, cheaters, noiseFloor, kappa, officialCorrect, validity } from './statistics.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const seal = verifySeal(root);
-const data = Object.fromEntries(['pool','dev','fixtures','pilot','noise'].map(name => [name,readJson(join(root,`data/${name}.json`))]));
+const data = Object.fromEntries(['pool','dev','fixtures','pilot','noise','validity'].map(name => [name,readJson(join(root,`data/${name}.json`))]));
 const calls = readJsonl(join(root,'results/calls.jsonl'));
 const cells = [];
 for (const model of ['claude-haiku-5-5','gpt-6-luna']) {
-  const phases = Object.fromEntries(['fixtures','pilot','noise','test'].map(phase=>[phase,readJsonl(join(root,`results/decisions-${phase}-${model}.jsonl`))]));
+  const phases = Object.fromEntries(['fixtures','pilot','noise','validity','test'].map(phase=>[phase,readJsonl(join(root,`results/decisions-${phase}-${model}.jsonl`))]));
   const summary = compare(data.pool, phases.test.filter(x=>x.contestant==='ledger'), phases.test.filter(x=>x.contestant==='promptfoo'));
   const fixtureEarning = Object.fromEntries([...new Set(data.fixtures.map(x=>x.group))].map(group=>{
     const items = data.fixtures.filter(x=>x.group===group), measured = phases.fixtures.filter(x=>x.group===group);
@@ -29,7 +29,20 @@ for (const model of ['claude-haiku-5-5','gpt-6-luna']) {
   }
   const noise = Object.fromEntries(['ledger','promptfoo'].map(contestant=>[contestant,noiseFloor(data.noise,phases.noise.filter(x=>x.contestant===contestant))]));
   const pilot = compare(data.pilot,phases.pilot.filter(x=>x.contestant==='ledger'),phases.pilot.filter(x=>x.contestant==='promptfoo'));
-  const cell={model,status:summary.n?'MEASURED':'PENDING_CORE',...summary,cost,noise,fixtureEarning,pilot,
+  const checks = validity(data.validity, phases.validity);
+  const prepItems = [...data.fixtures,...data.pilot,...data.noise];
+  const prepRows = [...phases.fixtures,...phases.pilot,...phases.noise].filter(x=>x.contestant==='ledger' && x.repeat===0);
+  const prepCheaters = cheaters(prepItems);
+  const prepAccuracy = prepRows.length===prepItems.length ? prepRows.reduce((n,row)=>n+officialCorrect(row.games,row.label),0)/prepRows.length : null;
+  const cheaterGate = prepAccuracy !== null && Object.values(prepCheaters).every(c=>c.estimate<=.5 || prepAccuracy-c.estimate>=.1);
+  const freezeFile = join(root,'freeze.json');
+  const readiness = { model, freezeSha256:existsSync(freezeFile)?hash(readFileSync(freezeFile)):null,
+    pilotComplete:pilot.n===data.pilot.length, noiseComplete:Object.values(noise).every(x=>x.completed===data.noise.length),
+    fixturesComplete:Object.values(fixtureEarning).every(x=>x.status==='MEASURED'),
+    validityPassed:Object.values(checks).every(x=>x.passed)&&cheaterGate,
+    cheaterGate, prepAccuracy, prepCheaters, checks, fixtureEarning };
+  writeFileSync(join(root,`results/readiness-${model}.json`),JSON.stringify(readiness,null,2)+'\n');
+  const cell={model,status:summary.n?'MEASURED':'PENDING_CORE',...summary,cost,noise,fixtureEarning,pilot,validity:checks,cheaterGate,prepAccuracy,
     cheaters:{dev:cheaters(data.dev),test:cheaters(data.pool)},powerRegistration:seal.powerRegistration,familyDisclosure:seal.familyDisclosure};
   cells.push(cell);
   writeFileSync(join(root,`results/items-${model}.json`),JSON.stringify(summary.decisions,null,2)+'\n');
@@ -49,6 +62,11 @@ for(const c of cells) {
   if(!c.ledger){text.push(`| ${c.model} | 0/${seal.eligibleCount} | pending | pending | pending | pending | pending | pending | pending | ${c.status} |`);continue;}
   const score=x=>x.estimate==null?'pending':`${fmt(x.estimate)} (${fmt(x.lower)} to ${fmt(x.upper)})`;
   text.push(`| ${c.model} | ${c.n}/${c.planned} | ${score(c.ledger)} | ${score(c.promptfoo)} | ${c.n?`${c.wins} / ${c.losses}`:'pending'} | ${c.n?c.p:'pending'} | pending global family | ${c.cost.ledger.per100?.toFixed(4)??'pending'} / ${c.cost.promptfoo.per100?.toFixed(4)??'pending'} | ${fmt(c.noise.ledger.rate)} / ${fmt(c.noise.promptfoo.rate)} | ${c.status} |`);
+}
+text.push('', '| Cheater | GPT dev accuracy | Claude test-pool accuracy |', '|---|---|---|');
+for (const [name, c] of Object.entries(cheaters(data.dev))) {
+  const t = cheaters(data.pool)[name];
+  text.push(`| ${name} | ${c.correct}/${c.n} (${fmt(c.estimate)}) | ${t.correct}/${t.n} (${fmt(t.estimate)}) |`);
 }
 text.push('',`Measured spend: ${measuredUsd.toFixed(8)} USD. Completed calls: ${finishes.length}. Unresolved calls: ${pending.length}.`,
 '',seal.powerRegistration,'',seal.familyDisclosure,'','Holm correction awaits the full 18-cell family. Missing cells never count as ties or wins.','',

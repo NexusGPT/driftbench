@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, openSync, closeSync, unlinkSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { hash, readJson, readJsonl, verifySeal, verifyFreeze, jobs, Journal, promptfooPrompt, parsePromptfoo, REQUIREMENTS } from './harness.mjs';
@@ -8,15 +8,15 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..'), repo = reso
 const argv = process.argv.slice(2);
 function flag(name, fallback) { const i = argv.indexOf(name); return i < 0 ? fallback : argv[i + 1]; }
 if (argv.includes('--help')) {
-  console.log('node examples/ledger-jb/src/run.mjs --phase fixtures|pilot|noise|test --model claude-haiku-5-5|gpt-6-luna [--execute --core-dossier PATH --spend-ledger PATH]\nWithout --execute: offline plan only. Paid execution requires committed freeze.json and adapter.');
+  console.log('node examples/ledger-jb/src/run.mjs --phase fixtures|pilot|noise|validity|test --model claude-haiku-5-5|gpt-6-luna [--execute --core-dossier PATH --spend-ledger PATH]\nWithout --execute: offline plan only. Paid execution requires committed freeze.json and adapter.');
   process.exit(0);
 }
 const phase = flag('--phase', 'pilot'), model = flag('--model', 'claude-haiku-5-5');
-const data = Object.fromEntries(['fixtures','pilot','noise','pool'].map(name => [name, readJson(join(root, `data/${name}.json`))]));
+const data = Object.fromEntries(['fixtures','pilot','noise','pool','validity'].map(name => [name, readJson(join(root, `data/${name}.json`))]));
 verifySeal(root);
 const planned = jobs(data, phase, model);
 if (!argv.includes('--execute')) {
-  console.log(JSON.stringify({ phase, model, pairs: data[{fixtures:'fixtures',pilot:'pilot',noise:'noise',test:'pool'}[phase]].length,
+  console.log(JSON.stringify({ phase, model, pairs: data[{fixtures:'fixtures',pilot:'pilot',noise:'noise',test:'pool',validity:'validity'}[phase]].length,
     jobs: planned.length, minimumCalls: planned.length * 2, maxAdditionalCallsPerLedgerPair: 'Frozen core repair and canonical escalation only',
     paid: false, capUsd: 25, poolSha256: hash(readFileSync(join(root,'data/pool.json'))) }, null, 2));
   process.exit(0);
@@ -35,6 +35,9 @@ if (phase === 'test') {
 }
 const adapterPath = resolve(repo, freeze.adapter);
 if (!freeze.hashes[freeze.adapter]) throw new Error('Adapter is not frozen');
+const lockPath = join(root, 'results/.paid-run.lock');
+const lockFd = openSync(lockPath, 'wx');
+process.on('exit', () => { closeSync(lockFd); unlinkSync(lockPath); });
 const adapter = await import(pathToFileURL(adapterPath).href);
 if (typeof adapter.createTransport !== 'function' || typeof adapter.judgePair !== 'function') throw new Error('Core adapter contract missing');
 const transport = await adapter.createTransport({ model, settings: freeze.models[model], root });
@@ -49,8 +52,9 @@ const previous = readJsonl(outputPath), completed = new Set(previous.map(row => 
 if (completed.size !== previous.length) throw new Error('Duplicate saved decisions');
 const template = readFileSync(join(root,'data/promptfoo-select-best.txt'),'utf8');
 let current = completed.size;
-for (const job of planned) {
-  if (completed.has(job.key)) continue;
+const queue = planned.filter(job => !completed.has(job.key));
+let next = 0, stopped;
+async function runJob(job) {
   const call = async (prompt, { order, attempt = 0, schema } = {}) => {
     const key = `${job.key}:${order}:${attempt}:${hash(JSON.stringify({prompt,schema,settings:freeze.models[model]}))}`;
     const reserveUsd = transport.maximumCostUsd(prompt, schema);
@@ -75,3 +79,13 @@ for (const job of planned) {
   appendFileSync(outputPath, `${JSON.stringify(row)}\n`); completed.add(job.key); current++;
   console.log(JSON.stringify({ phase, model, completed: current, planned: planned.length, liabilityUsd: journal.liability() }));
 }
+async function worker() {
+  while (!stopped && next < queue.length) {
+    const job = queue[next++];
+    try { await runJob(job); } catch (error) { stopped ??= error; }
+  }
+}
+const concurrency = freeze.concurrency ?? 4;
+if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 6) throw new Error('Invalid frozen concurrency');
+await Promise.all(Array.from({ length: concurrency }, worker));
+if (stopped) throw stopped;

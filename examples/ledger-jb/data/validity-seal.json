@@ -1,0 +1,14 @@
+{
+  "file": "validity.json",
+  "sha256": "1b1412dfbecdc614529a3381027c7df7987e4320da2db8da56b6e7c9743dea13",
+  "cases": 50,
+  "baseCases": 10,
+  "labelSource": "Planted integer arithmetic, generated before any calls",
+  "limitation": "These mechanistic invariance checks do not measure hard-domain correctness.",
+  "thresholds": {
+    "relabel": 0.95,
+    "markdown-stripped": 0.95,
+    "injection": 1,
+    "changed-finals": 0.9
+  }
+}

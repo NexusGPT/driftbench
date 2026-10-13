@@ -37,3 +37,14 @@ test('an interrupted call cannot silently retry or lose its cost reserve', async
   assert.equal(resumed.liability(),.4);
   await assert.rejects(resumed.call('a',.4,async()=>({costUsd:0})),/Unresolved earlier call/);
 });
+
+test('unknown cost retains liability and concurrent reservations cannot overspend', async () => {
+  const path=join(mkdtempSync(join(temp,'jb-journal-')),'calls.jsonl');
+  const journal=new Journal(path,{capUsd:.5});
+  let release;
+  const first=journal.call('first',.4,()=>new Promise(resolve=>{release=resolve;}));
+  await assert.rejects(journal.call('second',.2,async()=>({costUsd:.01})),/BUDGET_STOP/);
+  release({costUsd:.1}); await first;
+  await assert.rejects(journal.call('unknown',.3,async()=>({text:'unpriced'})),/Unknown usage cost/);
+  assert.ok(Math.abs(journal.liability()-.4)<1e-9);
+});

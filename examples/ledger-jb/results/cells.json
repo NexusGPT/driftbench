@@ -126,6 +126,55 @@
         "verdict": "PARTIAL",
         "decisions": []
       },
+      "validity": {
+        "base": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 1,
+          "passed": false
+        },
+        "relabel": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 0.95,
+          "passed": false
+        },
+        "markdown-stripped": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 0.95,
+          "passed": false
+        },
+        "injection": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 1,
+          "passed": false
+        },
+        "changed-finals": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 0.9,
+          "passed": false
+        }
+      },
+      "cheaterGate": false,
+      "prepAccuracy": null,
       "cheaters": {
         "dev": {
           "constant-first": {
@@ -310,6 +359,55 @@
         "verdict": "PARTIAL",
         "decisions": []
       },
+      "validity": {
+        "base": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 1,
+          "passed": false
+        },
+        "relabel": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 0.95,
+          "passed": false
+        },
+        "markdown-stripped": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 0.95,
+          "passed": false
+        },
+        "injection": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 1,
+          "passed": false
+        },
+        "changed-finals": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 0.9,
+          "passed": false
+        }
+      },
+      "cheaterGate": false,
+      "prepAccuracy": null,
       "cheaters": {
         "dev": {
           "constant-first": {

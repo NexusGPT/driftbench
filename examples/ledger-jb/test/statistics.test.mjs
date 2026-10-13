@@ -43,3 +43,11 @@ test('noise repeats count actual independent samples', () => {
   assert.equal(noiseFloor([{id:'x'}], rows).rate, .25);
   assert.equal(noiseFloor([{id:'x'}], rows.slice(0,2)).completed, 0);
 });
+
+test('invariance cannot pass by keeping the same wrong answer', async () => {
+  const { validity } = await import('../src/statistics.mjs');
+  const items = [{id:'base',baseId:'base',variant:'base',label:'A'}, {id:'edit',baseId:'base',variant:'injection',label:'A'}];
+  const result = validity(items,[{itemId:'base',games:['B','B']},{itemId:'edit',games:['B','B']}]);
+  assert.equal(result.injection.passed,false);
+  assert.equal(result.injection.preservedOrFlipped,0);
+});
