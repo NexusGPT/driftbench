@@ -1,7 +1,8 @@
-import { parseJudgeValue } from '../assessment';
+import { parseJudgeText, parseJudgeValue } from '../assessment';
 import type { ClientOptions, JudgeClient } from '../client';
 import { JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
+import { isPairLedgerRequest, JUDGE_DIALECTS, withJudgeDialect } from './dialects';
 
 export type HttpJudgeOptions = ClientOptions & {
   /** The endpoint. */
@@ -27,17 +28,24 @@ export function createHttpJudge(options: HttpJudgeOptions): JudgeClient {
     id: options.id ?? 'http',
     family: options.family,
     cls,
+    dialect: cls === 'system1' ? JUDGE_DIALECTS.jev.id : JUDGE_DIALECTS.http.id,
+    ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     ...(options.model ? { model: options.model } : {}),
     cost: options.cost ?? (cls === 'system1' ? 1 : 10),
     async judge(original) {
-      const request = cls === 'system1' ? { ...original, answerContract: 'legacy' as const } : original;
+      const request =
+        cls === 'system1'
+          ? { ...original, answerContract: 'legacy' as const }
+          : withJudgeDialect(original, JUDGE_DIALECTS.http.id, options.reasoning);
       const payload = await postJson(
         options.url,
         headers,
         { request, prompt: buildPrompt(request) },
         options,
       );
-      return parseJudgeValue(payload, request);
+      return isPairLedgerRequest(request) && typeof payload === 'string'
+        ? parseJudgeText(payload, request)
+        : parseJudgeValue(payload, request);
     },
   };
 }

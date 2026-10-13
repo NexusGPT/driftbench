@@ -22,6 +22,10 @@ export interface JudgeClient {
    * Part of the cassette key: a recording made with other settings never replays.
    */
   readonly settings?: string;
+  /** The provider's ledger output dialect, included in ledger recording keys. */
+  readonly dialect?: string;
+  /** A client default; an explicit request reasoning setting takes precedence. */
+  readonly reasoning?: string;
   judge(request: JudgeRequest): Promise<JudgeResult>;
 }
 
@@ -35,4 +39,6 @@ export type ClientOptions = HttpOptions & {
   model?: string;
   /** Relative cost. Defaults: 1 for system 1 clients, 10 for chat models. */
   cost?: number;
+  /** Provider reasoning setting. Omitted unless explicitly chosen by the caller. */
+  reasoning?: string;
 };

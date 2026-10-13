@@ -3,10 +3,12 @@ import { contentHash } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
+import { JUDGE_DIALECTS } from './clients/dialects';
 import { JudgeClass, type JudgeRequest, type JudgeResult, parseAnswerValue } from './contract';
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
-import { PROMPT_FINGERPRINT } from './prompt';
+import { isPairLedgerRequest } from './pair-ledger-contract';
+import { PAIR_LEDGER_PROMPT_FINGERPRINT, PROMPT_FINGERPRINT } from './prompt';
 
 /**
  * Cassettes: recorded judge answers. A recorder wraps a live client and keeps every answer; a player
@@ -26,6 +28,8 @@ export const CassetteJudge = z.strictObject({
   cost: z.number().nonnegative(),
   /** The client settings it was recorded with (see `JudgeClient.settings`). Part of every key. */
   settings: z.string().optional(),
+  dialect: z.string().optional(),
+  reasoning: z.string().optional(),
 });
 export type CassetteJudge = z.infer<typeof CassetteJudge>;
 
@@ -36,6 +40,8 @@ export const CassetteEntry = z.strictObject({
   criterion: z.string().optional(),
   /** Model-facing contract recorded with this entry. Missing on pre-ledger cassettes means legacy. */
   answerContract: z.enum(['ledger', 'legacy']).optional(),
+  /** Separates the new pair contract from older explicit-winner recordings. */
+  pairContract: z.literal('ledger').optional(),
   note: z.string().optional(),
   answer: z.unknown().optional(),
   raw: z.string().optional(),
@@ -55,7 +61,13 @@ export const Cassette = z.strictObject({
 export type Cassette = z.infer<typeof Cassette>;
 
 /** What of a client a key covers: its class, its model and its settings. */
-export type KeyClient = { readonly cls: JudgeClass; readonly model?: string; readonly settings?: string };
+export type KeyClient = {
+  readonly cls: JudgeClass;
+  readonly model?: string;
+  readonly settings?: string;
+  readonly dialect?: string;
+  readonly reasoning?: string;
+};
 
 /**
  * The data part of a key: a hash of the criterion, the data and, for a re-judge, the large budget. Stable
@@ -63,6 +75,9 @@ export type KeyClient = { readonly cls: JudgeClass; readonly model?: string; rea
  */
 export function dataKey(request: JudgeRequest): string {
   return contentHash({
+    ...(isPairLedgerRequest(request)
+      ? { dialect: request.dialect ?? 'scratchpad-json', reasoning: request.reasoning }
+      : {}),
     ...(request.answerContract !== 'legacy' && request.requirements
       ? { requirements: request.requirements }
       : {}),
@@ -86,11 +101,29 @@ export function dataKey(request: JudgeRequest): string {
  * silent replay of an answer to another question.
  */
 export function requestKey(request: JudgeRequest, client?: KeyClient, prompt?: string): string {
-  const effective = client?.cls === 'system1' ? { ...request, answerContract: 'legacy' as const } : request;
+  const effective =
+    client?.cls === 'system1'
+      ? { ...request, answerContract: 'legacy' as const }
+      : isPairLedgerRequest(request)
+        ? {
+            ...request,
+            dialect: client?.dialect ?? request.dialect ?? 'scratchpad-json',
+            reasoning: request.reasoning ?? client?.reasoning,
+          }
+        : request;
   return contentHash({
     data: dataKey(effective),
     prompt:
-      prompt ?? (effective.answerContract === 'legacy' ? LEGACY_PROMPT_FINGERPRINT : PROMPT_FINGERPRINT),
+      prompt ??
+      (effective.answerContract === 'legacy'
+        ? LEGACY_PROMPT_FINGERPRINT
+        : isPairLedgerRequest(effective)
+          ? contentHash({
+              prompt: PAIR_LEDGER_PROMPT_FINGERPRINT,
+              dialect: effective.dialect,
+              table: JUDGE_DIALECTS,
+            })
+          : PROMPT_FINGERPRINT),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }
@@ -105,6 +138,8 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
       ...(client.model ? { model: client.model } : {}),
       cost: client.cost,
       ...(client.settings === undefined ? {} : { settings: client.settings }),
+      ...(client.dialect === undefined ? {} : { dialect: client.dialect }),
+      ...(client.reasoning === undefined ? {} : { reasoning: client.reasoning }),
     });
   }
   return {
@@ -114,11 +149,14 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
     ...(client.model ? { model: client.model } : {}),
     cost: client.cost,
     ...(client.settings === undefined ? {} : { settings: client.settings }),
+    ...(client.dialect === undefined ? {} : { dialect: client.dialect }),
+    ...(client.reasoning === undefined ? {} : { reasoning: client.reasoning }),
     async judge(request) {
       const base = {
         judge: client.id,
         key: requestKey(request, client),
         criterion: request.criterion.name,
+        ...(isPairLedgerRequest(request) ? { pairContract: 'ledger' as const } : {}),
         answerContract:
           request.answerContract ?? (client.cls === 'system1' ? ('legacy' as const) : ('ledger' as const)),
       };
@@ -175,8 +213,17 @@ export function playerClient(
     ...(judge.model ? { model: judge.model } : {}),
     cost: judge.cost,
     ...(judge.settings === undefined ? {} : { settings: judge.settings }),
+    ...(judge.dialect === undefined ? {} : { dialect: judge.dialect }),
+    ...(judge.reasoning === undefined ? {} : { reasoning: judge.reasoning }),
     async judge(request) {
-      const effective = !request.answerContract ? { ...request, answerContract: recordedContract } : request;
+      const oldWinnerContract =
+        request.assessment?.kind === 'pairwise' &&
+        recordedContract === 'ledger' &&
+        !cassette.entries.some((entry) => entry.judge === judgeId && entry.pairContract === 'ledger');
+      const effective =
+        !request.answerContract && !oldWinnerContract
+          ? { ...request, answerContract: recordedContract }
+          : request;
       const key = requestKey(effective, judge, options.prompt);
       const matches = byKey.get(key) ?? [];
       if (matches.length === 0) {

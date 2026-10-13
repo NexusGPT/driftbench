@@ -4,6 +4,12 @@ import type { RubricItem } from './assessment';
 import type { JudgeClient } from './client';
 import { CriterionText, type JudgeOutcome, type JudgeRequest, type TranscriptEntry } from './contract';
 import { FACT_AUDIT_POLICY, parseFactLedger } from './fact-audit';
+import {
+  judgePairLedger,
+  type PairLedgerOptions,
+  type PairLedgerResult,
+  pairLedgerRequest,
+} from './pair-ledger';
 import { FRAME_RULE } from './transcript';
 
 /**
@@ -107,19 +113,55 @@ function naming(outcome: JudgeOutcome, aIsFirst: boolean): PairwiseChoice {
  * Judges two candidates on one criterion in both orders. A client that gives no answer throws, and so does
  * this call: a missing answer is never read as a tie.
  */
+export type PairwiseOptions = PairLedgerOptions & {
+  reference?: string;
+  rubricItems?: readonly RubricItem[];
+  audit?: boolean;
+  answerContract?: 'ledger' | 'legacy';
+  reasoning?: string;
+};
+export function judgePairwise(
+  client: JudgeClient,
+  criterion: CriterionText,
+  transcript: readonly TranscriptEntry[],
+  first: string,
+  second: string,
+  options: PairwiseOptions & { answerContract: 'ledger' },
+): Promise<PairLedgerResult>;
+export function judgePairwise(
+  client: JudgeClient,
+  criterion: CriterionText,
+  transcript: readonly TranscriptEntry[],
+  first: string,
+  second: string,
+  options?: PairwiseOptions & { answerContract?: 'legacy' },
+): Promise<PairwiseVerdict>;
+export function judgePairwise(
+  client: JudgeClient,
+  criterion: CriterionText,
+  transcript: readonly TranscriptEntry[],
+  first: string,
+  second: string,
+  options: PairwiseOptions,
+): Promise<PairwiseVerdict | PairLedgerResult>;
 export async function judgePairwise(
   client: JudgeClient,
   criterion: CriterionText,
   transcript: readonly TranscriptEntry[],
   first: string,
   second: string,
-  options: {
-    reference?: string;
-    rubricItems?: readonly RubricItem[];
-    audit?: boolean;
-    answerContract?: 'ledger' | 'legacy';
-  } = {},
-): Promise<PairwiseVerdict> {
+  options: PairwiseOptions = {},
+): Promise<PairwiseVerdict | PairLedgerResult> {
+  if (options.answerContract === 'ledger')
+    return judgePairLedger(
+      client,
+      pairLedgerRequest(criterion, transcript, first, second, {
+        requirements: options.rubricItems,
+        reference: options.reference,
+        reasoning: options.reasoning,
+      }),
+      options,
+    );
   const { reference } = options;
   let calls = 0;
   const request = (a: string, b: string, reverse = false): JudgeRequest => ({
