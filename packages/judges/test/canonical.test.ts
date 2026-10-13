@@ -4,7 +4,13 @@ import { parseJudgeText } from '../src/assessment';
 import { dataKey, emptyCassette, playerClient, recordingClient, requestKey } from '../src/cassette';
 import type { JudgeClient } from '../src/client';
 import type { JudgeRequest, JudgeResult } from '../src/contract';
-import { COMPARE_SYSTEM_PROMPT, judgePairwise, pairwiseRequest, pairwiseTally } from '../src/pairwise';
+import {
+  COMPARE_SYSTEM_PROMPT,
+  judgePairwise,
+  type PairwiseOptions,
+  pairwiseRequest,
+  pairwiseTally,
+} from '../src/pairwise';
 import { buildPrompt, PROMPT_FINGERPRINT } from '../src/prompt';
 
 const criterion = { name: 'correct', rubric: 'Give the correct answer.' };
@@ -308,6 +314,15 @@ describe('canonical cassette identity', () => {
 });
 
 describe('default compatibility and canonical tally', () => {
+  it('accepts optional forwarded options and five-argument Parameters tuples', async () => {
+    const { client } = clientReturning((request) => named(request, 'tie'));
+    const forwarded = (options?: PairwiseOptions) =>
+      judgePairwise(client, criterion, transcript, replyA, replyB, options);
+    const args: Parameters<typeof judgePairwise> = [client, criterion, transcript, replyA, replyB];
+    expect(await forwarded()).toEqual(await judgePairwise(...args));
+    expect(await forwarded(canonical)).toMatchObject({ presentation: 'canonical', calls: 1 });
+  });
+
   it('preserves the pre-canonical default key and prompt fingerprint', () => {
     expect(requestKey(pairwiseRequest({ name: 'c', rubric: 'Correct.' }, [], 'one', 'two'))).toBe(
       'fea38de35af2',
