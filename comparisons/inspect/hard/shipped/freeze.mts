@@ -23,9 +23,7 @@ for (const line of recordingLines(new URL('../', import.meta.url))) {
   const record = JSON.parse(line);
   seen.add(record.request_sha256 ?? record.key);
 }
-if (existsSync(`${here}calls.jsonl`))
-  for (const line of readFileSync(`${here}calls.jsonl`, 'utf8').split('\n').filter(Boolean))
-    seen.add(JSON.parse(line).request_sha256);
+for (const line of recordingLines(new URL('./', import.meta.url))) seen.add(JSON.parse(line).request_sha256);
 
 const digests = (row: Row, seed: number) => {
   const cases = generate(row, { seed, count: 60 });

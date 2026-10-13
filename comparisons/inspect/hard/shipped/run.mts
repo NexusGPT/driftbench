@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parseJudgeText } from '../../../../packages/judges/src/assessment';
 import { buildPrompt } from '../../../../packages/judges/src/prompt';
@@ -31,9 +31,23 @@ if (
   !outDir
 )
   throw new Error('Usage: run.mts <row> <audit|default|theirs> --set <file> --out <dir> [--replay]');
+// A frozen held-out set runs only against the exact judge, templates and runner named in its manifest.
+if (setPath.startsWith('shipped/heldout/')) {
+  const repo = fileURLToPath(new URL('../../../../', import.meta.url));
+  const frozen = JSON.parse(readFileSync(`${here}heldout/freeze.json`, 'utf8')) as {
+    sha256: Record<string, string>;
+  };
+  for (const [path, hash] of Object.entries(frozen.sha256))
+    if (
+      createHash('sha256')
+        .update(readFileSync(`${repo}${path}`))
+        .digest('hex') !== hash
+    )
+      throw new Error(`Frozen judge, harness or held-out input changed: ${path}`);
+}
 const cap = Number(process.env.CAP_USD ?? '0');
 const perCall = 0.02;
-const concurrency = Number(process.env.CONCURRENCY ?? '4');
+const concurrency = Number(process.env.CONCURRENCY ?? '2');
 const recording = `${here}calls.jsonl`;
 const runtime = `${here}.cache/runtime`;
 mkdirSync(runtime, { recursive: true });
@@ -54,12 +68,8 @@ type Call = {
   timestamp: string;
 };
 // Earlier Inspect recordings replay for free: the request digest binds model, both prompt texts and repeat.
-const own: Call[] = existsSync(recording)
-  ? readFileSync(recording, 'utf8')
-      .split('\n')
-      .filter(Boolean)
-      .map((line) => JSON.parse(line))
-  : [];
+// This runner's own recordings: immutable parts under calls/, then the active file.
+const own: Call[] = recordingLines(new URL('./', import.meta.url)).map((line) => JSON.parse(line));
 const cache = new Map<string, Call>();
 for (const line of recordingLines(new URL('../', import.meta.url))) {
   const record = JSON.parse(line);

@@ -4,6 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Opt-in answer audit in the judges package: `judgeAnswerAudit`, or `assessment: { kind: 'answer-audit' }`, grades a submission against a criterion and an optional trusted reference. The request is role-separated JSON; the model settles each condition with a quote before its status and code computes the outcome. It has its own prompt fingerprint; default and legacy prompts and cassette keys are unchanged.
 * Opt-in `createEscalation` routes reference disagreement, order splits, inconclusive results and low confidence to a cross-family council. It preserves comparison diagnostics and recorded replay, supports deployable-route calibration and checks constituent model families. The offline MM-Eval DEV400 example reproduces 91.16 from pinned recordings, with unknown historical generator families disclosed.
 * Councils accept named pairwise winners directly, preserve them in votes and distinguish a majority tie from missing evidence. Comparison-aware reference, final-answer and verification wrappers preserve their behavior around an escalation client.
 * Opt-in `stated_length` check in the checks package: it reads a total length stated in the request (English words, or Chinese characters for 字) and fails a draft under half of it. Over-length never fails unless `over_ceiling` is set. The earlier 10 percent rule failed long drafts that human labels preferred. See [checks](docs/reference/checks.md#stated-length).
