@@ -117,12 +117,12 @@ driftbench dataset restore <ref> --store <file> [--out <path>] [--force] [--json
 
 ```
 $ pnpm -s driftbench dataset push acme-specs _demo/specs --store _demo/store.db --note 'first import'
-Pushed dataset acme-specs@1 (hash e836f6673509): 6 files from _demo/specs.
+Pushed dataset acme-specs@1 (hash 74ce682f7438): 6 files from _demo/specs.
 $ pnpm -s driftbench dataset push acme-specs _demo/specs --store _demo/store.db
-Pushed dataset acme-specs@2 (hash ab756cbb1aa3): 6 files from _demo/specs.
+Pushed dataset acme-specs@2 (hash 0f95fe257abc): 6 files from _demo/specs.
 $ pnpm -s driftbench dataset list --store _demo/store.db
-acme-specs@1  e836f6673509  6 files  2026-10-11T23:50:43.942Z  first import
-acme-specs@2  ab756cbb1aa3  6 files  2026-10-11T23:50:52.379Z
+acme-specs@1  74ce682f7438  6 files  2026-10-11T23:50:43.942Z  first import
+acme-specs@2  0f95fe257abc  6 files  2026-10-11T23:50:52.379Z
 $ pnpm -s driftbench dataset diff acme-specs@2 --store _demo/store.db
 M plan-upgrade.yaml
     @@ line 2 @@
@@ -166,7 +166,7 @@ The stored campaign then holds:
 
 ```json
 "sources": [
-  { "kind": "dataset", "name": "acme-specs", "version": 1, "hash": "e836f6673509..." },
+  { "kind": "dataset", "name": "acme-specs", "version": 1, "hash": "74ce682f7438..." },
   { "kind": "prompt", "name": "acme-sales", "version": 1, "hash": "de4d2b6ffa13..." }
 ]
 ```

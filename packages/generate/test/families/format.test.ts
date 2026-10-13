@@ -26,6 +26,7 @@ describe('the family file', () => {
       'planted',
       'readme_name',
       'seed_format',
+      'start',
       'summary',
       'wording',
       'workbook',
@@ -38,6 +39,7 @@ describe('the family file', () => {
       plans: 'difficulty',
       categories: 'difficulty',
       seed_format: 'structure',
+      start: 'structure',
       wording: 'style',
     });
     expect(familySha256).toMatch(/^[0-9a-f]{64}$/);
@@ -94,7 +96,6 @@ describe('the family file', () => {
     expect(issues).toEqual(
       expect.arrayContaining([
         'blocks.0.expect.workspace: the oracle decides workspace; the family may not fix it',
-        'blocks.0.when: the first block holds in every instance; it takes no condition',
       ]),
     );
   });

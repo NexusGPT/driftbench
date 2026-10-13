@@ -38,6 +38,7 @@ instance the reference fails is an oracle or a reference defect, and it is not s
 | structure | yearly | formula (checked by its formula) or value (checked by its value) |
 | structure | summary | with or without the Summary block |
 | structure | workbook | three workbook paths under out/ |
+| structure | start | catalog-only, or existing-workbook: the workspace already holds the price sheet, and the instance asks for the summary alone |
 | structure | planted | with or without the planted NOTES.txt variant |
 | style | wording | three approved phrasings per instruction part |
 | style | column_order | catalog order or shuffled columns |
