@@ -50,10 +50,10 @@ export function definePlugin(plugin: DriftbenchPlugin): DriftbenchPlugin {
   return plugin;
 }
 
-const adapters = new Map<string, PluginAdapterFactory>();
-const judges = new Map<string, () => JudgeClient>();
+let adapters = new Map<string, { factory: PluginAdapterFactory; owner: string }>();
+let judges = new Map<string, { factory: () => JudgeClient; owner: string }>();
 /** Checks a plugin named, not yet in the registry of the checks package, which loads only when one exists. */
-const pendingChecks = new Map<string, { check: CustomCheckFunction; owner: string }>();
+let pendingChecks = new Map<string, { check: CustomCheckFunction; owner: string }>();
 /** The registry of the checks package, once a plugin check made it load. */
 let checkRegistry:
   | {
@@ -63,7 +63,7 @@ let checkRegistry:
     }
   | undefined;
 /** The checks the plugins of this run added to that registry, each with the plugin that added it. */
-const checks = new Map<string, string>();
+let checks = new Map<string, string>();
 
 /** The judge names `compare --pairwise-judge` already knows; a plugin judge takes another name. */
 const BUILTIN_JUDGES = ['openai', 'anthropic', 'google'];
@@ -74,7 +74,7 @@ class PluginRefusal extends Error {}
 const NEVER_REPLACES = 'A plugin never replaces a check: give it another name.';
 
 /**
- * Forgets every adapter, judge and check the plugins registered. `main` calls it before it loads plugins. A
+ * Forgets every adapter, judge and check the plugins registered in the current scope. A
  * plugin only ever adds a check under a free name, so removing what the plugins added leaves the registry of
  * the checks package exactly as it was before them.
  */
@@ -86,12 +86,33 @@ export function resetPlugins(): void {
   pendingChecks.clear();
 }
 
+/** Opens an isolated run and returns its cleanup, preserving any caller-owned registrations. */
+export function beginPluginRun(): () => void {
+  const previous = { adapters, judges, pendingChecks, checks };
+  adapters = new Map();
+  judges = new Map();
+  pendingChecks = new Map();
+  checks = new Map();
+  return () => {
+    resetPlugins();
+    ({ adapters, judges, pendingChecks, checks } = previous);
+  };
+}
+
+function refuseDuplicate(kind: string, name: string, owner: string, earlier: string | undefined): void {
+  if (earlier !== undefined) {
+    throw new PluginRefusal(
+      `The plugin ${owner} registers the ${kind} ${name}, which the plugin ${earlier} already registered. A plugin never replaces a ${kind}: give it another name.`,
+    );
+  }
+}
+
 /** The adapter a plugin registered for the target, or undefined. */
 export async function pluginAdapter(
   target: TargetRef,
   scope?: PluginScope,
 ): Promise<AgentAdapter | undefined> {
-  const factory = adapters.get(target.adapter);
+  const factory = adapters.get(target.adapter)?.factory;
   return factory === undefined ? undefined : factory(target, scope);
 }
 
@@ -102,7 +123,7 @@ export function pluginAdapterNames(): string[] {
 
 /** The pairwise judge a plugin registered under the name, or undefined. */
 export function pluginPairwiseJudge(name: string): JudgeClient | undefined {
-  return judges.get(name)?.();
+  return judges.get(name)?.factory();
 }
 
 const NAME = /^[a-z0-9][a-z0-9._-]*$/;
@@ -114,15 +135,12 @@ function apiFor(cwd: string, owner: string): PluginApi {
       if (!NAME.test(name))
         throw new Error(`the adapter name ${JSON.stringify(name)} is not a target prefix`);
       if (typeof factory !== 'function') throw new Error(`the adapter ${name} needs a factory function`);
-      adapters.set(name, factory);
+      refuseDuplicate('adapter', name, owner, adapters.get(name)?.owner);
+      adapters.set(name, { factory, owner });
     },
     check(name, check) {
       const earlier = pendingChecks.get(name)?.owner ?? checks.get(name);
-      if (earlier !== undefined) {
-        throw new PluginRefusal(
-          `The plugin ${owner} registers the check ${name}, which the plugin ${earlier} already registered. ${NEVER_REPLACES}`,
-        );
-      }
+      refuseDuplicate('check', name, owner, earlier);
       pendingChecks.set(name, { check, owner });
     },
     pairwiseJudge(name, factory) {
@@ -132,7 +150,8 @@ function apiFor(cwd: string, owner: string): PluginApi {
         );
       }
       if (typeof factory !== 'function') throw new Error(`the judge ${name} needs a factory function`);
-      judges.set(name, factory);
+      refuseDuplicate('judge', name, owner, judges.get(name)?.owner);
+      judges.set(name, { factory, owner });
     },
   };
 }
