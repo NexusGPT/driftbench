@@ -1,3 +1,6 @@
 # One reviewed false positive of gitleaks' generic-api-key rule: an estate bank item key, the words
 # 't2-duplicate-constraints' (fictional, no secret), in a commit of lane/v-estate.
 68b2ad5bf4c9936a69f176e6146a0fa0ab021c77:packages/validators/src/ladders/estate/bank/plan.ts:generic-api-key:454
+# comparisons/langwatch/hard/recorded/calls.jsonl: fictional token in a recorded model response
+4cdcfdfb626d0364a0812caaded60c17baa9cfde:comparisons/langwatch/hard/recorded/calls.jsonl:generic-api-key:5058
+4cdcfdfb626d0364a0812caaded60c17baa9cfde:comparisons/langwatch/hard/recorded/calls.jsonl:generic-api-key:5058

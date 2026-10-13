@@ -26,3 +26,5 @@ Original authorized history rebuild preserves parent e9b7666d00ba86f7f68dbd6bdd8
 The approved measured PR115 source remains8195902dd20c84267f85feba268c17868e00dfbe. Its newer remote head is not substituted or claimed merged. Native Azure injection and Scenario SDK decision/cache/live trace behavior remain unmeasured.
 
 Final root lint exits0:1410files checked, warnings/informational diagnostics remain. Root typecheck exits0. Local scans follow the final measurement commit before push.
+
+Two scan findings refer to one fictional token value repeated in the native recorded text/structured response. A no-value-printing check finds that exact value in frozen longtrace-v2/hard.json. The lead authorizes only the two exact reported fingerprints in .gitleaksignore, with the named recording comment. Both findings share the same commit/file/rule/line fingerprint; both reported rows are retained. No path, regex or rule allowlist is added. Two Unicode storage escapes also preserve decoded raw responses exactly. Scans run again with this explicit exception.
