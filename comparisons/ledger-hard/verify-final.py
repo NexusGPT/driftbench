@@ -16,7 +16,7 @@ def main():
     audit=json.loads((HERE/'construction-cue-audit.json').read_text())
     assert audit['blocking_cues']==[] and audit['verdict'].startswith('PASS')
     source_hashes={}
-    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','topup-runtime-amendment.json','budget-amendment.json'):
+    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','topup-runtime-amendment.json','budget-amendment.json','daily-quota-amendment.json'):
         source_hashes.update(json.loads((HERE/amendment).read_text())['sha256'])
     for path,value in source_hashes.items():assert digest(ROOT/path)==value,path
     authorised={i['request_sha256']:i for i in recovery['items']}
@@ -35,6 +35,9 @@ def main():
         starts=read(directory/'starts.jsonl');start_counts=collections.Counter(s['request_sha256'] for s in starts)
         rejections=read(directory/'billing-rejections.jsonl')
         rejection_counts=collections.Counter(a['request_sha256'] for a in rejections)
+        quota_pending=read(directory/'quota-pending.jsonl')
+        assert all(not a['success'] and not a.get('text') and not a.get('provider_response') and not a.get('usage') and (a.get('error') or {}).get('status')==429 for a in quota_pending)
+        rejection_counts.update(a['request_sha256'] for a in quota_pending)
         assert all(not a['success'] and not a.get('text') and not a.get('provider_response') and not a.get('usage') and (a.get('error') or {}).get('status')==402 for a in rejections)
         assert set(start_counts)<=set(unique)
         for key,count in start_counts.items():
@@ -93,7 +96,7 @@ def main():
         assert all((a.get('error') or {}).get('status') not in (402,429) for a in answers),'Billing and quota errors must never be scored'
         details[experiment]={'complete':complete,'recorded_unique':len(by),'planned_unique':len(unique),'native_peer_decodes':len(replay),
             'recovery_max_concurrent':dict(maximum),'unanswered_started':len(set(start_counts)-set(by)),
-            'billing_rejections_unscored':len(rejections),'final_failed_calls':sum(not a['success'] for a in answers),'measured_usd':cost,'by_model':usage,
+            'billing_rejections_unscored':len(rejections),'quota_pending_unscored':len(quota_pending),'final_failed_calls':sum(not a['success'] for a in answers),'measured_usd':cost,'by_model':usage,
             'journal_sha256':digest(directory/'calls.jsonl')}
     prior=set(json.loads((HERE/'prior-census.json').read_text())['payload_sha256'])
     for row in ROWS:

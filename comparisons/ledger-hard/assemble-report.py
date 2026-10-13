@@ -28,9 +28,12 @@ def main():
     variant_text=variant_text.replace('Failures over 5% in a rolling 50 Luna attempts reduce variant concurrency from four to two.',
         'The original adaptive four/two pacing is superseded by the per-model runtime amendment above.')
     primary_text=primary_text.replace('of USD 10.',f'of the amended USD {budget:g} cap.')
+    primary_text=primary_text.replace('Current branch commit:', 'Analysis source commit:')
     variant_text=variant_text.replace('of USD 10.',f'of the amended USD {budget:g} cap.')
-    status='Final' if full else 'Haiku and Luna complete; Gemini billing pending.'
-    coverage='Full sealed coverage: 384 cases per row, 1,536 per model; two primary models and three dialect models.' if full else 'Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini remains incomplete pending owner top-up; its unfinished cells carry no final verdict.'
+    daily=read('daily-quota-amendment.json')
+    pending_label='262 requests not run: daily quota'
+    status='Final' if full else 'Haiku and Luna complete; Gemini '+pending_label+'.'
+    coverage='Full sealed coverage: 384 cases per row, 1,536 per model; two primary models and three dialect models.' if full else 'Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.'
     lines=['# Ledger hard-row dossier','',f'{status} Recording analysis generated {stamp()}. All case and result counts come from the linked files in `comparisons/ledger-hard/`.','',
        '- '+coverage,
        f'- {primary["unique_calls"]} primary and {variant["unique_calls"]} dialect unique recorded requests, including the goal equal-evidence ablation.',
@@ -47,7 +50,7 @@ def main():
             b=next(t for t in result['tables'] if t['model']==model and t['row']=='pooled-equal-evidence')
             if b['complete']:
                 lines.append(f'| {label} | {model} | 384/384 | {a["wins"]}/{a["losses"]} | {b["wins"]}/{b["losses"]} | {b["two_sided_p"]:.8g} | {b["nominal_verdict"]} |')
-            else:lines.append(f'| {label} | {model} | Incomplete | Pending | Pending | Pending | Billing hold; no final verdict |')
+            else:lines.append(f'| {label} | {model} | Incomplete | Pending | Pending | Pending | 262 requests not run: daily quota; no final verdict |')
     lines+=['','## Construction-cue audit','',
        f'`audit-construction.py` reads only source, seeds, sealed cases and rendered prompts. `construction-cue-audit.json` SHA-256 is `{digest(HERE/"construction-cue-audit.json")}`. It checks all {audit["rendered"]["primary"]["entries"]} primary and {audit["rendered"]["dialect"]["entries"]} dialect rendered inputs. No model outcomes inform this audit.','',
        '| Row | Cases | Trusted contexts paired across labels | Imbalanced trusted token values | Imbalanced identity suffix values |',
@@ -55,7 +58,7 @@ def main():
     for row,a in audit['rows'].items():lines.append(f'| {row} | {a["cases"]} | {a["paired_trusted_contexts"]} | {a["imbalanced_trusted_token_values"]} | {a["imbalanced_identity_values"]} |')
     lines+=['','Entity identifiers are assigned once per pair, before the true/false loop. Every trusted context appears once per label. Identity values, parity and last digits are balanced. Complete token contingency tables are retained, including semantic answer differences that correlate with truth. Case id, generation, family and truth metadata are excluded from model inputs. The audit rules out these construction cues; it does not establish absence of every semantic shortcut.','',
        '## Crash recovery and concurrency','',
-       f'The plugin crash left 12 primary and 8 dialect calls without recorded answers. The owner authorized one re-ask of each key below. {len(reasked)} keys now have exactly one final recorded answer and are counted once. Any remaining Gemini keys await top-up. The lost attempts retain USD 0.40 reserve. Sources: `crash-recovery.json`, `recovery-amendment.json`, both `starts.jsonl` files and both `recovery-attempts.jsonl` files.','',
+       f'The plugin crash left 12 primary and 8 dialect calls without recorded answers. The owner authorized one re-ask of each key below. {len(reasked)} keys now have exactly one final recorded answer and are counted once. The lost attempts retain USD 0.40 reserve. Sources: `crash-recovery.json`, `recovery-amendment.json`, both `starts.jsonl` files and both `recovery-attempts.jsonl` files.','',
        '| Experiment | Model | Case | Side | Crash-lost key | Recovery status |','|---|---|---|---|---|---|']
     for x in recovery['items']:
         recovery_status='Re-asked once after crash; one recorded answer' if x['request_sha256'] in reasked else 'Pending Gemini top-up; not re-asked'
@@ -67,6 +70,10 @@ def main():
        'The owner subsequently confirms a Gemini top-up. `gemini-topup.json` names one missing request as the probe. It returns an answer, recorded once in the normal journal; `gemini-probe-result.json` records its cost and the hold release. Only requests without recorded answers resume, at two Gemini calls. The 429 waits and 402 circuit break remain active.','',
        'The owner raises the cap from USD 10 to USD 12 solely to finish the same sealed requests. `budget-amendment.json` records this runtime authorization. The case pool, request order, prompts, reasoning settings, answer contracts and statistics remain unchanged. The USD 0.40 lost-attempt reserve stays in the budget.','',
        'Primary Luna keeps provider-default reasoning for both contestants and omits temperature. The API does not report which reasoning setting that default resolves to. Dialect Luna and Gemini use medium for both contestants. Haiku exposes no reasoning control in this harness.','',
+       '## Daily quota runtime amendment','',
+       'Gemini reaches the shared 10,000-request daily limit on 13 October. The owner stops all further Gemini calls that day. Two requests each receive three HTTP 429 rejections and enter the 240-second backoff. The owned driver is stopped while both are in backoff, with zero HTTP calls in flight. Their six no-answer attempts remain in the journal, never scored. `dialect/quota-pending.jsonl` preserves both keys as eligible missing requests.', '',
+       'The partial publication marks Gemini as "262 requests not run: daily quota". Of these, 260 are queued without a new attempt and two have quota-only rejections without an answer. This wording denotes missing scored answers. The previously recorded Gemini answers remain included once in descriptive partial tables; no incomplete pooled verdict is claimed.', '',
+       'The Gemini missing-only cutoff extends to 2026-10-14 12:00 UTC. Resumption requires an explicit owner instruction or the daily reset near 2026-10-14 00:00 UTC. The USD 12 cap, USD 0.40 reserve, two-call Gemini limit, sealed order and answer contracts remain fixed. `daily-quota-amendment.json` records this authorization and the affected keys.', '',
        '## Native parity and verification','',
        '`verification-final.json` records coverage by model, unique scored keys, disjoint experiment keys, exact goal labels, original payload non-overlap, immutable source hashes, registered crash re-asks, resolved model IDs and the budget. `peer-decoder-parity.mts` replays every recorded successful peer answer through the pinned native verdict functions, including the native YAML fallback. `trajectory-parity.mts` checks all 384 goal summaries against the pinned helper.','',
        '| Experiment | Unique calls | Native peer answers checked | Final unsuccessful calls | Unscored billing rejections | Measured USD |','|---|---:|---:|---:|---:|---:|']
@@ -75,11 +82,12 @@ def main():
        'Focused protocol/recovery tests pass; `test-output.txt` retains the test result. Every raw response and usage record remains in the journals. Haiku cache creation and cache reads are separate from ordinary input tokens in `verification-final.json`; CLI-reported cost is authoritative. The peer native YAML dependency is the pinned js-yaml 5.4.2 bundle, with npm integrity and upstream provenance under `native-validation/`. No node_modules directory is copied.','',
        '## Freeze hashes','',
        '| Artifact | SHA-256 |','|---|---|']
-    for name in ['seal.json','accounting-amendment.json','transport-amendment.json','dialect/seal.json','recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','gemini-topup.json','topup-runtime-amendment.json','gemini-probe-result.json','budget-amendment.json','crash-recovery.json','seeds.json','prompts.json','dialect/prompts.json','score.py','dialect-score.py','verification-final.json']:
+    for name in ['seal.json','accounting-amendment.json','transport-amendment.json','dialect/seal.json','recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','gemini-topup.json','topup-runtime-amendment.json','gemini-probe-result.json','budget-amendment.json','daily-quota-amendment.json','crash-recovery.json','seeds.json','prompts.json','dialect/prompts.json','score.py','dialect-score.py','verification-final.json']:
         lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     lines+=['',f'Candidate procedure: `{seal["candidate_procedure_sha256"]}`. Original seal commit: `eeb7875e`. Core dialect source: `{variant["core_commit"]}`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.','',
        '## Original primary tables','',primary_text,'','## Dialect tables','',variant_text,'',
        '## Limits on claims','',
+       '- `FINAL.md`, `delivery.json` and `verification-final.json` carry final status. Frozen scorer outputs retain historical status text in some metadata; those fields do not describe final coverage.',
        '- The planted cases reuse the original family templates with fresh bindings. Results do not demonstrate general superiority on arbitrary tasks.',
        '- Constant pass and constant fail each score 50% by label balance. Repeated-read noise and perturbation validity are unmeasured; no stability claim is made.',
        '- Information-asymmetric goal wins cannot establish a better judge on equal evidence. Both versions are disclosed.',

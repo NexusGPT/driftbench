@@ -1,6 +1,8 @@
 {
-  "stamp": "2026-10-13T10:16:15.440944+00:00",
-  "models": [],
-  "reason": "Owner top-up confirmed and one missing request answered",
-  "probe_request_sha256": "bb1c6b2fdfe709c77bd1a4a09264584ce426352770852bd7a60a2baf507bcb23"
+  "stamp": "2026-10-13T11:16:50.398193+00:00",
+  "models": [
+    "gemini-3.8-flash"
+  ],
+  "reason": "Daily quota; resume only on owner word or after reset",
+  "resume_not_before": "2026-10-14T00:00:00+00:00"
 }

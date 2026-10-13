@@ -54,6 +54,16 @@ def work(r):
     with LOCK:primary.append(directory/'calls.jsonl',a)
     return a
 
+def hold_after_reset(hold,now):
+    result=dict(hold)
+    if hold.get('resume_not_before') and now>=datetime.datetime.fromisoformat(hold['resume_not_before']):
+        result['models']=[m for m in hold['models'] if m!='gemini-3.8-flash']
+        result.update(stamp=now.isoformat(),reason='Daily quota reset reached; missing-only resumption authorized')
+    return result
+
+def deadline_for(model,daily):
+    return daily['gemini_missing_only_cutoff'] if model=='gemini-3.8-flash' else '2026-10-13T20:00:00+00:00'
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--execute',action='store_true');args=parser.parse_args()
@@ -65,8 +75,9 @@ def main():
     billing=json.loads((HERE/'billing-amendment.json').read_text())
     topup=json.loads((HERE/'topup-runtime-amendment.json').read_text())
     budget=json.loads((HERE/'budget-amendment.json').read_text())
+    daily=json.loads((HERE/'daily-quota-amendment.json').read_text())
     assert pacing['per_model_limits']==MODEL_LIMITS
-    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']|pacing['sha256']|billing['sha256']|topup['sha256']|budget['sha256']).items():assert digest(ROOT/name)==value,name
+    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']|pacing['sha256']|billing['sha256']|topup['sha256']|budget['sha256']|daily['sha256']).items():assert digest(ROOT/name)==value,name
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/recovery-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'recovery-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/concurrency-amendment.json'],cwd=ROOT)
@@ -81,7 +92,13 @@ def main():
     assert committed==(HERE/'topup-runtime-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/budget-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'budget-amendment.json').read_bytes()
-    PROVIDER_HOLDS.update(json.loads((HERE/'provider-holds.json').read_text())['models'])
+    committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/daily-quota-amendment.json'],cwd=ROOT)
+    assert committed==(HERE/'daily-quota-amendment.json').read_bytes()
+    hold=json.loads((HERE/'provider-holds.json').read_text())
+    released=hold_after_reset(hold,datetime.datetime.now(datetime.timezone.utc))
+    if args.execute and released!=hold:dump(HERE/'provider-holds.json',released)
+    hold=released
+    PROVIDER_HOLDS.update(hold['models'])
     recovery=json.loads((HERE/'crash-recovery.json').read_text())
     authorised={r['request_sha256'] for r in recovery['items']}
     locks=[]
@@ -94,10 +111,12 @@ def main():
         starts=collections.Counter(r['request_sha256'] for r in readlines(dest(experiment)/'starts.jsonl'))
         unknown=set(starts)-done
         rejections=collections.Counter(a['request_sha256'] for a in readlines(dest(experiment)/'billing-rejections.jsonl'))
+        quota_pending=collections.Counter(a['request_sha256'] for a in readlines(dest(experiment)/'quota-pending.jsonl'))
+        rejections.update(quota_pending)
         rejected=set(rejections)
         assert unknown<=authorised|rejected,(experiment,'unauthorized unknown keys',unknown-authorised-rejected)
         assert all(starts[k]==1 for k in unknown-rejected),'A crash re-ask was already started; do not repeat it'
-        assert all(starts[k]==rejections[k]+(1 if k in authorised else 0) for k in unknown&rejected),'Unproven attempt after a billing rejection'
+        assert all(starts[k]==rejections[k]+(1 if k in authorised else 0) for k in unknown&rejected),'Unproven attempt after a proven no-answer rejection'
         reqs=primary.requests(MODELS,None) if experiment=='primary' else variant.all_requests()
         unique={}
         for r in reqs:unique.setdefault(r['request_sha256'],r)
@@ -113,18 +132,21 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=global_limit) as pool:
         while any(queues.values()) or inflight:
             if (HERE/'recovery-drain').exists():STOP.set();stop='drain requested'
-            if datetime.datetime.now(datetime.timezone.utc)>=datetime.datetime.fromisoformat('2026-10-13T20:00:00+00:00'):STOP.set();stop='frozen cutoff'
             for _ in range(len(queue_order)*global_limit):
                 if len(inflight)>=global_limit or STOP.is_set():break
                 key=queue_order[0];queue_order.rotate(-1);queue=queues[key]
                 if key[1] in quota_blocked or key[1] in PROVIDER_HOLDS:continue
+                cutoff=deadline_for(key[1],daily)
+                if datetime.datetime.now(datetime.timezone.utc)>=datetime.datetime.fromisoformat(cutoff):continue
                 if queue and model_slot_available(key[1],inflight):
                     if spent+reserve+.02*(len(inflight)+1)>budget['cap_usd']:STOP.set();stop='shared cap with lost-attempt reserve';break
                     r=queue.popleft()
                     with LOCK:primary.append(dest(r['experiment'])/'starts.jsonl',{k:v for k,v in r.items() if k not in ('prompt','built')}|{'started':stamp()})
                     inflight[pool.submit(work,r)]=r
             if not inflight:
-                if stop is None and any(q and k[1] in PROVIDER_HOLDS for k,q in queues.items()):stop='provider billing pending; owner top-up required'
+                if stop is None and any(q and k[1] in PROVIDER_HOLDS for k,q in queues.items()):
+                    stop='Gemini daily quota pending; 262 requests not run' if hold.get('resume_not_before') else 'provider billing pending; owner top-up required'
+                if stop is None and any(queues.values()):stop='frozen cutoff'
                 break
             completed,_=concurrent.futures.wait(inflight,timeout=10,return_when=concurrent.futures.FIRST_COMPLETED)
             for f in completed:

@@ -16,6 +16,20 @@ class RecoveryTests(unittest.TestCase):
         self.assertFalse(r.model_slot_available('gemini-3.8-flash',active))
         active.pop(0)
         self.assertTrue(r.model_slot_available('gpt-6-luna',active))
+    def test_daily_hold_releases_only_at_reset(self):
+        hold={'models':['gemini-3.8-flash'],'resume_not_before':'2026-10-14T00:00:00+00:00'}
+        before=r.datetime.datetime.fromisoformat('2026-10-13T23:59:59+00:00')
+        after=r.datetime.datetime.fromisoformat('2026-10-14T00:00:00+00:00')
+        self.assertEqual(r.hold_after_reset(hold,before)['models'],['gemini-3.8-flash'])
+        self.assertEqual(r.hold_after_reset(hold,after)['models'],[])
+        self.assertEqual(hold['models'],['gemini-3.8-flash'])
+        billing={'models':['gemini-3.8-flash'],'reason':'HTTP 402'}
+        self.assertEqual(r.hold_after_reset(billing,after),billing)
+    def test_cutoff_extension_applies_only_to_gemini(self):
+        amendment={'gemini_missing_only_cutoff':'2026-10-14T12:00:00+00:00'}
+        self.assertEqual(r.deadline_for('gemini-3.8-flash',amendment),'2026-10-14T12:00:00+00:00')
+        for model in ['haiku','gpt-6-luna']:
+            self.assertEqual(r.deadline_for(model,amendment),'2026-10-13T20:00:00+00:00')
     def request(self):return {'experiment':'primary','model':'gpt-6-luna','request_sha256':'fixture','side':'audit','row':'rubric','crash_reask':True}
     def invoke(self,answers):
         events=[]
