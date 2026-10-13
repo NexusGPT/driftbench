@@ -1,8 +1,17 @@
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as bench from '../../src/ladders/estate/bank/bench';
-import { fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
-import { type Cell, equivalent, killFamily } from '../../src/ladders/estate/bank/kill';
+import { FIXTURE, fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
+import {
+  breakStandingSize,
+  type Cell,
+  equivalent,
+  killFamily,
+  STANDING_CEILING,
+} from '../../src/ladders/estate/bank/kill';
 
 vi.mock('../../src/ladders/estate/bank/bench', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../src/ladders/estate/bank/bench')>();
@@ -53,7 +62,26 @@ describe('kill.fake: equivalent mutants are read from the fixture, not taken on 
   });
 });
 
-describe('kill.fake: setting atoms are judged by their static tests', { timeout: 600_000 }, () => {
+describe('kill.fake: the invariant cell breaks the size ceiling on a copy, the anchor kept', () => {
+  it('keeps the first line of CLAUDE.md and runs the file past the ceiling', async () => {
+    const work = await mkdtemp(join(tmpdir(), 'kill-break-'));
+    try {
+      const copy = await breakStandingSize(FIXTURE, join(work, 'copy'));
+      const before = await readFile(join(FIXTURE, 'CLAUDE.md'), 'utf8');
+      const after = await readFile(join(copy, 'CLAUDE.md'), 'utf8');
+      expect(after.split('\n')[0]).toBe(before.split('\n')[0]);
+      expect(after.startsWith(before)).toBe(true);
+      expect(after.length).toBeGreaterThan(STANDING_CEILING);
+      expect(before.length).toBeLessThan(STANDING_CEILING);
+    } finally {
+      await rm(work, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('kill.fake: setting and invariant atoms are judged by their static tests', {
+  timeout: 600_000,
+}, () => {
   afterEach(() => vi.mocked(bench.cli).mockReset());
 
   it('passes the two setting cells on the fixture, red on the mutant', async () => {
@@ -62,6 +90,9 @@ describe('kill.fake: setting atoms are judged by their static tests', { timeout:
     const results = await killFamily().evaluate(1);
     expect(results.get('kill.fake.delete-setting-1')).toMatchObject({ pass: true });
     expect(results.get('kill.fake.delete-setting-2')).toMatchObject({ pass: true });
+    expect(results.get('kill.fake.break-invariant-1')).toMatchObject({ pass: true });
+    expect(results.has('kill.fake.delete-invariant-1')).toBe(false);
+    expect(results.has('kill.fake.delete-invariant-2')).toBe(false);
   });
 
   it('fails them when the static runner never turns red', async () => {
@@ -78,5 +109,7 @@ describe('kill.fake: setting atoms are judged by their static tests', { timeout:
     const results = await killFamily().evaluate(1);
     expect(results.get('kill.fake.delete-setting-1')).toMatchObject({ pass: false });
     expect(results.get('kill.fake.delete-setting-2')).toMatchObject({ pass: false });
+    // The copy keeps the anchor line and breaks the property: a runner that does not see it fails the cell.
+    expect(results.get('kill.fake.break-invariant-1')).toMatchObject({ pass: false });
   });
 });
