@@ -102,13 +102,13 @@ export {
 } from './clients/system1';
 export { type TokenUsage, type UsageProvider, usageFromResponse } from './clients/usage';
 export { comparePair, type PairChoice, type PairJudge, type PairWinner } from './compare-pair';
-export type { ComparisonResult, EscalationRecord, EscalationTrigger } from './contract';
 export {
   CONFORMANCE_PROMPT_FINGERPRINT,
   CONFORMANCE_SYSTEM_PROMPT,
   ConformanceAudit,
   judgeConformance,
 } from './conformance';
+export type { ComparisonResult, EscalationRecord, EscalationTrigger } from './contract';
 export {
   type Budget,
   CriterionText,
@@ -169,8 +169,10 @@ export {
 export { type LintIssue, lintCriterion } from './lint';
 export { buildPairPrompt } from './pair-prompt';
 export {
+  type CanonicalPairwiseVerdict,
   judgePairwise,
   type PairwiseChoice,
+  type PairwiseOptions,
   type PairwiseTally,
   type PairwiseVerdict,
   pairwiseRequest,

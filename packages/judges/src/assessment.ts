@@ -22,7 +22,7 @@ import {
   parseAnswerValue as parseLegacyAnswerValue,
 } from './legacy-contract';
 
-/** A caller-supplied rubric item. Weights belong to the caller, never to the model. */
+/** The caller owns item names and weights. Names identify requirements, never output positions. */
 export type RubricItem = {
   readonly name: string;
   readonly rubric: string;
@@ -218,15 +218,36 @@ export function parseJudgeValue(
       answer: { ...answer, outcome: winner === 'A' ? 'pass' : winner === 'B' ? 'fail' : 'inconclusive' },
     };
   }
-  const parsed = (assessment.pairwise ? pairLedger : pointLedger).safeParse(value);
-  if (!parsed.success) return invalid(raw, parsed.error.issues[0]?.message ?? 'invalid item score');
+  const names = new Set(assessment.items.map((item) => item.name));
+  const ignoredRequirementIds: string[] = [];
+  let known = value;
+  if (value !== null && typeof value === 'object' && 'items' in value && Array.isArray(value.items)) {
+    const items = value.items.filter((row: unknown) => {
+      if (
+        row !== null &&
+        typeof row === 'object' &&
+        'name' in row &&
+        typeof row.name === 'string' &&
+        !names.has(row.name)
+      ) {
+        ignoredRequirementIds.push(row.name);
+        return false;
+      }
+      return true;
+    });
+    known = { ...value, items };
+  }
+  const diagnostics = ignoredRequirementIds.length ? { ignoredRequirementIds } : {};
+  const invalidRubric = (why: string): JudgeResult => ({ ...invalid(raw, why), ...diagnostics });
+  const parsed = (assessment.pairwise ? pairLedger : pointLedger).safeParse(known);
+  if (!parsed.success) return invalidRubric(parsed.error.issues[0]?.message ?? 'invalid item score');
   const byName = new Map(parsed.data.items.map((item) => [item.name, item]));
   if (
     byName.size !== assessment.items.length ||
     parsed.data.items.length !== assessment.items.length ||
     assessment.items.some((item) => !byName.has(item.name))
   )
-    return invalid(raw, 'every requested rubric item must appear exactly once, with no extra items');
+    return invalidRubric('every requested rubric item must appear exactly once');
   const items: RubricScore[] = assessment.items.map((def) => {
     const item = byName.get(def.name) as z.infer<typeof pointItem> | z.infer<typeof pairItem>;
     const { name, reasoning, evidence } = item;
@@ -275,6 +296,7 @@ export function parseJudgeValue(
         : 'fail';
   return {
     raw,
+    ...diagnostics,
     answer: { outcome, reasoning: items.map((item) => `${item.name}: ${item.reasoning}`).join('\n') },
     ...(assessment.pairwise ? { winner } : {}),
     rubric: { items, ...(first === undefined ? {} : { first }), ...(second === undefined ? {} : { second }) },
@@ -318,7 +340,7 @@ function requirementsError(request: JudgeRequest): string | undefined {
   }
 }
 
-/** One batched model call, one score per caller-supplied item, arithmetic in code. */
+/** One batched score ledger, with one large-budget re-ask if it breaks the caller's contract. */
 export async function judgeRubric(
   client: JudgeClient,
   request: JudgeRequest,
@@ -327,5 +349,21 @@ export async function judgeRubric(
 ): Promise<JudgeResult> {
   const assessment: Assessment = { kind: 'rubric', items, ...options };
   validateAssessment(assessment);
-  return client.judge({ ...request, assessment });
+  const scoped = { ...request, assessment };
+  const first = await client.judge(scoped);
+  if (request.answerContract === 'legacy') return first;
+  const normalize = (result: JudgeResult): JudgeResult => {
+    if (result.unparsed) return { ...result, answer: inconclusive(result.answer.reasoning) };
+    if (!result.rubric) return { ...result, ...invalid(result.raw, 'client returned no rubric item ledger') };
+    return result;
+  };
+  const result = normalize(first);
+  if (!result.unparsed) return result;
+  const retry = normalize(await client.judge({ ...scoped, budget: 'large' }));
+  return {
+    ...retry,
+    ...(first.costUsd === undefined && retry.costUsd === undefined
+      ? {}
+      : { costUsd: (first.costUsd ?? 0) + (retry.costUsd ?? 0) }),
+  };
 }

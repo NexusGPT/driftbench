@@ -259,6 +259,8 @@ Exact final-answer comparison uses the existing extractor and preserves case, si
 
 `judgePairwise` supplies both orders together. The first judge answers each once, then every later seat answers at most once in that escalation round. Later seats receive the original ordering and may themselves be recorded comparison procedures. The first vote does not join the later majority. Both decision policies accept a later majority, including an explicit tie; `majority` abstains on a second split, while `first-stands` preserves the original answer or original two order outcomes. An inconsistent first pair still has aggregate `choice: 'tie'` when it stands.
 
+With `presentation: 'canonical'`, the first judge receives only the canonical order. `order-split` cannot fire without a second order; the other selected signals still apply. The canonical verdict preserves the escalation record, reported cost and actual seat-call count, including when replayed with the caller's candidates reversed.
+
 `verdict.escalation` records the triggers, first results, later results, decision and call count. The pairwise `ordered` and `swapped` fields carry the final outcomes; `consistent` and `positionBias` retain the first judge's diagnostics. `costUsd` sums reported provider costs. A first-seat transport error still throws; it is not relabelled as a model verdict. Later-seat errors abstain under the council contract.
 
 `agentFamily` is required. Construction refuses a first or later judge from that family, including known model-name aliases and constituents of nested clients. The pool must span multiple families. The composite retains `families` so an outer council and calibration cannot hide its later models behind the first judge's identity. `none` means a non-model agent; it does not mean unknown provenance.
@@ -639,7 +641,7 @@ The committed Haiku regression cassettes retain four fresh responses for each of
 
 `council.judge(pairwiseRequest(criterion, transcript, first, second))` seats the named-winner contract directly. Every vote carries `winner`, and the council counts that field even if a custom client's binary outcome contradicts it. A majority of explicit ties returns `winner: 'tie'` with an inconclusive binary outcome, without another round. Missing winners and unparseable responses abstain. The council returns a winner for that presentation only; use `judgePairwise` when both orders must be checked.
 
-`judgePairwise(client, criterion, transcript, first, second, options)` compares both candidate orders and reconciles their identities in code. Its public `choice`, `ordered`, `swapped`, `consistent` and `positionBias` fields remain available. A disagreement remains a tie. `calls` counts the actual calls; `recovered` marks a fact-ledger recovery.
+`judgePairwise(client, criterion, transcript, first, second, options)` defaults to `presentation: 'both-orders'`. It compares both candidate orders and reconciles their identities in code. Its public `choice`, `ordered`, `swapped`, `consistent` and `positionBias` fields remain available. A disagreement remains a tie. `calls` counts the actual calls; `recovered` marks a fact-ledger recovery.
 
 Chat models now return a named winner instead of translating a winner into pass or fail:
 
@@ -656,6 +658,27 @@ Chat models now return a named winner instead of translating a winner into pass 
 * Every built-in chat client sends and parses the request's assessment contract. Custom clients that already return binary outcomes remain supported, including probability clients. They do not provide the named-winner integrity check until they adopt `parseJudgeText(raw, request)` or `parseJudgeValue(value, request)`.
 
 `pairwiseRequest` carries `assessment`, `candidates` and the comparison system prompt. An HTTP judge endpoint receives those fields in its request. A changed assessment, requirement set or custom system prompt changes the cassette key. New-default pairwise and criterion recordings require fresh responses. Existing recordings remain usable with `answerContract: 'legacy'`.
+
+### Canonical presentation
+
+```ts
+const result = await judgePairwise(client, criterion, transcript, first, second, {
+  presentation: 'canonical',
+});
+// result.choice names the caller's first or second candidate, or a tie.
+// result.outcome is the outcome in canonical A/B order.
+// result.aIsFirst says whether canonical A was the caller's first candidate.
+```
+
+Canonical presentation sorts the complete, unmodified candidate texts by their UTF-8 SHA-256 hashes, ascending. Equal hashes use JavaScript string order as a deterministic fallback. The judge sees that order once, and code maps its winner back to the caller's order. Identical candidates return a tie. A tie or missing-data answer also remains a tie.
+
+`CanonicalPairwiseVerdict` carries `presentation: 'canonical'`, `choice`, `outcome`, `aIsFirst` and `calls`. It omits `ordered`, `swapped`, `consistent`, `positionBias` and `recovered`: the other order was not measured. `pairwiseTally` accepts either verdict type; its inconsistency and position-bias counts include only measured, both-orders verdicts.
+
+One valid canonical comparison uses one client call instead of the default's two primary calls. A malformed answer retains the single bounded re-ask in the same canonical order. Reference text, audit settings and rubric items still apply, but canonical mode does not run the two-order fact-ledger recovery. Rubric items keep their supplied order. `calls` reports the actual number of client calls, including a repair.
+
+Canonical presentation joins the request key, including legacy and system 1 keys. A canonical cassette entry can replay either caller order. It cannot silently replay a both-orders entry. The default and explicit `both-orders` keys stay unchanged, as does the prompt fingerprint. There is no implicit result cache: two live invocations still call the client twice. Record once and use `playerClient` to reuse a judgement.
+
+Mapping is not immunity to order bias. A judge can prefer canonical A regardless of content, and independent live invocations can disagree. Keep the default when measuring position bias matters. Cost savings depend on retries, recovery and the client; one presentation does not promise a universal cost reduction.
 
 ### Factual audit and ledger recovery
 
@@ -682,9 +705,9 @@ const result = await judgePairwise(client, criterion, transcript, first, second,
 });
 ```
 
-Code validates that every item appears exactly once, then computes the weighted fulfillment fraction. A candidate that fully meets every hard item outranks one that fails a hard item. Otherwise the fractions decide. A missing score leaves the assessment inconclusive. The swapped pass reverses the rubric presentation order as well as the candidates; names preserve aggregation identity.
+Item names are stable caller-owned requirement ids, not model-assigned row positions. Code ignores unknown names before validating scores and retains them in `ignoredRequirementIds`. Every requested name must still appear exactly once; missing, duplicate or malformed requested rows are unparseable. Code then computes the weighted fulfillment fraction from only the requested items. A candidate that fully meets every hard item outranks one that fails a hard item. Otherwise the fractions decide. A null score leaves the assessment inconclusive. The swapped pass reverses the rubric presentation order as well as the candidates; names preserve aggregation identity. Reasoning prose cannot replace a structured score, even when they conflict.
 
-`judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
+`judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. An invalid ledger gets one re-ask with the same caller requirements and the large budget, then remains inconclusive if still invalid. Reported `costUsd` includes both calls. Valid scores, including null, do not trigger a re-ask. Explicit legacy requests retain their previous one-call behavior. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
 
 ### Optional verification and reference agreement
 

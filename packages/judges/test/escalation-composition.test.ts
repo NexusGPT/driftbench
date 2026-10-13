@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { withFinalAnswer } from '../src/answer-extraction';
 import { assignmentTable, calibrate, type LabelledBlock } from '../src/calibration';
+import { emptyCassette, playerClient, recordingClient } from '../src/cassette';
 import type { JudgeClient } from '../src/client';
 import type { JudgeRequest, JudgeResult } from '../src/contract';
 import type { LoadedCriterion } from '../src/criteria';
@@ -54,6 +55,66 @@ function escalation(first: JudgeClient, next: JudgeClient) {
 const evidence = [{ expression: '2+2', claimed: 5, actual: 4, matches: false }];
 
 describe('escalation wrapper composition', () => {
+  it('keeps canonical presentation to one first-seat call without an order-split signal', async () => {
+    const first = seat('first', 'anthropic', (r) => answer(r.candidates?.A === 'one' ? 'pass' : 'fail'));
+    const next = seat('next', 'google');
+    const result = await judgePairwise(
+      escalation(first.client, next.client),
+      criterion,
+      transcript,
+      'one',
+      'two',
+      { presentation: 'canonical' },
+    );
+    expect(result).toMatchObject({
+      presentation: 'canonical',
+      choice: 'first',
+      calls: 1,
+      costUsd: 1,
+      escalation: { escalated: false, triggers: [] },
+    });
+    expect(result).not.toHaveProperty('ordered');
+    expect(result).not.toHaveProperty('swapped');
+    expect(result).not.toHaveProperty('positionBias');
+    expect(first.requests).toHaveLength(1);
+    expect(first.requests[0]?.presentation).toBe('canonical');
+    expect(next.requests).toHaveLength(0);
+  });
+
+  it('replays a canonical escalation with its audit, cost and caller-relative choice', async () => {
+    const first = seat('first', 'anthropic', () => answer('inconclusive'));
+    const next = seat('next', 'google', () => answer('fail'));
+    const cassette = emptyCassette();
+    const client = recordingClient(escalation(first.client, next.client), cassette);
+    const result = await judgePairwise(client, criterion, transcript, 'one', 'two', {
+      presentation: 'canonical',
+    });
+    expect(result).toMatchObject({
+      presentation: 'canonical',
+      calls: 2,
+      costUsd: 2,
+      escalation: { escalated: true, triggers: ['inconclusive'] },
+    });
+    expect(first.requests).toHaveLength(1);
+    expect(next.requests).toHaveLength(1);
+    expect(cassette.entries).toHaveLength(1);
+    const replay = await judgePairwise(
+      playerClient(cassette, client.id),
+      criterion,
+      transcript,
+      'two',
+      'one',
+      { presentation: 'canonical' },
+    );
+    expect(replay).toEqual({
+      ...result,
+      aIsFirst: !result.aIsFirst,
+      choice: result.choice === 'first' ? 'second' : 'first',
+    });
+    expect(first.requests).toHaveLength(1);
+    expect(next.requests).toHaveLength(1);
+  });
+
   it.each(['YES', 'NO'] as const)(
     'routes both comparison orders once with checkability %s',
     async (checkability) => {
