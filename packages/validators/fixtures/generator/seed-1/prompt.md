@@ -30,26 +30,6 @@ A fictional agent the generator validator drew from seed 1. Every name and value
 - list_options: Lists the options for an item. It runs when the conversation reaches choice. It only reads.
 - submit_request: Submits the confirmed request. It runs when the conversation reaches done. It changes the world, so it runs only after CONFIRM and is never retried.
 
-## Reply requirements
-
-Each returned field is stated as "<tool label with spaces> says <field> is <value>." Unspecified required integer inputs use their schema minimum.
-- In new-request, a turn from opening to intake asks "Which item is the request about?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In new-request, a turn from intake to check asks "Shall I go on with the record I found?", states every returned field of lookup_record, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In new-request, a turn from check to choice asks "Which of the listed options do you want?", states every returned field of list_options, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In new-request, a turn from choice to details asks "Which plan and what name should the request carry?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In new-request, a turn from details to recap asks "Reply CONFIRM to submit the request, or tell me what to change.", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In new-request, a turn from recap to done asks "Is there anything else I can help with?", states every returned field of submit_request, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In status-check, a turn from opening to intake asks "Which item is the request about?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In status-check, a turn from intake to check asks "Shall I go on with the record I found?", states every returned field of lookup_record, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In change-request, a turn from opening to intake asks "Which item is the request about?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In change-request, a turn from intake to check asks "Shall I go on with the record I found?", states every returned field of lookup_record, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In change-request, a turn from check to choice asks "Which of the listed options do you want?", states every returned field of list_options, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In change-request, a turn from choice to details asks "Which plan and what name should the request carry?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In change-request, a turn from details to recap asks "Reply CONFIRM to submit the request, or tell me what to change.", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In status-check, a turn from intake to intake asks "Which item is the request about?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In new-request, a turn from check to recap asks "Reply CONFIRM to submit the request, or tell me what to change.", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-- In status-check, a turn from check to check asks "Shall I go on with the record I found?", states every returned field of lookup_record, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
-
 ## Users
 
 - returning: A user who has made requests before.

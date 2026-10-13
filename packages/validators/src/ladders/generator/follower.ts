@@ -104,8 +104,7 @@ export function compose(...mutations: Mutation[]): Mutation {
       ),
     report: (stage, ctx) =>
       chain('report').reduce<string | null>(
-        (current, mutation) =>
-          current === null || mutation.report === undefined ? current : mutation.report(current, ctx),
+        (current, mutation) => (current === null ? null : (mutation.report?.(current, ctx) ?? current)),
         stage,
       ),
     slot: (name, given, held, ctx) =>

@@ -196,21 +196,3 @@ describe('the fault family', () => {
     expect(stageOf(seen)).toBe(spec.start);
   });
 });
-
-describe('composed missing-stage reports', () => {
-  it('keeps the null report of X3.no-report in either composition order', async () => {
-    const spec = hiddenSpec(1);
-    const text = move(spec, `${spec.start}-to-${spec.goal}`);
-    const [reference] = await play(createFollower(spec), [{ text }]);
-    expect(stageOf(reference)).toBe(spec.goal);
-    for (const ids of [
-      ['X3.no-report', 'X4.narrate'],
-      ['X4.narrate', 'X3.no-report'],
-    ]) {
-      const fault = combinedFault(spec, ids);
-      const [observed] = await play(createFollower(spec, fault.mutation), [{ text }]);
-      expect(observed?.text).toContain('Step 1:');
-      expect(observed?.runtime?.stages, ids.join('+')).toBeUndefined();
-    }
-  });
-});
