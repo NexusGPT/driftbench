@@ -123,6 +123,19 @@ metrics['meterAudit']={'attempts':len(spendrows),'sumKnownCosts':sum(x['costUsd'
                        'errors':sum(x['isError'] is True or x['exitCode']!=0 for x in spendrows)}
 metrics['meterAudit']['successfulRecordedCalls']=sum(x['successfulRecordedCalls'] for x in metrics['bank'].values())+sum(x['successfulRecordedCalls'] for x in metrics['noise'].values())
 metrics['meterAudit']['unrecordedTransportAttempts']=meter['calls']-metrics['meterAudit']['successfulRecordedCalls']
+checkpoints={}
+for line in (runtime/'driver.log').read_text().splitlines():
+    try:entry=json.loads(line)
+    except json.JSONDecodeError:continue
+    if entry.get('done')==entry.get('total') and 'label' in entry:checkpoints[entry['label']]=entry
+previous={'calls':0,'spent':0}
+for category,bench,label in [('bank','rb','bank-rb'),('bank','verify','bank-verify'),('noise','rb','noise-rb-3'),('noise','verify',None)]:
+    end=meter if label is None else checkpoints.get(label)
+    if end is None:break
+    metrics[category][bench]['actualTransportCalls']=end['calls']-previous['calls']
+    metrics[category][bench]['actualTransportUsd']=end['spent']-previous['spent']
+    previous=end
+
 lines=['# Planted truth and noise floor','',f"Measured {metrics['generatedAt']}. Branch `research/astra-planted-truth`.",
        f"Bank freeze commit: `{start['freezeCommit']}`. Seed: `{manifest['seed']}`.",'',
        '| Benchmark | Evaluated pairs | Strict defect detection, TPR (95% Wilson) | Strict clean acceptance, TNR (95% Wilson) | Both twins correct |',
@@ -168,23 +181,24 @@ for bench in ['verify','rb']:
         lines.append(f"- {bench}: item-bootstrap 95% interval for the full-DEV floor: {pct(b['floorBootstrap95'][0])} to {pct(b['floorBootstrap95'][1])}.")
         lines.append(f"- {bench}: using the Wilson upper bound on three-repeat accuracy instability gives a conservative pilot guardrail of {pct(b['pilotUpperBoundFloor'])}; exceeding it requires {b['smallestLargerGainAbovePilotUpperBoundItems']}/{b['fullDevN']} items. This is an uncertainty sensitivity calculation, not a separate measured improvement.")
         if b['zeroFlipCaution']:lines.append(f"- {bench}: zero observed flips does not prove determinism. The Wilson upper bound on the chance an item flips within three repeats is {pct(b['noFlipRiskBound']['upper'])}.")
-lines+=['','| Experiment | Actual new model calls | Model prompt requests | Recorded USD |', '|---|---:|---:|---:|']
+lines+=['','| Experiment | Actual transport calls | Retained new model calls | Final scored-stage requests | Actual recorded USD |', '|---|---:|---:|---:|---:|']
 for bench in ['rb','verify']:
     b=metrics['bank'][bench]
-    lines.append(f"| {bench} bank | {b['successfulRecordedCalls']} | {b.get('promptRequestsIncludingReplay',b['successfulRecordedCalls'])} | {b['usd']:.7f} |")
+    lines.append(f"| {bench} bank | {b.get('actualTransportCalls','pending')} | {b['successfulRecordedCalls']} | {b.get('promptRequestsIncludingReplay',b['successfulRecordedCalls'])} | {b.get('actualTransportUsd',b['usd']):.7f} |")
 for bench in ['rb','verify']:
     b=metrics['noise'][bench]
-    lines.append(f"| {bench} noise | {b['successfulRecordedCalls']} | {b['successfulRecordedCalls']} | {b['usd']:.7f} |")
+    lines.append(f"| {bench} noise | {b.get('actualTransportCalls','pending')} | {b['successfulRecordedCalls']} | {b['successfulRecordedCalls']} | {b.get('actualTransportUsd',b['usd']):.7f} |")
 lines+=['',f"Total transport attempts: {meter['calls']}. Recorded spend: USD {meter['spent']:.7f}. Unpriced reserved amount: USD {meter['unknownReserved']:.2f}. Cap: USD 16.00. Peak active model calls: {meter['peak']}.",
         f"Observed model identifiers: {', '.join(metrics['models']) or 'not returned'}. Calls request the haiku alias.",'',
         f"The transport completed {metrics['meterAudit']['unrecordedTransportAttempts']} attempts without a retained judge recording. This includes calls finishing during transport scheduling restarts. Their spend remains included above.",
         'The initial bank run used two concurrent calls. The owner then raised concurrency to six and the task cap to USD 16. Existing bank predictions were preserved.',
         'Verify noise repeats run in parallel with two call slots each under the shared six-call ceiling. The scheduling restart preserves recorded replies within their own repetition and keeps repetitions separate.',
         'Per-judgment call accounting:',
-        f"- Verify bank: {metrics['bank']['verify']['successfulRecordedCalls']} calls across 190 planned answer judgments, mean {metrics['bank']['verify']['newCallsPerJudgment']['mean']:.3f}; shared blind-reference cache hits are listed separately in metrics.json.",
+        f"- Verify bank: {metrics['bank']['verify'].get('actualTransportCalls',0)} actual calls across 190 answer judgments, mean {metrics['bank']['verify'].get('actualTransportCalls',0)/190:.3f}; shared blind-reference cache hits are listed separately in metrics.json.",
         f"- RubricBench bank: {metrics['bank']['rb']['successfulRecordedCalls']} calls across 60 pairs, mean {metrics['bank']['rb']['newCallsPerJudgment']['mean']:.3f} per pair. One canonical comparison provides both requirement grades.",
-        f"- Verify noise: {metrics['noise']['verify']['successfulRecordedCalls']} calls across 90 planned full-cascade judgments, mean {metrics['noise']['verify']['newCallsPerPlannedJudgment']['mean']:.3f}.",
+        f"- Verify noise: {metrics['noise']['verify'].get('actualTransportCalls',0)} actual calls across 90 planned full-cascade judgments, mean {metrics['noise']['verify'].get('actualTransportCalls',0)/90:.3f} per planned judgment; incomplete pilots do not establish the completed-judgment mean.",
         f"- RubricBench noise: {metrics['noise']['rb']['successfulRecordedCalls']} calls across 90 planned pair judgments, mean {metrics['noise']['rb']['newCallsPerPlannedJudgment']['mean']:.3f}.",'',
+        'Final scored-stage requests include cache replay in saved batches. Transport attempts include restart overhead. No attempt is dropped from the spend total.',
         'Verification and limits:',
         '- Independent read-back oracle checks accept all clean copies and reject all planted copies. Python function fixtures include empty inputs, negative values and repeated values.',
         '- No model assigns bank truth. Original benchmark labels are used only to display repeat accuracy, not to construct or select bank labels.',

@@ -19,7 +19,7 @@ def update(fn):
         return result
 
 def reserve(s):
-    if time.time()>=1791866100: raise RuntimeError('Last new call deadline reached: 06:35 Brussels')
+    if time.time()>=1791866100: raise RuntimeError('Last new call limit reached: 06:35 Brussels')
     if len(s['active'])>=6: raise RuntimeError('Global model concurrency exceeds six')
     if s['spent']+s['unknownReserved']+sum(s['active'].values())+RESERVE>CAP:
         raise RuntimeError('Task spend limit reached with in-flight reserve')

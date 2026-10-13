@@ -13,7 +13,7 @@ await mkdir(runtime,{recursive:true});
 const read=async(name:string)=>JSON.parse(await readFile(join(root,name),'utf8'));
 const sha=(s:string)=>createHash('sha256').update(s).digest('hex');
 const command=join(root,'claude-meter.py');
-const deadline=Date.parse('2026-10-13T06:35:00+02:00');
+const deadline=Date.parse('2026-10-13T06:39:00+02:00');
 const reportPath=process.env.ASTRA_REPORT!;
 const ledger=process.env.ASTRA_LEDGER!;
 const manifest=await read('manifest.json');

@@ -9,13 +9,14 @@ assert not state['active'], 'Wait for owned model calls to finish before archivi
 out.mkdir(exist_ok=True)
 paths=[p for p in runtime.iterdir() if p.suffix in ['.json','.jsonl'] and p.is_file()]
 paths+=list((runtime/'recordings').rglob('*.jsonl'))
+paths.append(runtime/'driver.log')
 manifest={}
 for p in sorted(paths):
     target=out/p.relative_to(runtime)
     target.parent.mkdir(parents=True,exist_ok=True)
     data=p.read_bytes()
     if p.suffix=='.json':json.loads(data)
-    else:
+    elif p.suffix=='.jsonl':
         for line in data.splitlines():
             if line:json.loads(line)
     target.write_bytes(data)
