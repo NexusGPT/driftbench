@@ -1,4 +1,4 @@
-import { varianceComponents } from '@driftbench/stats';
+import { varianceComponents } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { analysePilot, blockFlips, fSurvival } from '../../src/pilot/analyse';
 import type { PilotObservation } from '../../src/pilot/run';

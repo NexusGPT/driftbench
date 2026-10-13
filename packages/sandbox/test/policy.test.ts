@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { anyGlobMatches } from '@driftbench/core';
+import { anyGlobMatches } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { localProvider, type PolicedSandbox, SandboxApprovalError, withApprovalPolicy } from '../src/index';
 

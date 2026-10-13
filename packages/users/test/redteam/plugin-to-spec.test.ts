@@ -1,6 +1,6 @@
-import { functionAdapter } from '@driftbench/adapters';
-import { parseSpecText, runSpec, validateSpec } from '@driftbench/core';
-import { FakeModelPort } from '@driftbench/generate';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { parseSpecText, runSpec, validateSpec } from '@agent-nexus/driftbench-core';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it, vi } from 'vitest';
 import { pluginToSpec, REDTEAM_PLUGINS, renderPlugin, renderText } from '../../src/redteam-plugins/index';
 import { createScriptedDriver } from '../../src/scripted';

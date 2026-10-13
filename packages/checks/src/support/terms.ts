@@ -1,4 +1,4 @@
-import { wordsOf } from '@driftbench/core';
+import { wordsOf } from '@agent-nexus/driftbench-core';
 import { confidentLanguage, detect, toDetectorCode } from './language';
 
 /**

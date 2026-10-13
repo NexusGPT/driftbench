@@ -4,7 +4,7 @@ One file per deviation class, D1 to D10. Each file holds three phrasings for the
 and the files for D2, D6, D7 and D8 also hold three phrasings for the Acme price-sheet task. Every phrasing
 is fictional: Acme Telecom, Acmeville and every name, number and address in it are made up.
 
-The perturbing driver of `@driftbench/users` draws one phrasing by seed when a spec declares no
+The perturbing driver of `@agent-nexus/driftbench-users` draws one phrasing by seed when a spec declares no
 perturbation of the class at the position asked for:
 
 ```

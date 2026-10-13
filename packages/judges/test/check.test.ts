@@ -1,4 +1,10 @@
-import { type CheckContext, machineVerdict, type Observed, type Spec, Verdict } from '@driftbench/core';
+import {
+  type CheckContext,
+  machineVerdict,
+  type Observed,
+  type Spec,
+  Verdict,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   combineVerdicts,

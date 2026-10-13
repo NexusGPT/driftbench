@@ -1,4 +1,4 @@
-import { designEffect, wilson } from '@driftbench/stats';
+import { designEffect, wilson } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { sessionRate } from '../src/index';
 

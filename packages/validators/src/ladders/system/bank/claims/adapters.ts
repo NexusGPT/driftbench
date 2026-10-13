@@ -14,7 +14,7 @@ import {
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type * as Sqlite from 'node:sqlite';
-import { functionAdapter, httpAdapter, processAdapter } from '@driftbench/adapters';
+import { functionAdapter, httpAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
 import {
   AdapterTransportError,
   type AgentAdapter,
@@ -31,9 +31,9 @@ import {
   type Turn,
   validateSpec,
   type WorldState,
-} from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
-import { BLOCK_METRIC, openStore, type SqliteStore, StoreError } from '@driftbench/store';
+} from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { BLOCK_METRIC, openStore, type SqliteStore, StoreError } from '@agent-nexus/driftbench-store';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
 import { behavioursFor, plantedFlow, runScenario } from '../world';
 

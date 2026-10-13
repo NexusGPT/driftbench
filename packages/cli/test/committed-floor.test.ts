@@ -1,4 +1,4 @@
-import { defineLadder, type FloorsFile } from '@driftbench/validators';
+import { defineLadder, type FloorsFile } from '@agent-nexus/driftbench-validators';
 import { describe, expect, it } from 'vitest';
 import { committedFloorRun } from './support/committed-floor';
 

@@ -1,18 +1,18 @@
-import { type LoadResult, validateSpec } from '@driftbench/core';
+import { type LoadResult, validateSpec } from '@agent-nexus/driftbench-core';
 import {
   approveDimensions,
   type Proposal,
   QuoteIndex,
   renderProposal,
   toSpaceMap,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import {
   chaoCoverage,
   completeness,
   fromInventory,
   type SpaceMap,
   validateSpaceMap,
-} from '@driftbench/space';
+} from '@agent-nexus/driftbench-space';
 import { stringify } from 'yaml';
 import type { Draw } from '../../spec';
 import { drawFor, inventoryYaml, miniInventory, TOOL_POOL } from '../common';

@@ -1,4 +1,4 @@
-import { createScriptedDriver } from '@driftbench/users';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it, vi } from 'vitest';
 import { type RunEvent, runSpec } from '../../src/runner';
 import { acmeSpec, loadAcmeConversations, minimalChecks, realAcmeAdapter } from './support';

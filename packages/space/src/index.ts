@@ -1,5 +1,5 @@
 /**
- * @driftbench/space: the declared map of situations an agent can face (dimensions, values, constraints, a prior),
+ * @agent-nexus/driftbench-space: the declared map of situations an agent can face (dimensions, values, constraints, a prior),
  * coverage counted per cell from specs, t-wise coverage and the completeness line. Phase G.
  */
 export {
@@ -82,4 +82,4 @@ export {
 } from './schema';
 export { DEVIATION_TITLES, formatSpaceMap, fromInventory, type SeedOptions } from './seed';
 
-export const packageName = '@driftbench/space';
+export const packageName = '@agent-nexus/driftbench-space';

@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { canonicalJson } from '@driftbench/core';
+import { canonicalJson } from '@agent-nexus/driftbench-core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { openStore, type SqliteStore } from '../src/index';
 import { sha256 } from '../src/registry';

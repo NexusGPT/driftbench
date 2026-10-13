@@ -1,4 +1,4 @@
-# @driftbench/space
+# @agent-nexus/driftbench-space
 
 The declared map of situations an agent can face: dimensions, values, constraints, a prior, and coverage counted per cell.
 
@@ -7,7 +7,7 @@ Part of [driftbench](https://github.com/achammah/driftbench), block-level evalua
 ## Install
 
 ```sh
-npm install @driftbench/space
+npm install @agent-nexus/driftbench-space
 ```
 
 Node.js 22 or newer. ESM only, with TypeScript types.

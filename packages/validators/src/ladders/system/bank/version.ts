@@ -1,6 +1,11 @@
-import { canonicalJson, compareTranscripts, type LoadedSpec, type RunResult } from '@driftbench/core';
-import { type CampaignData, compareCampaigns } from '@driftbench/report';
-import * as stats from '@driftbench/stats';
+import {
+  canonicalJson,
+  compareTranscripts,
+  type LoadedSpec,
+  type RunResult,
+} from '@agent-nexus/driftbench-core';
+import { type CampaignData, compareCampaigns } from '@agent-nexus/driftbench-report';
+import * as stats from '@agent-nexus/driftbench-stats';
 import { SYSTEM_COMPONENTS } from '../components';
 import { between, rngFor } from '../random';
 import { type BankItem, type Draft, expectAll, type Tier, withCauses } from './types';

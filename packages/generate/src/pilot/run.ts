@@ -12,7 +12,7 @@ import {
   type Store,
   type TargetRef,
   type UserDriver,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { pilotControlCheck } from './control';
 import { designVariants, type PilotDesign, type PilotFactors, pilotFactors } from './design';
 

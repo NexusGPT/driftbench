@@ -1,5 +1,5 @@
-import { DeviationClass } from '@driftbench/core';
-import { NONE, validateSpaceMap } from '@driftbench/space';
+import { DeviationClass } from '@agent-nexus/driftbench-core';
+import { NONE, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import {
   approveAtoms,

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdir } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { basename, extname } from 'node:path';
-import type { Campaign, RunResult, Spec, Store } from '@driftbench/core';
+import type { Campaign, RunResult, Spec, Store } from '@agent-nexus/driftbench-core';
 import {
   type AnnotationAnchor,
   agreementOf,
@@ -14,7 +14,7 @@ import {
   readQueue,
   saveLabel,
   writeQueue,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import {
   type BlockDetail,
   buildScorecard,
@@ -28,8 +28,8 @@ import {
   renderRun,
   runDetailOf,
   runPassed,
-} from '@driftbench/report';
-import { openStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-report';
+import { openStore } from '@agent-nexus/driftbench-store';
 
 /**
  * The local viewer of `driftbench view`: pages served from the store, with the scorecard's renderer and

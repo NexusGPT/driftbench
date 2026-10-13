@@ -1,5 +1,5 @@
 import { pathToFileURL } from 'node:url';
-import { functionAdapter, processAdapter } from '@driftbench/adapters';
+import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
@@ -14,7 +14,7 @@ import {
   type Spec,
   type ToolCall,
   type UserDriver,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import type { BlockOutcome, FaultDef, FaultSet, TrivialAgent } from './types';
 
 /**

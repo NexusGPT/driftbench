@@ -1,6 +1,12 @@
-import type { Spec } from '@driftbench/core';
-import { faultAdapter, GATE_DEFAULTS, GATE_REASONS, type GateResult, runGate } from '@driftbench/generate';
-import { DEVIATIONS } from '@driftbench/users';
+import type { Spec } from '@agent-nexus/driftbench-core';
+import {
+  faultAdapter,
+  GATE_DEFAULTS,
+  GATE_REASONS,
+  type GateResult,
+  runGate,
+} from '@agent-nexus/driftbench-generate';
+import { DEVIATIONS } from '@agent-nexus/driftbench-users';
 import type { BankItem, SeedData, Verdict } from './bank';
 import { expectedMeasures } from './bank3';
 import { FAULT_CLASSES, faultFamily } from './faults';

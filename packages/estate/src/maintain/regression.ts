@@ -1,4 +1,4 @@
-import type { RunResult, Store } from '@driftbench/core';
+import type { RunResult, Store } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 
 /**

@@ -1,4 +1,4 @@
-import { type Check, machineVerdict, type Observed, type Verdict } from '@driftbench/core';
+import { type Check, machineVerdict, type Observed, type Verdict } from '@agent-nexus/driftbench-core';
 import { countAllows, describeCount } from '../support/count';
 import { quote, textSegments } from '../support/text';
 import { entryKeys, listed, plural, times } from '../support/values';

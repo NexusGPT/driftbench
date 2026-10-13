@@ -8,8 +8,8 @@ import {
   type RunResult,
   type Store,
   type TargetRef,
-} from '@driftbench/core';
-import { faultAdapter, importFaultSet } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-core';
+import { faultAdapter, importFaultSet } from '@agent-nexus/driftbench-generate';
 import {
   type AggregateResult,
   autoMargin,
@@ -21,9 +21,9 @@ import {
   loadCampaign,
   MIN_GOLDENS,
   unitsOf,
-} from '@driftbench/report';
-import { localProvider } from '@driftbench/sandbox';
-import { pairedRateDifference } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-report';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { pairedRateDifference } from '@agent-nexus/driftbench-stats';
 import type { Command } from 'commander';
 import { criteriaFromConfig } from '../aggregate-config';
 import type { Io } from '../io';
@@ -137,7 +137,8 @@ export type CiSummary = {
   rows: CiPair[];
 };
 
-export const COMPARATOR = 'compareCampaigns of @driftbench/report, the rule `driftbench compare` applies';
+export const COMPARATOR =
+  'compareCampaigns of @agent-nexus/driftbench-report, the rule `driftbench compare` applies';
 
 /**
  * Registers `driftbench ci`: run a candidate campaign, compare it with a baseline campaign by the rule of

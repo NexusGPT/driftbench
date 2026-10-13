@@ -1,6 +1,6 @@
-import type { Spec } from '@driftbench/core';
-import { type Proposal, renderProposal, rngFor } from '@driftbench/generate';
-import { coverage, type SpaceCoverage } from '@driftbench/space';
+import type { Spec } from '@agent-nexus/driftbench-core';
+import { type Proposal, renderProposal, rngFor } from '@agent-nexus/driftbench-generate';
+import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
 import { acmeItems } from './acme';
 import { researchItems } from './bank2';
 import { moreItems } from './bank3';

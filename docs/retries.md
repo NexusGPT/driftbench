@@ -97,6 +97,6 @@ The first wait is the server's Retry-After, longer than the 500 ms backoff; the 
 
 ## In code
 
-`@driftbench/core` exports the policy for any client: `retrying(call, run, { policy })` runs a call under it, `retryPolicy(...layers)` builds a policy, `retryDecision(error)` says whether an error is retried, `collectRetries(work)` gathers the retries made inside `work`, and `RetryEvent` is the record's schema.
+`@agent-nexus/driftbench-core` exports the policy for any client: `retrying(call, run, { policy })` runs a call under it, `retryPolicy(...layers)` builds a policy, `retryDecision(error)` says whether an error is retried, `collectRetries(work)` gathers the retries made inside `work`, and `RetryEvent` is the record's schema.
 
 Not covered yet: the model port that `driftbench generate` and `extract` use keeps its own retry loop (two retries, 408 and 409 included).

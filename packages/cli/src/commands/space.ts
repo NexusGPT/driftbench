@@ -6,7 +6,7 @@ import {
   type LoadResult,
   loadInventory,
   loadSpecs,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   COMPLETENESS_ASSUMPTION,
   type Completeness,
@@ -22,7 +22,7 @@ import {
   type SpaceMap,
   type SpaceMapIssue,
   validateSpaceMap,
-} from '@driftbench/space';
+} from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

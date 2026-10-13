@@ -1,4 +1,4 @@
-import type { Message, Observed, Segment, ToolCall, WorldState } from '@driftbench/core';
+import type { Message, Observed, Segment, ToolCall, WorldState } from '@agent-nexus/driftbench-core';
 import { type CallTool, initialState, type State, takeTurn } from './policy';
 import { type AcmeStore, createStore } from './store';
 import { callTool, type ToolOutcome } from './tools';

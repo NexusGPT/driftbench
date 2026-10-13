@@ -5,8 +5,8 @@ import {
   type PlanRow,
   planJourneys,
   toEstateSpaceMap,
-} from '@driftbench/estate';
-import type { SpaceMap } from '@driftbench/space';
+} from '@agent-nexus/driftbench-estate';
+import type { SpaceMap } from '@agent-nexus/driftbench-space';
 import { requiredRows } from '../levels';
 import { estateRun } from '../pipeline';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';

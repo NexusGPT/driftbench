@@ -1,4 +1,4 @@
-import * as stats from '@driftbench/stats';
+import * as stats from '@agent-nexus/driftbench-stats';
 import { bankMeasure, type Item, type Measure } from '../../../ladder';
 import type { StatsImpl } from '../reference';
 import { analyticItems } from './analytic';
@@ -43,7 +43,7 @@ export function causeOf(item: BankItem): string {
     head === 'roadmap-coverage' ||
     head === 'roadmap-purity'
   )
-    return `${fn} is missing from @driftbench/stats`;
+    return `${fn} is missing from @agent-nexus/driftbench-stats`;
   if (head === 'analytic' && fn === 'allocation' && name.startsWith('neyman-optimal'))
     return 'neymanAllocation rounds to an allocation whose variance is above the best integer allocation';
   if (head === 'stability' && fn.startsWith('components-shift'))

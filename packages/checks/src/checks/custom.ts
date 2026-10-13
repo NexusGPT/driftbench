@@ -1,4 +1,4 @@
-import { type Check, type CheckContext, machineVerdict, Verdict } from '@driftbench/core';
+import { type Check, type CheckContext, machineVerdict, Verdict } from '@agent-nexus/driftbench-core';
 import { message } from '../support/assert';
 import { show } from '../support/values';
 

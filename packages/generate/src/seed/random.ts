@@ -1,4 +1,4 @@
-import { seededRandom } from '@driftbench/space';
+import { seededRandom } from '@agent-nexus/driftbench-space';
 
 /**
  * Seeded choice for the seeders. Every random draw comes from a stream named by the run seed and a label

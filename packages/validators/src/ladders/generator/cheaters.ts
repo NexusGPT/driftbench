@@ -1,6 +1,6 @@
-import { functionAdapter } from '@driftbench/adapters';
-import type { AgentAdapter, Segment, Spec, ToolCall, WorldState } from '@driftbench/core';
-import { CONSTANT_REPLY, trivialAdapter } from '@driftbench/generate';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import type { AgentAdapter, Segment, Spec, ToolCall, WorldState } from '@agent-nexus/driftbench-core';
+import { CONSTANT_REPLY, trivialAdapter } from '@agent-nexus/driftbench-generate';
 import type { HiddenSpec } from './hidden';
 
 /**

@@ -1,5 +1,5 @@
-import type { AgentAdapter, RunResult, Spec } from '@driftbench/core';
-import { mulberry32, passK, wilson } from '@driftbench/stats';
+import type { AgentAdapter, RunResult, Spec } from '@agent-nexus/driftbench-core';
+import { mulberry32, passK, wilson } from '@agent-nexus/driftbench-stats';
 import { streamSeed } from '../seed/random';
 import { blockOutcome, failingIds, projectRun, type RunContext, runOnce, trivialAdapter } from './agents';
 import { leakageStage, originGrams } from './leakage';

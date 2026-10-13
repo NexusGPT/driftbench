@@ -1,7 +1,7 @@
-import { AgentFailure, type CostUnit, RunResult } from '@driftbench/core';
-import { mde } from '@driftbench/stats';
-import { openMemoryStore, projectCost, cellId as storeCellId } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+import { AgentFailure, type CostUnit, RunResult } from '@agent-nexus/driftbench-core';
+import { mde } from '@agent-nexus/driftbench-stats';
+import { openMemoryStore, projectCost, cellId as storeCellId } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import {
   type CellOutcome,
