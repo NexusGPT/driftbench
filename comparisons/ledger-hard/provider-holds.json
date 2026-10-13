@@ -1,7 +1,6 @@
 {
-  "stamp": "2026-10-13T09:36:08.656422+00:00",
-  "models": [
-    "gemini-3.8-flash"
-  ],
-  "reason": "Owner reports depleted prepaid credits; local HTTP 402 confirms. Resume missing-only after owner top-up."
+  "stamp": "2026-10-13T10:16:15.440944+00:00",
+  "models": [],
+  "reason": "Owner top-up confirmed and one missing request answered",
+  "probe_request_sha256": "bb1c6b2fdfe709c77bd1a4a09264584ce426352770852bd7a60a2baf507bcb23"
 }
