@@ -101,7 +101,7 @@ The projected cost of an adapter is its blocks times the latest cost per block m
 ## `driftbench campaign run`
 
 ```
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--cache-suite <name>] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 ```
 
 Creates a campaign over the specs, runs every cell and prints one line per cell, in cell order.
@@ -164,6 +164,7 @@ The process target runs each cell in a sandbox, a temporary folder under one fol
 | `--campaign <id>` | the campaign id. Without it, the id is `c-` and a hash of the specs, the targets, the modes, the repeats and the creation time. An id the store already holds is refused. |
 | `--store <file>` | keep the campaign, its specs, its runs and the cache in this SQLite file. Without it, the store lives in memory and the runs are gone when the command ends. |
 | `--no-cache` | neither replay runs from the cache nor write to it |
+| `--cache-suite <name>` | the cache suite of the campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without it, the keys are the ones earlier caches used |
 | `--concurrency <n>` | cells that run at the same time, at least 1. Default 4. |
 | `--budget-usd <usd>` | a hard stop on the campaign's spend. See [the budget](#the-budget). |
 | `--process-command <command>` | the command that runs the agent of any `process:<name>` target other than `process:acme-ops`, through the [process adapter](adapters/process.md) in a local sandbox: a JSON list of strings such as `["python3", "/path/to/agent.py"]`, or words split on spaces, with no quoting. The command runs in the workspace of each sandbox, a temporary folder, not in the folder you run `driftbench` in: name the agent file by its absolute path (`"$PWD/agent.py"` in a shell). A relative path that names a file of the working folder gets a note on stderr, and the run goes on. The [Python package](python.md) passes it for a Python function agent. |
@@ -482,15 +483,24 @@ A transcript holds what the agent did in each block: the segments, the tool call
 
 ## Project config and the pull-request gate
 
-`driftbench.yaml` in the working folder, or the file `--config <file>` names, declares the campaign-level criteria that `report` and `ci` score:
+`driftbench.yaml` in the working folder, or the file `--config <file>` names, is the project config. `report`, `ci` and `view` read it. It has two keys, both optional:
+
+| Key | Read by | Holds |
+|---|---|---|
+| `aggregates` | `report`, `ci` | the campaign-level criteria, one `name:op threshold` string each |
+| `scales` | `view` | per criterion, the `min` and `max` of the score a reviewer may give its queue item, with `min` below `max`. A criterion without one keeps 0 to 1 |
+
+
 
 ```text
 aggregates:
   - pass-rate:>=0.8
   - broken-share:<=0.2
+scales:
+  holds_instructions: { min: 1, max: 5 }
 ```
 
-Each entry is one `name:op threshold` string, the same syntax as `--aggregate`. A flag with the same name replaces the file's entry, and a flag with a new name adds to it. The file has one key, `aggregates`; any other key, or a bad entry, exits 2 and names the line. The file is optional: without it, only the flags count. See [campaign-level criteria](aggregates.md).
+Each entry is one `name:op threshold` string, the same syntax as `--aggregate`. A flag with the same name replaces the file's entry, and a flag with a new name adds to it. Any other key, or a bad entry, exits 2 and names the line. The file is optional: without it, only the flags count. See [campaign-level criteria](aggregates.md).
 
 To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.yml](../action/action.yml) takes the specs, the target, the baseline and the `aggregate` input, and fails the job unless the verdict is parity. Its `process-command` input passes `--process-command`, so the action gates your own process agent. A workflow that uses it is in [examples/acme/ci/driftbench-ci.yml](../examples/acme/ci/driftbench-ci.yml).
 
