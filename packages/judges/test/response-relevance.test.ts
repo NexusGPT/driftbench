@@ -36,6 +36,7 @@ const scriptedClient = (value: unknown) => ({
   judge: vi.fn(async (input: JudgeRequest) => judges.parseJudgeText(JSON.stringify(value), input)),
 });
 
+// Default values captured from upstream fa05832b before the v2 feature edits. Legacy remains frozen.
 it('preserves frozen default and legacy prompt bytes and cache keys', () => {
   const input: JudgeRequest = {
     criterion: {
@@ -50,10 +51,10 @@ it('preserves frozen default and legacy prompt bytes and cache keys', () => {
     ],
   };
   const client = { cls: 'system2' as const, model: 'snapshot-model' };
-  expect(judges.PROMPT_FINGERPRINT).toBe('19cf28d04b13');
-  expect(contentHash(judges.SYSTEM_PROMPT)).toBe('a200dc97e47a');
-  expect(contentHash(judges.buildPrompt(input))).toBe('ae8b8a430646');
-  expect(judges.requestKey(input, client)).toBe('48a9ce619a12');
+  expect(judges.PROMPT_FINGERPRINT).toBe('398673b792c1');
+  expect(contentHash(judges.SYSTEM_PROMPT)).toBe('ea4e88c65b4e');
+  expect(contentHash(judges.buildPrompt(input))).toBe('635b7b8e3235');
+  expect(judges.requestKey(input, client)).toBe('13887583ca47');
   expect(contentHash(judges.buildPrompt({ ...input, answerContract: 'legacy' }))).toBe('5f7bcef32f94');
   expect(judges.requestKey({ ...input, answerContract: 'legacy' }, client)).toBe('9d653d667451');
 });
@@ -192,8 +193,13 @@ describe('public helper and prompt', () => {
     expect(prompt.system).toMatch(/each distinct/i);
     expect(prompt.system).toMatch(/unknown/i);
     expect(prompt.system).toMatch(/wrong.*entity/i);
-    expect(prompt.system).toContain('Honor an explicit request to spell out the literal value');
-    expect(prompt.system).toContain('without restating its literal form or proving it appeared earlier');
+    expect(prompt.system).toContain(
+      'Require literal-value delivery only when the request explicitly calls for that form',
+    );
+    expect(prompt.system).toContain('the literal value need not appear in the reply or supplied history');
+    expect(prompt.system).toContain(
+      'Ambiguity requires competing plausible referents or no identifying relationship',
+    );
   });
 
   it('does not retry an invalid model response', async () => {
@@ -329,4 +335,56 @@ it('replays invalid response relevance recordings as unparsed inconclusive', asy
   const replayed = await judges.judgeResponseRelevance(judges.playerClient(cassette, client.id), transcript);
   expect(replayed).toEqual(recorded);
   expect(replayed.unparsed).toBe(true);
+});
+
+// Symbol-only replies are valid deliverables when the latest ask requests that exact form.
+describe('response relevance symbol-only deliverables', () => {
+  it.each(['✅', '↑'])('accepts the exact requested %s reply', (symbol) => {
+    const latestAsk = `Reply with ${symbol}.`;
+    const target = {
+      ...request,
+      transcript: [
+        { role: 'user' as const, text: latestAsk },
+        { role: 'agent' as const, text: symbol },
+      ],
+    };
+    const result = parse(
+      [check({ obligation: 'Return the requested symbol', requestQuote: latestAsk, answerQuote: symbol })],
+      target,
+    );
+    expect(result.unparsed).toBeUndefined();
+    expect(result.answer.outcome).toBe('pass');
+  });
+
+  it('grounds a whole symbol-only user entry and reply', () => {
+    const target = {
+      ...request,
+      transcript: [
+        { role: 'context' as const, text: 'Echo the next symbol.' },
+        { role: 'user' as const, text: '✅' },
+        { role: 'agent' as const, text: '✅' },
+      ],
+    };
+    expect(
+      parse(
+        [check({ obligation: 'Echo the requested symbol', requestQuote: '✅', answerQuote: '✅' })],
+        target,
+      ).answer.outcome,
+    ).toBe('pass');
+  });
+
+  it('does not ground a symbol-only fragment or the wrong symbol', () => {
+    for (const answer of ['A status entry has ✅ but no requested answer.', '↑']) {
+      const target = {
+        ...request,
+        transcript: [
+          { role: 'user' as const, text: 'Reply with ✅.' },
+          { role: 'agent' as const, text: answer },
+        ],
+      };
+      expect(parse([check({ requestQuote: 'Reply with ✅.', answerQuote: '✅' })], target).unparsed).toBe(
+        true,
+      );
+    }
+  });
 });

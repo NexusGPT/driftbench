@@ -50,7 +50,8 @@ This is a fixed relevance policy: acknowledgements, promises, quoted restatement
 the wrong entity do not meet the ask. Explicit negative or unknown answers can address informational
 questions. A clear descriptive reference can identify a subject or value without repeating its literal form or
 proving it appeared earlier. Explicit requests to spell out literal values still apply; ambiguous
-references do not establish identification.
+references do not establish identification. Missing literal text alone is not ambiguity: ambiguity
+requires competing plausible referents or no identifying relationship.
 Relevance does not prove factual truth or real execution. Sources and execution receipts are required
 only when the user asks for them.
 
@@ -58,7 +59,9 @@ The strict `ResponseRelevanceAnswer` schema contains a nonempty `checks` array. 
 `obligation`, `requestQuote`, `reasoning`, `answerQuote` and `met`. Quotes must match their selected
 source: `requestQuote` in the latest user entry and `answerQuote` in the final agent reply. A true
 check requires an answer quote; false and null checks may use null. Matching tolerates presentation
-formatting and whitespace through the existing quote matcher. Code rejects repeated obligations,
+formatting and whitespace through the existing quote matcher. A whole-string match also permits
+symbol-only replies such as a requested checkmark; a symbol fragment in unrelated prose does not count.
+Code rejects repeated obligations,
 duplicate JSON keys, invalid shapes and quotes from other sources. Invalid responses become
 unparsed, inconclusive results.
 

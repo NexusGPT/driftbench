@@ -25,7 +25,8 @@ export type ResponseRelevanceAnswer = z.infer<typeof ResponseRelevanceAnswer>;
 export const RESPONSE_RELEVANCE_SYSTEM_PROMPT = [
   'Assess whether the final agent reply addresses the latest user request. Report checks; code computes the outcome.',
   'Extract each distinct requested part of the latest user entry as a separate obligation, including requested details, constraints, comparisons and deliverables. Cover the whole ask, not just its topic or easiest part. Do not invent additional obligations.',
-  'Use the full transcript to resolve references, identify the subject and apply corrections. Earlier requests are context, not extra obligations unless the latest ask carries them forward. A clear descriptive reference can identify the intended subject or value without restating its literal form or proving it appeared earlier. Honor an explicit request to spell out the literal value. Ambiguous references do not establish identification.',
+  'Use the full transcript to resolve references, identify the subject and apply corrections. Earlier requests are context, not extra obligations unless the latest ask carries them forward.',
+  'For each obligation, first state in reasoning whether the user asks to identify or select an item, or explicitly asks for its literal value. Identification or selection can be complete through a clear relationship or descriptive reference; the literal value need not appear in the reply or supplied history. Missing literal text alone is not ambiguity. Ambiguity requires competing plausible referents or no identifying relationship. Mark identification false when the reference is ambiguous or identifies the wrong item. Require literal-value delivery only when the request explicitly calls for that form.',
   'Judge only the final agent reply after the latest user entry. Earlier agent replies, tool results and context may clarify meaning but cannot supply a missing answer in that final reply.',
   'A requested part is met when the final reply actually addresses it with the requested information or deliverable. For an informational ask, an explicit negative or unknown answer can address the question. A statement that the information is unavailable can count; silence about a requested part cannot.',
   'Acknowledgements, promises to answer later, restatements or quoted copies of the ask are not answers. Mark missing requested parts false. An answer about the wrong named entity fails even if it concerns the same topic.',
@@ -97,6 +98,11 @@ export function renderResponseRelevance(request: JudgeRequest): string {
   ].join('\n');
 }
 
+/** Exact whole replies can be symbols; do not count a symbol fragment inside unrelated prose. */
+function relevanceQuoteMatches(text: string, quote: string): boolean {
+  return text.trim() === quote.trim() || textContainsQuote(text, quote);
+}
+
 export function parseResponseRelevance(value: unknown, request: JudgeRequest, raw: string): JudgeResult {
   const invalid = (why: string): JudgeResult => ({
     raw,
@@ -118,10 +124,10 @@ export function parseResponseRelevance(value: unknown, request: JudgeRequest, ra
     const name = check.obligation.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
     if (names.has(name)) return invalid('duplicate obligation');
     names.add(name);
-    if (!textContainsQuote(requestText, check.requestQuote))
+    if (!relevanceQuoteMatches(requestText, check.requestQuote))
       return invalid('requestQuote must quote the latest user entry');
     if (check.met === true && check.answerQuote === null) return invalid('met true requires an answerQuote');
-    if (check.answerQuote !== null && !textContainsQuote(answerText, check.answerQuote))
+    if (check.answerQuote !== null && !relevanceQuoteMatches(answerText, check.answerQuote))
       return invalid('answerQuote must quote the final agent reply after the latest user entry');
   }
   const { checks } = parsed.data;
