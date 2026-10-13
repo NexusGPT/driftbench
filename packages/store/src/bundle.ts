@@ -1,7 +1,13 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
-import { Campaign, canonicalJson, type LoadedSpec, RunResult, validateSpec } from '@driftbench/core';
+import {
+  Campaign,
+  canonicalJson,
+  type LoadedSpec,
+  RunResult,
+  validateSpec,
+} from '@agent-nexus/driftbench-core';
 import { describeCause, describeIssues, StoreError } from './errors';
 import {
   isVersionPath,

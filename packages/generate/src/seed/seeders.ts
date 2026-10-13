@@ -1,5 +1,5 @@
-import type { PerturbationSpec, ToolExpect, WorldState } from '@driftbench/core';
-import { NONE } from '@driftbench/space';
+import type { PerturbationSpec, ToolExpect, WorldState } from '@agent-nexus/driftbench-core';
+import { NONE } from '@agent-nexus/driftbench-space';
 import type { PathRelation, ProposalPhrase } from '../extract/proposal';
 import {
   type BlockDraft,

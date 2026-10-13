@@ -1,7 +1,7 @@
 import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { StaticTest } from '@driftbench/generate';
+import type { StaticTest } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { ClaudeCodeReader, runStaticTests } from '../src/index';
 import { FIXTURE } from './support';

@@ -1,7 +1,7 @@
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { BlockResult, Campaign, Observed, RunResult, TargetRef } from '@driftbench/core';
+import type { BlockResult, Campaign, Observed, RunResult, TargetRef } from '@agent-nexus/driftbench-core';
 import { cellId, StoreError } from '../src/index';
 
 /** Fictional data only: Acme Telecom, Acmeville, local endpoints. */

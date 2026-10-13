@@ -1,4 +1,4 @@
-import { NONE } from '@driftbench/space';
+import { NONE } from '@agent-nexus/driftbench-space';
 import type { PathRelation } from '../extract/proposal';
 import { PENDING_STAGE } from '../extract/proposal';
 import type { PreparedMap } from './map';

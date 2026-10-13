@@ -9,7 +9,7 @@ import {
   type JudgeClient,
   type JudgeRequest,
   type JudgeResult,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import { loadPool } from '../../pool';
 import { type BankItem, fn, type JudgesApi, pick, type Tier, value } from '../bank';
 

@@ -8,8 +8,8 @@ import type {
   ToolCall,
   WorkspaceDiff,
   WorldState,
-} from '@driftbench/core';
-import type { FaultSession } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-core';
+import type { FaultSession } from '@agent-nexus/driftbench-generate';
 import { DETOUR_TEXT, type HiddenProperty, type HiddenSpec, type HiddenTool, readTurn } from './hidden';
 
 /**

@@ -1,4 +1,4 @@
-import type { EndStateSpec, Expect, PerturbationSpec, Rules, ToolExpect } from '@driftbench/core';
+import type { EndStateSpec, Expect, PerturbationSpec, Rules, ToolExpect } from '@agent-nexus/driftbench-core';
 import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
 import { OPENING_CLASSES, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';

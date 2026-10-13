@@ -30,7 +30,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
+      - run: pnpm test --maxWorkers=2
       - run: pnpm build
       - run: pnpm docs:reference --check
       - run: pnpm docs:links

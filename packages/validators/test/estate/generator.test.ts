@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { AtomKind } from '@driftbench/estate';
+import { AtomKind } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import {
   drawEstate,

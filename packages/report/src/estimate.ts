@@ -1,9 +1,9 @@
-import { betaQuantile, bootstrapCI, wilson } from '@driftbench/stats';
+import { betaQuantile, bootstrapCI, wilson } from '@agent-nexus/driftbench-stats';
 
 /**
  * How an interval was made:
  * - `wilson`: the Wilson score interval on k of n.
- * - `cluster bootstrap`: the percentile bootstrap of @driftbench/stats, resampling whole clusters (2000
+ * - `cluster bootstrap`: the percentile bootstrap of @agent-nexus/driftbench-stats, resampling whole clusters (2000
  *   draws, seed 1), so the values inside one conversation are never read as independent.
  * - `wilson, raised`: pass^k and pass@k, the Wilson bounds of the per-run rate put through the same
  *   monotone map (p^k, 1 - (1 - p)^k).

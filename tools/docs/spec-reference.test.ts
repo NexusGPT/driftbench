@@ -3,7 +3,7 @@ import { appendFile, copyFile, mkdir, mkdtemp, readFile, writeFile } from 'node:
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import * as core from '@driftbench/core';
+import * as core from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   checkLinks,

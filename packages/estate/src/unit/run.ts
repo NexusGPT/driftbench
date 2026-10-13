@@ -4,8 +4,14 @@ import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'nod
 import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, extname, join } from 'node:path';
-import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@driftbench/generate';
-import { reapFolder, trackFolder, trackGroup, untrackFolder, untrackGroup } from '@driftbench/sandbox';
+import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
+import {
+  reapFolder,
+  trackFolder,
+  trackGroup,
+  untrackFolder,
+  untrackGroup,
+} from '@agent-nexus/driftbench-sandbox';
 import { parse as parseYaml } from 'yaml';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
@@ -633,12 +639,13 @@ export function casesFromSource(source: string): GuardCase[] {
 }
 
 /**
- * How a TypeScript script runs offline: tsx where driftbench can resolve it, else Node's own type stripping.
+ * How a TypeScript script runs offline: the tsx loader where available, else Node's own type stripping.
+ * The loader avoids the CLI's Unix socket, which cannot represent long temporary paths.
  * Never `npx tsx`, which reaches for the network the sandbox closes and waits out the timeout.
  */
 function typeScriptRunner(): string[] {
   try {
-    return [process.execPath, createRequire(import.meta.url).resolve('tsx/cli')];
+    return [process.execPath, '--import', createRequire(import.meta.url).resolve('tsx')];
   } catch {
     return [process.execPath, '--experimental-strip-types', '--no-warnings'];
   }

@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { fixtureRequest } from '@driftbench/judges';
+import { fixtureRequest } from '@agent-nexus/driftbench-judges';
 import { describe, expect, it } from 'vitest';
 import { JUDGED_CRITERIA, loadPool, splitPool } from '../../src/ladders/judges/pool';
 import { allEdits, defaultTransforms, loadPhraseBank } from '../../src/ladders/judges/transforms';

@@ -1,4 +1,4 @@
-import type { PhraseBank, SessionIndex } from '@driftbench/generate';
+import type { PhraseBank, SessionIndex } from '@agent-nexus/driftbench-generate';
 import type { HiddenEstate, HiddenGuard, HiddenHelper, HiddenSkill } from './hidden';
 import { STANDING, STEPS } from './layout';
 import { fileHid } from './render';

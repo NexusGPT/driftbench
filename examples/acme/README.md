@@ -150,7 +150,7 @@ Between them the specs use `ledger_seed`, `given` on the spec and on blocks, too
 stimuli, and perturbations by `user`, `burst` and `world`, each with a recovery.
 
 The task spec reads the same catalog the assistant sells from: a test fails if `catalog.csv` or the
-expected cells drift from `src/store.ts`. The xlsx reader of `@driftbench/artifacts` answers its artifact
+expected cells drift from `src/store.ts`. The xlsx reader of `@agent-nexus/driftbench-artifacts` answers its artifact
 checks (`sheets`, `header`, `rows`, `cells`, `formula`, `no_error_cells`).
 
 ## The inventory

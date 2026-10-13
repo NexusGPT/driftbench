@@ -1,5 +1,5 @@
 /** Statistics: intervals, reliability, paired tests, multiple comparisons, power, non-inferiority, drift, agreement, variance components and coverage. */
-export const packageName = '@driftbench/stats';
+export const packageName = '@agent-nexus/driftbench-stats';
 
 export {
   type AlphaLevel,

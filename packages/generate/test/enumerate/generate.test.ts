@@ -1,4 +1,4 @@
-import { lintSpec, parseSpecText, type Spec } from '@driftbench/core';
+import { lintSpec, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { generateSuite, INCOMPLETE_DIR, REPORT_FILE } from '../../src/enumerate/generate';
@@ -342,7 +342,7 @@ describe('iteration 17: the report states the coverage and diversity measures', 
 
 describe('iteration 21: the cells a spec reaches come from one projection of the grid', () => {
   it('counts the cells as the space package does, for the empty suite and for the generated one', async () => {
-    const { coverage } = await import('@driftbench/space');
+    const { coverage } = await import('@agent-nexus/driftbench-space');
     const { cellsOf } = await import('../../src/enumerate/generate');
     const prepared = zedPrepared();
     const { complete } = generateSuite(prepared, { mapPath: '../map.yaml', t: 2 });

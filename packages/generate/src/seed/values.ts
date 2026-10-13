@@ -1,4 +1,4 @@
-import { type Assertion, isPlainObject } from '@driftbench/core';
+import { type Assertion, isPlainObject } from '@agent-nexus/driftbench-core';
 import type { JsonSchema, ToolSchema } from './map';
 
 /**

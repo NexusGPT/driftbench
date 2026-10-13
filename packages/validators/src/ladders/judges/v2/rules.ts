@@ -1,4 +1,4 @@
-import type { TranscriptEntry } from '@driftbench/judges';
+import type { TranscriptEntry } from '@agent-nexus/driftbench-judges';
 
 /**
  * Rule judges: one deterministic rule per Acme criterion, no model. They stand in for a model in the

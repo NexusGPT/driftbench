@@ -1,7 +1,7 @@
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadEstateMap } from '@driftbench/estate';
+import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { cli } from './bench';
 import { FIXTURE, fixtureSuite, runOnFake } from './fixture-suite';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';

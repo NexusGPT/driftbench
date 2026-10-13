@@ -1,0 +1,25 @@
+{
+  "note": "Design point of the planted effect (levels 6 and 7). Recomputed by packages/validators/test/system/design.test.ts.",
+  "effect": {
+    "campaigns": 100,
+    "pairs": 50,
+    "baselineRate": 0.93,
+    "drop": 0.2,
+    "margin": 0.1
+  },
+  "wilson": {
+    "exactCoverage": 0.9779900512,
+    "bar": 0.93,
+    "falseFailPerSeed": 0.001702951
+  },
+  "clustered": {
+    "clusters": 20,
+    "size": 4,
+    "rate": 0.8,
+    "rho": 0.25,
+    "delta": 0.2,
+    "rates": [0.6, 1],
+    "trueDesignEffect": 1.75,
+    "alpha": 0.001
+  }
+}

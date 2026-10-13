@@ -1,4 +1,4 @@
-import { isPlainObject, type Message, type Segment } from '@driftbench/core';
+import { isPlainObject, type Message, type Segment } from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   errorOf,

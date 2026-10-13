@@ -16,7 +16,7 @@ A failing block carries one class or more.
 
 ## How a class is assigned
 
-`driftOf(verdicts)` of `@driftbench/core` reads the family of each failing gating verdict: the text of its id before the first dot. Each family maps to one class (`DRIFT_BY_FAMILY`):
+`driftOf(verdicts)` of `@agent-nexus/driftbench-core` reads the family of each failing gating verdict: the text of its id before the first dot. Each family maps to one class (`DRIFT_BY_FAMILY`):
 
 | Family | Class |
 |---|---|

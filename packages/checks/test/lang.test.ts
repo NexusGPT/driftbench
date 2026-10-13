@@ -1,4 +1,4 @@
-import type { Expect } from '@driftbench/core';
+import type { Expect } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { createLangCheck, lang } from '../src/checks/lang';
 import { detect, toDetectorCode } from '../src/support/language';

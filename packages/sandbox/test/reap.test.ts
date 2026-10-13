@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { localProvider, reapFolder } from '@driftbench/sandbox';
+import { localProvider, reapFolder } from '@agent-nexus/driftbench-sandbox';
 import { afterAll, describe, expect, it } from 'vitest';
 
 /**

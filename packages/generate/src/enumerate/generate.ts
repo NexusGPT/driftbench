@@ -1,4 +1,4 @@
-import { type Issue, type LoadResult, parseSpecText, type Spec } from '@driftbench/core';
+import { type Issue, type LoadResult, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
 import {
   assertGridSize,
   type CompiledSpace,
@@ -11,7 +11,7 @@ import {
   projectGrid,
   resolveT,
   tupleValues,
-} from '@driftbench/space';
+} from '@agent-nexus/driftbench-space';
 import { stringify } from 'yaml';
 import {
   NO_THEN_CRITERION,

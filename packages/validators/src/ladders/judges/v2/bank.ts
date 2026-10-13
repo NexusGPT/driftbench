@@ -1,5 +1,5 @@
-import * as judgesModule from '@driftbench/judges';
-import { mulberry32 } from '@driftbench/stats';
+import * as judgesModule from '@agent-nexus/driftbench-judges';
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
 import { hash32 } from '../transforms';
 import { SCREEN } from './causes';
 

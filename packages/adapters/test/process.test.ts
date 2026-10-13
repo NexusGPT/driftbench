@@ -16,8 +16,8 @@ import {
   type SandboxProvider,
   type Session,
   type Turn,
-} from '@driftbench/core';
-import { dockerProvider, localProvider, withApprovalPolicy } from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-core';
+import { dockerProvider, localProvider, withApprovalPolicy } from '@agent-nexus/driftbench-sandbox';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { type ProcessAdapterOptions, processAdapter, processProtocolFiles } from '../src/process';
 

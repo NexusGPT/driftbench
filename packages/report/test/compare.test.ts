@@ -1,6 +1,12 @@
-import type { RunResult } from '@driftbench/core';
-import { benjaminiHochberg, mcnemar, mde, pairedRateDifference, wilcoxonSignedRank } from '@driftbench/stats';
-import { openMemoryStore } from '@driftbench/store';
+import type { RunResult } from '@agent-nexus/driftbench-core';
+import {
+  benjaminiHochberg,
+  mcnemar,
+  mde,
+  pairedRateDifference,
+  wilcoxonSignedRank,
+} from '@agent-nexus/driftbench-stats';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { describe, expect, it } from 'vitest';
 import {
   AUTO_MARGIN_WARN,
