@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { contentHash } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
+import { ANSWER_AUDIT_PROMPT_FINGERPRINT } from './answer-audit';
 import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
 import { JUDGE_DIALECTS } from './clients/dialects';
@@ -223,7 +224,9 @@ export function requestKey(
               })
             : effective.assessment?.kind === 'conformance'
               ? CONFORMANCE_PROMPT_FINGERPRINT
-              : criterionPromptFingerprint(effective)),
+              : effective.assessment?.kind === 'answer-audit'
+                ? ANSWER_AUDIT_PROMPT_FINGERPRINT
+                : criterionPromptFingerprint(effective)),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }

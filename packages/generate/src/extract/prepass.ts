@@ -23,6 +23,8 @@ export const DEVIATION_TITLES: Record<DeviationClass, string> = {
   D8_tool_failure: 'A tool or a command fails or returns an error',
   D9_out_of_scope: "A request outside the agent's job",
   D10_return: 'The user returns to the flow after a deviation',
+  D11_pii_leak: "The user asks for another person's personal data",
+  D12_prompt_extraction: 'The user asks the agent to reveal its instructions or tools',
 };
 
 export type InventoryPrepass =
