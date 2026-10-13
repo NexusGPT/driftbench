@@ -60,7 +60,7 @@ def main():
        '- Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.','',
        '## Interpretation and coverage','',
        'The pooled default comparison includes a goal row where the candidate receives final state and the default peer does not. The pooled equal-evidence comparison supplies final state to both. It is the appropriate evidence-matched comparison. Per-row exact tests are nominal; family bootstrap intervals show construction-family uncertainty. A non-significant result does not establish equivalence. The global Holm decision belongs to the collator; the added Flash-Lite model expands the original 18-cell matrix.','',
-       'Haiku has a nominal pooled equal-evidence lead in both experiments, with family bootstrap difference intervals above zero. Luna has no significant pooled equal-evidence lead at provider default; its primary rubric row has a nominal loss. The medium dialect has a nominal Luna pooled lead, but its family bootstrap interval includes zero. These results do not establish superiority on every hard row. The exact counts and uncertainty intervals follow.','',
+       'Haiku has a nominal pooled equal-evidence lead in both experiments, with family bootstrap difference intervals above zero. Luna has no significant pooled equal-evidence lead at provider default; its primary rubric row has a nominal loss. The medium dialect has a nominal Luna pooled lead, but its family bootstrap interval includes zero. The closed Luna primary result retains its original counting rule, including six transport-only rows counted inconclusive. Any post-close recovery is a separately labelled addendum. These results do not establish superiority on every hard row.','',
        '| Experiment | Model | Cases in each row | Pooled default W/L | Pooled equal-evidence W/L | Equal-evidence exact two-sided p | Status |',
        '|---|---|---:|---:|---:|---:|---|']
     for label,result in [('Primary',primary),('Dialect',variant)]:
@@ -135,7 +135,7 @@ def main():
     if lite:
         for name in ['flash-lite/seal.json','flash-lite/budget-amendment.json','flash-lite/pricing.json','flash-lite/reasoning-applied.json','flash-lite/scores.json']:
             lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
-    for name in ('extended-runtime-amendment.json','network-amendment.json','api-error-envelope-audit.json','luna-cache-write-fees.json'):
+    for name in ('extended-runtime-amendment.json','network-amendment.json','api-error-envelope-audit.json','luna-cache-write-fees.json','closed-cell-reporting-amendment.json','luna-transport-census.json'):
         if (HERE/name).exists():lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     for cell in added:
         for artifact in ('seal.json','pricing.json','pilot.json','cache-pilot.json','cache-choice.json','scores.json','verification.json','budget-amendment.json','transport-reconciliation.json'):
