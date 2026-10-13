@@ -1036,10 +1036,11 @@ export function boundarySeeder(
       // an echo and a copy of the Given all pass it. The map supplies no word or stage for a refusal, so
       // the spec has no machine Then and goes to incomplete/.
       const forbidsOnly = found !== undefined && tools.length > 0 && tools.every((tool) => tool.count === 0);
-      if (forbidsOnly && hasPaths(prepared)) {
+      if (found !== undefined && hasPaths(prepared)) {
         // A request that only forbids calls is passed by a reply that does nothing. Said after the walk's
         // first move, the conversation must also stay on the stage it reached: a reply that does nothing
-        // for the walk fails.
+        // for the walk fails. A request that makes a call is said there too, so the turn checks the stage
+        // it stays at and that the runtime reports it.
         const built = scenarioDraft(
           prepared,
           context,

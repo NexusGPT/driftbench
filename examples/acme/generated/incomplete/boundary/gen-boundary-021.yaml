@@ -5,25 +5,45 @@
 id: gen-boundary-021
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value coverage.check.out.address_id.absent: address_id is left out (not required)"
+title: "Boundary value coverage.check.out.address_id.absent: Path home-callback of new-home: needs > address > offer > callback > handover"
 channel: chat
 lang: EN
 tier: generated
 tags:
+  - flow:new-home
   - persona:new-customer
-  - data:no-service
-given:
-  world:
-    tools:
-      coverage.check:
-        result:
-          found: false
-          address: address-1
+  - data:fiber
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for coverage.check.out.address_id=coverage.check.out.address_id.absent]"
     expect:
+      stage: address
+      stage_reported: true
       tools:
         - label: coverage.check
           count:
@@ -39,6 +59,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -50,20 +76,31 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
+    path: home-callback
     cell:
       coverage.check.out.address_id: coverage.check.out.address_id.absent
-      coverage.check.out.found: coverage.check.out.found.false
-      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.absent
-      coverage.check.out.five_g: coverage.check.out.five_g.absent
-      channel: chat
+      flow: new-home
       user_type: new-customer
-      coverage_result: no-service
+      coverage_result: fiber
+      plan_choice: asks-for-callback
+      callback_phone: given
+      channel: chat
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-address
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           coverage.check.out.address_id: coverage.check.out.address_id.absent
+          stage: address
         phrase: null
     concrete:
       coverage.check.out.address_id.absent: (absent)

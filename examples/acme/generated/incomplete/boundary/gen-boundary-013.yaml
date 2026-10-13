@@ -5,25 +5,45 @@
 id: gen-boundary-013
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value catalog.search.out.customer.null: customer is null"
+title: "Boundary value catalog.search.out.customer.null: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
 channel: whatsapp
 lang: EN
 tier: generated
 tags:
-  - persona:new-customer
+  - flow:order
   - data:5g-only
-given:
-  world:
-    tools:
-      catalog.search:
-        result:
-          plans: []
-          customer: null
+  - persona:existing-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      stage_reported: true
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for catalog.search.out.customer=catalog.search.out.customer.null]"
     expect:
+      stage: address
+      stage_reported: true
       tools:
         - label: catalog.search
           count:
@@ -39,6 +59,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - coverage.check
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -50,18 +76,31 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
+    path: order-single-plan
     cell:
       catalog.search.out.customer: catalog.search.out.customer.null
-      catalog.search.out.plans: catalog.search.out.plans.empty
-      channel: whatsapp
-      user_type: new-customer
+      flow: order
       coverage_result: 5g-only
+      plan_choice: loose-yes-to-single-offer
+      customer_details: name-and-email
+      channel: whatsapp
+      user_type: existing-customer
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-address
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           catalog.search.out.customer: catalog.search.out.customer.null
+          stage: address
         phrase: null
     concrete:
       catalog.search.out.customer.null: null

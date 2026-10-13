@@ -29,3 +29,17 @@ describe('boundarySeeder on tool output values', () => {
     }
   }, 60_000);
 });
+
+describe('boundarySeeder on tool input values', () => {
+  it('says a value of a read-only tool after the first move, so the turn checks the stage it stays at', () => {
+    const { drafts } = boundarySeeder(prepared, { seed: 1, t: 3, max: Number.POSITIVE_INFINITY });
+    const inputs = drafts.filter((draft) => /Boundary value (lookup_record|list_options)\.in\./.test(draft.title));
+    expect(inputs.length).toBeGreaterThan(0);
+    for (const draft of inputs) {
+      const value = draft.blocks.find((block) => block.id.endsWith('-value'));
+      expect(value?.stage, `${draft.id} ${draft.title}`).toBeDefined();
+      expect(draft.blocks.indexOf(value as (typeof draft.blocks)[number])).toBeGreaterThan(0);
+      expect(draft.reasons ?? []).toEqual([]);
+    }
+  }, 60_000);
+});

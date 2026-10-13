@@ -5,26 +5,44 @@
 id: gen-boundary-034
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value port.check.out.reason.present: reason is given"
+title: "Boundary value port.check.out.reason.present: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
 channel: chat
 lang: EN
 tier: generated
 tags:
-  - persona:new-customer
-  - data:5g-only
-given:
-  world:
-    tools:
-      port.check:
-        result:
-          number: number-1
-          eligible: false
-          reason: reason-1
+  - flow:upgrade
+  - persona:existing-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-identify
+    when:
+      user: I keep running out of data, can I get a bigger plan?
+    expect:
+      stage: identify
+      stage_reported: true
+      tools:
+        - label: port.check
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for port.check.out.reason=port.check.out.reason.present]"
     expect:
+      stage: identify
+      stage_reported: true
       tools:
         - label: port.check
           count:
@@ -40,6 +58,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - catalog.search
+    - coverage.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -51,18 +75,31 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
+    path: upgrade-order
     cell:
       port.check.out.reason: port.check.out.reason.present
-      port.check.out.eligible: port.check.out.eligible.false
+      flow: upgrade
+      user_type: existing-customer
+      account_lookup: found
+      plan_choice: names-one
       channel: chat
-      user_type: new-customer
-      coverage_result: 5g-only
+      coverage_result: none
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-identify
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           port.check.out.reason: port.check.out.reason.present
+          stage: identify
         phrase: null
     concrete:
       port.check.out.reason.present: value-1

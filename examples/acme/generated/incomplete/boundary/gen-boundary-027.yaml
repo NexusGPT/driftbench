@@ -5,27 +5,44 @@
 id: gen-boundary-027
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value coverage.check.out.five_g.false: five_g is false"
-channel: chat
+title: "Boundary value coverage.check.out.five_g.false: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
-  - persona:new-customer
-given:
-  world:
-    tools:
-      coverage.check:
-        result:
-          found: true
-          address: address-1
-          five_g: false
-          address_id: address_id-1
-          fiber_mbps: 1
+  - flow:upgrade
+  - persona:existing-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-identify
+    when:
+      user: I keep running out of data, can I get a bigger plan?
+    expect:
+      stage: identify
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for coverage.check.out.five_g=coverage.check.out.five_g.false]"
     expect:
+      stage: identify
+      stage_reported: true
       tools:
         - label: coverage.check
           count:
@@ -41,6 +58,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -52,20 +75,31 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
+    path: upgrade-order
     cell:
       coverage.check.out.five_g: coverage.check.out.five_g.false
-      coverage.check.out.found: coverage.check.out.found.true
-      coverage.check.out.address_id: coverage.check.out.address_id.present
-      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.above-minimum
-      channel: chat
-      user_type: new-customer
+      flow: upgrade
+      user_type: existing-customer
+      account_lookup: found
+      plan_choice: names-one
+      channel: whatsapp
       coverage_result: none
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-identify
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           coverage.check.out.five_g: coverage.check.out.five_g.false
+          stage: identify
         phrase: null
     concrete:
       coverage.check.out.five_g.false: false

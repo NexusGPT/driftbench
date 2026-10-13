@@ -5,27 +5,44 @@
 id: gen-boundary-018
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value coverage.check.out.found.true: found is true"
-channel: whatsapp
+title: "Boundary value coverage.check.out.found.true: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed"
+channel: chat
 lang: EN
 tier: generated
 tags:
-  - persona:existing-customer
-given:
-  world:
-    tools:
-      coverage.check:
-        result:
-          found: true
-          address: address-1
-          address_id: address_id-1
-          fiber_mbps: 1
-          five_g: true
+  - flow:porting
+  - persona:new-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-port_number
+    when:
+      user: I'd like to move to Acme and keep my phone number.
+    expect:
+      stage: port_number
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for coverage.check.out.found=coverage.check.out.found.true]"
     expect:
+      stage: port_number
+      stage_reported: true
       tools:
         - label: coverage.check
           count:
@@ -41,6 +58,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -52,20 +75,32 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
+    path: porting-keep-number
     cell:
       coverage.check.out.found: coverage.check.out.found.true
-      coverage.check.out.address_id: coverage.check.out.address_id.present
-      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.above-minimum
-      coverage.check.out.five_g: coverage.check.out.five_g.true
-      channel: whatsapp
-      user_type: existing-customer
+      flow: porting
+      user_type: new-customer
+      port_result: can-move
+      plan_choice: names-one
+      customer_details: name-and-email
+      channel: chat
       coverage_result: none
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-port_number
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-port_number
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-port_number
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           coverage.check.out.found: coverage.check.out.found.true
+          stage: port_number
         phrase: null
     concrete:
       coverage.check.out.found.true: true

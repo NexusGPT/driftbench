@@ -5,17 +5,44 @@
 id: gen-boundary-004
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value catalog.search.in.customer_email.at-min-length: customer_email exactly 1 characters long"
-channel: chat
+title: "Boundary value catalog.search.in.customer_email.at-min-length: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
+  - flow:upgrade
   - persona:existing-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-identify
+    when:
+      user: I keep running out of data, can I get a bigger plan?
+    expect:
+      stage: identify
+      stage_reported: true
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for catalog.search.in.customer_email=catalog.search.in.customer_email.at-min-length]"
     expect:
+      stage: identify
+      stage_reported: true
       tools:
         - label: catalog.search
           count:
@@ -34,6 +61,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - coverage.check
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -45,17 +78,31 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
+    path: upgrade-order
     cell:
       catalog.search.in.customer_email: catalog.search.in.customer_email.at-min-length
-      channel: chat
+      flow: upgrade
       user_type: existing-customer
+      account_lookup: found
+      plan_choice: names-one
+      channel: whatsapp
       coverage_result: none
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-identify
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           catalog.search.in.customer_email: catalog.search.in.customer_email.at-min-length
+          stage: identify
         phrase: null
     concrete:
       catalog.search.in.customer_email.at-min-length: x

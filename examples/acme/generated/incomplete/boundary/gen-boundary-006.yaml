@@ -5,18 +5,44 @@
 id: gen-boundary-006
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value catalog.search.in.address_id.present: address_id is given"
-channel: whatsapp
+title: "Boundary value catalog.search.in.address_id.present: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
+channel: chat
 lang: EN
 tier: generated
 tags:
-  - persona:new-customer
-  - data:5g-only
+  - flow:upgrade
+  - persona:existing-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-identify
+    when:
+      user: Hi, I already have an Acme plan and I need more data.
+    expect:
+      stage: identify
+      stage_reported: true
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for catalog.search.in.address_id=catalog.search.in.address_id.present]"
     expect:
+      stage: identify
+      stage_reported: true
       tools:
         - label: catalog.search
           count:
@@ -35,6 +61,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - coverage.check
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -46,17 +78,31 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
+    path: upgrade-order
     cell:
       catalog.search.in.address_id: catalog.search.in.address_id.present
-      channel: whatsapp
-      user_type: new-customer
-      coverage_result: 5g-only
+      flow: upgrade
+      user_type: existing-customer
+      account_lookup: found
+      plan_choice: names-one
+      channel: chat
+      coverage_result: none
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-identify
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           catalog.search.in.address_id: catalog.search.in.address_id.present
+          stage: identify
         phrase: null
     concrete:
       catalog.search.in.address_id.present: value-1

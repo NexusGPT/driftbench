@@ -5,24 +5,45 @@
 id: gen-boundary-014
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value catalog.search.out.customer.absent: customer is left out (not required)"
-channel: whatsapp
+title: "Boundary value catalog.search.out.customer.absent: Path home-address-not-found of new-home: needs > address > address"
+channel: chat
 lang: EN
 tier: generated
 tags:
-  - persona:existing-customer
-given:
-  world:
-    tools:
-      catalog.search:
-        result:
-          plans:
-            - {}
+  - flow:new-home
+  - persona:new-customer
+  - data:not-in-map
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      stage_reported: true
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for catalog.search.out.customer=catalog.search.out.customer.absent]"
     expect:
+      stage: address
+      stage_reported: true
       tools:
         - label: catalog.search
           count:
@@ -38,6 +59,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - coverage.check
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -49,18 +76,29 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
+    path: home-address-not-found
     cell:
       catalog.search.out.customer: catalog.search.out.customer.absent
-      catalog.search.out.plans: catalog.search.out.plans.one-item
-      channel: whatsapp
-      user_type: existing-customer
-      coverage_result: none
+      flow: new-home
+      user_type: new-customer
+      coverage_result: not-in-map
+      channel: chat
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-address
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           catalog.search.out.customer: catalog.search.out.customer.absent
+          stage: address
         phrase: null
     concrete:
       catalog.search.out.customer.absent: (absent)

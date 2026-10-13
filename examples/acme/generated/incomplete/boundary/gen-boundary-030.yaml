@@ -5,17 +5,45 @@
 id: gen-boundary-030
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value port.check.in.number.at-min-length: number exactly 1 characters long"
+title: "Boundary value port.check.in.number.at-min-length: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
 channel: chat
 lang: EN
 tier: generated
 tags:
+  - flow:order
+  - data:5g-only
   - persona:new-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      stage_reported: true
+      tools:
+        - label: port.check
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for port.check.in.number=port.check.in.number.at-min-length]"
     expect:
+      stage: address
+      stage_reported: true
       tools:
         - label: port.check
           count:
@@ -34,6 +62,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - catalog.search
+    - coverage.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -45,17 +79,31 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
+    path: order-single-plan
     cell:
       port.check.in.number: port.check.in.number.at-min-length
+      flow: order
+      coverage_result: 5g-only
+      plan_choice: loose-yes-to-single-offer
+      customer_details: name-and-email
       channel: chat
       user_type: new-customer
-      coverage_result: none
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-address
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           port.check.in.number: port.check.in.number.at-min-length
+          stage: address
         phrase: null
     concrete:
       port.check.in.number.at-min-length: x
