@@ -3,6 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { type LoadedSpec, loadSpecs } from '@agent-nexus/driftbench-core';
 import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -290,5 +291,62 @@ describe('driftbench report', () => {
     expect(out).toContain('--out <file.html>');
     expect(out).toContain('--junit <file.xml>');
     expect(out).toContain('--pilot <path>');
+  });
+});
+
+describe('driftbench report on a campaign of generated specs with an incomplete run', () => {
+  const GENERATED = fileURLToPath(new URL('../../../examples/acme/generated/specs/twise', import.meta.url));
+
+  beforeAll(async () => {
+    const specs: LoadedSpec[] = [];
+    for (const name of ['gen-twise-001.yaml', 'gen-twise-002.yaml', 'gen-twise-003.yaml']) {
+      const [loaded] = await loadSpecs([join(GENERATED, name)]);
+      if (!loaded?.ok) throw new Error(`invalid generated spec ${name}`);
+      specs.push(loaded);
+    }
+    const store = openStore(join(dir, 'generated.db'));
+    try {
+      await storeAcmeCampaign(store, { campaignId: 'c-gen', modes: ['F'], repeats: 2, specs });
+      // One run that did not complete: a stopped run counts as failing, and its line is incomplete.
+      const [run] = await store.listRuns({ campaignId: 'c-gen' });
+      if (!run) throw new Error('no stored run');
+      await store.putRun('c-gen', { ...run, status: 'stopped' });
+    } finally {
+      await store.close();
+    }
+  }, 120_000);
+
+  type Card = {
+    spread: { by: string[] };
+    lines: Array<{ incomplete: number; withheld?: boolean; passK: unknown[] }>;
+  };
+  const card = async (...flags: string[]) => {
+    const { code, out, err } = await cli([
+      'report',
+      'c-gen',
+      '--store',
+      'generated.db',
+      '--out',
+      `gen-${flags.join('-') || 'plain'}.html`,
+      '--json',
+      ...flags,
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    return JSON.parse(out) as Card;
+  };
+
+  it('names spread cells by --by, and by behaviour without it', async () => {
+    expect((await card()).spread.by).toEqual(['behaviour']);
+    expect((await card('--by', 'flow,channel')).spread.by).toEqual(['flow', 'channel']);
+  });
+
+  it('withholds the at-k value of a line with incomplete runs with --withhold-incomplete, and reports it without', async () => {
+    const plain = (await card()).lines.find((line) => line.incomplete > 0);
+    expect(plain?.withheld ?? false).toBe(false);
+    expect(plain?.passK.length).toBeGreaterThan(0);
+    const withheld = (await card('--withhold-incomplete')).lines.find((line) => line.incomplete > 0);
+    expect(withheld?.withheld).toBe(true);
+    expect(withheld?.passK).toEqual([]);
   });
 });
