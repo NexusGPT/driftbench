@@ -108,6 +108,65 @@ describe('driftbench intake logs', () => {
     expect(JSON.parse(turns[0] as string).cell).toEqual({ flow: 'upgrade' });
   });
 
+  it('reads --dedup, --intent-threshold, --cluster-threshold and --intent-dimension', async () => {
+    const dir = await setup();
+    const logs = async (out: string, ...flags: string[]) => {
+      const result = await run(
+        [
+          'intake',
+          'logs',
+          'logs.jsonl',
+          '--out',
+          out,
+          '--map',
+          `${ACME}map/approved.yaml`,
+          '--spot-check',
+          '1',
+          ...flags,
+        ],
+        dir,
+      );
+      expect(result.err).toBe('');
+      expect(result.code).toBe(0);
+      return result.out;
+    };
+    expect(await logs('d0', '--dedup', '0')).toContain('3 near-duplicates dropped, 2 kept');
+    expect(await logs('i1', '--intent-threshold', '1')).toContain('0 from the map');
+    expect(await logs('c0', '--intent-threshold', '1', '--cluster-threshold', '0')).toContain(
+      'Intents on flow: 1 seen, 0 from the map and 1 new.',
+    );
+    expect(await logs('c1', '--intent-threshold', '1', '--cluster-threshold', '1')).toContain(
+      'Intents on flow: 5 seen, 0 from the map and 5 new.',
+    );
+    expect(await logs('dev', '--intent-dimension', 'deviation')).toContain('Intents on deviation:');
+
+    const unknown = await run(
+      [
+        'intake',
+        'logs',
+        'logs.jsonl',
+        '--out',
+        'x',
+        '--map',
+        `${ACME}map/approved.yaml`,
+        '--intent-dimension',
+        'nope',
+      ],
+      dir,
+    );
+    expect(unknown.code).toBe(2);
+    expect(unknown.err).toContain('The map has no approved dimension "nope".');
+    const range = await run(['intake', 'logs', 'logs.jsonl', '--out', 'y', '--dedup', '2'], dir);
+    expect(range.code).toBe(2);
+    expect(range.err).toContain('--dedup and the thresholds a number from 0 to 1');
+    const provider = await run(
+      ['intake', 'logs', 'logs.jsonl', '--out', 'z', '--second-pass', 'model', '--provider', 'bogus'],
+      dir,
+    );
+    expect(provider.code).toBe(2);
+    expect(provider.err).toContain('unknown provider "bogus": use anthropic or openai.');
+  });
+
   it('refuses an output folder inside a git work tree with exit 2 and writes nothing', async () => {
     const dir = await setup();
     await mkdir(join(dir, 'repo', '.git'), { recursive: true });
@@ -305,6 +364,16 @@ describe('driftbench intake from-interview', () => {
     expect(result.code).toBe(2);
     expect(result.err).toContain('personas.0.share  not answered');
     expect(await stat(join(dir, 'set')).catch(() => undefined)).toBeUndefined();
+  });
+
+  it('refuses an unknown --provider before any model call', async () => {
+    const dir = await zed();
+    const result = await run(
+      ['intake', 'from-interview', 'answers.yaml', '--out', 'set', '--provider', 'bogus'],
+      dir,
+    );
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('unknown provider "bogus": use anthropic or openai.');
   });
 
   it('prints the plan on a dry run and calls no model', async () => {

@@ -6,7 +6,7 @@ import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
-import { type ReportDeps, registerCompareCommand } from '../src/commands/compare';
+import { defaultPairwiseClient, type ReportDeps, registerCompareCommand } from '../src/commands/compare';
 import type { Io } from '../src/index';
 
 let dir = '';
@@ -96,6 +96,33 @@ describe('driftbench compare --pairwise', () => {
     expect(Number(tie)).toBe(Number(pairs));
     expect(Number(inconsistent)).toBe(Number(pairs));
     expect(Number(bias)).toBe(Number(pairs));
+  });
+
+  it('asks for the judge --pairwise-judge names, openai by default, and refuses an unknown name', async () => {
+    const asked: string[] = [];
+    const deps: ReportDeps = {
+      openStore: async (path) => openStore(path),
+      pairwiseClient: (kind) => {
+        asked.push(kind);
+        return new FakeJudge('pairwise', [{ outcome: 'pass', reasoning: 'A reads better' }]);
+      },
+    };
+    await cli([...base, '--pairwise', join(dir, 'helpful.yaml')], deps);
+    await cli([...base, '--pairwise', join(dir, 'helpful.yaml'), '--pairwise-judge', 'google'], deps);
+    expect(asked).toEqual(['openai', 'google']);
+
+    expect(() => defaultPairwiseClient('bogus')).toThrow(
+      'unknown pairwise judge bogus: use openai, anthropic or google',
+    );
+    const refused = await cli(
+      [...base, '--pairwise', join(dir, 'helpful.yaml'), '--pairwise-judge', 'bogus'],
+      {
+        openStore: async (path) => openStore(path),
+        pairwiseClient: defaultPairwiseClient,
+      },
+    );
+    expect(refused.code).toBe(2);
+    expect(refused.err).toContain('unknown pairwise judge bogus');
   });
 
   it('a missing criterion file is bad input: exit 2, the path named', async () => {
