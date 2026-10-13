@@ -241,8 +241,8 @@ async function replayAtomic(
   }
   return {
     items: items.length,
-    identityConsistentIncludingTies: details.length,
-    decisiveConsistent: details.filter((d) => d.winner !== 'tie').length,
+    reusedIdentityMappings: details.length,
+    nonTieReusedJudgements: details.filter((d) => d.winner !== 'tie').length,
     ties: details.filter((d) => d.winner === 'tie').length,
     correct: details.filter((d) => d.winner === d.label).length,
     accuracy: details.filter((d) => d.winner === d.label).length / items.length,
@@ -335,8 +335,8 @@ async function replayControlled(
     canonical: {
       apiInvocations: canonical.apiInvocations,
       adapterCalls: canonical.adapterCalls,
-      identityConsistentIncludingTies: canonical.identityConsistentIncludingTies,
-      decisive: canonical.decisiveConsistent,
+      reusedIdentityMappings: canonical.reusedIdentityMappings,
+      nonTieReusedJudgements: canonical.nonTieReusedJudgements,
       ties: canonical.ties,
       uniqueHistoricalCalls: canonical.uniqueHistoricalCalls,
       historicalCostUsd: canonical.historicalCostUsd,
@@ -455,7 +455,8 @@ async function main() {
   assert.equal(canonical.uniqueHistoricalCalls, executedReport.uniqueCalls);
   assert(Math.abs(canonical.historicalCostUsd - executedReport.uniqueCostUsd) < 1e-10);
   assert.equal(canonical.accuracy, executedReport.summary.value.estimate);
-  assert.equal(canonical.decisiveConsistent / items.length, executedReport.summary.positionConsistency);
+  // The historical field counts non-tie reused judgements; it does not measure consistency.
+  assert.equal(canonical.nonTieReusedJudgements / items.length, executedReport.summary.positionConsistency);
   assert.equal(baseline.uniqueHistoricalCalls, baselineReport.uniqueCalls);
   assert(Math.abs(baseline.historicalCostUsd - baselineReport.uniqueCostUsd) < 1e-10);
   assert.equal(baseline.decisiveConsistent / items.length, baselineReport.summary.positionConsistency);
@@ -532,8 +533,8 @@ async function main() {
     controlledAtomicCoverage: controlled,
     limitations: [
       'The adapter translates new public API requests into historical atomic prompts. It verifies ordering and identity mapping, not current prompt quality.',
-      'Canonical reversed callers use the same recording. Identity consistency is structural, not an independent position-bias measurement.',
-      'The historical consistency numerator excludes ties; all pairs remain in its denominator.',
+      'Canonical reversed callers reuse one judgement. Their mapped identity is a replay check, with no consistency measurement.',
+      'The canonical 96.36 percent figure counts 344 non-tie reused judgements out of 357; it does not measure consistency.',
       'The cost ratio compares different procedures: atomic plus recorded execution evidence versus routing, optional reference and three samples per order. It is not a canonical-only saving.',
       'Dev data was used to tune the historical judges. These are not held-out generalization results.',
       'Recorded execution evidence is reused verbatim. No candidate is run, and these observations are not a proof of correctness.',

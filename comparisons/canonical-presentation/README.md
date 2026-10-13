@@ -43,20 +43,21 @@ installed release or a copied package build.
 The complete population is **357 development pairs**, selected from 1,147 public
 RubricBench rows by `SHA256('split:rubricbench:' + id)[0] < 77`.
 
-| Historical procedure | Decisive consistency | Accuracy against labels | Unique recorded calls | Historical cost |
-| --- | ---: | ---: | ---: | ---: |
-| Atomic binary, canonical, recorded execution evidence | 344/357 (96.36%) | 294/357 (82.35%) | 357 | $0.59679915 |
-| Adaptive, both orders, three samples per order | 328/357 (91.88%) | 580/714 games (81.23%) | 2,586 | $2.34737535 |
+The benefit is **one primary judgement per pair instead of two**. When the same
+recorded judgement serves both caller orders, its cost is counted once.
 
-Canonical has 13 ties. All 357 pairs preserve candidate identity when the caller's
-input order is reversed, including those ties. This is structural invariance:
-both calls retrieve the same historical observation. It is **not** a measurement
-of model behavior under two different presentations.
+| Historical procedure | Unique recorded calls | Historical cost |
+| --- | ---: | ---: |
+| Atomic binary, canonical, recorded execution evidence | 357 | $0.59679915 |
+| Adaptive, both orders, three samples per order | 2,586 | $2.34737535 |
 
-The historical consistency statistic counts matching decisive outcomes in its
-numerator and **all pairs** in its denominator. It excludes tie/tie matches from
-the numerator. The new API's canonical result therefore exposes `outcome` and
-`aIsFirst`, without inventing an unmeasured swapped outcome or consistency flag.
+Of the 357 canonical recordings, **344 (96.36%) are non-tie judgements** and 13
+are ties. Each judgement is reused for both caller orders. Reversing the caller
+inputs checks the mapping of that same recorded judgement. The 96.36% figure
+counts non-tie reused judgements; it does not measure consistency.
+
+The API exposes the recorded `outcome` and `aIsFirst` mapping. It does not invent
+an unmeasured swapped outcome or position-bias diagnostic.
 
 The cost ratio is **25.424%**, but it compares different procedures. The adaptive
 procedure uses 357 routing calls, 87 reference calls and 2,142 judgment samples.
@@ -111,7 +112,7 @@ better quality. The full 357-pair historical results above remain separate.
   per invocation, and identical winning content after identity mapping.
 - Historical cost counts each recording key once, although the invariance test
   invokes the API twice per pair. Every canonical mapped result is checked
-  against the committed audit. Aggregate accuracy, consistency, cost and call
+  against the committed audit. Aggregate outcome counts, cost and call
   counts are checked against the historical reports.
 
 ## Limits
