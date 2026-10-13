@@ -253,7 +253,7 @@ The Acme map was approved with `--all` on the owner's delegation, for the fictio
 * a data or task value is held only where the path's `when` or the family's `holds` states it; elsewhere the axis holds `none`, the value a data or task axis gets on a structured map;
 * a conversation holds no task setting, so a conversation event allows only `none` on the task axes.
 
-The inventory pre-pass also writes one constraint per flow a behaviour does not belong to. On Acme this leaves 701 allowed pairs, and `generate` covers 688 of them with complete specs. A value no allowed pair holds is named in the report under `cover.unreachable`: on Acme, `workspace_start=existing-workbook`, which the price-sheet family has no knob for.
+The inventory pre-pass also writes one constraint per flow a behaviour does not belong to. On Acme this leaves 701 allowed pairs, and `generate` covers all of them with complete specs. A value no allowed pair holds is named in the report under `cover.unreachable`: on Acme, `workspace_start=existing-workbook`, which the price-sheet family has no knob for.
 
 ```
 $ pnpm -s driftbench extract map _captures/docs3/generating/acme/map/approved.yaml --to _captures/docs3/generating/acme/map/space.yaml
