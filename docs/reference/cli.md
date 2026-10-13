@@ -514,26 +514,28 @@ On the approved Acme map:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
-Map acme (../../../../examples/acme/map/approved.yaml), hash 6d29ed7a7539: 51 dimensions, 185 values, 457 constraints, 51 approved phrases.
+Actual axis-map coverage (written complete specs): pairs 701 of 701 (100.0%); triples 2871 of 4044 (71.0%).
+Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
+Uncovered on the axis map: 0 pairs, 1173 triples (see coverage.actual[].uncovered).
+Map acme (../../../../examples/acme/map/approved.yaml), hash 0f897ba84410: 51 dimensions, 187 values, 471 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           132     675       131           1
-boundary         80     113        13          67
-deviation        10      52        10           0
-metamorphic      40     172        38           2
+twise           156     793       153           3
+boundary         85     146        13          72
+deviation        21     111        21           0
+metamorphic      42     192        42           0
 task             34      47        34           0
-cover            13      71        13           0
+cover            28     155        28           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-t-wise: covering array of 132 rows over 5 dimensions, 314 of 314 allowed 2-tuples (100.0%).
-Constraints applied: 457.
-Deviation probes: 10 of 10 classes. Metamorphic families: 20.
-Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%).
+Constraints applied: 471.
+Deviation probes: 12 of 12 classes. Metamorphic families: 21.
+Coverage on the axis map at t = 2: complete specs 701 of 701 (100.0%), all specs 701 (100.0%).
 Values no allowed pair holds, so no spec can cover them until the map gives them a path: workspace_start=existing-workbook.
 
-Values with no approved phrase (67): their blocks are placeholders in incomplete/.
+Values with no approved phrase (72): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
   catalog.search.in.category=catalog.search.in.category.home  1 block(s)
   catalog.search.in.customer_email=catalog.search.in.customer_email.below-min-length  1 block(s)
@@ -541,6 +543,7 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   catalog.search.in.customer_email=catalog.search.in.customer_email.absent  1 block(s)
   catalog.search.in.address_id=catalog.search.in.address_id.present  1 block(s)
   catalog.search.in.address_id=catalog.search.in.address_id.absent  1 block(s)
+  catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent  1 block(s)
   catalog.search.out.plans=catalog.search.out.plans.empty  1 block(s)
   catalog.search.out.plans=catalog.search.out.plans.one-item  1 block(s)
   catalog.search.out.plans=catalog.search.out.plans.several-items  1 block(s)
@@ -548,20 +551,19 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   catalog.search.out.customer=catalog.search.out.customer.null  1 block(s)
   catalog.search.out.customer=catalog.search.out.customer.absent  1 block(s)
   coverage.check.in.address=coverage.check.in.address.below-min-length  1 block(s)
-  coverage.check.in.address=coverage.check.in.address.at-min-length  1 block(s)
-  ... 52 more in generate-report.json
+  ... 57 more in generate-report.json
 
-Specs with a block the map supports no machine Then for (13), in incomplete/: gen-twise-089, gen-boundary-062, gen-boundary-063, gen-boundary-064, gen-boundary-072, gen-boundary-073, gen-boundary-074, gen-boundary-075, gen-boundary-077, gen-boundary-078, ....
+Specs with a block the map supports no machine Then for (18), in incomplete/: gen-twise-108, gen-twise-109, gen-twise-114, gen-boundary-008, gen-boundary-017, gen-boundary-031, gen-boundary-046, gen-boundary-060, gen-boundary-067, gen-boundary-068, ....
   Most frequent reasons:
-     2  no approved path says flow=upgrade
-     1  it needs coverage_result in no-service; the cell holds none
-     1  it needs user_type in existing-customer; the cell holds new-customer
+     3  it needs user_type in existing-customer; the cell holds new-customer
+     3  the constraints allow no value of port_result it needs with this cell
+     2  it needs coverage_result in fiber, 5g-only; the cell holds none
+     2  it needs coverage_result in fiber; the cell holds none
+     2  it needs coverage_result in no-service; the cell holds none
      1  no approved path needs callback_phone=not-given
-     1  no approved path needs customer_details=neither
-     1  no approved path needs customer_details=one-of-them
-     1  no approved path needs home_plans=no-plan
-     1  no approved path needs home_plans=one-plan
-Wrote 322 files to _captures/docs3/cli/generated.
+     1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
+     1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
+Wrote 379 files to _captures/docs3/cli/generated.
 exit 1
 ```
 
