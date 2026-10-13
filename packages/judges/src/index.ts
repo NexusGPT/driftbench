@@ -57,6 +57,7 @@ export {
   type CascadeReport,
   type CascadeVariant,
   calibrateCascade,
+  type DeployableCascadeConfig,
 } from './cascade';
 export {
   Cassette,
@@ -101,6 +102,7 @@ export {
 } from './clients/system1';
 export { type TokenUsage, type UsageProvider, usageFromResponse } from './clients/usage';
 export { comparePair, type PairChoice, type PairJudge, type PairWinner } from './compare-pair';
+export type { ComparisonResult, EscalationRecord, EscalationTrigger } from './contract';
 export {
   type Budget,
   CriterionText,
@@ -146,6 +148,7 @@ export {
   parseCriterionFile,
 } from './criteria';
 export { CriterionLedger, type CriterionRequirement, requirementsFor } from './criterion-ledger';
+export { createEscalation, type EscalationConfig } from './escalation';
 export { type Grounding, groundEvidence } from './evidence';
 export { FactLedgerAnswer } from './fact-audit';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';

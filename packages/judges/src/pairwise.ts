@@ -2,7 +2,13 @@ import { readFile } from 'node:fs/promises';
 import { parse as parseYaml } from 'yaml';
 import type { RubricItem } from './assessment';
 import type { JudgeClient } from './client';
-import { CriterionText, type JudgeOutcome, type JudgeRequest, type TranscriptEntry } from './contract';
+import {
+  CriterionText,
+  type EscalationRecord,
+  type JudgeOutcome,
+  type JudgeRequest,
+  type TranscriptEntry,
+} from './contract';
 import { FACT_AUDIT_POLICY, parseFactLedger } from './fact-audit';
 import { FRAME_RULE } from './transcript';
 
@@ -18,6 +24,8 @@ import { FRAME_RULE } from './transcript';
 export type PairwiseChoice = 'first' | 'second' | 'tie';
 
 export type PairwiseVerdict = {
+  readonly escalation?: EscalationRecord;
+  readonly costUsd?: number;
   /** The preferred candidate, as the caller gave them: first or second. A tie when none is preferred. */
   readonly choice: PairwiseChoice;
   /** The judge's outcome with the first candidate as Reply A. */
@@ -136,6 +144,26 @@ export async function judgePairwise(
         }
       : {}),
   });
+  if (client.judgeComparison) {
+    const result = await client.judgeComparison(request(first, second), request(second, first, true));
+    const comparison = result.comparison;
+    if (!comparison) throw new Error('comparison client returned no comparison diagnostics');
+    const outcome = result.unparsed
+      ? 'inconclusive'
+      : result.winner === 'A'
+        ? 'pass'
+        : result.winner === 'B'
+          ? 'fail'
+          : result.winner
+            ? 'inconclusive'
+            : result.answer.outcome;
+    return {
+      ...comparison,
+      choice: naming(outcome, true),
+      ...(result.escalation ? { escalation: result.escalation, calls: result.escalation.calls } : {}),
+      ...(result.costUsd === undefined ? {} : { costUsd: result.costUsd }),
+    };
+  }
   const ask = async (r: JudgeRequest) => {
     calls += 1;
     const result = await client.judge(r);

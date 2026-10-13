@@ -61,3 +61,21 @@ describe('a council seats the named pairwise contract', () => {
     expect(result.votes.every((vote) => vote.winner === undefined)).toBe(true);
   });
 });
+
+describe('constituent judge families', () => {
+  it('rejects a composite seat hiding the agent family behind its first judge', () => {
+    const composite = { ...seat('anthropic', 'A'), families: ['anthropic', 'openai'] };
+    expect(() => createCouncil({ mode: 'llm', size: 1, agentFamily: 'openai', judges: [composite] })).toThrow(
+      /family/,
+    );
+    expect(composite.judge).not.toHaveBeenCalled();
+  });
+
+  it('resolves model-name aliases before checking a constituent family', () => {
+    const composite = { ...seat('anthropic', 'A'), families: ['anthropic', ' GPT-4o '] };
+    expect(() => createCouncil({ mode: 'llm', size: 1, agentFamily: 'OpenAI', judges: [composite] })).toThrow(
+      /family/,
+    );
+    expect(composite.judge).not.toHaveBeenCalled();
+  });
+});

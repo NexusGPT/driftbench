@@ -8,7 +8,7 @@ import type { z } from 'zod';
 import { type JudgeCheckOptions, judgeCheck } from './check';
 import type { JudgeClient } from './client';
 import type { Budget, JudgeClass, JudgeOutcome, JudgeRequest, JudgeResult } from './contract';
-import { normalizeFamily, sameFamily } from './family';
+import { familyOfModel, normalizeFamily, sameFamily } from './family';
 import { screenData } from './screen';
 
 /**
@@ -279,9 +279,13 @@ function validateJudges(config: CouncilConfig): Map<string, JudgeClient> {
   const byId = new Map<string, JudgeClient>();
   for (const judge of config.judges) {
     if (byId.has(judge.id)) throw new CouncilConfigError(`two judges are named ${judge.id}`);
-    if (sameFamily(judge.family, config.agentFamily)) {
+    const canonical = (family: string) => familyOfModel(family) ?? normalizeFamily(family);
+    const conflict = [judge.family, ...(judge.families ?? [])].find((family) =>
+      sameFamily(canonical(family), canonical(config.agentFamily)),
+    );
+    if (conflict !== undefined) {
       throw new CouncilConfigError(
-        `judge ${judge.id} is from the ${normalizeFamily(judge.family)} family, the family of the agent under test: refused`,
+        `judge ${judge.id} is from the ${canonical(conflict)} family, the family of the agent under test: refused`,
       );
     }
     byId.set(judge.id, judge);
