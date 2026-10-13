@@ -1,0 +1,24 @@
+{
+  "frozenAt": "2026-10-12T23:41:32.993Z",
+  "seeds": {
+    "panel": 20261101,
+    "borderline": 20271102
+  },
+  "casesPerRow": 60,
+  "labelsFixedBeforeRun": true,
+  "seedSelection": "First checked seed per row with unique prompts and zero matches to all prior requested sets, including unfinished runs. No scores used.",
+  "candidate": "quote-decoding candidate, not yet the shipped default",
+  "sha256": {
+    "audit.ts": "5f86ab76b380435ba59db417093daedd027a32da9f55d48f702e67345e1338a6",
+    "audit-normalized.ts": "13fde3b2de92e827b53a2043ca72eb265316c20fec45c20a9672c3ecadfc961a",
+    "generate.mts": "1c39b4b9adf554acef4ced1a352a3510c88591e74a9056f3e87305ef976ba61f",
+    "harness.ts": "53bcf51e1bb7251d0eadc1772822b19dfdfb14d36e6fe9d8cffe12d53710ac61",
+    "main-deciding.ts": "03f4d9cfdadc186642e1a8fe9f9203b08336075087cbab4c5d03fbbe2e96176a",
+    "deciding/main-snapshot.json": "ecb057c6fa2ce4c155efbe9e41e3357eee42bd150283c3edf1a813d19be86f70",
+    "qa-template.txt": "f07b32e50b33596a2db845ab8dfd11f64a17270a9162c828a42b8ed1d566d02a",
+    "fact-template.txt": "384298b3a412e9cee138ef7bbdb21c9a3e669fc9416eecdbb7c26fe24e13dda5",
+    "instructions.txt": "7c6cdf15888e0f2173e623fb52ba2d0b75aeb575a9937b0e3e66c9f4370afd5a",
+    "normalized/panel-heldout.json": "403f1f8ea52920a05501efad5461cc926b7b65eab8149071560dc9e7a92ba0d2",
+    "normalized/borderline-heldout.json": "2b6a0e6c87d4cec45f7b29f07001b6a89078138622c74f5bdc96a64a865efedb"
+  }
+}

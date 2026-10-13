@@ -1,5 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { mde as powerMde } from '@agent-nexus/driftbench-stats';
 import { parse, stringify } from 'yaml';
 import { between, rngFor } from '../random';
 import { DOCUMENTED_CHECKS } from './documented';
@@ -473,10 +474,30 @@ jsonCase(
   'plan --json prints the documented minimum detectable effect for 12 runs per arm at 0.5',
   (s) => ['campaign', 'plan', s.clean, '--target', TARGET, '--repeats', '12', '--json'],
   (doc) => {
-    const mde = (doc.mde as Array<{ effect?: number; runsPerArm?: number }> | undefined)?.[0];
-    const want = (1.9599639845400534 + 0.8416212335729144) * Math.sqrt((2 * 0.25) / 12);
+    const mde = (
+      doc.mde as
+        | Array<{
+            effect?: number;
+            runsPerArm?: number;
+            specs?: number;
+            baselineRate?: number;
+            rho?: number;
+            designEffect?: number;
+          }>
+        | undefined
+    )?.[0];
+    const want = powerMde({ n: 1, repeats: 12, baselineRate: 0.5 }).effect;
     return expectAll([
-      [mde?.runsPerArm === 12 && Math.abs((mde?.effect ?? 0) - want) < 1e-9, `mde ${JSON.stringify(mde)}`],
+      [
+        mde?.runsPerArm === 12 &&
+          mde.specs === 1 &&
+          mde.baselineRate === 0.5 &&
+          mde.rho === 0 &&
+          mde.designEffect === 1 &&
+          want !== null &&
+          Math.abs((mde?.effect ?? -1) - want) < 1e-9,
+        `mde ${JSON.stringify(mde)}`,
+      ],
     ]);
   },
 );

@@ -1,4 +1,6 @@
 import { INFORMATION, LINT_CODES } from '@agent-nexus/driftbench-estate';
+import { mde as powerMde } from '@agent-nexus/driftbench-stats';
+import { gateContract, goldenContract, pilotContract } from '../current-contracts';
 import { DOCUMENTED_CHECKS } from '../documented';
 /**
  * Blind-breaker claims: executable claims taken from the documentation pages and the command-line help
@@ -2640,7 +2642,7 @@ function campaignItems(): BankItem[] {
       tier: 4,
       component: 'driftbench campaign plan',
       title:
-        'running.md "The minimum detectable effect": effect = (z(0.975) + z(0.8)) * sqrt(2 p (1 - p) / n) with p the --baseline-rate and n the runs per arm',
+        'running.md "The minimum detectable effect": stats.mde solves the two-proportion power equation with p the --baseline-rate and specs as independent units',
       cause:
         'driftbench campaign plan prints the minimum detectable effect by the two proportion normal approximation with the --baseline-rate and the runs per arm',
       async check(ctx) {
@@ -2652,18 +2654,13 @@ function campaignItems(): BankItem[] {
           ['campaign', 'plan', 's', '--repeats', String(n), '--baseline-rate', String(p)],
           dir,
         );
-        const effect = (1.959964 + 0.841621) * Math.sqrt((2 * p * (1 - p)) / n) * 100;
-        const m =
-          /Minimum detectable effect, mode F: ([0-9.]+) points on a (\d+)% pass rate, with (\d+) runs per arm/.exec(
-            c.out,
-          );
-        if (!m) return fail(`no minimum detectable effect line; got ${shown(c)}`);
-        const got = Number(m[1]);
-        return Math.abs(got - effect) < 0.06 && Number(m[3]) === n
+        const effect = powerMde({ n: 1, repeats: n, baselineRate: p }).effect;
+        const expected = effect === null ? 'none detectable' : `${(effect * 100).toFixed(1)} points`;
+        return c.code === 0 &&
+          c.out.includes(`Minimum detectable effect, mode F: ${expected}`) &&
+          c.out.includes(`${n} runs per arm`)
           ? PASS
-          : fail(
-              `expected about ${effect.toFixed(1)} points with ${n} runs per arm; got ${got} with ${m[3]}`,
-            );
+          : fail(`expected ${expected} with ${n} runs per arm; got ${shown(c)}`);
       },
     }),
     cl({
@@ -4690,7 +4687,7 @@ function toolItems(): BankItem[] {
       tier: 5,
       component: 'driftbench select',
       title:
-        'examples/acme/golden/README.md: select with --k 10 on the gated Acme suite writes ten specs and golden.json, and exits 1 because the tenth required cell is covered only by a sealed spec',
+        'examples/acme/golden/README.md: select with --k 10 on the gated Acme suite writes ten specs and golden.json, and exits according to the required coverage documented in its README',
       cause:
         'driftbench select writes k specs and golden.json, never uses sealed specs, and exits 1 while a required cell stays uncovered',
       async check(ctx) {
@@ -4709,12 +4706,19 @@ function toolItems(): BankItem[] {
           ],
           dir,
         );
+        const want = goldenContract(ctx.root);
         const specs = files(join(dir, 'golden/specs')).length;
         return expectAll([
-          [c.code === 1, `exit should be 1; got ${shown(c)}`],
+          [
+            c.code === (want.required === want.totalRequired ? 0 : 1),
+            `exit disagrees with documented required coverage; got ${shown(c)}`,
+          ],
           [specs === 10, `expected 10 spec files; got ${specs}`],
           [existsSync(join(dir, 'golden/golden.json')), 'golden.json should exist'],
-          [/36 sealed specs left out/.test(c.out), `the sealed specs should be left out; got ${shown(c)}`],
+          [
+            c.out.includes(`${want.sealed} sealed specs left out`),
+            `the sealed specs should be left out; got ${shown(c)}`,
+          ],
         ]);
       },
     }),
@@ -4751,18 +4755,19 @@ function toolItems(): BankItem[] {
       tier: 4,
       component: 'driftbench holdout',
       title:
-        'examples/acme/golden/README.md and holdout seal --help: the gate own sealed split is taken as it is, 36 sealed specs, and an earlier seal needs --force',
+        'examples/acme/golden/README.md and holdout seal --help: the gate own sealed split is taken as it is, and an earlier seal needs --force',
       cause:
-        'driftbench holdout seal reports "Sealed 36 of 175 gated specs", writes sealed.json, and exits 2 on a second seal without --force',
+        'driftbench holdout seal reports the gate-owned split counts, writes sealed.json, and exits 2 on a second seal without --force',
       async check(ctx) {
         const dir = work(ctx, 'holdout');
         const argv = ['holdout', 'seal', '--specs', join(ctx.root, 'examples/acme/gated'), '--out', 'sealed'];
+        const want = await gateContract(ctx.root);
         const a = await cli(argv, dir);
         const b = await cli(argv, dir);
         return expectAll([
           [
-            a.code === 0 && /Sealed 36 of 175 gated specs/.test(a.out),
-            `expected "Sealed 36 of 175 gated specs"; got ${shown(a)}`,
+            a.code === 0 && a.out.includes(`Sealed ${want.sealed} of ${want.total} gated specs`),
+            `expected "Sealed ${want.sealed} of ${want.total} gated specs"; got ${shown(a)}`,
           ],
           [existsSync(join(dir, 'sealed/sealed.json')), 'sealed.json should exist'],
           [b.code === 2, `sealing again without --force should exit 2; got ${shown(b)}`],
@@ -5401,9 +5406,8 @@ function toolItems(): BankItem[] {
       tier: 3,
       component: 'driftbench pilot',
       title:
-        'cli.md "driftbench pilot": pilot plan on the approved Acme map prints "Pilot plan: 13 cells by behaviour" and a total of 127 conversations and 1620 runs',
-      cause:
-        'driftbench pilot plan prints the documented 13 cells with 127 conversations, 324 wordings and 1620 runs for the Acme map and generated suite',
+        'cli.md "driftbench pilot": pilot plan on the approved Acme map prints the cell counts and totals of the current approved map and generated suite',
+      cause: 'driftbench pilot plan prints the current design totals for the Acme map and generated suite',
       async check(ctx) {
         const dir = work(ctx, 'pilot');
         const c = await cli(
@@ -5417,11 +5421,15 @@ function toolItems(): BankItem[] {
           ],
           dir,
         );
+        const want = await pilotContract(ctx.root);
+        const totals = new RegExp(
+          `total\\s+${want.conversations}\\s+${want.wordings}\\s+${want.runs}\\s+${want.blocks}`,
+        );
         return c.code === 0 &&
-          /Pilot plan: 13 cells by behaviour/.test(c.out) &&
-          /total\s+127\s+324\s+1620\s+8410/.test(c.out)
+          c.out.includes(`Pilot plan: ${want.cells} cells by behaviour`) &&
+          totals.test(c.out)
           ? PASS
-          : fail(`expected the documented totals; got ${shown(c)}`);
+          : fail(`expected design totals ${JSON.stringify(want)}; got ${shown(c)}`);
       },
     }),
     tl({

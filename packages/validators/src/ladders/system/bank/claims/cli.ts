@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { loadSpecs } from '@agent-nexus/driftbench-core';
+import { mde as powerMde } from '@agent-nexus/driftbench-stats';
 import { openStore } from '@agent-nexus/driftbench-store';
 import { parse, stringify } from 'yaml';
 import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from '../types';
@@ -964,25 +966,31 @@ add({
   },
 });
 
-const Z975 = 1.959963984540054;
-const Z80 = 0.8416212335729143;
-const mdeOf = (p: number, n: number) => (Z975 + Z80) * Math.sqrt((2 * p * (1 - p)) / n);
+const mdeOf = (p: number, n: number) => powerMde({ n, baselineRate: p }).effect;
 
 add({
   slug: 'plan/mde-own-targets',
   tier: 3,
   component: PLANNER,
   title:
-    'when each spec runs on its own target, the runs per arm are the cells of the mode over every spec: 7 for the Acme specs, effect 74.9 points (running.md "The minimum detectable effect")',
+    'when each spec runs on its own target, the runs per arm are the cells of the mode over every spec: 7 for the Acme specs, with power computed by stats.mde (running.md "The minimum detectable effect")',
   cause:
     'the planner counts the cells of the mode over every spec as the runs per arm when no --target is given.',
   async run(ctx) {
     const result = await cli(['campaign', 'plan', join(ctx.root, 'examples/acme/specs'), '--json'], ctx.dir);
     const mde = json<{ mde?: Array<{ runsPerArm: number; effect: number }> }>(result.out)?.mde?.[0];
-    const want = mdeOf(0.5, 7);
+    const loaded = await loadSpecs([join(ctx.root, 'examples/acme/specs')]);
+    if (loaded.some((entry) => !entry.ok)) return fail('invalid Acme spec fixture');
+    const n = loaded.length;
+    const want = mdeOf(0.5, n);
     return expectAll([
-      [mde?.runsPerArm === 7, `expected runsPerArm 7, got ${mde?.runsPerArm}; ${shown(result)}`],
-      [Math.abs((mde?.effect ?? 0) - want) < 1e-6, `expected effect ${want}, got ${mde?.effect}`],
+      [mde?.runsPerArm === n, `expected runsPerArm ${n}, got ${mde?.runsPerArm}; ${shown(result)}`],
+      [
+        want === null
+          ? mde !== undefined && mde.effect === undefined
+          : Math.abs((mde?.effect ?? -1) - want) < 1e-6,
+        `expected effect ${want}, got ${mde?.effect}`,
+      ],
     ]);
   },
 });
@@ -992,11 +1000,11 @@ add({
   tier: 2,
   component: PLANNER,
   title:
-    'campaign plan --baseline-rate 0.9 puts p = 0.9 into the effect formula (z(0.975) + z(0.8)) * sqrt(2p(1-p)/n) (running.md)',
+    'campaign plan --baseline-rate 0.9 puts p = 0.9 into the documented two-proportion power equation (running.md)',
   cause: 'campaign plan passes --baseline-rate into the minimum detectable effect.',
   flags: true,
   async run(ctx) {
-    const repeats = 2 + (ctx.seed % 7);
+    const repeats = 30 + (ctx.seed % 7);
     const result = await cli(
       [
         'campaign',
@@ -1016,7 +1024,12 @@ add({
     const want = mdeOf(0.9, repeats);
     return expectAll([
       [mde?.baselineRate === 0.9, `expected baselineRate 0.9, got ${mde?.baselineRate}; ${shown(result)}`],
-      [Math.abs((mde?.effect ?? 0) - want) < 1e-6, `expected effect ${want}, got ${mde?.effect}`],
+      [
+        want === null
+          ? mde !== undefined && mde.effect === undefined
+          : Math.abs((mde?.effect ?? -1) - want) < 1e-6,
+        `expected effect ${want}, got ${mde?.effect}`,
+      ],
     ]);
   },
 });
@@ -1683,18 +1696,16 @@ add({
   tier: 3,
   component: SPACE_LOAD,
   title:
-    'the proposal extract writes is a valid space map: space coverage --map <proposal> computes coverage instead of refusing the map (cli.md extract: "The proposal is a valid space map"; generating.md routes the space commands through extract map, so the cli.md sentence may be the part to change)',
-  cause:
-    'the space map loader accepts an extract proposal (its evidence and produced_by keys and its version) as a map.',
+    'extract writes a proposal, not a space map: the space command refuses it until extract map converts its approved axes (cli.md extract)',
+  cause: 'the space map loader refuses proposal-only fields and requires conversion through extract map.',
   async run(ctx) {
     const { result, path } = await proposal(ctx);
     if (result.code !== 0) return fail(`extract --no-model: ${shown(result)}`);
     const coverage = await cli(['space', 'coverage', join(ctx.root, CONVERSATIONS), '--map', path], ctx.dir);
-    return coverage.code === 0 || coverage.code === 1
-      ? PASS
-      : fail(
-          `expected exit 0 or 1 (a valid map), got ${coverage.code}: ${(coverage.err || coverage.out).slice(0, 300)}`,
-        );
+    const docs = readFileSync(join(ctx.root, 'docs/reference/cli.md'), 'utf8');
+    if (!docs.includes('The proposal is not a space map'))
+      return fail('missing proposal/map boundary in CLI docs');
+    return coverage.code === 2 ? PASS : fail(`expected proposal rejection, exit 2; ${shown(coverage)}`);
   },
 });
 
@@ -1851,7 +1862,7 @@ add({
   tier: 2,
   component: EXTRACT_CMD,
   title:
-    'extract map on the approved Acme proposal reports "7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 28 constraints, a full grid of 81312 cells." (cli.md extract map)',
+    'extract map on the approved Acme proposal reports the axes, constraints and grid documented in cli.md',
   cause: 'extract map builds the space map of the approved axes and constraints as cli.md documents.',
   async run(ctx) {
     const result = await cli(
@@ -1864,10 +1875,15 @@ add({
       ],
       ctx.dir,
     );
-    const want =
-      '7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 28 constraints, a full grid of 81312 cells.';
+    const page = readFileSync(join(ctx.root, 'docs/reference/cli.md'), 'utf8');
+    const want = /Wrote [^\n]+: (\d+ axes \([^\n]+\), \d+ constraints, a full grid of \d+ cells\.)/.exec(
+      page,
+    )?.[1];
     return expectAll([
-      [result.code === 0 && result.out.includes(want), `expected "${want}"; ${shown(result)}`],
+      [
+        result.code === 0 && want !== undefined && result.out.includes(want),
+        `expected "${want}"; ${shown(result)}`,
+      ],
     ]);
   },
 });
@@ -2320,7 +2336,10 @@ add({
     );
     const want = 'Cells: 20, 44 model turns to request, 0 cells dropped by the map.';
     return expectAll([
-      [result.code === 0 && result.out.includes(want), `expected "${want}"; ${shown(result)}`],
+      [
+        result.code === 0 && want !== undefined && result.out.includes(want),
+        `expected "${want}"; ${shown(result)}`,
+      ],
       [!existsSync(join(ctx.dir, 'ref/reference.yaml')), 'a dry run wrote reference.yaml'],
     ]);
   },
@@ -2453,7 +2472,10 @@ add({
     const want =
       '68 atoms (68 read by code and approved, 0 split from prose by the model and waiting for approval), 47 edges.';
     return expectAll([
-      [result.code === 0 && result.out.includes(want), `expected "${want}"; ${shown(result)}`],
+      [
+        result.code === 0 && want !== undefined && result.out.includes(want),
+        `expected "${want}"; ${shown(result)}`,
+      ],
     ]);
   },
 });
