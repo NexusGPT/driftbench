@@ -57,7 +57,7 @@ The ledger has model-dependent fact extraction. Code validates its shape and rej
 
 ## Fresh held-out check
 
-The fact-ledger procedure is frozen before the held-out run. Its label is **fact-ledger procedure (not yet the shipped default)**. The previous shipped contract's hard-set measurement is **111/120**. The separate pointwise-ledger integration in PR 115 governs any production change; this comparison does not modify production judges.
+The fact-ledger procedure is frozen before the held-out run. Its label is **fact-ledger procedure (not yet the shipped default)**. The previous shipped contract's hard-set measurement is **111/120**. PR 115 is merged into main at `6d0898de`, and its default is now the shipped judge; this comparison does not modify production judges.
 
 The new seed 7291 selects profiles 48 through 52 using the same construction families, formulas and reply templates. Seed 481 reproduces the original profiles 0 through 4 byte for byte. The held-out set contains 120 new cases with 60 pass and 60 fail labels. None of its queries, references or replies overlaps the tuning set. `manifest.json` fixes its SHA-256 before any held-out call. Its prompts use the same systems and frozen audit text. Each contestant is called once per case, without tuning or selective retries on held-out answers.
 
@@ -77,7 +77,7 @@ Request digests are stored as `request_sha256`, not credential-like `key` fields
 
 ## Approved default contract follow-up
 
-`PR 115 default` adds a fifth row: 114/120 hard and 116/120 on the original frozen held-out set. Its source is approved commit `8195902dd20c84267f85feba268c17868e00dfbe`. It replaces the shipped contract once PR 115 passes CI. This comparison changes no production code. The experimental fact-ledger procedure remains separate and is not promoted to the default.
+`Shipped judge, PR 115 default` is the fifth row: 114/120 hard and 116/120 on the original frozen held-out set. Its source is approved commit `8195902dd20c84267f85feba268c17868e00dfbe`. [PR 115](https://github.com/achammah/driftbench/pull/115) passes all eight CI checks and is merged into main at `6d0898de`. Its default is now the shipped judge. The measured default is unchanged by the merge apart from the package-scope import rename. This comparison changes no production code. The experimental fact-ledger procedure remains separate and is not promoted to the default.
 
 A fresh worktree starts at that exact commit, with the frozen comparison folder copied into it. Native `buildPrompt` uses the original criterion, transcript and trusted-reference input. No contract, requirement, assessment, fact-audit or system override is supplied. The default therefore checks the original unsplit criterion, with evidence and verdict aggregation in the native requirement-ledger parser. The benchmark's unchanged `run.py` decoding and quote repair precede native `parseJudgeValue`.
 

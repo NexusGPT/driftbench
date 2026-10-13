@@ -93,11 +93,40 @@ export const Role = z
   );
 export type Role = z.infer<typeof Role>;
 
+export const When = z
+  .record(DimensionId, z.array(ValueId).min(1))
+  .describe('The values the entry applies to, per dimension: { coverage_result: [fiber, 5g-only] }.');
+export type When = z.infer<typeof When>;
+
+/** What a rule or a value states beyond its text; every key is optional. */
+export const ValueFields = {
+  polarity: z
+    .enum(['must', 'must_not'])
+    .optional()
+    .describe('Whether the agent must or must not do what a rule says.'),
+  when: When.optional().describe('The cell a rule applies in.'),
+  unless: When.optional().describe('The cell a rule does not hold in.'),
+  limit: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('The most times the action may happen in a conversation.'),
+  within: z
+    .strictObject({ minutes: z.number().positive() })
+    .optional()
+    .describe('The time within which the action happens.'),
+  priority: z.literal('first').optional().describe('The rule comes first when rules collide.'),
+  weight: z.number().min(0).max(1).optional().describe('The share of users the value stands for.'),
+  required: z.boolean().optional().describe('Whether a test plan must include the value.'),
+};
+
 export const ProposalValue = z
   .strictObject({
     id: ValueId,
     title: z.string().min(1).describe('What the value means, in a few words.'),
     evidence: Evidence,
+    ...ValueFields,
     produced_by: Origin,
     approved: Approved.optional().describe(
       "Overrides the dimension's flag for this value. Absent: the value inherits it.",
@@ -184,10 +213,6 @@ export type Slots = z.infer<typeof Slots>;
  * The cell values an entry applies to: per dimension, the values it holds for. Every dimension named must
  * hold one of its listed values; a dimension not named is free.
  */
-export const When = z
-  .record(DimensionId, z.array(ValueId).min(1))
-  .describe('The values the entry applies to, per dimension: { coverage_result: [fiber, 5g-only] }.');
-export type When = z.infer<typeof When>;
 
 export const ProposalPhrase = z
   .strictObject({
@@ -380,6 +405,36 @@ export const ReplyLanguageRelation = z
   .describe('The language every reply is in, whatever the user writes.');
 export type ReplyLanguageRelation = z.infer<typeof ReplyLanguageRelation>;
 
+export const ToolOrderRelation = z
+  .strictObject({
+    kind: z.literal('tool_order'),
+    before: z.string().min(1).describe('The tool called first.'),
+    after: z.string().min(1).describe('The tool called after it.'),
+    ...relationCommon,
+  })
+  .describe('Two tools called in a stated order.');
+export type ToolOrderRelation = z.infer<typeof ToolOrderRelation>;
+
+export const RouteRelation = z
+  .strictObject({
+    kind: z.literal('route'),
+    subject: ValueRef.describe('The rule value that sends a topic to a team.'),
+    to: z.string().min(1).describe('The team the topic goes to.'),
+    ...relationCommon,
+  })
+  .describe('A rule that sends a topic to a team.');
+export type RouteRelation = z.infer<typeof RouteRelation>;
+
+export const ReplyTextRelation = z
+  .strictObject({
+    kind: z.literal('reply_text'),
+    subject: ValueRef.describe('The rule value that fixes the exact words of a reply.'),
+    text: z.string().min(1).describe('The exact words of the reply.'),
+    ...relationCommon,
+  })
+  .describe('A rule that fixes the exact words of a reply.');
+export type ReplyTextRelation = z.infer<typeof ReplyTextRelation>;
+
 export const ProposalRelation = z
   .discriminatedUnion('kind', [
     PathRelation,
@@ -389,6 +444,9 @@ export const ProposalRelation = z
     BindsRelation,
     RecoveryRelation,
     ReplyLanguageRelation,
+    ToolOrderRelation,
+    RouteRelation,
+    ReplyTextRelation,
   ])
   .describe(
     'A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language.',
@@ -402,6 +460,9 @@ export const RELATION_KINDS = [
   'binds',
   'recovery',
   'reply_language',
+  'tool_order',
+  'route',
+  'reply_text',
 ] as const;
 export type RelationKind = (typeof RELATION_KINDS)[number];
 
@@ -601,6 +662,12 @@ export function relationLabel(relation: ProposalRelation): string {
       return `recovery ${relation.class}${relation.tool ? ` of ${relation.tool}` : ''} in ${relation.flows.join(', ')}`;
     case 'reply_language':
       return `${relation.subject.dimension}=${relation.subject.value} sets the reply language ${relation.lang}`;
+    case 'tool_order':
+      return `${relation.before} is called before ${relation.after}`;
+    case 'reply_text':
+      return `${relation.subject.dimension}=${relation.subject.value} fixes the reply text`;
+    case 'route':
+      return `${relation.subject.dimension}=${relation.subject.value} routes to ${relation.to}`;
   }
 }
 
@@ -850,6 +917,14 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
         break;
       case 'binds':
       case 'reply_language':
+        reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
+        break;
+      case 'tool_order':
+        break;
+      case 'reply_text':
+        reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
+        break;
+      case 'route':
         reference(relation.subject.dimension, relation.subject.value, `${path}.subject`);
         break;
       case 'recovery':

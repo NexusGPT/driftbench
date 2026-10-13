@@ -9,6 +9,7 @@ import { type JudgeCheckOptions, judgeCheck } from './check';
 import type { JudgeClient } from './client';
 import type { Budget, JudgeClass, JudgeOutcome, JudgeRequest } from './contract';
 import { normalizeFamily, sameFamily } from './family';
+import { screenData } from './screen';
 
 /**
  * The judge council.
@@ -56,6 +57,8 @@ export type CouncilConfig = {
   readonly judges: readonly JudgeClient[];
   /** The model family of the agent under test. `none` for an agent that is not a model. */
   readonly agentFamily: string;
+  /** The weight of each judge's vote by id; default 1. An outcome wins with more than half of the total weight. */
+  readonly weights?: Readonly<Record<string, number>>;
   /** Rows that override the default assignment, such as the output of calibration. */
   readonly assignment?: readonly AssignmentRow[];
   /** Criteria calibration left unassigned: their verdicts never gate. */
@@ -183,17 +186,44 @@ export function createCouncil(config: CouncilConfig): Council {
       const counter = { errors: 0, cost: 0 };
 
       const own = typeof config.cascade === 'object' ? (config.cascade.thresholds ?? {}) : {};
-      const first = await runRound(request, row.cls, pick(row.judges), 'normal', threshold, counter, own);
+      const first = await runRound(
+        request,
+        row.cls,
+        pick(row.judges),
+        'normal',
+        threshold,
+        counter,
+        own,
+        config.weights,
+      );
       rounds.push(first);
       let decided: CouncilRound | undefined = first.outcome === 'split' ? undefined : first;
       if (!decided && row.rejudge.length > 0) {
         const other = otherClass(row.cls);
-        const second = await runRound(request, other, pick(row.rejudge), 'normal', undefined, counter);
+        const second = await runRound(
+          request,
+          other,
+          pick(row.rejudge),
+          'normal',
+          undefined,
+          counter,
+          {},
+          config.weights,
+        );
         rounds.push(second);
         if (second.outcome !== 'split') decided = second;
       }
       if (!decided) {
-        const last = await runRound(request, row.cls, pick(row.judges), 'large', undefined, counter);
+        const last = await runRound(
+          request,
+          row.cls,
+          pick(row.judges),
+          'large',
+          undefined,
+          counter,
+          {},
+          config.weights,
+        );
         rounds.push(last);
         if (last.outcome !== 'split') decided = last;
       }
@@ -336,6 +366,7 @@ async function runRound(
   threshold: number | undefined,
   counter: { errors: number; cost: number },
   own: Readonly<Record<string, number>> = {},
+  weights?: Readonly<Record<string, number>>,
 ): Promise<CouncilRound> {
   const ordered = [...judges].sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id));
   const votes: Vote[] = [];
@@ -345,7 +376,13 @@ async function runRound(
     const vote = await castVote(request, cheap as JudgeClient, budget, counter);
     votes.push(vote);
     const bar = own[cheap?.id ?? ''] ?? threshold;
-    if (vote.outcome === 'pass' && vote.score !== undefined && vote.score >= bar) {
+    // A request that holds an instruction to the judge never stops at the cheapest judge.
+    if (
+      vote.outcome === 'pass' &&
+      vote.score !== undefined &&
+      vote.score >= bar &&
+      !screenData(request).flagged
+    ) {
       cascaded = true;
     } else {
       votes.push(...(await Promise.all(rest.map((judge) => castVote(request, judge, budget, counter)))));
@@ -353,16 +390,23 @@ async function runRound(
   } else {
     votes.push(...(await Promise.all(ordered.map((judge) => castVote(request, judge, budget, counter)))));
   }
-  const outcome: RoundOutcome = cascaded ? 'pass' : majority(votes, judges.length);
+  const outcome: RoundOutcome = cascaded
+    ? 'pass'
+    : majority(votes, weights === undefined ? {} : { weights: { ...weights } });
   return { cls, budget, votes, outcome, cascaded };
 }
 
-/** The default quorum remains main's three seated judges. Explicit weights retain their opt-in behavior. */
+/** The default quorum remains main's three seated judges. Explicit weights or families opt in to a share of the votes. */
 export function majority(votes: readonly Vote[], seated?: number): RoundOutcome;
-export function majority(votes: readonly Vote[], options: { weights?: Record<string, number> }): RoundOutcome;
 export function majority(
   votes: readonly Vote[],
-  seatedOrOptions: number | { weights?: Record<string, number> } = COUNCIL_SIZE,
+  options: { weights?: Record<string, number>; families?: Record<string, string> },
+): RoundOutcome;
+export function majority(
+  votes: readonly Vote[],
+  seatedOrOptions:
+    | number
+    | { weights?: Record<string, number>; families?: Record<string, string> } = COUNCIL_SIZE,
 ): RoundOutcome {
   if (typeof seatedOrOptions === 'number') {
     const pass = votes.filter((vote) => vote.outcome === 'pass').length;
@@ -373,6 +417,20 @@ export function majority(
     return 'split';
   }
   const options = seatedOrOptions;
+  const { families } = options;
+  if (families !== undefined) {
+    // Votes of one family collapse into one family vote (its own majority, inconclusive on a split), each weighing 1.
+    const groups = new Map<string, Vote[]>();
+    for (const vote of votes) {
+      const key = families[vote.judge] ?? vote.judge;
+      groups.set(key, [...(groups.get(key) ?? []), vote]);
+    }
+    const collapsed = [...groups].map(([judge, own]): Vote => {
+      const outcome = majority(own, {});
+      return { judge, outcome: outcome === 'split' ? 'inconclusive' : outcome };
+    });
+    return majority(collapsed, {});
+  }
   for (const weight of Object.values(options.weights ?? {})) {
     if (!Number.isFinite(weight) || weight < 0)
       throw new RangeError(`a weight must be a finite number, at least 0`);

@@ -43,17 +43,21 @@ describe('the committed reader-cases outputs', () => {
     expect(await readFile(join(CASES, 'approved.yaml'), 'utf8')).toBe(approved.text);
   });
 
-  it('lints to the one planted ambiguity: a bare name two files share, and the file it leaves unnamed', async () => {
+  it('lints cleanly when a shared bare name has one local match', async () => {
     const { map, raw } = await scanCases();
     const result = lintEstate(map, raw);
     expect(
       result.findings
         .filter((finding) => !INFORMATION.has(finding.code))
         .map((finding) => [finding.code, finding.subject]),
-    ).toEqual([
-      ['ORPHAN', '.claude/skills/shipment-tracker/references/notes.md'],
-      ['AMBIGUOUS_REFERENCE', 'reference.shipment-tracker.read-notes-md'],
-    ]);
+    ).toEqual([]);
+    expect(
+      map.atoms.find((atom) => atom.id === 'reference.shipment-tracker.read-notes-md')?.fields,
+    ).toMatchObject({
+      path: '.claude/skills/shipment-tracker/references/notes.md',
+      exists: true,
+      resolvedBy: 'suffix',
+    });
     expect(raw.notes.map((note) => note.file)).toEqual(['.claude/skills/parcel-claims/SKILL.md']);
   });
 });

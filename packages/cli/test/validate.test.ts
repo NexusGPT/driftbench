@@ -2,7 +2,13 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFloors, registeredLadders } from '@agent-nexus/driftbench-validators';
+import {
+  FLOORS_FILE,
+  ladderVersion,
+  readFloors,
+  registeredLadders,
+  writeFloors,
+} from '@agent-nexus/driftbench-validators';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   bankLadder,
@@ -15,6 +21,7 @@ import { USAGE_EXIT, type ValidateDeps, validateCommand } from '../src/commands/
 import { main } from '../src/index';
 import type { Io } from '../src/io';
 import { committedFloorRun } from './support/committed-floor';
+import { parseFloorExample } from './support/floor-example';
 
 const made: string[] = [];
 afterAll(async () => {
@@ -124,15 +131,43 @@ describe('driftbench validate seeds', () => {
   });
 });
 
+/** Expected output comes from the committed floor contract, including historical ladder versions. */
+function expectedFloorsLine(root: string): string {
+  const file = readFloors(root);
+  const registry = registeredLadders();
+  const shown = Object.entries(file.floors).map(([component, floor]) => {
+    const ladder = registry[component];
+    if (!ladder) throw new Error(`floor for unregistered validator ${component}`);
+    const version = file.ladderVersion[component];
+    if (version === undefined || version > ladderVersion(ladder))
+      throw new Error(`floor version ahead of the registered ${component} ladder`);
+    return `${component} = ${floor} (ladder version ${version})`;
+  });
+  return `Floors (${FLOORS_FILE}): ${shown.length ? shown.join(', ') : 'none'}.`;
+}
+
 describe('driftbench validate floors', () => {
-  it('prints the one line that docs/reference/cli.md and docs/validators.md show', async () => {
+  it('prints the committed floors and reproduces each documented floor example', async () => {
     const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
     const out: string[] = [];
     const io: Io = { out: (text) => out.push(text), err: () => undefined, cwd: ROOT };
     expect(await main(['validate', 'floors'], io)).toBe(0);
-    const line = out.join('').trim();
+    const line = expectedFloorsLine(ROOT);
+    expect(out.join('').trim()).toBe(line);
     for (const page of ['docs/reference/cli.md', 'docs/validators.md']) {
-      expect(await readFile(join(ROOT, page), 'utf8'), page).toContain(line);
+      const prefix = `Floors (${FLOORS_FILE}): `;
+      const example = (await readFile(join(ROOT, page), 'utf8'))
+        .split('\n')
+        .find((text) => text.startsWith(prefix));
+      if (!example?.endsWith('.')) throw new Error(`${page}: no floor output example`);
+      const fixture = parseFloorExample(example);
+      const root = await temp();
+      await mkdir(join(root, 'validators'));
+      writeFloors(root, fixture);
+      expect(expectedFloorsLine(root), page).toBe(example);
+      const { io, output } = capture(root);
+      expect(await validateCommand('floors', {}, io, { root, ladders: registeredLadders })).toBe(0);
+      expect(output.out.trim(), page).toBe(example);
     }
   });
 
@@ -317,12 +352,15 @@ describe('driftbench validate through main', () => {
 
   it('runs the registered stats ladder and exits with its level', async () => {
     const result = await run(['validate', 'stats', '--seed', '1']);
-    expect(result.code).toBe(1);
+    const floors = JSON.parse(await readFile(join(ROOT, 'validators/floors.json'), 'utf8')) as {
+      floors: Record<string, number>;
+    };
+    expect(result.code).toBeGreaterThanOrEqual(floors.floors.stats as number);
     expect(result.out).toContain('Validator stats');
     expect(result.out).toMatch(
       /1\s+reference values\s+fixture groups matching scipy and numpy \/ groups\s+>= 1\s+1 pass/,
     );
-    expect(result.out).toContain('Level of the run: 1 of 7, the minimum over 1 seed.');
+    expect(result.out).toContain(`Level of the run: ${result.code} of 7, the minimum over 1 seed.`);
   }, 600_000);
 
   // One test per registered ladder, so each has its own time and a slow ladder is named. The validators
@@ -357,6 +395,9 @@ describe('driftbench validate through main', () => {
   }, 600_000);
 
   it('parses floors --raise <component> <level> and refuses a level below the committed floor', async () => {
+    const stats = registeredLadders().stats;
+    if (!stats) throw new Error('the statistics ladder is not registered');
+    const version = String(ladderVersion(stats));
     const result = await run([
       'validate',
       'floors',
@@ -364,7 +405,7 @@ describe('driftbench validate through main', () => {
       'stats',
       '1',
       '--ladder-version',
-      '1',
+      version,
       '--evidence',
       'validators/stats/HANDOVER.md',
     ]);
@@ -377,15 +418,13 @@ describe('driftbench validate through main', () => {
       'nothing',
       '1',
       '--ladder-version',
-      '1',
+      version,
       '--evidence',
       'x.json',
     ]);
     expect(refused.code).toBe(64);
     expect(refused.err).toContain('No validator is registered for "nothing"');
-    expect((await run(['validate', 'floors'])).out).toMatch(
-      /Floors \(validators\/floors\.json\): judges = \d+ \(ladder version 1\), stats = \d+ \(ladder version 1\)\./,
-    );
+    expect((await run(['validate', 'floors'])).out.trim()).toBe(expectedFloorsLine(ROOT));
   });
 });
 

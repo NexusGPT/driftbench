@@ -11,11 +11,16 @@ import {
   type ProposalDimension,
   RecoveryRelation,
   ReplyLanguageRelation,
+  ReplyTextRelation,
+  Role,
+  RouteRelation,
   Slots,
   type SourceKind,
   StatesRelation,
   TaskFamilyRelation,
+  ToolOrderRelation,
   UsesToolRelation,
+  ValueFields,
   ValueId,
   When,
 } from './proposal';
@@ -56,8 +61,8 @@ Rules:
 {
   "section": "<the section you were asked for>",
   "dimensions": [
-    {"id": "<dimension id>", "title": "<what it varies>", "kind": "<kind>",
-     "values": [{"id": "<value id>", "title": "<what the value means>", "source": "<path>", "quote": "<verbatim text>"}]}
+    {"id": "<dimension id>", "title": "<what it varies>", "kind": "<kind>", "role": "<axis or detail, only when the source declares it>",
+     "values": [{"id": "<value id>", "title": "<what the value means>", "polarity": "<must or must_not, on a rule only>", "when": {"<dimension id>": ["<value id>"]}, "unless": {"<dimension id>": ["<value id>"]}, "limit": 3, "within": {"minutes": 5}, "priority": "first", "weight": <share of users between 0 and 1>, "required": <true when a test plan must include the value>, "source": "<path>", "quote": "<verbatim text>"}]}
   ],
   "constraints": [
     {"forbid": {"<dimension id>": "<value id>", "<other dimension id>": "<value id>"}, "reason": "<why these values never occur together>", "source": "<path>", "quote": "<verbatim text>"}
@@ -66,10 +71,10 @@ Rules:
     {"dimension": "<dimension id>", "value": "<value id>", "text": "<one user message>", "lang": "<language tag such as en>", "when": {"<dimension id>": ["<value id>"]}, "binds": {"<slot>": "<value the text states>"}, "source": "<path, only when the text is copied from a source>", "quote": "<the copied text, only with source>"}
   ],
   "relations": [
-    {"kind": "<path, uses_tool, states, task_family, binds, recovery or reply_language>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
+    {"kind": "<path, uses_tool, states, task_family, binds, recovery, reply_language, tool_order, route or reply_text>", "...": "the keys of that kind, listed in the relations section", "source": "<path>", "quote": "<verbatim text>"}
   ]
 }
-A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
+On a rule, "polarity" says whether the agent must do it or must not do it; leave it out on every other value. On a persona or data value, "required" is true when the source says every test plan must include it; leave it out otherwise. On a kind of customer or other persona value, "weight" is the share of users it stands for, between 0 and 1; leave it out otherwise. On a rule, "priority" is "first" when the source says the rule comes before every other rule; leave it out otherwise. On a rule, "within" gives the minutes within which the action happens; leave it out otherwise. On a rule, "limit" is the most times the action may happen in one conversation; leave it out otherwise. On a rule, "unless" lists the cell values the rule does not hold in ("except on sms"); leave it out otherwise. On a rule, "when" lists the cell values the rule applies in, when the source limits it (a channel, a kind of customer, a stage); leave it out for a rule that holds everywhere. Give a dimension "role" only when a source declares it: "axis" when it says the values make a different kind of conversation, "detail" when it says they can show up inside any conversation; otherwise leave it out. A constraint names values from at least two dimensions, and only when a source states that the combination cannot happen. A phrase may hold {slot} where a value the cell binds goes, such as "It's {email}"; "when" and "binds" are optional. Relations come from the relations section only.`;
 
 const TASKS: Record<Section, string> = {
   stages: `List the stages the agent moves through, and the moves between them that the sources specify.
@@ -92,6 +97,9 @@ Dimensions of kind "data" for data cases and of kind "task" for task settings. T
 - "binds": "subject" (a data or persona value), "slots" ({"<slot>": "<concrete value>"}): the fictional values it stands for.
 - "recovery": "class" (a deviation class), "flows", optional "at" (the stages it is probed at), optional "tool" (the tool that fails, for D8_tool_failure), optional "stage_after" (a stage, or "pending" for the stage the conversation had reached), optional "must", "must_not" (patterns on the reply), "guards" ([{"name", "verdict"}]), "tools" ([{"tool", "count", "input"}]).
 - "reply_language": "subject" (the rule value), "lang" (the language tag every reply is in).
+- "tool_order": "before" (a tool name), "after" (a tool name): the sources say the first is called before the second.
+- "reply_text": "subject" (the rule value), "text" (the exact words of the reply, as the source gives them).
+- "route": "subject" (the rule value), "to" (the team, as the source names it): the rule sends a topic to that team.
 An assertion is a value, or one of {"regex"}, {"contains"}, {"one_of"}, {"subset"}, {"absent": true}, {"nonempty": true}. A string may hold {slot} for a value the cell binds.`,
 };
 
@@ -107,6 +115,9 @@ export type ProposalSoFar = {
  * The request for one section. The first line of the user message names the section, so a recorded answer
  * can be matched to it; the sources follow in full, between markers, without line numbers to copy.
  */
+/** The values of one dimension a request lists: a dimension of thousands of values would outgrow the context. */
+export const LISTED_VALUES = 40;
+
 export function sectionRequest(
   section: Section,
   sources: readonly SourceText[],
@@ -119,7 +130,12 @@ export function sectionRequest(
       ? ['(none yet)']
       : soFar.dimensions.flatMap((dimension) => [
           `- ${dimension.id} (${dimension.kind}): ${dimension.title}`,
-          ...dimension.values.map((value) => `    ${value.id}: ${value.title}`),
+          ...dimension.values.slice(0, LISTED_VALUES).map((value) => `    ${value.id}: ${value.title}`),
+          ...(dimension.values.length > LISTED_VALUES
+            ? [
+                `    ... and ${dimension.values.length - LISTED_VALUES} more values (ids are kept; a repeated value is ignored)`,
+              ]
+            : []),
         ]);
   const user = [
     `SECTION: ${section}`,
@@ -213,12 +229,14 @@ export const AnswerValue = z.strictObject({
   title: z.string({ error: 'the title is missing' }).min(1),
   source: z.string({ error: SOURCE_REQUIRED }).min(1, { error: SOURCE_REQUIRED }),
   quote: z.string({ error: QUOTE_REQUIRED }),
+  ...ValueFields,
 });
 
 export const AnswerDimension = z.strictObject({
   id: DimensionId,
   title: z.string({ error: 'the title is missing' }).min(1),
   kind: DimensionKind,
+  role: Role.optional(),
   values: z.array(z.unknown()),
 });
 
@@ -255,6 +273,9 @@ export const AnswerRelation = z.discriminatedUnion('kind', [
   BindsRelation.omit(strip).extend(answerEvidence),
   RecoveryRelation.omit(strip).extend(answerEvidence),
   ReplyLanguageRelation.omit(strip).extend(answerEvidence),
+  ToolOrderRelation.omit(strip).extend(answerEvidence),
+  RouteRelation.omit(strip).extend(answerEvidence),
+  ReplyTextRelation.omit(strip).extend(answerEvidence),
 ]);
 export type AnswerRelation = z.infer<typeof AnswerRelation>;
 

@@ -1,10 +1,14 @@
 /**
- * Quotes are checked word for word against their source. Two things a copy may change without changing the
- * words are folded first: runs of white space (a quote spans lines and indentation) and typographic quote
- * marks. Everything else, case and punctuation included, must match.
+ * Quotes are checked word for word against their source. Things a copy may change without changing the
+ * words are folded first: runs of white space (a quote spans lines and indentation), typographic quote
+ * marks, accents written composed or decomposed, characters that print nothing (zero-width spaces, soft
+ * hyphens, direction marks) and the backslash that escapes a punctuation mark in markdown. Everything else, case and punctuation included, must match.
  */
 export function foldQuote(text: string): string {
   return text
+    .normalize('NFC')
+    .replace(/[\u200B-\u200F\u2060\uFEFF\u00AD\u202A-\u202E]/g, '')
+    .replace(/\\([!-/:-@[-`{-~])/g, '$1')
     .replace(/[‘’‛′]/g, "'")
     .replace(/[“”‟″]/g, '"')
     .replace(/\s+/g, ' ')

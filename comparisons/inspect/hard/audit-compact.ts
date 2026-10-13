@@ -1,0 +1,34 @@
+import { parseScopedAudit, SCOPED_SYSTEM, scopedPrompt } from './audit-scoped';
+import type { Case } from './generate.mts';
+import type { Outcome, Prompt } from './harness';
+
+const start = SCOPED_SYSTEM.indexOf('Return only JSON with no overall verdict:');
+if (start < 0) throw new Error('Missing frozen scope output contract');
+export const COMPACT_SYSTEM = `${SCOPED_SYSTEM.slice(0, start)}Return only JSON with no overall verdict: {"checks":[["short condition","short exact source substring","brief explanation","s"]]}.
+Each check has exactly four strings: requirement, evidence, reasoning, status, in that order.
+Status is s=satisfied, v=violated, m=missing, u=unknown. Cover every distinct condition without duplicates. Keep condition names and explanations short.
+Evidence must occur in the decoded submission, not its JSON encoding. Never change quote words. Empty evidence is allowed only for missing or unknown. A satisfied prohibition or absence check must cite relevant observed source text; it cannot use an empty quote. The complete supplied scope governs absence.
+Code validates grounding and computes the verdict. An unscored reply may be followed by another identical request, at most three attempts. A conclusive ledger ends the procedure immediately.`;
+
+export function compactPrompt(c: Case): Prompt {
+  return { ...scopedPrompt(c), system: COMPACT_SYSTEM };
+}
+
+export function parseCompactAudit(text: string, submission: string): Outcome {
+  try {
+    const value = JSON.parse(text.replace(/^\s*```(?:json)?\s*/i, '').replace(/\s*```\s*$/, ''));
+    if (!Array.isArray(value.checks) || value.checks.length === 0) return 'inconclusive';
+    const statuses: Record<string, string> = { s: 'satisfied', v: 'violated', m: 'missing', u: 'unknown' };
+    const checks = [];
+    for (const row of value.checks) {
+      if (!Array.isArray(row) || row.length !== 4 || !row.every((v) => typeof v === 'string'))
+        return 'inconclusive';
+      const status = statuses[row[3] as string];
+      if (!status) return 'inconclusive';
+      checks.push({ requirement: row[0], evidence: row[1], reasoning: row[2], status });
+    }
+    return parseScopedAudit(JSON.stringify({ checks }), submission);
+  } catch {
+    return 'inconclusive';
+  }
+}

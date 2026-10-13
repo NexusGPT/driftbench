@@ -99,12 +99,12 @@ describe('the ignore list', () => {
       'skills/synced',
       'archive',
     ]);
-    // The one orphan left is the file a planted ambiguous reference leaves unnamed (cases.test.ts).
+    // The bare notes name resolves within its own skill, so no local reference file stays orphaned.
     expect(
       lintEstate(map, raw)
         .findings.filter((finding) => finding.code === 'ORPHAN')
         .map((finding) => finding.subject),
-    ).toEqual(['.claude/skills/shipment-tracker/references/notes.md']);
+    ).toEqual([]);
     expect(map.ignore).toEqual(['archive']);
   });
 });
@@ -171,12 +171,13 @@ describe('reference bases', () => {
             atom.kind === 'reference' && atom.fields?.exists === false && atom.fields?.external !== true,
         )
         .map((atom) => atom.fields?.candidates),
-    ).toEqual([
-      [
-        '.claude/skills/parcel-claims/references/notes.md',
-        '.claude/skills/shipment-tracker/references/notes.md',
-      ],
-    ]);
+    ).toEqual([]);
+    expect(
+      map.atoms.find((atom) => atom.id === 'reference.shipment-tracker.read-notes-md')?.fields,
+    ).toMatchObject({
+      path: '.claude/skills/shipment-tracker/references/notes.md',
+      exists: true,
+    });
   });
 
   it('marks a reference to a skipped file as found and ignored, not missing', async () => {

@@ -148,7 +148,7 @@ Code reads the inventory and the tools before any model:
 ```
 $ pnpm -s driftbench extract --prompt examples/acme/src/policy.ts --prompt examples/acme/README.md --prompt examples/acme/src/store.ts --inventory examples/acme/inventory.yaml --tools examples/acme/map/tools.yaml --no-model --out _captures/docs3/generating/nomodel/proposal.yaml
 Wrote _captures/docs3/generating/nomodel/proposal.yaml: 29 dimensions, 86 values, 55 constraints, 0 phrases, 7 relations, none approved.
-  Code pre-pass: 29 dimensions, 86 values, 55 constraints, 7 relations.
+  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
   Roles: 3 axes (behaviour, deviation, channel), 26 details; the axes make a full grid of 252 cells.
   No model call: the code pre-pass alone (--no-model).
 Notes:
@@ -170,9 +170,9 @@ Without `--no-model`, the extractor asks a model for the rest, one call per sect
 
 ```
 $ pnpm -s driftbench extract --prompt _captures/docs3/generating/acme/src/policy.ts --prompt _captures/docs3/generating/acme/README.md --prompt _captures/docs3/generating/acme/src/store.ts --inventory _captures/docs3/generating/acme/inventory.yaml --tools _captures/docs3/generating/acme/map/tools.yaml --replay _captures/docs3/generating/acme/map/answers.yaml --out _captures/docs3/generating/acme/map/proposal.yaml
-Wrote _captures/docs3/generating/acme/map/proposal.yaml: 46 dimensions, 177 values, 111 constraints, 51 phrases, 71 relations, none approved.
-  Code pre-pass: 29 dimensions, 86 values, 55 constraints, 7 relations.
-  Roles: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 39 details; the axes make a full grid of 96096 cells.
+Wrote _captures/docs3/generating/acme/map/proposal.yaml: 51 dimensions, 182 values, 111 constraints, 51 phrases, 71 relations, none approved.
+  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
+  Roles: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 44 details; the axes make a full grid of 96096 cells.
   Model lane claude-opus-5-5 as the extract and generate2 lanes, by hand: 6 sections, 6 calls.
     stages     added 37 entries
     rules      added 14 entries
@@ -212,8 +212,8 @@ A dimension has one `approved` flag, which its values inherit; a value may set i
 
 ```
 $ pnpm -s driftbench extract approve _captures/docs3/generating/acme/map/proposal.yaml
-_captures/docs3/generating/acme/map/proposal.yaml: 279 of 279 decisions are open (46 dimensions, 111 constraints, 51 phrases, 71 relations).
-Axes: 7 of 46 dimensions, a full grid of 96096 cells (the space commands accept 250000).
+_captures/docs3/generating/acme/map/proposal.yaml: 284 of 284 decisions are open (51 dimensions, 111 constraints, 51 phrases, 71 relations).
+Axes: 7 of 51 dimensions, a full grid of 96096 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
   dimension   deviation  deviation axis, by code, 10 values: The deviation classes the flows must be perturbed with
@@ -385,17 +385,17 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map _captures/docs3/generating/acme/map/approved.yaml --out _captures/docs3/generating/acme/generated --baseline examples/acme/specs --t 2
-Map acme (../map/approved.yaml), hash b583de68c530: 46 dimensions, 180 values, 457 constraints, 51 approved phrases.
+Map acme (../map/approved.yaml), hash 6d29ed7a7539: 51 dimensions, 185 values, 457 constraints, 51 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           132     675       131           1
-boundary         80     113        13          67
+boundary         85     118        13          72
 deviation        10      52        10           0
 metamorphic      40     172        38           2
 task             34      47        34           0
-cover            13      71        13           0
+cover            13      72        13           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 t-wise: covering array of 132 rows over 5 dimensions, 314 of 314 allowed 2-tuples (100.0%).
@@ -422,7 +422,7 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   coverage.check.in.address=coverage.check.in.address.at-min-length  1 block(s)
   ... 52 more in generate-report.json
 
-Specs with a block the map supports no machine Then for (13), in incomplete/: gen-twise-089, gen-boundary-062, gen-boundary-063, gen-boundary-064, gen-boundary-072, gen-boundary-073, gen-boundary-074, gen-boundary-075, gen-boundary-077, gen-boundary-078, ....
+Specs with a block the map supports no machine Then for (18), in incomplete/: gen-twise-089, gen-boundary-062, gen-boundary-063, gen-boundary-064, gen-boundary-072, gen-boundary-073, gen-boundary-074, gen-boundary-075, gen-boundary-077, gen-boundary-078, ....
   Most frequent reasons:
      2  no approved path says flow=upgrade
      1  it needs coverage_result in no-service; the cell holds none
@@ -432,11 +432,11 @@ Specs with a block the map supports no machine Then for (13), in incomplete/: ge
      1  no approved path needs customer_details=one-of-them
      1  no approved path needs home_plans=no-plan
      1  no approved path needs home_plans=one-plan
-Wrote 322 files to _captures/docs3/generating/acme/generated.
+Wrote 327 files to _captures/docs3/generating/acme/generated.
 exit 1
 ```
 
-The output is identical to the committed `examples/acme/generated`. Exit 1 is the exit for a suite written with incomplete specs: 251 specs are complete (1106 blocks), 70 are incomplete. Complete specs cover all 637 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The output is identical to the committed `examples/acme/generated`. Exit 1 is the exit for a suite written with incomplete specs: 251 specs are complete (1107 blocks), 75 are incomplete. Complete specs cover all 637 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
@@ -533,16 +533,16 @@ A spec runs on its own `target` when that is a `--reference`; else on the first 
 ```
 $ pnpm -s driftbench gate examples/acme/generated/specs --reference function:acme-sales --reference process:acme-ops --route flow:price-sheet=process:acme-ops --faults examples/acme/faults --origin examples/acme/specs --date 2026-10-11 --out _captures/docs3/generating/gated
 Funnel (blocks):
-  1. observed     in 1106  rejected 0      out 1106
-  2. leakage      in 1106  rejected 0      out 1106
-  3. shortcut     in 1106  rejected 6      out 1100  (passed-by-echo 6)
-  4. contrast     in 1100  rejected 0      out 1100
-  5. red_first    in 1100  rejected 0      out 1100
-  6. stability    in 1100  rejected 0      out 1100
-  7. difficulty   in 1100  rejected 0      out 1100
-  8. label_audit  in 1100  marked 21       out 1100  (sampled 21)
-  9. freshness    in 1100  marked 244      out 1100  (sealed-holdout 244)
-Accepted 1100 of 1106 blocks.
+  1. observed     in 1107  rejected 0      out 1107
+  2. leakage      in 1107  rejected 0      out 1107
+  3. shortcut     in 1107  rejected 6      out 1101  (passed-by-echo 6)
+  4. contrast     in 1101  rejected 0      out 1101
+  5. red_first    in 1101  rejected 0      out 1101
+  6. stability    in 1101  rejected 0      out 1101
+  7. difficulty   in 1101  rejected 0      out 1101
+  8. label_audit  in 1101  marked 21       out 1101  (sampled 21)
+  9. freshness    in 1101  marked 240      out 1101  (sealed-holdout 240)
+Accepted 1101 of 1107 blocks.
 Mutation score per fault class (gated suite):
   X1_local: 2/2 killed (100%, 95% CI 34% to 100%)
   X2_contradiction: no scored fault, 1 equivalent excluded
@@ -559,14 +559,14 @@ Wrote 255 files to _captures/docs3/generating/gated.
 exit 0
 ```
 
-Every complete generated block but six passes: 1100 of 1106 blocks in 251 specs, 193 in `specs/` and 58 sealed in `holdout/`. The six rejected blocks are first-turn probes the echo agent passes, because the recovery word the map gives D1 is in the user's own question. 1053 accepted blocks run on the sales agent and 47, the price-sheet task specs, on the ops agent. What kills the faults, from `gate-report.json`:
+Every complete generated block but six passes: 1101 of 1107 blocks in 251 specs, 195 in `specs/` and 56 sealed in `holdout/`. The six rejected blocks are first-turn probes the echo agent passes, because the recovery word the map gives D1 is in the user's own question. 1054 accepted blocks run on the sales agent and 47, the price-sheet task specs, on the ops agent. What kills the faults, from `gate-report.json`:
 
 | Fault | Blocks red |
 |---|---|
-| `x4-wrong-language` | 1053 |
+| `x4-wrong-language` | 1054 |
 | `x3-skips-recap` | 292 |
-| `x1-invents-price` | 155 |
-| `x5-drops-coverage-check` | 115 |
+| `x1-invents-price` | 156 |
+| `x5-drops-coverage-check` | 117 |
 | `d4-order-on-loose-yes` | 61 |
 | `ops-x4-narrates` | 47 |
 | `ops-x5-skips-check` | 47 |
@@ -575,9 +575,9 @@ Every complete generated block but six passes: 1100 of 1106 blocks in 251 specs,
 | `ops-d6-deletes-readme` | 25 |
 | `d8-hides-tool-failure` | 18 |
 | `d6-obeys-instruction` | 15 |
-| `d9-answers-out-of-scope` | 13 |
+| `d9-answers-out-of-scope` | 14 |
 
-Every conversation block reads the reply language the map fixes, so the fault that answers in another language is red on all 1053. The turn that enters the offer states each plan with its monthly price, from the map's `states` relation, so `x1-invents-price` is red on 155 blocks. The price-sheet task specs run on the ops agent through the route, so its four faults are killed: `ops-d6-deletes-readme` by the planted variants, whose workspace holds an instruction in a file. `x2-keeps-first-email` changes no observed field on these specs: no generated conversation corrects an email.
+Every conversation block reads the reply language the map fixes, so the fault that answers in another language is red on all 1054. The turn that enters the offer states each plan with its monthly price, from the map's `states` relation, so `x1-invents-price` is red on 156 blocks. The price-sheet task specs run on the ops agent through the route, so its four faults are killed: `ops-d6-deletes-readme` by the planted variants, whose workspace holds an instruction in a file. `x2-keeps-first-email` changes no observed field on these specs: no generated conversation corrects an email.
 
 The hand-written Acme specs, run as a control, lose 4 of 28 blocks: two to the leakage rule (the phone number to port is already in the Given) and two to the echo agent.
 
