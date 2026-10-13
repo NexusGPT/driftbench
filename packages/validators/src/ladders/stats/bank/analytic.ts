@@ -1,6 +1,6 @@
 import type { Observation } from '@agent-nexus/driftbench-stats';
 import { normal } from '../draw';
-import type { StatsImpl } from '../reference';
+import { REFERENCE_TOLERANCE, type StatsImpl } from '../reference';
 import { attempt, type BankItem, fail, near, ok, show, type Tier } from './item';
 
 /**
@@ -724,6 +724,8 @@ const POPS: Pop[] = [
   { key: 's80-tail10', probs: population(80, 10) },
   { key: 's150-tail3', probs: population(150, 3) },
 ];
+const CHAO1_FORMULA_DESIGNS = new Set(['s20-even.x1.5', 's40-tail5.x1.5', 's80-tail10.x1.5', 's20-even.x3']);
+
 function sample(rng: () => number, probs: number[], n: number): number[] {
   const cum: number[] = [];
   let r = 0;
@@ -744,6 +746,21 @@ const hillTrue = (probs: number[], q: number) =>
   q === 1
     ? Math.exp(-probs.reduce((a, p) => a + p * Math.log(p), 0))
     : probs.reduce((a, p) => a + p ** q, 0) ** (1 / (1 - q));
+
+/**
+ * The finite-sample classic Chao1 pinned by statistics.md's reference-fixture contract.
+ * Chao (1984), Eq. 6, derives the classic richness lower bound; the reference fixtures
+ * retain the (n - 1) / n correction and the zero-doubleton fallback of coverage.ts.
+ * Compute from the input counts, never the implementation's reported frequencies.
+ */
+function classicChao1(counts: readonly number[]): number {
+  const n = counts.reduce((sum, count) => sum + count, 0);
+  const observed = counts.filter((count) => count > 0).length;
+  const f1 = counts.filter((count) => count === 1).length;
+  const f2 = counts.filter((count) => count === 2).length;
+  const unseen = f2 > 0 ? (f1 * f1) / (2 * f2) : (f1 * (f1 - 1)) / 2;
+  return observed + ((n - 1) / n) * unseen;
+}
 
 function unseenItems(): BankItem[] {
   const out: BankItem[] = [];
@@ -792,18 +809,33 @@ function unseenItems(): BankItem[] {
             const n = Math.round(multiple * S);
             let err = 0;
             const draws = 100;
+            if (CHAO1_FORMULA_DESIGNS.has(`${pop.key}.x${multiple}`)) {
+              // These four items used an unsupported 10%-from-truth demand on a lower bound.
+              // Preserve their seeded low-sample inputs, but assert the promised estimator itself.
+              for (let d = 0; d < draws; d += 1) {
+                const counts = sample(rng, pop.probs, n);
+                const want = classicChao1(counts);
+                const got = s.chaoCoverage(counts).chao1;
+                if (!near(got, want, REFERENCE_TOLERANCE))
+                  return fail(
+                    `chaoCoverage(counts).chao1 on draw ${d} from ${pop.key}, counts ${show(counts)}: got ${got}, expected classic Chao1 ${want} from the reference formula (Chao 1984 Eq. 6, finite-sample correction and zero-doubleton fallback); population accuracy is not this contract.`,
+                  );
+              }
+              return ok(`${draws} low-sample draws match classic Chao1`);
+            }
             for (let d = 0; d < draws; d += 1)
               err += Math.abs(s.chaoCoverage(sample(rng, pop.probs, n)).chao1 - S) / S;
             err /= draws;
             return err <= 0.1
               ? ok()
               : fail(
-                  `chaoCoverage(counts).chao1 on ${n} draws (${multiple} times the class count) from ${S} known classes (${pop.key}) misses the true count by ${err} on average over ${draws} samples; section 7 asks for an error below 10 percent when conversations exceed classes. Chao1 is a lower bound: a less biased richness estimate (for example the improved iChao1 or a coverage-adjusted estimator) is the fix.`,
+                  `chaoCoverage(counts).chao1 on ${n} draws (${multiple} times the class count) from ${S} known classes (${pop.key}) misses the true count by ${err} on average over ${draws} samples; this specified planted design asks for average error below 10 percent. Classic Chao1 remains the reference contract; a different richness estimator cannot be substituted into this field.`,
                 );
           },
         ),
-        cause:
-          'chaoCoverage gives a richness estimate more than 10 percent off when the sample sits just above the class count',
+        cause: CHAO1_FORMULA_DESIGNS.has(`${pop.key}.x${multiple}`)
+          ? 'chaoCoverage.chao1 differs from the classic finite-sample reference formula on low-sample counts'
+          : 'chaoCoverage gives a richness estimate more than 10 percent off when the sample sits just above the class count',
       })),
       item(`analytic.unseen.chao1-large.${pop.key}`, 'unseen-known', 3, FILES.coverage, ({ s, rng }) => {
         const counts = sample(rng, pop.probs, 20 * S);

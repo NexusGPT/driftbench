@@ -303,8 +303,14 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^mutant\.agent\.register-reply-length$/, 'check the reply length register so deleting it fails a test'],
   [/^mutant\.agent\.subagent$/, 'test the dispatch so deleting the helper fails it'],
   // Maintenance.
-  [/^maintain\.impact\.[a-z]+-retires-its-tests$/, 'retire a test when its atom under test leaves'],
-  [/^maintain\.impact\.subagent-retires-nothing-else$/, 'keep the tests whose atom under test stayed'],
+  [
+    /^maintain\.impact\.[a-z]+-retires-its-tests$/,
+    'retire a test only when all its metadata atoms leave; regenerate it when other atoms remain',
+  ],
+  [
+    /^maintain\.impact\.subagent-retires-nothing-else$/,
+    'keep tests with remaining metadata atoms and unrelated tests',
+  ],
   [/^maintain\.impact\.addition-touches-nothing$/, 'regenerate nothing for an added rule'],
   [/^maintain\.impact\.spacing-touches-nothing$/, 'compare rules without their spacing'],
   [/^maintain\.impact\.rename-/, 'follow a renamed skill folder by its name'],
