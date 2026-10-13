@@ -278,14 +278,17 @@ export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_
     const head = lines[index];
     const rule = lines[index + 1];
     if (!head || !rule || head.line < fromLine || head.line > toLine) continue;
-    if (!head.text.startsWith('|') || !/^\|?\s*:?-{3,}/.test(rule.text)) continue;
-    const table: Table = { header: cells(head.text), headerLine: head.line, rows: [] };
+    if (!head.text.includes('|')) continue;
+    const header = cells(head.text);
+    const delimiter = cells(rule.text);
+    if (delimiter.length !== header.length || !delimiter.every((cell) => /^:?-{3,}:?$/.test(cell))) continue;
+    const table: Table = { header, headerLine: head.line, rows: [] };
     let next = index + 2;
     for (; next < lines.length; next++) {
       const row = lines[next];
       // A table belongs to the range that holds its header, and runs to its last row: a chunk that ends
       // inside a table must not cut it, and the next chunk never sees its header, so it would lose the rest.
-      if (!row?.text.startsWith('|')) break;
+      if (!row?.text.includes('|')) break;
       table.rows.push({
         line: row.line,
         text: originals[row.line - 1]?.text ?? row.text,

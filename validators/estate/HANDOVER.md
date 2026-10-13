@@ -10,11 +10,11 @@ Continue on `exec/estate-v3`, draft PR 154, in `.worktrees/exec-estate-v2`. Main
 | 1 | 0 |
 <!-- level-table:end -->
 
-Iteration 26: seed 1 passes 955 of 1170 items. The fresh post-main baseline passes 955 of 1170. The supplied last-known count was 956; the old handover records 952. The fresh baseline gains only wide-folder, generate-1000 and generate-2500 timing items over that handover. Timing changes receive no component credit.
+Iteration 27: seed 1 passes 956 of 1170 items. The fresh post-main baseline passes 955 of 1170. The supplied last-known count was 956; the old handover records 952. The fresh baseline gains only wide-folder, generate-1000 and generate-2500 timing items over that handover. Timing changes receive no component credit.
 
-Current capture: `.cache/estate-executor/codex-26.json`. Source stamp and patch: `codex-26-source.json` and `codex-26.patch` in that folder. Captures are local and are not in a fresh clone. The source is held unchanged throughout each measurement.
+Current capture: `.cache/estate-executor/codex-27.json`. Source stamp and patch: `codex-27-source.json` and `codex-27.patch` in that folder. Captures are local and are not in a fresh clone. The source is held unchanged throughout each measurement.
 
-The separate `.cache/estate-executor/codex-26-seeds.json` sweep runs visible seeds 1 to 20 and hidden seed 94381550. It stops at the first failing level. It proves the reader results and level 0 across those seeds, not an all-level bank score across seeds.
+The separate `.cache/estate-executor/codex-27-seeds.json` sweep runs visible seeds 1 to 20 and hidden seed 512967926. It stops at the first failing level. It proves the reader results and level 0 across those seeds, not an all-level bank score across seeds.
 
 | Sweep seed | Level |
 |---|---|
@@ -50,7 +50,7 @@ Seed 1, all levels, from the current capture:
 
 | Level | Passing |
 |---|---|
-| reader | 582/641 |
+| reader | 583/641 |
 | lint | 45/46 |
 | plan | 44/65 |
 | generation | 196/270 |
@@ -66,8 +66,8 @@ Seed 1, all levels, from the current capture:
 | plan.relevance | 20 |
 | gen.complete | 14 |
 | gen.task | 9 |
-| scan.standing | 9 |
 | scan.gates | 8 |
+| scan.standing | 8 |
 | scan.steps | 7 |
 | scan.decoys | 6 |
 | gen.coverage | 5 |
@@ -140,7 +140,6 @@ First failing level, reader, exact unresolved ids:
 - `scan.standing.linked-file`: `packages/estate/src/scan/code.ts`.
 - `scan.standing.slash-command`: `packages/estate/src/scan/code.ts`.
 - `scan.standing.skill-first`: `packages/estate/src/scan/code.ts`.
-- `scan.standing.no-outer-pipes`: `packages/estate/src/scan/code.ts`.
 - `scan.standing.list-item`: `packages/estate/src/scan/code.ts`.
 - `scan.standing.sentence`: `packages/estate/src/scan/code.ts`.
 - `scan.standing.heading-per-skill`: `packages/estate/src/scan/code.ts`.
@@ -163,14 +162,23 @@ Question: Why do recognized gate acts retain prose instead of runtime tool label
 - Sources: docs/adapters/claude-code.md: tool labels for generic acts; packages/estate/src/scan/code.ts: ACT_VERBS and actLabel; packages/estate/test/scan/pilot.test.ts: fixed gate forms.
 - Gains: scan.gates.act-update, scan.gates.act-rename.
 - Losses: scale.generate-1000, scale.generate-2500.
+### Iteration 27
+
+955/1170 to 956/1170.
+
+Question: Why does a routing table without outer pipes lose its routes? The cell splitter already accepts optional borders, but readTables rejects the header and body rows before splitting. Detect a table by its complete delimiter row and matching header width, then accept body rows containing cell separators. Preserve source rows, line numbers, alignment markers, fences and chunk ownership. Six cases fail first and two controls pass; 28 related assertions pass after the change.
+
+- Sources: docs/adapters/claude-code.md: routing tables and check registries; packages/estate/src/scan/text.ts: readTables and cells; packages/estate/test/scan/tables.test.ts: chunk-boundary ownership.
+- Gains: scan.standing.no-outer-pipes.
+- Losses: none.
 
 Older iterations and research remain in the append-only journal. The pre-takeover and previous full sweeps are historical measurements on different source versions, not current branch results.
 
 ## Next actions
 
-1. Fix the borderless markdown-table cause in the largest remaining reader family, scan.standing. The prepared table-borders test is red.
+1. Fix the remaining gate reader cause: more than one fixed-form gate on a line. Preserve source order and provenance.
 2. Re-measure seed 1 and visible plus hidden reader seeds, journal and commit that separate cause.
-3. Re-rank the reader failures. The gate reader still takes only one match per line.
+3. Keep the prepared object-valued registry test for a later separate iteration. It is untracked and red.
 
 ## Pitfalls
 
