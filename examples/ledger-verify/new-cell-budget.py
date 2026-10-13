@@ -9,6 +9,7 @@ def transact(folder,action,token,amount=0,model='',pid=0):
   assert math.isfinite(amount) and amount>=0
   active=s.setdefault('activeCalls',{})
   if action=='try-acquire':
+   assert not s.get('nativeQuotaStopped'), 'Native session quota stopped admissions'
    gate_path=Path(__file__).resolve().parent/'evidence/network-admission.json'
    gate=json.loads(gate_path.read_text()) if gate_path.exists() else {}
    if not gate.get('open') or gate.get('model')!=model or time.time()-gate.get('lastProbeEpoch',0)>75:return dict(acquired=False)
@@ -35,6 +36,7 @@ def transact(folder,action,token,amount=0,model='',pid=0):
   elif action=='settle':
    r=s['reservations'].pop(token);s['spentUsd']+=amount;s['receipts'].append(dict(id=token,model=model,usd=amount,reservedUsd=r['usd']))
    if amount>r['usd']:s['billingStopped']='Provider charge exceeds reservation; inspection required'
+  elif action=='native-quota-stop':s['nativeQuotaStopped']=True
   elif action=='billing-stop':s['billingStopped']='HTTP 402'
   elif action!='status':raise ValueError(action)
   f.seek(0);f.truncate();json.dump(s,f,indent=2);f.write('\n');f.flush()

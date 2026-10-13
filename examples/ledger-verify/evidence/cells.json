@@ -2495,22 +2495,26 @@
       "luna-addendum/state.json": "e7ee3a57c98a7c1073bebd127989b45b0117c048a63e3493d0531097fc5f8ea0",
       "luna-addendum/metrics.json": "7004cb786c920dc5b97783d2032ad4732eab3168dbe009497c4c231df9f4757e",
       "sonnet/evidence/model-amendment.json": "ab0906dbc937581d5d846a1912bf81d2b4b69794ef13c58ceaf475df4d7ae3f4",
-      "sonnet/evidence/runtime-freeze.json": "6367ef409f542628dd5017dabb978ed8811b1890d7f99b73c015492f199659f5",
+      "sonnet/evidence/runtime-freeze.json": "62f5be711d97529d0e9f9a50510d9e5419c2b1888d9eef482a8a36328fab05f0",
       "sonnet/evidence/reporting-freeze.json": "ca936a947292582fcdcbebece33b103f84ab9511aace4ad3ff9fe45665be7592",
       "sonnet/evidence/cost-sample.json": "1c416e1bfd884e17f5f6d6ec024ed1ce6f44417d3b0798b33a8f63d72faba26d",
       "sonnet/evidence/cache-off-amendment.json": "d4f4d057bd41d197b8d69189358882b09d3594f81e6aae0ce8f74a7e4b49b01a",
       "sonnet/evidence/cache-off-cost-selection.json": "cb4dfb0b06dd180ffa0941973fb2e4ff8a9f017e1d6b82b160a2edda5cafe246",
       "sol61/evidence/model-amendment.json": "5112f06d9111c55b8468f4d78e2626284d77ff2415bbd7df3f80520d5945f913",
-      "sol61/evidence/runtime-freeze.json": "35ef2c06561977e03255c8030c6893039e0bd7b5e9d995199236c9fcffbb7e33",
+      "sol61/evidence/runtime-freeze.json": "3a648da29b3c7a6ffe930910258ebea5a506e6a3810a4842435d7db4d5cbf1d2",
       "sol61/evidence/reporting-freeze.json": "5c1387e3fcf96b93710a378990af83b97dac82e971d4a8e39b97e6762dedd685",
       "sonnet/evidence/cache-off-cost-sample.json": "b415b3b1cecef4c287a680d040d331065ad5900924c6f4e8cdb01a90852aaa6b",
       "sonnet/evidence/cap45-activation.json": "09e2e68e7c4b20e5f08a87274d64a9750247ad8b44c5dbbd7a94118d85a4de5e",
       "sonnet/evidence/pilot-projection.json": "37f41ab06e0424b716a6d6e531fceec984c05438973ec7be64a4cf4a72d68ce0",
       "sonnet/evidence/refusal-amendment.json": "a845ddc6626bc8a5201759bbdde6b71a158d0f221b510981c373bcaf47724b31",
-      "sol61/evidence/refusal-amendment.json": "e491b299318ea66f2bf6a55b7eab78ce8812f9c8ebed724b802646983b2f5375"
+      "sol61/evidence/refusal-amendment.json": "e491b299318ea66f2bf6a55b7eab78ce8812f9c8ebed724b802646983b2f5375",
+      "sonnet/evidence/native-quota-amendment.json": "43cc78f59120129d525a9ed53b10f81425b97c79b917effdf2f8d40042efa792",
+      "sonnet/evidence/native-quota-recovery.json": "597f79da24cf9c1109aecdd728e896ccdb282385a9db4b5ae1ef41bd52dbb1d1",
+      "sol61/evidence/cost-sample.json": "115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29",
+      "sol61/evidence/native-quota-amendment.json": "bb43781ed864b81ccb10bc2b71dd4c680403f37770e4c8e444c54cc22151ffe3"
     }
   },
-  "at": "2026-10-13T16:24:08.975229+00:00",
+  "at": "2026-10-13T16:43:56.713647+00:00",
   "cheaterGateAuditFile": "evidence/cheater-gate-audit.json",
   "predeclaredCheaterMarginEstablished": false,
   "lunaFeeReconciliation": {
@@ -8354,15 +8358,15 @@
   },
   "newModelFees": {
     "claude-sonnet-5-5": {
-      "settledUsd": 3.0864260000000012,
+      "settledUsd": 3.242178000000002,
       "unresolvedMaximumUsd": 0,
-      "maximumAccountedUsd": 3.0864260000000012,
+      "maximumAccountedUsd": 3.242178000000002,
       "capUsd": 45
     },
     "gpt-6.1-sol": {
-      "settledUsd": 0,
+      "settledUsd": 0.069661,
       "unresolvedMaximumUsd": 0,
-      "maximumAccountedUsd": 0,
+      "maximumAccountedUsd": 0.069661,
       "capUsd": 25
     }
   },

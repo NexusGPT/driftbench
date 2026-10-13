@@ -37,7 +37,7 @@ def main():
   status=final['status'] if final else progress['status']
   sections.append(f"| {model} | {status} | {gate['costUsd']:.8f} | {gate['projected379UnitsUsd']:.8f} | {settled:.8f} | {held:.8f} | {folder}/ |" if gate else f'| {model} | {status} | pending | pending | {settled:.8f} | {held:.8f} | {folder}/ |')
   original['newModelFees'][model]=dict(settledUsd=settled,unresolvedMaximumUsd=held,maximumAccountedUsd=settled+held,capUsd=cap)
-  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','refusal-amendment.json']:
+  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','refusal-amendment.json','native-quota-amendment.json','native-quota-recovery.json']:
    p=base/'evidence'/name
    if p.exists():original['freeze']['hashes'][f'{folder}/evidence/{name}']=hashlib.sha256(p.read_bytes()).hexdigest()
   if gate:
@@ -50,6 +50,9 @@ def main():
    projection_sections.append('Projection uses the original full Luna request counts, with the highest sampled cascade fee assigned to unsampled stages. It is an estimate, not a measured full-cell cost.\n')
   pilot_gate=base/'evidence/pilot-projection.json'
   if pilot_gate.exists():projection_sections.append(f"Completed 20-item pilot projection for {model}: {read(pilot_gate)['projected379UnitsUsd']:.8f} USD. Calibration fees and holds remain in the hard-cap ledger.\n")
+  quota=base/'evidence/native-quota-recovery.json'
+  if quota.exists():
+   q=read(quota);projection_sections.append(f"Native session quota leaves {q['quotaRequests']} exact requests unanswered, at zero recorded fee. Reset claim: {q['nativeResetClaim']}. Recovery requires a fresh provider health gate and one answered probe; no terminal answer is submitted again.")
   if not final:continue
   assert final['status']=='offline evidence ready for review' and final['complete']
   for path,h in read(base/'evidence/reporting-freeze.json')['sourceHashes'].items():assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==h,path
@@ -106,6 +109,10 @@ def main():
  subprocess.run([sys.executable,str(BASE/'render_report.py'),str(DOSSIER)],cwd=ROOT,check=True)
  result=(BASE/'REPORT.md').read_text()+supplement+'\n'.join(sections)
  result=result.replace('Holm correction belongs to the prespecified 18-cell family and remains pending at this handoff. No local WIN or overall superiority claim is made.','The original three models belong to the prespecified 18-cell family. Flash Lite, Sonnet and Sol are additional cells. Multiplicity adjustment remains pending with the collator. No overall superiority claim is made.')
+ result=result.replace('Settled fees:', 'Original three-model budget, settled fees:')
+ result=result.replace('- The pacing amendment replaces the earlier global four-call limit: gpt-6-luna permits eight HTTP calls, Gemini two, and native Haiku two.', '- Current admission: two calls and one model cell at a time, after ten healthy provider probes spaced 30 seconds apart. Gemini 3.8 remains parked.')
+ result=result.replace('| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |', '| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | owner-only restart |')
+ result=result.replace('| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/10; stopped | pending |', '| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 cascade, 20 peer; 10 quota pending | not run: daily quota, 0/221 each |')
  # Add the requested separate refusal column without changing the frozen renderer or old scores.
  table=False;out=[];lookup={c['model']:c for c in original['cells']}
  for line in result.splitlines():

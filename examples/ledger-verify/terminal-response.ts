@@ -4,3 +4,9 @@ export function nativeRefusal(raw:any):boolean {
   (typeof raw?.refusal==='string'&&raw.refusal.length>0)||
   (raw?.output??[]).some((x:any)=>(x.content??[]).some((c:any)=>c.type==='refusal'));
 }
+
+export function nativeSessionQuota(raw:any):boolean {
+ return raw?.is_error===true&&!nativeRefusal(raw)&&Number(raw?.usage?.output_tokens??0)===0&&
+  !Object.values(raw?.modelUsage??{}).some((v:any)=>Number(v.outputTokens??0)>0)&&
+  /^You've hit your (?:session|usage|weekly|daily) limit/i.test(raw.result??'');
+}

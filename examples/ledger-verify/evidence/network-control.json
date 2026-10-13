@@ -1,1 +1,6 @@
-{"model": "claude-sonnet-5-5", "stop": false, "at": "2026-10-13T16:22:59.199174+00:00", "reason": "Refusal amendment frozen; repeat fresh ten-probe gate"}
+{
+  "model": "claude-sonnet-5-5",
+  "stop": false,
+  "at": "2026-10-13T16:43:04.855733+00:00",
+  "reason": "Sol five-call projection exceeds 25 USD; Sonnet recovery after native reset claim and ten healthy probes"
+}

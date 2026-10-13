@@ -9,7 +9,7 @@ import {createDialectTransport} from '../../packages/judges/src/clients/transpor
 import {schemaFor} from './schemas';
 import {QuotaPending,withQuotaBackoff} from './quota';
 import {responsesCost,responsesFetch} from './responses-adapter';
-import {nativeRefusal} from './terminal-response';
+import {nativeRefusal,nativeSessionQuota} from './terminal-response';
 const root=fileURLToPath(new URL('../..',import.meta.url)),parent=resolve(root,'examples/ledger-verify');
 const args=process.argv.slice(2),value=(flag:string)=>args[args.indexOf(flag)+1];
 const model=value('--model'),system=value('--system-prompt');
@@ -66,7 +66,8 @@ try{
 }catch(error:any){
  await mkdir(resolve(base,'receipts'),{recursive:true});
  if(nativeReceipt&&!raw){try{raw=JSON.parse(await readFile(nativeReceipt,'utf8'));}catch(e:any){if(e.code!=='ENOENT'&&!(e instanceof SyntaxError))throw e;}}
- const message=error instanceof Error?error.message:String(error),billing=error?.status===402,quota=error instanceof QuotaPending;
+ const message=[error instanceof Error?error.message:String(error),typeof raw?.result==='string'?raw.result:''].filter(Boolean).join(': '),billing=error?.status===402,nativeQuota=nativeSessionQuota(raw),quota=error instanceof QuotaPending||nativeQuota;
+ if(nativeQuota)budget('native-quota-stop');
  const cost=typeof raw?.total_cost_usd==='number'?raw.total_cost_usd:raw?.usage&&model==='gpt-6.1-sol'?responsesCost(raw):billing||quota?0:undefined;
  const returned=!!raw&&(nativeRefusal(raw)||Number(raw.usage?.output_tokens??0)>0||Object.values(raw.modelUsage??{}).some((v:any)=>v.outputTokens>0)||(!raw.is_error&&typeof raw.result==='string'&&raw.result.length>0)||(raw.output??[]).some((v:any)=>v.type==='message'&&(v.content??[]).some((c:any)=>c.type==='output_text'&&c.text?.length))); 
  if(billing)budget('billing-stop');

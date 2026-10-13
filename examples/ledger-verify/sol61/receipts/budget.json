@@ -1,0 +1,38 @@
+{
+  "capUsd": 25,
+  "spentUsd": 0.069661,
+  "reservations": {},
+  "receipts": [
+    {
+      "id": "3dd0888f-10e6-4d51-99c6-bcc387469253",
+      "model": "gpt-6.1-sol",
+      "usd": 0.014992,
+      "reservedUsd": 0.34233
+    },
+    {
+      "id": "98a18686-4d0f-4305-8f5e-ca12860b901f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.027466,
+      "reservedUsd": 0.341545
+    },
+    {
+      "id": "660bf509-ff7f-4663-b614-720a7f2d0233",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0066885,
+      "reservedUsd": 0.3555875
+    },
+    {
+      "id": "4bb982b0-0819-4493-bbe7-7f4747ba5123",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0158835,
+      "reservedUsd": 0.38717
+    },
+    {
+      "id": "a9a4c90f-fb10-4d25-b5b1-696a1319ceda",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004631,
+      "reservedUsd": 0.346605
+    }
+  ],
+  "activeCalls": {}
+}

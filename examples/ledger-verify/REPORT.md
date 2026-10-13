@@ -1,6 +1,6 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T16:24:08.975229+00:00.
+Evidence timestamp: 2026-10-13T16:43:56.713647+00:00.
 
 - Branch: research/ledger-verify. Core contract: PR 168 at 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 - All 221 TEST items are sealed. This is a previously evaluated split, not an unseen holdout.
@@ -23,7 +23,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|---|
 | haiku | 164/221, 74.21% [68.06%, 79.53%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | not audited | 2.26% [-2.73%, 7.62%] | 19 / 14 | 0.48685024 | pending | TIE |
 | gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | not audited | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | not audited | pending | pending | pending | pending | TEST pending |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | not audited | pending | pending | pending | pending | owner-only restart |
 | gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | not audited | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 
 ### Strict headline, audited labels
@@ -32,7 +32,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|---|
 | haiku | 185/221, 83.71% [78.27%, 88.00%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | not audited | 2.26% [-2.74%, 7.27%] | 19 / 14 | 0.48685024 | pending | TIE |
 | gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | not audited | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | not audited | pending | pending | pending | pending | TEST pending |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | not audited | pending | pending | pending | pending | owner-only restart |
 | gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | not audited | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 
 ### Product-final sensitivity, official labels
@@ -41,7 +41,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|---|
 | haiku | 168/221, 76.02% [69.97%, 81.17%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | not audited | 4.07% [-0.45%, 9.01%] | 19 / 10 | 0.13604595 | pending | TIE |
 | gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | not audited | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | not audited | pending | pending | pending | pending | TEST pending |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | not audited | pending | pending | pending | pending | owner-only restart |
 | gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | not audited | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 
 ### Product-final sensitivity, audited labels
@@ -50,7 +50,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|---|
 | haiku | 189/221, 85.52% [80.27%, 89.55%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | not audited | 4.07% [-0.46%, 8.68%] | 19 / 10 | 0.13604595 | pending | TIE |
 | gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | not audited | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | not audited | pending | pending | pending | pending | TEST pending |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | not audited | pending | pending | pending | pending | owner-only restart |
 | gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | not audited | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 
 The original three models belong to the prespecified 18-cell family. Flash Lite, Sonnet and Sol are additional cells. Multiplicity adjustment remains pending with the collator. No overall superiority claim is made.
@@ -87,7 +87,7 @@ Constant pass / fail: official 21.27% / 78.73%; audited 23.53% / 76.47%.
 Mutation checks cover planted arithmetic truth only. Thresholds: preserve at least 95%, flip at least 90%, no injection changes or missing verdicts.
 Noise uses 30 DEV items in three separate recording namespaces. A transition to or from a missing verdict counts as a change; missing counts are also reported in evidence/cells.json.
 Cost per 100 uses unique prompt keys; actual provider fees include any duplicate paid calls. Replayed logical-call costs are separate.
-Settled fees: 12.691818 USD. Unresolved-charge maximum: 19.500000 USD. Total accounted maximum: 32.191818 USD, cap 40 USD.
+Original three-model budget, settled fees: 12.691818 USD. Unresolved-charge maximum: 19.500000 USD. Total accounted maximum: 32.191818 USD, cap 40 USD.
 Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay cost is excluded from new spend.
 
 ## Phase coverage
@@ -96,7 +96,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 |---|---|---|---|---|---|---|
 | haiku | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 221 items; missing 0/0 |
 | gpt-6-luna | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 2/2 | 30 items; missing 0/0 | 30 items; missing 0/0 | 221 items; missing 0/0 |
-| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/10; stopped | pending |
+| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 cascade, 20 peer; 10 quota pending | not run: daily quota, 0/221 each |
 | gemini-3.5-flash-lite | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/1 | 30 items; missing 0/0 | 30 items; missing 0/1 | 221 items; missing 5/0 |
 
 ## Freeze and recovery
@@ -106,7 +106,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 - Original pilot runtime b4e4305a2426e0bb7589 is preserved. The plugin crash leaves five unknown-charge reservations totaling 3 USD.
 - Subsequent 180-second API timeouts and a 240-second Haiku timeout are preserved in pilot partial reports and error receipts.
 - The owner authorizes one resume of missing transport outputs for all models at 300 seconds. Returned answers are never retried.
-- The pacing amendment replaces the earlier global four-call limit: gpt-6-luna permits eight HTTP calls, Gemini two, and native Haiku two.
+- Current admission: two calls and one model cell at a time, after ten healthy provider probes spaced 30 seconds apart. Gemini 3.8 remains parked.
 - Both API models use medium. Haiku uses claude-haiku-5-5 through local Claude processes.
 - The outer process envelope includes queueing and quota backoff. Execution-only changes are recorded in evidence/execution-amendment.json.
 - HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota remains pending transport, never a judge failure.
@@ -159,19 +159,23 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | luna-addendum/state.json | e7ee3a57c98a7c1073bebd127989b45b0117c048a63e3493d0531097fc5f8ea0 |
 | luna-addendum/metrics.json | 7004cb786c920dc5b97783d2032ad4732eab3168dbe009497c4c231df9f4757e |
 | sonnet/evidence/model-amendment.json | ab0906dbc937581d5d846a1912bf81d2b4b69794ef13c58ceaf475df4d7ae3f4 |
-| sonnet/evidence/runtime-freeze.json | 6367ef409f542628dd5017dabb978ed8811b1890d7f99b73c015492f199659f5 |
+| sonnet/evidence/runtime-freeze.json | 62f5be711d97529d0e9f9a50510d9e5419c2b1888d9eef482a8a36328fab05f0 |
 | sonnet/evidence/reporting-freeze.json | ca936a947292582fcdcbebece33b103f84ab9511aace4ad3ff9fe45665be7592 |
 | sonnet/evidence/cost-sample.json | 1c416e1bfd884e17f5f6d6ec024ed1ce6f44417d3b0798b33a8f63d72faba26d |
 | sonnet/evidence/cache-off-amendment.json | d4f4d057bd41d197b8d69189358882b09d3594f81e6aae0ce8f74a7e4b49b01a |
 | sonnet/evidence/cache-off-cost-selection.json | cb4dfb0b06dd180ffa0941973fb2e4ff8a9f017e1d6b82b160a2edda5cafe246 |
 | sol61/evidence/model-amendment.json | 5112f06d9111c55b8468f4d78e2626284d77ff2415bbd7df3f80520d5945f913 |
-| sol61/evidence/runtime-freeze.json | 35ef2c06561977e03255c8030c6893039e0bd7b5e9d995199236c9fcffbb7e33 |
+| sol61/evidence/runtime-freeze.json | 3a648da29b3c7a6ffe930910258ebea5a506e6a3810a4842435d7db4d5cbf1d2 |
 | sol61/evidence/reporting-freeze.json | 5c1387e3fcf96b93710a378990af83b97dac82e971d4a8e39b97e6762dedd685 |
 | sonnet/evidence/cache-off-cost-sample.json | b415b3b1cecef4c287a680d040d331065ad5900924c6f4e8cdb01a90852aaa6b |
 | sonnet/evidence/cap45-activation.json | 09e2e68e7c4b20e5f08a87274d64a9750247ad8b44c5dbbd7a94118d85a4de5e |
 | sonnet/evidence/pilot-projection.json | 37f41ab06e0424b716a6d6e531fceec984c05438973ec7be64a4cf4a72d68ce0 |
 | sonnet/evidence/refusal-amendment.json | a845ddc6626bc8a5201759bbdde6b71a158d0f221b510981c373bcaf47724b31 |
 | sol61/evidence/refusal-amendment.json | e491b299318ea66f2bf6a55b7eab78ce8812f9c8ebed724b802646983b2f5375 |
+| sonnet/evidence/native-quota-amendment.json | 43cc78f59120129d525a9ed53b10f81425b97c79b917effdf2f8d40042efa792 |
+| sonnet/evidence/native-quota-recovery.json | 597f79da24cf9c1109aecdd728e896ccdb282385a9db4b5ae1ef41bd52dbb1d1 |
+| sol61/evidence/cost-sample.json | 115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29 |
+| sol61/evidence/native-quota-amendment.json | bb43781ed864b81ccb10bc2b71dd4c680403f37770e4c8e444c54cc22151ffe3 |
 
 Active runtime id: d49a333a9d4e6dd0ffd6. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.
@@ -281,8 +285,8 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 
 | Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Unknown holds USD | Evidence folder |
 |---|---|---|---|---|---|---|
-| claude-sonnet-5-5 | running | 0.06976800 | 29.08003000 | 3.08642600 | 0.00000000 | sonnet/ |
-| gpt-6.1-sol | waiting for Haiku, its authorized recovery and Flash Lite | pending | pending | 0.00000000 | 0.00000000 | sol61/ |
+| claude-sonnet-5-5 | paused: native session quota | 0.06976800 | 29.08003000 | 3.24217800 | 0.00000000 | sonnet/ |
+| gpt-6.1-sol | paused: cost projection exceeds 25 USD | 0.06966100 | 36.19988950 | 0.06966100 | 0.00000000 | sol61/ |
 
 claude-sonnet-5-5 cost projection breakdown:
 
@@ -302,6 +306,24 @@ Additional conservative allowance: all calibration fees 0.20361400 USD plus hold
 Projection uses the original full Luna request counts, with the highest sampled cascade fee assigned to unsampled stages. It is an estimate, not a measured full-cell cost.
 
 Completed 20-item pilot projection for claude-sonnet-5-5: 42.47418890 USD. Calibration fees and holds remain in the hard-cap ledger.
+
+Native session quota leaves 159 exact requests unanswered, at zero recorded fee. Reset claim: 2026-10-13T16:50:00Z. Recovery requires a fresh provider health gate and one answered probe; no terminal answer is submitted again.
+
+gpt-6.1-sol cost projection breakdown:
+
+| Contestant | Stage | Reference requests | Measured unit USD | Projected USD |
+|---|---|---|---|---|
+| driftbench-verify-uncertainty-cascade | blind-algebra | 340 | 0.02746600 | 9.33844000 |
+| driftbench-verify-uncertainty-cascade | blind-direct-program | 340 | 0.02746600 | 9.33844000 |
+| driftbench-verify-uncertainty-cascade | final-step | 102 | 0.02746600 | 2.80153200 |
+| driftbench-verify-uncertainty-cascade | program | 352 | 0.01499200 | 5.27718400 |
+| driftbench-verify-uncertainty-cascade | quoted-extract | 114 | 0.02746600 | 3.13112400 |
+| driftbench-verify-uncertainty-cascade | single | 359 | 0.00668850 | 2.40117150 |
+| driftbench-verify-uncertainty-cascade | single-review | 5 | 0.02746600 | 0.13733000 |
+| promptfoo | single | 368 | 0.01025725 | 3.77466800 |
+
+Five-call measured cost by contestant: cascade 0.04914650 USD; promptfoo 0.02051450 USD.
+Projection uses the original full Luna request counts, with the highest sampled cascade fee assigned to unsampled stages. It is an estimate, not a measured full-cell cost.
 
 
 | Model | Contestant | Constant-fail official / audited | TEST unique-key cost USD | All-phase attributed settled USD | TEST strict missing / product-final missing | TEST output-limit answers | TEST refusal responses | TEST refused items |

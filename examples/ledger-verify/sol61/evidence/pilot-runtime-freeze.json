@@ -141,9 +141,9 @@
     "examples/ledger-verify/pacing.py": "248ee9149371c28c53a82fdf017ef6d313f509ba3161e5f7622b7034f8778416",
     "examples/ledger-verify/test_pacing.py": "efbe31fced8d16f373cb147008b9f9576c164bca20db3786051f94606be6fb33",
     "examples/ledger-verify/new-cell-run.ts": "0bfae9258b44c938203a6bf57a269e756b89b437ea3adc1215d7b91afe651855",
-    "examples/ledger-verify/new-cell-transport.ts": "4bd1b9d56614a35210cfe08c5f7cc4348a693f73b5558ea4758452f89b509b0a",
+    "examples/ledger-verify/new-cell-transport.ts": "56a43670abe327803991858ceb9baf3e710c5d34e316055b7c73eb63fb5b632c",
     "examples/ledger-verify/new-cell-transport.sh": "082fab76eda59dca529c9be30de08321dde8ddffb80d2ebb185158391b92248f",
-    "examples/ledger-verify/new-cell-budget.py": "35b421d27ff0bd6c642d574c47ec80edb8dd5d69e0859969c36781f89d82baa0",
+    "examples/ledger-verify/new-cell-budget.py": "3c4b2b67764f5f0c155493f72cbe6eb8b26fce79096ee3a710548d4a77fed08f",
     "examples/ledger-verify/responses-adapter.ts": "56150dcbb6628935ad3864df6e9e8e201c64ba5fcb573971fc2798557a734181",
     "examples/ledger-verify/new-cell-supervise.py": "161a66917c850b4de072f3aa408a02759a4ae7bf8123a4fd65c8a04dff7267fb",
     "examples/ledger-verify/transport-retry.py": "8a802f51c092288dbeb45d6f2241af57db51b25d2217938a8fc25fcbe668e390",
@@ -152,7 +152,7 @@
     "examples/ledger-verify/remeasure-sonnet.py": "296b78441b6f5ca1ec076d8e227c650b14d246b8437526bb0647a4e734f972d0",
     "examples/ledger-verify/prepare-sonnet-remeasure.ts": "2b801030cb32d3b3b6c816f35e311f12a4a16f29e708fc2d500504a38e436324",
     "examples/ledger-verify/finish-new-cell.py": "0e61b190e5e579c9a889b692d35e4092cdea730d790b990af45943456b86650e",
-    "examples/ledger-verify/terminal-response.ts": "1e4310c7b0c8a7d4ae059bf5cc82182a9965c26fb05c7224e1dc47b6ed45a31b"
+    "examples/ledger-verify/terminal-response.ts": "855e6707dd8f9ebc73e3205ca1a567233061a60f6c15e28fc8dead8c702a2b2a"
   },
   "pricesPerMillion": {
     "gpt-6-luna": {
