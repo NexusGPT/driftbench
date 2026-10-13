@@ -128,7 +128,13 @@ function ledgerSchema(schema: Record<string, unknown> | undefined, openApi = fal
   const fields = row?.properties as Record<string, Record<string, unknown>> | undefined;
   const required = row?.required as string[] | undefined;
   const alternatives = (field: Record<string, unknown> | undefined, type: string) => {
-    if (openApi) return field?.type === type && field.nullable === true;
+    if (openApi) {
+      // Evidence may be a string or a list of source spans (PR 146): either way the field is nullable, not typed null.
+      const members = field?.anyOf as Record<string, unknown>[] | undefined;
+      return (
+        field?.nullable === true && (field.type === type || members?.some((m) => m.type === type) === true)
+      );
+    }
     const types = field?.type;
     if (Array.isArray(types)) return types.includes(type) && types.includes('null');
     const variants = field?.anyOf as Record<string, unknown>[] | undefined;
