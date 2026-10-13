@@ -10,7 +10,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 5 |
 <!-- level-table:end -->
 
-The bank holds 2033 items in 26 families and 22 levels. Its latest completed bank measurement is row 17, at 2026-10-13T01:29:28Z on source `4d94b132`: seed 1 reaches level 5 with 1551 of 2033 items passing. This is the pre-change baseline. The options A and B sweep is running on source `8359f453`, including the composed-report repair. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records partial results and current test limitations until the full bank row is available.
+The fresh options A and B measurement reaches level 5 on seed 1. Levels 1 through 5 pass; level 6 passes 19 of 22 items. This stop-at-first-failure run measures 145 of 148 items passing, not the full bank score. Evidence: [seed-1 level report](evidence/options-ab-seed-1-level.json), source code `8359f453`. The full bank holds 2033 items in 26 families and 22 levels; its 21-seed sweep remains active. Row 17 (1551 of 2033 on source `4d94b132`) is the pre-change full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the partial measurement and test limitations until the full bank row is available.
 
 ## Floor
 
@@ -18,7 +18,14 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The l
 
 ## Open items
 
-The following list is historical, measured before options A and B. The new sweep is running at source commit `8359f453`.
+Fresh seed-1 level-6 failures on source `8359f453`:
+- `gate.shortcut.passed-by-first-tool`: 8 boundary blocks remain vulnerable to the first-tool shortcut.
+- `gate.contrast.then-ignores-edit`: 30 boundary blocks have a Then that ignores the edited value.
+- `gate.accepted.boundary`: 54 of 72 boundary blocks pass the gate, below its 0.9 threshold.
+
+### Historical findings before options A and B
+
+The following list is historical. The full new sweep is still running.
 
 Failing items per family on seed 1 after row 14: fault-code 20, fault-drift 9, fault-deviation 1, modes 47, perturbation 3, coverage 9, minimality 53, interaction-pair 286, interaction-triple 11, stability 6, scale 11, sequence 2, allocation 4, contrast 4, phrases 3, behaviours 1, adequacy 18, gate 8 (after row 16: gate 4, scale 1). Report, boundary and paths are at 0.
 
