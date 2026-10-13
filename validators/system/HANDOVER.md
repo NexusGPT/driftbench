@@ -16,7 +16,9 @@ Iteration 6, source 5b628263: seed 1 stays level 7, with 2361/2384 passing (scor
 
 Latest committed measurement, iteration 7 source 796124a5: seed 1 stays level 7, 2361/2384 (score 0.9903523489932886), 1 of 21. Free-running growth is 25.3 against 25. The numeric-ref fix passes all 16 targeted registry tests and the unchanged seed-4 dataset/ref-forms item; no whole seed-4 result at this source is claimed.
 
-Main bace403d is now merged as 5bdb54b7, including newer stats code and Acme fixtures. That merged source has not yet been remeasured. The accepted iteration-7 figures above are stamped 796124a5 and must not be described as a result for this newer head.
+Post-main bace403d measurement at committed source 67f2ad09: seed 1 stays level 7, 2360/2384 (score 0.9899328859060402), 1 of 21. Its 22 stale expectations remain, with teacher-forced growth 31.4 and replay growth 30.3 against 25; free-running passes. This is a new source, not an extrapolation from iteration 7. Iteration 8 measures that registration candidate below.
+
+Latest committed measurement, iteration 8 source f4f70544: seed 1 stays level 7, 2360/2384 (score 0.9899328859060402), 1 of 21. Teacher-forced growth is 26.8 and replay growth 25.5 against 25; free-running passes. The registration fix removes the deterministic repeated template writes but does not clear either growth item.
 
 ## Floor
 
@@ -24,7 +26,7 @@ This branch now includes the system v5 floor of 7 from main PR 143. Main c43c8e9
 
 ## Open items
 
-The current seed-1 report has 22 stale item expectations and one free-running scale failure. Across the five-seed stage, free-running growth fails seed 3 at 30.5 and teacher-forced growth fails seed 4 at 38.6, against the unchanged bound of 25. That earlier seed 4 also fails claim/cli/dataset/ref-forms for numeric hash prefix 456042; iteration 7 fixes the cause and passes its targeted item. Replay growth passes all five completed seeds. The committed bank includes the five maintainer estate-item rewrites. The original baseline census is two real and 27 stale failures.
+The current seed-1 report has 22 stale expectations and two scale failures: teacher-forced and replay growth. Across the five-seed stage, free-running growth fails seed 3 at 30.5 and teacher-forced growth fails seed 4 at 38.6, against the unchanged bound of 25. That earlier seed 4 also fails claim/cli/dataset/ref-forms for numeric hash prefix 456042; iteration 7 fixes the cause and passes its targeted item. Replay growth passes all five completed seeds. The committed bank includes the five maintainer estate-item rewrites. The original baseline census is two real and 27 stale failures.
 
 Stale expectations cover the report's two rate intervals, four MDE assertions, extract proposal validation and map counts, select and holdout fixture counts, four mixed-suite golden comparisons and the pilot example totals. The executor does not edit any of them. The bank maintainer re-derives each assertion from current code or docs and retains its strength.
 
@@ -80,7 +82,7 @@ The unchanged bank is packages/validators/src/ladders/system/bank. Its manifest 
 
 ## Local work, not pushed
 
-No uncommitted paths remain after this handover commit. Before every later handover push, compare this inventory with the complete git status, including source, tests, research and untracked files. Each remaining path must be marked local, not pushed.
+No uncommitted paths remain after this handover commit. Before each later handover push, compare the complete git status with this inventory and mark every remaining path local, not pushed.
 
 ## Pull requests, as of
 

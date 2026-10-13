@@ -116,3 +116,16 @@ Finding: the digit-only branch returns immediately after a missing version-numbe
 Mechanism committed as 796124a5: preserve existing version-number priority and short or overlong missing-number behavior; let unmatched six-to-64 digit refs continue to the existing hash-prefix lookup. Ambiguity retains INVALID_RECORD and the existing diagnostic. No bank edit.
 
 Whole seed 1 stays level 7 and 2361/2384, 1 of 21 at this source. Free-running growth remains 25.3 against 25. The unchanged seed-4 dataset/ref-forms item passes its targeted check, which does not count as a complete seed. All 16 targeted registry cases pass.
+
+
+## 2026-10-13: repeated immutable template registration
+
+Question: does marking each resolved prefix rewrite metadata that earlier immutable messages already own?
+
+Sources: packages/core/src/contracts/history.ts immutableHistorySource and messageTemplate; packages/core/src/runner/given.ts resolveGiven; docs/adapters/index.md explicit immutable ownership; system-measurements/iter6-current-history.cpuprofile.
+
+Finding: the current post-main seed-1 bank has teacher-forced growth 31.4 and replay growth 30.3 against 25; free-running passes. Two red-first registration tests observe 400 repeated template writes for an identical 400-message prefix and a rewrite of the old message when one new message is appended. The marker writes a template even when messageTemplate returns an already-known immutable template.
+
+Mechanism committed as f4f70544: skip template registration for messages already present in the immutable-template WeakMap. This leaves the array marker, new-message registration and snapshot semantics unchanged. Three registration cases pass after the one-line fix, including replacement and same-array append; all 49 selected history, adapter and growth checks pass, with two existing skips. Whole-bank growth remains unaccepted until measured.
+
+The whole seed-1 measurement remains level 7 and 2360/2384, 1 of 21. Teacher-forced growth is 26.8 and replay growth 25.5 against 25; free-running passes. No growth item is cleared by this iteration.
