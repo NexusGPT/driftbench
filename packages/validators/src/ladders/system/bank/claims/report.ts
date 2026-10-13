@@ -2472,6 +2472,43 @@ function cliItems(): BankItem[] {
   ];
 }
 
+/**
+ * The numbers examples/acme/reports/README.md states under "What they show", read from the page: the items below
+ * hold the committed scorecards to them, so a number wrong in the page fails as surely as one wrong in a file.
+ */
+export function readmeClaims(root: string): {
+  runs?: number;
+  regressed?: number;
+  goldens?: number;
+  pBelow?: boolean;
+  p?: number;
+  flagged?: number;
+  faultFails?: number;
+  faultRuns?: number;
+} {
+  const text = readFileSync(join(root, EXAMPLES), 'utf8');
+  const runs = /The Acme agents pass all (\d+) runs\./.exec(text);
+  const paired =
+    /(\d+) of (\d+) paired goldens regressed and none improved, McNemar exact p (=|below) ([0-9.]+),/.exec(
+      text,
+    );
+  const flagged = /a new `forbidden` or `safety` flag on (\d+) goldens\./.exec(text);
+  const faults = /The fault campaign fails (\d+) of its (\d+) runs\./.exec(text);
+  return {
+    ...(runs ? { runs: Number(runs[1]) } : {}),
+    ...(paired
+      ? {
+          regressed: Number(paired[1]),
+          goldens: Number(paired[2]),
+          pBelow: paired[3] === 'below',
+          p: Number(paired[4]),
+        }
+      : {}),
+    ...(flagged ? { flagged: Number(flagged[1]) } : {}),
+    ...(faults ? { faultFails: Number(faults[1]), faultRuns: Number(faults[2]) } : {}),
+  };
+}
+
 function examplesItems(): BankItem[] {
   const read = (root: string, file: string) =>
     readFileSync(join(root, 'examples/acme/reports', file), 'utf8');
@@ -2481,20 +2518,22 @@ function examplesItems(): BankItem[] {
       'claim-report',
       1,
       EXAMPLES,
-      'acme-junit.xml shows the claim "The Acme agents pass all 75 runs": 75 test cases, no failure, no error',
-      'examples/acme/reports holds an acme-junit.xml written from a campaign whose 75 runs all pass.',
+      'acme-junit.xml shows the claim "The Acme agents pass all N runs" of the README: N test cases, no failure, no error',
+      'examples/acme/reports holds an acme-junit.xml written from a campaign whose runs, as many as the README states, all pass.',
       (_fx, { root }) => {
+        const { runs } = readmeClaims(root);
+        if (runs === undefined) return 'the README states no "The Acme agents pass all N runs."';
         const xml = read(root, 'acme-junit.xml');
         const tag = /<testsuites[^>]*>/.exec(xml)?.[0] ?? '';
         const cases = (xml.match(/<testcase /g) ?? []).length;
         const failures = (xml.match(/<failure /g) ?? []).length + (xml.match(/<error /g) ?? []).length;
-        return tag.includes('tests="75"') &&
+        return tag.includes(`tests="${runs}"`) &&
           tag.includes('failures="0"') &&
           tag.includes('errors="0"') &&
-          cases === 75 &&
+          cases === runs &&
           failures === 0
           ? undefined
-          : `testsuites ${tag}, ${cases} cases, ${failures} failures or errors`;
+          : `the README states ${runs} runs; testsuites ${tag}, ${cases} cases, ${failures} failures or errors`;
       },
     ),
     item(
@@ -2502,9 +2541,12 @@ function examplesItems(): BankItem[] {
       'report-brute-force',
       2,
       EXAMPLES,
-      'acme-faults.html shows "15 of 25 paired goldens regressed and none improved, McNemar exact p below 0.0001" (README)',
-      'examples/acme/reports holds an acme-faults.html whose compare section shows 15 regressed, 0 improved over 25 goldens and p < 0.0001.',
+      'acme-faults.html shows the README\'s "R of G paired goldens regressed and none improved, McNemar exact p" and the p recomputed here agrees',
+      'examples/acme/reports holds an acme-faults.html whose compare section shows the regressed and paired goldens and the exact p the README states.',
       (_fx, { root }) => {
+        const claim = readmeClaims(root);
+        if (claim.regressed === undefined || claim.goldens === undefined || claim.p === undefined)
+          return 'the README states no "R of G paired goldens regressed and none improved, McNemar exact p ..."';
         const html = read(root, 'acme-faults.html');
         const m =
           /Paired goldens: (\d+) pass in both, (\d+) regressed \(baseline passes, candidate fails\), (\d+) improved, (\d+) fail in both\./.exec(
@@ -2518,14 +2560,18 @@ function examplesItems(): BankItem[] {
           number,
         ];
         const p = stats.mcnemar(regressed, improved, { exact: true }).pValue;
-        const printed = html.includes('McNemar exact on the discordant goldens: p = &lt; 0.0001.');
-        return regressed === 15 &&
+        // "p = 0.0001" is the exact p to four decimals; "p below 0.0001" is a bound.
+        const agrees = claim.pBelow ? p < claim.p : Math.abs(p - claim.p) < 0.00005;
+        const printed = html.includes(
+          `McNemar exact on the discordant goldens: p = ${claim.pBelow ? '&lt; ' : ''}${claim.p}.`,
+        );
+        return regressed === claim.regressed &&
           improved === 0 &&
-          both + regressed + improved + bothFail === 25 &&
-          p < 0.0001 &&
+          both + regressed + improved + bothFail === claim.goldens &&
+          agrees &&
           printed
           ? undefined
-          : `paired ${m.slice(1).join(', ')}, recomputed p ${p}, printed below 0.0001 ${printed}`;
+          : `the README states ${claim.regressed} of ${claim.goldens} and p ${claim.pBelow ? 'below' : '='} ${claim.p}; paired ${m.slice(1).join(', ')}, recomputed p ${p}, printed as stated ${printed}`;
       },
     ),
     item(
@@ -2533,9 +2579,12 @@ function examplesItems(): BankItem[] {
       'claim-report',
       3,
       EXAMPLES,
-      'acme-faults.html lists a new forbidden or safety flag on 15 goldens (README)',
-      'examples/acme/reports holds an acme-faults.html whose new gating flag table names 15 goldens with forbidden or safety.',
+      'acme-faults.html lists a new forbidden or safety flag on as many goldens as the README states',
+      'examples/acme/reports holds an acme-faults.html whose new gating flag table names the goldens with forbidden or safety the README counts.',
       (_fx, { root }) => {
+        const { flagged } = readmeClaims(root);
+        if (flagged === undefined)
+          return 'the README states no "a new `forbidden` or `safety` flag on N goldens."';
         const html = read(root, 'acme-faults.html');
         const start = html.indexOf('<caption>New gating flags');
         const end = html.indexOf('</table>', start);
@@ -2548,9 +2597,9 @@ function examplesItems(): BankItem[] {
         const goldens = new Set(
           rows.filter((row) => row[2] === 'forbidden' || row[2] === 'safety').map((row) => row[1]),
         );
-        return goldens.size === 15
+        return goldens.size === flagged
           ? undefined
-          : `${goldens.size} goldens carry a forbidden or safety flag, expected 15`;
+          : `${goldens.size} goldens carry a forbidden or safety flag, the README states ${flagged}`;
       },
     ),
     item(

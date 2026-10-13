@@ -11,6 +11,7 @@ import { AUTO_MARGIN_WARN } from '@agent-nexus/driftbench-report';
 import { nonInferiority } from '@agent-nexus/driftbench-stats';
 import { gateContract, goldenContract, goldenCount } from '../current-contracts';
 import { type BankItem, expectAll, fail, type Tier } from '../types';
+import { readmeClaims } from './report';
 
 // ---------------------------------------------------------------------------------------------------------
 // The command line, in process.
@@ -2623,13 +2624,18 @@ add(
   10,
   'contract',
   'docs/scorecards.md',
-  'examples/acme/reports/README.md "What they show" (the Acme agents pass all 75 runs)',
-  'the committed Acme JUnit holds 75 testcases and no failure, the faults one 75 testcases and 45 failures, each total equal to its suites',
+  'examples/acme/reports/README.md "What they show" (the Acme agents pass all N runs; the fault campaign fails F of its N runs)',
+  'the committed Acme JUnit holds the testcases the README states and no failure, the faults one the testcases and failures the README states, each total equal to its suites',
   async (ctx) => {
     const bad: string[] = [];
+    const claim = readmeClaims(ctx.root);
+    if (claim.runs === undefined || claim.faultFails === undefined || claim.faultRuns === undefined)
+      return fail(
+        'the README states no run count for the Acme campaign or no failing count for the fault campaign',
+      );
     for (const [f, tests, fails] of [
-      ['acme-junit.xml', 75, 0],
-      ['acme-faults-junit.xml', 75, 45],
+      ['acme-junit.xml', claim.runs, 0],
+      ['acme-faults-junit.xml', claim.faultRuns, claim.faultFails],
     ] as const) {
       const xml = readFileSync(join(ctx.root, 'examples/acme/reports', f), 'utf8');
       const head = /<testsuites [^>]*tests="(\d+)" failures="(\d+)"/.exec(xml);
