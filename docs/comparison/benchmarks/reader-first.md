@@ -4,7 +4,7 @@ An explicit opt-in configuration favors the longer reply unless machine checks a
 
 ## Frozen DEV
 
-Report timestamp: 2026-10-13T04:39:12.918Z. TEST checkpoint: 2026-10-13T04:36:32.707Z.
+Report timestamp: 2026-10-13T04:45:35.301Z. TEST checkpoint: 2026-10-13T04:45:29.396Z.
 
 All 90 DEV pairs are covered, with 180 scored games. Each pair has two model presentations; code pools their scores, so the two reported games share one decision. Both presentations retain separate quotes and scores in the raw report.
 
@@ -15,7 +15,7 @@ All 90 DEV pairs are covered, with 180 scored games. Each pair has two model pre
 | Reader-first judge (length-aware): features plus judge plus length | 80.00% (144/180) | 4 | 2 | 0.81568 |
 | Frozen holistic, historical | 64.44% (116/180) | n/a | n/a | 0.57181 |
 
-Selected rule: judgeMargin=4, minFailures=1, featureMargin=5. The final full DEV replay runs after the selection commit 7797431e936dfcc7555aac6b91ac845f98a94e3e. Freeze record cites that DEV result and the exact source hashes. The committed frozen judge is c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4. Current evidence commit before this report: 9f9cc375973ae353fb86698c5323d6561e24dc05.
+Selected rule: judgeMargin=4, minFailures=1, featureMargin=5. The final full DEV replay runs after the selection commit 7797431e936dfcc7555aac6b91ac845f98a94e3e. Freeze record cites that DEV result and the exact source hashes. The committed frozen judge is c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4. Current evidence commit before this report: aaa1458f47182b9c92cc1fe6e2bf03001a93b185.
 
 The shorter reply wins only when both ballots are valid, its pooled sum advantage reaches judgeMargin, and minFailures criteria have longer<=2, shorter>=3 and a machine flag present only in the longer reply. An invalid ballot retains the length default with an explicit invalid flag. Equal lengths tie. No holistic or competitor ballot enters this calculation.
 
@@ -91,17 +91,17 @@ The grid is declared before completion of the exploratory DEV run. Selection max
 
 ## TEST status
 
-PARTIAL: 109/173 pairs (218/346 games), claude stopped: You've hit your session limit · resets 6:40am (Europe/Brussels). Reader-first: 142/218; length: 136/218; features plus length: 136/218. These partial counts must not be compared directly with historical full-split holistic 204/346 or promptfoo 217/346. If incomplete at cutoff, remaining pairs resume after the outage from frozen commit c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4, with identical source hashes and cached calls. No full-TEST claim.
+PARTIAL: 143/173 pairs (286/346 games), still running. Reader-first: 196/286; length: 190/286; features plus length: 190/286. These partial counts must not be compared directly with historical full-split holistic 204/346 or promptfoo 217/346. If incomplete at cutoff, remaining pairs resume after the outage from frozen commit c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4, with identical source hashes and cached calls. No full-TEST claim.
 
-Partial invalid-evidence fallbacks: 42/109. Partial recipe cost: USD 0.74567 per 100 pairs.
+Partial invalid-evidence fallbacks: 56/143. Partial recipe cost: USD 0.76048 per 100 pairs.
 
 | Feature family | Reply flags | Pairs with flag | One-sided pairs | Qualifying supported failures |
 |---|---:|---:|---:|---:|
-| structure | 0/218 | 0/109 | 0 | 0 |
-| economy | 59/218 | 38/109 | 17 | 2 |
-| directness | 1/218 | 1/109 | 1 | 0 |
-| context | 77/218 | 48/109 | 19 | 3 |
-| simplicity | 6/218 | 6/109 | 6 | 2 |
+| structure | 0/286 | 0/143 | 0 | 0 |
+| economy | 72/286 | 48/143 | 24 | 2 |
+| directness | 1/286 | 1/143 | 1 | 0 |
+| context | 118/286 | 75/143 | 32 | 3 |
+| simplicity | 8/286 | 7/143 | 6 | 2 |
 
 | Pair | Language | A / B length | Longer | Reader-first | Gold | Effect | Supported failures |
 |---|---|---:|---|---|---|---|---|
@@ -111,7 +111,7 @@ Partial invalid-evidence fallbacks: 42/109. Partial recipe cost: USD 0.74567 per
 
 ## Cost, safety and default preservation
 
-Returned spend: USD 1.56545432, 402 returned calls. Interrupted-call uncertainty reserve: USD 0.20. Total accounted exposure: USD 1.76545432 of USD 20.00. The original two-worker process is stopped at the owner's concurrency update; its returned calls replay for free. Subsequent concurrency is at most six. New calls are refused at or after 2026-10-13 06:39 Brussels. Recipe costs count both required orders of completed pairs, including replayed calls, and are quoted per 100 pairs (200 presentations). Unfinished orders are excluded from that recipe rate but included in returned spend.
+Returned spend: USD 1.83524148, 468 returned calls. Interrupted-call uncertainty reserve: USD 0.20. Total accounted exposure: USD 2.03524148 of USD 20.00. The original two-worker process is stopped at the owner's concurrency update; its returned calls replay for free. Subsequent concurrency is at most six. The initial new-call cutoff is 2026-10-13 06:39 Brussels. The owner then authorizes immediate continuation after the 06:40 session reset, until the network drops, and another continuation after the outage with the same freeze. The continuation has a 07:40 Brussels safety deadline before the original 07:45 completion target. Recipe costs count both required orders of completed pairs, including replayed calls, and are quoted per 100 pairs (200 presentations). Unfinished orders are excluded from that recipe rate but included in returned spend.
 
 All 42 pre-existing judge source files except the export index are byte-identical to base d702d90b. The index adds named exports. The full judges suite passes 602 tests with two test workers and a 60-second per-test timeout; the focused golden and configuration run passes 41 tests, including 1,028 legacy cassette entries. The new reader-first fixtures pass 20 tests. Root and research TypeScript checks pass. The package and its workspace dependencies build successfully, including type declarations; the built package export smoke check passes. A first package-only build fails because dependency declarations are not built, then the dependency-inclusive build resolves it. Two runs with the default five-second timeout time out during a dynamic import in an unchanged pairwise test; the run with a 60-second timeout passes without a code change. All nine caller cutoff and cost tests pass using fake processes, with no paid calls. Biome reports one formatting-only error in reader-first-features.ts; that whitespace correction waits until TEST completes to keep the frozen source unchanged. It remains an open PR check.
 
