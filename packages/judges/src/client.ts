@@ -1,4 +1,5 @@
 import type { JudgeClass, JudgeRequest, JudgeResult } from './contract';
+import type { CriterionDecoderVersion } from './criterion-ledger';
 import type { HttpOptions } from './http';
 
 /**
@@ -22,6 +23,8 @@ export interface JudgeClient {
    * Part of the cassette key: a recording made with other settings never replays.
    */
   readonly settings?: string;
+  /** Replay decoder inferred from a cassette. Live clients default to the current decoder. */
+  readonly criterionDecoderVersion?: CriterionDecoderVersion;
   judge(request: JudgeRequest): Promise<JudgeResult>;
 }
 

@@ -151,7 +151,14 @@ export {
   loadCriteria,
   parseCriterionFile,
 } from './criteria';
-export { CriterionLedger, type CriterionRequirement, requirementsFor } from './criterion-ledger';
+export {
+  CRITERION_DECODER_VERSION,
+  type CriterionCheck,
+  type CriterionDecoderVersion,
+  CriterionLedger,
+  type CriterionRequirement,
+  requirementsFor,
+} from './criterion-ledger';
 export { type Grounding, groundEvidence } from './evidence';
 export { FactLedgerAnswer } from './fact-audit';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';

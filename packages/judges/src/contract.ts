@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
 import type { ConformanceAudit } from './conformance';
-import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
+import type { CriterionCheck, CriterionDecoderVersion, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer } from './fact-audit';
 
 /**
@@ -58,6 +58,8 @@ export type CriterionText = z.infer<typeof CriterionText>;
 export type JudgeRequest = {
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
+  /** Default-ledger decoder. Version 1 preserves strict historical quote rejection. Default 2. */
+  readonly criterionDecoderVersion?: CriterionDecoderVersion;
   /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
   readonly requirements?: readonly CriterionRequirement[];
   /** Opt-in answer contract. Pairwise calls name the winner; rubric calls score each supplied item. */
@@ -93,7 +95,9 @@ export type JudgeResult = {
   /** Opt-in criterion-local conformance audit, with its outcome computed in code. */
   readonly conformance?: ConformanceAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
-  readonly checks?: CriterionLedger['checks'];
+  readonly checks?: readonly CriterionCheck[];
+  /** Number of ungrounded evidence strings nulled without changing their met values. */
+  readonly evidenceUnverified?: number;
   /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {
