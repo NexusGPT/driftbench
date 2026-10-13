@@ -536,14 +536,41 @@ const ASKS: AskCheck[] = [
   {
     key: 'judged-only-registers',
     tier: 2,
-    title: 'judged criteria appear only for output rules',
+    title:
+      'judged criteria appear only for output rules (not gating) and for domain rules and judged controls (gating, listed)',
+    // docs/estate.md section 5, the Then table: `custom` on a register atom is a judged criterion, not gating;
+    // `custom` with a name no code checks (a domain rule) is a gating judged criterion, the spec is tagged
+    // `judged` and lists the atom in `metadata.estate.judged`; a control whose predicate has no machine inverse
+    // is a judged control, named `<atom>.control`.
     check: (run, all) => {
       const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
       const bad = all.filter((v) => {
-        const criteria = v.spec.loaded?.spec.criteria ?? [];
-        return criteria.some((c) => atoms.get((c as { name: string }).name)?.kind !== 'register');
+        const spec = v.spec.loaded?.spec as { criteria?: unknown[]; tags?: unknown } | undefined;
+        const judged = (estateMeta(v.spec) as { judged?: unknown }).judged;
+        const listed = new Set(Array.isArray(judged) ? (judged as string[]) : []);
+        const tagged = Array.isArray(spec?.tags) && spec.tags.includes('judged');
+        return (spec?.criteria ?? []).some((entry) => {
+          const criterion = entry as { name: string; gating?: boolean };
+          const id = criterion.name.replace(/\.control$/, '');
+          const atom = atoms.get(id);
+          if (!atom) return true;
+          if (atom.kind === 'register') return criterion.gating === true || id !== criterion.name;
+          if (!(criterion.gating === true && listed.has(id) && tagged)) return true;
+          // A judged control: only in a negative control, for an atom with a predicate that has no machine
+          // inverse. A rule's own judged criterion: only for a custom predicate no code checks.
+          if (id !== criterion.name)
+            return !(
+              NEGATIVE_CONTROLS.has(v.spec.record.testType) &&
+              atom.evidence.some((evidence) => !hasMachineInverse(evidence))
+            );
+          return !atom.evidence.some(
+            (evidence) => evidence.type === 'custom' && !DOC_CODE_CHECKED.has(evidence.name),
+          );
+        });
       });
-      return bad.length === 0 ? undefined : `${bad.length} specs judge a non-register atom`;
+      return bad.length === 0
+        ? undefined
+        : `${bad.length} specs judge an atom that is neither an output rule (not gating) nor a listed domain rule or control (gating)`;
     },
   },
   {
@@ -613,6 +640,52 @@ const ASKS: AskCheck[] = [
     },
   },
 ];
+
+/**
+ * The custom predicates code checks, as docs/estate.md section 5 lists them, held here and not read from the
+ * product: the registered checks of the runners, then the predicates the generator compiles. A judged criterion
+ * on a rule is right only for a custom predicate outside this list.
+ */
+const DOC_CODE_CHECKED: ReadonlySet<string> = new Set([
+  // Registered checks.
+  'ordered',
+  'some_call',
+  'hazard_recovery',
+  'permission',
+  'grounded_values',
+  'max_words',
+  'no_delete_under',
+  'stage_seen',
+  // Compiled predicates.
+  'command_not_run',
+  'max_characters',
+  'max_questions',
+  'no_secret_in_reply',
+  'currency_after_amount',
+  'stopped_and_confirmed',
+  'json_only',
+  'asks_for',
+  'route_table',
+  'same_language_as_user',
+  'confirmed_before_send',
+  'asks_again_on_loose_yes',
+]);
+/** The test types that are negative controls (docs/estate.md section 4: the control rows). */
+const NEGATIVE_CONTROLS: ReadonlySet<string> = new Set([
+  'outside_trigger',
+  'route_near_miss',
+  'guard_negative',
+]);
+
+/**
+ * Whether code can write the negative of a predicate (docs/estate.md section 5, the Then table): a skill not
+ * loaded, a guard that does not fire, a tool not called, a reply without the required words. Every other
+ * predicate (ordered, custom, a text with no required words) has no machine inverse.
+ */
+function hasMachineInverse(evidence: { type: string; must?: readonly string[] }): boolean {
+  if (evidence.type === 'text') return (evidence.must ?? []).length > 0;
+  return ['skill_loaded', 'guard', 'tool_called'].includes(evidence.type);
+}
 
 /**
  * The JSON of a static test (a file under `static/` ending in `.json`, docs/estate.md section 5: "Invariant and
