@@ -45,15 +45,28 @@ export const HAZARDS = [
     pattern:
       /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context) is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i,
   },
-  { id: 'restart', title: 'A process restart', pattern: /\brestart(s|ed)?\b/i },
-  { id: 'rate_wave', title: 'A wave of rate limits', pattern: /\brate[- ]limit/i },
+  { id: 'restart', title: 'A process restart', pattern: /\b(?:restart|reboot)(s|ed)?\b/i },
+  {
+    id: 'rate_wave',
+    title: 'A wave of rate limits',
+    // A 429 is a rate limit only where it is a status: after a word that answers, returns or names a code.
+    pattern:
+      /\brate[- ]limit|\b(?:HTTP|status|code|error)\s+429\b|\b(?:answers?|returns?|responds?(?: with)?|gets?|got|hits?)\s+(?:an?\s+)?429\b|\b429\s+(?:error|response|status|too many)/i,
+  },
   {
     id: 'session_boundary',
     title: 'A new session',
-    pattern: /\b(start of (every|each|a) session|new session|session start)/i,
+    pattern:
+      /\b(start of (every|each|a) session|new session|session start)|\bsession\s+(?:is\s+|was\s+|gets\s+)?resumed\b|\bresum(?:e|es|ed|ing)\s+(?:a|the)\s+session\b/i,
   },
   { id: 'notification', title: 'A helper notification', pattern: /\bnotification/i },
-  { id: 'nudge_storm', title: 'Repeated guard nudges', pattern: /\bnudges?\b/i },
+  {
+    id: 'nudge_storm',
+    title: 'Repeated guard nudges',
+    // The noun, not the verb: "nudges repeat", "a guard nudge"; "nudge the price" moves a value.
+    pattern:
+      /\bnudges\b|\b(?:a|the|each|every|one|same|guard|hook)\s+nudge\b|\bnudge\s+(?:storm|wave|burst)s?\b/i,
+  },
 ] as const;
 
 /** Extensions a named file needs to count as a reference when it does not exist. */
@@ -809,8 +822,10 @@ function actLabel(act: string, raw: RawEstate): string {
 function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, builder: AtomBuilder): void {
   if (!files.has(chunk.file)) return;
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
+    // Words quoted as an example (an error message, a phrase) are not the line's own words.
+    const own = line.text.replace(/"[^"\n]*"|\u201c[^\u201d\n]*\u201d/g, ' ');
     for (const hazard of HAZARDS) {
-      if (!hazard.pattern.test(line.text) || !runtimeHazard(hazard.id, line.text)) continue;
+      if (!hazard.pattern.test(own) || !runtimeHazard(hazard.id, own)) continue;
       builder.add({
         kind: 'hazard',
         title: `Recover from ${hazard.title.toLowerCase()}`,
@@ -839,7 +854,7 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
       return HAZARDS.find((hazard) => hazard.id === id)?.pattern.test(runtime) ?? false;
     }
     case 'restart':
-      return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+restarts?)\b/i.test(
+      return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+(?:restart|reboot)s?|(?:restart|reboot)\s+the\s+(?:[\w-]+\s+)?(?:printer|device|equipment|appliance))\b/i.test(
         line,
       );
     case 'rate_wave':
