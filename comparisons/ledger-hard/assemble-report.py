@@ -15,7 +15,8 @@ def main():
     reasked=set(proof['crash_reasked_keys'])
     seal=read('seal.json');recovery=read('crash-recovery.json');audit=read('construction-cue-audit.json')
     total=primary['measured_usd']+variant['measured_usd'];reserve=recovery['lost_attempt_reserve_usd']
-    assert abs(total-proof['measured_usd'])<1e-8 and total+reserve<=10
+    budget=read('budget-amendment.json')['cap_usd']
+    assert abs(total-proof['measured_usd'])<1e-8 and total+reserve<=budget
     primary_text=(HERE/'REPORT.md').read_text()
     primary_text=primary_text.replace('Gemini is pending billing. The separate dialect variant is pending the core dossier.',
         'Gemini was not run in this original two-model primary experiment. The separately frozen dialect variant below includes all three models.')
@@ -26,12 +27,14 @@ def main():
     variant_text=(HERE/'dialect/REPORT.md').read_text().replace('final transport failures.', 'final unsuccessful responses.')
     variant_text=variant_text.replace('Failures over 5% in a rolling 50 Luna attempts reduce variant concurrency from four to two.',
         'The original adaptive four/two pacing is superseded by the per-model runtime amendment above.')
+    primary_text=primary_text.replace('of USD 10.',f'of the amended USD {budget:g} cap.')
+    variant_text=variant_text.replace('of USD 10.',f'of the amended USD {budget:g} cap.')
     status='Final' if full else 'Haiku and Luna complete; Gemini billing pending.'
     coverage='Full sealed coverage: 384 cases per row, 1,536 per model; two primary models and three dialect models.' if full else 'Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini remains incomplete pending owner top-up; its unfinished cells carry no final verdict.'
     lines=['# Ledger hard-row dossier','',f'{status} Recording analysis generated {stamp()}. All case and result counts come from the linked files in `comparisons/ledger-hard/`.','',
        '- '+coverage,
        f'- {primary["unique_calls"]} primary and {variant["unique_calls"]} dialect unique recorded requests, including the goal equal-evidence ablation.',
-       f'- Measured spend: USD {total:.8f}. Lost-attempt reserve: USD {reserve:.2f}. Combined: USD {total+reserve:.8f}, within the USD 10 cap.',
+       f'- Measured spend: USD {total:.8f}. Lost-attempt reserve: USD {reserve:.2f}. Combined: USD {total+reserve:.8f}, within the owner-amended USD {budget:g} cap.',
        '- The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.',
        '- Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.','',
        '## Interpretation and coverage','',
@@ -62,6 +65,7 @@ def main():
        'HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota retries remain pending and unscored, never judge failures. Other unanswered transport failures use at most three attempts with 10/30-second waits. Every transport failure and backoff remains recorded; content is never retried. `quota-amendment.json` retains this retry policy under the later per-model pacing amendment. Unanswered attempts have no reported usage; measured cost excludes unreported charges.','',
        'Gemini prepaid credit depletion produces HTTP 402. The 532 empty rejections before the billing hold are preserved byte-for-byte in `dialect/billing-rejections.jsonl` and in the attempt journal. They carry no answer or reported usage, release only their proven-rejection holds, and never enter judge scores. No 402 receives an automatic retry. `billing-amendment.json` records the stop and the requirement for explicit owner top-up confirmation before missing-only resumption. The USD 0.40 crash reserve remains.','',
        'The owner subsequently confirms a Gemini top-up. `gemini-topup.json` names one missing request as the probe. It returns an answer, recorded once in the normal journal; `gemini-probe-result.json` records its cost and the hold release. Only requests without recorded answers resume, at two Gemini calls. The 429 waits and 402 circuit break remain active.','',
+       'The owner raises the cap from USD 10 to USD 12 solely to finish the same sealed requests. `budget-amendment.json` records this runtime authorization. The case pool, request order, prompts, reasoning settings, answer contracts and statistics remain unchanged. The USD 0.40 lost-attempt reserve stays in the budget.','',
        'Primary Luna keeps provider-default reasoning for both contestants and omits temperature. The API does not report which reasoning setting that default resolves to. Dialect Luna and Gemini use medium for both contestants. Haiku exposes no reasoning control in this harness.','',
        '## Native parity and verification','',
        '`verification-final.json` records coverage by model, unique scored keys, disjoint experiment keys, exact goal labels, original payload non-overlap, immutable source hashes, registered crash re-asks, resolved model IDs and the budget. `peer-decoder-parity.mts` replays every recorded successful peer answer through the pinned native verdict functions, including the native YAML fallback. `trajectory-parity.mts` checks all 384 goal summaries against the pinned helper.','',
@@ -71,7 +75,7 @@ def main():
        'Focused protocol/recovery tests pass; `test-output.txt` retains the test result. Every raw response and usage record remains in the journals. Haiku cache creation and cache reads are separate from ordinary input tokens in `verification-final.json`; CLI-reported cost is authoritative. The peer native YAML dependency is the pinned js-yaml 5.4.2 bundle, with npm integrity and upstream provenance under `native-validation/`. No node_modules directory is copied.','',
        '## Freeze hashes','',
        '| Artifact | SHA-256 |','|---|---|']
-    for name in ['seal.json','accounting-amendment.json','transport-amendment.json','dialect/seal.json','recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','gemini-topup.json','topup-runtime-amendment.json','gemini-probe-result.json','crash-recovery.json','seeds.json','prompts.json','dialect/prompts.json','score.py','dialect-score.py','verification-final.json']:
+    for name in ['seal.json','accounting-amendment.json','transport-amendment.json','dialect/seal.json','recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','gemini-topup.json','topup-runtime-amendment.json','gemini-probe-result.json','budget-amendment.json','crash-recovery.json','seeds.json','prompts.json','dialect/prompts.json','score.py','dialect-score.py','verification-final.json']:
         lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     lines+=['',f'Candidate procedure: `{seal["candidate_procedure_sha256"]}`. Original seal commit: `eeb7875e`. Core dialect source: `{variant["core_commit"]}`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.','',
        '## Original primary tables','',primary_text,'','## Dialect tables','',variant_text,'',

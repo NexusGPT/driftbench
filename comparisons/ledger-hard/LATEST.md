@@ -17,3 +17,5 @@ Later pacing amendment: after a natural drain, per-model limits replace the comb
 Billing amendment: Gemini is paused for prepaid credit depletion, confirmed by HTTP 402. The 532 empty rejections received before the pause are preserved byte-for-byte in `dialect/billing-rejections.jsonl`, excluded from answers and scoring. They carry no reported usage and release their call holds. No 402 is retried. Haiku and Luna continue; Gemini resumes missing-only after an explicit owner top-up confirmation. The USD 0.40 crash reserve remains.
 
 Top-up amendment: the owner confirms restored Gemini credit. The single missing request named in `gemini-topup.json` returns an answer, recorded once; `gemini-probe-result.json` records its USD 0.0014235 cost. Gemini resumes missing-only at two calls, retaining the 429 waits and 402 circuit break. `topup-runtime-amendment.json` also fixes drain-state reporting without changing any request or scoring contract.
+
+Budget amendment: the owner approves USD 12 solely to finish the same sealed requests. `budget-amendment.json` supersedes the original USD 10 cap at runtime. The USD 0.40 crash reserve remains. Nothing else changes.

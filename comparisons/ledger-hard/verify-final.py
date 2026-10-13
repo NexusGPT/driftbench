@@ -16,7 +16,7 @@ def main():
     audit=json.loads((HERE/'construction-cue-audit.json').read_text())
     assert audit['blocking_cues']==[] and audit['verdict'].startswith('PASS')
     source_hashes={}
-    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','topup-runtime-amendment.json'):
+    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','topup-runtime-amendment.json','budget-amendment.json'):
         source_hashes.update(json.loads((HERE/amendment).read_text())['sha256'])
     for path,value in source_hashes.items():assert digest(ROOT/path)==value,path
     authorised={i['request_sha256']:i for i in recovery['items']}
@@ -101,7 +101,8 @@ def main():
         assert len(items)==384 and len(labels)==24 and set(labels.values())=={16}
         hashes={sha(payload(c,row)) for c in items};assert len(hashes)==384 and not hashes&prior
         if row=='goal':assert all(c['truth']==all(c['endState'].get(k)==v for k,v in c['expect'].items()) for c in items)
-    assert total+recovery['lost_attempt_reserve_usd']<=10
+    budget=json.loads((HERE/'budget-amendment.json').read_text())
+    assert total+recovery['lost_attempt_reserve_usd']<=budget['cap_usd']
     assert len(reasked)==len(set(reasked))
     if args.require_complete:assert set(reasked)==set(authorised)
     combined_active=combined_max=0
@@ -128,7 +129,7 @@ def main():
     if args.require_available:assert available_complete
     result={'verified_at':stamp(),'concurrency_observation_through':observation_through,'experiments':details,'construction_audit_sha256':digest(HERE/'construction-cue-audit.json'),
         'crash_reasked_recorded':len(reasked),'crash_reasked_keys':sorted(reasked),'crash_authorised':len(authorised),'measured_usd':total,
-        'lost_attempt_reserve_usd':recovery['lost_attempt_reserve_usd'],'measured_plus_lost_reserve_usd':total+recovery['lost_attempt_reserve_usd'],
+        'lost_attempt_reserve_usd':recovery['lost_attempt_reserve_usd'],'measured_plus_lost_reserve_usd':total+recovery['lost_attempt_reserve_usd'],'cap_usd':budget['cap_usd'],
         'complete':all(v['complete'] for v in details.values()),'available_models_complete':available_complete,'no_request_key_overlap':True,
         'combined_call_limit_from':boundary,'combined_max_concurrent_after_amendment':combined_max,
         'combined_four_call_limit_until':pacing_boundary,

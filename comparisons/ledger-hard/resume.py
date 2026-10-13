@@ -64,8 +64,9 @@ def main():
     pacing=json.loads((HERE/'pacing-amendment.json').read_text())
     billing=json.loads((HERE/'billing-amendment.json').read_text())
     topup=json.loads((HERE/'topup-runtime-amendment.json').read_text())
+    budget=json.loads((HERE/'budget-amendment.json').read_text())
     assert pacing['per_model_limits']==MODEL_LIMITS
-    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']|pacing['sha256']|billing['sha256']|topup['sha256']).items():assert digest(ROOT/name)==value,name
+    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']|pacing['sha256']|billing['sha256']|topup['sha256']|budget['sha256']).items():assert digest(ROOT/name)==value,name
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/recovery-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'recovery-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/concurrency-amendment.json'],cwd=ROOT)
@@ -78,6 +79,8 @@ def main():
     assert committed==(HERE/'billing-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/topup-runtime-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'topup-runtime-amendment.json').read_bytes()
+    committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/budget-amendment.json'],cwd=ROOT)
+    assert committed==(HERE/'budget-amendment.json').read_bytes()
     PROVIDER_HOLDS.update(json.loads((HERE/'provider-holds.json').read_text())['models'])
     recovery=json.loads((HERE/'crash-recovery.json').read_text())
     authorised={r['request_sha256'] for r in recovery['items']}
@@ -116,7 +119,7 @@ def main():
                 key=queue_order[0];queue_order.rotate(-1);queue=queues[key]
                 if key[1] in quota_blocked or key[1] in PROVIDER_HOLDS:continue
                 if queue and model_slot_available(key[1],inflight):
-                    if spent+reserve+.02*(len(inflight)+1)>10:STOP.set();stop='shared cap with lost-attempt reserve';break
+                    if spent+reserve+.02*(len(inflight)+1)>budget['cap_usd']:STOP.set();stop='shared cap with lost-attempt reserve';break
                     r=queue.popleft()
                     with LOCK:primary.append(dest(r['experiment'])/'starts.jsonl',{k:v for k,v in r.items() if k not in ('prompt','built')}|{'started':stamp()})
                     inflight[pool.submit(work,r)]=r
