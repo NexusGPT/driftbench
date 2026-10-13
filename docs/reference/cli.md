@@ -939,7 +939,7 @@ Family acme-price-sheet: 3 instances, seed 1, 13 specs.
   i02  seed 1269359653  categories=2 column_order=shuffled language=EN line_endings=crlf plans=25 planted=without readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change
   i03  seed 1252582034  categories=4 column_order=catalog language=EN line_endings=lf plans=15 planted=without readme_name=readme.txt seed_format=json start=catalog-only summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
 Style invariant: 17 style alternatives rebuilt; none changed the expected outcome.
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
+Review: signed by owner on 2026-10-13.
 Wrote 13 specs and family-report.json to _captures/docs3/cli/family.
 ```
 
@@ -960,13 +960,12 @@ Verify _captures/docs3/cli/family on the reference process:acme-ops: 13 specs.
   ✓ i03/header-order.yaml
   ✓ i03/unit-change.yaml
 ✓ The reference passes all 13 specs: 3 instances may ship.
-Release also waits for a person to sign the review of acme-price-sheet (3 instances wait on it).
 Wrote _captures/docs3/cli/family/verify-report.json.
 ```
 
 ```
 $ pnpm -s driftbench family review examples/acme/families/price-sheet
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
+Review: signed by owner on 2026-10-13.
 ```
 
 | Exit code | `instances` | `verify` | `review` |

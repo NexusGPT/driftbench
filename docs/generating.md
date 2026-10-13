@@ -678,8 +678,8 @@ A person reviews each family once. The signature holds for the two hashes: a cha
 
 ```
 $ pnpm -s driftbench family review examples/acme/families/price-sheet
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
-exit 1
+Review: signed by owner on 2026-10-13.
+exit 0
 ```
 
 `family instances` draws the knobs with the seed, builds each instance with its corner-case variants, and checks the style invariant: it rebuilds every variant with each other allowed value of each style knob and writes nothing when one changes the expected outcome. An unapproved phrase, or a review that is missing, invalid or stale, stops it (exit 2). A pending review is recorded in every instance.
@@ -697,7 +697,7 @@ The listing goes on with one line per instance, then ends:
 
 ```
 Style invariant: 116 style alternatives rebuilt; none changed the expected outcome.
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
+Review: signed by owner on 2026-10-13.
 Wrote 88 specs and family-report.json to _captures/docs3/generating/families/instances.
 exit 0
 ```
@@ -717,7 +717,6 @@ and, after one line per spec:
 
 ```
 ✓ The reference passes all 88 specs: 20 instances may ship.
-Release also waits for a person to sign the review of acme-price-sheet (20 instances wait on it).
 Wrote _captures/docs3/generating/families/instances/verify-report.json.
 exit 0
 ```
