@@ -268,6 +268,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   const { sources } = run;
   let state = initialGiven(spec);
   let history: Message[] = [];
+  /** The user messages of the history, one list that grows with it, so the ledger reads each one once. */
+  let users: Message[] = [];
   let nextBlock = 0;
   let lastKey: string | undefined;
   let endRead: { states: unknown[]; afterBlock: number } | undefined;
@@ -312,11 +314,13 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           sessionBase = composed;
         }
         history = canonical.prefix;
+        users = userMessagesOf(history);
       } else {
         state = enterBlock(state, planned.given, planned.world);
         if (planned.given?.prefix) {
           await channel.restart();
           history = structuredClone(planned.given.prefix);
+          users = userMessagesOf(history);
         }
       }
       const user = stimulusMessages(planned.stimulus);
@@ -419,8 +423,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         signatures: run.signatures,
       });
       const flow = flowVerdicts(spec, planned.expect, reading, previous);
-      const userMessages = [...given.prefix, ...user].filter((message) => message.role === 'user');
-      const ledger = ledgerVerdicts(facts.ledger, observed, userMessages);
+      users.push(...userMessagesOf(user));
+      const ledger = ledgerVerdicts(facts.ledger, observed, users);
       const all = [...verdicts, ...flow, ...ledger.verdicts];
       const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
       const block = {
@@ -813,4 +817,8 @@ function replayChannel(cache: ObservedCache, toolPolicy: readonly ToolRule[] | u
       return undefined;
     },
   };
+}
+
+function userMessagesOf(messages: readonly Message[]): Message[] {
+  return messages.filter((message) => message.role === 'user');
 }
