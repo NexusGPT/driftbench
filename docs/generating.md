@@ -389,20 +389,20 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 637 of 637 (100.0%); triples 2582 of 3510 (73.6%).
+Actual axis-map coverage (written complete specs): pairs 637 of 637 (100.0%); triples 2612 of 3510 (74.4%).
 Candidate t-wise array (before the total cap): covering array of 132 rows over 5 dimensions, 314 of 314 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 928 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 898 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash ed9e4089e9c5: 51 dimensions, 185 values, 457 constraints, 51 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           132     675       131           1
-boundary         85     146        13          72
+boundary         85     183        13          72
 deviation        17      90        17           0
 metamorphic      38     168        38           0
 task             34      47        34           0
-cover            14      79        14           0
+cover            13      76        13           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 457.
@@ -438,11 +438,11 @@ Specs with a block the map supports no machine Then for (16), in incomplete/: ge
      1  no approved path needs customer_details=neither
      1  no approved path needs customer_details=one-of-them
      1  no approved path needs home_plans=no-plan
-Wrote 333 files to generated.
+Wrote 332 files to generated.
 exit 1
 ```
 
-The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 259 specs are complete, 73 are incomplete. Complete specs cover all 637 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 258 specs are complete, 73 are incomplete. Complete specs cover all 637 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
