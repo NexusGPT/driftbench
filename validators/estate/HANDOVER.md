@@ -1,6 +1,6 @@
 # Handover: validator estate
 
-Continue on `exec/estate-v3`, draft PR 154, in `.worktrees/exec-estate-v2`. The baseline starts after main merge `7cc677ae`. Main, including PR 185, is merged again at `b2d34246` before iteration 28; that merge changes neither the estate product nor its bank. Never edit the validator or bank.
+Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 32 were made by a fresh Opus takeover in a separate worktree (`.worktrees/exec-estate-fresh`, detached, pushed with `git push origin HEAD:exec/estate-v3`). The older worktree `.worktrees/exec-estate-v2` holds an unrelated local change to `research.md` and is not used. Never edit the validator or bank.
 
 ## Level per seed
 
@@ -10,55 +10,43 @@ Continue on `exec/estate-v3`, draft PR 154, in `.worktrees/exec-estate-v2`. The 
 | 1 | 0 |
 <!-- level-table:end -->
 
-Iteration 28: seed 1 passes 957 of 1170 items. The fresh post-main baseline passes 955 of 1170. The supplied last-known count was 956; the old handover records 952. The fresh baseline gains only wide-folder, generate-1000 and generate-2500 timing items over that handover. Timing changes receive no component credit.
+Iteration 32, head 26b334d7: seed 1 passes 1016 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
 
-Current capture: `.cache/estate-executor/codex-28.json`. Source stamp and patch: `codex-28-source.json` and `codex-28.patch` in that folder. Captures are local and are not in a fresh clone. The source is held unchanged throughout each measurement.
+| Level | Passing at the takeover (5fbc3c9a) | Passing now (26b334d7) |
+|---|---|---|
+| reader | 584/641 | 640/641 |
+| lint | 45/46 | 45/46 |
+| plan | 44/65 | 44/65 |
+| generation | 196/270 | 196/270 |
+| agent-mutants | 22/75 | 22/75 |
+| maintenance | 49/53 | 49/53 |
+| scale | 20/20 | 20/20 |
 
-The separate `.cache/estate-executor/codex-28-seeds.json` sweep runs visible seeds 1 to 20 and hidden seed 1189510. It stops at the first failing level. It proves the reader results and level 0 across those seeds, not an all-level bank score across seeds.
+Item by item against the takeover run: 56 gained, none lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17 and 20 times across the five sweeps, with no change to scale code.
 
-| Sweep seed | Level |
-|---|---|
-| 1 | 0 |
-| 2 | 0 |
-| 3 | 0 |
-| 4 | 0 |
-| 5 | 0 |
-| 6 | 0 |
-| 7 | 0 |
-| 8 | 0 |
-| 9 | 0 |
-| 10 | 0 |
-| 11 | 0 |
-| 12 | 0 |
-| 13 | 0 |
-| 14 | 0 |
-| 15 | 0 |
-| 16 | 0 |
-| 17 | 0 |
-| 18 | 0 |
-| 19 | 0 |
-| 20 | 0 |
-| hidden | 0 |
+The cross-seed sweep (seeds 1 to 20 and hidden) was not rerun after these changes. It stops at the first failing level, which is level 1 on every seed while the defect stands.
 
 ## Floor
 
-No estate floor is registered in `validators/floors.json`. The ladder remains level 0. Floors and protected files are unchanged by this executor.
+No estate floor is registered in `validators/floors.json`. The ladder is at level 0.
+
+## Item defect (for the maintainer)
+
+`scan.hostile.prompt-hook` (bank: `packages/validators/src/ladders/estate/bank/hostile.ts`, key `prompt-hook`) cannot pass:
+
+* It writes `.claude/settings.json` with `e.raw(SETTINGS, ..., o)`. That is a raw file owned whole by the item with no planted atom, and `PlantedEstate.judge` reports every atom found in it as "never planted".
+* Its check then requires `scan.map.atoms.some((atom) => atom.kind === 'guard')`. The only file that can hold that guard atom is the settings file.
+* Without a guard atom (the reader at 5fbc3c9a): "the prompt hook gave no guard atom". With one (the reader now, which reads a prompt hook as a guard with no script): "found guard guard.settings.stop-guard-check-the-reply at .claude/settings.json:3, never planted".
+* Reproduce, in a checkout of this branch with dependencies installed: `git checkout 5fbc3c9a -- packages/estate/src`, then run the family. Then `git checkout HEAD -- packages/estate/src` and run it again. Runner: a script that imports `BANK_LEVELS` and `familyResults` from `packages/validators/src/ladders/estate/bank/index` and runs the `scan.hostile` family on seed 1 (about 2 seconds).
+* Suggested fix: plant the guard, for example `e.expect(o, { hid: \`${o}:guard\`, kind: 'guard', file: SETTINGS, line: 3, key: 'check-the-reply' })`, or write the file with a FileWriter and attach the atom to line 3.
 
 ## Open items
 
-Seed 1, all levels, from the current capture:
+First failing level (reader), seed 1: `scan.hostile.prompt-hook` only (the defect above).
 
-| Level | Passing |
-|---|---|
-| reader | 584/641 |
-| lint | 45/46 |
-| plan | 44/65 |
-| generation | 196/270 |
-| agent-mutants | 22/75 |
-| maintenance | 49/53 |
-| scale | 17/20 |
+Beyond level 1, from the all-level run at 26b334d7 (98 failing items, 57 distinct causes):
 
-| Failing family | Items |
+| Family | Failing |
 |---|---|
 | unit.runner | 41 |
 | kill.fake | 31 |
@@ -66,168 +54,91 @@ Seed 1, all levels, from the current capture:
 | plan.relevance | 20 |
 | gen.complete | 14 |
 | gen.task | 9 |
-| scan.standing | 8 |
-| scan.gates | 7 |
-| scan.steps | 7 |
-| scan.decoys | 6 |
 | gen.coverage | 5 |
-| scan.hostile | 5 |
 | gen.asks | 4 |
-| scan.hazards | 4 |
-| scan.paths | 4 |
-| blind.edges | 3 |
 | maintain.impact | 3 |
-| scale | 3 |
-| scan.reference-prose | 3 |
-| scan.catalogue | 2 |
-| scan.combination | 2 |
-| scan.dispatcher | 2 |
-| scan.registry | 2 |
-| blind.gates | 1 |
-| blind.lint | 1 |
 | gen.reads | 1 |
 | lint.defect | 1 |
 | maintain.fixture | 1 |
 | plan.contract | 1 |
 
-First failing level, reader, exact unresolved ids:
-
-- `scan.registry.md-label-lowercase`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.registry.json-enforces-objects`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.steps.process-array`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.steps.keyed-by-id`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.steps.next-string`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.steps.then-key`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.steps.nested-workflow`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.steps.comments`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.steps.trailing-commas`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.catalogue.guard-command-key`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.catalogue.rules-objects`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.dispatcher.change-folder`: `packages/estate/src/scan/code.ts`.
-- `scan.dispatcher.shell-wrapper`: `packages/estate/src/scan/code.ts`.
-- `scan.reference-prose.text-file`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.reference-prose.chained`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.reference-prose.outside-skill`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.gates.markdown-link`: `packages/estate/src/scan/code.ts`.
-- `scan.gates.decoy-example`: `packages/estate/src/scan/code.ts`.
-- `scan.gates.then-form`: `packages/estate/src/scan/code.ts`.
-- `scan.gates.without-form`: `packages/estate/src/scan/code.ts`.
-- `scan.gates.only-after-form`: `packages/estate/src/scan/code.ts`.
-- `scan.gates.question-form`: `packages/estate/src/scan/code.ts`.
-- `scan.gates.prior-to-form`: `packages/estate/src/scan/code.ts`.
-- `scan.hazards.status-429`: `packages/estate/src/scan/code.ts`.
-- `scan.hazards.reboot`: `packages/estate/src/scan/code.ts`.
-- `scan.hazards.resumed`: `packages/estate/src/scan/code.ts`.
-- `scan.hazards.decoy-price`: `packages/estate/src/scan/code.ts`.
-- `scan.paths.backslashes`: `packages/estate/src/scan/code.ts`.
-- `scan.paths.line-number`: `packages/estate/src/scan/code.ts`.
-- `scan.paths.project-dir`: `packages/estate/src/scan/code.ts`.
-- `scan.paths.wiki-link`: `packages/estate/src/scan/code.ts`.
-- `scan.combination.colon+crlf`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.combination.prefixguard+crlf`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.hostile.hooks-wrong-shape`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.hostile.prompt-hook`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.hostile.duplicate-names`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.hostile.helper-subfolder`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.hostile.tabs-in-frontmatter`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.decoys.owner-table`: `packages/estate/src/scan/code.ts`.
-- `scan.decoys.changelog-reference`: `packages/estate/src/scan/code.ts`.
-- `scan.decoys.form-number-label`: `packages/estate/src/graph/edges.ts`.
-- `scan.decoys.guard-message-overlap`: `packages/estate/src/graph/edges.ts`.
-- `scan.decoys.script-name-in-prose`: `packages/estate/src/scan/code.ts`.
-- `scan.decoys.hazard-in-example-quote`: `packages/estate/src/scan/code.ts`.
-- `scan.standing.linked-file`: `packages/estate/src/scan/code.ts`.
-- `scan.standing.slash-command`: `packages/estate/src/scan/code.ts`.
-- `scan.standing.skill-first`: `packages/estate/src/scan/code.ts`.
-- `scan.standing.list-item`: `packages/estate/src/scan/code.ts`.
-- `scan.standing.sentence`: `packages/estate/src/scan/code.ts`.
-- `scan.standing.heading-per-skill`: `packages/estate/src/scan/code.ts`.
-- `scan.standing.nested-standing`: `packages/estate/src/scan/claude-code.ts`.
-- `scan.standing.imported-standing`: `packages/estate/src/scan/claude-code.ts`.
-- `blind.gates.decoy-never-read-before`: `packages/estate/src/scan/code.ts`.
-- `blind.lint.emoji-count-as-characters`: `packages/estate/src/lint/lint.ts`.
-- `blind.edges.next-edges-four-steps`: `packages/estate/src/scan/code.ts`.
-- `blind.edges.next-edges-direction`: `packages/estate/src/scan/code.ts`.
-- `blind.edges.dispatch-plain-name`: `packages/estate/src/scan/code.ts`.
-
 ## Hypotheses tried
 
-### Iteration 26
+### Iteration 29
 
-955/1170 to 955/1170.
+960/1170 to 960/1170 (reader +2, scale -2 on timing). Registry and catalogue rules given as objects (`{ "id": "R3" }`, `{ "quote": "..." }`) were dropped. They are now read; the prepared `object-rules.test.ts` (11 cases) passes.
 
-Question: Why do recognized gate acts retain prose instead of runtime tool labels? The act recognizer includes update and rename, but actLabel omits them and several existing gerunds. Normalize those spellings in the runtime-label mapping. Preserve the four gate forms and existing controls. Seven tests fail before the change; nine pass afterwards, with 23 related assertions passing.
+### Iteration 30
 
-- Sources: docs/adapters/claude-code.md: tool labels for generic acts; packages/estate/src/scan/code.ts: ACT_VERBS and actLabel; packages/estate/test/scan/pilot.test.ts: fixed gate forms.
-- Gains: scan.gates.act-update, scan.gates.act-rename.
-- Losses: scale.generate-1000, scale.generate-2500.
-### Iteration 27
+960 to 989. Eight one-cause commits, each with a red test first:
 
-955/1170 to 956/1170.
+* step lists in more shapes;
+* guard commands after `cd` or behind `sh -c`, and catalogue guards named by their command;
+* lower-case registry labels;
+* frontmatter with CRLF line ends or tabs;
+* notes on hooks in a shape the reader cannot read, and prompt hooks;
+* helpers in subfolders, and skills or helpers that share a name;
+* hazards in other words, and none inside quoted examples;
+* paths with backslashes, a line number, `$CLAUDE_PROJECT_DIR` or a wiki link.
 
-Question: Why does a routing table without outer pipes lose its routes? The cell splitter already accepts optional borders, but readTables rejects the header and body rows before splitting. Detect a table by its complete delimiter row and matching header width, then accept body rows containing cell separators. Preserve source rows, line numbers, alignment markers, fences and chunk ownership. Six cases fail first and two controls pass; 28 related assertions pass after the change.
+### Iteration 31
 
-- Sources: docs/adapters/claude-code.md: routing tables and check registries; packages/estate/src/scan/text.ts: readTables and cells; packages/estate/test/scan/tables.test.ts: chunk-boundary ownership.
-- Gains: scan.standing.no-outer-pipes.
-- Losses: none.
-### Iteration 28
+989 to 1003. Six commits:
 
-956/1170 to 957/1170.
+* gates in five more wordings, a markdown link as the file, and no gate in a quoted example or in "never read Y before X";
+* no citation from a numbered thing ("tax form R1"), and no enforcement from a literal that quotes only a small part of a rule;
+* a script anchored on the line that runs it;
+* routing cells that link to the unit file or name a slash command;
+* the ask column of a routing table found by its header;
+* no reference in change notes.
 
-Question: Why is the second fixed-form gate on a line omitted? gateAtoms takes one exec match per form and stops after its first accepted match. Collect every match, order by source position, and skip overlapping interpretations. Bound colon and comma triggers at semicolons so one clause cannot consume the next. Keep the four documented forms and the original line provenance. Three tests fail before the change and one overlap control passes; all four pass after the fix, with 27 focused assertions passing.
+### Iteration 32
 
-- Sources: docs/estate.md: four fixed gate forms; packages/estate/src/scan/code.ts: GATE_FORMS and gateAtoms; packages/estate/test/scan/pilot.test.ts: gate controls.
-- Gains: scan.gates.two-on-one-line.
-- Losses: none.
+1003 to 1016. Seven commits:
 
-Older iterations and research remain in the append-only journal. The pre-takeover and previous full sweeps are historical measurements on different source versions, not current branch results.
+* the lint size counted in code points;
+* dispatch of a helper named without backticks;
+* `.txt` references, and documents named by prose read as prose;
+* reference edges for chained references;
+* routing written as prose;
+* standing files in subfolders;
+* `@` imports.
 
-### Stuck record
+### What the previous executor got wrong
 
-Iterations 26 to 28 improve individual capabilities but leave level 0 unchanged. Section 10.3 requires a maintainer handoff after three unchanged levels. The remaining reader items below keep the level at 0. The fixes address distinct causes: runtime tool labels, optional table borders, and repeated gate matches. No broader forms are added to satisfy disputed oracles.
+The earlier stuck record held back 14 reader items as "contract conflicts": gate wordings beyond the four, routing outside tables, extra standing files, and relaxed step JSON. `NEEDS.md` keeps them in the bank, and none contradicts a decoy item. They were passable product gaps, and `docs/estate.md` and `docs/adapters/claude-code.md` now name the forms. Measurement note: each journal row of iterations 30 to 32 covers several one-cause commits measured by one sweep, because a full sweep takes 8 to 20 minutes on this host. Each commit was checked by running its affected families.
 
 ## Next actions
 
-1. Read the stuck record below and arbitrate the documented bank-contract conflicts before expanding code beyond the documented source forms.
-2. Resume with the largest actionable reader family. The prepared object-valued registry test is red and remains a separate cause.
-3. Run a current all-level, all-seed sweep before claiming a whole-bank result across seeds. The current cross-seed sweep stops at the reader.
+1. Maintainer: fix `scan.hostile.prompt-hook` in the bank (see "Item defect"). Then the reader level passes on seed 1. Run `pnpm -s driftbench validate estate --seeds 1..20 --hidden --json` to confirm across seeds.
+2. Then climb level 2: `lint.defect.dispatcher-target-missing`. A dispatcher (`.claude/hooks/lib/run.py gone-hook`) names a hook script that does not exist; the lint must report MISSING_SCRIPT. The cause is in `scriptOf`/`scriptIn` (claude-code.ts): a bare word after a dispatcher that names no file is dropped, so no missing script is recorded.
+3. Level 3 is `plan.contract.journey-route` and the 20 `plan.relevance` items. Read the previous handover's warning first: `plan.relevance.helpers-running` was judged to conflict with the documented covering-array tuples. Check that claim against `docs/estate.md` section 4 before you accept it.
 
 ## Pitfalls
 
-- No model calls. All regression estates are fictional. Use `vitest --maxWorkers=2` and one validator sweep at a time.
-- `validators/estate/research.md` was already modified at takeover. Preserve it and exclude it from executor commits. Record new research in the permitted journal and this handover.
-- `packages/estate/test/scan/object-rules.test.ts` was already untracked. Its 11 cases fail because object-valued enforces entries are discarded. Preserve this prepared work; it is not a completed fix or part of these commits.
-- `unit.runner` passes YAML core specs to the native JSON unit runner and omits generated native unit JSON. Its 41 failures include that previously diagnosed contract mismatch. Do not change the product to conceal it.
-- `plan.relevance.helpers-running` conflicts with the documented allowed covering-array tuples. Other relevance policies need their own review. Do not add undocumented target-kind masks.
-- Gates beyond the four documented forms, routing outside tables and extra standing-file sources have unresolved contract conflicts in `NEEDS.md`. Keep them distinct from component defects.
-- `kill.fake` uses a stand-in that recognizes fixture proof asks. It is not evidence that arbitrary generated asks must be rewritten to match that private vocabulary.
-- PRs 119, 124, 133, 140 and 147 already arrived through main. Their portability and oracle fixes are maintainer work, not new executor gains. Do not duplicate them.
-- Timing failures vary with machine load and stay in each captured score. The TypeScript launcher already uses Node with a local loader for long temporary paths.
+* No model calls. All regression estates are fictional. Use `vitest --maxWorkers=2` and one validator sweep at a time; the host is heavily loaded.
+* Scale items are timing. Judge them by counts across runs, never by one run.
+* `map-cache.test.ts` ("reads the copy when the text is the same") once failed under load, then passed alone.
+* An `@path` is an import only in a standing or memory file. In a skill body it stays a file to read (`unquoted-paths.test.ts`).
+* A guard literal enforces a rule only when it states most of it (60 percent) or equals a span the rule itself quotes (`git push --force`). The unit runner test of a leaky guard depends on the second case.
+* `unit.runner` passes YAML core specs to the native JSON unit runner (previous executor's diagnosis, not rechecked here).
+* Never `git stash`: the stash is shared across worktrees.
 
 ## How to run
 
 ```sh
 pnpm -s driftbench validate estate --seed 1 --items --all-levels --json
 pnpm -s driftbench validate estate --seeds 1..20 --hidden --json
-pnpm -s driftbench validate estate --seeds 1..20 --hidden --items --all-levels --json
 pnpm -s driftbench validate estate --brief --fresh
 pnpm -s driftbench validate estate --check-handover
-pnpm exec vitest run packages/estate/test/scan/gate-act-names.test.ts --maxWorkers=2
+pnpm exec vitest run packages/estate --maxWorkers=2
 ```
 
-The first command measures every bank item on seed 1. The second measures levels until the first failure on every seed. The third is the full all-level sweep; run it alone. Research is in each journal row because this executor cannot edit `research.md`.
+The first command measures every bank item on seed 1; it takes 8 to 20 minutes here. To work faster, run single families with a script that imports `BANK_LEVELS` and `familyResults` from the bank index. Each family takes seconds, except `estate.determinism`, which takes about 5 minutes. Measure in a second worktree checked out at the commit, so a sweep never reads half-edited source.
 
 ## Fixtures
 
-- `packages/validators/fixtures/estate/seed-1.yaml` and `holdout-1.yaml` hold generated fictional estates.
-- Bank generators under `packages/validators/src/ladders/estate/bank/` create planted inputs in temporary folders. Read them to diagnose; never edit them.
-- `examples/estates/fixture` and `fixture-v2` hold the committed fictional estate and its recorded answers.
-- New regression tests are under `packages/estate/test/scan/`. Their fake ports make no model calls.
-
-## Verification and maintainer handoff
-
-- The current estate unit suite passes 343 assertions across 48 files with `--maxWorkers=2`. The pre-existing untracked object-rules test is excluded and remains red.
-- Typecheck and scoped formatting checks pass after the main merge containing PR 185.
-- The fresh brief is saved locally at `.cache/estate-executor/codex-28-fresh-brief.md`. Its seed 1 run reproduces level 0.
-- Section 10.4's independent fresh-session reproduction remains a maintainer action. This executor generates the brief without making model calls.
-- The latest continuation improves four correctness items, from a fresh 955/1170 baseline to 957/1170. Two scale timing losses remain counted in the result.
+* `packages/validators/fixtures/estate/seed-1.yaml` and `holdout-1.yaml` hold generated fictional estates.
+* Bank generators under `packages/validators/src/ladders/estate/bank/` plant inputs in temporary folders. Read them to diagnose; never edit them.
+* `examples/estates/fixture`, `fixture-v2` and `reader-cases` hold committed fictional estates and their recorded answers. `scan/cases.test.ts` checks that `reader-cases/map.yaml` matches a fresh scan.
+* Regression tests for this takeover are under `packages/estate/test/scan/`, plus `test/lint-characters.test.ts`. Their fake ports make no model calls.
