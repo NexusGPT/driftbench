@@ -279,3 +279,21 @@ MoJ ships only as an opt-in configuration (`moj`), never as a default, until eve
 - **Reference-consistency terrain** (branch fix/judge-reference-implied-units): the rule was tested here only inside
   the pairwise reference check (no gain). Telling reference-consistency terrain from planted-error verification by
   content belongs to the pointwise router and was not tested in this lane.
+
+
+# Addendum 2: economy and accuracy modes, second sealed run
+
+- **Economy mode** = r9-two-step (frozen at 9be7b751).
+- **Accuracy mode** = `configs/moj-accuracy.json` (frozen at 06fd0edb3). Every pair is routed. Two System-1 terrain
+  reads: the pair, then the request alone.
+  - Long-form writing: System 1 plus the computed length feature, weights fitted on that terrain.
+  - Reasoning: reference first, then under 0.8 the gpt-6-luna verdict joined by a Haiku verdict.
+  - Elsewhere: the gpt-6-luna verdict.
+  - System-2-family calls average at or under 2 per pair on practice.
+- **Second sealed run** (RESULTS.md): MM-Eval 600 is confirmatory. Accuracy mode ties promptfoo (-0.7 [-1.9, +0.6]) at
+  54 percent of its System-2 calls.
+- **Secondary cells**, previously scored by the ledger harness:
+  - JudgeBench: +5.0 [+0.6, +10.0] against promptfoo under the strict rule, level under half credit.
+  - Writing: level with longer wins, +9.0 against promptfoo, +12.4 against the ledger.
+- **JudgeBench has no unseen pairs left.** A confirmatory JudgeBench claim needs new source data.
+- **MoJ stays opt-in** until every recorded benchmark set holds on replay.

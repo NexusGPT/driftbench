@@ -309,3 +309,98 @@ No returned S1 or S2 answer is submitted twice. The three accepted cells retain 
 System-2 budget accounting is 1.65812343 USD against the 15 USD cap: 0.66265593 known plus 0.99546750 reserved for unpriced attempts. No cost is assigned to the model-free checks.
 Replay evidence: [verification.json](results/pointwise-moj/final/verification.json). Label-check replay: `python3 results/pointwise-moj/label-audit/score.py`.
 Stop here. No further fit, model call or sealed evaluation follows this freeze.
+
+---
+
+# Two modes and the second sealed draw (2026-10-13)
+
+## The two modes, both frozen from practice data only
+
+| Mode | Config | What it does | Practice pooled tune / valid | S1, S2-family calls per pair | JudgeBench | MM-Eval | Writing |
+|---|---|---|---|---|---|---|---|
+| economy | `configs/moj-economy.json` (= r9-two-step, frozen at 9be7b751) | step 1 commits at 0.8; abstained pairs: reference first on reasoning, System 1 on writing, System-2 verdict elsewhere | 82.3 / 84.3 | 3.1, 0.42 | 90.3 / 92.2 | 94.9 / 95.1 | 65.3 / 64.2 |
+| accuracy | `configs/moj-accuracy.json` (frozen at 06fd0edb3) | every pair is routed (commit 0.95 is never reached by System 1 alone); long-form writing: System 1 plus computed length; reasoning: reference first, then gpt-6-luna and Haiku verdicts under 0.8; elsewhere gpt-6-luna verdict | 84.0 / 87.9 | 4.0, 1.01 | 92.5 / 94.8 (1.95 S2) | 95.5 / 95.5 (1.19 S2) | 67.5 / 72.4 (0.03 S2) |
+
+Accuracy mode on all practice pairs, against the baselines on the same pairs: JudgeBench 93.6 against promptfoo 90.4
+(+3.2 [+0.8, +6.0]) and 97.1 against the ledger's 95.6 on its 68 pairs; MM-Eval 95.5 against 92.8 (+2.7 [+0.3, +5.2]);
+writing 69.5 against promptfoo 54.8 (+14.7 [+8.8, +20.5]) and longer wins 68.7 (+0.8 [-4.7, +6.3]).
+The System-2-family cap of 2 calls per pair holds as an average on each practice set (1.95, 1.19, 0.03); a single
+reasoning pair under the stop uses 5 (reference 1, gpt-6-luna 2, Haiku 2).
+
+What was added for accuracy mode, each tested on both halves:
+
+| Component | Tuning / validation effect | Kept |
+|---|---|---|
+| Second terrain read on the request alone (`route2`: long-form asked, brevity asked, creative) | needed: writing terrain alone also catches MM-Eval chat pairs where the longer reply holds the label only 21 to 25 percent of the time | yes |
+| System 1 plus computed length on long-form terrain, weights fitted on abstained long-form practice pairs | writing +2.2 / +8.2 against r6; MM-Eval long-form pairs stay at 95 | yes |
+| Haiku verdict joined to gpt-6-luna on reasoning terrain under the stop | JudgeBench +2.2 / +1.7, MM-Eval 0 / -0.7 | yes |
+| Haiku joined on every escalated pair | JudgeBench the same, MM-Eval -1.3 / -2.1 | no |
+| More System 2 on reasoning terrain (stop 0.95 or always) | 0 on every cell | no |
+
+Writing in accuracy mode. Length carries the label on this set (longer wins 68.7 on practice, 69.7 on the first sealed
+run; every System-1 design is under chance where the shorter reply holds the label). Accuracy mode therefore mixes the
+System-1 verdict with the length of the replies on long-form terrain. The target on sealed data is level with longer wins
+and well above promptfoo. No claim of beating the length rule is made.
+
+JudgeBench has no unseen pairs left. The GPT-4o response split (350 pairs) is used up by practice (250) and the first
+sealed run (100). The 270 Claude-response pairs were the ledger harness's sealed test and were analysed after the fact.
+A confirmatory JudgeBench claim needs new source data.
+
+## Second sealed run (run once, scored once)
+
+Sequence. Accuracy and economy modes and the pre-registration (`sealed/draw-2/freeze.json`, commit 06fd0edb3) were
+committed before any call on the second draw. The ids and digests (`sealed/draw-2/sealed-ids.json`) were committed in
+the same commit. Ten health probes passed before the first sealed call. Calls ran 2 at a time. A 15-minute network
+outage hit during collection: every call without an answer was recovered missing-only before scoring, and the final
+recovery cycle left 0 missing answers (MoJ, promptfoo and ledger). No pair was counted as a loss. At score time, no
+frozen file had changed and the refitted weights equalled the frozen ones.
+
+Cells. MM-Eval is the only confirmatory cell: 600 never-scored ids, one per prompt group, disjoint from practice and
+from the first sealed run. JudgeBench (179) and writing (217) are secondary cells, outside the test family. They are
+unseen by MoJ, but they were previously scored by the ledger harness, whose after-the-fact analysis informed the MoJ
+design. They cannot confirm anything alone. On those secondary cells the promptfoo and ledger answers are the ledger
+harness's own recordings (gpt-6-luna, medium effort, the same model and setting as MoJ's System 2). The 44
+never-scored writing pairs and all MM-Eval pairs got a fresh ledger run with the same core and harness settings.
+
+| Benchmark | Accuracy mode [95%] | Economy mode | promptfoo | Our ledger | Longer wins |
+|---|---|---|---|---|---|
+| **MM-Eval, confirmatory (600)** | 94.8 [93, 96] | 94.8 | 95.4 [93, 97] | 94.0 [92, 96] | 39.8 |
+| MM-Eval, strict both-order rule | 94.7 | 94.7 | 94.3 | 93.7 | |
+| JudgeBench, secondary (179), half credit | 88.5 [83, 92] | 83.0 | 87.2 [81, 91] | 89.7 [84, 93] | 44.1 |
+| JudgeBench, secondary, strict both-order rule | 88.3 | 82.7 | 83.2 | 86.6 | |
+| Writing, secondary (217) | 68.7 [62, 74] | 66.8 | 59.7 [53, 66] | 56.2 [50, 63] | 66.8 |
+| Writing, strict both-order rule | 68.2 | 66.4 | 48.4 | 55.8 | |
+
+| Paired difference, by prompt group | Half credit | Strict both-order rule |
+|---|---|---|
+| **MM-Eval: accuracy minus promptfoo (primary endpoint)** | **-0.7 [-1.9, +0.6], p 0.33** | +0.3 [-1.2, +1.8] |
+| MM-Eval: accuracy minus ledger | +0.8 [-0.8, +2.2] | +1.0 [-0.7, +2.7] |
+| MM-Eval: accuracy minus economy | 0.0 [-1.0, +1.0] | |
+| JudgeBench (secondary): accuracy minus promptfoo | +1.4 [-2.5, +5.2] | +5.0 [+0.6, +10.0], p 0.043 |
+| JudgeBench (secondary): accuracy minus ledger | -1.1 [-5.0, +2.5] | +1.7 [-2.8, +6.2] |
+| JudgeBench (secondary): accuracy minus economy | +5.6 [+2.2, +9.5] | |
+| Writing (secondary): accuracy minus promptfoo | +9.0 [+1.3, +16.7] | +19.8 [+11.4, +28.4] |
+| Writing (secondary): accuracy minus ledger | +12.4 [+5.0, +20.0] | +12.4 [+4.9, +20.1] |
+| Writing (secondary): accuracy minus longer wins | +1.8 [-4.2, +8.0] | |
+
+| Per 100 pairs | Accuracy: S1 calls, S2-family calls, USD | Economy: S1, S2, USD | promptfoo: S2 calls, USD | Ledger: S2 calls, USD |
+|---|---|---|---|---|
+| MM-Eval | 429, 108, 0.011 | 262, 26, 0.003 | 200, 0.024 | 250, 0.086 |
+| JudgeBench | 500, 209, 0.068 | 368, 70, 0.016 | 200, 0.056 (recorded run, reader 3) | 209, 0.157 (recorded run, reader 3) |
+| Writing | 307, 10, 0.001 | 259, 9, 0.001 | 200, 0.077 (fresh pairs) | 229, 0.154 (recorded) |
+
+USD for accuracy mode includes the Haiku member (claude CLI reported cost). On JudgeBench, accuracy mode spends 2.09
+System-2-family calls per pair: above the cap of 2 by 0.09. The practice average was 1.95. Jev calls have no published
+price. Latency per pair (sum of call times): 4.4 s, 8.5 s, 1.4 s.
+
+Reading by the pre-registered rule.
+- **Confirmatory cell (MM-Eval).** Accuracy mode does not beat promptfoo: -0.7 [-1.9, +0.6] with half credit. This is a
+  tie at 54 percent of promptfoo's System-2 calls (economy mode: a tie at 13 percent). The design had 0.89 power for a
+  2-point gap, so a gain of that size is unlikely to have been missed. There is no MM-Eval headroom left for accuracy mode:
+  promptfoo, our ledger and both modes all sit between 94.0 and 95.4.
+- **JudgeBench (secondary, not confirmatory).** Accuracy mode is level with promptfoo under half credit and ahead under
+  the strict rule (+5.0 [+0.6, +10.0]). It is level with the ledger. It is clearly above economy mode (+5.6).
+- **Writing (secondary, not confirmatory).** Accuracy mode is level with longer wins (+1.8 [-4.2, +8.0]), as
+  pre-registered for this cell. It is well above promptfoo (+9.0 half credit, +19.8 strict) and above our ledger (+12.4).
+- **The owner's bar "higher scores than promptfoo"** is met on writing and on JudgeBench under the strict rule, but
+  only on secondary cells. On the one fresh, powered cell it is a tie at about half the System-2 calls.
