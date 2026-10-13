@@ -44,7 +44,7 @@ The first public release. driftbench evaluates AI agents block by block: a block
 
 ### Packages
 
-`@agent-nexus/driftbench` (the `driftbench` command), `@agent-nexus/driftbench-core`, `@agent-nexus/driftbench-checks`, `@agent-nexus/driftbench-judges`, `@agent-nexus/driftbench-users`, `@agent-nexus/driftbench-adapters`, `@agent-nexus/driftbench-sandbox`, `@agent-nexus/driftbench-artifacts`, `@agent-nexus/driftbench-stats`, `@agent-nexus/driftbench-store`, `@agent-nexus/driftbench-report`, `@agent-nexus/driftbench-space`, `@agent-nexus/driftbench-generate`, `@agent-nexus/driftbench-estate`, `@agent-nexus/driftbench-validators` and `@agent-nexus/driftbench-vitest`, and `driftbench` on PyPI. `@agent-nexus/driftbench-battery` stays private until it holds code.
+`@agent-nexus/driftbench` (the `driftbench` command), `@agent-nexus/driftbench-core`, `@agent-nexus/driftbench-checks`, `@agent-nexus/driftbench-judges`, `@agent-nexus/driftbench-users`, `@agent-nexus/driftbench-adapters`, `@agent-nexus/driftbench-sandbox`, `@agent-nexus/driftbench-artifacts`, `@agent-nexus/driftbench-stats`, `@agent-nexus/driftbench-store`, `@agent-nexus/driftbench-report`, `@agent-nexus/driftbench-space`, `@agent-nexus/driftbench-generate`, `@agent-nexus/driftbench-estate`, `@agent-nexus/driftbench-validators` and `@agent-nexus/driftbench-vitest`, and `drift-bench` on PyPI (imported as `driftbench`). `@agent-nexus/driftbench-battery` stays private until it holds code.
 
 ### Added
 
