@@ -1,0 +1,74 @@
+[
+  {
+    "row": "task completion",
+    "n": 192,
+    "ours": 182,
+    "theirs": 130,
+    "ours_ci": [
+      90.68,
+      97.15
+    ],
+    "theirs_ci": [
+      60.8,
+      73.92
+    ],
+    "ours_distinct_inputs": 144,
+    "theirs_distinct_inputs": 144,
+    "ours_only_right": 56,
+    "theirs_only_right": 4,
+    "paired_p": 9.084503982403902e-13,
+    "outcome": "ahead",
+    "ours_unparsed": 1,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.29909027,
+    "strict_theirs": 96
+  },
+  {
+    "row": "hallucination",
+    "n": 192,
+    "ours": 192,
+    "theirs": 96,
+    "ours_ci": [
+      98.04,
+      100.0
+    ],
+    "theirs_ci": [
+      43.0,
+      57.0
+    ],
+    "ours_distinct_inputs": 120,
+    "theirs_distinct_inputs": 120,
+    "ours_only_right": 96,
+    "theirs_only_right": 0,
+    "paired_p": 2.524354896707238e-29,
+    "outcome": "ahead",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.2795264,
+    "strict_theirs": 170
+  },
+  {
+    "row": "faithfulness",
+    "n": 192,
+    "ours": 192,
+    "theirs": 96,
+    "ours_ci": [
+      98.04,
+      100.0
+    ],
+    "theirs_ci": [
+      43.0,
+      57.0
+    ],
+    "ours_distinct_inputs": 120,
+    "theirs_distinct_inputs": 120,
+    "ours_only_right": 96,
+    "theirs_only_right": 0,
+    "paired_p": 2.524354896707238e-29,
+    "outcome": "ahead",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.3839022,
+    "strict_theirs": 168
+  }
+]

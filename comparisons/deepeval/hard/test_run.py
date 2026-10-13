@@ -273,5 +273,39 @@ class HardTests(unittest.TestCase):
         self.assertEqual(migrate(root),[])
 
 
+class PooledReceiptTests(unittest.TestCase):
+    def test_partial_receipts_compare_only_common_cases_without_changing_sources(self):
+        import pool
+        import tempfile
+        runtime = ROOT / ".runtime"
+        runtime.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=runtime) as directory:
+            root = Path(directory)
+            (root / "additional").mkdir()
+            def row(identifier, truth):
+                side = {"prediction": truth, "request_sha256s": [identifier], "cost_usd": .001, "score": int(truth)}
+                return {"row": "task completion", "set": "task", "id": identifier,
+                        "truth": truth, "ours": side, "theirs": side}
+            original = {"rows": [row("old-a", True), row("old-b", False)]}
+            baseline = {"rows": [row("new-a", True), row("new-b", False)]}
+            candidate = {"rows": [row("new-a", True)], "stopped": "Local deadline reached"}
+            for name in ["baseline", "audit"]:
+                (root / f"{name}-task-receipts-heldout.json").write_text(json.dumps(original))
+            (root / "additional/baseline-task-receipts.json").write_text(json.dumps(baseline))
+            (root / "additional/audit-task-receipts.json").write_text(json.dumps(candidate))
+            sources = {p: p.read_bytes() for p in root.rglob("*.json")}
+            with patch("pool.ROOT", root):
+                for variant in ["baseline", "audit"]:
+                    score = pool.pool(variant, True)[0]
+                    self.assertEqual(score["n"], 3)
+                    self.assertEqual(score["ours"], 3)
+                    self.assertEqual(score["ours_distinct_inputs"], 3)
+                    result = json.loads((root / f"additional/pooled-{variant}-task-receipts.json").read_text())
+                    self.assertTrue(result["matched_case_subset"])
+                    self.assertEqual([r["id"] for r in result["rows"]],
+                                     ["seed20261019/old-a", "seed20261019/old-b", "seed20261020/new-a"])
+            self.assertTrue(all(path.read_bytes() == content for path, content in sources.items()))
+
+
 if __name__ == "__main__":
     unittest.main()

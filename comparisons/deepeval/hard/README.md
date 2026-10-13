@@ -1,6 +1,6 @@
 # Hard judged comparisons
 
-Measurement is in progress. The candidate is **not yet the shipped default**.
+Measurements and free replays are recorded. The candidate is **not yet the shipped default**.
 
 This folder measures nine judged rows against DeepEval 4.2.8 using six synthetic
 120-case sets. It preserves the old comparisons in the parent folder.
@@ -240,3 +240,27 @@ Free replay and pooling, without model calls:
 .venv/bin/python comparisons/deepeval/hard/run-additional.py --sets task --evidence receipt --variant audit --tag replay-additional-audit-receipts
 python3 comparisons/deepeval/hard/pool.py
 ```
+
+## Call cutoff and final coverage
+
+New calls stop at 06:30 local time on 2026-10-13. Original held-out and additional
+conversation measurements are complete. The additional receipt baseline measures
+all 120 cases: shipped 120/120 and default 118/120 over 90 distinct inputs.
+The default has one completed-task miss and one unparsed invocation at the cutoff.
+The additional receipt candidate makes no model call and remains unrun. Its empty
+result records the deadline stop. Three-way pooled receipt counts therefore use
+only the original held-out receipt cases; the full additional baseline appears
+separately. No missing candidate score is filled in.
+
+The additional conversation task candidate scores 113/120. Six misses add an
+explicit target-identification requirement to completed actions. The cases are
+`task-move-0-a`, `task-move-3-a`, `task-refund-0-a`, `task-move-4-a`,
+`task-refund-4-a` and `task-move-2-a`. A separate invalid-envelope miss occurs on
+`task-refund-3-a`. The candidate and labels stay unchanged.
+
+Eight unique answers have an operator identifier redacted: six original hard
+answers and two original held-out answers. Their unredacted originals remain
+outside the repository. These are invented evidence absent from the supplied
+inputs, even where the final classification is correct. Scores remain unchanged.
+`final-integrity.json` records chunk hashes, distinct-input counts and source
+freezes. One cutoff invocation uses a conservative 0.05 USD failure reservation.

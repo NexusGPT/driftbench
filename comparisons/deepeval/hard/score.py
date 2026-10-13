@@ -69,7 +69,7 @@ def main():
                 for key in r[side].get("request_sha256s",r[side].get("keys",[])):
                     audit.extend(["", f"Call `{key}`", "", "```json", calls[key]["result"], "```"])
             audit.append("")
-    (ROOT / f"losses-{args.recording.stem}.md").write_text("\n".join(audit)+"\n")
+    (args.recording.parent / f"losses-{args.recording.stem}.md").write_text("\n".join(audit)+"\n")
 
 
 if __name__ == "__main__":
