@@ -165,7 +165,7 @@ describe('replayAdapter', () => {
       hash: 'h',
     };
     const open = await adapter.open(given);
-    const turn = (index: number) => ({ index, stimulus: { user: 'x' }, given });
+    const turn = (index: number) => ({ index, stimulus: { user: 'two' }, given });
     expect((await adapter.send(open, turn(0))).text).toBe('second');
     await expect(adapter.send(open, turn(1))).rejects.toBeInstanceOf(AgentFailure);
     await expect(adapter.send(open, turn(1))).rejects.toThrow('the session has 2 blocks');

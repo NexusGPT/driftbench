@@ -46,6 +46,8 @@ A reference to a name the spec does not define is an error. A spec with no `crit
 
 ## Criteria folders and fixture pairs
 
+Every field of a criterion file and of a label file is in the [criteria and labels reference](../reference/criteria.md).
+
 A criteria folder holds one YAML file per criterion, named after it. Each file holds the `criterion`, in the same shape as a spec's `criteria` entry, and a fixture pair: a `pass` slice the criterion must pass and a `fail` slice it must fail.
 
 ```text
@@ -146,6 +148,7 @@ Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku a
 * An evidence quote can include its entry's rendered role prefix. It must match that entry's actual role and text. A role alone, tool name alone, wrong role or invented passage is not grounded.
 * `parseAnswerText` and `parseAnswerValue` remain explicit binary parsing utilities. Their public answer shape is `outcome`, `reasoning`, optional `score` and optional `evidence`; they are distinct from the default model-facing ledger contract.
 * `answerContract: 'legacy'` reproduces main `a97cb65e` rendering and parsing, including literal entry separators and its original quote repair. Additional repair forms and guard hardening do not change legacy playback.
+* `criterionPromptVersion: 2` on a request is opt-in. It sends the default criterion prompt plus three rules: compare named identifiers, numbers and units exactly; treat facts the criterion states as the expected values, so `met` is not null for want of an outside source; let the record the question names decide, over the scope line and a contradicting reply. It has its own prompt fingerprint, so its recordings are separate. The default stays version 1 with unchanged bytes and keys. Version 2 does not apply to legacy, assessment or caller-supplied system prompts.
 * Council and calibration paths retry an unparseable normal-budget answer once with the large budget. A single judge re-asks an invalid criterion ledger once. A split council can still run its existing additional round. A provider refusal or unresolved check remains inconclusive.
 
 ## Two classes of judge

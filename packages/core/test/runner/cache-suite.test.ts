@@ -1,6 +1,8 @@
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { type BlockKeyParts, blockCacheKey } from '../../src/runner/cache';
 import { resolveGiven } from '../../src/runner/given';
+import { canonicalJson } from '../../src/spec/hash';
 
 const parts: BlockKeyParts = {
   specHash: 'hash-1',
@@ -38,5 +40,22 @@ describe('each block records the cache key it was stored under', () => {
     expect(
       blockCacheKey({ ...parts, given: resolveGiven({ ledger: {}, world: {}, vars: {} }, [], parts.target) }),
     ).toMatch(/^block:[0-9a-f]{64}$/);
+  });
+});
+
+describe('the cache key per agent version', () => {
+  it('keeps the exact legacy digest when no agent version is supplied, with or without a suite', () => {
+    for (const legacy of [parts, { ...parts, suite: 'nightly' }]) {
+      const expected = `block:${createHash('sha256').update(canonicalJson(legacy)).digest('hex')}`;
+      expect(blockCacheKey(legacy)).toBe(expected);
+      expect(blockCacheKey({ ...legacy, agentVersion: undefined })).toBe(expected);
+    }
+  });
+
+  it('isolates agent versions without changing the pinned target', () => {
+    expect(blockCacheKey({ ...parts, agentVersion: 'v1' })).not.toBe(blockCacheKey(parts));
+    expect(blockCacheKey({ ...parts, agentVersion: 'v1' })).not.toBe(
+      blockCacheKey({ ...parts, agentVersion: 'v2' }),
+    );
   });
 });

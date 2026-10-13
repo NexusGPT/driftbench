@@ -94,9 +94,7 @@ raw output and exit code; absent usage or cost is left undefined.
 | claude-cli | scratchpad then last JSON | not exposed |
 
 Omitting `schema` preserves plain-text prompts. Unsupported reasoning settings on Anthropic and
-native Claude transport throw. General clients have no reasoning default. The optional
-`FROZEN_BENCHMARK_REASONING` map fixes gpt-6-luna and gemini-3.8-flash to `medium` for both
-contestants on every benchmark row; native Haiku and Jev settings are unset.
+native Claude transport throw. General clients have no reasoning default.
 
 The example `examples/judge-benchmarks/src/llm-shim.mjs` accepts `--json-schema` with a JSON schema
 string and `--reasoning-effort` with the provider setting. `SHIM_SCHEMA_FLAG` exports that schema
