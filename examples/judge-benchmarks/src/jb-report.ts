@@ -13,6 +13,27 @@ const audit = JSON.parse(await readFile(`${output}/label-audit.json`, 'utf8')) a
   excluded: { id: string; reason: string; source?: string; sources?: string[] }[];
 };
 const excluded = new Set(audit.excluded.map((x) => x.id));
+const expanded = JSON.parse(await readFile(`${output}/expanded-label-audit.json`, 'utf8')) as {
+  policy: string;
+  additional: { id: string; reason: string; evidence: string }[];
+};
+const expandedExcluded = new Set([...excluded, ...expanded.additional.map((x) => x.id)]);
+const expandedRows: string[] = [];
+const grid = JSON.parse(await readFile(`${output}/lower-confidence-grid.json`, 'utf8')) as {
+  id: string;
+  threshold: number;
+  official: Summary;
+  audited: Summary;
+  escalated: number;
+  share: number;
+  cost100: number;
+}[];
+const chosenThreshold = [...grid].sort(
+  (a, b) =>
+    b.official.value.estimate - a.official.value.estimate ||
+    a.threshold - b.threshold ||
+    a.cost100 - b.cost100,
+)[0]?.threshold;
 const ids = ['driftbench-adaptive', 'driftbench-reference3', ...process.argv.slice(2)];
 const rows: string[] = [];
 const summaries: {
@@ -51,6 +72,10 @@ for (const id of ids) {
   const official = items.filter((i) => i.correct).length / items.length;
   const audited = kept.filter((i) => i.correct).length / kept.length;
   const cost100 = (c.costUsd / items.length) * 100;
+  const expandedKept = items.filter((i) => !expandedExcluded.has(i.id));
+  expandedRows.push(
+    `| ${id} | ${(100 * official).toFixed(1)} | ${(100 * audited).toFixed(1)} (${kept.filter((i) => i.correct).length}/${kept.length}) | ${((100 * expandedKept.filter((i) => i.correct).length) / expandedKept.length).toFixed(1)} (${expandedKept.filter((i) => i.correct).length}/${expandedKept.length}) |`,
+  );
   summaries.push({
     id,
     official,
@@ -83,7 +108,16 @@ let testAudit:
       interval: string;
     }
   | undefined;
-let freeze: { sha: string; stamp: string; ids: string[]; sample: number } | undefined;
+let freeze:
+  | {
+      sha: string;
+      stamp: string;
+      ids: string[];
+      sample: number;
+      confidenceThreshold: number | null;
+      selection?: { chosenCorrect: number; rule: string };
+    }
+  | undefined;
 const controlRows: string[] = [];
 for (const id of [
   'driftbench-reference3-tools',
@@ -211,6 +245,19 @@ const lines = [
     ),
   '',
   'The cascade runs unchanged reference3 reasoning first. It escalates parsed reference disagreement with both finals, split order-normalized sample categories, low recorded verdict confidence, inconclusive base outcomes or explicit reference uncertainty. The default confidence threshold is 0.75; globally chosen dev alternatives show their percentage in the configuration suffix. Missing answer extraction alone does not trigger escalation. Labels, group, answer length and the preferred letter never enter the gate. The format variant applies the same question-only checker to both stages. Cascade cost includes base plus selected escalation; full escalation cost includes only its standalone evidence and judgements.',
+  '',
+  '### Dev-only confidence threshold curve',
+  '',
+  `The reporting threshold is ${chosenThreshold}: maximize complete official dev accuracy, then choose the lowest tied threshold. Thresholds 0.50 and 0.60 tie at 112/121 with format parsing. No held-out result informs this choice.`,
+  '',
+  '| Threshold | Format parser | Official percent (correct/121) | Primary audited percent | Escalated pairs | USD per 100 pairs |',
+  '|---|---|---|---|---|---|',
+  ...grid.map(
+    (r) =>
+      `| ${r.threshold.toFixed(2)} | ${r.id.includes('-format') ? 'with' : 'without'} | ${(100 * r.official.value.estimate).toFixed(1)} (${Math.round(121 * r.official.value.estimate)}/121) | ${(100 * r.audited.value.estimate).toFixed(1)} (${Math.round(r.audited.n * r.audited.value.estimate)}/${r.audited.n}) | ${r.escalated}/121 (${(100 * r.share).toFixed(1)} percent) | ${r.cost100.toFixed(4)} |`,
+  ),
+  '',
+  "The curve replays the same recorded escalations without extra model calls. The lower threshold removes moderate-confidence escalations and improves the official metric, but the gain is one item over reference3. It does not meet the lead's two-item replacement rule. The 0.50 to 0.60 plateau does not establish generalization; threshold selection uses this single dev split.",
   ...(controlRows.length
     ? [
         '',
@@ -312,6 +359,20 @@ const lines = [
       `| ${x.id} | ${x.reason} ${[...(x.sources ?? []), ...(x.source ? [x.source] : [])].map((s, i) => `[Source ${i + 1}](${s})`).join(' ')} |`,
   ),
   '',
+  '## Expanded label audit, separate diagnostic',
+  '',
+  expanded.policy,
+  '',
+  '| Additional dev item | Evidence and qualification |',
+  '|---|---|',
+  ...expanded.additional.map((x) => `| ${x.id} | ${x.reason} Evidence artifact: ${x.evidence}. |`),
+  '',
+  '| Variant | Official percent | Original ten-item audit | Expanded twelve-item audit |',
+  '|---|---|---|---|',
+  ...expandedRows,
+  '',
+  'The expanded subset never determines configuration or threshold selection. Both primary and expanded audited scores retain the official labels for the remaining pairs. The triangle entry is a defensible final-answer alternative, not a claim that the official preference for the stronger derivation is wrong.',
+  '',
   '## Verification and cost',
   '',
   '- The harness originally limited items but launched nested judgements in parallel. A call queue now makes --concurrency 1 serialize nested samples, candidate reviews and both orders.',
@@ -324,7 +385,7 @@ const lines = [
   '## Best configuration and limits',
   '',
   best
-    ? `${freeze ? `Frozen configurations: ${freeze.ids.join(', ')} at ${freeze.sha}.` : `Leading complete contestant: ${best.id}.`} The official dev metric determines selection. ${heldout ? 'No configuration changes follow the held-out run.' : 'The held-out run has not started.'}`
+    ? `${freeze ? `Frozen configurations: ${freeze.ids.join(', ')} at ${freeze.sha}.` : `Leading complete contestant: ${best.id}.`} The lead's freeze rule requires at least 113/121 official for a replacement. Otherwise original reference3 freezes even when a measured candidate reaches 112/121. ${freeze ? `Frozen threshold: ${freeze.confidenceThreshold === null ? 'not applicable to original reference3' : freeze.confidenceThreshold}.` : ''} ${heldout ? 'No configuration changes follow the held-out run.' : 'The held-out run has not started.'}`
     : 'Wait for a complete development run before selecting a configuration.',
   '',
   'The label audit finds more uncertainty than the original two equal-answer pairs. A strict majority can still be confidently wrong because all solves use the same model. Reference omission reduces false authority; it does not create new domain knowledge.',
@@ -336,7 +397,16 @@ await writeFile(reportPath, lines.join('\n'));
 await writeFile(
   `${output}/summary.json`,
   JSON.stringify(
-    { stamp, best, variants: summaries, spent, recordedCalls: newRows.length, excluded: [...excluded] },
+    {
+      stamp,
+      best,
+      variants: summaries,
+      chosenThreshold,
+      freeze,
+      spent,
+      recordedCalls: newRows.length,
+      excluded: [...excluded],
+    },
     null,
     2,
   ),

@@ -1,0 +1,13 @@
+{
+  "stamp": "2026-10-13T00:15:59.207Z",
+  "population": 229,
+  "existingAdaptiveRoutes": 228,
+  "routeYes": 206,
+  "routeNo": 22,
+  "existingReferenceItems": 228,
+  "observedDurationCalls": 146,
+  "meanCallMs": 9713.589041095891,
+  "p90CallMs": 14656,
+  "selection": 0,
+  "reason": "Full split: original reference3 prompts are shared with checkable adaptive recordings; format parsing adds one question-only compiler per item plus reviews. Existing coverage and observed per-call duration support full evaluation before06:30. This is a cache/throughput forecast; no test verdict or label is inspected."
+}

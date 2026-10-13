@@ -1,0 +1,15 @@
+{
+  "policy": "Supplemental dev diagnostic added after the original ten-item audit. The primary audit stays fixed at 111 retained pairs. This expanded subset retains 109 pairs and never selects a threshold or judge. No official label is rewritten.",
+  "additional": [
+    {
+      "id": "6ab00107-92e5-526a-96fd-018e71261e9f",
+      "reason": "Under-specified sphere radius and location. With unit cube ACGE in x=y and J=(0,-1,1) on AD extended, the distance to the cube is 1 and to the cut plane is 1/sqrt(2). Radii 1/2 and 4/5 both avoid cube overlap but give totals 3 and 4 respectively. Neither universal count follows from the statement. A model-generated blind program has a failed self-test and is not relied on; independent coordinate assertions and the backward enumeration exhibit both totals.",
+      "evidence": "jb-results/geometry-audit.py and jb-results/geometry-audit-evidence.json"
+    },
+    {
+      "id": "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb",
+      "reason": "Both finals are bold 3. The cut intersects AB at (sqrt(3)-1,0), creates EFP, EPG and PBC as triangles, and APCD as a quadrilateral. B's derivation is stronger; A's derivation is vague and contains mistakes, while its final answer remains correct. Exclude only in this separate final-answer diagnostic; the official preference for B is defensible.",
+      "evidence": "jb-results/geometry-audit.py and jb-results/geometry-audit-evidence.json"
+    }
+  ]
+}

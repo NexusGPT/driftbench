@@ -1,0 +1,54 @@
+{
+  "cube_sphere": {
+    "plane": "x=y",
+    "distance_to_cube_squared": 1,
+    "distance_to_plane_squared": "1/2",
+    "cases": [
+      {
+        "center": [
+          0,
+          -1,
+          1
+        ],
+        "radius": "1/2",
+        "sphere_cut": false,
+        "cube_pieces": 2,
+        "sphere_pieces": 1,
+        "total": 3
+      },
+      {
+        "center": [
+          0,
+          -1,
+          1
+        ],
+        "radius": "4/5",
+        "sphere_cut": true,
+        "cube_pieces": 2,
+        "sphere_pieces": 2,
+        "total": 4
+      }
+    ]
+  },
+  "square_triangle": {
+    "cut_point": [
+      0.7320508075688773,
+      0.0
+    ],
+    "piece_vertex_counts": [
+      3,
+      3,
+      3,
+      4
+    ],
+    "triangles": 3,
+    "areas": [
+      0.31698729810778065,
+      0.11602540378443865,
+      0.13397459621556135,
+      0.8660254037844386
+    ],
+    "area_conserved": true
+  },
+  "all_independent_assertions_pass": true
+}

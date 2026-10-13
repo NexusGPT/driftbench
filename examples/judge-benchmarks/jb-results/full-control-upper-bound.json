@@ -1,0 +1,208 @@
+[
+  {
+    "stamp": "2026-10-13T00:14:02.075Z",
+    "id": "driftbench-reference3-tools",
+    "population": 121,
+    "completed": 50,
+    "knownErrors": 12,
+    "maxCorrectEvenIfRemainingAllRight": 109,
+    "newCalls": 0,
+    "errors": [
+      {
+        "id": "138e503c-b09d-5d19-82ff-0b5ddc3e7bf6",
+        "games": [
+          "B",
+          "B"
+        ],
+        "label": "A"
+      },
+      {
+        "id": "07c3dda8-0f84-5624-9b4a-19ed31d85a2b",
+        "games": [
+          "A",
+          "tie"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "0a347026-2ec5-5879-9635-e6fc818d021b",
+        "games": [
+          "A",
+          "A"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "c67cf264-33f9-5730-aeea-a7364756a96b",
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "dcfbadd5-4b7c-5ffd-b66d-5cb0a380605d",
+        "games": [
+          "B",
+          "tie"
+        ],
+        "label": "A"
+      },
+      {
+        "id": "70bf4c34-6b15-53e6-bb19-9094bdaf6c9f",
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "3c6f3a85-c058-543a-8226-852972410970",
+        "games": [
+          "A",
+          "B"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "8b33bb85-b242-5845-83f0-5cb7e32be529",
+        "games": [
+          "A",
+          "B"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "82a6f9e6-aa7f-5380-8503-2227e0455f1e",
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "label": "A"
+      },
+      {
+        "id": "a243b087-e171-511c-8d4c-e1f1fadad9d1",
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "6ab00107-92e5-526a-96fd-018e71261e9f",
+        "games": [
+          "A",
+          "tie"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb",
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "label": "B"
+      }
+    ]
+  },
+  {
+    "stamp": "2026-10-13T00:14:02.215Z",
+    "id": "driftbench-reference3-tools-format",
+    "population": 121,
+    "completed": 50,
+    "knownErrors": 11,
+    "maxCorrectEvenIfRemainingAllRight": 110,
+    "newCalls": 0,
+    "errors": [
+      {
+        "id": "138e503c-b09d-5d19-82ff-0b5ddc3e7bf6",
+        "games": [
+          "B",
+          "B"
+        ],
+        "label": "A"
+      },
+      {
+        "id": "07c3dda8-0f84-5624-9b4a-19ed31d85a2b",
+        "games": [
+          "A",
+          "tie"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "0a347026-2ec5-5879-9635-e6fc818d021b",
+        "games": [
+          "A",
+          "A"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "c67cf264-33f9-5730-aeea-a7364756a96b",
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "dcfbadd5-4b7c-5ffd-b66d-5cb0a380605d",
+        "games": [
+          "B",
+          "tie"
+        ],
+        "label": "A"
+      },
+      {
+        "id": "3c6f3a85-c058-543a-8226-852972410970",
+        "games": [
+          "A",
+          "B"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "8b33bb85-b242-5845-83f0-5cb7e32be529",
+        "games": [
+          "A",
+          "B"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "82a6f9e6-aa7f-5380-8503-2227e0455f1e",
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "label": "A"
+      },
+      {
+        "id": "a243b087-e171-511c-8d4c-e1f1fadad9d1",
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "6ab00107-92e5-526a-96fd-018e71261e9f",
+        "games": [
+          "A",
+          "tie"
+        ],
+        "label": "B"
+      },
+      {
+        "id": "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb",
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "label": "B"
+      }
+    ]
+  }
+]

@@ -155,6 +155,59 @@ describe('the recording key', () => {
 });
 
 describe('samples, routes and references', () => {
+  it('keeps candidate values out of format repair even when an exception echoes them', async () => {
+    const initial = JSON.stringify({
+      instruction_quote: 'Return JSON only.',
+      python: 'def check(response):\n    raise ValueError(response)',
+    });
+    const repaired = JSON.stringify({
+      instruction_quote: 'Return JSON only.',
+      python:
+        'import json\ndef check(response):\n    try:\n        json.loads(response)\n        return True\n    except ValueError:\n        return False',
+    });
+    const cmd = join(dir, 'blind-format-repair.mjs');
+    await writeFile(
+      cmd,
+      `#!/usr/bin/env node\nlet input='';process.stdin.on('data',c=>input+=c);process.stdin.on('end',()=>{let result;if(input.includes('Repair the previous predicate')){const r=JSON.parse(${JSON.stringify(repaired)});r.saw_candidate=input.includes('CANDIDATE_SENTINEL');r.saw_error=input.includes('ValueError');result=JSON.stringify(r);}else if(input.startsWith('FORMAT '))result=${JSON.stringify(initial)};else result='{"a_correct":true,"b_correct":true,"winner":"tie"}';process.stdout.write(JSON.stringify({result,total_cost_usd:0.001,is_error:false}));});`,
+    );
+    await chmod(cmd, 0o755);
+    const c = {
+      id: 'blind-format-repair',
+      source: 'test',
+      answerFormat: (q: string) => ({ system: '', user: `FORMAT ${q}` }),
+      pair: ({ a, b }: { a: string; b: string }) => ({ system: '', user: `${a} versus ${b}` }),
+      parsePair: parseFormatLedger,
+    };
+    const recordingsDir = join(dir, 'blind-format-repair');
+    const report = await runBenchmark({
+      bench: 'judgebench',
+      model: 'fake',
+      contestants: [c],
+      items: [
+        {
+          kind: 'pair',
+          id: 'json',
+          question: 'Return JSON only.',
+          a: '{"text":"CANDIDATE_SENTINEL"}',
+          b: 'not JSON',
+          label: 'A',
+          group: 'test',
+        },
+      ],
+      command: cmd,
+      recordingsDir,
+      concurrency: 1,
+    });
+    expect(report.newCalls).toBe(4);
+    expect(report.contestants[0]?.summary.value.estimate).toBe(1);
+    const records = (await readFile(join(recordingsDir, 'judgebench', 'fake.jsonl'), 'utf8'))
+      .trim()
+      .split('\n')
+      .map((l) => JSON.parse(l));
+    const repair = JSON.parse(records.find((r) => r.order === 'answer-format-repair').text);
+    expect(repair.saw_candidate).toBe(false);
+    expect(repair.saw_error).toBe(true);
+  });
   it('reviews a whole-response matcher against the question without exposing either candidate', async () => {
     const initial = JSON.stringify({
       instruction_quote: 'Put the final answer in bold.',

@@ -2,6 +2,8 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { appendFile, open, readFile } from 'node:fs/promises';
+import { cascadeConfig } from './cascade-run';
+import { contestantById } from './contestants';
 
 export const designSources = [
   'src/contestants.ts',
@@ -50,13 +52,44 @@ if (process.argv[1]?.endsWith('jb-freeze.ts')) {
     { encoding: 'utf8' },
   ).trim();
   if (dirty) throw new Error(`Commit the design before freezing: ${dirty}`);
+  // The lead's dev-only freeze rule is independent of the diagnostic label audit.
+  const selection = JSON.parse(
+    await readFile('examples/judge-benchmarks/jb-results/summary.json', 'utf8'),
+  ) as { stamp: string; variants: { id: string; n: number; official: number; cost100: number }[] };
+  if (withFormat !== without.replace('-cascade', '-format-cascade') && withFormat !== `${without}-format`)
+    throw new Error('Freeze ids must be the same design with and without format parsing.');
+  for (const id of [without, withFormat]) {
+    const cascade = cascadeConfig(id);
+    if (!cascade) contestantById(id);
+    else if (cascade.confidenceThreshold !== confidenceThreshold)
+      throw new Error('Configuration id and confidence threshold disagree.');
+  }
+  const chosen = selection.variants.filter((r) => [without, withFormat].includes(r.id) && r.n === 121);
+  if (chosen.length !== 2) throw new Error('Both freeze configurations need complete 121-pair dev results.');
+  const chosenCorrect = Math.round(Math.max(...chosen.map((r) => r.official)) * 121);
+  const qualifying = selection.variants.filter((r) => r.n === 121 && Math.round(r.official * 121) >= 113);
+  if (without === 'driftbench-reference3') {
+    if (qualifying.length)
+      throw new Error('A measured dev variant meets the 113-item selection requirement.');
+  } else if (chosenCorrect < 113) {
+    throw new Error('A replacement design must beat original reference3 by at least two dev items.');
+  }
   const manifest = {
     stamp: new Date().toISOString(),
     sha: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     ids: [without, withFormat],
     sample,
     seed: 'codex-jb-frozen-test-v1',
-    confidenceThreshold,
+    confidenceThreshold: cascadeConfig(without) ? confidenceThreshold : null,
+    selection: {
+      rule: 'Use a replacement only at 113/121 official or better; otherwise freeze original reference3.',
+      baselineCorrect: 111,
+      minimumReplacementCorrect: 113,
+      chosenCorrect,
+      summaryStamp: selection.stamp,
+      qualifying: qualifying.map((r) => r.id),
+      devEvidence: chosen,
+    },
     deadlineMs: Date.parse('2026-10-13T06:30:00+02:00'),
     hashes: await designHashes(),
     auditPolicy:

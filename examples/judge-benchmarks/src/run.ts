@@ -113,6 +113,37 @@ export type RunReport = {
   readonly stopped?: string;
 };
 
+/** A format repair remains blind even when an exception echoes a candidate response. */
+function formatRepairDiagnostic(error: string | undefined): string {
+  const types = [
+    'SyntaxError',
+    'IndentationError',
+    'TabError',
+    'NameError',
+    'UnboundLocalError',
+    'TypeError',
+    'AttributeError',
+    'ValueError',
+    'KeyError',
+    'IndexError',
+    'ZeroDivisionError',
+    'OverflowError',
+    'RuntimeError',
+    'RecursionError',
+    'UnicodeEncodeError',
+    'UnicodeDecodeError',
+    'ImportError',
+    'ModuleNotFoundError',
+    'MemoryError',
+    'AssertionError',
+  ];
+  const kind = types.find((t) => new RegExp(`(?:^|\\n)\\s*${t}:`).test(error ?? ''));
+  if (kind) return `The predicate fails with ${kind}. Candidate values and traceback text are withheld.`;
+  if (/ran past|time limit/i.test(error ?? '')) return 'The predicate exceeds the execution time limit.';
+  if (/output limit|too much output/i.test(error ?? '')) return 'The predicate exceeds the output limit.';
+  return 'The predicate is rejected, fails to execute, or does not return booleans or null. No candidate values are provided.';
+}
+
 async function pool<T>(tasks: readonly (() => Promise<T>)[], concurrency: number): Promise<T[]> {
   const out: T[] = new Array(tasks.length);
   let next = 0;
@@ -508,7 +539,7 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
             contestant,
             {
               ...prompt,
-              user: `${prompt.user}\n\nRepair the previous predicate using the actual diagnostic below. Keep the instruction_quote exact and the same question-only formatting task.\n${ran.error ?? 'The checker did not return booleans or null as JSON.'}\nPrevious predicate:\n${spec.python}`,
+              user: `${prompt.user}\n\nRepair the previous predicate using the actual diagnostic category below. Keep the instruction_quote exact and the same question-only formatting task.\n${formatRepairDiagnostic(ran.error)}\nPrevious predicate:\n${spec.python}`,
             },
             item.id,
             'answer-format-repair',

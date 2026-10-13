@@ -1,0 +1,582 @@
+[
+  {
+    "id": "driftbench-reference3-tools-cascade-50",
+    "threshold": 0.5,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9173553719008265,
+        "lower": 0.854535161068024,
+        "upper": 0.9544909505625935
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8813559322033898
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.94
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9256198347107438
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.972972972972973,
+        "lower": 0.9235375935169964,
+        "upper": 0.9907663615027679
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9791666666666666
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.963963963963964
+    },
+    "escalated": 22,
+    "share": 0.18181818181818182,
+    "cost100": 1.1051195123966946,
+    "newCalls": 0
+  },
+  {
+    "id": "driftbench-reference3-tools-format-cascade-50",
+    "threshold": 0.5,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9256198347107438,
+        "lower": 0.8646691146497353,
+        "upper": 0.9603773160230725
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8983050847457628
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.94
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9338842975206612
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.972972972972973,
+        "lower": 0.9235375935169964,
+        "upper": 0.9907663615027679
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9791666666666666
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.963963963963964
+    },
+    "escalated": 22,
+    "share": 0.18181818181818182,
+    "cost100": 1.2099890165289269,
+    "newCalls": 0
+  },
+  {
+    "id": "driftbench-reference3-tools-cascade-60",
+    "threshold": 0.6,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9173553719008265,
+        "lower": 0.854535161068024,
+        "upper": 0.9544909505625935
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8813559322033898
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.94
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9256198347107438
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.972972972972973,
+        "lower": 0.9235375935169964,
+        "upper": 0.9907663615027679
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9791666666666666
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.963963963963964
+    },
+    "escalated": 22,
+    "share": 0.18181818181818182,
+    "cost100": 1.1051195123966946,
+    "newCalls": 0
+  },
+  {
+    "id": "driftbench-reference3-tools-format-cascade-60",
+    "threshold": 0.6,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9256198347107438,
+        "lower": 0.8646691146497353,
+        "upper": 0.9603773160230725
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8983050847457628
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.94
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9338842975206612
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.972972972972973,
+        "lower": 0.9235375935169964,
+        "upper": 0.9907663615027679
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9791666666666666
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.963963963963964
+    },
+    "escalated": 22,
+    "share": 0.18181818181818182,
+    "cost100": 1.2099890165289269,
+    "newCalls": 0
+  },
+  {
+    "id": "driftbench-reference3-tools-cascade-65",
+    "threshold": 0.65,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9090909090909091,
+        "lower": 0.8445270273318659,
+        "upper": 0.9484787652565609
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8813559322033898
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.92
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9173553719008265
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.963963963963964,
+        "lower": 0.910989944100048,
+        "upper": 0.9858986974907682
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.954954954954955
+    },
+    "escalated": 23,
+    "share": 0.19008264462809918,
+    "cost100": 1.1299305702479343,
+    "newCalls": 0
+  },
+  {
+    "id": "driftbench-reference3-tools-format-cascade-65",
+    "threshold": 0.65,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9173553719008265,
+        "lower": 0.854535161068024,
+        "upper": 0.9544909505625935
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8983050847457628
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.92
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9256198347107438
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.963963963963964,
+        "lower": 0.910989944100048,
+        "upper": 0.9858986974907682
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.954954954954955
+    },
+    "escalated": 23,
+    "share": 0.19008264462809918,
+    "cost100": 1.2348000743801664,
+    "newCalls": 0
+  },
+  {
+    "id": "driftbench-reference3-tools-cascade-70",
+    "threshold": 0.7,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9008264462809917,
+        "lower": 0.8346307100233648,
+        "upper": 0.9423547635228717
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8644067796610171
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.92
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9173553719008265
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.963963963963964,
+        "lower": 0.910989944100048,
+        "upper": 0.9858986974907682
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.954954954954955
+    },
+    "escalated": 25,
+    "share": 0.2066115702479339,
+    "cost100": 1.1541215289256204,
+    "newCalls": 0
+  },
+  {
+    "id": "driftbench-reference3-tools-format-cascade-70",
+    "threshold": 0.7,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9090909090909091,
+        "lower": 0.8445270273318659,
+        "upper": 0.9484787652565609
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8813559322033898
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.92
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9256198347107438
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.963963963963964,
+        "lower": 0.910989944100048,
+        "upper": 0.9858986974907682
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.954954954954955
+    },
+    "escalated": 25,
+    "share": 0.2066115702479339,
+    "cost100": 1.2589910330578526,
+    "newCalls": 0
+  },
+  {
+    "id": "driftbench-reference3-tools-cascade",
+    "threshold": 0.75,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9008264462809917,
+        "lower": 0.8346307100233648,
+        "upper": 0.9423547635228717
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8644067796610171
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.92
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9090909090909091
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.963963963963964,
+        "lower": 0.910989944100048,
+        "upper": 0.9858986974907682
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9459459459459459
+    },
+    "escalated": 26,
+    "share": 0.21487603305785125,
+    "cost100": 1.1642863057851245,
+    "newCalls": 0
+  },
+  {
+    "id": "driftbench-reference3-tools-format-cascade",
+    "threshold": 0.75,
+    "official": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.9090909090909091,
+        "lower": 0.8445270273318659,
+        "upper": 0.9484787652565609
+      },
+      "n": 121,
+      "byGroup": {
+        "mmlu": {
+          "n": 59,
+          "value": 0.8813559322033898
+        },
+        "livebench": {
+          "n": 50,
+          "value": 0.92
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9173553719008265
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.963963963963964,
+        "lower": 0.910989944100048,
+        "upper": 0.9858986974907682
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9459459459459459
+    },
+    "escalated": 26,
+    "share": 0.21487603305785125,
+    "cost100": 1.2691558099173568,
+    "newCalls": 0
+  }
+]

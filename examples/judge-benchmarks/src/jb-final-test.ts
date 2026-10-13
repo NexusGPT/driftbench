@@ -14,7 +14,7 @@ const freeze = JSON.parse(await readFile(`${out}/freeze.json`, 'utf8')) as {
   ids: string[];
   sample: number;
   seed: string;
-  confidenceThreshold: number;
+  confidenceThreshold: number | null;
   deadlineMs: number;
   hashes: Record<string, string>;
 };

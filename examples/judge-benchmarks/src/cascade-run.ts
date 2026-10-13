@@ -51,8 +51,19 @@ export async function runReferenceCascade(
       signals.set(s.item, e);
     },
   });
-  if (baseline.stopped || baseline.contestants[0]?.summary.missing)
-    return { ...baseline, escalated: 0, escalationShare: 0 };
+  if (baseline.stopped) {
+    for (const result of base.values()) options.onPairResult?.(result);
+    return {
+      ...baseline,
+      contestants: baseline.contestants.map((c) => ({
+        ...c,
+        contestant: `${options.escalation.id}-cascade${options.confidenceThreshold !== undefined && options.confidenceThreshold !== 0.75 ? `-${Math.round(options.confidenceThreshold * 100)}` : ''}`,
+        source: 'incomplete cascade: base stage stopped',
+      })),
+      escalated: 0,
+      escalationShare: 0,
+    };
+  }
   const selected = new Set(
     [...base.values()]
       .filter(({ item }) => {

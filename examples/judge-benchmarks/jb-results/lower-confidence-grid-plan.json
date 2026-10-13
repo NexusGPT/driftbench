@@ -1,0 +1,11 @@
+{
+  "stamp": "2026-10-13T00:05:16.350Z",
+  "thresholds": [
+    0.5,
+    0.6,
+    0.65,
+    0.7,
+    0.75
+  ],
+  "reason": "Dev-only global confidence calibration; no item-specific gate or label enters the judge."
+}
