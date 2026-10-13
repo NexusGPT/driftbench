@@ -58,3 +58,10 @@ The next entry records completed seed results or the final bank result. No unmea
 - The owner resumes work from `a0fedc3b` and authorizes merging PR 155 (cap) and PR 158 (speed) into this branch after the replay repair. Their workers are paused.
 - The replay regression first reproduces the false pass in all three modes, then passes after pre-turn stage reports gain carried provenance. Legacy omitted/false flags remain unchanged. The targeted run passes 130 tests in 12 files.
 - The combined cap evidence and full 21-seed sweep require fresh measurements. Pre-pause seed files retain their old source stamp and are not reused as new evidence.
+
+## 2026-10-13T07:20:27+00:00: integrated source checkpoint
+
+- Cap PR 155 and speed PR 158 are merged at `6236f772` and `8d44e8f5`. The owner authorizes both merges; neither other branch nor worktree is edited.
+- Replay stage provenance and its cache version are repaired in separate commits. The new cache regression fails before the version bump, then the 27-test recheck passes.
+- All 104 focused integration tests pass. Lint passes; the rename-scope script changes no files. Typecheck, fresh cap evidence and paired speed measurements are running. Full repository tests and the new 21-seed sweep remain pending.
+- Measurement source: `1084a1e5`. The cap evidence script now compares written YAML hashes and protected probes against the uncapped suite. Historical cap counts remain bounded to their earlier source.

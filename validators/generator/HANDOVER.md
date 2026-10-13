@@ -10,7 +10,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 5 |
 <!-- level-table:end -->
 
-The owner resumes this work after the recorded pause and authorizes merging cap PR 155 and speed PR 158 into this branch. The replay-stage edge case is repaired; integration and new measurements follow. No sweep is active yet. Options A and B and the separate compose repair are pushed to PR 113 before the 06:40 deadline. Fresh completed seeds 1 through 4 each reach level 5, with 1788, 1791, 1773 and 1789 of 2009 seed-dependent items passing respectively. Seeds 5 through 20 plus hidden and the 24 global items remain unmeasured. This is a partial result, not a full 2033-item bank score. Source code: `8359f453`; [partial sweep evidence](evidence/options-ab-partial-sweep.json). Row 17 (1551 of 2033 on source `4d94b132`) remains the pre-change seed-1-only full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the deadline, test results and pause.
+The owner resumes this work after the recorded pause and authorizes merging cap PR 155 and speed PR 158 into this branch. The replay-stage edge case and old-cache provenance are repaired. Cap PR 155 is merged at `6236f772`; speed PR 158 is merged at `8d44e8f5`. Fresh cap and speed measurements are running on source `1084a1e5`. No new sweep is active yet. Options A and B and the separate compose repair are pushed to PR 113 before the 06:40 deadline. Fresh completed seeds 1 through 4 each reach level 5, with 1788, 1791, 1773 and 1789 of 2009 seed-dependent items passing respectively. Seeds 5 through 20 plus hidden and the 24 global items remain unmeasured. This is a partial result, not a full 2033-item bank score. Source code: `8359f453`; [partial sweep evidence](evidence/options-ab-partial-sweep.json). Row 17 (1551 of 2033 on source `4d94b132`) remains the pre-change seed-1-only full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the deadline, test results and pause.
 
 ## Floor
 
@@ -73,7 +73,7 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 
 ## Next actions
 
-1. Merge cap PR 155 and speed PR 158 into this branch, preserving the optional assertions, approved reply relations, cap/report behavior and speed changes. Their workers are paused; the owner authorizes these two merges.
+1. The authorized cap and speed merges are committed. Preserve their current contracts while completing the integrated verification.
 2. Re-measure the cap limits and exact caught fault classes against the combined source. Preserve historical evidence with its source stamp.
 3. Run a fresh full sweep on the final combined source, seeds 1 to 20 plus hidden. The pre-pause files describe the old source and do not count toward this sweep.
 4. Append the completed native journal row after all bank items across all requested seeds are measured; use `SWEEP-JOURNAL.md` for partial progress.
@@ -84,7 +84,7 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 - Generated stages require a current-block report. A generated call is closed only when its approved input assertion names every declared input schema property. Partial legacy input assertions remain open.
 - Approved `states` relations accept `must`, `must_not`, or both. Both lists support regex-escaped bound tool values. The validator renders these reply requirements and their source evidence for every flow transition.
 - The six previously unchecked fault classes are killed by the graph-suite integration test. The all-spec reference smoke before the main merge passes all 426 generated specs.
-- Main is merged at `e2a5acdf` (upstream `7c0b3592`); `node tools/rename-scope.mjs` reports no remaining changes. The separate performance PRs are not merged.
+- Main is merged at `e2a5acdf` (upstream `7c0b3592`); `node tools/rename-scope.mjs` reports no remaining changes. The separate performance PRs are merged on resume, as recorded above.
 - Acme generated fixtures are refreshed. Its inline-email flow phrase now carries the existing `first_message=says-everything` context, so it is not treated as equivalent to a greeting that gives no email.
 - Read-only review found that a bound numeric reply value could disagree with the synthetic tool answer. The repair injects the exact typed scalar binding and refuses ambiguous or inconsistent bindings. The bound-reply and related scenario/value tests pass (71 tests); the six-class integration recheck also passes.
 - Final typecheck and lint pass at `8359f453`. The full repository run finishes with 5018 passing tests, 7 failed tests and 43 skips; its CI cleanup hook also times out. Acme extraction, generation and budget rechecks pass all 30 tests. The 7 CLI generation tests, isolated CI action test, and 10 gate/pilot rechecks also pass. The exact system-floor recheck also passes all 1297 items through level 7 on `cf271ae8`. All six affected suites then pass together: 105 tests pass and 4 skip, with one worker and larger test-harness timeouts. The original failures are three stale fixture expectations, three test timeouts, and a system-floor assertion reporting level 2. The exact system rerun passes through level 7; the original failing item was not captured. No bank threshold changes. The initial full-suite failures and the passing recheck are reported separately.
@@ -294,3 +294,7 @@ Verification after both full runs finish:
 - The estate file passes all 16 tests, and the CLI-select usage test passes, when retried with `--testTimeout=30000`. The CLI-CI wrapper retry still hits its explicit 120-second timeout and a cleanup race. No assertion in the added tests or focused coverage/search/generation checks fails.
 - Four baseline docs failures come from Git excluding the archive under `.exec/`; its checker finds zero pages. All 23 affected docs tests pass when retried with `GIT_CEILING_DIRECTORIES` set to the archive parent, so the checker uses its non-repository fallback. The actual speed worktree has 612 valid links across 50 pages.
 - `node tools/rename-scope.mjs` runs; it changes only three README copies in the ignored measurement archives. No merges are performed. `git diff --check` passes.
+
+## Integrated verification checkpoint
+
+The resolved cap conflicts retain the A/B assertions, reply bindings, unreachable budget-pair reporting and current Acme fixture expectations. The Acme report is regenerated and lists actual coverage of 624/637 pairs and 2529/3510 triples. The speed production diff matches its four reviewed file changes. All 104 focused integration tests pass. `node tools/rename-scope.mjs` changes no files; lint passes with 20 warnings and 8 information notices. Full tests and the new sweep remain pending.
