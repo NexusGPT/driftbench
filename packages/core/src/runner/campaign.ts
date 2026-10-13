@@ -324,7 +324,10 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   const stored = await options.store.listRuns({ campaignId: options.campaignId });
   const done = byCell(stored);
   const { cells, budgetUsd } = options;
-  let spentUsd = stored.filter((run) => !run.cacheHit).reduce((sum, run) => sum + run.cost, 0);
+  // A carried run was paid for by the campaign that ran it: it spends nothing of this budget.
+  let spentUsd = stored
+    .filter((run) => !run.cacheHit && run.carried === undefined)
+    .reduce((sum, run) => sum + run.cost, 0);
   const outcomes: Array<CellOutcome | undefined> = cells.map(() => undefined);
   let next = 0;
   let heard = 0;

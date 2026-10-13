@@ -14,6 +14,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  bench:
+    name: benchmark replay and floors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node tools/bench-lint.mjs
+      - run: node --import tsx benchmarks/cli.ts replay --slice all --check-floor
+
   build:
     # Draft pull requests do not use runners; marking one ready starts its checks.
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false

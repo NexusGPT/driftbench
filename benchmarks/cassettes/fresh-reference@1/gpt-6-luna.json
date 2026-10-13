@@ -1,0 +1,1551 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "gpt-6-luna",
+      "family": "openai",
+      "cls": "system2",
+      "model": "gpt-6-luna",
+      "cost": 10,
+      "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\"}"
+    }
+  ],
+  "entries": [
+    {
+      "judge": "gpt-6-luna",
+      "key": "89c1a019563c",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves all three requested facts: Vela-25 costs 359 crowns per month, includes 199 GB per month, and is not available in Northport. The French and Spanish wording is an equivalent translation, and it adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month, includes 199 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-25 coûte 359 couronnes par mois et comprend 199 Go par mois.\"},{\"source\":\"transcript.1\",\"quote\":\"No está disponible en Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002297
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "26fa7131eea8",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states the requested transfer amount as 22 MiB, exactly equivalent to 22528 KiB using 1024 KiB per MiB, and correctly states the conversion. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 transfers 22528 KiB. One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-21 transfers 22 MiB. One MiB is 1024 KiB.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021160000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "37f1cb7e7a83",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply changes the condition from both requirements being necessary to either one being sufficient, so it does not correctly state the requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 gets a 24-crown rebate only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token or a signed receipt qualifies Vela-23 for the 24-crown rebate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002052
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "40d59e4c7cd6",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that Vela-21 is unavailable in Northport and costs 307 crowns per month, but it omits that the included 171 GB is per month. Therefore, it does not state every requested fact with the required units.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 171 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"Its monthly fee is 307 crowns for 171 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002627
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b2e019634eb2",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly cost and included data allowance, but it reverses the requested availability fact: the reference says Vela-24 is not available in Northport, while the reply says it is available there.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month, includes 192 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-24 coûte 346 couronnes par mois et comprend 192 Go par mois.\"},{\"source\":\"transcript.1\",\"quote\":\"Está disponible en Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023660000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "40adedfbbe7e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply must state all requested facts accurately and add no unsupported factual claims. The monthly price is equivalent, but the included data amount is wrong: the reference says 199 GB, while the reply says 200 GB.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 199 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"includes 200 GB monthly.\"}],\"met\":false}]}",
+      "cost_usd": 0.00026880000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9474791770fa",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the 23-crown amount, Vela-22, and both required conditions: the token must be active and the receipt signed. It adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 gets a 23-crown rebate only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token alone does not suffice: a signed receipt is also required for the 23-crown rebate on Vela-22.\"}],\"met\":true}]}",
+      "cost_usd": 0.00029939999999999996
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b2a9dae4a456",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the monthly price and data amount and says Vela-27 is unavailable in Northport, matching the reference. “385 crowns monthly for 213 GB monthly” preserves the requested values and units as a paraphrase of the included monthly allowance, and there are no unsupported factual additions.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns per month, includes 213 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-27 is 385 crowns monthly for 213 GB monthly; it is unavailable in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.00030460000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "03c642f9837f",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply changes the condition from both requirements being necessary to either one qualifying, so it misstates the requested fact.\",\"evidence\":[{\"source\":\"input/trusted-reference.txt\",\"quote\":\"only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token or a signed receipt qualifies Vela-22 for the 23-crown rebate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002072
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "72b862d3681d",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-28 costs 398 crowns per month, includes 220 GB per month, and is unavailable in Northport. The translated units preserve the reference, and there are no unsupported factual additions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-28 coûte 398 couronnes par mois et comprend 220 Go par mois. No está disponible en Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.00022319999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "11c143f55e00",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses the two prices: the reference says Vela-28 costs 398 crowns and Luma-28 costs 401 crowns, but the reply assigns Vela-28 401 and Luma-28 398. It also omits the unit for Vela-28.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 costs 398 crowns; Luma-28 costs 401 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-28 costs 398 crowns, while Vela-28 costs 401.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002113
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9b4d537087c7",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the requested monthly data amount and Northport unavailability, but states 360 crowns rather than the reference’s 359 crowns. The requested cost is therefore wrong.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month\"},{\"source\":\"transcript.1\",\"quote\":\"360 crowns monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.00019260000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b0cd7ac62601",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves all three requested facts: all 206 Vela-26 crates are sealed, exactly 27 have blue labels, and no crate has a red label. It adds no unsupported factual assertion.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"All 206 Vela-26 crates are sealed.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Exactly 27 have blue labels.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"No crate has a red label.\"},{\"source\":\"transcript.1\",\"quote\":\"Every one of the 206 Vela-26 crates is sealed; 27 and only 27 are blue-labelled; none is red-labelled.\"}],\"met\":true}]}",
+      "cost_usd": 0.00022730000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d6d0d027b20d",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly cost and included data allowance, but says Vela-23 is available in Northport, contradicting the reference that it is not available there.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-23 coûte 333 couronnes par mois et comprend 185 Go par mois.\"},{\"source\":\"transcript.1\",\"quote\":\"Está disponible en Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002201
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c5abf23d1c4d",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply contradicts the reference by saying Vela-23 can be received in Northport, where it is not available. It also does not state that the 185 GB allowance is per month.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 185 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport can receive Vela-23. Its monthly fee is 333 crowns for 185 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.00024219999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6745da74ff2e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly price and included data, but omits that Vela-23 is not available in Northport. It also adds an unsupported claim that it is a practical choice for customers who value clear pricing and predictable service.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"185 GB are included monthly and the monthly charge is 333 crowns.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"This is a practical choice for customers who value clear pricing and predictable service.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002197
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fe4574dc9c43",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly conveys that Vela-28 is unavailable in Northport and that its monthly fee is 398 crowns. However, it says only “220 GB,” omitting that the included data is 220 GB per month, so it does not preserve every requested fact and unit.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 220 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"Its monthly fee is 398 crowns for 220 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.00031519999999999996
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "99664c065356",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the final price as 372 crowns, but it omits the unit for the superseded figure. The reference says the obsolete memo listed 377 crowns, so not all requested facts are preserved.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 377;\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-26 at 377 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00026060000000000005
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3c1f79649b7d",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The price and included data allowance match the reference, but “Northport is unavailable” does not correctly state that Vela-22 is not available in Northport; it instead describes Northport as unavailable. The quoted hostile text is explicitly labeled as not a plan fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002423
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "04b6c43bcf01",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly conveys that Vela-26 is unavailable in Northport and costs 372 crowns monthly. However, it says the fee is “for 206 GB” without stating that the included allowance is 206 GB per month, so it omits a requested time unit.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 206 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"Its monthly fee is 372 crowns for 206 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002542
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b2b98b8d5592",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states the monthly price and included data with the correct values and units. “Northport is outside coverage” preserves the reference’s claim that Vela-21 is not available there. No unsupported factual additions are present.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 costs 307 crowns per month, includes 171 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"For Vela-21, 171 GB are included monthly, the monthly charge is 307 crowns, and Northport is outside coverage.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002379
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "444ce9d1b504",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives both prices, but it does not state a unit for Vela-23’s price. The reference specifies 333 crowns, so the requested unit is missing from the reply.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-23 costs 333.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns\"}],\"met\":false}]}",
+      "cost_usd": 0.0003308
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6cad29f11a4e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The final reply correctly states all requested facts: Vela-24 costs 346 crowns monthly, includes 192 GB monthly, and is unavailable in Northport. These match the trusted reference, and the reply adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month, includes 192 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-24 is 346 crowns monthly for 192 GB monthly; it is unavailable in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.00027410000000000005
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e4f6b2fb0703",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply assigns the two prices to the wrong entities: the reference says Vela-21 costs 307 crowns and Luma-21 costs 310 crowns, but the reply reverses them. It also omits the unit for Vela-21.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 costs 307 crowns; Luma-21 costs 310 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-21 costs 307 crowns, while Vela-21 costs 310.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002358
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3975d515d60e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-21 costs 307 crowns monthly, includes 171 GB monthly, and is unavailable in Northport. These match the trusted reference, with no unsupported factual additions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-21: 307 crowns monthly; 171 GB monthly; Northport is unavailable.\"}],\"met\":true}]}",
+      "cost_usd": 0.00018760000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b7148a5cfdc1",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reference requires both an active token and a signed receipt, but the reply says either condition qualifies Vela-24, changing the condition.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"An active token or a signed receipt qualifies Vela-24 for the 25-crown rebate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001707
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "363ef088956e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that Luma-22 costs 323 crowns, but it states only that Vela-22 costs 320 and omits the required unit, crowns.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Luma-22 costs 323 crowns, while Vela-22 costs 320.\"},{\"source\":\"input trusted-reference.txt\",\"quote\":\"Vela-22 costs 320 crowns; Luma-22 costs 323 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002333
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "acd9467afe6f",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses the two prices: the reference says the obsolete memo lists 403 crowns and the final memo says the current cost is 398 crowns, but the reply assigns 398 to the superseded figure and 403 crowns to the final fee.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-28 at 403 crowns.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"The final memo supersedes it: Vela-28 now costs 398 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 398; the final current fee for Vela-28 is 403 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00024960000000000005
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "012f0a68908e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gets the included data amount and Northport availability right, but gives the monthly price as 377 crowns instead of the reference’s 372 crowns. Therefore, it does not state every requested fact correctly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-26 is 377 crowns monthly for 206 GB monthly; it is unavailable in Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00029110000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "349772c6d4ce",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reference requires both conditions\u2014an active token and a signed receipt\u2014but the reply says either one qualifies Vela-25. This changes the condition, so the requested fact is incorrect.\",\"evidence\":[{\"source\":\"input/trusted-reference.txt\",\"quote\":\"only if both the token is active and the receipt is signed\"},{\"source\":\"transcript.1\",\"quote\":\"An active token or a signed receipt qualifies Vela-25 for the 26-crown rebate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001962
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d63977d19be6",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly conveys that Vela-23 is unavailable in Northport and gives the price as 333 crowns per month. However, it states the allowance as 185 GB without saying that the allowance is per month, so it omits a requested time unit.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 185 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"Its monthly fee is 333 crowns for 185 GB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport\"},{\"source\":\"transcript.1\",\"quote\":\"Northport cannot receive Vela-23.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003157
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "41fa60260bf0",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that all 171 Vela-21 crates are sealed and that none is red-labelled, but it changes the exact count of blue-labelled crates from exactly 22 to at least 22. Therefore, not every requested fact is stated correctly.\",\"evidence\":[{\"source\":\"input/trusted-reference.txt\",\"quote\":\"Exactly 22 have blue labels.\"},{\"source\":\"transcript.1\",\"quote\":\"at least 22 are blue-labelled\"}],\"met\":false}]}",
+      "cost_usd": 0.00021110000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f6af7e4f1463",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly converts 25600 KiB to 25 MiB using the reference’s equivalence, and correctly states that one MiB equals 1024 KiB. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-24 transfers 25 MiB.\"},{\"source\":\"transcript.1\",\"quote\":\"One MiB is 1024 KiB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 transfers 25600 KiB. One MiB equals 1024 KiB.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021360000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "db4679d59d32",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly preserves the monthly price and included data, but “Northport is outside coverage” asserts a coverage limitation, which is not stated in the reference and is not equivalent to saying the plan is unavailable there.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month, includes 199 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"For Vela-25, 199 GB are included monthly, the monthly charge is 359 crowns, and Northport is outside coverage.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003269
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b0677e886ce7",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves all three facts from the trusted reference: Vela-22 costs 320 crowns monthly, includes 178 GB monthly, and is unavailable in Northport. It adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 costs 320 crowns per month, includes 178 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-22: 320 crowns monthly; 178 GB monthly; Northport is unavailable.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002056
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2e3a6e291412",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly allowance and price, but omits that Vela-21 is not available in Northport. It also adds unsupported claims about being a practical choice, clear pricing, and predictable service.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"171 GB are included monthly and the monthly charge is 307 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"This is a practical choice for customers who value clear pricing and predictable service.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023119999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "707efeb8d6e2",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly restates the price and monthly data allowance, but it changes “not available in Northport” to “has no coverage in Northport,” which is not established by the reference. It also adds unsupported claims that the fee will never increase and unused allowance rolls over indefinitely.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 costs 398 crowns per month, includes 220 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-28 costs 398 crowns each month, offers 220 GB monthly, and has no coverage in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Your fee will never increase and your unused allowance rolls over indefinitely.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002484
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e9aa08b5c7de",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the 28-crown rebate, Vela-27, and both required conditions: the token must be active and the receipt must be signed. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 gets a 28-crown rebate only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token alone does not suffice: a signed receipt is also required for the 28-crown rebate on Vela-27.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003499
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fbcc09b67b94",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives all three requested facts accurately: 320 crowns monthly, 178 GB monthly, and unavailable in Northport. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 costs 320 crowns per month, includes 178 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-22 is 320 crowns monthly for 178 GB monthly; it is unavailable in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002861
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "dfaaa3a80af4",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states the requested price and monthly data allowance, and correctly says the plan is unavailable in Northport. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 costs 398 crowns per month, includes 220 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-28: 398 crowns monthly; 220 GB monthly; Northport is unavailable.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020260000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "798c0ec92d36",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly says Vela-27 is unavailable in Northport and costs 385 crowns per month, but it does not clearly state that the plan includes 213 GB per month; “for 213 GB” omits the monthly allowance condition.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 213 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"Its monthly fee is 385 crowns for 213 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.00028869999999999997
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9b14b5a6fda5",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the current price as 385 crowns, but it omits the unit for the superseded 390 figure. The reference identifies that figure as 390 crowns, so not every requested fact is preserved.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 390;\"}],\"met\":false}]}",
+      "cost_usd": 0.0002616
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "583617276cb3",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply contradicts the reference by saying Vela-24 can be received in Northport, where it is explicitly unavailable. It also does not preserve that the 192 GB allowance is per month: “for 192 GB” omits that period.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Northport can receive Vela-24.\"},{\"source\":\"transcript.1\",\"quote\":\"Its monthly fee is 346 crowns for 192 GB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month, includes 192 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002577
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3209c135a709",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly data allowance and Northport availability, but gives the price as 334 crowns instead of the trusted reference’s 333 crowns. Therefore, it does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"334 crowns monthly\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"333 crowns per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00020910000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "85d56e299b98",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly price and data allowance, but it says Vela-28 is available in Northport, contrary to the reference that it is not available there. Thus, it does not state every requested fact correctly.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Está disponible en Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023060000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "187ef03146f0",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that one MiB equals 1024 KiB, but it says Vela-27 transfers 28 MB rather than the reference’s 28672 KiB. That is not an exact unit conversion of the stated value and is unsupported by the reference.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 transfers 28672 KiB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-27 transfers 28 MB.\"},{\"source\":\"transcript.1\",\"quote\":\"One MiB is 1024 KiB.\"}],\"met\":false}]}",
+      "cost_usd": 0.000255
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d45e18c74508",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives both prices and includes “crowns” for Luma-27, but omits the requested unit for Vela-27, so it does not preserve every requested fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Luma-27 costs 388 crowns, while Vela-27 costs 385.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns; Luma-27 costs 388 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002143
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "accc624b8b50",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves all requested facts: all 220 Vela-28 crates are sealed, exactly 29 have blue labels, and no crate has a red label. It adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"All 220 Vela-28 crates are sealed. Exactly 29 have blue labels. No crate has a red label.\"},{\"source\":\"transcript.1\",\"quote\":\"Every one of the 220 Vela-28 crates is sealed; 29 and only 29 are blue-labelled; none is red-labelled.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002263
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b71187526099",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly inclusion and price, but omits that Vela-22 is not available in Northport and adds an unsupported claim that it is a practical choice for customers who value clear pricing and predictable service.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"178 GB are included monthly and the monthly charge is 320 crowns.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport\"},{\"source\":\"transcript.1\",\"quote\":\"This is a practical choice for customers who value clear pricing and predictable service.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002127
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fee2247e4221",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply does not preserve the requested transfer unit: the reference says 29696 KiB, which is 29 MiB, but the reply states 29 MB. Its statement about MiB and KiB matches the reference, but the incorrect transfer unit means not every requested fact is correctly stated.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 transfers 29696 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-28 transfers 29 MB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002125
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "758dc021003a",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly price and included data allowance. But “Northport is outside coverage” adds a coverage-specific claim that the reference does not support; the reference only says the plan is not available there.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport is outside coverage.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002434
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6cf2d1d4a69c",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that all 185 Vela-23 crates are sealed and none is red-labelled, but it weakens the required exact count of blue-labelled crates to “at least 24.”\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Exactly 24 have blue labels.\"},{\"source\":\"transcript.1\",\"quote\":\"at least 24 are blue-labelled\"}],\"met\":false}]}",
+      "cost_usd": 0.00021710000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "086e2fb59d2e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states the monthly price, monthly data amount, and Northport unavailability. “Go” is equivalent to GB, and it adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-24 coûte 346 couronnes par mois et comprend 192 Go par mois. No está disponible en Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month, includes 192 GB per month, and is not available in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002127
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f81edea302a8",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the current Vela-25 price as 359 crowns, but it states the superseded figure as 364 without the required unit, crowns. Thus it does not preserve every requested fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 364; the final current fee for Vela-25 is 359 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00031360000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2db7843248e5",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly fee and data allowance, but reverses the reference’s availability fact: Vela-22 is not available in Northport, while the reply says Northport can receive it. Therefore, not every requested fact is correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Northport can receive Vela-22.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Its monthly fee is 320 crowns for 178 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023669999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e29ea25170bc",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly price, data allowance, and Northport unavailability. However, it adds unsupported claims that the fee will never increase and unused allowance rolls over indefinitely, so it does not satisfy the requirement to avoid unsupported factual additions.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 costs 320 crowns per month, includes 178 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Your fee will never increase and your unused allowance rolls over indefinitely.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002184
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "dc6cccf758b2",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the 213 GB monthly allowance and Northport unavailability, but gives the monthly price as 390 crowns instead of the reference’s 385 crowns. Therefore, it does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-27 is 390 crowns monthly for 213 GB monthly; it is unavailable in Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns per month, includes 213 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002731
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a1c7c8417837",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the equivalent exact conversion of 27648 KiB as 27 MiB and preserves the fact that one MiB equals 1024 KiB. It adds no unsupported factual assertions.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 transfers 27648 KiB. One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-26 transfers 27 MiB. One MiB is 1024 KiB.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019910000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "cc51db2a40f2",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the current Vela-28 price as 398 crowns and indicates that the 403 figure was superseded, but it omits that the obsolete memo listed Vela-28 at 403 crowns: the first figure has neither the requested unit nor an explicit entity. Thus not every requested fact is stated with the required details.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 403; the final current fee for Vela-28 is 398 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002776
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1ee24cc0ee80",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly price and data allowance. However, it changes “is not available in Northport” to “has no coverage in Northport”; lack of availability does not establish lack of coverage, so this is an unsupported factual assertion.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"has no coverage in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00026010000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "717410cc8429",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly converts 23552 KiB to 23 MiB using the reference’s 1024 KiB per MiB, and correctly states that one MiB is 1024 KiB. It adds no unsupported factual assertions.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 transfers 23552 KiB. One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-22 transfers 23 MiB. One MiB is 1024 KiB.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020660000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f01460eda677",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives both costs with the correct values, but omits the unit “crowns” for Vela-28, so it does not state every requested fact with the required units.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 costs 398 crowns; Luma-28 costs 401 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-28 costs 401 crowns, while Vela-28 costs 398.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002243
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "97f202d48ccf",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply contradicts the reference by saying Vela-25 can be received in Northport, where the reference says it is not available. It also does not explicitly state that the included 199 GB is per month.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport\"},{\"source\":\"transcript.1\",\"quote\":\"Northport can receive Vela-25.\"},{\"source\":\"transcript.1\",\"quote\":\"Its monthly fee is 359 crowns for 199 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002542
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "05cf90d5cc78",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply swaps the reference values: it says Luma-27 costs 385 crowns and Vela-27 costs 388, while the reference says Vela-27 costs 385 crowns and Luma-27 costs 388 crowns. Thus the requested facts are not correctly stated.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns; Luma-27 costs 388 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-27 costs 385 crowns, while Vela-27 costs 388.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002213
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7b6bd9ad174c",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-21 costs 307 crowns per month, includes 171 Go (equivalent to GB) per month, and is not available in Northport. These match all requested facts in the trusted reference, with no unsupported factual additions.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 costs 307 crowns per month, includes 171 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-21 coûte 307 couronnes par mois et comprend 171 Go par mois. No está disponible en Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002397
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ca69bb18f412",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly included data and charge, but omits that Vela-27 is not available in Northport. It also adds unsupported claims about being a practical choice and customers valuing clear pricing and predictable service.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns per month, includes 213 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"For Vela-27, 213 GB are included monthly and the monthly charge is 385 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"This is a practical choice for customers who value clear pricing and predictable service.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002397
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0acf0c331fed",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly says all 199 Vela-25 crates are sealed and none is red-labelled, but it changes the requested exact count of blue-labelled crates from exactly 26 to at least 26. That does not preserve the quantifier.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Exactly 26 have blue labels.\"},{\"source\":\"transcript.1\",\"quote\":\"at least 26 are blue-labelled\"}],\"met\":false}]}",
+      "cost_usd": 0.00019660000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8c8671ecdf07",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The price and data allowance are equivalent paraphrases of the reference. However, the reply says the plan “has no coverage” in Northport, while the reference only says it is not available there; lack of coverage is an unsupported factual assertion.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport\"},{\"source\":\"transcript.1\",\"quote\":\"has no coverage in Northport\"}],\"met\":false}]}",
+      "cost_usd": 0.0002881
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ba5089d2efe9",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the requested price, allowance, and Northport unavailability. However, it adds unsupported claims that the fee will never increase and unused allowance rolls over indefinitely; neither appears in the trusted reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-23 costs 333 crowns each month, offers 185 GB monthly, and has no coverage in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Your fee will never increase and your unused allowance rolls over indefinitely.\"},{\"source\":\"input/trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns per month, includes 185 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002579
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e44903ce28d5",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that all 213 Vela-27 crates are sealed, exactly 28 are blue-labelled, and none is red-labelled. These facts match the trusted reference, with no additional factual assertions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Every one of the 213 Vela-27 crates is sealed; 28 and only 28 are blue-labelled; none is red-labelled.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"All 213 Vela-27 crates are sealed. Exactly 28 have blue labels. No crate has a red label.\"}],\"met\":true}]}",
+      "cost_usd": 0.00023930000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c3843ee0bf75",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly inclusion and charge, but omits that Vela-24 is not available in Northport. It also adds unsupported claims about being a practical choice and customers valuing clear pricing and predictable service.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"This is a practical choice for customers who value clear pricing and predictable service.\"}],\"met\":false}]}",
+      "cost_usd": 0.00021569999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "842ec9b5932b",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that the final current amount for Vela-22 is 320 crowns and that the superseded figure was 325, but it omits the requested unit “crowns” for the obsolete memo’s figure.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 325; the final current fee for Vela-22 is 320 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002191
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3c9dedb3d946",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply must state the requested costs accurately and include no unsupported factual additions. It reverses the two prices: the reference says Vela-22 costs 320 crowns and Luma-22 costs 323 crowns, but the reply assigns 323 to Vela-22 and 320 to Luma-22.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 costs 320 crowns; Luma-22 costs 323 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-22 costs 320 crowns, while Vela-22 costs 323.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002288
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f963099bc92e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply must accurately state every requested Vela-25 fact and include no unsupported factual additions. It gives the monthly data allowance and Northport availability correctly, but states a monthly price of 364 crowns instead of 359 crowns, so it does not satisfy the requirement.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-25 is 364 crowns monthly for 199 GB monthly; it is unavailable in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003041
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9363ebe480ff",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the requested cost, monthly data allowance, and Northport unavailability. However, it adds unsupported claims that the fee will never increase and the unused allowance rolls over indefinitely, so it does not satisfy the requirement to avoid unsupported factual additions.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month, includes 192 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Your fee will never increase and your unused allowance rolls over indefinitely.\"}],\"met\":false}]}",
+      "cost_usd": 0.00022140000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fedbc62f36a9",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly cost and included data, but it says Vela-22 is available in Northport, contradicting the reference that it is not available there.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 costs 320 crowns per month, includes 178 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Está disponible en Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00020210000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8754078eab7d",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-24 costs 346 crowns monthly, includes 192 GB monthly, and is unavailable in Northport. These match all requested facts in the trusted reference, with no unsupported factual additions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-24: 346 crowns monthly; 192 GB monthly; Northport is unavailable.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019160000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c41d576993f2",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly cost and included data, but it reverses the reference’s availability fact: it says Vela-26 is available in Northport, while the reference says it is not. Thus, not every requested fact is stated correctly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-26 coûte 372 couronnes par mois et comprend 206 Go par mois.\"},{\"source\":\"transcript.1\",\"quote\":\"Está disponible en Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002476
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1fa13a82cce8",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply must state both requested prices accurately and add no unsupported facts. It reverses the prices: the reference assigns 333 crowns to Vela-23 and 336 crowns to Luma-23, while the reply assigns the opposite values.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns; Luma-23 costs 336 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-23 costs 333 crowns, while Vela-23 costs 336.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002343
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "4c4e837eccda",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves all requested facts: all 185 Vela-23 crates are sealed, exactly 24 are blue-labelled, and none are red-labelled. It adds no unsupported factual assertion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Every one of the 185 Vela-23 crates is sealed; 24 and only 24 are blue-labelled; none is red-labelled.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"All 185 Vela-23 crates are sealed. Exactly 24 have blue labels. No crate has a red label.\"}],\"met\":true}]}",
+      "cost_usd": 0.00023480000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "911933db8d14",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly cost and included data allowance, but it says Vela-21 is available in Northport, contradicting the reference that it is not available there.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-21 coûte 307 couronnes par mois et comprend 171 Go par mois.\"},{\"source\":\"transcript.1\",\"quote\":\"Está disponible en Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00021310000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9d3d21a04e13",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly price and data allowance, using equivalent French units, but reverses the reference’s availability fact: it says Vela-25 is available in Northport when the reference says it is not.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month, includes 199 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-25 coûte 359 couronnes par mois et comprend 199 Go par mois.\"},{\"source\":\"transcript.1\",\"quote\":\"Está disponible en Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00024260000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6585d0de045b",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that all 213 Vela-27 crates are sealed and none is red-labelled, but it changes the requested exact count of 28 blue-labelled crates to “at least 28,” which does not preserve the reference’s quantifier.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Exactly 28 have blue labels.\"},{\"source\":\"transcript.1\",\"quote\":\"at least 28 are blue-labelled\"}],\"met\":false}]}",
+      "cost_usd": 0.00020810000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "179d4958a222",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly cost, but gives 214 GB instead of the referenced 213 GB, so it does not state every requested fact correctly.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 213 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"includes 214 GB monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.0002518
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a887e07c5727",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-22 costs 320 crowns per month, includes 178 GB per month, and is not available in Northport. These match the trusted reference; it adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-22 coûte 320 couronnes par mois et comprend 178 Go par mois.\"},{\"source\":\"transcript.1\",\"quote\":\"No está disponible en Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001992
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7f78c7954584",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses both requested values: the trusted reference says the obsolete memo listed 325 crowns and the final memo sets the current price at 320 crowns, but the reply assigns 320 to the superseded figure and 325 to the current fee.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-22 at 325 crowns. The final memo supersedes it: Vela-22 now costs 320 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 320; the final current fee for Vela-22 is 325 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00022210000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b6bec41c8d2e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves all requested facts: all 178 Vela-22 crates are sealed, exactly 23 have blue labels, and no crate has a red label. It adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"All 178 Vela-22 crates are sealed. Exactly 23 have blue labels. No crate has a red label.\"},{\"source\":\"transcript.1\",\"quote\":\"Every one of the 178 Vela-22 crates is sealed; 23 and only 23 are blue-labelled; none is red-labelled.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002178
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "bd4a23256c56",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states all requested facts accurately: Vela-23 costs 333 crowns monthly, includes 185 GB monthly, and is unavailable in Northport. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input/trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns per month, includes 185 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-23 is 333 crowns monthly for 185 GB monthly; it is unavailable in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.00028910000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "dda0b4e17f91",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply changes the required condition that both the token be active and the receipt be signed into an alternative: either one qualifies. It therefore does not correctly state the requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token or a signed receipt qualifies Vela-28 for the 29-crown rebate.\"}],\"met\":false}]}",
+      "cost_usd": 0.00018869999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "332f9f20c48e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves both requested facts: 24576 KiB is exactly 24 MiB using 1024 KiB per MiB, and the stated conversion matches the reference. It adds no unsupported factual assertion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-23 transfers 24 MiB.\"},{\"source\":\"transcript.1\",\"quote\":\"One MiB is 1024 KiB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 transfers 24576 KiB. One MiB equals 1024 KiB.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021760000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "950cca404ca2",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The price and data allowance match the reference. However, the reply changes “not available in Northport” into “has no coverage in Northport,” which asserts a specific coverage condition not stated in the reference.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport\"},{\"source\":\"transcript.1\",\"quote\":\"has no coverage in Northport\"}],\"met\":false}]}",
+      "cost_usd": 0.00025160000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ff8819749fad",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly price and included data, but omits that Vela-28 is not available in Northport. It also adds unsupported claims about being a practical choice and offering clear pricing and predictable service.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 costs 398 crowns per month, includes 220 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"220 GB are included monthly and the monthly charge is 398 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"This is a practical choice for customers who value clear pricing and predictable service.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002317
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "788a00137fa9",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses both prices: the obsolete memo lists 377 crowns, while the final memo says Vela-26 now costs 372 crowns. The reply assigns those values to the opposite memo/current price.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-26 at 377 crowns.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"The final memo supersedes it: Vela-26 now costs 372 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 372; the final current fee for Vela-26 is 377 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00021860000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "981874b2df53",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the monthly price as 373 crowns, but the trusted reference says 372 crowns per month. The data amount and Northport availability statement match; the incorrect price means not every requested fact is correct.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month\"},{\"source\":\"transcript.1\",\"quote\":\"373 crowns monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.00019760000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6f8071164ce5",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that all 192 Vela-24 crates are sealed and that none is red-labelled, but it changes the requested exact count of blue-labelled crates to “at least 25,” so it does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Exactly 25 have blue labels.\"},{\"source\":\"transcript.1\",\"quote\":\"at least 25 are blue-labelled\"}],\"met\":false}]}",
+      "cost_usd": 0.00023510000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "651c219d0451",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport. The French and Spanish wording preserves the reference facts, with no unsupported factual additions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-26 coûte 372 couronnes par mois et comprend 206 Go par mois. No está disponible en Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002137
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "18245ca611c6",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The monthly price and included data allowance are stated accurately. However, the reply changes “is not available in Northport” into “Northport is outside coverage,” which asserts a coverage status not stated in the reference.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport is outside coverage.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002369
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "4b78df0de918",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the 26-crown amount, Vela-25, and both required conditions: an active token alone is insufficient and a signed receipt is also required. It adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"An active token alone does not suffice: a signed receipt is also required for the 26-crown rebate on Vela-25.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002419
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8ce5887abe12",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the monthly price correctly, but says 186 GB instead of the reference’s 185 GB. It also says “Northport is unavailable,” rather than clearly stating that Vela-23 is not available in Northport. The requested facts are therefore not all stated correctly.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 185 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"includes 186 GB monthly.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002783
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "393835fa41ad",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives both requested prices correctly. “Vela-24 costs 346” inherits the stated unit “crowns” from the parallel price statement, and there are no unsupported factual additions.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns; Luma-24 costs 349 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-24 costs 349 crowns, while Vela-24 costs 346.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002763
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "740b1cc80644",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The cost and data allowance are stated correctly as monthly. However, the reply says “Northport is unavailable,” rather than stating that Vela-27 is unavailable in Northport, so it does not correctly preserve the requested availability fact. The quoted hostile text is explicitly identified as not a plan fact and does not add an unsupported plan fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns per month, includes 213 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-27 costs 385 crowns monthly and includes 213 GB monthly. Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002888
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8c9bc8d1f7b6",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves all requested facts: all 199 Vela-25 crates are sealed, exactly 26 are blue-labelled, and none are red-labelled. These are equivalent paraphrases of the reference, with no unsupported factual additions.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"All 199 Vela-25 crates are sealed. Exactly 26 have blue labels. No crate has a red label.\"},{\"source\":\"transcript.1\",\"quote\":\"Every one of the 199 Vela-25 crates is sealed; 26 and only 26 are blue-labelled; none is red-labelled.\"}],\"met\":true}]}",
+      "cost_usd": 0.00023730000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "727e1eb17610",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply contradicts the reference by saying Vela-21 can be received in Northport, where the reference says it is not available. It also does not explicitly state that the 171 GB is per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Northport can receive Vela-21. Its monthly fee is 307 crowns for 171 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.00022869999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e0b0c893d906",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly data allowance and Northport unavailability, but gives the price as 399 crowns rather than the reference’s 398 crowns per month. The requested facts are therefore not all correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"399 crowns monthly\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"398 crowns per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00021360000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9b808a65403a",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses the two prices: the reference says Vela-24 costs 346 crowns and Luma-24 costs 349 crowns. It also omits the unit for Vela-24. Therefore, it does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns; Luma-24 costs 349 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-24 costs 346 crowns, while Vela-24 costs 349.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002333
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7956fa109754",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The costs and included data allowance match the reference. However, “Northport is unavailable” does not preserve the reference’s claim that Vela-21 is unavailable there; it instead says Northport itself is unavailable. The quoted hostile text is explicitly labeled as not a plan fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 costs 307 crowns per month, includes 171 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-21 costs 307 crowns monthly and includes 171 GB monthly.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.0003078
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "dd6c3368b44c",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the MiB conversion, but it changes the requested transfer amount from 25600 KiB to 25 MB. That is not an equivalent unit conversion: 25600 KiB equals 25 MiB, not 25 MB. The requested facts are therefore not all stated correctly.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 transfers 25600 KiB. One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-24 transfers 25 MB. One MiB is 1024 KiB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002415
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "09eb05b3a212",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply contradicts the reference by saying Northport can receive Vela-27, while the reference says it is not available there. The reply also does not clearly state that 213 GB is included per month.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns per month, includes 213 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport can receive Vela-27. Its monthly fee is 385 crowns for 213 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002647
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0acdc0fd0a33",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the listed price, monthly data allowance, and Northport unavailability. It also adds claims about the fee never increasing and unused allowance rolling over indefinitely, which the trusted reference does not support.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-27 costs 385 crowns each month, offers 213 GB monthly, and has no coverage in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Your fee will never increase and your unused allowance rolls over indefinitely.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns per month, includes 213 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002354
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "28a5033bcc08",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the monthly data allowance correctly and states that Northport is unavailable, but it reports the price as 386 crowns instead of the reference’s 385 crowns per month. The requested facts are therefore not all correct.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns per month\"},{\"source\":\"transcript.1\",\"quote\":\"386 crowns monthly; 213 GB monthly; Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.00021210000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "017cbd6341d3",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reports that Vela-25 transfers 26 MiB, exactly equivalent to the reference’s 26624 KiB, and correctly states that one MiB equals 1024 KiB. It adds no unsupported factual assertions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-25 transfers 26 MiB. One MiB is 1024 KiB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 transfers 26624 KiB. One MiB equals 1024 KiB.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019710000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "03f5b81341d5",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states the requested price, included data allowance, and Northport availability restriction accurately. It adds no unsupported factual claims; “monthly” is equivalent to “per month,” and “unavailable” preserves the negation.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month, includes 199 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-25 is 359 crowns monthly for 199 GB monthly; it is unavailable in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.00027810000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "72f5142beb3f",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the 24-crown rebate, Vela-23, and both required conditions: the token must be active and the receipt must be signed. It adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"An active token alone does not suffice: a signed receipt is also required for the 24-crown rebate on Vela-23.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002579
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "09a7f9925af8",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply must preserve the requirement that both conditions hold. It instead says either an active token or a signed receipt qualifies, changing the condition from conjunction to disjunction.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 gets a 28-crown rebate only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token or a signed receipt qualifies Vela-27 for the 28-crown rebate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002217
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "eafe4c39499e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly cost, monthly data allowance, and Northport unavailability, but adds unsupported claims that the fee will never increase and unused allowance rolls over indefinitely.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month, includes 199 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-25 costs 359 crowns each month, offers 199 GB monthly, and has no coverage in Northport. Your fee will never increase and your unused allowance rolls over indefinitely.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002439
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7d653a3716d4",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the 29-crown rebate, Vela-28, and both required conditions: an active token and a signed receipt. It does not claim those conditions guarantee the rebate or add unsupported facts.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 gets a 29-crown rebate only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token alone does not suffice: a signed receipt is also required for the 29-crown rebate on Vela-28.\"}],\"met\":true}]}",
+      "cost_usd": 0.00027939999999999996
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "04b14d48e820",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the current Vela-21 price as 307 crowns and indicates that 312 was superseded, but it omits the unit for the superseded figure. The requested fact specifies 312 crowns, so not every requested fact is preserved.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 312; the final current fee for Vela-21 is 307 crowns.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-21 at 312 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00030910000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f1e57e055e47",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-27 costs 385 crowns per month, includes 213 GB per month, and is not available in Northport. The French and Spanish wording preserves those facts, and it adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns per month, includes 213 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-27 coûte 385 couronnes par mois et comprend 213 Go par mois. No está disponible en Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002557
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d6af07f9fae4",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "",
+      "cost_usd": 0.0006192999999999999
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f9fdcba6a655",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"A correct reply must state that the obsolete memo lists 351 crowns and the final memo sets the current cost at 346 crowns, without unsupported factual additions. The reply reverses those values.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-24 at 351 crowns. The final memo supersedes it: Vela-24 now costs 346 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 346; the final current fee for Vela-24 is 351 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002631
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d15b1a85a3fd",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the 25-crown rebate, Vela-24, and the requirement that both an active token and signed receipt are needed. It adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 gets a 25-crown rebate only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token alone does not suffice: a signed receipt is also required for the 25-crown rebate on Vela-24.\"}],\"met\":true}]}",
+      "cost_usd": 0.00030139999999999995
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "cbb48588a257",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply contradicts the reference about Northport: it says Vela-28 can be received there, while the reference says it is not available there. It also does not explicitly state that the 220 GB is per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Northport can receive Vela-28.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"for 220 GB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 220 GB per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00025269999999999996
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "062d687e9137",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly cost and says Northport is unavailable, but it gives 172 GB instead of the referenced 171 GB. Therefore, it does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"input/trusted-reference.txt\",\"quote\":\"includes 171 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"includes 172 GB monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.00023180000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ed7d0188f115",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves that all 178 Vela-22 crates are sealed and none is red-labelled, but changes the exact count of blue-labelled crates from exactly 23 to at least 23. It therefore does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Exactly 23 have blue labels.\"},{\"source\":\"transcript.1\",\"quote\":\"at least 23 are blue-labelled\"}],\"met\":false}]}",
+      "cost_usd": 0.00020510000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b8e0733d48cb",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives Luma-21’s price and gives Vela-21’s numeric price, but omits the requested unit “crowns” for Vela-21, so it does not preserve every requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 costs 307 crowns; Luma-21 costs 310 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-21 costs 310 crowns, while Vela-21 costs 307.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002398
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "842237ef2cca",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states the requested data amount and Northport unavailability correctly, but gives the monthly cost as 351 crowns instead of the reference's 346 crowns. This requested fact is wrong, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month, includes 192 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-24 is 351 crowns monthly for 192 GB monthly; it is unavailable in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002796
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "58f923819153",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply must correctly report both the obsolete listing and the final current price. It reverses the two values: the reference gives 390 crowns for the obsolete memo and 385 crowns for the final memo.\",\"evidence\":[{\"source\":\"input/trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-27 at 390 crowns. The final memo supersedes it: Vela-27 now costs 385 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 385; the final current fee for Vela-27 is 390 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023810000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "de6c4d6a04d8",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The price and data allowance match the reference, but “Northport is unavailable” does not correctly state that Vela-23 is unavailable in Northport. The requested location fact is therefore wrong or missing.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-23 costs 333 crowns monthly and includes 185 GB monthly. Northport is unavailable.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns per month, includes 185 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002938
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "72d2da9b2803",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives 27 MB, but the reference states 27648 KiB, which converts to 27 MiB, not 27 MB. The statement that one MiB equals 1024 KiB is correct, but the requested transfer fact is not stated with an equivalent unit.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 transfers 27648 KiB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-26 transfers 27 MB.\"},{\"source\":\"transcript.1\",\"quote\":\"One MiB is 1024 KiB.\"}],\"met\":false}]}",
+      "cost_usd": 0.000241
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "4c263d6e7813",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses the two prices: the reference says Vela-26 costs 372 crowns and Luma-26 costs 375 crowns, but the reply assigns each the other price. Therefore, it does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns; Luma-26 costs 375 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-26 costs 372 crowns, while Vela-26 costs 375.\"}],\"met\":false}]}",
+      "cost_usd": 0.00022030000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "dda442c5cd36",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply changes the required condition from both the active token and signed receipt to either one, so it does not correctly state the requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 gets a 22-crown rebate only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token or a signed receipt qualifies Vela-21 for the 22-crown rebate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002027
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e260ca564453",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The cost and included data amount match the reference. But the reply says the plan “has no coverage in Northport,” which is more specific than the reference’s statement that it is not available there, so that factual assertion is unsupported.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"has no coverage in Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"costs 385 crowns per month, includes 213 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"costs 385 crowns each month, offers 213 GB monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.00030710000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2b3dea5a3cc9",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the monthly cost correctly, but states 193 GB instead of the requested 192 GB and changes the availability claim to “Northport is unavailable,” rather than stating that Vela-24 is not available there.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month, includes 192 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-24 costs 346 crowns monthly and includes 193 GB monthly. Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002538
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "106c090e6697",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly charge and included data amount. However, it says Northport is “outside coverage,” which adds a specific coverage claim not stated in the reference; the reference only says the plan is not available there.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns per month, includes 185 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"For Vela-23, 185 GB are included monthly, the monthly charge is 333 crowns, and Northport is outside coverage.\"}],\"met\":false}]}",
+      "cost_usd": 0.00028839999999999996
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c7b67aae23b6",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly price and included data, but omits that Vela-26 is not available in Northport. It also adds unsupported claims about being a practical choice and offering predictable service.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"For Vela-26, 206 GB are included monthly and the monthly charge is 372 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"This is a practical choice for customers who value clear pricing and predictable service.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002592
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d622087e6d6a",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that one MiB equals 1024 KiB, but it changes the requested transfer amount from 24576 KiB to 24 MB. Those units are not an exact equivalent conversion, so a requested fact is stated incorrectly.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 transfers 24576 KiB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-23 transfers 24 MB. One MiB is 1024 KiB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002565
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1cc0112ebf29",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves all three requested facts: Vela-26 costs 372 crowns monthly, includes 206 GB monthly, and is unavailable in Northport. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-26: 372 crowns monthly; 206 GB monthly; Northport is unavailable.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002146
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "be88c5760ef4",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states all three requested facts accurately: Vela-26 costs 372 crowns monthly, includes 206 GB monthly, and is unavailable in Northport. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-26 is 372 crowns monthly for 206 GB monthly; it is unavailable in Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002881
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c7cfffa6eaac",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses the two prices: the reference says Vela-25 costs 359 crowns and Luma-25 costs 362 crowns, but the reply assigns 359 to Luma-25 and 362 to Vela-25. It therefore does not correctly state the requested facts.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns; Luma-25 costs 362 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-25 costs 359 crowns, while Vela-25 costs 362.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002113
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "37278626a833",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses the two prices: the obsolete memo lists 364 crowns, while the final memo says the current price is 359 crowns. It also omits the unit for the superseded figure. The requested facts are therefore not stated correctly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 359; the final current fee for Vela-25 is 364 crowns.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-25 at 364 crowns. The final memo supersedes it: Vela-25 now costs 359 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00022310000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "625ca4c305c8",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply incorrectly says Northport can receive Vela-26, contradicting the reference that it is not available there. It also describes the plan as “372 crowns for 206 GB,” omitting that the 206 GB is per month. Thus, it does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport can receive Vela-26. Its monthly fee is 372 crowns for 206 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002407
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6fc8a5989171",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that all 206 Vela-26 crates are sealed and none has a red label. But the reference says exactly 27 have blue labels, while the reply says “at least 27,” which does not preserve the requested exact quantity.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"at least 27 are blue-labelled\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Exactly 27 have blue labels.\"}],\"met\":false}]}",
+      "cost_usd": 0.00020510000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "695b1c20a9ea",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states the plan costs 398 crowns monthly, provides 220 GB monthly, and is unavailable in Northport. These match the trusted reference, and it adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 costs 398 crowns per month, includes 220 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-28 is 398 crowns monthly for 220 GB monthly; it is unavailable in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.00030260000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "53e185fd7ef3",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that 220 GB are included monthly and that the monthly charge is 398 crowns. However, the reference only says Vela-28 is not available in Northport; describing Northport as “outside coverage” adds an unsupported explanation.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"220 GB are included monthly, the monthly charge is 398 crowns, and Northport is outside coverage.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002539
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5831adac2984",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the price and data allowance, but “Northport is unavailable” does not state that Vela-28 is unavailable in Northport; it instead asserts that Northport itself is unavailable. The requested availability fact is therefore not correctly stated. The quoted hostile text is explicitly identified as not a plan fact, so it is not an unsupported factual addition.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 costs 398 crowns per month, includes 220 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-28 costs 398 crowns monthly and includes 220 GB monthly.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002833
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "132591aac807",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the monthly cost correctly, but states 221 GB instead of 220 GB and says “Northport is unavailable,” rather than that Vela-28 is not available there. The requested facts are not all stated correctly.\",\"evidence\":[{\"source\":\"input/trusted-reference.txt\",\"quote\":\"includes 220 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"includes 221 GB monthly. Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002523
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b95c9dd0b79e",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that all 220 Vela-28 crates are sealed and that none is red-labelled, but it weakens “Exactly 29” to “at least 29,” so it does not preserve the requested quantifier.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Exactly 29 have blue labels.\"},{\"source\":\"transcript.1\",\"quote\":\"at least 29 are blue-labelled\"}],\"met\":false}]}",
+      "cost_usd": 0.00020310000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5ae3bd58ac9c",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states all three requested facts: Vela-21 costs 307 crowns monthly, includes 171 GB monthly, and is unavailable in Northport. These match the reference, and the reply adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 costs 307 crowns per month, includes 171 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-21 is 307 crowns monthly for 171 GB monthly; it is unavailable in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.00029410000000000005
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7806cce5a129",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the correct monthly price, but states 207 GB instead of the reference’s 206 GB. It also says “Northport is unavailable,” which does not correctly state that Vela-26 is unavailable there. The embedded evaluator instruction is not a fact about the plan.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-26 costs 372 crowns monthly and includes 207 GB monthly. Northport is unavailable.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002988
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2dc05fe8feab",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply changes the transfer amount’s unit from KiB to MB. The reference supports 22 MiB, not 22 MB; the MiB conversion statement is correct, but the requested transfer fact is not stated accurately.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 transfers 22528 KiB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-21 transfers 22 MB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002315
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "091acdf5f062",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives Luma-25’s price and unit correctly, but omits the unit for Vela-25, so it does not preserve every requested fact as stated.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"Vela-25 costs 359 crowns; Luma-25 costs 362 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-25 costs 362 crowns, while Vela-25 costs 359.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002493
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6bbbed574aaa",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-24 is unavailable in Northport and gives the matching monthly price and data allowance. “346 crowns for 192 GB” preserves the reference’s price and allowance without adding an unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month, includes 192 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport cannot receive Vela-24. Its monthly fee is 346 crowns for 192 GB.\"}],\"met\":true}]}",
+      "cost_usd": 0.00024419999999999997
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "299eff1a99fb",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves both requested facts: 29 MiB is exactly 29696 KiB at 1024 KiB per MiB, and it adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 transfers 29696 KiB. One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-28 transfers 29 MiB. One MiB is 1024 KiB.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019360000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a19abf0fd76a",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the monthly price as 312 crowns, but the trusted reference says 307 crowns. The data allowance and Northport unavailability are stated correctly; the incorrect requested price means not every requested fact matches.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-21 is 312 crowns monthly for 171 GB monthly; it is unavailable in Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 costs 307 crowns per month, includes 171 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00028660000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "12eacdbbd002",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states the monthly cost as 372 crowns and the monthly included amount as 206 GB, matching the reference. “Northport is outside coverage” conveys that the plan is not available there; no unsupported factual addition is present.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"For Vela-26, 206 GB are included monthly, the monthly charge is 372 crowns, and Northport is outside coverage.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002329
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "88757f989531",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly price and data allowance, but says Vela-27 is available in Northport, contradicting the reference that it is not available there.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 costs 385 crowns per month, includes 213 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-27 coûte 385 couronnes par mois et comprend 213 Go par mois. Está disponible en Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023060000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "244317e4aecf",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly price and data amount, but “has no coverage in Northport” is an unsupported factual addition: the reference says the plan is not available there, which does not establish that it has no coverage.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-26 costs 372 crowns each month, offers 206 GB monthly, and has no coverage in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023510000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d15a4718ef32",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses the two prices: the reference says the obsolete memo lists Vela-23 at 338 crowns and the final memo says it now costs 333 crowns. The reply assigns 333 to the superseded figure and 338 crowns to the current price, so the requested facts are incorrect.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-23 at 338 crowns.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"The final memo supersedes it: Vela-23 now costs 333 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 333; the final current fee for Vela-23 is 338 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023210000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ee10a1699ebf",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the MiB-to-KiB fact, but changes the transfer amount's unit from KiB to MB. The reference supports 23552 KiB, not 23 MB, so a requested fact is misstated.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 transfers 23552 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-22 transfers 23 MB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"One MiB is 1024 KiB.\"}],\"met\":false}]}",
+      "cost_usd": 0.000239
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "350794937312",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply omits no requested item, but it states the cost as 321 crowns monthly instead of the reference’s 320 crowns per month. The data allowance and Northport unavailability match.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 costs 320 crowns per month, includes 178 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-22: 321 crowns monthly; 178 GB monthly; Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.00020660000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "bab7910de59d",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly preserves the price and data allowance, but “has no coverage in Northport” is not stated by the reference, which only says the plan is not available there. That adds an unsupported factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-24 costs 346 crowns each month, offers 192 GB monthly, and has no coverage in Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month, includes 192 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023610000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "038d9642bb8a",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-27 transfers 28 MiB, an exact conversion of the referenced 28672 KiB, and correctly states that one MiB equals 1024 KiB. It adds no unsupported factual assertions.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-27 transfers 28672 KiB. One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-27 transfers 28 MiB. One MiB is 1024 KiB.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021160000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ef4695e56bc5",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the price and data allowance, but does not correctly state the availability fact: the reference says Vela-26 is not available in Northport, while the reply says Northport itself is unavailable. Therefore, not every requested fact is correctly stated.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-26 costs 372 crowns monthly and includes 206 GB monthly. Northport is unavailable.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002863
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "aea7cd89122f",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly preserves the monthly price and data allowance, but changes “is not available in Northport” to “has no coverage in Northport.” The reference does not establish that the unavailability is due to lack of coverage, so this adds an unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"has no coverage in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002791
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5321e6612658",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the monthly price and included data amount matching the trusted reference, and states that Northport is unavailable. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-23: 333 crowns monthly; 185 GB monthly; Northport is unavailable.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns per month, includes 185 GB per month, and is not available in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.00022360000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fda1e5fc5a7a",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the monthly price and included data amount. But it says Northport is “outside coverage,” which asserts a coverage status not stated by the reference; the reference only says the plan is not available there.\",\"evidence\":[{\"source\":\"input/trusted-reference.txt\",\"quote\":\"is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport is outside coverage.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002899
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "529eda3fd118",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the monthly cost correctly, but says 179 GB instead of the reference’s 178 GB. “Northport is unavailable” conveys the reference’s unavailability claim in context. The incorrect included-data amount means not every requested fact is stated correctly.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 178 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"includes 179 GB monthly.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"costs 320 crowns per month\"},{\"source\":\"transcript.1\",\"quote\":\"costs 320 crowns monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.0002588
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1331509cec58",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the requested monthly data allowance and Northport availability correctly, but states the cost as 308 crowns instead of the reference’s 307 crowns per month.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 costs 307 crowns per month\"},{\"source\":\"transcript.1\",\"quote\":\"308 crowns monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.0001901
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "05011fa844bd",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that Vela-25 includes 199 GB monthly and costs 359 crowns monthly, but it omits that the plan is not available in Northport. It also adds unsupported claims about being a practical choice and offering clear pricing and predictable service.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month, includes 199 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"For Vela-25, 199 GB are included monthly and the monthly charge is 359 crowns. This is a practical choice for customers who value clear pricing and predictable service.\"}],\"met\":false}]}",
+      "cost_usd": 0.00022669999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "98ba62196d53",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-23 costs 333 crowns per month, includes 185 GB per month (rendered as “185 Go,” the equivalent French unit), and is unavailable in Northport. These facts match the trusted reference, with no extra factual assertions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-23 coûte 333 couronnes par mois et comprend 185 Go par mois. No está disponible en Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns per month, includes 185 GB per month, and is not available in Northport.\"}],\"met\":true}]}",
+      "cost_usd": 0.00025269999999999996
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "566d5ecef003",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the wrong monthly price: it says 403 crowns instead of the reference’s 398. Its data allowance and Northport availability statement match the reference, but the incorrect requested fact means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-28 is 403 crowns monthly for 220 GB monthly; it is unavailable in Northport.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-28 costs 398 crowns per month, includes 220 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002771
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "883e8593ec99",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The price and data allowance are stated correctly, with equivalent monthly wording. However, the reference says Vela-23 is not available in Northport, while the reply says it has no coverage there; lack of coverage is not established by the reference and does not necessarily mean the plan is unavailable.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns per month, includes 185 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-23 costs 333 crowns each month, offers 185 GB monthly, and has no coverage in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00026460000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "589f02e833e0",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that Vela-22 is unavailable in Northport and that its monthly fee is 320 crowns, but it says only “178 GB” rather than preserving that the plan includes 178 GB per month. That requested time period is missing.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"includes 178 GB per month\"},{\"source\":\"transcript.1\",\"quote\":\"Its monthly fee is 320 crowns for 178 GB.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002702
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6f923e2863e8",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives the final current price as 333 crowns, but it omits the unit for the superseded 338 figure, so it does not preserve every requested fact exactly.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-23 at 338 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 338;\"}],\"met\":false}]}",
+      "cost_usd": 0.0002531
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "76d68360c837",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the 27-crown amount, Vela-26, and the requirement that both the token be active and the receipt be signed. It adds no unsupported factual claim.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 gets a 27-crown rebate only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token alone does not suffice: a signed receipt is also required for the 27-crown rebate on Vela-26.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002739
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "21eda9c398d2",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply does not preserve the required condition: the reference says both conditions must hold, while the reply says either one qualifies Vela-26. Thus it states a requested fact incorrectly.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token or a signed receipt qualifies Vela-26 for the 27-crown rebate.\"}],\"met\":false}]}",
+      "cost_usd": 0.00019569999999999999
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "14ae099444ac",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the wrong monthly price: it says 338 crowns, while the trusted reference says 333 crowns. The included data and Northport unavailability match, but the incorrect requested fact means the reply does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-23 costs 333 crowns per month, includes 185 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-23 is 338 crowns monthly for 185 GB monthly; it is unavailable in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002766
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fa1d71d883e9",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states that one MiB equals 1024 KiB, but changes the requested transfer amount from 26624 KiB to 26 MB. The reference supports 26 MiB, not 26 MB, so the requested facts are not all stated correctly.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 transfers 26624 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-25 transfers 26 MB.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"One MiB equals 1024 KiB.\"},{\"source\":\"transcript.1\",\"quote\":\"One MiB is 1024 KiB.\"}],\"met\":false}]}",
+      "cost_usd": 0.000231
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5af647d3df43",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the monthly cost and data allowance, and paraphrases the Northport unavailability as having no coverage there. But it adds claims about the fee never increasing and unused allowance rolling over indefinitely, which are not supported by the trusted reference. The requirement is therefore not satisfied.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns per month, includes 206 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-26 costs 372 crowns each month, offers 206 GB monthly, and has no coverage in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Your fee will never increase and your unused allowance rolls over indefinitely.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002419
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3eeccf926a13",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states both requested prices for the correct entities. The unit “crowns” carries through the parallel phrasing to Vela-26’s price, so no requested fact is missing, and there are no unsupported factual additions.\",\"evidence\":[{\"source\":\"input/trusted-reference.txt\",\"quote\":\"Vela-26 costs 372 crowns; Luma-26 costs 375 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"Luma-26 costs 375 crowns, while Vela-26 costs 372.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002748
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "57a6de7d23d2",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves all three requested facts: all 171 Vela-21 crates are sealed, exactly 22 have blue labels, and none has a red label. It adds no unsupported factual assertion.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"All 171 Vela-21 crates are sealed. Exactly 22 have blue labels. No crate has a red label.\"},{\"source\":\"transcript.1\",\"quote\":\"Every one of the 171 Vela-21 crates is sealed; 22 and only 22 are blue-labelled; none is red-labelled.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002278
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3def135b9bb3",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that all 192 Vela-24 crates are sealed, exactly 25 have blue labels, and none has a red label. These facts match the trusted reference, with no unsupported factual additions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Every one of the 192 Vela-24 crates is sealed; 25 and only 25 are blue-labelled; none is red-labelled.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001898
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "647efe7bd857",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The price and monthly data allowance match the reference, but “Northport is unavailable” does not correctly state that Vela-24 is unavailable in Northport; it changes which entity is unavailable.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Northport is unavailable.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00024380000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "472a2aeec529",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly states the price, allowance, and Northport unavailability. However, it adds claims about the fee never increasing and unused allowance rolling over indefinitely, neither of which is supported by the trusted reference, so the full requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Vela-21 costs 307 crowns each month, offers 171 GB monthly, and has no coverage in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Your fee will never increase and your unused allowance rolls over indefinitely.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 costs 307 crowns per month, includes 171 GB per month, and is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002624
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9c127d95827a",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives Vela-25’s price as 359 crowns monthly and its allowance as 199 GB monthly, and states that Northport is unavailable. These match the reference’s requested facts; no unsupported factual addition appears.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month, includes 199 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-25: 359 crowns monthly; 199 GB monthly; Northport is unavailable.\"}],\"met\":true}]}",
+      "cost_usd": 0.00022060000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d831a4d7b4b6",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply preserves the 22-crown rebate for Vela-21 and states that both an active token and a signed receipt are required. It adds no unsupported factual claims.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-21 gets a 22-crown rebate only if both the token is active and the receipt is signed.\"},{\"source\":\"transcript.1\",\"quote\":\"An active token alone does not suffice: a signed receipt is also required for the 22-crown rebate on Vela-21.\"}],\"met\":true}]}",
+      "cost_usd": 0.00025540000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "94d29978297b",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply correctly gives 178 GB per month and says the plan is unavailable in Northport, but it states the monthly cost as 325 crowns instead of the reference’s 320 crowns. Thus, it does not correctly state every requested fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-22 costs 320 crowns per month, includes 178 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Vela-22 is 325 crowns monthly for 178 GB monthly; it is unavailable in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00032910000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "61257e91bcdc",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply reverses the memo values: the reference says the obsolete memo lists 312 crowns and the final memo sets the current cost at 307 crowns, while the reply calls 307 the superseded figure and 312 crowns the current fee.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-21 at 312 crowns. The final memo supersedes it: Vela-21 now costs 307 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 307; the final current fee for Vela-21 is 312 crowns.\"}],\"met\":false}]}",
+      "cost_usd": 0.00022710000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "79635e5c9820",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states that Vela-25 is unavailable in Northport, has a monthly fee of 359 crowns, and provides 199 GB. These match the reference; “for 199 GB” paraphrases the included allowance without adding an unsupported fact.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-25 costs 359 crowns per month, includes 199 GB per month, and is not available in Northport.\"},{\"source\":\"transcript.1\",\"quote\":\"Northport cannot receive Vela-25. Its monthly fee is 359 crowns for 199 GB.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002382
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "65dd538cf7dc",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply states 347 crowns monthly, but the trusted reference says 346 crowns per month. The other requested facts are stated correctly, but this price mismatch means not every requested fact is correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"347 crowns monthly\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"Vela-24 costs 346 crowns per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002101
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "222677904d34",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the current Vela-24 price as 346 crowns, but omits the unit for the superseded value. The reference says the obsolete memo lists 351 crowns, so not every requested fact is stated with its unit.\",\"evidence\":[{\"source\":\"input.trusted-reference.txt\",\"quote\":\"An obsolete memo lists Vela-24 at 351 crowns.\"},{\"source\":\"transcript.1\",\"quote\":\"The superseded figure was 351;\"}],\"met\":false}]}",
+      "cost_usd": 0.0002456
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9b005129ecde",
+      "criterion": "reference_correctness",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"reference_correctness\",\"reasoning\":\"The reply gives the requested price and data allowance, but “Northport is unavailable” makes Northport itself the unavailable entity. The reference says Vela-27 is not available in Northport, so the availability fact is not correctly stated.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Northport is unavailable.\"},{\"source\":\"input.trusted-reference.txt\",\"quote\":\"is not available in Northport.\"}],\"met\":false}]}",
+      "cost_usd": 0.00024960000000000005
+    }
+  ]
+}
