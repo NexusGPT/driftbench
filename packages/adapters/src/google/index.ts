@@ -196,7 +196,7 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
             const call = part.functionCall;
             const label = names.label(call.name as string);
             const segmentId = call.id ?? `fc-${turn.index}-${step}-${asked.length + 1}`;
-            const input = call.args ?? {};
+            const input = call.args ?? null;
             asked.push({
               id: segmentId,
               ...(call.id === undefined ? {} : { wireId: call.id }),

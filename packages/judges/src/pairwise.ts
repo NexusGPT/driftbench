@@ -3,7 +3,14 @@ import { readFile } from 'node:fs/promises';
 import { parse as parseYaml } from 'yaml';
 import type { RubricItem } from './assessment';
 import type { JudgeClient } from './client';
-import { CriterionText, type JudgeOutcome, type JudgeRequest, type TranscriptEntry } from './contract';
+import {
+  CriterionText,
+  type EscalationRecord,
+  type JudgeOutcome,
+  type JudgeRequest,
+  type JudgeResult,
+  type TranscriptEntry,
+} from './contract';
 import { FACT_AUDIT_POLICY, parseFactLedger } from './fact-audit';
 import { FRAME_RULE } from './transcript';
 
@@ -30,6 +37,8 @@ export type PairwiseOptions = {
 
 /** One measured presentation. No result or consistency is invented for the unmeasured other order. */
 export type CanonicalPairwiseVerdict = {
+  readonly escalation?: EscalationRecord;
+  readonly costUsd?: number;
   readonly presentation: 'canonical';
   readonly choice: PairwiseChoice;
   /** Outcome in the canonical order: pass names A, fail names B, inconclusive is a tie. */
@@ -41,6 +50,8 @@ export type CanonicalPairwiseVerdict = {
 };
 
 export type PairwiseVerdict = {
+  readonly escalation?: EscalationRecord;
+  readonly costUsd?: number;
   /** The preferred candidate, as the caller gave them: first or second. A tie when none is preferred. */
   readonly choice: PairwiseChoice;
   /** The judge's outcome with the first candidate as Reply A. */
@@ -126,6 +137,18 @@ function naming(outcome: JudgeOutcome, aIsFirst: boolean): PairwiseChoice {
   return aWins === aIsFirst ? 'first' : 'second';
 }
 
+function outcomeOf(result: JudgeResult): JudgeOutcome {
+  return result.unparsed
+    ? 'inconclusive'
+    : result.winner === 'A'
+      ? 'pass'
+      : result.winner === 'B'
+        ? 'fail'
+        : result.winner
+          ? 'inconclusive'
+          : result.answer.outcome;
+}
+
 /**
  * Judges two candidates on one criterion. A client that gives no answer throws, and so does
  * this call: a missing answer is never read as a tie.
@@ -179,6 +202,18 @@ export async function judgePairwise(
         }
       : {}),
   });
+  if (client.judgeComparison && options.presentation !== 'canonical') {
+    const result = await client.judgeComparison(request(first, second), request(second, first, true));
+    const comparison = result.comparison;
+    if (!comparison) throw new Error('comparison client returned no comparison diagnostics');
+    const outcome = outcomeOf(result);
+    return {
+      ...comparison,
+      choice: naming(outcome, true),
+      ...(result.escalation ? { escalation: result.escalation, calls: result.escalation.calls } : {}),
+      ...(result.costUsd === undefined ? {} : { costUsd: result.costUsd }),
+    };
+  }
   const ask = async (r: JudgeRequest) => {
     calls += 1;
     const result = await client.judge(r);
@@ -229,9 +264,20 @@ export async function judgePairwise(
     const secondHash = createHash('sha256').update(second).digest('hex');
     // The content fallback also handles distinct JS strings that encode to the same UTF-8 bytes.
     const aIsFirst = firstHash < secondHash || (firstHash === secondHash && first <= second);
-    const result = await ask(request(aIsFirst ? first : second, aIsFirst ? second : first));
-    const outcome = result.unparsed || first === second ? 'inconclusive' : result.answer.outcome;
-    return { presentation: 'canonical', choice: naming(outcome, aIsFirst), outcome, aIsFirst, calls };
+    const canonical = request(aIsFirst ? first : second, aIsFirst ? second : first);
+    // A comparison procedure owns its repair and escalation. Canonical presentation gives it one
+    // order and retains its audit, without asking it to invent a second presentation.
+    const result = client.judgeComparison ? await client.judge(canonical) : await ask(canonical);
+    const outcome = first === second ? 'inconclusive' : outcomeOf(result);
+    return {
+      presentation: 'canonical',
+      choice: naming(outcome, aIsFirst),
+      outcome,
+      aIsFirst,
+      calls: result.escalation?.calls ?? (client.judgeComparison ? 1 : calls),
+      ...(result.escalation ? { escalation: result.escalation } : {}),
+      ...(result.costUsd === undefined ? {} : { costUsd: result.costUsd }),
+    };
   }
   let orderedResult = await ask(request(first, second));
   let swappedResult = await ask(request(second, first, true));

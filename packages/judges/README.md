@@ -23,8 +23,27 @@ Node.js 22 or newer. ESM only, with TypeScript types.
 * `createHttpJudge`
 * `FakeJudge`
 * `loadCassette`
+* `KNOWLEDGE_RETENTION_CRITERION`
 
 The full list of exports is in the type declarations (`dist/index.d.ts`).
+
+## Knowledge retention
+
+Pass `KNOWLEDGE_RETENTION_CRITERION` as a judge request's `criterion`, with the conversation in
+`transcript`. The last reply must preserve current user facts without asking for them again.
+Corrections supersede earlier values. Different owners can have different values. Unmentioned facts
+need not be repeated, and a single user message followed by a reply is enough to judge.
+All assistant text segments after the latest user message form the current reply. Mentioning a
+replaced value as history is allowed; presenting it as current is not.
+
+The matching catalogue definition is in `examples/criteria/knowledge_retention.yaml`. The default
+judge asks for grounded evidence checks and computes the verdict in code. This criterion does not
+require independent proof of unrelated claims.
+
+The machine `knowledge_retention` check remains separate: it checks configured ledger facts against
+the reply and tool inputs, with optional `use: true` for literal use. A semantic pass does not waive
+that explicit use requirement. Combine machine and judge verdicts through the normal check pipeline
+or `combineVerdicts`; gating machine failures stay failures.
 
 ## Opt-in conformance judging
 
@@ -99,3 +118,13 @@ These are replayed synthetic cohort results, not a new model evaluation or a gen
 ## License
 
 Apache-2.0
+
+## Pointwise fact ledger (opt-in)
+
+For factual replies with a trusted reference, pass `assessment: { kind: 'fact-ledger' }`
+and `reference` in a `JudgeRequest`, without `candidates`. The model reports facts;
+code passes only when every fact is `match` and `unsupported` is empty. The default
+judge is unchanged. Add `grounding: 'strict'` inside `assessment` to reject copied
+text that cannot be grounded in its reference or reply.
+
+See the [API and recorded results](https://github.com/achammah/driftbench/blob/main/docs/concepts/judges.md#pointwise-fact-ledger-against-a-trusted-reference).

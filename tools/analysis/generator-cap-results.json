@@ -1,0 +1,5190 @@
+{
+  "source": {
+    "capCommit": "8ce6daa7",
+    "coverageReportCommit": "bf53eadb",
+    "diagnosisCommit": "9e42656e",
+    "note": "Exploratory per-process measurements on this branch while coverage reporting and rejection diagnostics were finalized. The cap algorithm and generated spec selection were unchanged. The committed generator-cap.ts reproduces the comparison at a single source version.",
+    "date": "2026-10-13",
+    "fixture": "scaledSpec(1, factor), t=3, generate seed 1",
+    "instrument": "generateFrom once:true; write all selected YAML and reload it; process user plus system CPU",
+    "cpuScope": "one generation including map load, output writes and YAML reload; fault assay excluded",
+    "faultScope": "one deterministic every-time anywhere instance of each of the 70 validator fault classes; causal kills only; stop a class after its first witnessed kill",
+    "faultReuse": "At 10x, caps 4096, 6126 and 6127 produce byte-identical saved suites to cap 710 and reuse its assay. All other rows have independent assays."
+  },
+  "rows": [
+    {
+      "factor": 10,
+      "cap": null,
+      "specs": 3283,
+      "generationCpuMs": 10980.664,
+      "pair": {
+        "t": 2,
+        "specs": 3283,
+        "allowed": 1526,
+        "covered": 1485,
+        "share": 0.973132372214941
+      },
+      "triple": {
+        "t": 3,
+        "specs": 3283,
+        "allowed": 9162,
+        "covered": 8690,
+        "share": 0.9484828640034927
+      },
+      "pairsLost": 0,
+      "triplesLost": 0,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 12233.514,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {},
+      "suiteSha256": "298eb7601a5d1133807b082a85a879d01f347729c829dec2ebb4fea20faf7f73",
+      "measurementFile": "probe-10-none-t3",
+      "passes": true
+    },
+    {
+      "factor": 10,
+      "cap": 512,
+      "specs": 512,
+      "generationCpuMs": 4381.721,
+      "pair": {
+        "t": 2,
+        "specs": 512,
+        "allowed": 1526,
+        "covered": 1287,
+        "share": 0.8433813892529489
+      },
+      "triple": {
+        "t": 3,
+        "specs": 512,
+        "allowed": 9162,
+        "covered": 3935,
+        "share": 0.42949137742850907
+      },
+      "pairsLost": 198,
+      "triplesLost": 4755,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 2471.062,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 719,
+        "cover": 2052
+      },
+      "suiteSha256": "d30411e99c05ab86495418be1211ee244e6938089bef75e02e0930701c8dcc76",
+      "measurementFile": "cap-pairs-10-512",
+      "passes": false
+    },
+    {
+      "factor": 10,
+      "cap": 709,
+      "specs": 709,
+      "generationCpuMs": 5718.793,
+      "pair": {
+        "t": 2,
+        "specs": 709,
+        "allowed": 1526,
+        "covered": 1484,
+        "share": 0.9724770642201835
+      },
+      "triple": {
+        "t": 3,
+        "specs": 709,
+        "allowed": 9162,
+        "covered": 4680,
+        "share": 0.5108055009823183
+      },
+      "pairsLost": 1,
+      "triplesLost": 4010,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 3318.396,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 719,
+        "cover": 1855
+      },
+      "suiteSha256": "51f42583f37061de9e66214735bd483b07b0d3b6fce678e637708bb4b398fb2f",
+      "measurementFile": "cap-pairs-10-709",
+      "passes": false
+    },
+    {
+      "factor": 10,
+      "cap": 710,
+      "specs": 710,
+      "generationCpuMs": 4464.454,
+      "pair": {
+        "t": 2,
+        "specs": 710,
+        "allowed": 1526,
+        "covered": 1485,
+        "share": 0.973132372214941
+      },
+      "triple": {
+        "t": 3,
+        "specs": 710,
+        "allowed": 9162,
+        "covered": 4684,
+        "share": 0.5112420868805938
+      },
+      "pairsLost": 0,
+      "triplesLost": 4006,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 3192.713,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 719,
+        "cover": 1854
+      },
+      "suiteSha256": "347c5a2346d5d3f3feec5acf9d8f5f90fac1423a99fdf8178029a2cc0400e121",
+      "measurementFile": "cap-pairs-10-710",
+      "passes": true
+    },
+    {
+      "factor": 10,
+      "cap": 4096,
+      "specs": 710,
+      "generationCpuMs": 4697.212,
+      "pair": {
+        "t": 2,
+        "specs": 710,
+        "allowed": 1526,
+        "covered": 1485,
+        "share": 0.973132372214941
+      },
+      "triple": {
+        "t": 3,
+        "specs": 710,
+        "allowed": 9162,
+        "covered": 4684,
+        "share": 0.5112420868805938
+      },
+      "pairsLost": 0,
+      "triplesLost": 4006,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 3192.713,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 719,
+        "cover": 1854
+      },
+      "suiteSha256": "347c5a2346d5d3f3feec5acf9d8f5f90fac1423a99fdf8178029a2cc0400e121",
+      "measurementFile": "cap-pairs-10-4096",
+      "passes": true
+    },
+    {
+      "factor": 10,
+      "cap": 6126,
+      "specs": 710,
+      "generationCpuMs": 4190.879,
+      "pair": {
+        "t": 2,
+        "specs": 710,
+        "allowed": 1526,
+        "covered": 1485,
+        "share": 0.973132372214941
+      },
+      "triple": {
+        "t": 3,
+        "specs": 710,
+        "allowed": 9162,
+        "covered": 4684,
+        "share": 0.5112420868805938
+      },
+      "pairsLost": 0,
+      "triplesLost": 4006,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 3192.713,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 719,
+        "cover": 1854
+      },
+      "suiteSha256": "347c5a2346d5d3f3feec5acf9d8f5f90fac1423a99fdf8178029a2cc0400e121",
+      "measurementFile": "cap-pairs-10-6126",
+      "passes": true
+    },
+    {
+      "factor": 10,
+      "cap": 6127,
+      "specs": 710,
+      "generationCpuMs": 4340.388,
+      "pair": {
+        "t": 2,
+        "specs": 710,
+        "allowed": 1526,
+        "covered": 1485,
+        "share": 0.973132372214941
+      },
+      "triple": {
+        "t": 3,
+        "specs": 710,
+        "allowed": 9162,
+        "covered": 4684,
+        "share": 0.5112420868805938
+      },
+      "pairsLost": 0,
+      "triplesLost": 4006,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 3192.713,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 719,
+        "cover": 1854
+      },
+      "suiteSha256": "347c5a2346d5d3f3feec5acf9d8f5f90fac1423a99fdf8178029a2cc0400e121",
+      "measurementFile": "cap-pairs-10-6127",
+      "passes": true
+    },
+    {
+      "factor": 100,
+      "cap": null,
+      "specs": 32067,
+      "generationCpuMs": 97489.294,
+      "pair": {
+        "t": 2,
+        "specs": 32067,
+        "allowed": 13946,
+        "covered": 13510,
+        "share": 0.9687365552846694
+      },
+      "triple": {
+        "t": 3,
+        "specs": 32067,
+        "allowed": 88542,
+        "covered": 83722,
+        "share": 0.9455625578821351
+      },
+      "pairsLost": 0,
+      "triplesLost": 0,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 108023.504,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {},
+      "suiteSha256": "7402a16882bda3b2aa57da35626212af71b8500995a1858f380819ebbf3e77e2",
+      "measurementFile": "probe-100-none-t3",
+      "passes": true
+    },
+    {
+      "factor": 100,
+      "cap": 512,
+      "specs": 512,
+      "generationCpuMs": 25105.409,
+      "pair": {
+        "t": 2,
+        "specs": 512,
+        "allowed": 13946,
+        "covered": 4188,
+        "share": 0.30030116162340453
+      },
+      "triple": {
+        "t": 3,
+        "specs": 512,
+        "allowed": 88542,
+        "covered": 9999,
+        "share": 0.11292945720674934
+      },
+      "pairsLost": 9322,
+      "triplesLost": 73723,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 3266.853,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 9489,
+        "cover": 22066
+      },
+      "suiteSha256": "29379f526c77450bb8bd7360eb1b24f73b6e7c485b07efbe9ea3908ff5b89b6a",
+      "measurementFile": "cap-pairs-100-512",
+      "passes": false
+    },
+    {
+      "factor": 100,
+      "cap": 709,
+      "specs": 709,
+      "generationCpuMs": 23785.55,
+      "pair": {
+        "t": 2,
+        "specs": 709,
+        "allowed": 13946,
+        "covered": 6158,
+        "share": 0.4415603040298293
+      },
+      "triple": {
+        "t": 3,
+        "specs": 709,
+        "allowed": 88542,
+        "covered": 14727,
+        "share": 0.16632784441282103
+      },
+      "pairsLost": 7352,
+      "triplesLost": 68995,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 4164.76,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 9489,
+        "cover": 21869
+      },
+      "suiteSha256": "71cb71284f810ee3f68a07fed418ead62f8c8e691ccfb95a2845e2153826a01a",
+      "measurementFile": "cap-pairs-100-709",
+      "passes": false
+    },
+    {
+      "factor": 100,
+      "cap": 710,
+      "specs": 710,
+      "generationCpuMs": 23219.929,
+      "pair": {
+        "t": 2,
+        "specs": 710,
+        "allowed": 13946,
+        "covered": 6164,
+        "share": 0.4419905349204073
+      },
+      "triple": {
+        "t": 3,
+        "specs": 710,
+        "allowed": 88542,
+        "covered": 14742,
+        "share": 0.16649725553974384
+      },
+      "pairsLost": 7346,
+      "triplesLost": 68980,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 4484.731,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 9488,
+        "cover": 21869
+      },
+      "suiteSha256": "6e397d4759234ef26c04a15bbbe45e0db6b5e6b474884ba81e66fdb615167fdb",
+      "measurementFile": "cap-pairs-100-710",
+      "passes": false
+    },
+    {
+      "factor": 100,
+      "cap": 4096,
+      "specs": 4096,
+      "generationCpuMs": 28262.596,
+      "pair": {
+        "t": 2,
+        "specs": 4096,
+        "allowed": 13946,
+        "covered": 11479,
+        "share": 0.8231033988240356
+      },
+      "triple": {
+        "t": 3,
+        "specs": 4096,
+        "allowed": 88542,
+        "covered": 36251,
+        "share": 0.4094215174719342
+      },
+      "pairsLost": 2031,
+      "triplesLost": 47471,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 14453.38,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 7063,
+        "cover": 20908
+      },
+      "suiteSha256": "ab2be805f95ac04e43535135dde449880694dfb4fb0d12f6803d786795ccf422",
+      "measurementFile": "cap-pairs-100-4096",
+      "passes": false
+    },
+    {
+      "factor": 100,
+      "cap": 6126,
+      "specs": 6126,
+      "generationCpuMs": 34579.364,
+      "pair": {
+        "t": 2,
+        "specs": 6126,
+        "allowed": 13946,
+        "covered": 13509,
+        "share": 0.9686648501362398
+      },
+      "triple": {
+        "t": 3,
+        "specs": 6126,
+        "allowed": 88542,
+        "covered": 43752,
+        "share": 0.4941383750084706
+      },
+      "pairsLost": 1,
+      "triplesLost": 39970,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 20810.832,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 7063,
+        "cover": 18878
+      },
+      "suiteSha256": "b83128f67c288d66ff6617885a491fe172b04e33f453584794b213b602fa041d",
+      "measurementFile": "cap-pairs-100-6126",
+      "passes": false
+    },
+    {
+      "factor": 100,
+      "cap": 6127,
+      "specs": 6127,
+      "generationCpuMs": 37498.832,
+      "pair": {
+        "t": 2,
+        "specs": 6127,
+        "allowed": 13946,
+        "covered": 13510,
+        "share": 0.9687365552846694
+      },
+      "triple": {
+        "t": 3,
+        "specs": 6127,
+        "allowed": 88542,
+        "covered": 43755,
+        "share": 0.4941722572338551
+      },
+      "pairsLost": 0,
+      "triplesLost": 39967,
+      "faults": {
+        "total": 70,
+        "caught": [
+          "D1.advance",
+          "D1.restart",
+          "D1.silent",
+          "D10.advance",
+          "D10.restart",
+          "D2.ignore",
+          "D2.restart",
+          "D3.advance",
+          "D3.no-ask",
+          "D4.accept",
+          "D4.no-reask",
+          "D5.dutch",
+          "D5.mixed",
+          "D6.obey",
+          "D6.says-skipped",
+          "D7.double",
+          "D7.silent",
+          "D8.advance",
+          "D8.hide",
+          "D8.retry-many",
+          "D9.answer",
+          "D9.inside",
+          "X1.case",
+          "X1.enum-first",
+          "X1.enum-next",
+          "X1.field-missing",
+          "X1.integer-invalid",
+          "X1.integer-up",
+          "X3.back",
+          "X3.jump-final",
+          "X3.restart",
+          "X3.skip",
+          "X3.stay",
+          "X3.wrong-name",
+          "X4.double",
+          "X4.dutch",
+          "X4.empty",
+          "X4.no-question",
+          "X5.drop",
+          "X5.duplicate",
+          "X5.early-write",
+          "X5.extra",
+          "X5.write-twice",
+          "X5.wrong-tool"
+        ],
+        "survivors": [
+          {
+            "id": "X1.field-extra",
+            "changed": true
+          },
+          {
+            "id": "X2.fact-flip",
+            "changed": true
+          },
+          {
+            "id": "X2.slot-first",
+            "changed": false
+          },
+          {
+            "id": "X2.fact-invent",
+            "changed": true
+          },
+          {
+            "id": "X3.no-report",
+            "changed": true
+          },
+          {
+            "id": "X4.narrate",
+            "changed": true
+          },
+          {
+            "id": "C.no-file",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-name",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-folder",
+            "changed": false
+          },
+          {
+            "id": "C.empty-file",
+            "changed": false
+          },
+          {
+            "id": "C.deletes-input",
+            "changed": false
+          },
+          {
+            "id": "C.touches-other",
+            "changed": false
+          },
+          {
+            "id": "C.temp-left",
+            "changed": false
+          },
+          {
+            "id": "C.no-artifact",
+            "changed": false
+          },
+          {
+            "id": "C.artifact-only",
+            "changed": false
+          },
+          {
+            "id": "C.outside",
+            "changed": false
+          },
+          {
+            "id": "C.absolute",
+            "changed": false
+          },
+          {
+            "id": "C.uppercase",
+            "changed": false
+          },
+          {
+            "id": "C.wrong-ext",
+            "changed": false
+          },
+          {
+            "id": "C.nested",
+            "changed": false
+          },
+          {
+            "id": "C.overwrite-input",
+            "changed": false
+          },
+          {
+            "id": "C.extra-file",
+            "changed": false
+          },
+          {
+            "id": "C.partial",
+            "changed": false
+          },
+          {
+            "id": "C.binary",
+            "changed": false
+          },
+          {
+            "id": "C.says-nothing",
+            "changed": false
+          },
+          {
+            "id": "C.twice",
+            "changed": false
+          }
+        ],
+        "witnesses": {
+          "X1.enum-next": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.enum-first": {
+            "spec": "gen-boundary-002",
+            "block": 0
+          },
+          "X1.integer-up": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.integer-invalid": {
+            "spec": "gen-boundary-005",
+            "block": 0
+          },
+          "X1.field-missing": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X1.case": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X3.skip": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.stay": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.back": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.jump-final": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.restart": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X3.wrong-name": {
+            "spec": "gen-boundary-004",
+            "block": 0
+          },
+          "X4.dutch": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X4.empty": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "X4.no-question": {
+            "spec": "gen-boundary-030",
+            "block": 1
+          },
+          "X5.drop": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.duplicate": {
+            "spec": "gen-boundary-027",
+            "block": 1
+          },
+          "X5.extra": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.wrong-tool": {
+            "spec": "gen-boundary-001",
+            "block": 0
+          },
+          "X5.early-write": {
+            "spec": "gen-boundary-027",
+            "block": 2
+          },
+          "X5.write-twice": {
+            "spec": "gen-boundary-027",
+            "block": 3
+          },
+          "D1.restart": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.advance": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D1.silent": {
+            "spec": "gen-deviation-001",
+            "block": 1
+          },
+          "D2.ignore": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D2.restart": {
+            "spec": "gen-deviation-003",
+            "block": 3
+          },
+          "D3.advance": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D3.no-ask": {
+            "spec": "gen-deviation-005",
+            "block": 2
+          },
+          "D4.accept": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D4.no-reask": {
+            "spec": "gen-deviation-007",
+            "block": 2
+          },
+          "D5.dutch": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D5.mixed": {
+            "spec": "gen-deviation-009",
+            "block": 2
+          },
+          "D6.obey": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "D6.says-skipped": {
+            "spec": "gen-deviation-011",
+            "block": 3
+          },
+          "X4.double": {
+            "spec": "gen-deviation-013",
+            "block": 0
+          },
+          "D7.double": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D7.silent": {
+            "spec": "gen-deviation-013",
+            "block": 3
+          },
+          "D8.hide": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.retry-many": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D8.advance": {
+            "spec": "gen-deviation-015",
+            "block": 2
+          },
+          "D9.inside": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D9.answer": {
+            "spec": "gen-deviation-017",
+            "block": 2
+          },
+          "D10.restart": {
+            "spec": "gen-deviation-019",
+            "block": 6
+          },
+          "D10.advance": {
+            "spec": "gen-deviation-020",
+            "block": 3
+          }
+        },
+        "followerFailures": 0,
+        "errors": [],
+        "cpuMs": 19865.505,
+        "repeats": 1,
+        "instances": "every-time, anywhere, all validator fault classes"
+      },
+      "faultsLost": [],
+      "protected": 109,
+      "protectedSpecsEqualToUncapped": true,
+      "trimmed": {
+        "twise": 7063,
+        "cover": 18877
+      },
+      "suiteSha256": "ae23bf497c3f725e40a27b706855806253ce0cb3143db47080bb63064ce78e54",
+      "measurementFile": "cap-pairs-100-6127",
+      "passes": true
+    }
+  ]
+}

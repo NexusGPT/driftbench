@@ -315,14 +315,21 @@ export const StatesRelation = z
     must: z
       .array(z.string().min(1))
       .min(1)
+      .optional()
       .describe(
         'Patterns the reply of that turn holds, such as a quoted price; `{slot}` reads a bound value.',
       ),
+    must_not: z
+      .array(z.string().min(1))
+      .min(1)
+      .optional()
+      .describe('Patterns the reply must not hold; `{slot}` reads a bound value.'),
     ...relationCommon,
   })
-  .describe(
-    'What the reply of one turn must state, read from the values the cell binds (a price from a tool).',
-  );
+  .refine((entry) => entry.must !== undefined || entry.must_not !== undefined, {
+    message: 'a states relation needs must or must_not patterns',
+  })
+  .describe('What the reply of one turn must and must not state, read from the values the cell binds.');
 export type StatesRelation = z.infer<typeof StatesRelation>;
 
 export const TaskFamilyRelation = z
@@ -653,7 +660,7 @@ export function relationLabel(relation: ProposalRelation): string {
     case 'uses_tool':
       return `${relation.subject.dimension}=${relation.subject.value} uses ${relation.tool} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
     case 'states':
-      return `${relation.subject.dimension}=${relation.subject.value} states ${relation.must.join(', ')} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
+      return `${relation.subject.dimension}=${relation.subject.value} states ${(relation.must ?? []).join(', ')}${relation.must_not ? `; forbids ${relation.must_not.join(', ')}` : ''} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
     case 'task_family':
       return `task family ${relation.family} writes ${relation.flow} (${relation.stages.join(' > ')})`;
     case 'binds':
