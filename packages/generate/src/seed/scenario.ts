@@ -297,6 +297,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         stimulus: stimulusOf(phrase, deviationKey, probe.classId),
         injection: probe.classId,
         ...(after === undefined ? {} : { stage: after }),
+        // The cell records where the class is said, as a coverage cell of deviation and stage reads it.
+        saidAt: stage,
         carries: [[prepared.deviation as number, deviation]],
         ...(tools.length > 0 ? { tools } : {}),
         ...(recovery.guards.length > 0 ? { guards: recovery.guards } : {}),
