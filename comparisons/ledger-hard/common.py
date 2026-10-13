@@ -46,4 +46,10 @@ def payload(case, row):
 
 def records():
     path = HERE / 'calls.jsonl'
-    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()] if path.exists() else []
+    original = [json.loads(line) for line in path.read_text().splitlines() if line.strip()] if path.exists() else []
+    retry_path = HERE / 'retry-results.jsonl'
+    retries = [json.loads(line) for line in retry_path.read_text().splitlines() if line.strip()] if retry_path.exists() else []
+    by_key = {r['request_sha256']: r for r in original}
+    for retry in retries:
+        by_key[retry['request_sha256']] = retry
+    return list(by_key.values())

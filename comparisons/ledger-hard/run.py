@@ -27,14 +27,17 @@ def verify_seal():
     amendment = json.loads((HERE / 'accounting-amendment.json').read_text())
     head_amendment = subprocess.check_output(['git', 'show', 'HEAD:comparisons/ledger-hard/accounting-amendment.json'], cwd=ROOT)
     assert head_amendment == (HERE / 'accounting-amendment.json').read_bytes(), 'Accounting amendment must be committed'
-    for path, expected in (seal['sha256'] | amendment['sha256']).items():
+    transport = json.loads((HERE / 'transport-amendment.json').read_text())
+    head_transport = subprocess.check_output(['git', 'show', 'HEAD:comparisons/ledger-hard/transport-amendment.json'], cwd=ROOT)
+    assert head_transport == (HERE / 'transport-amendment.json').read_bytes(), 'Transport amendment must be committed'
+    for path, expected in (seal['sha256'] | amendment['sha256'] | transport['sha256']).items():
         assert digest(ROOT / path) == expected, f'Frozen file changed: {path}'
     assert native.procedure_fingerprint() == seal['candidate_procedure_sha256']
     head_seal = subprocess.check_output(['git', 'show', 'HEAD:comparisons/ledger-hard/seal.json'], cwd=ROOT)
     assert head_seal == (HERE / 'seal.json').read_bytes(), 'Seal must be committed before any call'
     return seal
 
-def call(request):
+def call_once(request):
     model, p = request['model'], request['prompt']
     started = stamp()
     result = {'request_sha256': request['request_sha256'], 'model': model,
@@ -78,6 +81,35 @@ def call(request):
     result['finished'] = stamp()
     return result
 
+LUNA_LIMIT = threading.Semaphore(2)
+ATTEMPT_LOCK = threading.Lock()
+
+def transport_retryable(record):
+    error = record.get('error') or {}
+    return (not record.get('success') and not record.get('provider_response') and
+            error.get('type') in ('RemoteDisconnected', 'URLError', 'TimeoutError', 'ConnectionResetError', 'TimeoutExpired'))
+
+def call(request):
+    if request['model'] != 'gpt-6-luna':
+        return call_once(request)
+    with LUNA_LIMIT:
+        prior_attempts = request.get('prior_transport_attempts', 0)
+        for attempt in range(prior_attempts + 1, 4):
+            delay = 10 if attempt == 2 else 30 if attempt == 3 else 0
+            if delay:
+                with ATTEMPT_LOCK:
+                    append(HERE / 'transport-attempts.jsonl', {'event': 'backoff', 'request_sha256': request['request_sha256'], 'attempt': attempt, 'seconds': delay, 'stamp': stamp()})
+                time.sleep(delay)
+            with ATTEMPT_LOCK:
+                append(HERE / 'transport-attempts.jsonl', {'event': 'start', 'request_sha256': request['request_sha256'], 'attempt': attempt, 'stamp': stamp()})
+            answer = call_once(request)
+            answer['attempt_count'] = attempt
+            with ATTEMPT_LOCK:
+                append(HERE / 'transport-attempts.jsonl', {'event': 'finish', 'request_sha256': request['request_sha256'], 'attempt': attempt, 'stamp': stamp(), 'success': answer['success'], 'error': answer.get('error'), 'usage': answer.get('usage')})
+            if answer['success'] or not transport_retryable(answer):
+                return answer
+        return answer
+
 def requests(models, limit):
     entries = json.loads((HERE / 'prompts.json').read_text())
     lookup = {(e['id'], e['side']): e for e in entries}
@@ -111,13 +143,14 @@ def main():
         previous = records()
         old_starts = [json.loads(s) for s in (HERE / 'starts.jsonl').read_text().splitlines()] if (HERE / 'starts.jsonl').exists() else []
         completed = {r['request_sha256'] for r in previous}
+        retryable = {r['request_sha256']: r for r in previous if r['model'] == 'gpt-6-luna' and transport_retryable(r) and r.get('attempt_count', 1) < 3}
         started = {r['request_sha256'] for r in old_starts}
         if started - completed:
             raise RuntimeError(f'{len(started-completed)} started calls lack a result; reconcile before any resume, never duplicate')
         unique = {}
         for r in requests(args.models, args.limit):
             unique.setdefault(r['request_sha256'], r)
-        pending = [r for key, r in unique.items() if key not in completed]
+        pending = [dict(r, prior_transport_attempts=retryable[key].get('attempt_count', 1), is_transport_retry=True) if key in retryable else r for key, r in unique.items() if key not in completed or key in retryable]
         measured = sum(priced(r) or 0 for r in previous)
         spent = sum(priced(r) if priced(r) is not None else r['cap_accounted_usd'] for r in previous)
         print(json.dumps({'selected_unique': len(unique), 'pending_unique': len(pending), 'measured_usd': measured, 'execute': args.execute}), flush=True)
@@ -138,7 +171,8 @@ def main():
                         stop_reason = 'cap reserve'; break
                     if failures.get(r['model'], 0) >= 3:
                         stop_reason = f'three transport failures on {r["model"]}'; break
-                    append(HERE / 'starts.jsonl', {k: v for k, v in r.items() if k != 'prompt'} | {'started': stamp()})
+                    if not r.get('is_transport_retry'):
+                        append(HERE / 'starts.jsonl', {k: v for k, v in r.items() if k != 'prompt'} | {'started': stamp()})
                     inflight[pool.submit(call, r)] = r
                     index += 1
                 if not inflight:
@@ -148,7 +182,7 @@ def main():
                     r = inflight.pop(future)
                     answer = future.result()
                     answer['outcome'] = native.outcome(answer['text'], r['side'], r['row']) if answer['success'] else 'inconclusive'
-                    append(HERE / 'calls.jsonl', answer)
+                    append(HERE / ('retry-results.jsonl' if r.get('is_transport_retry') else 'calls.jsonl'), answer)
                     spent += answer['cap_accounted_usd']; measured += answer['measured_usd'] or 0; fresh += 1
                     if not answer['success']:
                         failures[r['model']] = failures.get(r['model'], 0) + 1

@@ -129,7 +129,7 @@ def main():
             '- Constant-pass and constant-fail cheaters each score 192/384 by planted balance. Repeated-read noise floor and perturbation validity are not measured in this sealed primary run; no stability claim is made.',
             '- Original frozen prompts and decoding are unchanged. The goal peer uses pinned trajectory summary; its ablation adds the persisted final state without editing the pinned prompt.',
             '- gpt-6-luna uses provider-default reasoning and no temperature field for both sides. Tokens are recorded per call. Owner-verified pricing on 2026-10-13: USD 0.10 input, 0.01 cached input, 0.50 output per million tokens. Source: https://developers.openai.com/api/docs/models/gpt-6-luna. Accounting amendment is separate from the original seal.',
-            '- The pilot is a transport and cost check on the first 20 sealed cases per row, retained once in final results. No labels or outcomes select continuation or change the procedure. No content retries.',
+            '- The pilot is a transport and cost check on the first 20 sealed cases per row, retained once in final results. No labels or outcomes select continuation or change the procedure. No content retries. Owner-authorized unanswered transport retries use at most three attempts with 10/30-second backoff and at most two concurrent Luna calls. All failed attempts remain recorded.',
             '', '## Freeze and spend','',
             f'- Candidate procedure: `{seal["candidate_procedure_sha256"]}`.',
             f'- Seal SHA-256: `{digest(HERE/"seal.json")}`. The seal holds every frozen source, case and prompt hash.',
