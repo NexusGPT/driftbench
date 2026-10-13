@@ -230,6 +230,7 @@ export {
   ToolOverride,
   WorldState,
 } from './schema/common';
+export { CampaignConfig, CampaignRetryConfig } from './schema/config';
 export {
   ArtifactRef,
   BlockResult,
