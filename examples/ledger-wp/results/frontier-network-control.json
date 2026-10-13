@@ -1,8 +1,8 @@
 {
-  "epochStart": "2026-10-13T15:56:49.864400+00:00",
-  "cycle": 2,
-  "model": "claude-sonnet-5-5",
-  "supervisorPid": 3701,
+  "epochStart": "2026-10-13T16:36:46.913537+00:00",
+  "cycle": 1,
+  "model": "gpt-6.1-sol",
+  "supervisorPid": 44729,
   "probeFile": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-wp/examples/ledger-wp/results/frontier-probes.jsonl",
   "maxConcurrentCalls": 2,
   "gatePassed": true,

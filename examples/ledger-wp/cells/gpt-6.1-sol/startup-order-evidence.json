@@ -1,0 +1,134 @@
+{
+  "at": "2026-10-13T17:53:34.397292+00:00",
+  "model": "gpt-6.1-sol",
+  "explanation": "Frozen queue dispatch is synchronous in sealed order. Ledger Stage 0 awaits before its first provider call; promptfoo can enter HTTP first within the concurrent startup group. Raw timestamps are preserved. Each contestant preserves sealed item order.",
+  "phases": [
+    {
+      "split": "fixtures",
+      "recordedStarts": 36,
+      "expectedStarts": 36,
+      "perContestantSealedItemOrder": true,
+      "strictAdjacentHttpStartOrder": false,
+      "overlappingStartInversions": [
+        {
+          "previousKey": "8041d5e5df7ce4ff34c9726f6c06b94c8dcc862ccf62a5a5809257f63424ac20",
+          "nextKey": "f24a1b43a9ace7c98cbb6e8cdb8813276cdfad52d12b18c3913d9343eb13579b",
+          "previousStart": "2026-10-13T13:42:56.871Z",
+          "nextStart": "2026-10-13T13:42:56.752Z",
+          "nextFinish": "2026-10-13T13:43:02.817Z"
+        },
+        {
+          "previousKey": "92edbd84a73f6a89ba25a5d00fbb8ce202f0cfdc7d0ab9d075ac421316d6cbae",
+          "nextKey": "8401238e331321142c615fdecd49453ec0a91ce2b14a67ab2c74b0719fa22311",
+          "previousStart": "2026-10-13T13:42:56.967Z",
+          "nextStart": "2026-10-13T13:42:56.798Z",
+          "nextFinish": "2026-10-13T13:43:03.436Z"
+        },
+        {
+          "previousKey": "3cb2c35d29c0826bfab850b75b666d36c88f0fec5fd8edb0f44be0ede210eab3",
+          "nextKey": "622a3ad2c7ef7b6e68a9e5b6fe3bb443a7f575b054cbb6247ec269242c767602",
+          "previousStart": "2026-10-13T13:42:56.968Z",
+          "nextStart": "2026-10-13T13:42:56.868Z",
+          "nextFinish": "2026-10-13T13:43:06.586Z"
+        },
+        {
+          "previousKey": "852aaa8cdd0af4491d971100ef053e87fc72b46029014790692e31e4cff1ae82",
+          "nextKey": "583bebd79e1c16b8558237cff5f487bb04bdac4da9215d9f24bfbd5e151c53ea",
+          "previousStart": "2026-10-13T13:42:56.969Z",
+          "nextStart": "2026-10-13T13:42:56.870Z",
+          "nextFinish": "2026-10-13T13:43:03.702Z"
+        }
+      ]
+    },
+    {
+      "split": "validity",
+      "recordedStarts": 40,
+      "expectedStarts": 40,
+      "perContestantSealedItemOrder": true,
+      "strictAdjacentHttpStartOrder": false,
+      "overlappingStartInversions": [
+        {
+          "previousKey": "c651da93493b573d33121ab0fecbb914a0d25716c97f90520fcec7f6b5f6f04c",
+          "nextKey": "a1c898fe999031899e75b748e395a7270229a70a687c3d4a37e6bbdfd3bd5c09",
+          "previousStart": "2026-10-13T13:44:20.230Z",
+          "nextStart": "2026-10-13T13:44:20.224Z",
+          "nextFinish": "2026-10-13T13:44:22.733Z"
+        },
+        {
+          "previousKey": "d36aac3cd55bd1d2f16369250e798a0a8733b1b306bbcfe25c3dbd20faec3da7",
+          "nextKey": "877481351649339f7c7b0e35d9e83e6070de5f0c581dc237fb0831c2b62ef3fa",
+          "previousStart": "2026-10-13T13:44:20.231Z",
+          "nextStart": "2026-10-13T13:44:20.226Z",
+          "nextFinish": "2026-10-13T13:44:24.268Z"
+        },
+        {
+          "previousKey": "8f4dafb44d4a701c6ea3befe65d8cab068278f3d63ccb39d3014f88c882f2f4d",
+          "nextKey": "8cb89737e0b436c757c602d9e738b3232a74ba51a247eaeebd8bd6c7b9b1ffac",
+          "previousStart": "2026-10-13T13:44:20.231Z",
+          "nextStart": "2026-10-13T13:44:20.228Z",
+          "nextFinish": "2026-10-13T13:44:23.702Z"
+        },
+        {
+          "previousKey": "0c991d372330b8387a4e305fd5e941fc16d255b49b13e061b13d10f248516f74",
+          "nextKey": "9e46ea5f1c814af6f066905ef4720d064dbffe24af997b45dbbef7c4f6f60cfc",
+          "previousStart": "2026-10-13T13:44:20.233Z",
+          "nextStart": "2026-10-13T13:44:20.229Z",
+          "nextFinish": "2026-10-13T13:44:22.727Z"
+        }
+      ]
+    },
+    {
+      "split": "dev",
+      "recordedStarts": 180,
+      "expectedStarts": 180,
+      "perContestantSealedItemOrder": true,
+      "strictAdjacentHttpStartOrder": false,
+      "overlappingStartInversions": [
+        {
+          "previousKey": "bc7c40fe93afdc0fb77d949fbfa10efa9e9f335da4c36631ce46e8a2625c7544",
+          "nextKey": "e729da13487149a4f9ea50f2b3f7a15c78148582183ad90b86b8ce3c1baba0f3",
+          "previousStart": "2026-10-13T13:45:49.607Z",
+          "nextStart": "2026-10-13T13:45:49.436Z",
+          "nextFinish": "2026-10-13T13:45:52.412Z"
+        },
+        {
+          "previousKey": "bf15a52701a7750ed80096828e1bce5c0703376cbf8ff9558aabca8c64c7478b",
+          "nextKey": "be30aa9427e3b95ec03afc53f41b703cc436cba7100b4de77a77c953ba9daf0b",
+          "previousStart": "2026-10-13T13:45:49.609Z",
+          "nextStart": "2026-10-13T13:45:49.469Z",
+          "nextFinish": "2026-10-13T13:45:53.738Z"
+        },
+        {
+          "previousKey": "a4f694af7e9cb5c42d8cecbd35e3bcd13aa5ee426b68cd254a4e3496b36087af",
+          "nextKey": "9108044f257ecf4a3f50979c8069946f04232c21cc62db843e662312fb6e7c13",
+          "previousStart": "2026-10-13T13:45:49.613Z",
+          "nextStart": "2026-10-13T13:45:49.497Z",
+          "nextFinish": "2026-10-13T13:45:59.502Z"
+        },
+        {
+          "previousKey": "caa85f5d1a336e6c2990125f3197615d0ad2985063713a11e9981c9ccedad0a7",
+          "nextKey": "1a3913a78fdfde5385de4ceb746afa7b9caf94be1d08ae871b0d36ea4ee4f178",
+          "previousStart": "2026-10-13T13:45:49.614Z",
+          "nextStart": "2026-10-13T13:45:49.599Z",
+          "nextFinish": "2026-10-13T13:46:00.440Z"
+        }
+      ]
+    },
+    {
+      "split": "test",
+      "recordedStarts": 346,
+      "expectedStarts": 346,
+      "perContestantSealedItemOrder": true,
+      "strictAdjacentHttpStartOrder": false,
+      "overlappingStartInversions": [
+        {
+          "previousKey": "d399234528631efd8e6d49ed03c159b4828eb0929f18988acdebd83b0c6196f5",
+          "nextKey": "f25f3871313b3688c326756094daa452bd3b0dcd65ed05a500a68df0de18e82a",
+          "previousStart": "2026-10-13T16:50:39.626Z",
+          "nextStart": "2026-10-13T16:50:39.625Z",
+          "nextFinish": "2026-10-13T16:50:42.659Z"
+        }
+      ]
+    }
+  ]
+}

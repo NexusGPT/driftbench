@@ -1,0 +1,71 @@
+{
+  "at": "2026-10-13T17:53:34.432411+00:00",
+  "model": "claude-sonnet-5-5",
+  "explanation": "Frozen queue dispatch is synchronous in sealed order. Ledger Stage 0 awaits before its first provider call; promptfoo can enter HTTP first within the concurrent startup group. Raw timestamps are preserved. Each contestant preserves sealed item order.",
+  "phases": [
+    {
+      "split": "fixtures",
+      "recordedStarts": 36,
+      "expectedStarts": 36,
+      "perContestantSealedItemOrder": true,
+      "strictAdjacentHttpStartOrder": false,
+      "overlappingStartInversions": [
+        {
+          "previousKey": "22ed05e201347d7c39b657e91eea588b075a7053b7dca88e4c08e2413be47342",
+          "nextKey": "3b35cd63fbc3033d0306013ba4e4cafa3db06374089b85bad80a93a767d9a6d6",
+          "previousStart": "2026-10-13T13:45:07.915Z",
+          "nextStart": "2026-10-13T13:45:07.913Z",
+          "nextFinish": "2026-10-13T13:45:09.845Z"
+        }
+      ]
+    },
+    {
+      "split": "validity",
+      "recordedStarts": 40,
+      "expectedStarts": 40,
+      "perContestantSealedItemOrder": true,
+      "strictAdjacentHttpStartOrder": false,
+      "overlappingStartInversions": [
+        {
+          "previousKey": "22cff4d2d43b4aacc06e554bfaf7255ed434b20f4a1684c20c6e763e6f9a8f3d",
+          "nextKey": "33d42e6f2de3967390ada9e0741204e8c7568716b288bc6142421dfcedadd76d",
+          "previousStart": "2026-10-13T13:47:22.256Z",
+          "nextStart": "2026-10-13T13:47:22.254Z",
+          "nextFinish": "2026-10-13T13:47:23.807Z"
+        }
+      ]
+    },
+    {
+      "split": "dev",
+      "recordedStarts": 180,
+      "expectedStarts": 180,
+      "perContestantSealedItemOrder": true,
+      "strictAdjacentHttpStartOrder": false,
+      "overlappingStartInversions": [
+        {
+          "previousKey": "b39bb2591fea0945edca614af010ba509f9d32e1b837dd407fe9c6146709a6ba",
+          "nextKey": "ad6db64eaa6c4686fce90e7ca34a3797c42d6599819e7f4f87fe7b37bd23566f",
+          "previousStart": "2026-10-13T14:27:39.731Z",
+          "nextStart": "2026-10-13T14:27:39.723Z",
+          "nextFinish": "2026-10-13T14:27:43.467Z"
+        }
+      ]
+    },
+    {
+      "split": "test",
+      "recordedStarts": 181,
+      "expectedStarts": 346,
+      "perContestantSealedItemOrder": true,
+      "strictAdjacentHttpStartOrder": false,
+      "overlappingStartInversions": [
+        {
+          "previousKey": "87b5d5e4cb5711b6c5d33e1633255fdb01d0cf316456fabb1804eda88fc9b111",
+          "nextKey": "13f204e71ff88483bf7e34e2e0662a6dbba8b78a7fb2e46bb5f1b1ceb433f9ff",
+          "previousStart": "2026-10-13T16:01:26.498Z",
+          "nextStart": "2026-10-13T16:01:26.497Z",
+          "nextFinish": "2026-10-13T16:01:27.632Z"
+        }
+      ]
+    }
+  ]
+}

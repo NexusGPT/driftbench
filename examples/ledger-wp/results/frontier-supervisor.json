@@ -1,20 +1,12 @@
 {
-  "pid": 3701,
-  "status": "blocked",
-  "at": "2026-10-13T16:28:27.038742+00:00",
-  "cycle": 2,
-  "activeModel": "claude-sonnet-5-5",
+  "pid": 44729,
+  "status": "failed",
+  "at": "2026-10-13T17:51:46.319310+00:00",
+  "cycle": 1,
+  "activeModel": "gpt-6.1-sol",
   "targets": {
-    "claude-sonnet-5-5": 71823
+    "gpt-6.1-sol": 75634
   },
-  "networkStops": [
-    {
-      "at": "2026-10-13T15:33:59.373Z",
-      "cycle": 1,
-      "model": "claude-sonnet-5-5",
-      "split": "dev"
-    }
-  ],
-  "reason": "Error: Shared network hold; fresh probe gate required",
-  "exitCode": 1
+  "networkStops": [],
+  "error": "Command '['python3', '/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-wp/examples/ledger-wp/frontier-finalize.py', '{\"gpt-6.1-sol\": 75634}']' returned non-zero exit status 1."
 }

@@ -46,10 +46,10 @@
         }
       },
       "noise": {
-        "completeTriplePairs": 0,
-        "repeatGameFlips": 0,
-        "comparisons": 0,
-        "flipPercent": null
+        "completeTriplePairs": 30,
+        "repeatGameFlips": 14,
+        "comparisons": 120,
+        "flipPercent": 11.666666666666666
       },
       "sixFixturesThreeOfThree": {
         "fixture-en-name": true,
@@ -125,10 +125,10 @@
         }
       },
       "noise": {
-        "completeTriplePairs": 0,
-        "repeatGameFlips": 0,
-        "comparisons": 0,
-        "flipPercent": null
+        "completeTriplePairs": 30,
+        "repeatGameFlips": 3,
+        "comparisons": 120,
+        "flipPercent": 2.5
       },
       "sixFixturesThreeOfThree": {
         "fixture-en-name": true,
