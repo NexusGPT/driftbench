@@ -1,16 +1,16 @@
 # Ledger hard-row dossier
 
-Haiku and Luna complete; Gemini 262 requests not run: daily quota. Recording analysis generated 2026-10-13T12:03:30.442917+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
+Haiku and Luna complete; Gemini 3.8 262 requests not run: daily quota. Recording analysis generated 2026-10-13T12:52:47.382145+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
 
-- Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.
+- Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini 3.8 has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.
 - 6560 primary and 9578 dialect unique recorded requests, including the goal equal-evidence ablation.
-- Measured spend: USD 8.99764030. Lost-attempt reserve: USD 0.40. Combined: USD 9.39764030, within the owner-amended USD 12 cap.
+- Measured spend across all published cells: USD 17.17967320. Lost-attempt reserve: USD 0.40. Combined: USD 17.57967320, within the owner-amended USD 21 cap.
 - The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.
 - Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.
 
 ## Interpretation and coverage
 
-The pooled default comparison includes a goal row where the candidate receives final state and the default peer does not. The pooled equal-evidence comparison supplies final state to both. It is the appropriate evidence-matched comparison. Per-row exact tests are nominal; family bootstrap intervals show construction-family uncertainty. A non-significant result does not establish equivalence. The global 18-cell Holm decision belongs to the collator.
+The pooled default comparison includes a goal row where the candidate receives final state and the default peer does not. The pooled equal-evidence comparison supplies final state to both. It is the appropriate evidence-matched comparison. Per-row exact tests are nominal; family bootstrap intervals show construction-family uncertainty. A non-significant result does not establish equivalence. The global Holm decision belongs to the collator; the added Flash-Lite model expands the original 18-cell matrix.
 
 Haiku has a nominal pooled equal-evidence lead in both experiments, with family bootstrap difference intervals above zero. Luna has no significant pooled equal-evidence lead at provider default; its primary rubric row has a nominal loss. The medium dialect has a nominal Luna pooled lead, but its family bootstrap interval includes zero. These results do not establish superiority on every hard row. The exact counts and uncertainty intervals follow.
 
@@ -21,6 +21,10 @@ Haiku has a nominal pooled equal-evidence lead in both experiments, with family 
 | Dialect | gemini-3.8-flash | Incomplete | Pending | Pending | Pending | 262 requests not run: daily quota; no final verdict |
 | Dialect | gpt-6-luna | 384/384 | 218/7 | 19/7 | 0.028959274 | nominal lead |
 | Dialect | haiku | 384/384 | 236/2 | 82/2 | 3.6923275e-22 | nominal lead |
+| Primary | gemini-3.5-flash-lite | 384/384 | 236/19 | 83/12 | 3.211394e-14 | nominal lead |
+| Dialect | gemini-3.5-flash-lite | 384/384 | 227/14 | 74/12 | 4.6897605e-12 | nominal lead |
+
+The separate Flash-Lite cell records 6560/6560 unique requests, at USD 8.18203290. Its amended USD 9 allocation raises the overall cap to USD 21. It uses medium reasoning as accepted by the API, with separate results and no reused Gemini 3.8 answers.
 
 ## Construction-cue audit
 
@@ -64,7 +68,7 @@ The plugin crash left 12 primary and 8 dialect calls without recorded answers. T
 
 Existing HTTP calls drain before runtime amendments. The later daily-quota instruction explicitly abandons two workers during backoff, after their HTTP responses return. The combined four-call cap and adaptive Luna four/two pacing applied until the later pacing boundary. `pacing-amendment.json` then replaces those concurrency limits with shared per-model limits across both experiments: gpt-6-luna eight, Gemini two, Haiku two. Luna uses plain HTTP. Independent rotating queues preserve each sealed request order and keep all three models running side by side. Sources, cap and answer contracts remain unchanged.
 
-HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota retries remain pending and unscored, never judge failures. Other unanswered transport failures use at most three attempts with 10/30-second waits. Every transport failure and backoff remains recorded; content is never retried. `quota-amendment.json` retains this retry policy under the later per-model pacing amendment. Unanswered attempts have no reported usage; measured cost excludes unreported charges.
+Gemini 3.8 HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota retries remain pending and unscored, never judge failures. Other unanswered transport failures use at most three attempts with 10/30-second waits. Every transport failure and backoff remains recorded; content is never retried. `quota-amendment.json` retains this retry policy under the later per-model pacing amendment. Unanswered attempts have no reported usage; measured cost excludes unreported charges.
 
 Gemini prepaid credit depletion produces HTTP 402. The 532 empty rejections before the billing hold are preserved byte-for-byte in `dialect/billing-rejections.jsonl` and in the attempt journal. They carry no answer or reported usage, release only their proven-rejection holds, and never enter judge scores. No 402 receives an automatic retry. `billing-amendment.json` records the stop and the requirement for explicit owner top-up confirmation before missing-only resumption. The USD 0.40 crash reserve remains.
 
@@ -121,6 +125,11 @@ Focused protocol/recovery tests pass; `test-output.txt` retains the test result.
 | `score.py` | `f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831` |
 | `dialect-score.py` | `98092ff0d7d5876a829eaaa08af5eca68d078afda5926bfdbeadb0c0aa31e917` |
 | `verification-final.json` | `b3a45b0e5360fdd01988e5ffffce7b7fdb3393b2a90a4b3fec2ca45fbfe54d51` |
+| `flash-lite/seal.json` | `5ea0a0a7ca782c6b57775cc516f895d6d721126132322b1c3144a1b90b8b407d` |
+| `flash-lite/budget-amendment.json` | `e7b37ecc70ea0528a2f70132f3ecd6e90c7cb9eb4987cf7d0e712ab77ec6a2e6` |
+| `flash-lite/pricing.json` | `ac8269b65b41e8db47c60349987c796741118df14390a0ad1da364262bff34fa` |
+| `flash-lite/reasoning-applied.json` | `d37718bb39d54c5a81cd64e4b8b6cac9c47d812ab45adb43301dfa7613b9d881` |
+| `flash-lite/scores.json` | `b8d9321b82a82ff6f9d204e76dce489be6de633e870ea5c27a2e7454e7c21874` |
 
 Candidate procedure: `d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587`. Original seal commit: `eeb7875e`. Core dialect source: `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.
 
@@ -283,3 +292,76 @@ The original adaptive four/two pacing is superseded by the per-model runtime ame
 - Constant pass and constant fail each score 50% by label balance. Repeated-read noise and perturbation validity are unmeasured; no stability claim is made.
 - Information-asymmetric goal wins cannot establish a better judge on equal evidence. Both versions are disclosed.
 - No global matrix verdict or global Holm win is claimed here. The per-row tables and exact rational p-values support independent collation.
+
+
+## Added Flash-Lite runtime amendment
+
+The owner adds gemini-3.5-flash-lite as a separate model cell on the same sealed cohort, for both experiments and both contestants. `flash-lite/seal.json` is committed before the first call. The first sealed request accepts medium reasoning; its answer remains recorded once. `flash-lite/reasoning-applied.json` freezes medium for all subsequent requests. Temperature is omitted.
+
+The owner raises the Flash-Lite allocation from USD 4 to USD 8, then to USD 9 after a usage-only projection exceeds USD 8. The overall cap rises from USD 16 to USD 20, then USD 21, retaining USD 12 for the original work. `flash-lite/budget-amendment.json` preserves both authorizations and runtime source hashes before missing-only resumption. `flash-lite/cost-forecast-late.json` records the projection without reading outcomes. The cohort, sealed order, prompts, reasoning and statistical tests remain unchanged.
+
+Flash Lite permits eight simultaneous HTTP calls, a 180-second timeout, and HTTP 429 waits of 20, 60 and 180 seconds. HTTP 402 stops dispatch immediately without retries. Rejections carry no judge verdict. Other unanswered transport failures permit three attempts with 10/30-second waits. Every attempt and backoff is durable; answered calls are never re-sent. Gemini 3.8 remains owner-held.
+
+## Added Flash-Lite measurements
+
+# Separate Gemini 3.5 Flash-Lite cell
+
+Generated 2026-10-13T12:52:46.172668+00:00. Sources: `flash-lite/seal.json`, `requests.json`, `attempts.jsonl`, both `calls.jsonl` journals and `scores.json`.
+
+Model `gemini-3.5-flash-lite`, reasoning `medium` for both contestants and both experiments. This is the same sealed cohort, 384 cases per row. Results never mix with Gemini 3.8.
+
+6560/6560 unique requests recorded. Model-cell measured spend USD 8.18203290, cap USD 9. Combined measured spend plus the USD 0.40 lost-attempt reserve is USD 17.57967320, cap USD 21.
+
+Standard paid pricing, verified 2026-10-13: USD 0.30 ordinary input, USD 0.03 cached input, USD 2.50 output including thinking per million tokens. [Google pricing](https://ai.google.dev/gemini-api/docs/pricing). Raw usage and applied reasoning remain recorded per call.
+
+## primary
+
+| Row / evidence | Paired / sealed | Ours | Peer | W | L | Exact two-sided p | Exact one-sided p | Status |
+|---|---:|---:|---:|---:|---:|---|---|---|
+| rubric/peer | 384/384 | 382 | 365 | 19 | 2 | 29/131072 = 0.00022125244 | 29/262144 = 0.00011062622 | nominal lead |
+| factuality/peer | 384/384 | 378 | 374 | 10 | 6 | 14893/32768 = 0.45449829 | 14893/65536 = 0.22724915 | TIE (not equivalence) |
+| pii/peer | 384/384 | 384 | 371 | 13 | 0 | 1/4096 = 0.00024414062 | 1/8192 = 0.00012207031 | nominal lead |
+| goal/peer | 384/384 | 367 | 184 | 194 | 11 | 271404659661838721/12855504354071922204335696738729300820177623950262342682411008 = 2.1111942e-44 | 271404659661838721/25711008708143844408671393477458601640355247900524685364822016 = 1.0555971e-44 | nominal lead |
+| goal/peer-full-state | 384/384 | 367 | 330 | 41 | 4 | 164221/17592186044416 = 9.3348831e-09 | 164221/35184372088832 = 4.6674415e-09 | nominal lead |
+| pooled-default/mixed | 1536/1536 | 1511 | 1294 | 236 | 19 | 23250562328866278834216643/28269553036454149273332760011886696253239742350009903329945699220681916416 = 8.224595e-49 | 23250562328866278834216643/56539106072908298546665520023773392506479484700019806659891398441363832832 = 4.1122975e-49 | nominal lead |
+| pooled-equal-evidence/mixed | 1536/1536 | 1511 | 1440 | 83 | 12 | 636082112379301/19807040628566084398385987584 = 3.211394e-14 | 636082112379301/39614081257132168796771975168 = 1.605697e-14 | nominal lead |
+
+| Row / evidence | Wilson ours | Wilson peer | Family bootstrap difference | Inconclusive ours/peer | USD/100 ours/peer |
+|---|---|---|---|---|---|
+| rubric/peer | [98.121%, 99.857%] | [92.402%, 96.810%] | [-1.042%, 13.281%] | 2/0 | 0.159166/0.104150 |
+| factuality/peer | [96.634%, 99.282%] | [95.273%, 98.579%] | [-0.260%, 2.604%] | 1/3 | 0.118208/0.116997 |
+| pii/peer | [99.010%, 100.000%] | [94.295%, 98.011%] | [0.000%, 10.156%] | 0/0 | 0.128492/0.095332 |
+| goal/peer | [93.025%, 97.218%] | [42.965%, 52.909%] | [43.750%, 50.260%] | 4/0 | 0.181029/0.084282 |
+| goal/peer-full-state | [93.025%, 97.218%] | [82.104%, 89.060%] | [1.562%, 18.490%] | 4/0 | 0.181029/0.116490 |
+| pooled-default/mixed | [97.608%, 98.895%] | [82.338%, 85.981%] | [11.719%, 17.122%] | 7/3 | see rows |
+| pooled-equal-evidence/mixed | [97.608%, 98.895%] | [92.427%, 94.855%] | [1.628%, 8.203%] | 7/3 | see rows |
+
+## dialect
+
+| Row / evidence | Paired / sealed | Ours | Peer | W | L | Exact two-sided p | Exact one-sided p | Status |
+|---|---:|---:|---:|---:|---:|---|---|---|
+| rubric/peer | 384/384 | 384 | 364 | 20 | 0 | 1/524288 = 1.9073486e-06 | 1/1048576 = 9.5367432e-07 | nominal lead |
+| factuality/peer | 384/384 | 377 | 379 | 4 | 6 | 193/256 = 0.75390625 | 53/64 = 0.828125 | TIE (not equivalence) |
+| pii/peer | 384/384 | 381 | 370 | 14 | 3 | 417/32768 = 0.01272583 | 417/65536 = 0.006362915 | nominal lead |
+| goal/peer | 384/384 | 368 | 184 | 189 | 5 | 558115181/3138550867693340381917894711603833208051177722232017256448 = 1.7782576e-49 | 558115181/6277101735386680763835789423207666416102355444464034512896 = 8.8912878e-50 | nominal lead |
+| goal/peer-full-state | 384/384 | 368 | 335 | 36 | 3 | 155/4294967296 = 3.608875e-08 | 155/8589934592 = 1.8044375e-08 | nominal lead |
+| pooled-default/mixed | 1536/1536 | 1510 | 1297 | 227 | 14 | 9269263560109553790367/883423532389192164791648750371459257913741948437809479060803100646309888 = 1.0492435e-50 | 9269263560109553790367/1766847064778384329583297500742918515827483896875618958121606201292619776 = 5.2462173e-51 | nominal lead |
+| pooled-equal-evidence/mixed | 1536/1536 | 1510 | 1448 | 74 | 12 | 90713160743749/19342813113834066795298816 = 4.6897605e-12 | 90713160743749/38685626227668133590597632 = 2.3448802e-12 | nominal lead |
+
+| Row / evidence | Wilson ours | Wilson peer | Family bootstrap difference | Inconclusive ours/peer | USD/100 ours/peer |
+|---|---|---|---|---|---|
+| rubric/peer | [99.010%, 100.000%] | [92.093%, 96.603%] | [0.000%, 13.021%] | 0/0 | 0.130227/0.101380 |
+| factuality/peer | [96.286%, 99.114%] | [96.989%, 99.443%] | [-2.865%, 1.562%] | 0/1 | 0.102442/0.114548 |
+| pii/peer | [97.729%, 99.734%] | [93.974%, 97.816%] | [-2.344%, 10.938%] | 0/0 | 0.113746/0.096298 |
+| goal/peer | [93.339%, 97.419%] | [42.965%, 52.909%] | [44.531%, 50.521%] | 2/0 | 0.164331/0.085868 |
+| goal/peer-full-state | [93.339%, 97.419%] | [83.530%, 90.212%] | [1.302%, 16.927%] | 2/0 | 0.164331/0.117751 |
+| pooled-default/mixed | [97.531%, 98.842%] | [82.542%, 86.167%] | [11.458%, 16.862%] | 2/1 | see rows |
+| pooled-equal-evidence/mixed | [97.531%, 98.842%] | [92.994%, 95.326%] | [1.042%, 7.552%] | 2/1 | see rows |
+
+## Interpretation and freeze
+
+The nominal win rule is unchanged: higher accuracy and exact two-sided McNemar p below 0.05. Multiplicity-adjusted matrix wins remain the collator's decision. This added model expands the original matrix and cannot silently inherit an 18-cell correction. Family bootstrap intervals retain synthetic-family uncertainty.
+
+Default goal inputs remain information-asymmetric. The pooled equal-evidence comparison replaces that goal row with final state supplied to both. No pool counts goal twice. This is a new model measurement on the same cohort, not an independent replication. No content is retried. Transport failures and provider limits remain separate from judge outcomes.
+
+Seal SHA-256: `5ea0a0a7ca782c6b57775cc516f895d6d721126132322b1c3144a1b90b8b407d`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Reasoning application: `d37718bb39d54c5a81cd64e4b8b6cac9c47d812ab45adb43301dfa7613b9d881`. Statistics source: `f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831`. Per-file hashes are retained inside the committed seal.
