@@ -224,11 +224,7 @@ export async function generateCommand(
     return 2;
   }
 
-  for (const file of result.files) {
-    const target = join(outPath, file.path);
-    await mkdir(dirname(target), { recursive: true });
-    await writeFile(target, file.text);
-  }
+  await writeFiles(outPath, result.files);
 
   const report = result.report;
   if (options.json) io.out(formatJson(report));
@@ -412,4 +408,27 @@ function capital(text: string): string {
 
 function collect(value: string, previous: string[] = []): string[] {
   return [...previous, value];
+}
+
+/** How many files are written at once: enough to keep the disk busy, few enough to stay under any open-file limit. */
+const WRITE_CONCURRENCY = 16;
+
+/**
+ * Writes the files under `root`: one mkdir per folder, then the writes in bounded parallel. The bytes and the
+ * file set are those of writing them one after another; a path given twice keeps its last text, as it would.
+ */
+async function writeFiles(root: string, files: readonly { path: string; text: string }[]): Promise<void> {
+  const texts = new Map(files.map((file) => [join(root, file.path), file.text]));
+  for (const folder of new Set([...texts.keys()].map((target) => dirname(target)))) {
+    await mkdir(folder, { recursive: true });
+  }
+  const entries = [...texts];
+  let next = 0;
+  const worker = async () => {
+    while (next < entries.length) {
+      const [target, text] = entries[next++] as [string, string];
+      await writeFile(target, text);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(WRITE_CONCURRENCY, entries.length) }, worker));
 }
