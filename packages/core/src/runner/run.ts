@@ -75,6 +75,8 @@ export type RunOptions = {
   cacheTtlMs?: number;
   /** Names the suite a run belongs to. Its cache keys differ from another suite's, so a new name starts from an empty cache. */
   suite?: string;
+  /** Separates cached blocks from different versions of an agent, even with a pinned target variant. */
+  agentVersion?: string;
   /** Readers for the artifact checks, passed to every CheckContext. */
   artifacts?: ArtifactReaderRegistry;
   retry?: RetryOptions;
@@ -152,6 +154,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     cache,
     cacheTtlMs: options.cacheTtlMs,
     suite: options.suite,
+    agentVersion: options.agentVersion,
     artifacts: options.artifacts,
     retry: options.retry,
     // The spec target's retry settings, the run's own (the command line) over them.
@@ -212,6 +215,7 @@ type RunContext = {
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
   suite: string | undefined;
+  agentVersion: string | undefined;
   artifacts: ArtifactReaderRegistry | undefined;
   retry: RetryOptions | undefined;
   policy: RetryPolicy;
@@ -341,7 +345,11 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         target: run.target,
         adapter: run.adapter.id,
         adapterVersion: run.adapter.version,
+        ...(run.adapter.cacheIdentity === undefined
+          ? {}
+          : { adapterCacheIdentity: run.adapter.cacheIdentity }),
         ...(run.suite === undefined ? {} : { suite: run.suite }),
+        ...(run.agentVersion === undefined ? {} : { agentVersion: run.agentVersion }),
       });
       run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
       const observed = await channel.observe(turn, user, key);

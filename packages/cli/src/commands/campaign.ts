@@ -347,7 +347,7 @@ export function registerCampaignCommands(
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option(
       '--agent-version <label>',
-      'the version of the agent under test, written as the variant of every target that names none',
+      'the agent version in every block cache key; also the variant of targets that name none',
     )
     .option(
       '--change <manifest>',
@@ -745,6 +745,7 @@ export async function campaignRunCommand(
         judge: { mode: 'system1', judges: [] },
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
+        ...(options.agentVersion === undefined ? {} : { agentVersion: options.agentVersion }),
       };
       const radius =
         options.change === undefined
@@ -770,6 +771,7 @@ export async function campaignRunCommand(
                   checks: deps.checks,
                   ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
                   store: memory,
+                  ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
                   now: () => deps.now(),
                   concurrency: pool.concurrency,
                   ...(pool.retry ? { retry: pool.retry } : {}),
@@ -1029,6 +1031,7 @@ async function executeCampaign(
     // The runner neither replays nor caches a run in a sandbox: a replay has no workspace to read.
     ...(flags.cache ? { cache: store } : {}),
     ...(flags.cacheSuite === undefined ? {} : { cacheSuite: flags.cacheSuite }),
+    ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
