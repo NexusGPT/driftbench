@@ -72,7 +72,7 @@ function sameInterval(computed, stored, where) {
   }
 }
 
-function judgeRows() {
+function judgeRows(chart = 'judge-heldout') {
   const groups = [];
   const row = (label, n, ours, theirs, source, stored) => {
     const oursCi = wilson(ours, n);
@@ -81,7 +81,7 @@ function judgeRows() {
     if (stored?.theirs) sameInterval(theirsCi, stored.theirs, `${source} ${label} theirs`);
     const standing = oursCi[0] > theirsCi[1] ? 'lead' : oursCi[1] < theirsCi[0] ? 'deficit' : 'close';
     fact(
-      'judge-heldout',
+      chart,
       `${label}: driftbench ${ours} of ${n}, other ${theirs} of ${n}, ${standing}`,
       [ours, theirs, n],
       source,
@@ -348,7 +348,7 @@ const THEMES = {
     ours: '#6E9BF0',
     oursSoft: '#3C5FA8',
     other: '#6B7482',
-    otherSoft: '#3A424E',
+    otherSoft: '#4A5361',
     whisker: '#F5F3F0',
     spark: '#FF7A1F',
   },
@@ -469,11 +469,19 @@ function whisker(t, x0, width, max, y, lo, hi) {
 // The charts
 // ---------------------------------------------------------------------------------------------
 
-function judgeChart(theme) {
-  const groups = judgeRows();
+function judgeChart(theme, leadsOnly = false) {
+  const every = judgeRows(leadsOnly ? 'judge-leads' : 'judge-heldout');
+  const total = every.flatMap((g) => g.rows).length;
+  const groups = leadsOnly
+    ? every
+        .map((g) => ({ ...g, rows: g.rows.filter((r) => r.standing === 'lead') }))
+        .filter((g) => g.rows.length)
+    : every;
   const all = groups.flatMap((g) => g.rows);
   const count = (standing) => all.filter((r) => r.standing === standing).length;
-  const title = `On ${all.length} held-out tests against four frameworks' default judges, the shipped judge is clearly ahead on ${count('lead')}, clearly behind on ${count('deficit')}, and within error on ${count('close')}.`;
+  const title = leadsOnly
+    ? `On ${all.length} of ${total} held-out judge tests, the shipped judge beats the other tool's default beyond the margin of error.`
+    : `${all.length} held-out judge tests: clearly ahead on ${count('lead')}, clearly behind on ${count('deficit')}, level on ${count('close')}.`;
   const labelWidth = 150;
   const x0 = PAD + labelWidth;
   const width = 200;
@@ -488,11 +496,16 @@ function judgeChart(theme) {
           { color: 'ours', label: 'driftbench, shipped judge' },
           { color: 'other', label: "the other tool's default" },
         ],
-        caption: [
-          'Correct verdicts on held-out cases with fixed labels, one judge model for both sides (Claude Haiku 5.5). Whiskers: 95% Wilson interval. Ahead or behind means the two intervals do not overlap.',
-          'Goal success and task completion give both judges the same evidence; with default inputs the other tools score 36 and 44 of 72.',
-          'Sources: comparisons/{deepeval,promptfoo,langfuse,inspect}/hard. Redraw: node tools/readme-charts.mjs',
-        ],
+        caption: leadsOnly
+          ? [
+              'Correct verdicts on held-out cases with fixed labels, one judge model for both sides (Claude Haiku 5.5). Whiskers: 95% Wilson interval; the two intervals do not overlap on these rows. The other rows, with two losses, are in the next chart.',
+              'Sources: comparisons/deepeval/hard. Redraw: node tools/readme-charts.mjs',
+            ]
+          : [
+              'Correct verdicts on held-out cases with fixed labels, one judge model for both sides (Claude Haiku 5.5). Whiskers: 95% Wilson interval. Ahead or behind means the two intervals do not overlap; level means they do.',
+              'Goal success and task completion give both judges the same evidence; with default inputs the other tools score 36 and 44 of 72.',
+              'Sources: comparisons/{deepeval,promptfoo,langfuse,inspect}/hard. Redraw: node tools/readme-charts.mjs',
+            ],
         describe: all
           .map((r) => `${r.label}: driftbench ${r.ours} of ${r.n}, other ${r.theirs} of ${r.n}.`)
           .join(' '),
@@ -698,7 +711,7 @@ function budgetChart(theme) {
         key: [],
         caption: [
           'Mean over 30 seeds on the fictional Acme agent with 13 scripted faults; whiskers: 95% interval of the seed mean. From 50 tests up the three methods tie. The 4 faults no method reaches here need task specs, which the full generator adds.',
-          'No model call. Source: comparisons/budget/full-study.md. Rerun: pnpm exec tsx comparisons/budget/full-control.ts',
+          'No model call. Source: comparisons/budget/full-study.md. Check: pnpm exec tsx comparisons/budget/check-analysis.ts',
         ],
         describe: rows.map((r) => `Budget ${r.budget}, ${names[r.method]}: ${r.meanText} of 13.`).join(' '),
       },
@@ -946,6 +959,7 @@ function flowDiagram(theme) {
 // ---------------------------------------------------------------------------------------------
 
 const CHARTS = {
+  'judge-leads': (theme) => judgeChart(theme, true),
   'judge-heldout': judgeChart,
   'judge-cost': costChart,
   'mm-eval-sealed-test': mmEvalChart,
@@ -966,9 +980,11 @@ for (const [name, draw] of Object.entries(CHARTS)) {
   files.set(`${name}-dark.svg`, dark.svg);
   titles[name] = light.title;
 }
-const cell = (value) => `"${String(typeof value === 'string' ? value : JSON.stringify(value)).replace(/"/g, '""')}"`;
+const cell = (value) =>
+  `"${String(typeof value === 'string' ? value : JSON.stringify(value)).replace(/"/g, '""')}"`;
 const table = [['chart', 'what', 'value', 'source']];
-for (const [name, title] of Object.entries(titles)) table.push([name, 'title', title, 'tools/readme-charts.mjs']);
+for (const [name, title] of Object.entries(titles))
+  table.push([name, 'title', title, 'tools/readme-charts.mjs']);
 for (const f of facts) table.push([f.chart, f.what, f.value, f.source]);
 files.set(join('data', 'chart-facts.csv'), `${table.map((row) => row.map(cell).join(',')).join('\n')}\n`);
 

@@ -11,7 +11,7 @@
 <text x="22" y="141" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#F5F3F0">20 tests</text>
 <path d="M118 121h171.08a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-171.08z" fill="#6E9BF0"/>
 <text x="299.08" y="131.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#F5F3F0">9  driftbench selector</text>
-<path d="M118 136h158.96a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-158.96z" fill="#3A424E"/>
+<path d="M118 136h158.96a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-158.96z" fill="#4A5361"/>
 <path d="M273.38 139v6M273.38 142H284.35M284.35 139v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
 <text x="292.35" y="146.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#F5F3F0">8.37  random sampling</text>
 <path d="M118 151h151.85a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-151.85z" fill="#6B7482"/>
@@ -21,7 +21,7 @@
 <text x="299.08" y="190.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#F5F3F0">9</text>
 <path d="M118 195h171.08a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-171.08z" fill="#6B7482"/>
 <text x="299.08" y="205.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#F5F3F0">9</text>
-<path d="M118 210h170.5a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-170.5z" fill="#3A424E"/>
+<path d="M118 210h170.5a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-170.5z" fill="#4A5361"/>
 <path d="M289.15 213v6M289.15 216H291.65M291.65 213v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
 <text x="299.65" y="220.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#F5F3F0">8.97</text>
 <text x="22" y="259" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#F5F3F0">100 tests</text>
@@ -29,14 +29,14 @@
 <text x="299.08" y="249.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#F5F3F0">9</text>
 <path d="M118 254h171.08a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-171.08z" fill="#6B7482"/>
 <text x="299.08" y="264.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#F5F3F0">9</text>
-<path d="M118 269h171.08a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-171.08z" fill="#3A424E"/>
+<path d="M118 269h171.08a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-171.08z" fill="#4A5361"/>
 <text x="299.08" y="279.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#F5F3F0">9</text>
 <text x="22" y="318" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#F5F3F0">200 tests</text>
 <path d="M118 298h171.08a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-171.08z" fill="#6E9BF0"/>
 <text x="299.08" y="308.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#F5F3F0">9</text>
 <path d="M118 313h171.08a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-171.08z" fill="#6B7482"/>
 <text x="299.08" y="323.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#F5F3F0">9</text>
-<path d="M118 328h171.08a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-171.08z" fill="#3A424E"/>
+<path d="M118 328h171.08a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-171.08z" fill="#4A5361"/>
 <text x="299.08" y="338.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#F5F3F0">9</text>
 <line x1="118" y1="353" x2="368" y2="353" stroke="#8D96A3" stroke-width="1"/>
 <line x1="118" y1="353" x2="118" y2="357" stroke="#8D96A3" stroke-width="1"/>
@@ -53,6 +53,6 @@
 <text x="22" y="439" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">faults; whiskers: 95% interval of the seed mean. From 50 tests up the</text>
 <text x="22" y="454" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">three methods tie. The 4 faults no method reaches here need task</text>
 <text x="22" y="469" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">specs, which the full generator adds.</text>
-<text x="22" y="484" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">No model call. Source: comparisons/budget/full-study.md. Rerun: pnpm</text>
-<text x="22" y="499" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">exec tsx comparisons/budget/full-control.ts</text>
+<text x="22" y="484" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">No model call. Source: comparisons/budget/full-study.md. Check: pnpm</text>
+<text x="22" y="499" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">exec tsx comparisons/budget/check-analysis.ts</text>
 </svg>

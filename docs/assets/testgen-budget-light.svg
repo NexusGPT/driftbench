@@ -53,6 +53,6 @@
 <text x="22" y="439" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">faults; whiskers: 95% interval of the seed mean. From 50 tests up the</text>
 <text x="22" y="454" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">three methods tie. The 4 faults no method reaches here need task</text>
 <text x="22" y="469" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">specs, which the full generator adds.</text>
-<text x="22" y="484" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">No model call. Source: comparisons/budget/full-study.md. Rerun: pnpm</text>
-<text x="22" y="499" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">exec tsx comparisons/budget/full-control.ts</text>
+<text x="22" y="484" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">No model call. Source: comparisons/budget/full-study.md. Check: pnpm</text>
+<text x="22" y="499" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">exec tsx comparisons/budget/check-analysis.ts</text>
 </svg>
