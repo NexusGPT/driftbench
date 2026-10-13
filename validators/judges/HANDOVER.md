@@ -150,6 +150,7 @@ Iteration 133 (cause: the Jev client sent only a bearer token, so the Nexus gate
 Iteration 134 (cause: gpt-6-luna answers 400 to temperature 0 (only the default is supported). createOpenAiJudge asks again without temperature after a 400 that names it and stops sending it; other 400s still throw. Test: openai-temperature.test.ts. Live on gpt-6-luna: 0 of 4 pass; the pass fixture of coverage_before_offer is inconclusive because the model stitches evidence from several entries into one quote (invalid criterion ledger: the evidence quote is not in the supplied data); hidden-accuracy 19 of 39.)
 The `coverage_before_offer` criterion was ambiguous: its rubric said "a coverage check" without naming the `coverage.check` call, so every provider counted a `catalog.search` result as the check and passed the x5-drops-coverage-check items (labelled fail). The wording now names the call. No expected label changed; fixtures and hand labels are untouched. Scripted cassettes were regenerated, and the real Claude recordings for this criterion were recorded again on 2026-10-13 (haiku, sonnet, opus all separate 3 of 3 and agree with the 3 labels). The old entries stay in the files so the pinned legacy replay keeps its indices.
 
+Iteration 135 (cause: ambiguous x5 rubric, see HANDOVER)
 
 ## Next actions
 
