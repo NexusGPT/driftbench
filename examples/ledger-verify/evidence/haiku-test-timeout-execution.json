@@ -1,10 +1,10 @@
 {
-  "at": "2026-10-13T13:29:24.030237+00:00",
-  "authorization": "Approved, logged: one missing-only recovery for those three Haiku timeouts after initial TEST finishes. Output-limit answer stays as cascade error.",
+  "at": "2026-10-13T14:04:23.606437+00:00",
+  "authorization": "Extended: the missing-only recovery authorization now covers the fourth timed-out Haiku TEST request (receipt 65a72335-0d82-4625-979e-7c183f92c6c7) on the same terms as the earlier three: one retry each, after initial TEST ends, the empty receipt kept on record, the 0.50 USD hold kept until it settles. Any further timeout of the same kind in this cell is covered the same way, up to 8 in total; past 8, stop and tell me, because that is a transport problem and not noise.",
   "originalTransportSha256": "c621bb49d72cd20d7aa23e8b6d974026bbdae1ca6461680324098be849a3226a",
   "recoveryTransportSha256": "f142a6f9f79d6567c89b4996362270177e9815530803c51e8c130b8e4ffa672a",
   "maxAdditionalSubmissionsEach": 1,
-  "unknownHoldsRetainedUsd": 1.5,
+  "unknownHoldsRetainedUsd": 2.0,
   "requests": [
     {
       "key": "56bebfa085abfe96206a",
@@ -17,6 +17,10 @@
     {
       "key": "a2864f1aba00dd7dc2b7",
       "fingerprint": "ec31b95c0f02344e6b85e0b7d644645b463ee2a2ec2fcdb40a408c778adbf14a"
+    },
+    {
+      "key": "7678be8b5413c4550794",
+      "fingerprint": "b32a97dbf9524b856d1e057b4ed98e23ee79fc936b8543b3a57ce2b8fceca1f8"
     }
   ]
 }

@@ -1,4 +1,4 @@
-"""Recover only the three authorized TEST timeouts, preserving every initial verdict."""
+"""Recover only the authorized TEST timeouts, preserving every initial verdict."""
 import concurrent.futures
 import datetime
 import hashlib
@@ -39,9 +39,41 @@ def archive(path, target):
 
 def main():
     amendment = json.loads((BASE / 'evidence/haiku-test-timeouts.json').read_text())
+    save(status='waiting for initial TEST and its offline report', stop='authorized submissions finish, timeout count exceeds eight, or a guard fails')
+    while True:
+        rows = [json.loads(line) for line in (BASE / 'receipts/errors.jsonl').read_text().splitlines()]
+        calls = [r for r in rows if all(r.get(k) == amendment['eligibility'][k] for k in ['model', 'phase', 'message'])]
+        if len(calls) > amendment['maxEligibleTimeouts']:
+            save(status='stopped: more than eight initial TEST timeouts', count=len(calls), requiresOwner=True)
+            active = json.loads((BASE / 'results/haiku.active.json').read_text())
+            pid = active['pid']
+            observed = subprocess.run(['ps', '-p', str(pid), '-o', 'command='], text=True, capture_output=True, check=True).stdout
+            assert 'examples/ledger-verify/run.ts haiku --resume-interrupted' in observed
+            os.kill(pid, 15)
+            raise RuntimeError('Haiku TEST exceeds the authorized eight-timeout ceiling')
+        try:
+            progress = json.loads((BASE / 'haiku.progress.json').read_text())
+            finalizer = json.loads((BASE / 'evidence/finalizer-state.json').read_text())
+            ready = progress.get('phase') == 'all' and progress.get('status') == 'complete'
+            ready = ready and finalizer.get('status') in ['offline evidence ready for review', 'offline verification failed']
+        except (FileNotFoundError, json.JSONDecodeError):
+            ready = False
+        if ready or '--prepare-only' in sys.argv:
+            break
+        time.sleep(15)
+    assert 0 < len(calls) <= amendment['maxEligibleTimeouts']
+    for call in calls:
+        native = Path(call['nativeReceipt'])
+        assert native.exists() and not native.read_text().strip(), 'A late native answer must never be retried'
+    amendment['calls'] = calls
+    amendment['callsCollectedAt'] = now()
+    amendment['unknownHoldsRetainedUsd'] = len(calls) * amendment['unknownHoldEachUsd']
+    (BASE / 'evidence/haiku-test-timeouts.json').write_text(json.dumps(amendment, indent=2) + '\n')
+    prepare_env = dict(os.environ, TMPDIR=str(ROOT / '.tmp'))
+    subprocess.run([str(ROOT / 'node_modules/.bin/tsx'), '--tsconfig', 'examples/ledger-verify/tsconfig.json', 'examples/ledger-verify/prepare-haiku-test-outage.ts'], cwd=ROOT, env=prepare_env, check=True)
     requests = json.loads((CACHE / 'requests.json').read_text())
-    assert len(requests) == len(amendment['calls']) == 3
-    assert {r['fingerprint'] for r in requests} == {r['fingerprint'] for r in amendment['calls']}
+    assert len(requests) == len(calls)
+    assert {r['fingerprint'] for r in requests} == {r['fingerprint'] for r in calls}
     assert amendment['maxAdditionalSubmissionsEach'] == 1
     source = (BASE / 'transport.ts').read_text()
     original_source_hash = digest(source.encode())
@@ -64,23 +96,11 @@ def main():
     generated.write_text(source)
     execution = dict(authorization=amendment['authorization'], originalTransportSha256=original_source_hash,
                      recoveryTransportSha256=digest(source.encode()), maxAdditionalSubmissionsEach=1,
-                     unknownHoldsRetainedUsd=1.5, requests=[dict(key=r['key'], fingerprint=r['fingerprint']) for r in requests])
+                     unknownHoldsRetainedUsd=amendment['unknownHoldsRetainedUsd'], requests=[dict(key=r['key'], fingerprint=r['fingerprint']) for r in requests])
     (BASE / 'evidence/haiku-test-timeout-execution.json').write_text(json.dumps(dict(at=now(), **execution), indent=2) + '\n')
     if '--prepare-only' in sys.argv:
-        print(json.dumps(dict(status='prepared offline', requests=3)))
+        print(json.dumps(dict(status='prepared offline', requests=len(requests))))
         return
-    save(status='waiting for initial TEST and its offline report', stop='three authorized submissions finish or a guard fails')
-    while True:
-        try:
-            progress = json.loads((BASE / 'haiku.progress.json').read_text())
-            finalizer = json.loads((BASE / 'evidence/finalizer-state.json').read_text())
-            ready = progress.get('phase') == 'all' and progress.get('status') == 'complete'
-            ready = ready and finalizer.get('status') in ['offline evidence ready for review', 'offline verification failed']
-        except (FileNotFoundError, json.JSONDecodeError):
-            ready = False
-        if ready:
-            break
-        time.sleep(15)
     report = BASE / 'results/haiku.json'
     runtime = json.loads((BASE / 'evidence/runtime-freeze.json').read_text())
     cassette = BASE / 'recordings' / runtime['recordingsId'] / 'test/longjudge-verify/haiku.jsonl'
@@ -106,7 +126,7 @@ def main():
     (BASE / 'evidence/haiku-test-timeout-connectivity.json').write_text(json.dumps(probe_value, indent=2) + '\n')
     tsx = [str(ROOT / 'node_modules/.bin/tsx'), '--tsconfig', 'examples/ledger-verify/tsconfig.json']
     before = {r['id'] for r in map(json.loads, (BASE / 'receipts/calls.jsonl').read_text().splitlines())}
-    save(status='recovering three authorized no-answer calls', **execution)
+    save(status='recovering authorized no-answer calls', **execution)
 
     def retry(request):
         path = CACHE / (request['fingerprint'] + '.response.json')

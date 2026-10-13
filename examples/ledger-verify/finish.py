@@ -154,8 +154,8 @@ try:
         supplement += '- Sources: evidence/haiku-pacing-amendment.json, receipts/budget.json, test_pacing.py and test_budget.py.\n'
     if test_recovery_path.exists():
         supplement += '\n## Haiku TEST timeout recovery\n\n'
-        supplement += '- The owner authorizes one additional submission for each of three empty native timeout responses, after initial TEST finishes.\n'
-        supplement += '- A fresh connectivity probe passes before these three submissions. Their 1.50 USD unknown-charge holds remain.\n'
+        supplement += '- The owner authorizes one additional submission per empty TEST timeout, up to eight initial timeouts; recovery follows initial TEST.\n'
+        supplement += '- A fresh connectivity probe passes before '+str(len(test_recovery['requests']))+' submissions. Their '+str(test_recovery['unknownHoldsRetainedUsd'])+' USD unknown-charge holds remain.\n'
         supplement += '- These are intermediate requests. The complete initial verdicts and request histories remain unchanged; recovery outputs are supplemental receipts only.\n'
         supplement += '- The recovery settles '+str(test_recovery['newSettledUsd'])+' USD. Returned answers, including output-limit errors, are never resubmitted.\n'
         supplement += '- Sources: evidence/haiku-test-timeouts.json, evidence/haiku-test-timeout-execution.json and evidence/haiku-test-timeout-recovery.json.\n'

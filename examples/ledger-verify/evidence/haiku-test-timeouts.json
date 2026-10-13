@@ -1,7 +1,7 @@
 {
-  "at": "2026-10-13T13:21:18.906421+00:00",
-  "authorization": "Approved, logged: one missing-only recovery for those three Haiku timeouts after initial TEST finishes. Output-limit answer stays as cascade error.",
-  "unknownHoldsRetainedUsd": 1.5,
+  "at": "2026-10-13T14:04:15.595153+00:00",
+  "authorization": "Extended: the missing-only recovery authorization now covers the fourth timed-out Haiku TEST request (receipt 65a72335-0d82-4625-979e-7c183f92c6c7) on the same terms as the earlier three: one retry each, after initial TEST ends, the empty receipt kept on record, the 0.50 USD hold kept until it settles. Any further timeout of the same kind in this cell is covered the same way, up to 8 in total; past 8, stop and tell me, because that is a transport problem and not noise.",
+  "unknownHoldsRetainedUsd": 2.0,
   "maxAdditionalSubmissionsEach": 1,
   "maxTotalSubmissionsEach": 2,
   "calls": [
@@ -34,6 +34,27 @@
       "phase": "test",
       "reservationRetained": true,
       "nativeReceipt": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/receipts/native/b7df3b9a-b5e4-4104-9d9f-4e6c6b0f1166.json"
+    },
+    {
+      "id": "65a72335-0d82-4625-979e-7c183f92c6c7",
+      "model": "haiku",
+      "at": "2026-10-13T13:53:24.701Z",
+      "message": "claude ran past 300000 ms and was stopped",
+      "fingerprint": "b32a97dbf9524b856d1e057b4ed98e23ee79fc936b8543b3a57ce2b8fceca1f8",
+      "phase": "test",
+      "reservationRetained": true,
+      "nativeReceipt": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/receipts/native/65a72335-0d82-4625-979e-7c183f92c6c7.json"
     }
-  ]
+  ],
+  "priorAuthorizationFile": "evidence/haiku-test-timeouts.initial-three.json",
+  "maxEligibleTimeouts": 8,
+  "unknownHoldEachUsd": 0.5,
+  "eligibility": {
+    "model": "haiku",
+    "phase": "test",
+    "message": "claude ran past 300000 ms and was stopped",
+    "nativeReceipt": "present and empty",
+    "initialTestOnly": true
+  },
+  "callsCollectedAt": "2026-10-13T14:04:15.664556+00:00"
 }

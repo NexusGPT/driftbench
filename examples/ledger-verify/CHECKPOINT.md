@@ -140,3 +140,9 @@
 - Haiku initial TEST continues. PID 65388 waits for initial TEST and offline report, then recovers only the three authorized timeouts once. Existing final verdicts stay unchanged.
 - Sonnet and gpt-6.1-sol are frozen as separate 25 USD cells, with five DEV calls and a cost projection before the full run. They cannot call until existing cells and Haiku recovery finish.
 - Gemini 3.8 remains owner-held.
+
+## 2026-10-13T14:07:26.800356+00:00 Haiku TEST recovery extension
+
+- The owner authorizes one missing-only recovery after initial TEST for up to eight empty native 300-second TEST timeouts. Four currently qualify; all original receipts and 2.00 USD holds remain.
+- recover_haiku_test_timeouts.py collects the final eligible set, stops the owned initial runner above eight, reconstructs exact requests offline and guards every additional submission with an atomic claim.
+- The first three-call authorization is retained in evidence/haiku-test-timeouts.initial-three.json. No returned answer is resubmitted.

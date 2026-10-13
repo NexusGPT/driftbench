@@ -1,4 +1,4 @@
-/** Recover exact frozen requests for the three owner-authorized no-answer calls, offline. */
+/** Recover exact frozen requests for the owner-authorized no-answer calls, offline. */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -25,7 +25,7 @@ await writeFile(resolve(generated,'call.ts'),imports(code));await writeFile(reso
 const {runBenchmark}=await import(pathToFileURL(resolve(generated,'run.ts')).href);
 const items=JSON.parse(await readFile(resolve(base,'evidence/pool.json'),'utf8'));
 const report=await runBenchmark({bench:'longjudge-verify',model:'haiku',contestants:['driftbench-verify-uncertainty-cascade','promptfoo'].map(contestantById),items,criterion:CRITERIA['longjudge-verify'],split:'all',concurrency:1,includeDecisions:true,replayOnly:'lenient',recordingsDir:resolve(base,'recordings',runtime.recordingsId,'test'),command:'/no-paid-command'});
-assert.equal(report.newCalls,0);assert.equal(requests.size,3);
+assert.equal(report.newCalls,0);assert(targets.size<=amendment.maxEligibleTimeouts);assert.equal(requests.size,targets.size);
 const rows=(await readFile(resolve(base,'recordings',runtime.recordingsId,'test/longjudge-verify/haiku.jsonl'),'utf8')).trim().split('\n').map(x=>JSON.parse(x));
 for(const request of requests.values())assert(rows.some(r=>r.key===request.key&&r.failure),'Only cached no-answer requests may be retried');
 await writeFile(resolve(generated,'requests.json'),JSON.stringify([...requests.values()],null,2)+'\n');
