@@ -145,6 +145,18 @@ const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly ve
       judge: ['de[ğg]erlendirme', '[öo]l[çc][üu]t\\p{L}*', 'hakem', 'kriter\\p{L}*', 'karar'],
       verdict: ['ge[çc]ti', 'ge[çc]er', 'ba[şs]ar[ıi]l[ıi]', 'kald[ıi]', 'ba[şs]ar[ıi]s[ıi]z'],
     },
+    {
+      // Russian
+      judge: ['критери\\p{L}*', 'оценк\\p{L}*', 'оценива\\p{L}*', 'судь[яи]', 'вердикт\\p{L}*'],
+      verdict: [
+        'пройден\\p{L}*',
+        'зачт\\p{L}*',
+        'успешн\\p{L}*',
+        'провал\\p{L}*',
+        'одобрен\\p{L}*',
+        'принят\\p{L}*',
+      ],
+    },
   ];
 
 const VERDICT_WORDS = [
