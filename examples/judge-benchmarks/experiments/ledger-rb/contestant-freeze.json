@@ -63,7 +63,7 @@
     "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "42741beb2a7a7ff474ac3ff7d001ffef1834a79980cd31eca3f28f2b38bf2d6e",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
-    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "45ce1db369f4ea47759c7e7c380791be916cf62c69503072861cee76208e37d3",
+    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "bca4987e76b98bc4328e7a5998b8e52f11a6251ba14efa8ed301ef1d50ebc62f",
     "examples/judge-benchmarks/src/code-evidence.ts": "7552ea80f292ca33c292142910b2556094a19cf44d7d85942a2de98f92bc0929",
     "examples/judge-benchmarks/src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
     "examples/judge-benchmarks/src/rubric-items.ts": "b23fcd163c36d9d01e2ddbb669f0b746eca70f22d1cfc7cfcfde744db9aefe6a",

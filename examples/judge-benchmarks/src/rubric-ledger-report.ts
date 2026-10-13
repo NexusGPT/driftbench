@@ -4,7 +4,17 @@ import { resolve } from 'node:path';
 import { DIRECTORY, MODELS, SETTINGS, classifyProviderBlock, decisionKey, latestDecisions, validityFixtures, type DecisionRow } from './rubric-ledger-live';
 import { LedgerCalls } from './rubric-ledger-calls';
 import { readRecordingRows } from './recording-files';
-import { pairedStatistics } from './rubric-ledger-stats';
+import { pairedStatistics, type PairedGames } from './rubric-ledger-stats';
+
+export function scoreUnblockedIntersection(pairs: readonly (PairedGames & { oursBlocked: boolean; peerBlocked: boolean })[]) {
+  const sharedUnblocked = pairs.filter((r) => !r.oursBlocked && !r.peerBlocked);
+  return { matchedPairs: sharedUnblocked.length, excludedPairs: pairs.length - sharedUnblocked.length,
+    ledgerOnly: pairs.filter((r) => r.oursBlocked && !r.peerBlocked).length,
+    promptfooOnly: pairs.filter((r) => !r.oursBlocked && r.peerBlocked).length,
+    both: pairs.filter((r) => r.oursBlocked && r.peerBlocked).length,
+    stats: sharedUnblocked.length ? pairedStatistics(sharedUnblocked) : null,
+    status: 'Secondary score on the identical, model-specific unblocked item intersection; headline verdict and 18-cell correction use all sealed items.' };
+}
 
 export function kappa(rows: readonly { label: string; decision: string }[]): number | null {
   if (!rows.length) return 0;
@@ -106,13 +116,7 @@ export async function report() {
         oursBlocked: Boolean(ours.providerBlocked), peerBlocked: Boolean(peer.providerBlocked) }] : [];
     });
     const stats = pairs.length ? pairedStatistics(pairs) : null;
-    const sharedUnblocked = pairs.filter((r) => !r.oursBlocked && !r.peerBlocked);
-    const providerBlockExcluded = { matchedPairs: sharedUnblocked.length, excludedPairs: pairs.length - sharedUnblocked.length,
-      ledgerOnly: pairs.filter((r) => r.oursBlocked && !r.peerBlocked).length,
-      promptfooOnly: pairs.filter((r) => !r.oursBlocked && r.peerBlocked).length,
-      both: pairs.filter((r) => r.oursBlocked && r.peerBlocked).length,
-      stats: sharedUnblocked.length ? pairedStatistics(sharedUnblocked) : null,
-      status: 'Secondary score on the identical, model-specific unblocked item intersection; headline verdict and 18-cell correction use all sealed items.' };
+    const providerBlockExcluded = scoreUnblockedIntersection(pairs);
     const allBaseGroups = new Set(fixtures.filter((f: { earned: boolean }) => !f.earned).map((f: { group: string }) => f.group));
     const costs = Object.fromEntries(['pair-ledger', 'promptfoo'].map((contestant) => {
       const rows = tests.filter((r) => r.contestant === contestant); const paid = cost(rows);
