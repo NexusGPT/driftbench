@@ -198,7 +198,7 @@ The proposal is the committed `examples/acme/map/proposal.yaml`, byte for byte b
 These are capabilities users need from `extract` that the code lacks today. The map validator holds the items that check each one (`validators/map/NEEDS.md`). They fail until the capability ships.
 
 * **Declared roles.** A prompt may say which dimension makes a different kind of conversation ("Each of these makes a different kind of conversation") and which can show up inside any conversation. That dimension becomes the axis, whatever order the dimensions are read in. Without such a sentence, the first dimension of each kind stays the axis, as above. The purpose: the prompt's author already said which differences make a different conversation, so the space map crosses those and leaves the rest as details, and no person has to flip the roles the prompt already states.
-* **What a rule states.** Each rule records whether the agent must or must not do it, the cell it applies in (`when`), the case it excludes (`unless`), a count limit, a time limit (`within`), and whether it comes first when rules collide.
+* **What a rule states.** Each rule records whether the agent must or must not do it (`polarity`: `must` or `must_not`), the cell it applies in (`when`), the case it excludes (`unless`), a count limit (`limit`, the most times the action may happen in a conversation), a time limit (`within`, with `minutes`), and whether it comes first when rules collide (`priority: first`).
 * **What a value states.** A persona or data value records the share of users it stands for (`weight`) and whether a test plan must include it (`required`).
 * **More schema keywords.** A tuple (`prefixItems`, or `items` given as a list) gives one dimension per position, `<field>.0`, `<field>.1`, beside the array's own size values. Closing a tuple (`unevaluatedItems` or `additionalItems` false) adds the value `extra-item`. A closed input object (`additionalProperties: false`) gives the dimension `<tool>.in.unknown-key` with the value `sent`, a call carrying a key the schema does not name.
 * **More relations.** The order two tools are called in, the route a request takes to a flow, and the exact reply text a rule fixes.
@@ -891,7 +891,7 @@ The folder is created for the owner alone and holds `conversations.jsonl` (redac
 
 ### From an interview
 
-When no past conversation exists, `intake interview` writes a questionnaire from the approved map: personas with their shares and map values, the share of each intent, example messages per stage, what users never do, tone, languages and channels.
+When no past conversation exists, `intake interview` writes a questionnaire from the approved map: personas with their shares and map values (`personas`), the share of each intent (`intents`), example messages per stage (`examples`), what users never do (`never`), tone (`tone`, and `tone` per persona), languages (`languages`) and channels (`channels`).
 
 ```
 $ pnpm -s driftbench intake interview --map examples/acme/map/approved.yaml --out _captures/docs3/generating/intake/questions.yaml
