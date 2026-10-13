@@ -6,6 +6,8 @@ What is built today: the agent version of a run, the dependencies of a block, th
 
 ## A change
 
+Every field of a change manifest is in the [change manifest reference](../reference/change.md).
+
 A change manifest names the agent version before and after, and every change made between the two.
 
 ```
