@@ -44,6 +44,22 @@
         }
       },
       "material": "ledger/archive/"
+    },
+    {
+      "id": "case-03",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "rm ledger/example.txt",
+          "description": "unit test"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "rm ledger/example.txt"
     }
   ],
   "budgetMs": 60000

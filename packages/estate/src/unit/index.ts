@@ -10,3 +10,12 @@ export {
   type UnitRun,
   type UnitRunOptions,
 } from './run';
+export {
+  fired,
+  type GuardObservation,
+  type GuardSpecThen,
+  judgeGuardSpec,
+  judgeHelperSpec,
+  judgeScriptSpec,
+  type ScriptObservation,
+} from './spec';

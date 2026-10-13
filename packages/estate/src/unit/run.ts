@@ -52,6 +52,8 @@ export type UnitCaseResult = {
   flaky?: boolean;
   pass: boolean;
   ms: number;
+  /** The run was cut at the guard's timeout. */
+  timedOut?: boolean;
   detail: string;
 };
 
@@ -72,6 +74,11 @@ export type UnitRunOptions = {
   root: string;
   reader: EstateReader;
   record?: boolean;
+  /**
+   * Run every case once and report what happened, comparing with nothing: the caller judges the outcomes
+   * (a generated unit spec judged on its own Then). No test file is written.
+   */
+  observe?: boolean;
   /** Run without the sandbox even where one exists. */
   noSandbox?: boolean;
   /** How many tests run at once (1 by default). The results keep the order of the tests. */
@@ -116,8 +123,10 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
     const config = await readConfig(options.root);
     const results: UnitResult[] = new Array(tests.length);
     const runOne = async (test: UnitTest): Promise<UnitResult> => {
-      if (test.target.kind === 'script') return runScriptTest(test, config, runner, options.record === true);
-      const result = await runGuardTest(test, raw.guards, options.record === true, runner);
+      const observe = options.observe === true;
+      if (test.target.kind === 'script')
+        return runScriptTest(test, config, runner, options.record === true || observe, observe);
+      const result = await runGuardTest(test, raw.guards, options.record === true, runner, observe);
       const check = test.target.check;
       if (check === undefined) return result;
       const named = new RegExp(`(^|[^\\w-])${check.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^\\w-])`);
@@ -153,6 +162,7 @@ async function runGuardTest(
   guards: readonly GuardDecl[],
   record: boolean,
   runner: Runner,
+  observe = false,
 ): Promise<UnitResult> {
   const base = { id: test.id, testType: test.testType, atom: test.atom };
   const target = test.target;
@@ -171,7 +181,7 @@ async function runGuardTest(
       cases: [],
     };
   }
-  if (!record && test.recordedOn === undefined) {
+  if (!record && !observe && test.recordedOn === undefined) {
     return {
       ...base,
       status: 'unrecorded',
@@ -180,7 +190,7 @@ async function runGuardTest(
     };
   }
   const timeoutMs = Math.round((guard.timeout ?? target.timeout ?? 60) * 1000);
-  const repeats = test.testType === 'guard_speed' || record ? RECORD_RUNS : 1;
+  const repeats = observe ? 1 : test.testType === 'guard_speed' || record ? RECORD_RUNS : 1;
   const cases: UnitCaseResult[] = [];
   const recordedCases: GuardCase[] = [];
   for (const unitCase of test.cases) {
@@ -190,6 +200,18 @@ async function runGuardTest(
     const outcomes = runs.map(outcomeOf);
     const first = outcomes[0] as UnitOutcome;
     const ms = Math.max(...runs.map((run) => run.ms));
+    if (observe) {
+      cases.push({
+        case: unitCase.id,
+        material: unitCase.material,
+        outcome: first,
+        pass: true,
+        ms,
+        ...(runs.some((run) => run.timedOut) ? { timedOut: true } : {}),
+        detail: 'observed',
+      });
+      continue;
+    }
     if (record) {
       const stable: UnitOutcome = {
         decision: first.decision,
@@ -271,6 +293,7 @@ async function runGuardTest(
           ].join('; '),
     });
   }
+  if (observe) return { ...base, status: 'pass', detail: `observed ${cases.length} cases`, cases };
   if (record) {
     const active = recordedCases.filter((entry) => !entry.inert).length;
     return {
@@ -389,12 +412,17 @@ async function runGuard(
     ...(unitCase.payload.tool_name !== undefined ? { tool_use_id: `toolu_unit_${number}` } : {}),
     ...unitCase.payload,
   };
-  // The runtime hands a Stop guard the last reply as last_assistant_message; the test file names it last_reply.
-  if ('last_reply' in payload) {
-    payload.last_assistant_message = reply || 'ok';
-    delete payload.last_reply;
-  }
-  return execute(['/bin/sh', '-c', guard.command], `${JSON.stringify(payload)}\n`, runner, folder, timeoutMs);
+  // The runtime hands a Stop guard the last reply as last_assistant_message; the test file names it
+  // last_reply, and a guard written against that name reads it there, so the payload carries both.
+  if ('last_reply' in payload) payload.last_assistant_message = reply || 'ok';
+  // The runtime runs a hook from the project folder: a command that names its script from there finds it.
+  return execute(
+    ['/bin/sh', '-c', guard.command],
+    `${JSON.stringify(payload)}\n`,
+    runner,
+    runner.copy,
+    timeoutMs,
+  );
 }
 
 async function runScriptTest(
@@ -402,6 +430,7 @@ async function runScriptTest(
   config: Record<string, unknown>,
   runner: Runner,
   record: boolean,
+  observe = false,
 ): Promise<UnitResult> {
   const base = { id: test.id, testType: test.testType, atom: test.atom };
   if (test.target.kind !== 'script') throw new Error('not a script test');
@@ -411,7 +440,8 @@ async function runScriptTest(
   }
   const scripts = config.scripts as Record<string, unknown> | undefined;
   const declared = scripts?.[path];
-  if (!Array.isArray(declared) || declared.length === 0) return runRecordedScript(test, path, runner, record);
+  if (!Array.isArray(declared) || declared.length === 0)
+    return runRecordedScript(test, path, runner, record, observe);
   const cases: UnitCaseResult[] = [];
   for (const [index, fixture] of declared.entries()) {
     const entry = (fixture ?? {}) as Record<string, unknown>;
@@ -474,6 +504,7 @@ async function runRecordedScript(
   path: string,
   runner: Runner,
   record: boolean,
+  observe = false,
 ): Promise<UnitResult> {
   const base = { id: test.id, testType: test.testType, atom: test.atom };
   let fixtures = test.cases;
@@ -500,7 +531,7 @@ async function runRecordedScript(
   const recorded: GuardCase[] = [];
   for (const fixture of fixtures) {
     const runs: Exec[] = [];
-    for (let index = 0; index < (record ? RECORD_RUNS : 1); index++)
+    for (let index = 0; index < (record && !observe ? RECORD_RUNS : 1); index++)
       runs.push(await runScript(path, fixture, runner));
     const outcomes = runs.map(scriptOutcome);
     const first = outcomes[0] as UnitOutcome;

@@ -308,3 +308,43 @@ describe('minimal fixtures of a script with none declared', () => {
     expect(scriptCases('Run the tracker.', 'x/track.sh')).toHaveLength(1);
   });
 });
+
+describe('payloads that break a rule the rule itself gives no example of', () => {
+  it('writes a reply over the limit for a rule that caps the length of a reply', () => {
+    const atoms = new Map([
+      ['r1', rule('r1', 'Keep every reply under 1,200 characters unless the user asks for detail.')],
+    ]);
+    const stop = guard({ event: 'Stop', enforces: [{ atom: 'r1', by: 'id' }] });
+    const positive = unitTestOf(row('guard_positive'), stop, atoms, 'h', 'unit.guard_positive.g');
+    if (typeof positive === 'string') throw new Error(positive);
+    const replies = positive.cases.map((entry) => String(entry.payload.last_reply));
+    expect(replies.some((reply) => reply.length > 1200)).toBe(true);
+    expect(positive.cases.find((entry) => String(entry.payload.last_reply).length > 1200)?.material).toBe(
+      'a reply of 1201 characters',
+    );
+    const words = new Map([['r1', rule('r1', 'Answer in at most 50 words.')]]);
+    const capped = unitTestOf(row('guard_positive'), stop, words, 'h', 'unit.guard_positive.g');
+    if (typeof capped === 'string') throw new Error(capped);
+    expect(capped.cases.some((entry) => String(entry.payload.last_reply).split(/\s+/).length === 51)).toBe(
+      true,
+    );
+  });
+
+  it('writes a removal for a rule that forbids deleting under a folder it names', () => {
+    const atoms = new Map([
+      ['r1', rule('r1', 'Never delete a file under `ledger/`; move it to `ledger/archive/` instead.')],
+    ]);
+    const post = guard({ event: 'PostToolUse', matcher: 'Bash', enforces: [{ atom: 'r1', by: 'id' }] });
+    const positive = unitTestOf(row('guard_positive'), post, atoms, 'h', 'unit.guard_positive.g');
+    if (typeof positive === 'string') throw new Error(positive);
+    expect(positive.cases.map((entry) => entry.material)).toEqual([
+      'ledger/',
+      'ledger/archive/',
+      'rm ledger/example.txt',
+    ]);
+    // A rule that forbids no removal gets no such command.
+    const other = new Map([['r1', rule('r1', 'Never edit a file under `ledger/` by hand.')]]);
+    const plain = unitTestOf(row('guard_positive'), post, other, 'h', 'unit.guard_positive.g');
+    expect(typeof plain !== 'string' && plain.cases.map((entry) => entry.material)).toEqual(['ledger/']);
+  });
+});

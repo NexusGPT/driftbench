@@ -108,6 +108,70 @@
         }
       },
       "material": "echo ok && ledger/archive/"
+    },
+    {
+      "id": "case-07",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "rm  ledger/example.txt",
+          "description": "unit test"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "rm  ledger/example.txt"
+    },
+    {
+      "id": "case-08",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "RM LEDGER/EXAMPLE.TXT",
+          "description": "unit test"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "RM LEDGER/EXAMPLE.TXT"
+    },
+    {
+      "id": "case-09",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "rm '' ledger/example.txt",
+          "description": "unit test"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "rm '' ledger/example.txt"
+    },
+    {
+      "id": "case-10",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "echo ok && rm ledger/example.txt",
+          "description": "unit test"
+        },
+        "tool_response": {
+          "stdout": "",
+          "stderr": "",
+          "interrupted": false
+        }
+      },
+      "material": "echo ok && rm ledger/example.txt"
     }
   ]
 }

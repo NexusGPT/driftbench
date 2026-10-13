@@ -4,6 +4,7 @@ import { RUNTIMES, readerFor, runUnitTests, type UnitResult } from '@agent-nexus
 import { formatJson, UnitTest } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { runUnitSpecs } from './estate-unit-specs';
 
 export type EstateUnitOptions = {
   estate?: string;
@@ -17,7 +18,9 @@ export type EstateUnitOptions = {
 };
 
 /**
- * `driftbench estate unit <tests...> --estate <root>`: runs the unit tests `estate generate` wrote
+ * `driftbench estate unit <specs or tests...> --estate <root>`. Given the unit-mode specs of a generated
+ * suite (`specs/unit/**.yaml`), it judges each on its own Then, with no recorded outcome (see
+ * `estate-unit-specs.ts`). Given unit test files, it runs the unit tests `estate generate` wrote
  * (`unit/**.json`: guards with hook payloads, scripts with their declared fixtures) directly, with no model.
  * `--record` runs them on the original estate and writes each guard's outcomes into its test file, the oracle
  * a later run on a mutant copy compares with. Exit 0 every test passes, 1 one fails, 2 a usage or input
@@ -74,6 +77,45 @@ export async function estateUnitCommand(
     if (info.isDirectory()) files.push(...(await jsonFiles(full)));
     else files.push(full);
   }
+  const jobs = Number(options.jobs ?? '1');
+  if (!Number.isInteger(jobs) || jobs < 1) {
+    io.err(`--jobs takes a whole number of 1 or more, not ${options.jobs}\n`);
+    return 2;
+  }
+  // The unit-mode specs of a generated suite (specs/unit/**.yaml) are judged on their own Then.
+  const yaml = files.filter((file) => /\.ya?ml$/i.test(file));
+  if (yaml.length > 0) {
+    if (yaml.length !== files.length || options.record) {
+      io.err(
+        options.record
+          ? 'error: --record writes outcomes into unit test files (unit/**.json); a spec is judged as it is\n'
+          : 'error: give either unit specs (*.yaml) or unit test files (*.json), not both\n',
+      );
+      return 2;
+    }
+    const ran = await runUnitSpecs(yaml.sort(), {
+      root,
+      reader,
+      noSandbox: options.sandbox === false,
+      jobs,
+      cwd: io.cwd,
+    });
+    if (ran.contract === undefined) {
+      io.err(`${ran.error ?? 'the unit specs cannot be read'}\n`);
+      return ran.code;
+    }
+    if (options.json) io.out(formatJson(ran.contract));
+    else {
+      for (const entry of ran.contract.runs) {
+        io.out(
+          `${entry.pass ? '✓' : '✗'} ${entry.spec}${entry.pass ? '' : `  ${entry.failing.join('; ')}`}\n`,
+        );
+      }
+      const passed = ran.contract.runs.filter((entry) => entry.pass).length;
+      io.out(`${passed} of ${ran.contract.runs.length} unit specs pass.\n`);
+    }
+    return ran.code;
+  }
   const tests: Array<{ file: string; test: UnitTest }> = [];
   for (const file of files.sort()) {
     let raw: unknown;
@@ -96,11 +138,6 @@ export async function estateUnitCommand(
   }
   if (tests.length === 0) {
     io.err('No unit test found.\n');
-    return 2;
-  }
-  const jobs = Number(options.jobs ?? '1');
-  if (!Number.isInteger(jobs) || jobs < 1) {
-    io.err(`--jobs takes a whole number of 1 or more, not ${options.jobs}\n`);
     return 2;
   }
   const run = await runUnitTests(
