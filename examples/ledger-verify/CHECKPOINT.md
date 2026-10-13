@@ -41,3 +41,9 @@
 - Gemini uses medium and 300-second provider attempts; quota waits remain 60/120/240 seconds; HTTP 402 still stops the model.
 - No unknown-charge hold is released. Runtime and scoring hashes stay unchanged. See evidence/gemini-topup-resume.json.
 - Luna remains in sealed TEST at eight requests. Haiku is in noise-1 at two native processes.
+
+## Automatic offline completion
+
+- finish.py --wait runs as exec session 40010, PID 48739. It waits for all three supervisors to finish every phase, then runs attribution, strict limits, exact replay, statistics and report generation without provider keys.
+- It validates all 18 phases and 379 units per model before generating the full report. It does not commit or push; review and git remain the main worker's next action.
+- The cheater margin is not established on the pilot. evidence/cheater-gate-audit.json records the exact comparison and bounds mutation validity. The final report includes that disclosure without changing TEST scoring.

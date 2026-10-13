@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-13T10:27:40.043738+00:00",
+  "source": "design-beat-promptfoo.md section 3.7",
+  "status": "predeclared cheater margin not established",
+  "stage": "Documentation audit after TEST started, no scoring or execution change",
+  "population": "Same 20 DEV pilot items for each model and constant-fail baseline; not the 221 TEST items",
+  "rows": [
+    {
+      "model": "haiku",
+      "pilotItems": 20,
+      "constantFailCorrect": 18,
+      "cascadeProductFinalCorrect": 18,
+      "marginPoints": 0.0,
+      "requiredMarginPoints": 10,
+      "passesOnPilot": false
+    },
+    {
+      "model": "gpt-6-luna",
+      "pilotItems": 20,
+      "constantFailCorrect": 18,
+      "cascadeProductFinalCorrect": 17,
+      "marginPoints": -5.0,
+      "requiredMarginPoints": 10,
+      "passesOnPilot": false
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "pilotItems": 20,
+      "constantFailCorrect": 18,
+      "cascadeProductFinalCorrect": 18,
+      "marginPoints": 0.0,
+      "requiredMarginPoints": 10,
+      "passesOnPilot": false
+    }
+  ],
+  "fullDevItems": 95,
+  "fullDevFreshJudgeEvaluation": false,
+  "mutationChecksScope": "Planted arithmetic invariance only; existing validityPassed field covers mutation checks, not this cheater gate",
+  "implication": "No blanket all-validity-passed or confirmatory superiority claim. Preserve unchanged TEST estimates and p-values for the collator.",
+  "sources": [
+    "evidence/dev.json",
+    "pilot/haiku.json",
+    "pilot/gpt-6-luna.json",
+    "pilot/gemini-3.8-flash.json"
+  ]
+}
