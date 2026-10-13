@@ -1,0 +1,7037 @@
+{
+  "design": "annotator-protocol emulation, pointwise, K independent samples per reply, holistic fallback on exact ties",
+  "split": "dev",
+  "k": 3,
+  "items": 90,
+  "completed": 90,
+  "complete": true,
+  "primary": {
+    "summary": {
+      "metric": "accuracy (LongJudgeBench, over games)",
+      "value": {
+        "estimate": 0.5444444444444444,
+        "lower": 0.47151949265004,
+        "upper": 0.6155120186458166
+      },
+      "n": 90,
+      "byGroup": {
+        "zh": {
+          "n": 98,
+          "value": 0.6122448979591835
+        },
+        "en": {
+          "n": 82,
+          "value": 0.4634146341463415
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9777777777777777
+    },
+    "perOrder": [
+      {
+        "correct": 48,
+        "n": 90,
+        "accuracy": 0.5333333333333333
+      },
+      {
+        "correct": 50,
+        "n": 90,
+        "accuracy": 0.5555555555555556
+      }
+    ],
+    "games": 98
+  },
+  "pureAnnotator": {
+    "summary": {
+      "metric": "accuracy (LongJudgeBench, over games)",
+      "value": {
+        "estimate": 0.37777777777777777,
+        "lower": 0.310201405801116,
+        "upper": 0.45046193813527824
+      },
+      "n": 90,
+      "byGroup": {
+        "zh": {
+          "n": 98,
+          "value": 0.4693877551020409
+        },
+        "en": {
+          "n": 82,
+          "value": 0.2682926829268293
+        }
+      },
+      "missing": 44,
+      "positionConsistency": 0.7555555555555555
+    },
+    "games": 68,
+    "ties": 22
+  },
+  "firstAnnotator": {
+    "summary": {
+      "metric": "accuracy (LongJudgeBench, over games)",
+      "value": {
+        "estimate": 0.32222222222222224,
+        "lower": 0.25828143096508205,
+        "upper": 0.39359252385149146
+      },
+      "n": 90,
+      "byGroup": {
+        "zh": {
+          "n": 98,
+          "value": 0.42857142857142855
+        },
+        "en": {
+          "n": 82,
+          "value": 0.1951219512195122
+        }
+      },
+      "missing": 74,
+      "positionConsistency": 0.5888888888888889
+    },
+    "games": 58
+  },
+  "holisticSameItems": {
+    "summary": {
+      "metric": "accuracy (LongJudgeBench, over games)",
+      "value": {
+        "estimate": 0.6444444444444445,
+        "lower": 0.5721657088286799,
+        "upper": 0.7106867028828542
+      },
+      "n": 90,
+      "byGroup": {
+        "zh": {
+          "n": 98,
+          "value": 0.7653061224489796
+        },
+        "en": {
+          "n": 82,
+          "value": 0.5
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9555555555555556
+    },
+    "perOrder": [
+      {
+        "correct": 57,
+        "n": 90,
+        "accuracy": 0.6333333333333333
+      },
+      {
+        "correct": 59,
+        "n": 90,
+        "accuracy": 0.6555555555555556
+      }
+    ],
+    "games": 116
+  },
+  "prepair": {
+    "mode": "protocol-pair, samples 3",
+    "pooledBothOrders": {
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6111111111111112,
+          "lower": 0.5382819727491671,
+          "upper": 0.6792968054904746
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.7346938775510206
+          },
+          "en": {
+            "n": 82,
+            "value": 0.4634146341463415
+          }
+        },
+        "missing": 8,
+        "positionConsistency": 0.9555555555555556
+      },
+      "games": 110
+    },
+    "summary": {
+      "metric": "accuracy (LongJudgeBench, over games)",
+      "value": {
+        "estimate": 0.6444444444444445,
+        "lower": 0.5721657088286799,
+        "upper": 0.7106867028828542
+      },
+      "n": 90,
+      "byGroup": {
+        "zh": {
+          "n": 98,
+          "value": 0.7142857142857143
+        },
+        "en": {
+          "n": 82,
+          "value": 0.5609756097560976
+        }
+      },
+      "missing": 1,
+      "positionConsistency": 0.8444444444444444
+    },
+    "perOrder": [
+      {
+        "correct": 63,
+        "n": 90,
+        "accuracy": 0.7
+      },
+      {
+        "correct": 53,
+        "n": 90,
+        "accuracy": 0.5888888888888889
+      }
+    ],
+    "games": 116,
+    "recipeCostPer100": 2.4561198777777777
+  },
+  "recipeCostPer100": 1.1717102333333338,
+  "newSpendUsd": 0.8474414000000005,
+  "newCalls": 360,
+  "replayed": 900,
+  "rows": [
+    {
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00922045,
+      "holisticCostUsd": 0.00526891,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.0118653
+    },
+    {
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 6.666666666666667,
+      "annotatorCostUsd": 0.007052350000000001,
+      "holisticCostUsd": 0.0037419199999999997,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.0089481
+    },
+    {
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 4,
+      "annotatorCostUsd": 0.01054776,
+      "holisticCostUsd": 0.0054788200000000006,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01209538
+    },
+    {
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 4.333333333333333,
+      "annotatorCostUsd": 0.01013616,
+      "holisticCostUsd": 0.005650720000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01230908
+    },
+    {
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 4.333333333333333,
+      "meanB": 5.666666666666667,
+      "annotatorCostUsd": 0.014315860000000001,
+      "holisticCostUsd": 0.00842092,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.02205168
+    },
+    {
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 4.333333333333333,
+      "meanB": 6.666666666666667,
+      "annotatorCostUsd": 0.016164860000000003,
+      "holisticCostUsd": 0.00964242,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.025498680000000003
+    },
+    {
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7.333333333333333,
+      "meanB": 7,
+      "annotatorCostUsd": 0.01104936,
+      "holisticCostUsd": 0.005900819999999999,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01475488
+    },
+    {
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 6.333333333333333,
+      "annotatorCostUsd": 0.012832560000000002,
+      "holisticCostUsd": 0.007231120000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01861128
+    },
+    {
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 5,
+      "meanB": 7,
+      "annotatorCostUsd": 0.01120616,
+      "holisticCostUsd": 0.0059675200000000005,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01495148
+    },
+    {
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 6,
+      "meanB": 6.333333333333333,
+      "annotatorCostUsd": 0.00959076,
+      "holisticCostUsd": 0.00542862,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.012225280000000002
+    },
+    {
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 6.333333333333333,
+      "meanB": 4,
+      "annotatorCostUsd": 0.00879876,
+      "holisticCostUsd": 0.00458362,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.010866280000000002
+    },
+    {
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 6,
+      "meanB": 4,
+      "annotatorCostUsd": 0.00796606,
+      "holisticCostUsd": 0.00420982,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.009162380000000001
+    },
+    {
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7.666666666666667,
+      "meanB": 6.666666666666667,
+      "annotatorCostUsd": 0.00923946,
+      "holisticCostUsd": 0.0049789199999999995,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.011167680000000003
+    },
+    {
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 6.333333333333333,
+      "meanB": 7,
+      "annotatorCostUsd": 0.01009476,
+      "holisticCostUsd": 0.00570112,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.014210780000000001
+    },
+    {
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 4,
+      "annotatorCostUsd": 0.01032236,
+      "holisticCostUsd": 0.00561802,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01256598
+    },
+    {
+      "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 6.333333333333333,
+      "meanB": 6.333333333333333,
+      "annotatorCostUsd": 0.011094560000000002,
+      "holisticCostUsd": 0.0067953200000000005,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.014840380000000002
+    },
+    {
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.01106547,
+      "holisticCostUsd": 0.00584742,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.015255680000000002
+    },
+    {
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 4.666666666666667,
+      "annotatorCostUsd": 0.00908534,
+      "holisticCostUsd": 0.00471532,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.012830260000000003
+    },
+    {
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 4.333333333333333,
+      "annotatorCostUsd": 0.009119060000000002,
+      "holisticCostUsd": 0.005166820000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01204738
+    },
+    {
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 5.666666666666667,
+      "annotatorCostUsd": 0.00929896,
+      "holisticCostUsd": 0.0050224200000000005,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01268918
+    },
+    {
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00899626,
+      "holisticCostUsd": 0.0051651200000000005,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.011714780000000001
+    },
+    {
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.007312259999999999,
+      "holisticCostUsd": 0.004313620000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00980878
+    },
+    {
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 5.333333333333333,
+      "annotatorCostUsd": 0.012230060000000001,
+      "holisticCostUsd": 0.006893020000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01796498
+    },
+    {
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 6.333333333333333,
+      "meanB": 4,
+      "annotatorCostUsd": 0.01143806,
+      "holisticCostUsd": 0.006514520000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01713998
+    },
+    {
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 5.333333333333333,
+      "meanB": 5.666666666666667,
+      "annotatorCostUsd": 0.01302196,
+      "holisticCostUsd": 0.00731362,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01917278
+    },
+    {
+      "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 5.333333333333333,
+      "meanB": 4.666666666666667,
+      "annotatorCostUsd": 0.01615466,
+      "holisticCostUsd": 0.00902182,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.02510438
+    },
+    {
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7.333333333333333,
+      "annotatorCostUsd": 0.012380760000000001,
+      "holisticCostUsd": 0.007512620000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01981078
+    },
+    {
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 6.666666666666667,
+      "annotatorCostUsd": 0.012251760000000002,
+      "holisticCostUsd": 0.00719762,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01822928
+    },
+    {
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.010178360000000003,
+      "holisticCostUsd": 0.0056510200000000005,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01469198
+    },
+    {
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 6.666666666666667,
+      "annotatorCostUsd": 0.01525036,
+      "holisticCostUsd": 0.00929412,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.02482728
+    },
+    {
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 6.333333333333333,
+      "meanB": 6,
+      "annotatorCostUsd": 0.011842959999999998,
+      "holisticCostUsd": 0.00656752,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.016942480000000003
+    },
+    {
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.007155360000000001,
+      "holisticCostUsd": 0.00399162,
+      "holistic": [
+        "B",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00911928
+    },
+    {
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 5,
+      "annotatorCostUsd": 0.008144560000000002,
+      "holisticCostUsd": 0.00435142,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "tie",
+        "tie"
+      ],
+      "prepairCostUsd": 0.010758680000000001
+    },
+    {
+      "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 6.333333333333333,
+      "meanB": 5.666666666666667,
+      "annotatorCostUsd": 0.00755336,
+      "holisticCostUsd": 0.00374032,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00827288
+    },
+    {
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "humor"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 6.333333333333333,
+      "annotatorCostUsd": 0.007180860000000001,
+      "holisticCostUsd": 0.00351512,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00835128
+    },
+    {
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7.666666666666667,
+      "annotatorCostUsd": 0.00758876,
+      "holisticCostUsd": 0.00369022,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.00953608
+    },
+    {
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 6.666666666666667,
+      "annotatorCostUsd": 0.00651276,
+      "holisticCostUsd": 0.00343722,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00673458
+    },
+    {
+      "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "other"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "other"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "other"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "other"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "other"
+          }
+        ]
+      },
+      "meanA": 7.666666666666667,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00717986,
+      "holisticCostUsd": 0.00367152,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.008888980000000001
+    },
+    {
+      "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 7,
+      "annotatorCostUsd": 0.01405006,
+      "holisticCostUsd": 0.008234320000000002,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "tie"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.022273880000000003
+    },
+    {
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 3,
+            "placement": 0,
+            "score": 9,
+            "genre": "humor"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          }
+        ]
+      },
+      "meanA": 8,
+      "meanB": 7,
+      "annotatorCostUsd": 0.0061112599999999994,
+      "holisticCostUsd": 0.00283292,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.005897680000000001
+    },
+    {
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7.666666666666667,
+      "annotatorCostUsd": 0.00602926,
+      "holisticCostUsd": 0.0028714200000000004,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00592518
+    },
+    {
+      "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "humor"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          },
+          {
+            "level": 3,
+            "placement": 1,
+            "score": 10,
+            "genre": "humor"
+          },
+          {
+            "level": 3,
+            "placement": 0,
+            "score": 9,
+            "genre": "humor"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 9,
+      "annotatorCostUsd": 0.006135060000000001,
+      "holisticCostUsd": 0.0027738199999999998,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.00550338
+    },
+    {
+      "id": "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 4.333333333333333,
+      "meanB": 5.666666666666667,
+      "annotatorCostUsd": 0.00920276,
+      "holisticCostUsd": 0.004748820000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.010646880000000001
+    },
+    {
+      "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 3,
+            "placement": 1,
+            "score": 10,
+            "genre": "poetry"
+          },
+          {
+            "level": 3,
+            "placement": 1,
+            "score": 10,
+            "genre": "poetry"
+          },
+          {
+            "level": 3,
+            "placement": 1,
+            "score": 10,
+            "genre": "poetry"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 10,
+      "annotatorCostUsd": 0.005830360000000001,
+      "holisticCostUsd": 0.0027104200000000003,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.00462018
+    },
+    {
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.009486660000000001,
+      "holisticCostUsd": 0.00543072,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01252708
+    },
+    {
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 6.666666666666667,
+      "annotatorCostUsd": 0.00808906,
+      "holisticCostUsd": 0.00472982,
+      "holistic": [
+        "B",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "A"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.011046379999999998
+    },
+    {
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 7,
+      "annotatorCostUsd": 0.01055456,
+      "holisticCostUsd": 0.006145820000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.016224380000000004
+    },
+    {
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.01143346,
+      "holisticCostUsd": 0.00681992,
+      "holistic": [
+        "B",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.017534180000000003
+    },
+    {
+      "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+      "group": "zh",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 3,
+            "placement": 0,
+            "score": 9,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 8.333333333333334,
+      "annotatorCostUsd": 0.00910416,
+      "holisticCostUsd": 0.0048571199999999995,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01058978
+    },
+    {
+      "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 7.333333333333333,
+      "annotatorCostUsd": 0.018714460000000002,
+      "holisticCostUsd": 0.01173942,
+      "holistic": [
+        "A",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.03220018
+    },
+    {
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 4.666666666666667,
+      "meanB": 6.666666666666667,
+      "annotatorCostUsd": 0.01093836,
+      "holisticCostUsd": 0.00599302,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.015964480000000003
+    },
+    {
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 5,
+      "meanB": 4.666666666666667,
+      "annotatorCostUsd": 0.01003396,
+      "holisticCostUsd": 0.00535392,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "tie",
+        "tie"
+      ],
+      "prepairCostUsd": 0.013769179999999999
+    },
+    {
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 4.333333333333333,
+      "meanB": 4,
+      "annotatorCostUsd": 0.014069560000000002,
+      "holisticCostUsd": 0.00804032,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.02081788
+    },
+    {
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 7,
+      "annotatorCostUsd": 0.008765460000000001,
+      "holisticCostUsd": 0.00512992,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.012506680000000003
+    },
+    {
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          },
+          {
+            "level": 3,
+            "placement": 0,
+            "score": 9,
+            "genre": "humor"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          }
+        ]
+      },
+      "meanA": 8.333333333333334,
+      "meanB": 7.666666666666667,
+      "annotatorCostUsd": 0.007787660000000001,
+      "holisticCostUsd": 0.0040037200000000005,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00898058
+    },
+    {
+      "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00876016,
+      "holisticCostUsd": 0.0049599200000000005,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01164768
+    },
+    {
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.008168960000000001,
+      "holisticCostUsd": 0.00399772,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01031458
+    },
+    {
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 6.666666666666667,
+      "meanB": 7,
+      "annotatorCostUsd": 0.007853160000000001,
+      "holisticCostUsd": 0.00397752,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.010241980000000001
+    },
+    {
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "script"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00865666,
+      "holisticCostUsd": 0.00433302,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.009434979999999999
+    },
+    {
+      "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.010428360000000001,
+      "holisticCostUsd": 0.00564302,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.012968480000000001
+    },
+    {
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "other"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "other"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "other"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "other"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "other"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "other"
+          }
+        ]
+      },
+      "meanA": 4,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00663586,
+      "holisticCostUsd": 0.00325732,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.00675388
+    },
+    {
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "other"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "other"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "other"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 4,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00668146,
+      "holisticCostUsd": 0.0031882200000000003,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.007677580000000001
+    },
+    {
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "other"
+          },
+          {
+            "level": 1,
+            "placement": 0,
+            "score": 3,
+            "genre": "other"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "other"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "other"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "other"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 3.6666666666666665,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00861046,
+      "holisticCostUsd": 0.00444072,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01098958
+    },
+    {
+      "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "other"
+          }
+        ]
+      },
+      "meanA": 5,
+      "meanB": 8,
+      "annotatorCostUsd": 0.02065256,
+      "holisticCostUsd": 0.012796020000000002,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.03460398
+    },
+    {
+      "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 5.333333333333333,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00764696,
+      "holisticCostUsd": 0.00384372,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01045908
+    },
+    {
+      "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 5,
+      "meanB": 5.666666666666667,
+      "annotatorCostUsd": 0.01035106,
+      "holisticCostUsd": 0.00540532,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.014511880000000001
+    },
+    {
+      "id": "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 6,
+      "meanB": 6,
+      "annotatorCostUsd": 0.015742859999999997,
+      "holisticCostUsd": 0.009019220000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.023628580000000003
+    },
+    {
+      "id": "b399da24-85cc-4242-b9a9-f11bbe8be0c2",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 6,
+      "meanB": 5,
+      "annotatorCostUsd": 0.022336959999999996,
+      "holisticCostUsd": 0.01375152,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.03860898
+    },
+    {
+      "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "humor"
+          }
+        ],
+        "B": [
+          {
+            "level": 3,
+            "placement": 0,
+            "score": 9,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "humor"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 8.333333333333334,
+      "annotatorCostUsd": 0.022387260000000003,
+      "holisticCostUsd": 0.013536520000000002,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.03788748
+    },
+    {
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 4,
+      "meanB": 5,
+      "annotatorCostUsd": 0.01449666,
+      "holisticCostUsd": 0.007987020000000001,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01956748
+    },
+    {
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 6.333333333333333,
+      "meanB": 4.333333333333333,
+      "annotatorCostUsd": 0.010363360000000002,
+      "holisticCostUsd": 0.00563482,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01183388
+    },
+    {
+      "id": "8331a6ad-cac3-4289-9b4a-1bfad81ebf92",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7.666666666666667,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00810066,
+      "holisticCostUsd": 0.004369420000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01034118
+    },
+    {
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.006394260000000001,
+      "holisticCostUsd": 0.00338842,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.006969179999999999
+    },
+    {
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 8,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00636526,
+      "holisticCostUsd": 0.0031464200000000005,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.007346680000000001
+    },
+    {
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 0,
+            "score": 3,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 3.6666666666666665,
+      "meanB": 4.666666666666667,
+      "annotatorCostUsd": 0.010318560000000001,
+      "holisticCostUsd": 0.0056085200000000005,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01349698
+    },
+    {
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 0,
+            "score": 3,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "other"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "other"
+          }
+        ]
+      },
+      "meanA": 3.6666666666666665,
+      "meanB": 5.666666666666667,
+      "annotatorCostUsd": 0.009429660000000001,
+      "holisticCostUsd": 0.005016420000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01306768
+    },
+    {
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 4.666666666666667,
+      "annotatorCostUsd": 0.00866956,
+      "holisticCostUsd": 0.004273020000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00964698
+    },
+    {
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 7.666666666666667,
+      "meanB": 7.333333333333333,
+      "annotatorCostUsd": 0.00800266,
+      "holisticCostUsd": 0.00434692,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01110868
+    },
+    {
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.010345159999999999,
+      "holisticCostUsd": 0.005585920000000001,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01337518
+    },
+    {
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 7.333333333333333,
+      "meanB": 7,
+      "annotatorCostUsd": 0.007733760000000001,
+      "holisticCostUsd": 0.00379882,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00891638
+    },
+    {
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.009693960000000001,
+      "holisticCostUsd": 0.005970619999999999,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.014598780000000002
+    },
+    {
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.010554260000000001,
+      "holisticCostUsd": 0.00579432,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "tie",
+        "tie"
+      ],
+      "prepairCostUsd": 0.015685380000000002
+    },
+    {
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7.333333333333333,
+      "annotatorCostUsd": 0.009670260000000002,
+      "holisticCostUsd": 0.005204820000000001,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "A",
+        "B"
+      ],
+      "pooled": [
+        "tie",
+        "tie"
+      ],
+      "prepairCostUsd": 0.013574880000000001
+    },
+    {
+      "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          },
+          {
+            "level": 1,
+            "placement": 1,
+            "score": 4,
+            "genre": "fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "fiction"
+          }
+        ]
+      },
+      "meanA": 4,
+      "meanB": 7,
+      "annotatorCostUsd": 0.021682859999999998,
+      "holisticCostUsd": 0.012919219999999999,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.03665058
+    },
+    {
+      "id": "a4e36efe-92c7-4f32-8d59-c36d53b5afe4",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 1,
+            "placement": 2,
+            "score": 5,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 0,
+            "score": 6,
+            "genre": "other"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "other"
+          }
+        ]
+      },
+      "meanA": 6,
+      "meanB": 6.333333333333333,
+      "annotatorCostUsd": 0.0070529600000000005,
+      "holisticCostUsd": 0.00346772,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "A",
+        "A"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.00817458
+    },
+    {
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7.333333333333333,
+      "meanB": 7,
+      "annotatorCostUsd": 0.009523060000000002,
+      "holisticCostUsd": 0.005553819999999999,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "A",
+        "A"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.01353188
+    },
+    {
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.00969196,
+      "holisticCostUsd": 0.0053934199999999995,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.013355680000000002
+    },
+    {
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.009225160000000001,
+      "holisticCostUsd": 0.005095219999999999,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.01205158
+    },
+    {
+      "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 2,
+            "score": 8,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 3,
+            "placement": 1,
+            "score": 10,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 3,
+            "placement": 1,
+            "score": 10,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 9.333333333333334,
+      "annotatorCostUsd": 0.010128860000000002,
+      "holisticCostUsd": 0.00485582,
+      "holistic": [
+        "B",
+        "B"
+      ],
+      "primary": [
+        "B",
+        "B"
+      ],
+      "pureAnnotator": [
+        "B",
+        "B"
+      ],
+      "firstAnnotator": [
+        "B",
+        "B"
+      ],
+      "prepair": [
+        "B",
+        "B"
+      ],
+      "pooled": [
+        "B",
+        "B"
+      ],
+      "prepairCostUsd": 0.012166880000000001
+    },
+    {
+      "id": "aa61c081-e59b-4673-b6a5-778789d390ef",
+      "group": "en",
+      "label": "A",
+      "ratings": {
+        "A": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "functional"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ],
+        "B": [
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          },
+          {
+            "level": 2,
+            "placement": 1,
+            "score": 7,
+            "genre": "non-fiction"
+          }
+        ]
+      },
+      "meanA": 7,
+      "meanB": 7,
+      "annotatorCostUsd": 0.010145060000000001,
+      "holisticCostUsd": 0.0054410199999999995,
+      "holistic": [
+        "A",
+        "A"
+      ],
+      "primary": [
+        "A",
+        "A"
+      ],
+      "pureAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "firstAnnotator": [
+        "tie",
+        "tie"
+      ],
+      "prepair": [
+        "A",
+        "A"
+      ],
+      "pooled": [
+        "A",
+        "A"
+      ],
+      "prepairCostUsd": 0.012863480000000002
+    }
+  ]
+}
