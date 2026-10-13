@@ -484,7 +484,7 @@ aggregates:
 
 Each entry is one `name:op threshold` string, the same syntax as `--aggregate`. A flag with the same name replaces the file's entry, and a flag with a new name adds to it. The file has one key, `aggregates`; any other key, or a bad entry, exits 2 and names the line. The file is optional: without it, only the flags count. See [campaign-level criteria](aggregates.md).
 
-To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.yml](../action/action.yml) takes the specs, the target, the baseline and the `aggregate` input, and fails the job unless the verdict is parity. A workflow that uses it is in [examples/acme/ci/driftbench-ci.yml](../examples/acme/ci/driftbench-ci.yml).
+To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.yml](../action/action.yml) takes the specs, the target, the baseline and the `aggregate` input, and fails the job unless the verdict is parity. Its `process-command` input passes `--process-command`, so the action gates your own process agent. A workflow that uses it is in [examples/acme/ci/driftbench-ci.yml](../examples/acme/ci/driftbench-ci.yml).
 
 ## Run events
 
