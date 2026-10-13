@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { Stimulus } from './spec';
+
+const Digest = z.string().regex(/^[0-9a-f]{64}$/);
+const AdapterIdentity = z.strictObject({
+  idHash: Digest,
+  versionHash: Digest,
+  cacheIdentityHash: Digest.nullable(),
+  requiresCacheIdentity: z.boolean(),
+});
 
 export const EndStateSnapshot = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('unavailable') }),
@@ -18,29 +25,23 @@ export const EndStateSnapshot = z.discriminatedUnion('kind', [
 export const BlockProvenance = z.strictObject({
   endState: EndStateSnapshot.optional(),
   specIndex: z.number().int().min(0),
-  stimulus: Stimulus,
-  ledgerHash: z.string().min(1),
-  artifacts: z.array(z.strictObject({ path: z.string(), sha256: z.string().nullable() })),
+  stimulusHash: Digest,
+  ledgerHash: Digest,
+  artifacts: z.array(z.strictObject({ pathHash: Digest, sha256: Digest.nullable() })),
 });
 export const RunProvenance = z.strictObject({
-  driver: z.strictObject({
-    id: z.string(),
-    seeds: z.record(z.string(), z.union([z.string(), z.number()])).nullable(),
-  }),
-  adapter: z.strictObject({ id: z.string(), version: z.string() }),
-  executionHash: z.string().min(1),
+  version: z.literal(2),
+  driver: z.strictObject({ idHash: Digest, seedsHash: Digest.nullable() }),
+  adapter: AdapterIdentity,
+  agentVersionHash: Digest.nullable(),
+  targetVersionHash: Digest.optional(),
+  agentVersionLabelHash: Digest.nullable().optional(),
+  executionHash: Digest,
 });
 export const CampaignProvenance = z.strictObject({
-  version: z.literal(1),
+  version: z.literal(2),
   endStateSnapshots: z.literal(true).optional(),
-  adapters: z.array(
-    z.strictObject({
-      target: z.string(),
-      id: z.string(),
-      version: z.string(),
-      agentVersion: z.string().nullable(),
-    }),
-  ),
+  adapters: z.array(AdapterIdentity.extend({ targetHash: Digest, agentVersionHash: Digest.nullable() })),
 });
 
 /** Both pinned full specs plus the proof that their agent-facing execution is compatible. */

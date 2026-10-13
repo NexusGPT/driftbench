@@ -39,6 +39,11 @@ export {
 } from './depends';
 export { type PromptAnchor, promptChangeManifest } from './prompt';
 export {
+  ALLOWED_VERSION_TRANSITION_FIELDS,
+  completeBaselineProvenance,
+  sameCarryContext,
+} from './provenance';
+export {
   type BlockState,
   type RadiusBlock,
   type RadiusCell,

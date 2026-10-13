@@ -286,6 +286,8 @@ export type CampaignRunOptions = {
   cache?: ObservedCache;
   /** The cache suite every run of the campaign belongs to. A new name starts from an empty cache. */
   cacheSuite?: string;
+  /** The agent version included in every block cache key of this campaign. */
+  agentVersion?: string;
   /** Each run keeps its events on its record, for the viewer's timeline. */
   recordEvents?: boolean;
   recordProvenance?: boolean;
@@ -410,6 +412,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),
       ...(options.cacheSuite === undefined ? {} : { suite: options.cacheSuite }),
+      ...(options.agentVersion === undefined ? {} : { agentVersion: options.agentVersion }),
       ...(options.recordEvents ? { recordEvents: true } : {}),
       ...(options.retry ? { retry: options.retry } : {}),
       ...(options.now ? { now: options.now } : {}),

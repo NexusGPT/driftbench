@@ -329,6 +329,11 @@ export const RunResult = z.strictObject({
     })
     .optional(),
   rejudged: RejudgedFrom.optional(),
+  /** Integrity of the run stamp and every block stamp, including the resolved Given hash. */
+  provenanceDigest: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/)
+    .optional(),
   runId: z.string().min(1),
   specId: z.string().min(1),
   specHash: z.string().min(1),
@@ -442,6 +447,8 @@ export const Campaign = z.strictObject({
   budgetUsd: z.number().nonnegative(),
   judge: JudgeConfig,
   createdAt: z.string().min(1),
+  /** The explicit agent version used by the block cache, retained when the campaign resumes. */
+  agentVersion: z.string().optional(),
   /** The registry versions the campaign ran: the dataset its specs came from, the prompts it pinned. */
   sources: z.array(RegistrySource).optional(),
   /** Set when the campaign ran the blast radius of a change and carried the rest. Absent on a full campaign. */

@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import {
   type Campaign,
-  contentHash,
+  completeBaselineProvenance,
   loadChangeManifest,
   loadSpecs,
   planCampaign,
@@ -67,9 +67,9 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
     if (await store.getCampaign(options.campaign))
       throw new Error(`Campaign ${options.campaign} already exists.`);
     const data = await loadCampaign(store, options.from);
-    if (!data.campaign.provenance)
+    if (!completeBaselineProvenance({ provenance: data.campaign.provenance, runs: data.runs }))
       throw new Error(
-        'Legacy campaign has no execution provenance; run a new full campaign before re-judging.',
+        'Legacy campaign has missing, incomplete or inconsistent execution provenance; run a new full campaign before re-judging.',
       );
     const results = await loadSpecs(paths.map((p) => resolve(io.cwd, p)));
     const loaded = results.filter((r) => r.ok);
@@ -88,16 +88,9 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
       const old = data.specs.get(`${run.specId}@${run.specHash}`);
       const next = specs.get(run.specId);
       if (!old || !next) throw new Error(`Missing pinned spec ${run.specId}; rerun the agent.`);
-      const stamp = data.campaign.provenance?.adapters.find((a) => a.target === contentHash(run.target));
-      if (
-        !stamp ||
-        stamp.id !== run.provenance?.adapter.id ||
-        stamp.version !== run.provenance?.adapter.version ||
-        stamp.agentVersion !== change.from
-      )
-        throw new Error('Adapter or agent provenance is missing or inconsistent; rerun the agent.');
       return prepareRejudge(old.spec, next.spec, run, {
         fromCampaign: options.from,
+        baselineProvenance: data.campaign.provenance,
         agentVersion: change.from,
         criteria: change.changes.flatMap((c) => (c.id ? [c.id] : [])),
         maxCarry,

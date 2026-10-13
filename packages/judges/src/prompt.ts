@@ -4,6 +4,7 @@ import { validateAssessment } from './assessment';
 import { CONFORMANCE_SYSTEM_PROMPT, conformanceUser } from './conformance';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import { requirementsFor } from './criterion-ledger';
+import { checkCriterionPromptVersion, criterionSystemPromptV2 } from './criterion-prompt-v2';
 import { auditData, FACT_LEDGER_POINTWISE, FACT_LEDGER_SYSTEM, pointwiseAuditData } from './fact-audit';
 import { buildPrompt as buildLegacyPrompt, LEGACY_COMPARE_SYSTEM_PROMPT } from './legacy-prompt';
 import { isPairLedgerRequest, pairRequirements } from './pair-ledger-contract';
@@ -97,6 +98,27 @@ export function promptFingerprint(parts: { readonly [key: string]: unknown } = P
 
 /** The fingerprint of the prompt this build sends. */
 export const PROMPT_FINGERPRINT = promptFingerprint();
+
+/** The opt-in version 2 system prompt of an ordinary criterion check. */
+export const SYSTEM_PROMPT_V2 = criterionSystemPromptV2(SYSTEM_PROMPT);
+
+/** Its own fingerprint: a version 2 recording never replays under version 1, nor the reverse. */
+export const CRITERION_PROMPT_V2_FINGERPRINT = promptFingerprint({
+  ...PROMPT_PARTS,
+  system: SYSTEM_PROMPT_V2,
+  criterionPromptVersion: 2,
+});
+
+/** Version 2 applies to an ordinary criterion check that brings no system text of its own. */
+export function usesCriterionPromptV2(request: JudgeRequest): boolean {
+  checkCriterionPromptVersion(request.criterionPromptVersion);
+  return (
+    request.criterionPromptVersion === 2 &&
+    request.answerContract !== 'legacy' &&
+    !request.assessment &&
+    request.system === undefined
+  );
+}
 
 /** The rubric block of a request: the question with its FAIL and PASS pictures. */
 export function renderRubric(criterion: JudgeRequest['criterion']): string {
@@ -243,7 +265,7 @@ export function buildPrompt(request: JudgeRequest): { system: string; user: stri
       ? FACT_LEDGER_SYSTEM
       : request.assessment?.kind === 'rubric'
         ? RUBRIC_SYSTEM_PROMPT(request.assessment.pairwise === true)
-        : (request.system ?? SYSTEM_PROMPT);
+        : (request.system ?? (usesCriterionPromptV2(request) ? SYSTEM_PROMPT_V2 : SYSTEM_PROMPT));
   const system =
     request.reference === undefined
       ? base
