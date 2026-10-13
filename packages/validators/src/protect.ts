@@ -7,7 +7,8 @@ export const EXECUTOR_BRANCH_PREFIX = 'exec/';
  * The files an executor branch may not change: the validator code (its ladders and banks, thresholds, the
  * hidden seed derivation, the bank, hardness and floor logic, and the frame that scores them), the bank
  * fixtures and the validator's own tests, the floors, the executor instruction, the fault family, the
- * statistics reference fixtures, and the job that enforces all of this. A path ending in "/" covers its folder.
+ * statistics reference fixtures, the benchmark frame and its CLI, and the jobs that enforce all of this.
+ * A path ending in "/" covers its folder; a trailing "*" covers a filename prefix.
  */
 export const PROTECTED_PATHS = [
   'packages/validators/src/',
@@ -18,13 +19,24 @@ export const PROTECTED_PATHS = [
   'examples/acme/faults/',
   'packages/stats/test/reference/',
   '.github/workflows/validators.yml',
+  'benchmarks/',
+  'tools/bench-lint*',
+  'packages/cli/src/commands/bench*',
+  '.github/workflows/ci.yml',
+  '.github/workflows/bench-record.yml',
 ] as const;
 
 /** The protected files a branch changes; always empty for a branch that is not an executor branch. */
 export function protectedChanges(branch: string, files: readonly string[]): string[] {
   if (!branch.startsWith(EXECUTOR_BRANCH_PREFIX)) return [];
   return files.filter((file) =>
-    PROTECTED_PATHS.some((path) => (path.endsWith('/') ? file.startsWith(path) : file === path)),
+    PROTECTED_PATHS.some((path) =>
+      path.endsWith('*')
+        ? file.startsWith(path.slice(0, -1))
+        : path.endsWith('/')
+          ? file.startsWith(path)
+          : file === path,
+    ),
   );
 }
 

@@ -55,6 +55,28 @@ describe('the validators workflow', () => {
 });
 
 describe('the protect list and the frame files', () => {
+  it('protects the complete benchmark frame and both enforcement workflows from executor changes', () => {
+    const files = [
+      'benchmarks/run.ts',
+      'benchmarks/support/scorer.ts',
+      'benchmarks/slices/planted-verify.json',
+      'benchmarks/floors.json',
+      'benchmarks/cassettes/haiku.json',
+      'benchmarks/evidence/haiku.json',
+      'benchmarks/test/floors.test.ts',
+      'tools/bench-lint.mjs',
+      'tools/bench-lint.test.mjs',
+      'tools/bench-lint-future.mjs',
+      'packages/cli/src/commands/bench.ts',
+      'packages/cli/src/commands/bench-record.ts',
+      '.github/workflows/ci.yml',
+      '.github/workflows/bench-record.yml',
+    ];
+    expect(protectedChanges('exec/replace-bench', files)).toEqual(files);
+    expect(protectedChanges('feat/maintainer-record', files)).toEqual([]);
+    expect(protectedChanges('exec/other', ['benchmarks-old/run.ts', 'tools/other.mjs'])).toEqual([]);
+  });
+
   it('protects every file of the frame, the bank and hardness modules, the bank fixtures and the validator tests', () => {
     for (const file of [
       'packages/validators/src/bank.ts',
@@ -68,6 +90,59 @@ describe('the protect list and the frame files', () => {
       'validators/EXECUTOR.md',
     ]) {
       expect(protectedChanges('exec/x', [file])).toEqual([file]);
+    }
+  });
+});
+
+describe('the benchmark workflows', () => {
+  it('enforces public imports and replays every slice against its floor in CI', () => {
+    const workflow = parse(
+      readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8'),
+    );
+    const runs = workflow.jobs.bench.steps.flatMap((step: { run?: string }) => step.run ?? []);
+    expect(runs).toContain('node tools/bench-lint.mjs');
+    expect(runs).toContain('node --import tsx benchmarks/cli.ts replay --slice all --check-floor');
+    expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push']);
+    expect(workflow.permissions).toEqual({ contents: 'read' });
+  });
+
+  it('keeps the developer bench shortcut pointed at the repository entry', () => {
+    const manifest = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'));
+    expect(manifest.scripts.bench).toBe('tsx benchmarks/cli.ts');
+  });
+
+  it('records only by manual dispatch, with bounded spend and artifact review before a maintainer commit', () => {
+    const workflow = parse(
+      readFileSync(new URL('../../../.github/workflows/bench-record.yml', import.meta.url), 'utf8'),
+    );
+    expect(Object.keys(workflow.on)).toEqual(['workflow_dispatch']);
+    const inputs = workflow.on.workflow_dispatch.inputs;
+    expect(inputs.slice.required).toBe(true);
+    expect(inputs.model.options).toEqual([
+      'haiku',
+      'gpt-6-luna',
+      'gemini-3.5-flash-lite',
+      'gemini-3.8-flash',
+    ]);
+    expect(inputs['spend-cap-usd'].required).toBe(true);
+    expect(Object.keys(inputs).sort()).toEqual(['model', 'slice', 'spend-cap-usd']);
+    expect(workflow.permissions).toEqual({ contents: 'read' });
+    expect(workflow.jobs.haiku['runs-on']).toContain('self-hosted');
+    expect(workflow.jobs.haiku['runs-on']).toContain('claude-cli');
+    for (const job of Object.values(workflow.jobs) as {
+      steps: { run?: string; uses?: string; with?: Record<string, string> }[];
+    }[]) {
+      const commands = job.steps.flatMap((step) => step.run ?? []).join('\n');
+      expect(commands).toContain(
+        'bench record --slice "$BENCH_SLICE" --model "$BENCH_MODEL" --spend-cap-usd "$BENCH_SPEND_CAP_USD"',
+      );
+      expect(commands).not.toMatch(/git (?:push|commit)/);
+      expect(commands).not.toContain('${{ inputs.');
+      expect(commands).not.toContain('--openai-input-usd-per-million');
+      expect(commands).not.toContain('--openai-output-usd-per-million');
+      const upload = job.steps.find((step) => step.uses?.startsWith('actions/upload-artifact@'));
+      expect(upload?.with?.path).toContain('benchmarks/cassettes/');
+      expect(upload?.with?.path).toContain('benchmarks/evidence/');
     }
   });
 });

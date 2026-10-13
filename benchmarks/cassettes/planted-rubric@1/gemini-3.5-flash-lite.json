@@ -1,0 +1,975 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "gemini-3.5-flash-lite",
+      "family": "google",
+      "cls": "system2",
+      "model": "gemini-3.5-flash-lite",
+      "cost": 10,
+      "settings": "{\"client\":\"google-generate-content\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"responseMimeType\":\"application/json\",\"reasoning\":\"medium\"}"
+    }
+  ],
+  "entries": [
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "377e12bdbe0f",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent provides a Python function freq_count(list1) that takes a list as input and uses a dictionary comprehension with list1.count(x) to return a dictionary where keys are the elements and values are their frequencies.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def freq_count(list1):\\n    return {x: list1.count(x) for x in list1}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006242999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "fb223f811ac3",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent implements the function by squaring the elements (x ** 2) rather than cubing them (x ** 3). Therefore, it does not correctly return the cube of each input element.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
+      "cost_usd": 0.0012961
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3ae1bd963a13",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function adds 1 to the count of each element (list1.count(x) + 1), which causes it to return incorrect frequencies.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def freq_count(list1):\\n    return {x: list1.count(x) + 1 for x in list1}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015152
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f52617ddf4c4",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function uses a list comprehension to raise each element x in nums to the power of 3, which correctly returns a list where each element is the cube of the corresponding input element.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def cube_nums(nums):\\n    return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.0008936
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c2772ed2bdf3",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function zips test_tup[::2] with itself rather than taking alternating slices for keys and values, resulting in keys mapping to themselves instead of adjacent elements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
+      "cost_usd": 0.001715
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6291e717d4a9",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The implemented function uses slicing with a step of 2 to separate keys and values from adjacent elements in the input tuple, combining them into a dictionary using zip and dict.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def tuple_to_dict(test_tup):\\n    return dict(zip(test_tup[::2], test_tup[1::2]))\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0021403000000000004
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9ba744eaeedf",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function correctly iterates over each tuple in the input list, calculates the sum of the integers inside each tuple, and sums all of those intermediate sums to get the total sum of all integers present in the nested tuples.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def cummulative_sum(test_list):\\n    return sum(sum(t) for t in test_list)\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0025453000000000003
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "062a4fb49726",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The response contains capital letters ('C' in 'Carries'), therefore it does not strictly adhere to the constraint of not containing any capital letters.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"glimmer0 Carries a tiny lantern.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0005136
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "147d31dac495",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function incorrectly adds 1 to the total sum of the integers in the tuples (returning 1 + sum of all elements), so it fails to correctly calculate the cumulative sum.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"return 1 + sum(sum(t) for t in test_list)\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0019062
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "367b91938e52",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent used a comma after 'wakes' in the sentence 'glimmer0 wakes, then opens the silver gate.' Therefore, it did not adhere to the constraint of not using any commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.000438
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6c314ea92dac",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response contains the word 'Lights' which has lowercase letters, failing the requirement that all words must be in capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.0021914
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6411ba0ffa66",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response is 'GLIMMER0 LIGHTS THE NIGHT', which consists entirely of capital letters, thus strictly following the format requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.0018292
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "32e606752aa1",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response contains no capital letters and fully adheres to the lowercase constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.0015558
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "be57e40e3425",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response does not contain any commas, satisfying the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0014277
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5215d4edfc78",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response is fully enclosed in a single Markdown code block using triple backticks.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"```python\\nglimmer = 1\\n```\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0009086000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b93340fcc492",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response in the last transcript entry contains the numbers 1, 2, 3, and 4, which equals exactly 4 numbers as required.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.0009317
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4e6cc200cb07",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph of the agent response starts with the word That instead of it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00169
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9dc53dea091c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response consists of two paragraphs, and the second paragraph begins with the word \\\"it\\\".\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"it reveals a quiet garden.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0016147
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b113bd5aa6e1",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response contains the numbers 1, 2, and 3, totaling 3 numbers, which does not satisfy the requirement to contain exactly 4 numbers.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.0016639
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c197a3d215d0",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response contains an opening code block marker but does not close it with triple backticks, so the Python code solution is not properly enclosed.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"```python\\nglimmer = 1\\n\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0016733
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3ccbd7b117c5",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds 1 to the actual count via list1.count(x) + 1, so it does not correctly return the frequencies of elements in the list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0014077
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2c0cadc91d3b",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent implemented a function using slicing and zip to pair adjacent elements of the input tuple as keys and values, correctly converting the input tuple into a dictionary as requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def tuple_to_dict(test_tup):\\n    return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
+      "cost_usd": 0.0017703
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "75bb94eae164",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function uses a list comprehension to calculate x ** 3 for each element x in nums, which correctly returns a list where each element is the cube of the corresponding input element.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"return [x ** 3 for x in nums]\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0012489
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a6b1ac21c8d8",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function correctly takes a list as input and returns a dictionary where keys are",
+      "cost_usd": 0.0027768000000000003
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "1cec630be278",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function returns squares instead of cubes because it uses x ** 2 instead of x ** 3.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"    return [x ** 2 for x in nums]\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0012089000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e2106e0a8ba5",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function zips test_tup[::2] with itself",
+      "cost_usd": 0.002785
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5039ce2f1917",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response consists entirely of capital letters, fully satisfying the format requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"GLIMMER1 LIGHTS THE NIGHT\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0012342
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6a8379f9fce1",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function uses a generator expression to sum the elements of each tuple and then sum those sums together, which correctly computes 2 + 3 + 4 = 9 for the given example input list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\ndef cummulative_sum(test_list):\\n    return sum(sum(t) for t in test_list)\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.0011478
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d1751484279e",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The response contains capital letters ('C' in Carries), which violates the constraint of not containing any capital letters.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"glimmer1 Carries a tiny lantern.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0005011
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ec9fa8352e8a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function incorrectly adds 1 to the total sum of the integers in the nested tuples, returning 10 instead of 9 for the example input [(2, 3), (4,)].\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"    return 1 + sum(sum(t) for t in test_list)\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0018487
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "376c81de85b4",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains the word 'Lights' which includes lowercase letters, meaning not all words are in capital letters as required.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER1 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.0014239
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2009702f8ecf",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response contains no capital letters and strictly adheres to the negative constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.0013533
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a8d14a095a03",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains a comma after the word wakes, which violates the constraint of not using any commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0009055
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2b56257ff583",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response does not contain any commas and strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0012702
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f9ed9bbd5690",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains only three numbers (2, 3, and 4) instead of the required four numbers.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 2 bells, 3 keys, 4 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.0012564000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "49404330c4d8",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent response contains the numbers 2, 3, 4, and 5, which totals exactly 4 numbers as required.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0012267
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f1239732bcb7",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent provides a response with two paragraphs where the second paragraph begins with the word 'it'.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.0016622
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6da63486525c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent provides a Python function that correctly accepts a list as input and uses a dictionary comprehension with list1.count(x) to return a dictionary where the keys are the elements and the values are their respective frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def freq_count(list1):\\n    return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.0013243
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2d8041502cea",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph of the response starts with the word 'That' instead of 'it'.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.0020225
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3ca6de8378a2",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution in the transcript is enclosed in a single Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 2\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.0016435999999999998
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8b8b84aa8798",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds 1 to the element count instead of returning the correct frequency, yielding incorrect values like list1.count(x) + 1.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0026027
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3f18cce6ffde",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution in the transcript is not enclosed in a complete Markdown code block because it is missing the closing triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 2\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.0027358
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e6481dc4a012",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent provides a Python function cube_nums(nums) using a list comprehension that cubes each element: return [x ** 3 for x in nums]. This correctly returns a list where each element is the cube of the corresponding input element.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def cube_nums(nums):\\n    return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.0013542
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "332b7862fad4",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function calculates the square of each element (x ** 2) rather than the cube (x ** 3), so it does not correctly return a list where each element is the cube of the input.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"    return [x ** 2 for x in nums]\"}],\"met\":false}]}",
+      "cost_usd": 0.0014717
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "14b30bcc50f5",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The implemented function uses test_tup[::2] for both keys and values via zip(test_tup[::2], test_tup[::2]), rather than pairing adjacent elements (such as using test_tup[::2] and test_tup[1::2]). Therefore, it does not convert the input tuple to a dictionary where adjacent elements form key-value pairs.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def tuple_to_dict(test_tup):\\n    return dict(zip(test_tup[::2], test_tup[::2]))\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.00235
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "781a0107f27b",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response is 'GLIMMER2 LIGHTS THE NIGHT', which strictly consists entirely of capital letters, satisfying the format requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"GLIMMER2 LIGHTS THE NIGHT\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005142
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "58bddb3d7574",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function uses slicing test_tup[::2] and test",
+      "cost_usd": 0.0027803000000000003
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4431268ae0b6",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent provides a Python function that correctly iterates through the list of tuples, sums the elements of each tuple, and sums those intermediate sums, yielding 12 for the test input [(3, 4), (5,)], which answers the question affirmatively.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def cummulative_sum(test_list):\\n    return sum(sum(t) for t in test_list)\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013256
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "cf2d6dfce109",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains the word Lights which has lowercase letters, failing the requirement that all words must be in capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER2 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.0012664
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5c558eb35cce",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"the agent response 'glimmer2 carries a tiny lantern.' contains only lowercase letters and does not contain any capital letters, thus strictly adhering to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.0010107999999999998
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4035c43a37f2",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function includes an incorrect addition of 1, returning 13 instead of 12 for the example input [(3, 4), (5,)], so it does not correctly calculate the sum.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
+      "cost_usd": 0.0026515
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ee9cc2d9a8d4",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response contains a capital letter in the word 'Carries', which violates the constraint of not using any capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.0011711
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8e3bb1775b90",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response does not contain any commas and strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0011902
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "739e537329a4",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response contains a comma after the word wakes, violating the constraint of not using any commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.001013
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "46374903fda2",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains the numbers 3, 4, 5, and 6, which totals exactly 4 numbers.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.0018542
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ce89b9fb1cf2",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains only three numbers (3, 4, and 5) instead of the required exactly 4 numbers.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.0013964000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "484177656294",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph of the agent's response starts with the word \\\"it\\\".\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.0009972
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3aafc88911f3",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution in the last transcript entry is enclosed in a single Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 3\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.0008086
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3c481f1203ee",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph of the agent response starts with the word That instead of it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.0018725
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "19871b5ac678",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function incorrectly adds 1 to each element's count by using list1.count(x) + 1 instead of returning the true frequency.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def freq_count(list1):\\n    return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0013227
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "1150121dd942",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function correctly takes a list as input and uses a dictionary comprehension with list1.count(x) to return a dictionary where the keys are the elements of the list and the values are their respective frequencies.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def freq_count(list1):\\n    return {x: list1.count(x) for x in list1}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013043
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "11ce34494b2d",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The implemented function uses slicing to separate keys and values from adjacent elements in the input tuple and combines them into a dictionary using zip and dict.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def tuple_to_dict(test_tup):\\n    return dict(zip(test_tup[::2], test_tup[1::2]))\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013253
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "cdeb4d433629",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The implemented function uses test_tup[::2] for both keys and values, which pairs elements with themselves instead of taking adjacent elements from the odd indices (test_tup[1::2]). Therefore, it does not convert the input tuple to a dictionary where adjacent elements form key-value pairs.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"return dict(zip(test_tup[::2], test_tup[::2]))\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.00232
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5ec899fe679c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is not enclosed in a single Markdown code block because it lacks the closing triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 3\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.0024433000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e771be29672c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function uses a list comprehension to compute x ** 3 for every element x in nums, which correctly returns a list of the cubes of the input elements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def cube_nums(nums):\\n    return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.0015095
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9ec70bae620d",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The user requested that all words must use capital letters. Looking at the agent's response, the words 'Lights' and 'THE' and 'NIGHT' contain lowercase letters ('ights', 'HE', 'IGHT'), so not all words are in capital letters.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"GLIMMER3 Lights THE NIGHT\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0005739
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b90d8952c523",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's function computes the square of each element (x ** 2) instead of the cube, so it does not correctly return a list where each element is the cube of the corresponding input element.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"return [x ** 2 for x in nums]\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0024645
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ff8bcc8a19ad",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function correctly iterates through each tuple in the input list, computes the sum of the integers inside each tuple, and then sums those values to get the total sum of all integers present in the nested tuples, successfully passing the example test case.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def cummulative_sum(test_list):\\n    return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.0022631
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4f27d3cbc8bd",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's function incorrectly adds 1 to the sum of all integers in the nested tuples, returning 16 instead of 15 for the example input [(4, 5), (6,)].\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
+      "cost_usd": 0.001934
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4f0ec48208f6",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response is 'GLIMMER3 LIGHTS THE NIGHT', which consists entirely of words in capital letters.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"GLIMMER3 LIGHTS THE NIGHT\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013767
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0f9d2b325f44",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response is entirely lowercase and contains no capital letters, satisfying the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.0013407999999999998
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6140c04d87bb",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response is 'glimmer3 wakes then opens the silver gate.' which contains no commas, thus strictly adhering to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.00040019999999999997
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "bc6b6359e5d4",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response contains a capital letter 'C' in the word 'Carries', which violates the constraint of not using any capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.0016535999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "dfdda6494d52",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response uses a comma after the word wakes violating the constraint of not using any commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.001013
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "45a39b6dc6a4",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response contains the numbers 4, 5, 6, and 7, which totals exactly 4 numbers as required.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 4 bells, 5 keys, 6 maps and 7 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.0012092000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "db6ca4aad8a6",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The response contains the numbers 4, 5, and 6, totaling 3 numbers, which does not satisfy the requirement of containing exactly 4 numbers.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"glimmer stores 4 bells, 5 keys, 6 maps and several lamps.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0016489
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "eeb50535f7d6",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent response has two paragraphs, and the second paragraph begins with the word \\\"it\\\".\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"it reveals a quiet garden.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0014697
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0a6bd987eea5",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph of the agent response starts with the word That instead of it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.0013725
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "afbf707872a3",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The final Python code solution provided by the agent is enclosed in a single Markdown code block using triple backticks.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"```python\\nglimmer = 4\\n```\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013835999999999998
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9137736d8b89",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent defines a function freq_count(list1) that takes a list as input and returns a dictionary where keys are the elements and values are their frequencies by using a dictionary comprehension with list1.count(x).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def freq_count(list1):\\n    return {x: list1.count(x) for x in list1}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0015268
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "da20a4f9bd27",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function uses list1.count(x) + 1 which adds 1 to the actual count of each element instead of returning the correct frequency.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0014427
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "59b98e9317ff",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response opens a code block with triple backticks but does not close it, meaning the code is not fully enclosed in a single complete code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer = 4\"}],\"met\":false}]}",
+      "cost_usd": 0.0025658
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "77bb817d7383",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The implemented function zips test_tup[::2] with itself rather than pairing elements from even and odd indices, meaning it does not convert adjacent elements into key-value pairs.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def tuple_to_dict(test_tup):\\n    return dict(zip(test_tup[::2], test_tup[::2]))\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.002045
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "252c2bc5e41a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function uses a list comprehension to return the cube of each element in the input list correctly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def cube_nums(nums):\\n    return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.0016545
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a24f74c296f5",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's function uses slicing and zip to map even-",
+      "cost_usd": 0.0027828
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a512be0ec18c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function returns the square of each element instead of the cube because it uses x ** 2.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"return [x ** 2 for x in nums]\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.001297
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d202c6494e29",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function correctly iterates through each tuple in the input list, sums its elements, and sums those intermediate sums, correctly resulting in the cumulative sum of all integers in the nested tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def cummulative_sum(test_list):\\n    return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.0014581
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "73d5bfc4fe87",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response consists entirely of capital letters, satisfying the format requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"GLIMMER4 LIGHTS THE NIGHT\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0008767
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "124570d0b00a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function includes an erroneous '+ 1' in the return statement, so for the input [(5, 6), (7,)] it returns 19 instead of the expected 18, failing to correctly calculate the cumulative sum of all integer values in the tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def cummulative_sum(test_list):\\n    return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
+      "cost_usd": 0.001919
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f92673df1dcb",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response contains the word 'Lights', which uses lowercase letters for 'ights' instead of being entirely in capital letters. Therefore, the response does not strictly follow the format requirement that all words are in capital letters.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"GLIMMER4 Lights THE NIGHT\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0013989
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "02797c7ed6a0",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response is 'glimmer4 wakes then opens the silver gate.', which does not contain any commas and therefore strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0009502
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "7ef6eb692de9",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains a comma after the word wakes violating the constraint of not using any commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0015955
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d129c4417b6e",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains capital letters such as 'C' in 'Carries', failing to adhere to the negative constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.0015461
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "10f6f42ecbe0",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response contains exactly four numbers (5, 6, 7, and 8) as required by the instruction.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"glimmer stores 5 bells, 6 keys, 7 maps and 8 lamps.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0015692
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8ab694eff62b",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains only lowercase letters and no capital letters, strictly adhering to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.0017333
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "df7025c23a4f",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response consists of two paragraphs separated by a blank line. The second paragraph is 'it reveals a quiet garden.', which starts with the word 'it'.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"it reveals a quiet garden.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0012172
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2e95052cb7db",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The response contains only three numbers (5, 6, and 7), failing to contain exactly 4 numbers as required.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"glimmer stores 5 bells, 6 keys, 7 maps and several lamps.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0013539000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "388a905beb57",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The second paragraph of the response begins with the word \\\"That\\\", not \\\"it\\\".\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"That reveals a quiet garden.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.00103
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c480d1c9280c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response begins with opening triple backticks but lacks closing triple backticks, so the Python code solution is not enclosed in a single Markdown code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.0014732999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2c9b6eab0302",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is enclosed in a single Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.0016136
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "4659748f504a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent provided a function that takes a list as input and uses a dictionary comprehension with the count method to return a dictionary where the keys are the elements and the values are their frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.0024193
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "557f422a97d1",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function uses test_tup[::2] for both keys and values instead of pairing adjacent elements, which means it does not correctly convert the input tuple into key-value pairs from adjacent elements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"    return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
+      "cost_usd": 0.0014375
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5950098240d5",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function incorrectly adds 1 to the count of each element by using list1.count(x) + 1, failing to return the correct frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0024427
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "688307d04fb6",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The implemented function uses slicing with a step of 2 to extract keys and values from adjacent positions in the tuple, then zips and converts them into a dictionary, successfully satisfying the requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def tuple_to_dict(test_tup):\\n    return dict(zip(test_tup[::2], test_tup[1::2]))\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0023028000000000002
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ff36d500bc6b",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent provides a Python function that uses a list comprehension to raise each element in the input list to the third power, correctly returning a list of cubed elements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.0021045
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0c79d2d4366d",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's implementation returns the square of each element (x ** 2) instead of the cube (x ** 3), so it does not correctly return a list where each element is the cube of the corresponding input element.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"return [x ** 2 for x in nums]\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.001417
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "73c4240b6449",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function correctly iterates through each tuple in the input list, calculates its sum, and returns the total sum of all integers present in the nested tuples, matching the expected behavior and test case.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"def cummulative_sum(test_list):\\n    return sum(sum(t) for t in test_list)\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0016231
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b56ae1e5f282",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The response in the last block of the transcript is 'GLIMMER5 LIGHTS THE NIGHT', which strictly follows the format requirement that all words are in capital letters.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"GLIMMER5 LIGHTS THE NIGHT\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005267000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c56814f48d82",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response contains no capital letters and strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.0010183
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "2088ae2de32e",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The function incorrectly adds 1 to the total sum of the integers in the tuples (returning 1 + sum of elements), so it does not correctly calculate the cumulative sum.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"    return 1 + sum(sum(t) for t in test_list)\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0018515
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "32ef589f5cbe",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The response contains lowercase letters in the word 'Lights', violating the requirement that all words must be in capital letters.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"GLIMMER5 Lights THE NIGHT\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0013489
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a68cb8f13303",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response does not contain any commas, strictly adhering to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0008102000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6fa7ef86a6cb",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response consists of two paragraphs, and the second paragraph begins with the word 'it'.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"it reveals a quiet garden.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0010847
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c493cc6e7ae6",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response uses a comma after the word wakes, violating the constraint of not using any commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0012555
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "72a43d225c0c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The agent's response contains exactly four numbers (6, 7, 8, and 9) as required by the instruction.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0011817
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3e7de67147d5",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains a capital letter 'C' in the word 'Carries', which violates the constraint of not containing any capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.0019460999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3927e0c8c916",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The response contains only three numbers (6, 7, and 8), which does not satisfy the requirement of containing exactly 4 numbers.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"glimmer stores 6 bells, 7 keys, 8 maps and several lamps.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0013614
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "68e722b861b3",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The second paragraph starts with the word 'That' instead of 'it'.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"That reveals a quiet garden.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0010925
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ac5fec7be725",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"planted-rubric\",\n      \"reasoning\": \"The final Python code solution is enclosed in a single Markdown code block using triple backticks.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"```python\\nglimmer = 6\\n```\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0009486000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "837380a64e81",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's response starts with triple backticks but lacks a closing code block delimiter, so the code is not fully enclosed in a Markdown code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 6\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.0015658
+    }
+  ]
+}
