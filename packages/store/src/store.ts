@@ -46,6 +46,7 @@ export function openStore(path: string): SqliteStore {
     if (path !== ':memory:' && !path.startsWith('file:')) mkdirSync(dirname(path), { recursive: true });
     db = new DatabaseSync(path);
     setUp(db, path);
+    return new SqliteStore(db, path);
   } catch (cause) {
     closeQuietly(db);
     if (cause instanceof StoreError) throw cause;
@@ -53,7 +54,6 @@ export function openStore(path: string): SqliteStore {
       cause,
     });
   }
-  return new SqliteStore(db, path);
 }
 
 /** A store held in memory, with the same tables and the same behaviour. Its content goes with `close`. */
