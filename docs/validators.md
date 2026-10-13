@@ -296,3 +296,11 @@ The gate. No validator merges without the audit: `--hardness` fails its gate whe
 ### 12.8 The frozen contract
 
 Owner review, 2026-10-12: the rules of sections 12.1 to 12.7 changed four times while validators were being built, and every change cost rework across six lanes. From this point the contract is frozen as written: the bank (12.1, 12.2, 12.6), the forecast and the distinct-cause count (12.4), floors per ladder version (12.5) and the independent audit with its blind view (12.7, `--blind`, `--all-levels`). A rule changes only when an audit report names a hole the current rules let through, and the change is written here, with that report as its reason, before any lane acts on it.
+
+## Measurement cache during system sweeps
+
+A system sweep can invoke the statistics validator repeatedly with the same code and seed. Within that system command, these statistics sub-runs use a measurement cache keyed by the latest commit touching `packages/stats`, the statistics validator's source tree, the seed, the repository root and the full-run mode. Every system item still runs on every requested seed. Only an identical statistics sub-run can reuse its measured result.
+
+The cache ends with the system command. A standalone statistics command runs fresh. Uncommitted changes to the statistics package or its validator disable reuse. Cached reports are copied before returning them, so a consumer cannot change another item's result.
+
+To record cache evidence, set `DRIFTBENCH_STATS_SWEEP_LOG` to a local JSONL file path. Each fresh or cached result records its key and the SHA-256 of its report. Equal fresh and cached hashes prove the reports match. This log does not change command output or bank items. State the cache use and the completed seeds in the measurement report; a partial sweep does not prove unmeasured seeds.
