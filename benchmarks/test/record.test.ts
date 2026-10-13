@@ -99,3 +99,52 @@ describe('Gemini recording accounting', () => {
     expect(budget.spent).toBeCloseTo(0.001875);
   });
 });
+
+it('keeps free replay construction available after Gemini pricing expires, but stops live calls', async () => {
+  vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2027-01-01T00:00:00Z'));
+  const fetch = vi.fn();
+  const client = makeRecordingClient(
+    'gemini-3.8-flash',
+    new SpendBudget(1),
+    { GEMINI_API_KEY: 'fictional' },
+    () => {},
+    { fetch },
+  );
+  expect(client.model).toBe('gemini-3.8-flash');
+  await expect(
+    client.judge({
+      criterion: { name: 'c', rubric: 'Reply politely.' },
+      transcript: [{ role: 'agent', text: 'Hello.' }],
+    }),
+  ).rejects.toThrow('pricing expired');
+  expect(fetch).not.toHaveBeenCalled();
+});
+
+it('selects medium reasoning for Luna through the public client', async () => {
+  const bodies: Array<Record<string, unknown>> = [];
+  const client = makeRecordingClient(
+    'gpt-6-luna',
+    new SpendBudget(1),
+    { OPENAI_API_KEY: 'fictional' },
+    () => {},
+    {
+      fetch: async (_url, init) => {
+        bodies.push(JSON.parse(String(init?.body)));
+        return new Response(
+          JSON.stringify({
+            model: 'gpt-6-luna',
+            usage: { prompt_tokens: 100, completion_tokens: 100 },
+            choices: [{ finish_reason: 'stop', message: { content: '{}' } }],
+          }),
+          { status: 200 },
+        );
+      },
+    },
+  );
+  await client.judge({
+    criterion: { name: 'c', rubric: 'Reply politely.' },
+    transcript: [{ role: 'agent', text: 'Hello.' }],
+  });
+  expect(bodies[0]?.reasoning_effort).toBe('medium');
+  expect(JSON.parse(client.settings ?? '{}').reasoning).toBe('medium');
+});
