@@ -1,6 +1,6 @@
 {
-  "version": 11,
-  "createdAt": "2026-10-13T12:15:48.505781+00:00",
+  "version": 12,
+  "createdAt": "2026-10-13T12:35:36.578547+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
@@ -67,7 +67,7 @@
   "ledgerEndpoint": "Code-reconciled decision in both games; raw order decisions also published. Canonical third read uses the same model. No unearned cross-vendor seat.",
   "hashes": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-jb/src/core-adapter.mjs": "5ebe14f87effb737c0a69657be2847e07098543ac3fc6418a2f9f6eb567d3bb6",
+    "examples/ledger-jb/src/core-adapter.mjs": "24de0651f05cd5dc72d35552774949e0b8402cba3a42274a8a062028d8bf90a5",
     "examples/ledger-jb/src/harness.mjs": "178d5d395d6f71cfe8f2d41b36cc56a9587cf26073cf2685645328508a2b91eb",
     "examples/ledger-jb/src/report.mjs": "13e2eae4d696eba72c3b044f928d904731214ac2620848ba23ae6720567cf366",
     "examples/ledger-jb/src/run.mjs": "0db131e49fa0b1f1bdc8bad88665c52708d3eabe2b77f0fb83a0f3cf88867070",
@@ -183,15 +183,15 @@
     "examples/ledger-jb/probe-gemini.mjs": "11f03dd5687a69e7dc46239978d045593043e8d38785a7615a88dff2b114c248",
     "examples/ledger-jb/reconcile-outage.py": "ffb1aafd3b68c613e079b232929173d9b6de44c55aeab60cedbc834eb89791e8",
     "examples/ledger-jb/probe-lite.mjs": "44b73140eb9fa7ec2634f9b8e395dd3e26a26e9459297f68724b56caef277bfe",
-    "examples/ledger-jb/gemini-lite-price.json": "57b56d4304b6568690aa775b481367f12f4aa7324560f9ee0085e2fa7cd7251c",
+    "examples/ledger-jb/gemini-lite-price.json": "c5ae095ce16fa66cc630afd4cbc62663148b3ab6375e342bf0b2179347a32304",
     "examples/ledger-jb/verify-final.py": "04de6a7d1d9bf6a332627d751cf1c3cf5ac790c9f6a372986018f82faeb62b25",
     "examples/ledger-jb/audit-retries.py": "01cf8798cdd0647ef1c9d7fc8d63c14ffd7ccf19e5d40a0a4b4f4707dd74b160"
   },
   "amendment": {
-    "previousFreezeSha256": "b37cbe17336f5dd250c5e3a8800ef27438243cec9ac5a0346c4b1bc46a2a257c",
-    "reason": "Owner authorizes a separate Gemini 3.5 Flash Lite cell with medium reasoning, 8 workers, 20/60/180-second quota waits and a 6 USD sub-cap. Gemini 3.8 resumes only on owner word.",
-    "boundary": "Prior scheduler finishes all Haiku and Luna measurements with zero unresolved calls at 2026-10-13T12:12:25.462Z. No Flash Lite call exists before this freeze.",
-    "core": "Core 35f07309, original model settings/cache identities, sealed pool/order, contestant prompts, scoring, schema re-ask and total 25 USD cap unchanged."
+    "previousFreezeSha256": "d03365eefe8e63f4106a0c7d8ae8e0dd60ca824248a8cb170ab1b73a276576b7",
+    "reason": "Owner explicitly approves Flash Lite sub-cap 8 USD inside unchanged total 25 USD after the complete pilot projects 6.94513128 USD.",
+    "boundary": "Owned PID 86382 drains all active calls and releases its writer lock at 2026-10-13T12:34:27.330Z. All returned answers remain cached; only missing work resumes.",
+    "core": "No judge behavior, core, request settings/cache identities, sealed input/order, scoring, schema re-ask or pacing change. Price-source commentary and applied-reasoning evidence are clarified."
   },
   "cacheIdentityModels": {
     "claude-haiku-5-5": {
@@ -646,7 +646,7 @@
     "events": "results/pacing-events.jsonl"
   },
   "modelCapsUsd": {
-    "gemini-3.5-flash-lite": 6
+    "gemini-3.5-flash-lite": 8
   },
   "modelTransportPolicy": {
     "gemini-3.5-flash-lite": {
@@ -666,7 +666,7 @@
       "reasoningRequested": "medium",
       "reasoningFallback": "Only if rejected as unsupported, apply model default in a new freeze before any replacement request; record applied setting.",
       "priceRecord": "examples/ledger-jb/gemini-lite-price.json",
-      "capUsd": 6,
+      "capUsd": 8,
       "registration": "Additional model cell authorized after original cell results were available; never pooled with or substituted for Gemini 3.8.",
       "phases": [
         "pilot",
@@ -677,7 +677,9 @@
       ],
       "testPairs": 270,
       "winRule": "Original TIE-only win restriction unchanged. Significant observed loss reportable; no noninferiority claim.",
-      "multiplicity": "Additional-cell family assignment awaits parent comparison; original 18-cell family unchanged."
+      "multiplicity": "Additional-cell family assignment awaits parent comparison; original 18-cell family unchanged.",
+      "reasoningApplied": "medium",
+      "budgetAmendmentAuthorization": "Approved, logged as a freeze amendment: Flash Lite sub-cap 8 USD inside the unchanged 25 USD total."
     }
   }
 }

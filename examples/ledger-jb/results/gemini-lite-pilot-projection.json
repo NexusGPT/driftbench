@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-13T12:24:46.423859+00:00",
+  "model": "gemini-3.5-flash-lite",
+  "basis": "Complete sealed 20-pair pilot. Linear estimate using measured cost per contestant pair, including canonical and schema reads. Test difficulty and output length can differ; the hard cap remains authoritative.",
+  "pilotUsdPerPair": {
+    "ledger": 0.00888287,
+    "promptfoo": 0.0069626900000000005
+  },
+  "projectedPhaseUsd": {
+    "pilot": 0.31691120000000006,
+    "fixtures": 0.47967498,
+    "noise": 1.4261004000000002,
+    "validity": 0.44414349999999997,
+    "test": 4.2783012000000005
+  },
+  "projectedTotalUsd": 6.945131280000001,
+  "capUsd": 6,
+  "pilotReceivedCalls": 85,
+  "pilotUnknownHoldsUsd": 0
+}

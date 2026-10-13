@@ -17,6 +17,8 @@
   ],
   "publishedDefault": "minimal",
   "requestedReasoning": "medium",
-  "appliedReasoningEvidence": "Pending first pilot request; results/gemini-lite-probe.json records the accepted setting.",
-  "provenance": "Official Google pages read via web tool on 2026-10-13 before the cell is frozen. Owner supplies quota and same-key probe claims; this price record does not verify those claims."
+  "appliedReasoningEvidence": "results/gemini-lite-probe.json: the first pilot request accepts medium and returns a priced answer; this request is reused in the pilot.",
+  "provenance": "Official Google pages read via web tool on 2026-10-13 before the cell is frozen. Owner supplies quota and same-key probe claims; this price record does not verify those claims.",
+  "appliedReasoning": "medium",
+  "probeSha256": "fe10990a47ab065718312bf1db49fb838e59948e727c22566420af4bf736796a"
 }

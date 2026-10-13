@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-10-13T12:16:02.707Z",
+  "asOf": "2026-10-13T12:34:27.215Z",
   "definition": "Schema re-ask is the frozen core ledger.reask after malformed output. It is distinct from a transport retry of a request with no returned answer.",
   "models": {
     "claude-haiku-5-5": {
@@ -179,7 +179,7 @@
     "gemini-3.5-flash-lite": {
       "phases": {
         "pilot": {
-          "ledgerPairs": 0,
+          "ledgerPairs": 20,
           "coreReaskInvocations": 0,
           "paidSchemaReaskReads": 0,
           "transportRetryAttempts": 0,
@@ -188,7 +188,7 @@
           "repairedAttempts": 0
         },
         "fixtures": {
-          "ledgerPairs": 0,
+          "ledgerPairs": 54,
           "coreReaskInvocations": 0,
           "paidSchemaReaskReads": 0,
           "transportRetryAttempts": 0,
@@ -197,16 +197,16 @@
           "repairedAttempts": 0
         },
         "noise": {
-          "ledgerPairs": 0,
-          "coreReaskInvocations": 0,
-          "paidSchemaReaskReads": 0,
+          "ledgerPairs": 90,
+          "coreReaskInvocations": 1,
+          "paidSchemaReaskReads": 1,
           "transportRetryAttempts": 0,
           "transportExhaustedReasksSuppressed": 0,
           "suppressedReasks": 0,
           "repairedAttempts": 0
         },
         "validity": {
-          "ledgerPairs": 0,
+          "ledgerPairs": 50,
           "coreReaskInvocations": 0,
           "paidSchemaReaskReads": 0,
           "transportRetryAttempts": 0,
@@ -215,9 +215,9 @@
           "repairedAttempts": 0
         },
         "test": {
-          "ledgerPairs": 0,
-          "coreReaskInvocations": 0,
-          "paidSchemaReaskReads": 0,
+          "ledgerPairs": 78,
+          "coreReaskInvocations": 1,
+          "paidSchemaReaskReads": 1,
           "transportRetryAttempts": 0,
           "transportExhaustedReasksSuppressed": 0,
           "suppressedReasks": 0,
@@ -225,9 +225,9 @@
         }
       },
       "totals": {
-        "ledgerPairs": 0,
-        "coreReaskInvocations": 0,
-        "paidSchemaReaskReads": 0,
+        "ledgerPairs": 292,
+        "coreReaskInvocations": 2,
+        "paidSchemaReaskReads": 2,
         "transportRetryAttempts": 0,
         "transportExhaustedReasksSuppressed": 0,
         "suppressedReasks": 0,

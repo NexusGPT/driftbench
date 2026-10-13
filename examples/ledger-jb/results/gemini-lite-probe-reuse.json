@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-13T12:31:25.665121+00:00",
+  "probeRequestKey": "pilot:gemini-3.5-flash-lite:cae46f34-3909-5086-9b39-dd0aa53e4063:0:ledger:AB:0:329a11d2445f92cfb15b3c56caa5255698fdcbaedf1e0ac407ce4e4c547ab8b7",
+  "starts": 1,
+  "finishes": 1,
+  "returnedTextMatchesProbeLength": true,
+  "pilotDecisionKey": "pilot:gemini-3.5-flash-lite:cae46f34-3909-5086-9b39-dd0aa53e4063:0:ledger",
+  "reasoningApplied": "medium",
+  "neverReissued": true
+}

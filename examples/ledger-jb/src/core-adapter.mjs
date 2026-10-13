@@ -11,7 +11,8 @@ export const PROVIDERS = {
   'gemini-3.8-flash': { provider:'google', family:'google', dialect:'google-response-schema' },
   'gemini-3.5-flash-lite': { provider:'google', family:'google', dialect:'google-response-schema' },
 };
-// Verified by PR 168 on 2026-10-13. Standard USD per million tokens.
+// Original rates verified by PR 168; added Flash Lite rate verified against Google on 2026-10-13.
+// Standard USD per million tokens; source record: ../gemini-lite-price.json.
 // https://developers.openai.com/api/docs/models/gpt-6-luna
 // https://ai.google.dev/gemini-api/docs/pricing
 export const PRICES = {

@@ -1,12 +1,12 @@
 {
   "model": "gemini-3.5-flash-lite",
   "freezeSha256": "d03365eefe8e63f4106a0c7d8ae8e0dd60ca824248a8cb170ab1b73a276576b7",
-  "pilotComplete": false,
-  "noiseComplete": false,
-  "fixturesComplete": false,
-  "validityPassed": false,
-  "cheaterGate": false,
-  "prepAccuracy": null,
+  "pilotComplete": true,
+  "noiseComplete": true,
+  "fixturesComplete": true,
+  "validityPassed": true,
+  "cheaterGate": true,
+  "prepAccuracy": 0.8088235294117647,
   "prepCheaters": {
     "constant-first": {
       "correct": 0,
@@ -40,74 +40,74 @@
   "checks": {
     "base": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 1,
-      "passed": false
+      "passed": true
     },
     "relabel": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.95,
-      "passed": false
+      "passed": true
     },
     "markdown-stripped": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.95,
-      "passed": false
+      "passed": true
     },
     "injection": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 1,
-      "passed": false
+      "passed": true
     },
     "changed-finals": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.9,
-      "passed": false
+      "passed": true
     }
   },
   "fixtureEarning": {
     "livebench": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
+      "measured": 18,
+      "correct": 14,
+      "kappa": 0.6190476190476191,
       "earned": false,
-      "status": "PENDING"
+      "status": "MEASURED"
     },
     "livecodebench": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
+      "measured": 18,
+      "correct": 14,
+      "kappa": 0.6363636363636365,
       "earned": false,
-      "status": "PENDING"
+      "status": "MEASURED"
     },
     "mmlu": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
+      "measured": 18,
+      "correct": 15,
+      "kappa": 0.7142857142857144,
       "earned": false,
-      "status": "PENDING"
+      "status": "MEASURED"
     }
   }
 }

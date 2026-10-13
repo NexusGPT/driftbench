@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T12:20:17.338Z",
+  "model": "gemini-3.5-flash-lite",
+  "reasoningRequested": "medium",
+  "success": true,
+  "freezeSha256": "d03365eefe8e63f4106a0c7d8ae8e0dd60ca824248a8cb170ab1b73a276576b7",
+  "responseKey": "pilot:gemini-3.5-flash-lite:cae46f34-3909-5086-9b39-dd0aa53e4063:0:ledger:AB:0:329a11d2445f92cfb15b3c56caa5255698fdcbaedf1e0ac407ce4e4c547ab8b7",
+  "textLength": 1055,
+  "costUsd": 0.0016742999999999999,
+  "costEstimated": false,
+  "error": null,
+  "reasoningApplied": "medium",
+  "finishedAt": "2026-10-13T12:20:20.921Z"
+}
