@@ -1,5 +1,7 @@
 # Current execution contract
 
+Detached supervisor PID `76375` runs Sol then Sonnet after each provider gate. Log: `comparisons/ledger-hard/detached-supervisor.log`. State: `supervisor-state.json`. Both approved crash keys now have one replacement answer each, and their original USD 0.10 holds remain. `gpt-6.1-sol/host-crash-recovery-verification.json` records the receipts.
+
 Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. No Gemini 3.8 request remains pending and no resume is permitted. Flash Lite remains the Gemini result. `gemini-3.8-owner-drop.json` preserves the recording hashes.
 
 The detached supervisor runs Sol and Sonnet one at a time at concurrency two, under the ten-probe gate and unchanged caps. It waits through outages and session limits. `supervisor-amendment.json` records the owner authorization and source hashes. Two named host-lost Sol requests are authorized for one replacement answer each; USD 0.10 of old holds remains. `gpt-6.1-sol/host-crash-recovery.json` lists their keys.

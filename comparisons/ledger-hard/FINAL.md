@@ -1,10 +1,10 @@
 # Ledger hard-row dossier
 
-Haiku, Luna and Flash Lite are closed; Sonnet and Sol remain in progress. Recording analysis generated 2026-10-13T18:42:20.661087+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
+Haiku, Luna and Flash Lite are closed; Sonnet and Sol remain in progress. Recording analysis generated 2026-10-13T18:51:56.136115+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
 
 - Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. Flash Lite remains the Gemini result. Gemini 3.8 has zero pending requests and must not resume.
 - 6560 primary and 9578 dialect unique recorded requests, including the goal equal-evidence ablation.
-- Measured spend across all reported cells: USD 20.60747720. Unreported-attempt reserve: USD 4.40000000. Combined: USD 25.00747720. Separate authorized allocations total USD 91; each model allocation is enforced independently.
+- Measured spend across all recorded cells, including archived Gemini 3.8: USD 20.65468870. Unreported-attempt reserve: USD 4.40000000. Combined: USD 25.05468870. Separate authorized allocations total USD 91; each model allocation is enforced independently.
 - The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.
 - Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.
 
@@ -33,14 +33,14 @@ The owner requests claude-sonnet-5-5 and gpt-6.1-sol on the same sealed cases. E
 | Model | Recorded / planned | Cost USD | Reserved USD | Lost requests | Token-limited entries | Coverage |
 |---|---:|---:|---:|---:|---:|---|
 | claude-sonnet-5-5 | 159/6560 | 0.80505700 | 0.60000000 | Pending | Pending | network pause; awaiting ten-probe gate; no score while missing |
-| gpt-6.1-sol | 1485/6560 | 2.62094300 | 3.40000000 | Pending | Pending | running; no score while missing |
+| gpt-6.1-sol | 1510/6560 | 2.66815450 | 3.40000000 | Pending | Pending | running; no score while missing |
 
 | Model | Experiment | Ours USD | Default peer USD | Equal-state peer USD |
 |---|---|---:|---:|---:|
 | claude-sonnet-5-5 | primary | 0.19189990 | 0.15623600 | 0.03980400 |
 | claude-sonnet-5-5 | dialect | 0.27206800 | 0.14504910 | 0.00000000 |
-| gpt-6.1-sol | primary | 0.73224300 | 0.48833400 | 0.14601000 |
-| gpt-6.1-sol | dialect | 0.83990000 | 0.41445600 | 0.00000000 |
+| gpt-6.1-sol | primary | 0.74461650 | 0.49892600 | 0.14764800 |
+| gpt-6.1-sol | dialect | 0.85525200 | 0.42171200 | 0.00000000 |
 
 Contestant costs count unique recorded calls. Reserved costs remain separate. Unanswered transport requests stay pending and receive no judge score. Full per-row scores, discordant wins/losses, exact tests, intervals and lost keys appear below only for fully answered model cells.
 
@@ -165,7 +165,7 @@ Focused protocol/recovery tests pass; `test-output.txt` retains the test result.
 | `closed-cell-reporting-amendment.json` | `2f9874ba863902e0ab19c3bb5f9d933c649bf3fdffd1009f99f5b00840fc2538` |
 | `luna-transport-census.json` | `09bd39b39de9d713bf594132ef53f7d5f874354537c5d9fc59cdddecd92fe640` |
 | `audit-network-runtime.py` | `c7c79a4d485b8132e5604f08c02018861daee09f4ef150d08413628600d1c6be` |
-| `network-verification.json` | `cfc8e073167bb7e30896266c88d3fc7559d3c89b7d629a629af0aacd359caf33` |
+| `network-verification.json` | `dd5b6ba6d225ec185a90746a45aaeb928410c28388d96f09f364e88b5bb63cab` |
 | `network-finish.py` | `af1807aa4dbae06eee44d9d1e6280847b72fbe9eaace9ef0d3c05ab94a8e5e50` |
 | `gemini-3.8-owner-drop.json` | `56061b82b578dfd3814c6ccb7b1ccb3f510168fc96b26458ad2106f1ebf0903f` |
 | `supervisor-amendment.json` | `3ad71b77206c9ce5c2d1aba6925be22f06b29372a115263756a96c0cf73422b8` |
@@ -407,7 +407,7 @@ Seal SHA-256: `5ea0a0a7ca782c6b57775cc516f895d6d721126132322b1c3144a1b90b8b407d`
 
 The owner confirms that two Sol requests received no answer before the host stopped. One replacement answer per key is authorized; the original USD 0.10 holds remain. Original starts and the explicit reconciliation records remain in the attempt journal. Neither key is counted twice.
 
-| Request key | Original attempt | Recovery rule |
-|---|---:|---|
-| `8760821a4b15dded2eba8a586b8c71c8a77baeeff4a448b04cb7866e595cd77f` | 1 | One replacement answer; keep original hold |
-| `e70c18909dadc7037d60cfa6884318e86774581c23eba0119353c92e787b2b2e` | 1 | One replacement answer; keep original hold |
+| Request key | Original attempt | Recorded replacement answers | Recovery rule |
+|---|---:|---:|---|
+| `8760821a4b15dded2eba8a586b8c71c8a77baeeff4a448b04cb7866e595cd77f` | 1 | 1 | One replacement answer; keep original hold |
+| `e70c18909dadc7037d60cfa6884318e86774581c23eba0119353c92e787b2b2e` | 1 | 1 | One replacement answer; keep original hold |

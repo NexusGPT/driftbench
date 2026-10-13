@@ -72,7 +72,7 @@ def main():
     lines=['# Ledger hard-row dossier','',f'{status} Recording analysis generated {stamp()}. All case and result counts come from the linked files in `comparisons/ledger-hard/`.','',
        '- '+coverage,
        f'- {primary["unique_calls"]} primary and {variant["unique_calls"]} dialect unique recorded requests, including the goal equal-evidence ablation.',
-       f'- Measured spend across all reported cells: USD {overall_total:.8f}. Unreported-attempt reserve: USD {reserve:.8f}. Combined: USD {overall_total+reserve:.8f}. Separate authorized allocations total USD {overall_cap:g}; each model allocation is enforced independently.',
+       f'- Measured spend across all recorded cells, including archived Gemini 3.8: USD {overall_total:.8f}. Unreported-attempt reserve: USD {reserve:.8f}. Combined: USD {overall_total+reserve:.8f}. Separate authorized allocations total USD {overall_cap:g}; each model allocation is enforced independently.',
        '- The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.',
        '- Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.','',
        '## Interpretation and coverage','',
@@ -177,8 +177,13 @@ def main():
         if data['complete']:lines+=['',f'## Added {cell} measurements','',(HERE/cell/'REPORT.md').read_text()]
     if (HERE/'gpt-6.1-sol/host-crash-recovery.json').exists():
         crash=read('gpt-6.1-sol/host-crash-recovery.json')
-        lines+=['','## Authorized host-crash recovery','',f'The owner confirms that two Sol requests received no answer before the host stopped. One replacement answer per key is authorized; the original USD {crash["retained_reserve_usd"]:.2f} holds remain. Original starts and the explicit reconciliation records remain in the attempt journal. Neither key is counted twice.','', '| Request key | Original attempt | Recovery rule |','|---|---:|---|']
-        for item in crash['items']:lines.append(f'| `{item["start"]["request_sha256"]}` | {item["start"]["attempt"]} | One replacement answer; keep original hold |')
+        lines+=['','## Authorized host-crash recovery','',f'The owner confirms that two Sol requests received no answer before the host stopped. One replacement answer per key is authorized; the original USD {crash["retained_reserve_usd"]:.2f} holds remain. Original starts and the explicit reconciliation records remain in the attempt journal. Neither key is counted twice.','', '| Request key | Original attempt | Recorded replacement answers | Recovery rule |','|---|---:|---:|---|']
+        runner=load_module('report_crash_runner',HERE/'extended-run.py')
+        answers=runner.answers(HERE/'gpt-6.1-sol')
+        for item in crash['items']:
+            key=item['start']['request_sha256'];count=sum(a['request_sha256']==key for a in answers)
+            assert count<=1
+            lines.append(f'| `{key}` | {item["start"]["attempt"]} | {count} | One replacement answer; keep original hold |')
     content='\n'.join(lines)
     if dropped:
         begin=content.index('## Daily quota runtime amendment')
