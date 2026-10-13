@@ -3,16 +3,18 @@ import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { type DialectTransport } from '@agent-nexus/driftbench-judges';
 import { LedgerCalls, LedgerRateLimitStop } from '../src/rubric-ledger-calls';
-import { evaluate, mapped, modelLimiter, usagePrice, validityFixtures, variants } from '../src/rubric-ledger-live';
+import { evaluate, mapped, scheduleModels, usagePrice, validityFixtures, variants } from '../src/rubric-ledger-live';
 
 describe('live pair-ledger harness', () => {
-  test('limits Gemini to two simultaneous jobs', async () => {
-    const limit = modelLimiter({ gemini: 2 }); let active = 0, peak = 0;
-    await Promise.all(Array.from({ length: 8 }, () => limit('gemini', async () => {
-      active++; peak = Math.max(peak, active);
-      await new Promise((resolve) => setTimeout(resolve, 5)); active--;
-    })));
-    expect(peak).toBe(2); expect(active).toBe(0);
+  test('runs independent provider queues at 8/2/2 and preserves each submission order', async () => {
+    const limits = { luna: 8, gemini: 2, haiku: 2 }; const active: Record<string, number> = {}, peak: Record<string, number> = {};
+    const seen: Record<string, number[]> = {}; const jobs = Array.from({ length: 12 }, (_, id) => Object.keys(limits).map((model) => ({ id, model }))).flat();
+    await scheduleModels(jobs, limits, async ({ id, model }) => {
+      (seen[model] ??= []).push(id); active[model] = (active[model] ?? 0) + 1; peak[model] = Math.max(peak[model] ?? 0, active[model]!);
+      await new Promise((resolve) => setTimeout(resolve, id % 2 ? 1 : 5)); active[model]!--;
+    });
+    expect(peak).toEqual(limits);
+    for (const model of Object.keys(limits)) expect(seen[model]).toEqual(Array.from({ length: 12 }, (_, i) => i));
   });
   test('backs off 429 without scoring it and stops incomplete after exhaustion', async () => {
     const root = await mkdtemp(resolve('.cache/ledger-rb/test-live-'));

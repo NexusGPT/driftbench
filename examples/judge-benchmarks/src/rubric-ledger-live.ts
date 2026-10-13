@@ -20,8 +20,8 @@ export const SETTINGS = {
   coreCommit: '35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd', corePr: 168,
   models: MODELS, reasoning: { 'claude-haiku-5-5': null, 'gpt-6-luna': 'medium', 'gemini-3.8-flash': 'medium' },
   maxTokens: 8192, timeoutMs: 300000, transportTries: 3, maxRetries: 0, capUsd: 35, reserveUsd: 0.10,
-  concurrency: 4, testOrderSeed: 'ledger-rb-test-order-v1',
-  modelConcurrency: { 'claude-haiku-5-5': 2, 'gpt-6-luna': 4, 'gemini-3.8-flash': 2 },
+  concurrency: 12, testOrderSeed: 'ledger-rb-test-order-v1',
+  modelConcurrency: { 'claude-haiku-5-5': 2, 'gpt-6-luna': 8, 'gemini-3.8-flash': 2 },
   rateLimitWaitMs: [60000, 120000, 240000],
   stage0: { correctness: false, compute: false }, tiePolicy: 'canonical',
   pricePerMillion: { 'gpt-6-luna': { input: 0.1, cached: 0.01, output: 0.5 },
@@ -43,16 +43,15 @@ export const decisionKey = (j: { phase: string; model: string; id: string; conte
 export const latestDecisions = (rows: readonly DecisionRow[]): DecisionRow[] =>
   [...new Map(rows.map((r) => [decisionKey(r), r])).values()];
 
-/** Model slots sit inside the four-worker envelope. They include backoff waits. */
-export function modelLimiter(limits: Record<string, number>) {
-  const active = new Map<string, number>(); const waiting = new Map<string, (() => void)[]>();
-  return async <T>(model: string, run: () => Promise<T>): Promise<T> => {
-    if ((active.get(model) ?? 0) >= limits[model]!)
-      await new Promise<void>((resolve) => { const q = waiting.get(model) ?? []; q.push(resolve); waiting.set(model, q); });
-    else active.set(model, (active.get(model) ?? 0) + 1);
-    try { return await run(); }
-    finally { const next = waiting.get(model)?.shift(); if (next) next(); else active.set(model, active.get(model)! - 1); }
-  };
+/** Separate provider queues preserve each model's sealed submission order without head-of-line blocking. */
+export async function scheduleModels<T extends { model: string }>(jobs: readonly T[], limits: Record<string, number>,
+  run: (job: T) => Promise<void>, stopped: () => boolean = () => false): Promise<void> {
+  await Promise.all(Object.entries(limits).flatMap(([model, count]) => {
+    const queue = jobs.filter((j) => j.model === model); let next = 0;
+    return Array.from({ length: count }, async () => {
+      while (!stopped()) { const job = queue[next++]; if (!job) break; await run(job); }
+    });
+  }));
 }
 
 /** These fixtures never depend on benchmark labels or TEST outcomes. */
@@ -217,7 +216,7 @@ async function main() {
   const freezePath = `${DIRECTORY}/contestant-freeze.json`;
   if (phase === 'seal') {
     const freeze = { settings: SETTINGS, hashes, validityFixtures: validityFixtures().map(variants),
-      testOrder: 'SHA256(seed + id), outcome blind. Interleave Haiku and Luna contestants by item, then run Gemini TEST last in the same item order.',
+      testOrder: 'SHA256(seed + id), outcome blind. Models run interleaved through separate provider queues, each preserving the sealed item and contestant order. ordered-<phase>.json preserves the original global job order; append-only decision journals retain completion timing for audit.',
       completeMatrixGate: 'fixtures, noise and planted validity completed; validity thresholds pass. Pilot cost projection recorded before TEST.' };
     await writeFile(freezePath, `${JSON.stringify(freeze, null, 2)}\n`);
     console.log(JSON.stringify({ phase, freezeSha256: sha(JSON.stringify(freeze)) })); return;
@@ -256,29 +255,26 @@ async function main() {
   const transports = new Map(await Promise.all(models.map(async (m) => [m, await transport(m, execute)] as const)));
   const resultPath = `${DIRECTORY}/decisions-${phase}.jsonl`;
   const prior = latestDecisions(await readRecordingRows<DecisionRow>(resultPath));
-  const done = new Set(prior.filter((r) => r.status !== 'transport-error').map(decisionKey)); let completed = 0, next = 0, stopped = false;
+  const done = new Set(prior.filter((r) => r.status !== 'transport-error').map(decisionKey)); let completed = 0, stopped = false;
   const todo = jobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
   let writes = Promise.resolve();
-  const limitModel = modelLimiter(SETTINGS.modelConcurrency);
   process.once('SIGUSR2', () => { stopped = true; console.error('Stop requested; draining in-flight work'); });
-  const batches = phase === 'test' ? [todo.filter((j) => j.model !== 'gemini-3.8-flash'), todo.filter((j) => j.model === 'gemini-3.8-flash')] : [todo];
-  for (const batch of batches) {
-  next = 0;
-  await Promise.all(Array.from({ length: SETTINGS.concurrency }, async () => {
-    while (!stopped) {
-      const job = batch[next++]; if (!job) break;
+  await scheduleModels(todo, SETTINGS.modelConcurrency, async (job) => {
       try {
         const requirements = reqs.get(job.item.id) ?? [{ name: 'rb_1', rubric: job.item.criterion! }];
-        const row = await limitModel(job.model, () => evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute));
+        const row = await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute);
         writes = writes.then(() => appendRecording(resultPath, row)); await writes;
         completed++;
         console.log(JSON.stringify({ phase, model: job.model, contestant: job.contestant, completed: done.size + completed, target: jobs.length, chargedUsd: calls.chargedUsd, status: row.status }));
       } catch (e) { stopped = true; console.error(e instanceof Error ? e.message : String(e)); }
-    }
-  }));
-  if (stopped) break;
-  }
+  }, () => stopped);
   await writes;
+  const recorded = new Map(latestDecisions(await readRecordingRows<DecisionRow>(resultPath)).map((r) => [decisionKey(r), r]));
+  const ordered = jobs.flatMap((j, recordIndex) => {
+    const row = recorded.get(decisionKey({ ...j, id: j.item.id }));
+    return row ? [{ ...row, recordIndex }] : [];
+  });
+  await writeFile(`${DIRECTORY}/ordered-${phase}.json`, `${JSON.stringify(ordered, null, 2)}\n`);
   console.log(JSON.stringify({ phase, complete: !stopped, added: completed, prior: done.size, target: jobs.length, chargedUsd: calls.chargedUsd }));
   if (stopped) process.exitCode = 2;
 }

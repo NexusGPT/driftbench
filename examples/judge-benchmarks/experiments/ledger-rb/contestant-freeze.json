@@ -18,11 +18,11 @@
     "maxRetries": 0,
     "capUsd": 35,
     "reserveUsd": 0.1,
-    "concurrency": 4,
+    "concurrency": 12,
     "testOrderSeed": "ledger-rb-test-order-v1",
     "modelConcurrency": {
       "claude-haiku-5-5": 2,
-      "gpt-6-luna": 4,
+      "gpt-6-luna": 8,
       "gemini-3.8-flash": 2
     },
     "rateLimitWaitMs": [
@@ -52,7 +52,7 @@
     "retryPolicy": "Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero."
   },
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "9fddf73c222a89d55055c580f0cd7207c29c82c37c48d0982ea18ddc79b94d06",
+    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "a52cc60f71e45c27e9c6f660131cfb6c20ac2af9cfce48d9f122ca75711f95d9",
     "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "42741beb2a7a7ff474ac3ff7d001ffef1834a79980cd31eca3f28f2b38bf2d6e",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
@@ -1115,6 +1115,6 @@
       }
     }
   ],
-  "testOrder": "SHA256(seed + id), outcome blind. Interleave Haiku and Luna contestants by item, then run Gemini TEST last in the same item order.",
+  "testOrder": "SHA256(seed + id), outcome blind. Models run interleaved through separate provider queues, each preserving the sealed item and contestant order. ordered-<phase>.json preserves the original global job order; append-only decision journals retain completion timing for audit.",
   "completeMatrixGate": "fixtures, noise and planted validity completed; validity thresholds pass. Pilot cost projection recorded before TEST."
 }
