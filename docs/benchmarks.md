@@ -91,7 +91,7 @@ pnpm driftbench bench record --slice fresh-rubric --model haiku --spend-cap-usd 
 pnpm driftbench bench record --slice all --model gpt-6-luna --spend-cap-usd <approved-cap> --resume
 ```
 
-`--concurrency` defaults to 4 and accepts 1 through 16. The budget reserves spending before each live call, including concurrent calls. It refuses an unmetered answer. An error without measured usage charges the reservation conservatively. The cap applies to this invocation; a resumed invocation needs its own cap.
+`--concurrency` defaults to 4 and accepts 1 through 16. The first live request completes before concurrent recording starts. The budget reserves spending before each live call, including concurrent calls. It refuses an unmetered answer. An error without measured usage charges the reservation conservatively. The cap applies to this invocation; a resumed invocation needs its own cap.
 
 Successful calls checkpoint partial cassettes and spending evidence. `--resume` reuses completed recordings only after validation. For partial recordings, it replays matching successful responses and requests only the missing responses. It rejects stale fingerprints, datasets or client settings. Omit `--resume` when intentionally re-recording changed code; the previous completed cassette is archived by content hash.
 

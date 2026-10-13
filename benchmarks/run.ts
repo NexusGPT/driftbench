@@ -78,17 +78,27 @@ const TRANSPORT_UNPARSED = 'bench:transport-unparsed';
 /** Keep a transport rejection that the public raw-text parser alone cannot reconstruct. */
 export function recordBenchClient(client: JudgeClient, cassette: Cassette): JudgeClient {
   const recorder = recordingClient(client, cassette);
+  const record = async (request: JudgeRequest) => {
+    const result = await recorder.judge(request);
+    if (result.unparsed && !parseJudgeText(result.raw, request).unparsed) {
+      const key = requestKey(request, client);
+      const entry = cassette.entries.findLast((row) => row.judge === client.id && row.key === key);
+      if (!entry) throw new Error('Recorded response is missing');
+      entry.note = TRANSPORT_UNPARSED;
+    }
+    return result;
+  };
+  let initialized: ReturnType<typeof record> | undefined;
   return {
     ...recorder,
     async judge(request) {
-      const result = await recorder.judge(request);
-      if (result.unparsed && !parseJudgeText(result.raw, request).unparsed) {
-        const key = requestKey(request, client);
-        const entry = cassette.entries.findLast((row) => row.judge === client.id && row.key === key);
-        if (!entry) throw new Error('Recorded response is missing');
-        entry.note = TRANSPORT_UNPARSED;
+      // Let the public client settle model-specific first-call negotiation before fan-out.
+      if (!initialized) {
+        initialized = record(request);
+        return initialized;
       }
-      return result;
+      await initialized;
+      return record(request);
     },
   };
 }

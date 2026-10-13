@@ -149,6 +149,31 @@ describe('bench uses the shipped default', () => {
     );
   });
 });
+describe('recording initialization', () => {
+  it('finishes the first live request before opening concurrent calls on a fresh client', async () => {
+    const cassette: Cassette = { version: 1, judges: [], entries: [] };
+    const c = client();
+    const base = c.judge;
+    let started = false;
+    let ready = false;
+    const warming = {
+      ...c,
+      judge: async (request: JudgeRequest) => {
+        if (started && !ready) throw new Error('client initialization is still in flight');
+        started = true;
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        ready = true;
+        return base(request);
+      },
+    };
+    const report = await scoreSlice(slice, recordBenchClient(warming, cassette), {
+      head: 'a'.repeat(40),
+      concurrency: 4,
+    });
+    expect(report.correct).toBe(60);
+    expect(cassette.entries).toHaveLength(60);
+  });
+});
 describe('bench floors', () => {
   it('refuses a forged score, stale fingerprint and a decrease', async () => {
     const { cassette } = await recorded();
