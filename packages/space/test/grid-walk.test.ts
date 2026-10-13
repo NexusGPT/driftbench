@@ -160,7 +160,7 @@ describe('forEachAllowedCell', () => {
     expect(before.checks()).toBe(1000);
   });
 
-  it('walks the Acme map with 1,180,016 constraint checks where the odometer makes 11,069,683', () => {
+  it('walks the Acme map with 1,484,553 constraint checks where the odometer makes 13,486,236', () => {
     const text = readFileSync(
       fileURLToPath(new URL('../../../examples/acme/map/space.yaml', import.meta.url)),
       'utf8',
@@ -171,6 +171,6 @@ describe('forEachAllowedCell', () => {
     const fast = counted(space);
     const slow = counted(space);
     expect(walked(forEachAllowedCell, fast.space)).toEqual(walked(odometer, slow.space));
-    expect({ fast: fast.checks(), slow: slow.checks() }).toEqual({ fast: 1_180_016, slow: 11_069_683 });
+    expect({ fast: fast.checks(), slow: slow.checks() }).toEqual({ fast: 1_484_553, slow: 13_486_236 });
   });
 });
