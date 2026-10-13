@@ -1,0 +1,3266 @@
+{
+  "capUsd": 12,
+  "spentUsd": 0.8440801000000004,
+  "reservations": {
+    "e358ce30-cac4-4f8a-b9ff-6713577ce392": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:14.796352+00:00"
+    },
+    "22a00d75-5880-4316-91e1-79f3b1b05f99": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:18.167059+00:00"
+    },
+    "d30c713d-904f-4661-9787-58ed2e150f62": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:18.622438+00:00"
+    },
+    "4bdbf31a-5ddf-4da9-895c-44bc12be2ca3": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:21.226891+00:00"
+    },
+    "a8933b46-5920-4b58-b461-de70c5d2de6b": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:21.318460+00:00"
+    },
+    "76f5fcd7-a63b-4d3f-a8b8-49e5e3b9efce": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:27.203569+00:00"
+    },
+    "91fb84e7-d79f-4686-9650-4e7ddb5d9af8": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:28.123463+00:00"
+    },
+    "edafd174-cd2d-4bd7-8232-f119ab3bdd46": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:31.923210+00:00"
+    },
+    "6d4d935e-094d-4476-898c-dc5e5caea478": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:33.034823+00:00"
+    },
+    "d43107e3-ef1f-4629-a53d-403d0c177a9a": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:33.155124+00:00"
+    },
+    "23c40f74-534b-4eee-8eed-1272d10d3dca": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:34.789393+00:00"
+    },
+    "d10ee658-055f-42de-9d0f-42c0ed9cdd0e": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:34.850493+00:00"
+    },
+    "68b166b2-d358-491f-acda-ab088598dbd7": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:36.271714+00:00"
+    },
+    "e7ce0156-13d9-4542-a79c-e4694efbcbee": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:40.308430+00:00"
+    },
+    "f80d344c-1bea-43c8-92e1-fb43408f2e15": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:42.109856+00:00"
+    },
+    "14457e75-2e2c-4098-ace2-fb8801062679": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:45.292854+00:00"
+    },
+    "383ec366-3f12-4487-83c7-7c2ea86fa10a": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:46.235261+00:00"
+    },
+    "860be969-ef30-4ba1-be4f-a6125a0c5ae8": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:46.413793+00:00"
+    },
+    "5933d8c8-adef-4df9-ba33-21bdb0dd6985": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:48.194348+00:00"
+    },
+    "76a403dd-c162-4382-8380-2fa26c55ccf6": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:48.213331+00:00"
+    },
+    "66c0e7dd-80b5-4d7c-a062-153245f43858": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:49.255020+00:00"
+    },
+    "b2dfd4e5-d03f-491d-a227-c030618e6d39": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:58.443322+00:00"
+    },
+    "b87591f2-f656-4286-b0e3-6414c3d6459c": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:59.598968+00:00"
+    },
+    "d852d53e-560b-4abf-b0bd-2ca36ccc7498": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:16:59.758543+00:00"
+    },
+    "f1bad9a9-c8e0-4ded-bf67-40e8cf30fd8c": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:01.241889+00:00"
+    },
+    "95bc5a7f-29d2-4a6a-816e-059bf56be493": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:01.751276+00:00"
+    },
+    "afbfa812-053b-46b8-9f9f-46c0b48e854d": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:02.324701+00:00"
+    },
+    "a3d9f2aa-8838-4b5b-9572-4b9f40cefb44": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:09.467951+00:00"
+    },
+    "78c72b76-7a5a-4d9e-bbe0-9e64808e15a7": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:12.992718+00:00"
+    },
+    "226d59ae-60c2-4cb0-a74a-335b1ba59c0e": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:21.038995+00:00"
+    },
+    "f518209c-5080-4aae-ad0f-7b936dc81467": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:29.842110+00:00"
+    },
+    "4f18ec2c-9a72-4051-8fa9-f6f78407dabc": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:31.051295+00:00"
+    },
+    "6fb635bf-0596-4e1d-9973-c44c377aa6c7": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:31.953038+00:00"
+    },
+    "b45f0b89-8713-4d7f-8fa2-2afe3dac3df4": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:32.329238+00:00"
+    },
+    "8c8e2640-b21d-4cfb-a784-1d3e7c22f979": {
+      "usd": 0.3,
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T12:17:35.437672+00:00"
+    }
+  },
+  "receipts": [
+    {
+      "id": "d3eea3c1-e550-4e21-b340-1bd1df6f00f6",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008422999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:41.269967+00:00"
+    },
+    {
+      "id": "3272c9f2-d589-459c-9501-8eae8ff8c6ca",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005505999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:41.651361+00:00"
+    },
+    {
+      "id": "54021695-8d90-4c70-a3e9-63af67b1d6d3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006929,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:41.800106+00:00"
+    },
+    {
+      "id": "4ff5ad39-2fb9-4cd9-8d96-e14235e1e341",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0009825,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:42.056026+00:00"
+    },
+    {
+      "id": "5c97aa36-41db-4d87-a556-9313735f9736",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00039959999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:42.574508+00:00"
+    },
+    {
+      "id": "f4651b76-0dc9-4201-bd87-4debed4c9d0a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0045262,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:45.404318+00:00"
+    },
+    {
+      "id": "600f931f-0605-475f-8392-26698e12d14d",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.007557,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:48.135348+00:00"
+    },
+    {
+      "id": "7a13539c-54b5-4589-966a-3edb0270fe5a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0060427,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:48.171646+00:00"
+    },
+    {
+      "id": "add1191f-f9c8-44f6-af6d-80ed11096a3e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.007445899999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:49.631958+00:00"
+    },
+    {
+      "id": "3559ef2e-a14f-4e73-92c0-7de2bb1515ce",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0067719,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:51.978317+00:00"
+    },
+    {
+      "id": "8b7e4740-53d2-405b-b56f-d79e759aea73",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0078916,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:53.034311+00:00"
+    },
+    {
+      "id": "751d84cc-a8e9-490d-8a5a-d7ed33957a8e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0096542,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:53.289104+00:00"
+    },
+    {
+      "id": "77995684-5241-493a-bb8e-102393632a18",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0039081,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:53.828579+00:00"
+    },
+    {
+      "id": "ec6a2a54-892c-4700-ac9a-f7077adec59f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0100967,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:54.931805+00:00"
+    },
+    {
+      "id": "2ea5d4ad-4631-4fd9-934f-28a2367d8af2",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.012814299999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:56.181130+00:00"
+    },
+    {
+      "id": "6247e394-3fa9-4771-9b64-7632b72f23d5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0038099,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:57.835465+00:00"
+    },
+    {
+      "id": "0ace6e11-7cfa-4e1e-994f-b53f0ed94695",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0043948,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:58.329696+00:00"
+    },
+    {
+      "id": "5134b847-04ed-41f2-83fb-e4d34f689097",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0048877,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:58.933793+00:00"
+    },
+    {
+      "id": "64757b64-b4c0-481c-a679-4ecb7acfda91",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0048863000000000005,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:10:59.727431+00:00"
+    },
+    {
+      "id": "6c50c516-4368-48f9-b42b-e147c47685a5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0029446999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:01.174220+00:00"
+    },
+    {
+      "id": "481176ce-ff27-4104-9018-f8235ca7c613",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0015067,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:01.705705+00:00"
+    },
+    {
+      "id": "eb627d9e-fb27-48aa-a5b3-95969c5bddd8",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002496,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:01.763872+00:00"
+    },
+    {
+      "id": "6046e5da-fa65-4fb5-a86c-0a0b07840b82",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0032125,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:03.303754+00:00"
+    },
+    {
+      "id": "91b841ea-921d-4f2f-82a0-4f914724ec18",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0027761,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:03.305793+00:00"
+    },
+    {
+      "id": "ec2b71ba-f72a-4d85-a250-e53235119565",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0069896,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:04.310857+00:00"
+    },
+    {
+      "id": "d8166671-f106-4f88-bd59-bedf8cfa1218",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0013981,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:04.933347+00:00"
+    },
+    {
+      "id": "3b6c8f1f-aa30-4ec6-a363-14813d030a14",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0031889,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:05.127911+00:00"
+    },
+    {
+      "id": "6a1558b1-a065-4113-9bbb-cc6d70fcaff3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0042184,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:06.109394+00:00"
+    },
+    {
+      "id": "468f62c2-7ba6-4338-8b2b-1469b9019c80",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0033816999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:07.672070+00:00"
+    },
+    {
+      "id": "dcacc3e2-5729-42ee-8ef6-c9077280637c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0028643,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:07.867913+00:00"
+    },
+    {
+      "id": "ffa40464-6fcf-427d-9df5-037d6f114596",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0022245,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:08.874284+00:00"
+    },
+    {
+      "id": "6905a904-2a9b-4367-823a-042f3383a5f7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.006084399999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:09.962170+00:00"
+    },
+    {
+      "id": "901f51a7-2be8-48b1-acf6-7783c20df715",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0010804,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:11.069352+00:00"
+    },
+    {
+      "id": "18455a48-d4dc-44db-83d8-93aee5df9b4f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008657000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:11.074100+00:00"
+    },
+    {
+      "id": "0f83446c-853c-4e36-8e18-30c6399960e7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008412,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:11.447817+00:00"
+    },
+    {
+      "id": "b10797f1-5daf-4d39-b90e-1a17fc71cd0b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000354,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:13.317458+00:00"
+    },
+    {
+      "id": "33b07f5b-6c44-4943-a509-459ab879dc8c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0077949,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:13.949113+00:00"
+    },
+    {
+      "id": "bf86ba86-235a-407f-8736-7c76677d4f24",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.002264,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:14.700325+00:00"
+    },
+    {
+      "id": "e1142ba6-1d97-419d-b670-4ab3f4e1581a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0046714,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:14.712360+00:00"
+    },
+    {
+      "id": "b1888f59-9bf6-4977-bb8c-5f12a0d9f838",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0057687,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:17.504484+00:00"
+    },
+    {
+      "id": "fd4a9241-be98-4a37-a415-cb9415442716",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.004532,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:18.359918+00:00"
+    },
+    {
+      "id": "6a274edb-a839-4644-a8bb-bf3989dd3067",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.002219,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:19.042674+00:00"
+    },
+    {
+      "id": "4e94ea30-c90d-477a-b688-35d955347c21",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005248,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:20.172084+00:00"
+    },
+    {
+      "id": "e1710ae5-cb5d-46fc-85bd-cec98af71aa7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0049578,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:20.246656+00:00"
+    },
+    {
+      "id": "7a6b08b1-d181-46a3-a837-adb42f867d09",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0031742,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:22.610103+00:00"
+    },
+    {
+      "id": "14626df4-106b-4def-be01-72f1e7490201",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00027209999999999995,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:22.640876+00:00"
+    },
+    {
+      "id": "421d8cb8-8f00-468a-bcd2-2d7a0297e0b4",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0021269,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:22.909962+00:00"
+    },
+    {
+      "id": "4fa4a9b6-50f4-4759-bb88-994e27356fe0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0016284000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:26.409156+00:00"
+    },
+    {
+      "id": "e00f05fb-98d1-48ec-b2be-a78a94c14f12",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.004375,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:26.585119+00:00"
+    },
+    {
+      "id": "5b55e3ed-fb06-4c70-9c20-6739978fbb62",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0025571,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:26.840854+00:00"
+    },
+    {
+      "id": "b2027672-dbf2-4713-90c6-67013f48eb19",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0027932,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:27.308097+00:00"
+    },
+    {
+      "id": "83ce9eef-1a97-4ff6-97e1-8ce9afd88fad",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008622,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:28.983150+00:00"
+    },
+    {
+      "id": "4060a652-d949-421b-8b31-829cc682e0fc",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0168425,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:30.038710+00:00"
+    },
+    {
+      "id": "46f37eca-7e22-4335-a804-46549d2c2dd4",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.008451700000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:30.295155+00:00"
+    },
+    {
+      "id": "2c64b72d-9251-47e7-a617-3fd62a83bc3f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.003,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:31.468551+00:00"
+    },
+    {
+      "id": "ee59c669-5b67-4e37-94ae-569f24746497",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0032804,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:31.876535+00:00"
+    },
+    {
+      "id": "d63ed603-f155-4872-9c62-777725c788f7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.017118900000000003,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:32.694506+00:00"
+    },
+    {
+      "id": "0d52e51f-3f1a-42ef-adad-fc0976bd945a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0019214000000000002,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:33.370329+00:00"
+    },
+    {
+      "id": "96a6d171-8fce-4a99-b81d-b769d3032e21",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0025828,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:34.097098+00:00"
+    },
+    {
+      "id": "7e0300fd-b132-45ac-82a3-950268ef0d23",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003765,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:34.699821+00:00"
+    },
+    {
+      "id": "8a901fac-6f7e-4a6a-b2fa-a905e9a3b621",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008979,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:35.600884+00:00"
+    },
+    {
+      "id": "5b5b9a3b-81c6-410d-9125-f54d37bd19b9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0011367999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:35.682357+00:00"
+    },
+    {
+      "id": "5de8e36d-7e05-46f1-8d61-fe1301390f8f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.002936,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:36.049751+00:00"
+    },
+    {
+      "id": "a0a85b10-50d9-47f3-9e6c-90fb0ded9368",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.003019,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:36.573163+00:00"
+    },
+    {
+      "id": "a11dc41b-82a1-4df6-8ab8-fba3bd6a5afa",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0023607,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:38.279196+00:00"
+    },
+    {
+      "id": "1bd3b059-dc2c-4b50-b609-6effe25e91fb",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0010365,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:38.465735+00:00"
+    },
+    {
+      "id": "065e636c-20b0-4aac-b805-ee87e45e33fe",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0087604,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:40.009852+00:00"
+    },
+    {
+      "id": "ae6991dd-7ddf-4abd-919a-d5323c335872",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0010945999999999998,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:41.030231+00:00"
+    },
+    {
+      "id": "ede8e87b-a33e-4d7b-bf2e-ff37c37901f3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0063544,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:41.431804+00:00"
+    },
+    {
+      "id": "281142a3-0264-4d9d-9023-e4ecad775a19",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0022581999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:42.400967+00:00"
+    },
+    {
+      "id": "75f3c755-b849-43d3-8e4d-390ac6941a90",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0032308000000000003,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:43.308321+00:00"
+    },
+    {
+      "id": "525d2656-f930-4aec-8314-a0b6749d7c50",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0029879,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:43.813239+00:00"
+    },
+    {
+      "id": "1f73cfb7-1cb6-4360-9404-2174e85b0e8d",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0331722,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:43.840239+00:00"
+    },
+    {
+      "id": "4cc2ba50-f912-422d-96c6-77339d4f604b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0023955,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:46.543905+00:00"
+    },
+    {
+      "id": "6f35c355-acfa-422b-9c35-9647786495bb",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0081222,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:47.119001+00:00"
+    },
+    {
+      "id": "17a3f714-5e0e-480a-9af2-b7a780baa0a7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.005262,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:47.371328+00:00"
+    },
+    {
+      "id": "fd47f64e-a9db-45d5-ac64-842f8022402b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0009216,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:50.528497+00:00"
+    },
+    {
+      "id": "9650a11f-4e8e-49c2-b04c-8ae9ffd789b0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.008935,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:50.978081+00:00"
+    },
+    {
+      "id": "e1ffb5d3-f4c3-4951-a59a-5582d586b085",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0066465,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:51.585744+00:00"
+    },
+    {
+      "id": "a940ca86-93df-4741-a579-e92e438966d3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0030951,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:51.697755+00:00"
+    },
+    {
+      "id": "cea3512b-342d-4e75-afb1-687eb4526c52",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0035808000000000003,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:52.834611+00:00"
+    },
+    {
+      "id": "b32068f7-2fc3-4695-bb0b-42263a1aeedb",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0017578,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:54.451992+00:00"
+    },
+    {
+      "id": "71c9378a-3bbe-4e06-8257-20ee2dad39bf",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0033786999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:56.449981+00:00"
+    },
+    {
+      "id": "e19c82df-31b4-449e-a986-9dfb83de2bdb",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0040504,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:56.777790+00:00"
+    },
+    {
+      "id": "c840dcb4-5c64-49d9-82df-52552913f10f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0020545999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:11:59.458117+00:00"
+    },
+    {
+      "id": "f19e6232-ef21-4221-b7ae-b4966bfced56",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.030561,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:09.484390+00:00"
+    },
+    {
+      "id": "2c139018-be69-4a6e-836f-23ab2a17138b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0070856999999999995,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:11.925349+00:00"
+    },
+    {
+      "id": "5c415406-3ae9-4bdd-8cff-872b11a88bfa",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0053139,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:17.271616+00:00"
+    },
+    {
+      "id": "3dbace74-26ab-4baa-85bc-650038bc3153",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0141651,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:20.922429+00:00"
+    },
+    {
+      "id": "bdecd42b-e62e-47b7-ba61-3ccc02043bdc",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0075186,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:20.930486+00:00"
+    },
+    {
+      "id": "748a4228-a173-40b3-a448-d86d39d064b0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003615,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:28.766442+00:00"
+    },
+    {
+      "id": "9196734f-0625-4a57-8370-9efd4b4d0072",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0037859,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:34.678090+00:00"
+    },
+    {
+      "id": "7bf41e6c-1243-404d-8935-f41434f99648",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.015098700000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:37.702062+00:00"
+    },
+    {
+      "id": "48e499df-1cab-4ca2-a318-941945653e53",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0061639,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:45.829430+00:00"
+    },
+    {
+      "id": "04166c35-fff3-47b9-bf2c-3e7648a97c27",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006995999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:48.344413+00:00"
+    },
+    {
+      "id": "e63c84ab-ef23-4afc-8c67-6af300c79b76",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0018928,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:48.615807+00:00"
+    },
+    {
+      "id": "6e567f74-6c65-4d38-a473-2835f234c129",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0024002,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:49.225903+00:00"
+    },
+    {
+      "id": "6d2dec29-b331-48ce-bd33-a88cb0856678",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0024305,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:50.371493+00:00"
+    },
+    {
+      "id": "a186aa8f-d897-4448-992e-7c6ef4f165e3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00492,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:51.921606+00:00"
+    },
+    {
+      "id": "8fb58d2b-96f4-4b37-a521-7b228f5e8cc7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0038666,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:52.218144+00:00"
+    },
+    {
+      "id": "c647a211-0be0-4a5d-b5b3-61a264bd8be5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0048766,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:52.302696+00:00"
+    },
+    {
+      "id": "f7f0e4cf-8b1a-4161-b18b-9194b5d8cd26",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0041635,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:52.402907+00:00"
+    },
+    {
+      "id": "244bd9b6-8407-41bb-b438-ee20d3fd431d",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004975,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:52.538031+00:00"
+    },
+    {
+      "id": "e4ef0652-ba88-444e-a9b0-e5100e6b0796",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0035804,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:52.614612+00:00"
+    },
+    {
+      "id": "54bbcd93-0f17-4988-8d13-fece55d9e698",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007981999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:54.476595+00:00"
+    },
+    {
+      "id": "e06b7f76-9f16-44dd-8320-25fdf6e37d5b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0013641999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:55.323863+00:00"
+    },
+    {
+      "id": "4f3c2a71-b709-4435-ad7a-9c6e33ba7066",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.005561399999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:55.395493+00:00"
+    },
+    {
+      "id": "28a706b3-2c1d-4350-9010-98e022246e78",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0011919,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:55.550975+00:00"
+    },
+    {
+      "id": "80a1c14f-4323-468d-8952-b229e1a16bbe",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0053828999999999995,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:55.645610+00:00"
+    },
+    {
+      "id": "7dbb137a-1209-45d8-a1a3-de22a0a27703",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0023531999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:56.177353+00:00"
+    },
+    {
+      "id": "94143942-fbe6-492a-b2bc-43b8ade25685",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0036524,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:57.023152+00:00"
+    },
+    {
+      "id": "f8efe35b-04f5-46b8-bfbb-77e804861c20",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0028004,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:12:57.390879+00:00"
+    },
+    {
+      "id": "cfca615f-0abe-4174-87cb-7814329fce63",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0040519,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:00.792021+00:00"
+    },
+    {
+      "id": "4bb78846-8d52-402c-b7b1-e2f3f6271424",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0059493,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:03.426322+00:00"
+    },
+    {
+      "id": "2b57f5eb-8193-403e-8212-9d1954441551",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002352,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:08.371417+00:00"
+    },
+    {
+      "id": "833ed874-f69e-4b26-93bd-23acb0cbfa01",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002502,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:08.573652+00:00"
+    },
+    {
+      "id": "561df843-23c5-4552-8629-32c8483aca67",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00022769999999999998,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:08.603982+00:00"
+    },
+    {
+      "id": "4a698e2d-738a-4c7e-9e44-2ae1db45a756",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002677,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:08.911233+00:00"
+    },
+    {
+      "id": "07bd4e09-146c-4ee7-9351-13e1a754d1e5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004527,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:09.270278+00:00"
+    },
+    {
+      "id": "a08a4d4d-e485-4379-b10f-ce9caa7abead",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006077000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:09.328115+00:00"
+    },
+    {
+      "id": "4cf61be8-c412-4558-b797-3d95b87620de",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003877,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:09.360606+00:00"
+    },
+    {
+      "id": "f82060b5-bc43-41df-b047-91ad5091ed94",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004277,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:09.448733+00:00"
+    },
+    {
+      "id": "77e81648-516e-4fce-a89c-f04babfb65d5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002631,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:10.955811+00:00"
+    },
+    {
+      "id": "1f29e2a9-0801-4e9f-b05a-cb607f7260b5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008181,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:11.482902+00:00"
+    },
+    {
+      "id": "aa041061-861a-4bf0-b7ef-b9b71f10b806",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002281,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:11.535519+00:00"
+    },
+    {
+      "id": "9ea6b6b1-939f-4287-a91e-38b53d8d4aca",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0009906000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:11.854124+00:00"
+    },
+    {
+      "id": "c5149ada-c0be-4f76-aaab-1edd6e7dc0d1",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005656,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:12.100817+00:00"
+    },
+    {
+      "id": "6f81c9a0-963f-4a53-89a0-b7ec9b4fe2a3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002631,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:12.172372+00:00"
+    },
+    {
+      "id": "5d09a1f4-9ff5-4e71-8a03-e168ff52f816",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0010256,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:12.571259+00:00"
+    },
+    {
+      "id": "fcb2a57e-7b52-4e31-80ed-b4531ba79f1d",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0012630999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:13.060870+00:00"
+    },
+    {
+      "id": "c8e0f668-e266-45aa-8d6e-619a2a19b6bb",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004495,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:14.344148+00:00"
+    },
+    {
+      "id": "93329bb1-c2a6-4fb8-b2d9-40b6a7670b0c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003445,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:14.844832+00:00"
+    },
+    {
+      "id": "be7df1a9-f1a1-4353-b8ed-6141f98d823d",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000287,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:15.111017+00:00"
+    },
+    {
+      "id": "2fa01052-877d-4783-8947-3b1f56ffe2f7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000357,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:15.120616+00:00"
+    },
+    {
+      "id": "59d658dc-ea61-4c94-8627-fb3cc3b9eac3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000217,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:15.298497+00:00"
+    },
+    {
+      "id": "16ba3345-e7cd-4948-8255-196a537c82f9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003895,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:15.408006+00:00"
+    },
+    {
+      "id": "1b666945-0b36-454d-85ee-a82b55257981",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000287,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:15.696107+00:00"
+    },
+    {
+      "id": "04e7c867-5ed0-42af-b628-a4420db5ff16",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004345,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:16.352389+00:00"
+    },
+    {
+      "id": "6e8a1bbb-1c94-4384-aa5d-bd10d4abfcf2",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00036510000000000004,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:17.396834+00:00"
+    },
+    {
+      "id": "7db3e377-af80-4341-8efa-6b53663a0282",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00031939999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:17.745441+00:00"
+    },
+    {
+      "id": "a9dbe895-397b-4793-a297-fb3da2e54cb0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005605,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:17.986513+00:00"
+    },
+    {
+      "id": "fa948647-2f5c-42d9-a8e6-2e6238a0518a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005649,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:18.053378+00:00"
+    },
+    {
+      "id": "a9022cb5-c618-4b16-90ca-6f5d8f152c80",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00029729999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:18.089623+00:00"
+    },
+    {
+      "id": "2d44950a-e135-43f3-a5a7-01aab9ba49f7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005557,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:18.136453+00:00"
+    },
+    {
+      "id": "278b5e28-dc34-4725-afb7-6cc3d4f99614",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006994,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:18.575362+00:00"
+    },
+    {
+      "id": "584ca8a1-7bc4-4aba-9de8-4fbb5bdf69d3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003465,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:18.928900+00:00"
+    },
+    {
+      "id": "7445cbf6-842a-4794-947b-e02a7b82312a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005708,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:20.031546+00:00"
+    },
+    {
+      "id": "a88c3f21-0322-4653-8771-d13758b5a2a9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005683,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:21.044292+00:00"
+    },
+    {
+      "id": "581ac63b-3c2a-46f9-a6f4-68cf6e12bb62",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005907999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:21.317935+00:00"
+    },
+    {
+      "id": "0771060e-c8a2-405f-ae02-ad7638e849e0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004508,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:21.576766+00:00"
+    },
+    {
+      "id": "9c418994-71b4-4b6d-93be-115e66235d71",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005333,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:21.695714+00:00"
+    },
+    {
+      "id": "6b204a12-7f1a-48ce-ba16-596cb35b487c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006582999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:22.016404+00:00"
+    },
+    {
+      "id": "2c61f441-74df-4b3c-a6ba-5afbe2a09bfa",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005983,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:22.361890+00:00"
+    },
+    {
+      "id": "41854da2-e88f-40ae-a404-3eadf7c34cd9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004508,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:22.434092+00:00"
+    },
+    {
+      "id": "6ffac594-3bbd-47f5-b08d-c26cf1cc0498",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004962,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:23.136067+00:00"
+    },
+    {
+      "id": "47caf110-6c91-4bf9-8581-cdf4d2d7d836",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007412,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:24.013738+00:00"
+    },
+    {
+      "id": "a3b7b7ec-292a-4922-b3ac-dd48c81f92bc",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003162,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:24.201247+00:00"
+    },
+    {
+      "id": "84493623-015c-4b99-80e7-14a5ea4056cf",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005312,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:24.275829+00:00"
+    },
+    {
+      "id": "39ffcdfe-5dd8-4845-bc3e-dc889300afa2",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0011462,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:24.498764+00:00"
+    },
+    {
+      "id": "7c74eaba-4400-4d7f-8f9a-85b1156ee05f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005962000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:24.954686+00:00"
+    },
+    {
+      "id": "f2299cd4-5f16-41d6-b75a-ff12a70925d9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00043369999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:25.385088+00:00"
+    },
+    {
+      "id": "5a6d50ad-849d-4e34-a83c-0488889e0114",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:25.812622+00:00"
+    },
+    {
+      "id": "3ce044dc-d4db-409c-9675-36006ac3145f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0012887,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:25.907304+00:00"
+    },
+    {
+      "id": "90ac5f14-4c30-4d39-a579-fca12c5db366",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003076,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:26.955623+00:00"
+    },
+    {
+      "id": "e318e89d-9a4b-4505-bcdd-801320a3dd17",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003551,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:27.570195+00:00"
+    },
+    {
+      "id": "ce05ab04-f10d-4bc1-b230-92dfe20870c5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00036260000000000003,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:27.642625+00:00"
+    },
+    {
+      "id": "303211d4-65c3-4e35-b4e8-95af942e5328",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004226,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:27.649049+00:00"
+    },
+    {
+      "id": "5b0fe543-0390-4f04-a03f-7d99ab7c5484",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003801,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:28.179547+00:00"
+    },
+    {
+      "id": "6d768e84-8904-4d6d-9f7d-3880d21a113e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003571,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:28.639909+00:00"
+    },
+    {
+      "id": "b971dcc3-3ae5-4799-8c26-d17331253986",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00039010000000000005,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:28.644425+00:00"
+    },
+    {
+      "id": "617db0b2-c90b-4b4c-8e21-eacdd2c19836",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004665,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:28.827479+00:00"
+    },
+    {
+      "id": "f29e8903-a863-4b6d-b6f2-4ebf5524f29a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003627,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:30.000992+00:00"
+    },
+    {
+      "id": "77c2e9eb-5da5-4942-988e-0021ec6beb37",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003315,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:30.541763+00:00"
+    },
+    {
+      "id": "ee5255a3-192e-4b9b-88a6-d27e7476e6a1",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00048560000000000004,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:31.136289+00:00"
+    },
+    {
+      "id": "c81c803a-0aec-453a-912b-5320482c7caf",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006096000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:31.600201+00:00"
+    },
+    {
+      "id": "8d67c1d3-42e1-468b-beaa-9a75ce25517f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0010455,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:31.662243+00:00"
+    },
+    {
+      "id": "80a943e8-4398-4a03-9b43-d820b0ef560e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005261,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:31.842920+00:00"
+    },
+    {
+      "id": "915f6f94-5d66-445e-b814-72dfe05060dc",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00044360000000000005,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:31.852771+00:00"
+    },
+    {
+      "id": "edea7fca-b062-4a7a-bfc9-0ee2c72a0489",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006112,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:31.940623+00:00"
+    },
+    {
+      "id": "d69f56b8-f217-4787-ac03-71fbe26a3a68",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004036,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:32.478664+00:00"
+    },
+    {
+      "id": "c37ec6b3-f649-4518-b1a3-c0f772eb602e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005836,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:34.413135+00:00"
+    },
+    {
+      "id": "69be2a22-373f-41cb-a068-2de044e48f0a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002665,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:35.946940+00:00"
+    },
+    {
+      "id": "2e03fd8b-af81-476e-b6c4-7efa39d71725",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002815,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:36.263175+00:00"
+    },
+    {
+      "id": "d40ae77c-dffc-4af7-bad3-939f87a34f56",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003615,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:36.806853+00:00"
+    },
+    {
+      "id": "9fb6f56c-f7d7-4d07-800a-2254aac6bb0c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.001009,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:37.046829+00:00"
+    },
+    {
+      "id": "290435ab-6d6e-44ad-9505-aca404015ca5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004565,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:37.227885+00:00"
+    },
+    {
+      "id": "8d915d18-446e-4dde-9089-411969617199",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000439,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:37.745215+00:00"
+    },
+    {
+      "id": "f694d47d-c1e9-4bd8-9deb-2c40aec9ee2f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004115,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:37.780505+00:00"
+    },
+    {
+      "id": "0457cac7-6c7c-43d3-a0f9-9ec0da4d1a5e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004479,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:41.638621+00:00"
+    },
+    {
+      "id": "86e3d543-5ae6-4a62-a7ba-a0e4e76421d2",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002979,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:41.747293+00:00"
+    },
+    {
+      "id": "e2ebc633-9e9b-4d98-bce3-b7bf766ee7f2",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00043789999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:42.173882+00:00"
+    },
+    {
+      "id": "8fe0145e-523a-4646-b530-8b6f2c5c5f86",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003229,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:42.230589+00:00"
+    },
+    {
+      "id": "560cb4c6-2188-4fc6-b67e-f06b00ea5bc6",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002579,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:42.238777+00:00"
+    },
+    {
+      "id": "dec54f9c-5b82-4e24-bba0-76c1bb9b7b7b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002579,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:42.638044+00:00"
+    },
+    {
+      "id": "5f58f32b-f8f8-4492-b124-aec8e223b0d9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002654,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:42.958506+00:00"
+    },
+    {
+      "id": "62dee6a3-7bb3-4702-9b89-33b169decb91",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00029289999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:42.972220+00:00"
+    },
+    {
+      "id": "efc408c2-dc55-408b-8240-b672b39fa92a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00034379999999999995,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:46.570456+00:00"
+    },
+    {
+      "id": "63a42f9f-1008-4869-9e33-09e024afa3cb",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003405,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:47.027068+00:00"
+    },
+    {
+      "id": "8637569f-674a-4296-8272-578045110fcd",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00032760000000000005,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:47.258933+00:00"
+    },
+    {
+      "id": "252b882c-90ee-4bb8-9709-f5431dd88990",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007046,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:47.639705+00:00"
+    },
+    {
+      "id": "ceac835c-6175-4331-928d-16b0d5ff28ce",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005985,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:47.864886+00:00"
+    },
+    {
+      "id": "e28c4cc1-35dc-4a60-b629-7c5bf3403638",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005351,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:48.008345+00:00"
+    },
+    {
+      "id": "5334e6a4-e59f-4f50-99ff-15cb8d46c664",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005841,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:48.116489+00:00"
+    },
+    {
+      "id": "8abffa27-7be2-42b8-93bb-9ca35455eeba",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003694,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:48.490188+00:00"
+    },
+    {
+      "id": "3bb40abe-0977-492c-921a-0a265b9a09d5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004839,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:51.126748+00:00"
+    },
+    {
+      "id": "07a21534-41b6-4b50-8659-46973e25bbbd",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00038389999999999995,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:51.544734+00:00"
+    },
+    {
+      "id": "0ec2e741-4653-4ce7-86a9-afc69facdbd4",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00039139999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:52.038234+00:00"
+    },
+    {
+      "id": "54a22660-3ed9-4f6e-ad89-c8dbbfe51faf",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003714,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:52.046455+00:00"
+    },
+    {
+      "id": "d200fb73-c7ec-4153-af1e-007a2c5fcf2d",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003714,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:52.376813+00:00"
+    },
+    {
+      "id": "96d44b50-2bb0-4076-a05f-14085ea1e4b3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004339,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:53.132016+00:00"
+    },
+    {
+      "id": "45c4bda9-9287-4cf4-b34f-e78245ce8e9c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00038639999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:53.317822+00:00"
+    },
+    {
+      "id": "e1d723cb-c7e3-4c37-a59e-11e4fc9638f9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004914,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:53.468565+00:00"
+    },
+    {
+      "id": "4f77f959-4fe4-43a8-864e-5df049f0a56b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002818,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:55.316516+00:00"
+    },
+    {
+      "id": "b1e99107-9160-4df8-889c-e1798e490000",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002843,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:55.361693+00:00"
+    },
+    {
+      "id": "69d74edb-41a0-40ef-b652-5e4694e7ae67",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002968,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:56.301381+00:00"
+    },
+    {
+      "id": "b95e02dc-a5ef-4d28-aaa9-1f0800047bad",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002968,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:56.563652+00:00"
+    },
+    {
+      "id": "a511312d-7adc-49b6-83d8-8561d4eb468e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002968,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:57.029092+00:00"
+    },
+    {
+      "id": "6f658339-0909-4d33-b9e4-9036d9cc5faa",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002718,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:57.582489+00:00"
+    },
+    {
+      "id": "0a48a9ff-600e-4d10-ba4e-533e1b051f73",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002968,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:57.763436+00:00"
+    },
+    {
+      "id": "48382f3b-f0c1-45be-a3ad-0036ba973a38",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002968,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:57.999928+00:00"
+    },
+    {
+      "id": "5c456d62-a6c1-4621-ade1-c3bb245de6ec",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004332,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:13:59.771506+00:00"
+    },
+    {
+      "id": "062ca62f-fab5-415e-a219-d43d8e1e12f5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004632,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:00.201104+00:00"
+    },
+    {
+      "id": "6ded0e2f-002e-430f-a563-4fb050d1a2b2",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002982,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:00.794885+00:00"
+    },
+    {
+      "id": "0efb3fc4-92bb-44d4-80b4-ca4cff11e51b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005057,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:01.123454+00:00"
+    },
+    {
+      "id": "e1f5b18e-6a4b-4f6e-9bd2-f8040866fbae",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004307,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:01.159551+00:00"
+    },
+    {
+      "id": "482be736-b180-4e8c-9c48-20260537d61f",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002982,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:02.536986+00:00"
+    },
+    {
+      "id": "6ac271f6-fed5-4419-b892-49ec434e4705",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004432,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:02.897897+00:00"
+    },
+    {
+      "id": "2067ef2c-fffe-407d-85ba-48dfde4828ca",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003852,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:04.536923+00:00"
+    },
+    {
+      "id": "0e91f1c8-6d18-4f5d-a3c4-a38b4a87170e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008749,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:04.629573+00:00"
+    },
+    {
+      "id": "51c1b792-2f8f-4eac-8bd4-c7f56f5870d9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00046229999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:04.973039+00:00"
+    },
+    {
+      "id": "72735b16-f836-4757-9c15-2dfb86994bff",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00039319999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:05.269186+00:00"
+    },
+    {
+      "id": "f1f27b3b-be15-465a-8d7e-81cfef89a4be",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003564,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:05.710232+00:00"
+    },
+    {
+      "id": "17945145-8478-4330-97a9-c8f811ebc974",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005832999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:06.099016+00:00"
+    },
+    {
+      "id": "add73025-d90a-47f8-b7ed-61d2cf81bb10",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00035079999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:07.246972+00:00"
+    },
+    {
+      "id": "1033b8c1-631b-46dc-8fe4-f7a714a4951d",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004718,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:07.970948+00:00"
+    },
+    {
+      "id": "72e7222a-ea33-43f4-a80e-c5a549cc7c9b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000583,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:09.056740+00:00"
+    },
+    {
+      "id": "f0eb3a63-c4eb-4853-ad39-baddf38173a1",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000468,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:09.340697+00:00"
+    },
+    {
+      "id": "d025651d-a6d3-467c-b4c7-fbf005cc3f38",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000453,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:09.655578+00:00"
+    },
+    {
+      "id": "52266061-81b0-4518-b26d-c60ab023a538",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000613,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:09.917956+00:00"
+    },
+    {
+      "id": "5065c7db-0137-4e9c-84f2-f9bd02eb9ccf",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005355,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:10.027301+00:00"
+    },
+    {
+      "id": "d1bf223e-f409-43bd-b20c-ac021983183e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006355,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:10.453226+00:00"
+    },
+    {
+      "id": "0b35d850-b6e7-40a0-90df-4ff8315e2c0c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006405,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:12.088627+00:00"
+    },
+    {
+      "id": "2da3a361-b69e-4965-896c-4beb8fbc5652",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00045339999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:13.571360+00:00"
+    },
+    {
+      "id": "c1d6c2b7-a9ef-41c9-9eb3-2f46d9200973",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004034,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:13.994492+00:00"
+    },
+    {
+      "id": "221365fb-8893-4b8c-90c4-bd9710025a89",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00041089999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:14.416378+00:00"
+    },
+    {
+      "id": "e1d92007-3e6f-4e15-bb33-748b874ee702",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007758999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:14.431968+00:00"
+    },
+    {
+      "id": "d75f3b0e-c130-4c9a-9f20-a60a6bbe6a9b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00047589999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:14.549773+00:00"
+    },
+    {
+      "id": "17758881-0f07-4eae-8920-c857658bfeaa",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0010534000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:14.637881+00:00"
+    },
+    {
+      "id": "82fb8c12-dc44-412b-96d8-190468d5f027",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00043339999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:15.231048+00:00"
+    },
+    {
+      "id": "6cb2f6bf-9df6-4e91-8263-b57b376db379",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002384,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:15.585818+00:00"
+    },
+    {
+      "id": "ab81350e-5613-4952-a19e-24d3ebf46a11",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002926,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:17.796335+00:00"
+    },
+    {
+      "id": "2e35a97a-39bb-417a-a9e9-6bb1cd17294b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0002926,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:18.600083+00:00"
+    },
+    {
+      "id": "5ea49808-d122-46eb-bf77-5cf8d17852e7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00028010000000000003,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:18.676333+00:00"
+    },
+    {
+      "id": "695adf7c-9089-48a1-890a-a77597827c68",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004901,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:18.923327+00:00"
+    },
+    {
+      "id": "6babf086-0ce0-4625-a095-3b2e86aa1cb6",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004901,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:18.988673+00:00"
+    },
+    {
+      "id": "7f539292-65cf-4336-b13c-f3edf3b405a7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00045010000000000004,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:19.260858+00:00"
+    },
+    {
+      "id": "d60574db-057f-4112-aede-701613679964",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00042510000000000003,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:19.953781+00:00"
+    },
+    {
+      "id": "70363917-4973-46ac-a8c6-b6e115f862a8",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005076,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:20.206242+00:00"
+    },
+    {
+      "id": "29f04022-bf5c-46fa-a9cb-8f5845759176",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003564,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:21.289618+00:00"
+    },
+    {
+      "id": "14ee4cd7-7b51-4999-98cf-80e9b9511ecb",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00038260000000000003,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:22.392627+00:00"
+    },
+    {
+      "id": "ecce5aa7-7a75-47c1-832a-50083037ae35",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00033739999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:22.726169+00:00"
+    },
+    {
+      "id": "a34b4d86-fa51-4f12-bdd6-99cf1da0c285",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004792,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:23.112693+00:00"
+    },
+    {
+      "id": "dd66ad4b-0e80-4555-b6f7-028f016b169b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006334,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:23.338023+00:00"
+    },
+    {
+      "id": "def19bdd-153b-46cb-a9a0-49f5f81d8750",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005536,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:23.863146+00:00"
+    },
+    {
+      "id": "22b535f7-1ebf-41e5-aafd-ebd1aedabba5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005937000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:24.022932+00:00"
+    },
+    {
+      "id": "e2a54014-b308-46b5-92c5-d0cbb42356f5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00033429999999999994,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:24.655295+00:00"
+    },
+    {
+      "id": "9d47f65a-0d99-4b4e-9bcd-3864fa453621",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006073,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:25.249370+00:00"
+    },
+    {
+      "id": "07618848-2b5c-4afa-a5a6-1b86cfc6a9b9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004148,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:26.628568+00:00"
+    },
+    {
+      "id": "4521c824-3f50-4113-80e2-bac70a81a256",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003748,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:27.579563+00:00"
+    },
+    {
+      "id": "95d5c7e0-507a-4812-8887-775c5651fd36",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004798,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:27.706140+00:00"
+    },
+    {
+      "id": "1a4d937e-fe7f-40c1-ae6b-3844b24d72ff",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007122999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:28.718776+00:00"
+    },
+    {
+      "id": "4a0a3238-cc7c-4376-af65-f2f6d783eee6",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00046019999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:30.039508+00:00"
+    },
+    {
+      "id": "7dd80697-6880-4263-bc19-8e24219c21aa",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0012477,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:30.410866+00:00"
+    },
+    {
+      "id": "f896c3a6-52a1-4571-9c2c-0f0cd0573d08",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004852,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:30.516682+00:00"
+    },
+    {
+      "id": "1d20ec03-e2c9-41e3-a929-d1f9ef57cda0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00048269999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:31.310489+00:00"
+    },
+    {
+      "id": "3e9bba23-9111-489c-aa31-83a2c95dfc43",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004577,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:31.576758+00:00"
+    },
+    {
+      "id": "2824a46a-5f44-4573-b6e1-ca7d9760b632",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004327,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:32.394926+00:00"
+    },
+    {
+      "id": "8b9dda22-a0a0-41a6-9bb2-5b2bd49856a9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00042019999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:32.755249+00:00"
+    },
+    {
+      "id": "23cc61e0-1344-4bd4-8ccc-9f3108ccafcd",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00039630000000000004,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:34.446177+00:00"
+    },
+    {
+      "id": "2478238b-bb14-470d-b70b-d0b822bb0071",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004988,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:34.906973+00:00"
+    },
+    {
+      "id": "c1e5c633-a8d7-4a05-9927-983a190b053d",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005262999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:35.089755+00:00"
+    },
+    {
+      "id": "4c3f7f90-b371-4873-9ceb-6d235613d317",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004463,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:35.585066+00:00"
+    },
+    {
+      "id": "48be482f-8fc7-48e2-8aeb-f53e4e37179b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004588,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:35.658512+00:00"
+    },
+    {
+      "id": "d9e5efbb-794d-4254-b003-a5af4a53a8b8",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003163,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:36.212615+00:00"
+    },
+    {
+      "id": "61083a88-e164-4243-842d-14f7e25e0a9e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004238,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:36.975474+00:00"
+    },
+    {
+      "id": "b1df7645-a656-45a2-8329-ff946fc7bf48",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00041630000000000004,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:37.090238+00:00"
+    },
+    {
+      "id": "ef7efbbc-7313-4811-956e-9cff72bd5e80",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00039979999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:39.709498+00:00"
+    },
+    {
+      "id": "6f251f1b-bbd6-4e40-935f-b6bf7d3eca72",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0011205999999999998,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:39.791062+00:00"
+    },
+    {
+      "id": "9b5a9925-297f-4576-96b2-f1266e35a989",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005032,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:39.901577+00:00"
+    },
+    {
+      "id": "d5ea17d4-02cf-4ea6-83fb-ba4437f8a41a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007246,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:41.167664+00:00"
+    },
+    {
+      "id": "f15b2c80-03fc-47bd-99c6-ea044dab23d3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0018582,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:41.366272+00:00"
+    },
+    {
+      "id": "c1c24df1-fab3-4d7e-8c83-e20f888a38da",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00039979999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:41.860408+00:00"
+    },
+    {
+      "id": "fb10e072-e0c2-4bd8-8c31-631f501dae87",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006738,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:41.927465+00:00"
+    },
+    {
+      "id": "b1024c09-0666-4472-9317-1d4837ab613e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004164,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:42.092636+00:00"
+    },
+    {
+      "id": "e01a8cd2-9296-42d4-be3a-a01435c7a638",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004336,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:48.153318+00:00"
+    },
+    {
+      "id": "4a44783b-0a70-44fa-8ef6-a58377434b7a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004311,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:48.412200+00:00"
+    },
+    {
+      "id": "75ca5647-8046-4fd7-97d4-6bd56877cf53",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005038999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:48.527901+00:00"
+    },
+    {
+      "id": "bf7fbd7f-5711-4442-8879-9825f81b7eeb",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004061,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:48.607308+00:00"
+    },
+    {
+      "id": "8cdb0d25-9b5e-48ee-ab84-4049f4cc0e72",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004239,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:48.865111+00:00"
+    },
+    {
+      "id": "6ea849ca-9d6e-424a-80d4-20db34856481",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007716,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:49.351506+00:00"
+    },
+    {
+      "id": "aeb69b19-18d4-40ef-a7e6-791474f18833",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006661,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:49.629441+00:00"
+    },
+    {
+      "id": "dfe160f9-c09c-4246-aa41-92e9f456f18c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004892,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:52.572942+00:00"
+    },
+    {
+      "id": "03067bc8-d45e-4a5f-968b-5d901f1ac279",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008266,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:53.140758+00:00"
+    },
+    {
+      "id": "6ae2b78d-5268-4401-8570-eb45fc0c3ef2",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0003545,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:53.567692+00:00"
+    },
+    {
+      "id": "194f959c-16fb-4e13-a381-6cd688a6c8ef",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005067,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:53.691017+00:00"
+    },
+    {
+      "id": "224cacd3-ad4a-4621-9ffa-8c0edadd76a0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004395,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:54.060340+00:00"
+    },
+    {
+      "id": "47fe1a79-0310-4e7d-b5fd-2db41ee323f6",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007172000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:54.123450+00:00"
+    },
+    {
+      "id": "451df641-0d5c-4961-9fa2-e70ffc32e04e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006917000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:54.264017+00:00"
+    },
+    {
+      "id": "df2168e7-8d08-4859-b6b9-de38527ca515",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005142,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:55.377296+00:00"
+    },
+    {
+      "id": "27bbdb51-c659-4d58-aa34-5b7d604d6a6b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004095,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:57.771560+00:00"
+    },
+    {
+      "id": "f13355bd-d90c-4d5f-9381-046aa4b75c14",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007747,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:57.777520+00:00"
+    },
+    {
+      "id": "5eb5421f-4c7d-4225-b80c-fc22a8718a31",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004948,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:58.746359+00:00"
+    },
+    {
+      "id": "9515f6de-0b0e-4a6f-8e8a-49a13f8051ee",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000477,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:59.283599+00:00"
+    },
+    {
+      "id": "7064dc54-b96e-438c-bda7-1dba368d04a0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000477,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:59.921763+00:00"
+    },
+    {
+      "id": "c1c6ddf9-6acc-4fac-98a4-8c10003af48c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00085,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:14:59.983276+00:00"
+    },
+    {
+      "id": "07a245ec-b6ea-470f-b064-451e5af87061",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004648,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:00.172096+00:00"
+    },
+    {
+      "id": "c43858a1-6df4-4b30-a42b-690b29ed985e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000587,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:01.383332+00:00"
+    },
+    {
+      "id": "c07af9e8-57ab-404f-9ec0-611cfd02041a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007875,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:03.834173+00:00"
+    },
+    {
+      "id": "b20f996d-1bd1-4b0a-8bdb-9de7e8ee5209",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006473,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:04.123624+00:00"
+    },
+    {
+      "id": "3514e746-f96a-430a-8bf2-3fbf601d1108",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004926,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:04.773577+00:00"
+    },
+    {
+      "id": "07adc2cd-53e4-4297-8778-62b3bdc818ee",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004778,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:06.017093+00:00"
+    },
+    {
+      "id": "8b3b482a-2df2-4736-9ecf-153a823996ae",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004776,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:06.396719+00:00"
+    },
+    {
+      "id": "acb98ab0-1807-4402-96b4-d8b446680ee9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004598,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:06.520656+00:00"
+    },
+    {
+      "id": "45ad19ef-a09a-4532-aedb-0f0bfca68207",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004223,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:06.939915+00:00"
+    },
+    {
+      "id": "281083a5-c34c-4100-809f-236f0ed6f63d",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004767,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:10.643481+00:00"
+    },
+    {
+      "id": "808ae7fb-0d4a-492f-a65f-31645a687cd3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006577999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:10.924624+00:00"
+    },
+    {
+      "id": "cae0f3d3-6de7-4db7-a1a6-93a3e84d6040",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004317,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:11.093747+00:00"
+    },
+    {
+      "id": "00f6bb8f-0dd4-479f-b658-6bb3308af219",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004995,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:11.147339+00:00"
+    },
+    {
+      "id": "451a53cf-577c-4deb-8432-d6247bfd6a94",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005017,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:12.655073+00:00"
+    },
+    {
+      "id": "93cef658-31b8-4c01-9e34-d99243028324",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007047,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:12.842620+00:00"
+    },
+    {
+      "id": "7206d4bb-758f-468e-8bce-9c642168cbc2",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.000492,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:13.237285+00:00"
+    },
+    {
+      "id": "8cecec24-6420-4e9c-9b7d-71985f3871e7",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004217,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:13.650864+00:00"
+    },
+    {
+      "id": "5c6f3325-ac2c-4a21-b71b-7d6d8228acb4",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0004454,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:16.314466+00:00"
+    },
+    {
+      "id": "b2c1f3bf-98eb-4663-bbd5-e73fbecedcdd",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00019569999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:16.653112+00:00"
+    },
+    {
+      "id": "9deaba27-631d-46ae-a43b-7879b8bee46e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006647000000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:16.974584+00:00"
+    },
+    {
+      "id": "d925f4aa-28ae-4e17-b05f-d2a21a9a2a19",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006629,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:17.266666+00:00"
+    },
+    {
+      "id": "0c88eb5d-dc73-448f-89fb-5b34c4cb7854",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006684,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:18.409231+00:00"
+    },
+    {
+      "id": "3b393b70-4f43-4883-a71c-f77b8f0e20ae",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005554,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:18.720326+00:00"
+    },
+    {
+      "id": "c43ed616-3fbd-40e8-a13d-c0351d2b33b3",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0006629,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:18.870481+00:00"
+    },
+    {
+      "id": "51e27979-1fdf-49f1-8003-ed382f2cae14",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005682,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:19.040481+00:00"
+    },
+    {
+      "id": "2f4aeaa7-8a85-4f2d-ba20-29dc04b32c0b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008784,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:21.403600+00:00"
+    },
+    {
+      "id": "b054c915-690b-4c55-9a1e-7743d2345f7a",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00039959999999999996,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:32.930850+00:00"
+    },
+    {
+      "id": "95ec9550-3347-4789-b517-f04f147c9d63",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0008422999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:33.167666+00:00"
+    },
+    {
+      "id": "8da03c77-8bee-43cd-8899-9d6db53e80a0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0005705999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:33.350544+00:00"
+    },
+    {
+      "id": "f04810bc-22be-419c-b0c8-f83d27a4b1ea",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0007153999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:33.538966+00:00"
+    },
+    {
+      "id": "fd96a509-b6d1-4870-81d0-52f98e2045fa",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00194,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:33.825360+00:00"
+    },
+    {
+      "id": "25554dcc-0ac7-4ef9-b3b3-d5f30ea223c8",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0036211999999999998,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:36.438662+00:00"
+    },
+    {
+      "id": "da981735-2a0a-4578-9778-e5fbbab31885",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.008977,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:41.357037+00:00"
+    },
+    {
+      "id": "98b0f004-fb58-444f-962c-72cefdee4702",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0076117,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:42.935567+00:00"
+    },
+    {
+      "id": "0882e123-0782-4ab6-bd17-a79b42cebed2",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0064477,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:44.368463+00:00"
+    },
+    {
+      "id": "b998fc8a-f78c-4e87-bcce-f6d5705e01d0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.007550899999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:44.667330+00:00"
+    },
+    {
+      "id": "68beef3f-74fd-48a1-9f0e-76538574ce73",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.006896899999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:46.734905+00:00"
+    },
+    {
+      "id": "338d1f4c-e282-459e-83a4-6c418c17ac3b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0106818,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:48.527273+00:00"
+    },
+    {
+      "id": "83cc686e-0c83-4551-a87f-2f945917718e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.009939100000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:49.871315+00:00"
+    },
+    {
+      "id": "0b1790e7-5233-494e-8ecb-44e6823df140",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0054899,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:53.488089+00:00"
+    },
+    {
+      "id": "39b50e88-4615-4e7c-bc30-82354b13934e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0143742,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:53.776565+00:00"
+    },
+    {
+      "id": "2585f699-2598-43e3-9d01-501e1426df81",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0044856,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:54.106029+00:00"
+    },
+    {
+      "id": "21551df3-abbc-4e02-8a97-1b6e78877541",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0022748,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:54.895299+00:00"
+    },
+    {
+      "id": "a893412f-1f24-4b02-8d47-4b5f4dffc8f6",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0047138,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:56.297571+00:00"
+    },
+    {
+      "id": "210ee344-a928-4b3a-a305-296da6dcd2e4",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0026772,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:56.486500+00:00"
+    },
+    {
+      "id": "731a385f-6345-4da3-8c52-f153a7b9c2d9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0053246000000000005,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:15:58.188090+00:00"
+    },
+    {
+      "id": "a00057e9-7cb6-48be-962d-377c50561251",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0035887,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:03.038981+00:00"
+    },
+    {
+      "id": "22ff6660-bd27-40c8-bd08-6639d8027098",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0025561,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:03.303653+00:00"
+    },
+    {
+      "id": "07b61533-c499-468d-b7bb-fb9148bf6eab",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.004135,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:03.722446+00:00"
+    },
+    {
+      "id": "6abeaa51-4c1b-452c-90b0-04c26b75ee8c",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.010760200000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:04.847606+00:00"
+    },
+    {
+      "id": "6e2b48b6-5227-439a-b5e2-0a860f4322fc",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0035934,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:05.541075+00:00"
+    },
+    {
+      "id": "846e9988-19be-458a-a570-771355ff30fe",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.006407100000000001,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:06.748327+00:00"
+    },
+    {
+      "id": "93a75f8b-3bb3-4fee-8063-dfbca4958cb0",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.00010889999999999999,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:07.535195+00:00"
+    },
+    {
+      "id": "2bbac5bd-c193-47d9-a1bb-9703a40f5e10",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0037094000000000003,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:08.749331+00:00"
+    },
+    {
+      "id": "de67a3c1-75e1-442e-b4ef-03cefd1f86d9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0055008999999999995,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:12.664362+00:00"
+    },
+    {
+      "id": "f5ca79f4-8ca5-4e73-a4c1-a6daa0861c87",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0014136999999999997,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:16.278476+00:00"
+    },
+    {
+      "id": "1300c025-e74a-468f-84b6-922d7f0e0a51",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0027265,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:16.556279+00:00"
+    },
+    {
+      "id": "e3d8fb1a-672f-4ef5-8ff1-c5d9d11581ea",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0042968,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:19.437818+00:00"
+    },
+    {
+      "id": "9d0a07b5-e5b6-4ffe-8ee2-021e039f14ba",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0047487,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:19.550378+00:00"
+    },
+    {
+      "id": "2153c301-14fe-42b9-9d01-dfaf7d7cbd77",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0018314000000000002,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:25.814774+00:00"
+    },
+    {
+      "id": "e2258189-cf72-456f-bf97-47f0a07721a6",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0069057,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:31.049713+00:00"
+    },
+    {
+      "id": "01b7d2e0-6f8e-4781-8994-4605ab46f1bf",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0031446,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:16:34.415886+00:00"
+    },
+    {
+      "id": "2e58c34b-0ff9-4e6e-a34f-6cbf3e2dc4c9",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0014609,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:17:07.712087+00:00"
+    },
+    {
+      "id": "270ffb2b-d6a6-45be-b84b-baf7477e59f4",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0080175,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:17:13.791621+00:00"
+    },
+    {
+      "id": "1a915621-cf8c-4ee9-be4c-4714518f8392",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0038854000000000002,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:17:27.456072+00:00"
+    },
+    {
+      "id": "b3d80366-bcb8-4b0c-bf16-1bd76e906e2e",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.006574,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:17:29.042546+00:00"
+    },
+    {
+      "id": "8622a57b-4e28-425d-bcb8-34bc4208c280",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0044708000000000005,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:17:30.630591+00:00"
+    },
+    {
+      "id": "8fd7756a-7279-4839-b9a2-2e505add802b",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0019842,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:17:33.707729+00:00"
+    },
+    {
+      "id": "8cc5fccd-824a-4432-a881-7451e79216b5",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0025707,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:17:53.791612+00:00"
+    },
+    {
+      "id": "ac6f4f8a-0603-484b-b6ee-df26ae7a9a98",
+      "model": "gemini-3.5-flash-lite",
+      "usd": 0.0130395,
+      "reservedUsd": 0.3,
+      "overReservation": false,
+      "at": "2026-10-13T12:17:54.875948+00:00"
+    }
+  ],
+  "activeCalls": {},
+  "peakActiveCalls": 8,
+  "capAmendment": "evidence/cap12-amendment.json"
+}

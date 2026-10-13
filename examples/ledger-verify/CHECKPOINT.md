@@ -91,3 +91,14 @@
 - Flash Lite is a new, separately recorded cell under lite/, with its own 6 USD budget and no answers imported from Gemini 3.8.
 - Published Standard price: 0.30 USD input and 2.50 USD output including thinking per million tokens. Medium is supported by official thinking documentation.
 - Freeze: lite/evidence/model-amendment.json, prior to any Flash Lite call. Eight workers, 20/60/180 second quota waits, 300-second timeout, immediate HTTP 402 circuit.
+
+## 2026-10-13T12:26:24.173817+00:00 Flash Lite network pause
+
+- Flash Lite pilot and mutation fixtures finish. Both contestants pass 12/12 preserve and 12/12 flip, with zero injection changes.
+- Medium succeeds. Pilot costs 0.5183653 USD; the owner raises this separate cell cap to 12 USD, recorded before noise completes.
+- Noise 0 stops after 35 no-answer network errors. Actual fees total 0.8440801 USD; 10.50 USD unknown holds remain reserved. Original partial report and cassette are archived unchanged.
+- Host DNS and public HTTP, including Node fetch, work at the later probe. The original transport omits the underlying cause of the earlier errors. No hold is released without proof.
+- A request for missing-only recovery and host-outage confirmation is sent to the parent. No Flash Lite paid runner remains.
+- Exact ordinary replay of mutation fixtures exposes concurrent duplicate-key answers. Offline item-aware replay is under verification, preserving every answer and the original verdicts.
+- Haiku continues in TEST under automatic load fallback. Original offline reporter session 18577 remains active.
+- Current branch checkpoint 19167375 is pushed. Gemini 3.8 stays parked under a persistent owner-only guard.

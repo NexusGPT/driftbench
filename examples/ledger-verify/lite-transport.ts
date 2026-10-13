@@ -7,6 +7,7 @@ import { resolve } from 'node:path';
 import { schemaFor } from './schemas';
 import { QuotaPending, withQuotaBackoff } from './lite-quota';
 import { isBillingRejection } from './billing';
+import { observedFetch } from './lite-network';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const base = resolve(root,'examples/ledger-verify/lite');
@@ -23,6 +24,7 @@ let slot=false;
 let started=false;
 let callFingerprint:string|undefined;
 let nativeReceipt:string|undefined;
+const networkDiagnostics:unknown[]=[];
 const budget = (action:string,amount=0.5) => JSON.parse(execFileSync('python3',[
   resolve(base,'budget.py'),resolve(base,'receipts/budget.json'),action,id,String(amount),model,String(process.pid),
 ],{encoding:'utf8'}));
@@ -93,7 +95,7 @@ try {
     const { createDialectTransport }=await import('../../packages/judges/src/clients/transport');
     const transport=createDialectTransport({provider:isGoogle?'google':'openai',model,
       env:isGoogle?{GEMINI_API_KEY:key}:{OPENAI_API_KEY:key}, reasoning:'medium',
-      timeoutMs:freeze.models[model].timeoutMs,maxTokens:32768,maxRetries:0});
+      timeoutMs:freeze.models[model].timeoutMs,maxTokens:32768,maxRetries:0,fetch:observedFetch(e=>networkDiagnostics.push(e))});
     const response=await withQuotaBackoff(async()=>{
       await acquire();started=true;
       return transport.complete({system,user,...(schema?{schema}:{})});
@@ -144,7 +146,7 @@ try {
       text:typeof native?.result==='string'?native.result:'',nativeReceipt})+'\n');
   }
   await appendFile(resolve(base,'receipts/errors.jsonl'),JSON.stringify({id,model,at:new Date().toISOString(),
-    message,fingerprint:callFingerprint,phase:process.env.VERIFY_PHASE,reservationRetained:reservation,nativeReceipt})+'\n');
+    message,networkDiagnostics,fingerprint:callFingerprint,phase:process.env.VERIFY_PHASE,reservationRetained:reservation,nativeReceipt})+'\n');
   const category=billingPending?'limit':error instanceof QuotaPending?'quota':started?'missing':'limit';
   process.stdout.write(JSON.stringify({is_error:true,total_cost_usd:0,result:`Transport ${category}: ${message}`}));
 }

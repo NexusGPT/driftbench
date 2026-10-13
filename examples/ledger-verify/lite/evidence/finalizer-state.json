@@ -1,0 +1,7 @@
+{
+  "pid": 41008,
+  "at": "2026-10-13T12:24:18.683478+00:00",
+  "status": "offline verification needs replay reconstruction",
+  "target": "gemini-3.5-flash-lite",
+  "cause": "Concurrent identical prompt keys carry distinct answers; preserve item-labelled history"
+}

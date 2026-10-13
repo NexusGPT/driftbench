@@ -90,6 +90,11 @@ try:
         cells.setdefault('runtimeAmendments', []).append('evidence/haiku-outage-amendment.json')
         cells['freeze']['hashes']['evidence/haiku-outage-amendment.json'] = hashlib.sha256(outage_path.read_bytes()).hexdigest()
         cells['outageRecovery'] = json.loads((BASE / 'evidence/haiku-outage-recovery.json').read_text())
+    pacing_path = BASE / 'evidence/haiku-pacing-amendment.json'
+    if pacing_path.exists():
+        cells.setdefault('runtimeAmendments', []).append('evidence/haiku-pacing-amendment.json')
+        cells['freeze']['hashes']['evidence/haiku-pacing-amendment.json'] = hashlib.sha256(pacing_path.read_bytes()).hexdigest()
+        cells['haikuPacing'] = json.loads(pacing_path.read_text())['rules']
     if ALLOW_QUOTA_PAUSE:
         cell = next(c for c in cells['cells'] if c['model'] == 'gemini-3.8-flash')
         cell['status'] = 'not run: daily quota'
@@ -122,8 +127,15 @@ try:
         supplement += '\n## Haiku host-outage runtime amendment\n\n'
         supplement += '- The owner identifies a host DNS outage near 11:28 to 11:33 UTC and authorizes one retry of four ENOTFOUND calls and one 300-second timeout.\n'
         supplement += '- Only those five fingerprints are eligible. Atomic claims prevent another paid retry; original errors and all returned answers remain archived.\n'
-        supplement += '- The unknown timeout hold remains reserved. Frozen prompts, scoring, the 300-second attempt limit, Haiku concurrency two and the 40 USD cap remain unchanged.\n'
+        supplement += '- The unknown timeout hold remains reserved. These five retries use the then-current Haiku concurrency two, 300-second attempts and the 40 USD cap.\n'
         supplement += '- Sources: evidence/haiku-outage-amendment.json, evidence/haiku-outage-recovery.json and noise-2/haiku.pre-outage-recovery.partial.json.\n'
+    if pacing_path.exists():
+        supplement += '\n## Haiku adaptive pacing runtime amendment\n\n'
+        supplement += '- The owner raises Haiku to four workers. Admission falls to two only when one-minute host load exceeds 60 or two no-answer transport failures occur within 600 seconds.\n'
+        supplement += '- Parse errors and output-limit completions do not lower pacing. Already-started calls finish normally; admission checks refresh within five seconds.\n'
+        supplement += '- The transition archives the partial TEST report and preserves all 33 returned responses. Only missing requests resume.\n'
+        supplement += '- Eight offline pacing and budget checks pass. The sealed order, cap, model contract and statistical scoring stay unchanged.\n'
+        supplement += '- Sources: evidence/haiku-pacing-amendment.json, receipts/budget.json, test_pacing.py and test_budget.py.\n'
     if quota_path.exists():
         supplement += '\n## Daily quota runtime amendment\n\n'
         supplement += '- The owner identifies the Gemini daily request quota and permits missing-only completion after the reset near 14 October 00:00 UTC, through 12:00 UTC.\n'
@@ -132,9 +144,12 @@ try:
         if ALLOW_QUOTA_PAUSE:
             supplement += '- Gemini TEST: not run: daily quota, 0/221 items per contestant. Noise 2 retains 30/30 cascade and 20/30 promptfoo verdicts; ten peer verdicts remain pending.\n'
             supplement += '- Pending quota requests count as no answer, never a judge failure. Gemini noise is pending until its third repeat finishes.\n'
-            supplement += '- The named reset driver is resume_gemini.py; its state and stop condition are in evidence/gemini-reset-watcher.json.\n'
+            supplement += '- The reset driver is disarmed. Gemini 3.8 resumes only on owner instruction; the prior timed restart permission is superseded by evidence/gemini-owner-hold.json.\n'
     for path in [BASE / 'REPORT.md', DOSSIER]:
         text = path.read_text()
+        if pacing_path.exists():
+            text = text.replace('- The pacing amendment replaces the earlier global four-call limit: gpt-6-luna permits eight HTTP calls, Gemini two, and native Haiku two.',
+                '- Current pacing: gpt-6-luna permits eight HTTP calls, Gemini two, and Haiku four with the owner-defined load and transport fallback to two.')
         if ALLOW_QUOTA_PAUSE:
             text = text.replace('| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |',
                 '| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |')

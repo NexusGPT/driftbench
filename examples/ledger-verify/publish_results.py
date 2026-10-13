@@ -25,6 +25,12 @@ def main():
     cells = json.loads((BASE / 'evidence/cells.json').read_text())
     assert cells['fees']['maximumAccountedUsd'] <= 40
     assert not cells['outputLimitErrors']['unmappedLimits']
+    if final.get('additionalCompletedModels'):
+        lite=json.loads((BASE/'lite/evidence/finalizer-state.json').read_text())
+        assert lite['complete'] and lite['status']=='offline evidence ready for review'
+        assert cells['additionalCellFees']['maximumAccountedUsd']<=12
+        for path,h in json.loads((BASE/'lite/evidence/reporting-freeze.json').read_text())['sourceHashes'].items():
+            assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==h,path
     for model in final['completedModels']:
         progress = json.loads((BASE / f'{model}.progress.json').read_text())
         assert progress['phase'] == 'all' and progress['status'] == 'complete'
@@ -64,6 +70,10 @@ def main():
     with (DOSSIER.parent.parent / 'spend-ledger.md').open('a') as stream:
         fees = cells['fees']
         stream.write('| '+stamp+' | ledger-verify | cumulative verified report | '+str(fees['settledUsd'])+' USD settled; '+str(fees['unresolvedMaximumUsd'])+' USD unresolved maximum; cap 40 USD | '+', '.join(final['completedModels'])+' complete; no duplicate charge in this status row | '+head+' |\n')
+    if final.get('additionalCompletedModels'):
+        with (DOSSIER.parent.parent/'spend-ledger.md').open('a') as stream:
+            f=cells['additionalCellFees']
+            stream.write('| '+stamp+' | verify Flash Lite finish | '+str(f['settledUsd'])+' USD settled; '+str(f['unresolvedMaximumUsd'])+' USD unresolved maximum; cap 12 USD | full 379 units; additional cell, separate from original budget | '+head+' |\n')
     print(json.dumps(dict(status='pushed and remote verified', head=head, completedModels=final['completedModels'])))
 
 

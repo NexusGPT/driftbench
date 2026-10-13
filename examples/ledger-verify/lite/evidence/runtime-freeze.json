@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "at": "2026-10-13T12:15:08.368474+00:00",
+  "version": 3,
+  "at": "2026-10-13T12:29:46.824383+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreSha": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "command": "examples/ledger-verify/lite-transport.sh",
@@ -142,12 +142,13 @@
     "examples/ledger-verify/pacing.py": "248ee9149371c28c53a82fdf017ef6d313f509ba3161e5f7622b7034f8778416",
     "examples/ledger-verify/test_pacing.py": "efbe31fced8d16f373cb147008b9f9576c164bca20db3786051f94606be6fb33",
     "examples/ledger-verify/lite-run.ts": "8cebff1ed04747ac2ed93848badee9c12f0f5fa8f1dc7c825cb9469d0e209589",
-    "examples/ledger-verify/lite-transport.ts": "d270bdc2b2620957d210fbf46232b9875395fa039df51429d9811add0a869a5f",
+    "examples/ledger-verify/lite-transport.ts": "149cf29e6ce6555244a36e41149ea5e5e1b6601acddec6d0b7ba8d98ad34b49f",
     "examples/ledger-verify/lite-transport.sh": "7824488c47d69ab822e1dbf4915112a0c4fc0e98fe82b28bbc062ae6e6f333c8",
     "examples/ledger-verify/lite-quota.ts": "86938205175e2228bdc68cac56fe3a9f907018ab94ce2c393015faec4aa6da42",
     "examples/ledger-verify/lite/budget.py": "2f7069b2ca6c6d9be1fecadbaba5545a76ccde4f1a7ea36801a0da39b36852f7",
     "examples/ledger-verify/lite/validate.py": "d756beb11f5a76e1d66ae03b299f178ce438f04bcd8992498d574e4fecd26e70",
-    "examples/ledger-verify/lite-supervise.py": "4b6e998832b646cfa8914a0fafa2d1473ea7a32391245e6fd37199e028a2d31e"
+    "examples/ledger-verify/lite-supervise.py": "4b6e998832b646cfa8914a0fafa2d1473ea7a32391245e6fd37199e028a2d31e",
+    "examples/ledger-verify/lite-network.ts": "5a6533cba74d3494fff3f8df1e984520994874e7318bb06cbd974d004ebf1af0"
   },
   "pricesPerMillion": {
     "gpt-6-luna": {

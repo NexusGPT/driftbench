@@ -18,13 +18,18 @@ assert ready()
 env=dict(os.environ,TMPDIR=str(ROOT/'.tmp'))
 for key in ['OPENAI_API_KEY','GEMINI_API_KEY','ANTHROPIC_API_KEY','VERIFY_OPENAI_KEY_FILE','VERIFY_GEMINI_KEY_FILE']:env.pop(key,None)
 commands=[
- [str(ROOT/'node_modules/.bin/tsx'),'--tsconfig','examples/ledger-verify/tsconfig.json','examples/ledger-verify/lite-trace-requests.ts','--all'],
+ [str(ROOT/'node_modules/.bin/tsx'),'--tsconfig','examples/ledger-verify/tsconfig.json','examples/ledger-verify/replay-item-history.ts'],
  [sys.executable,str(LITE/'output_limits.py')],
- [sys.executable,str(LITE/'check-replays.py')],
+
  [sys.executable,str(LITE/'summarize.py')],
 ]
 for i,cmd in enumerate(commands):
  with (LITE/'logs'/f'finalize-{i}.log').open('w') as f:subprocess.run(cmd,cwd=ROOT,env=env,stdout=f,stderr=subprocess.STDOUT,check=True)
+ if i==0:
+  h=load(LITE/'evidence/item-history-replay.json');assert all(p['identicalDecisions'] for p in h['phases'])
+  h['phases']=[p for p in h['phases'] if not p.get('originalStopped')]
+  (LITE/'evidence/phase-replay-checks.json').write_text(json.dumps(h,indent=2)+'\n')
+  (LITE/'evidence/request-attribution.json').write_bytes((LITE/'evidence/history-request-attribution.json').read_bytes())
 cells=load(LITE/'evidence/cells.json');assert cells['fees']['maximumAccountedUsd']<=load(LITE/'evidence/runtime-freeze.json')['capUsd']
 assert not cells['outputLimitErrors']['unmappedLimits']
 for f in ['reporting-freeze.json']:

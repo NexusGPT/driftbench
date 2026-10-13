@@ -1,0 +1,381 @@
+{
+  "cells": [
+    {
+      "model": "gemini-3.5-flash-lite",
+      "status": "pending",
+      "reason": "authorized; execution and validation pending",
+      "official": null,
+      "audited": null,
+      "outputLimitErrors": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "validation": {
+        "model": "gemini-3.5-flash-lite",
+        "mutationChecks": {
+          "driftbench-verify-uncertainty-cascade": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          },
+          "promptfoo": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          }
+        },
+        "noise": {},
+        "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
+      },
+      "phaseCoverage": {
+        "pilot": {
+          "items": 20,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 114,
+          "uniquePromptKeys": 114,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.5183653,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 2.2796589999999997,
+            "promptfoo": 0.3121675
+          },
+          "report": "examples/ledger-verify/lite/pilot/gemini-3.5-flash-lite.json",
+          "recording": "examples/ledger-verify/lite/recordings/flash-lite-medium-20261013/pilot/longjudge-verify/gemini-3.5-flash-lite.jsonl"
+        },
+        "validity": {
+          "items": 48,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 239,
+          "uniquePromptKeys": 108,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.1189409,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.07771083333333333,
+            "promptfoo": 0.04326
+          },
+          "report": "examples/ledger-verify/lite/validity/gemini-3.5-flash-lite.json",
+          "recording": "examples/ledger-verify/lite/recordings/flash-lite-medium-20261013/validity/longjudge-verify/gemini-3.5-flash-lite.jsonl"
+        },
+        "noise-0": {
+          "items": 30,
+          "stopped": "claude stopped: Transport limit: Command failed: python3 /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/lite/budget.py /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/lite/receipts/budget.json reserve 87bf3139-3160-4abb-a099-477f7a973903 0.3 gemini-3.5-flash-lite 64702\nTraceback (most recent call last):\n  File \"/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/lite/budget.py\", line 77, in <module>\n    print(json.dumps(transact(sys.argv[1],sys.argv[2],sys.argv[3] if len(sys.argv)>3 else '',\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/lite/budget.py\", line 51, in transact\n    raise RuntimeError('Budget limit: insufficient unreserved lane funds')\nRuntimeError: Budget limit: insufficient unreserved lane funds\n",
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 24,
+            "promptfoo": 30
+          },
+          "cassetteRows": 79,
+          "uniquePromptKeys": 79,
+          "terminalNoAnswerRecords": 35,
+          "recordedExecutionUsd": 0.2129644,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.7098813333333334,
+            "promptfoo": 0.0
+          },
+          "report": "examples/ledger-verify/lite/noise-0/gemini-3.5-flash-lite.json",
+          "recording": "examples/ledger-verify/lite/recordings/flash-lite-medium-20261013/noise-0/longjudge-verify/gemini-3.5-flash-lite.jsonl"
+        },
+        "noise-1": {
+          "status": "pending"
+        },
+        "noise-2": {
+          "status": "pending"
+        },
+        "results": {
+          "status": "pending"
+        }
+      }
+    }
+  ],
+  "exposure": "previously evaluated split",
+  "unit": "item",
+  "auditedCorrections": 23,
+  "cheaters": {
+    "alwaysPassOfficial": 0.21266968325791855,
+    "alwaysFailOfficial": 0.7873303167420814,
+    "alwaysPassAudited": 0.23529411764705882,
+    "alwaysFailAudited": 0.7647058823529411
+  },
+  "noiseFloor": {
+    "gemini-3.5-flash-lite": {}
+  },
+  "primaryEndpoint": "Official labels; audited labels are a separately reported sensitivity analysis",
+  "outputLimitErrors": {
+    "counts": {
+      "gemini-3.5-flash-lite": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      }
+    },
+    "limits": [],
+    "unmappedLimits": [],
+    "unclassifiedHistoricalNativeErrors": [],
+    "rule": "Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.",
+    "source": "evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json"
+  },
+  "fees": {
+    "settledUsd": 0.8440801000000004,
+    "unresolvedMaximumUsd": 10.5,
+    "maximumAccountedUsd": 11.344080100000001,
+    "capUsd": 12,
+    "providerReceipts": 385,
+    "byModel": {
+      "gemini-3.5-flash-lite": 0.8440801
+    },
+    "unknownCharges": {
+      "e358ce30-cac4-4f8a-b9ff-6713577ce392": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:14.796352+00:00"
+      },
+      "22a00d75-5880-4316-91e1-79f3b1b05f99": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:18.167059+00:00"
+      },
+      "d30c713d-904f-4661-9787-58ed2e150f62": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:18.622438+00:00"
+      },
+      "4bdbf31a-5ddf-4da9-895c-44bc12be2ca3": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:21.226891+00:00"
+      },
+      "a8933b46-5920-4b58-b461-de70c5d2de6b": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:21.318460+00:00"
+      },
+      "76f5fcd7-a63b-4d3f-a8b8-49e5e3b9efce": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:27.203569+00:00"
+      },
+      "91fb84e7-d79f-4686-9650-4e7ddb5d9af8": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:28.123463+00:00"
+      },
+      "edafd174-cd2d-4bd7-8232-f119ab3bdd46": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:31.923210+00:00"
+      },
+      "6d4d935e-094d-4476-898c-dc5e5caea478": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:33.034823+00:00"
+      },
+      "d43107e3-ef1f-4629-a53d-403d0c177a9a": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:33.155124+00:00"
+      },
+      "23c40f74-534b-4eee-8eed-1272d10d3dca": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:34.789393+00:00"
+      },
+      "d10ee658-055f-42de-9d0f-42c0ed9cdd0e": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:34.850493+00:00"
+      },
+      "68b166b2-d358-491f-acda-ab088598dbd7": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:36.271714+00:00"
+      },
+      "e7ce0156-13d9-4542-a79c-e4694efbcbee": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:40.308430+00:00"
+      },
+      "f80d344c-1bea-43c8-92e1-fb43408f2e15": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:42.109856+00:00"
+      },
+      "14457e75-2e2c-4098-ace2-fb8801062679": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:45.292854+00:00"
+      },
+      "383ec366-3f12-4487-83c7-7c2ea86fa10a": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:46.235261+00:00"
+      },
+      "860be969-ef30-4ba1-be4f-a6125a0c5ae8": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:46.413793+00:00"
+      },
+      "5933d8c8-adef-4df9-ba33-21bdb0dd6985": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:48.194348+00:00"
+      },
+      "76a403dd-c162-4382-8380-2fa26c55ccf6": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:48.213331+00:00"
+      },
+      "66c0e7dd-80b5-4d7c-a062-153245f43858": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:49.255020+00:00"
+      },
+      "b2dfd4e5-d03f-491d-a227-c030618e6d39": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:58.443322+00:00"
+      },
+      "b87591f2-f656-4286-b0e3-6414c3d6459c": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:59.598968+00:00"
+      },
+      "d852d53e-560b-4abf-b0bd-2ca36ccc7498": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:59.758543+00:00"
+      },
+      "f1bad9a9-c8e0-4ded-bf67-40e8cf30fd8c": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:01.241889+00:00"
+      },
+      "95bc5a7f-29d2-4a6a-816e-059bf56be493": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:01.751276+00:00"
+      },
+      "afbfa812-053b-46b8-9f9f-46c0b48e854d": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:02.324701+00:00"
+      },
+      "a3d9f2aa-8838-4b5b-9572-4b9f40cefb44": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:09.467951+00:00"
+      },
+      "78c72b76-7a5a-4d9e-bbe0-9e64808e15a7": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:12.992718+00:00"
+      },
+      "226d59ae-60c2-4cb0-a74a-335b1ba59c0e": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:21.038995+00:00"
+      },
+      "f518209c-5080-4aae-ad0f-7b936dc81467": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:29.842110+00:00"
+      },
+      "4f18ec2c-9a72-4051-8fa9-f6f78407dabc": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:31.051295+00:00"
+      },
+      "6fb635bf-0596-4e1d-9973-c44c377aa6c7": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:31.953038+00:00"
+      },
+      "b45f0b89-8713-4d7f-8fa2-2afe3dac3df4": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:32.329238+00:00"
+      },
+      "8c8e2640-b21d-4cfb-a784-1d3e7c22f979": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:35.437672+00:00"
+      }
+    },
+    "source": "receipts/budget.json and receipts/calls.jsonl"
+  },
+  "freeze": {
+    "runtime": "flash-lite-medium-20261013",
+    "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
+    "hashes": {
+      "evidence/seal.json": "54fc167420330d25eb2d8874a0784bd9aa4ec4ff06fbcae82ffaa26d5fc42155",
+      "evidence/runtime-freeze.json": "d7d6bff442386a4cd36a6a0fb75d7429dddba79bdab7c8e4fb029b877a05ad30",
+      "evidence/pilot-runtime-freeze.json": "cc99259efb0661629387d964709748396ecf71a393fd486f09701e42fecaddc1",
+      "evidence/scoring-freeze.json": "e1c0ce28e0dc259b6fe3e3bf98e16e7e0bc20c05e621d09522f43576752fe40b",
+      "evidence/pool.json": "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5",
+      "evidence/audit-map.json": "3de476f85d4ce54ed88260f62d4ccab8c0fad36cddf50c1e74e2035055541eb6",
+      "stats.py": "e3b432ef0f285bba201b01ec86224e6837f50ae972072d81b001f0fdf5753907",
+      "validate.py": "d756beb11f5a76e1d66ae03b299f178ce438f04bcd8992498d574e4fecd26e70",
+      "run.ts": "8cebff1ed04747ac2ed93848badee9c12f0f5fa8f1dc7c825cb9469d0e209589",
+      "transport.ts": "149cf29e6ce6555244a36e41149ea5e5e1b6601acddec6d0b7ba8d98ad34b49f",
+      "summarize.py": "fe7e5493ae10b1fddcb72329b7d02b989b277173710f946d39cbca7229d72040",
+      "output_limits.py": "9576df54f44ab5ac0f5e019c150f8ee9c982b439204033fb147b73dd39ea8fd2",
+      "trace-requests.ts": "79cfed1cf4e0bc28d2bfc4a76b1b0c3cc78c1ca0f92a4f1df40350c393aec12b"
+    }
+  },
+  "at": "2026-10-13T12:30:57.732301+00:00"
+}

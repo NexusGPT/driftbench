@@ -1,0 +1,13 @@
+{
+  "phase": "noise-0",
+  "status": "stopped; requires inspection",
+  "items": 30,
+  "newCostUsd": 0.2129644,
+  "reason": "claude stopped: Transport limit: Command failed: python3 /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/lite/budget.py /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/lite/receipts/budget.json reserve 87bf3139-3160-4abb-a099-477f7a973903 0.3 gemini-3.5-flash-lite 64702\nTraceback (most recent call last):\n  File \"/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/lite/budget.py\", line 77, in <module>\n    print(json.dumps(transact(sys.argv[1],sys.argv[2],sys.argv[3] if len(sys.argv)>3 else '',\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/lite/budget.py\", line 51, in transact\n    raise RuntimeError('Budget limit: insufficient unreserved lane funds')\nRuntimeError: Budget limit: insufficient unreserved lane funds\n",
+  "missing": {
+    "driftbench-verify-uncertainty-cascade": 24,
+    "promptfoo": 30
+  },
+  "at": "2026-10-13T12:20:11.554958+00:00",
+  "model": "gemini-3.5-flash-lite"
+}
