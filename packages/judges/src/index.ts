@@ -88,6 +88,8 @@ export { createAnthropicJudge, createGoogleJudge, createOpenAiJudge } from './cl
 export {
   CLAUDE_SETTINGS,
   type ClaudeCliOptions,
+  ClaudeThinkingError,
+  type ClaudeThinkingRecovery,
   claudeCost,
   createClaudeCliJudge,
 } from './clients/claude-cli';

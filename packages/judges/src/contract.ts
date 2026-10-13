@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
+import type { ClaudeThinkingRecovery } from './clients/claude-cli';
 import type { ConformanceAudit } from './conformance';
 import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
@@ -110,6 +111,7 @@ export type ComparisonResult = {
 
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly thinkingRecovery?: ClaudeThinkingRecovery;
   readonly pairLedger?: PairLedger;
   readonly parseSteps?: readonly LedgerParseStep[];
   readonly metadata?: { readonly graderError?: boolean };

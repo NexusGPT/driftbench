@@ -8,6 +8,7 @@ import { inconclusive, type JudgeRequest, type JudgeResult } from '../contract';
 import { isRecord, JudgeError } from '../http';
 import { buildPrompt } from '../prompt';
 import { JUDGE_DIALECTS, withJudgeDialect } from './dialects';
+import type { TokenUsage } from './usage';
 
 /**
  * A system 2 judge behind the local `claude` command (Claude Code in print mode), for a machine where the
@@ -22,8 +23,8 @@ import { JUDGE_DIALECTS, withJudgeDialect } from './dialects';
  * JSON result, read through the answer contract; the cost is its `total_cost_usd`.
  *
  * Errors: an API error result is retryable and gives no answer; a run that stopped at its turn limit is an
- * unparsed answer, never a pass. The command has no token limit flag, so the large budget asks again the
- * same way. Reads CLAUDE_JUDGE_MODEL when no model is given.
+ * unparsed answer, never a pass. An output-limit error gets one lower-effort recovery, subject to the
+ * caller spend cap. Reads CLAUDE_JUDGE_MODEL when no model is given.
  */
 
 export type ClaudeCliOptions = Pick<ClientOptions, 'env' | 'id' | 'model' | 'cost' | 'timeoutMs'> & {
@@ -33,6 +34,10 @@ export type ClaudeCliOptions = Pick<ClientOptions, 'env' | 'id' | 'model' | 'cos
   commandArgs?: readonly string[];
   /** Passed as --max-budget-usd on every call: the command stops a call that would spend more. */
   maxBudgetUsd?: number;
+  /** Opt-in adaptive thinking control. Unset preserves the native request. */
+  claudeEffort?: 'low' | 'medium' | 'high';
+  /** Conservative upper bound reserved before a recovery when maxBudgetUsd is set. */
+  retryMaxCostUsd?: number;
 };
 
 /**
@@ -82,7 +87,10 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
     model,
     dialect: JUDGE_DIALECTS['claude-cli'].id,
     cost: options.cost ?? claudeCost(model),
-    settings: CLAUDE_SETTINGS,
+    settings:
+      options.claudeEffort === undefined
+        ? CLAUDE_SETTINGS
+        : JSON.stringify({ settings: CLAUDE_SETTINGS, claudeEffort: options.claudeEffort }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS['claude-cli'].id);
       const prompt = buildPrompt(request);
@@ -98,8 +106,13 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
         ...CLAUDE_JUDGE_FLAGS,
         ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
       ];
-      const ran = await runClaudeCommand(command, args, prompt.user, { cwd: workdir(), env, timeoutMs });
-      return readResult(ran, model, request);
+      const sent = await runClaudeJudgeCommand(command, args, prompt.user, {
+        ...options,
+        cwd: workdir(),
+        env,
+        timeoutMs,
+      });
+      return { ...readResult(sent.ran, model, request), ...sent.accounting };
     },
   };
 }
@@ -185,4 +198,109 @@ export function runClaudeCommand(
 function clip(text: string): string {
   const flat = text.replace(/\s+/g, ' ').trim();
   return flat.length > 200 ? `${flat.slice(0, 200)}...` : flat;
+}
+
+export type ClaudeThinkingRecovery = {
+  readonly reason: 'reasoning-budget-exhausted';
+  readonly requestCount: number;
+  readonly attempts: readonly { raw: string; usage: TokenUsage; costUsd?: number }[];
+  readonly retrySkipped?: 'spend-cap';
+};
+export class ClaudeThinkingError extends JudgeError {
+  constructor(
+    readonly thinkingRecovery: ClaudeThinkingRecovery,
+    readonly usage: TokenUsage,
+    readonly costUsd?: number,
+  ) {
+    super('reasoning-budget-exhausted', 'Claude exhausted its output budget before producing an answer');
+  }
+}
+/** Keeps native receipts and cumulative billing even when a recovery fails. */
+export async function runClaudeJudgeCommand(
+  command: string,
+  args: readonly string[],
+  input: string,
+  options: ClaudeCliOptions & { cwd: string; env: Record<string, string | undefined>; timeoutMs: number },
+): Promise<{
+  ran: Ran;
+  accounting: { thinkingRecovery?: ClaudeThinkingRecovery; usage?: TokenUsage; costUsd?: number };
+}> {
+  for (const n of [options.maxBudgetUsd, options.retryMaxCostUsd])
+    if (n !== undefined && (!Number.isFinite(n) || n <= 0))
+      throw new RangeError('spend limits must be positive and finite');
+  const attempts: { raw: string; usage: TokenUsage; costUsd?: number }[] = [];
+  const totals = () => {
+    const usage: Record<string, number> = {};
+    for (const key of ['input', 'output'] as const)
+      if (attempts.every((a) => a.usage[key] !== undefined))
+        usage[key] = attempts.reduce((n, a) => n + (a.usage[key] ?? 0), 0);
+    const costUsd = attempts.every((a) => a.costUsd !== undefined)
+      ? attempts.reduce((n, a) => n + (a.costUsd ?? 0), 0)
+      : undefined;
+    return { usage, ...(costUsd === undefined ? {} : { costUsd }) };
+  };
+  const recovery = (retrySkipped?: 'spend-cap'): ClaudeThinkingRecovery => ({
+    reason: 'reasoning-budget-exhausted',
+    requestCount: attempts.length,
+    attempts,
+    ...(retrySkipped ? { retrySkipped } : {}),
+  });
+  const fail = (skipped?: 'spend-cap') => {
+    const t = totals();
+    return new ClaudeThinkingError(recovery(skipped), t.usage, t.costUsd);
+  };
+  for (let n = 0; n < 2; n++) {
+    const effort = n ? 'low' : options.claudeEffort;
+    const nextArgs = [...args];
+    if (effort !== undefined) nextArgs.push('--effort', effort);
+    if (n && options.maxBudgetUsd !== undefined) {
+      const spent = totals().costUsd;
+      if (
+        spent === undefined ||
+        options.retryMaxCostUsd === undefined ||
+        spent + options.retryMaxCostUsd > options.maxBudgetUsd
+      )
+        throw fail('spend-cap');
+      const at = nextArgs.indexOf('--max-budget-usd');
+      if (at >= 0) nextArgs[at + 1] = String(options.maxBudgetUsd - spent);
+    }
+    let ran: Ran;
+    try {
+      ran = await runClaudeCommand(command, nextArgs, input, options);
+    } catch (cause) {
+      if (n) {
+        const error = fail();
+        error.cause = cause;
+        throw error;
+      }
+      throw cause;
+    }
+    let payload: unknown;
+    try {
+      payload = JSON.parse(ran.stdout);
+    } catch {
+      payload = undefined;
+    }
+    const value = isRecord(payload) ? payload : {};
+    const u = isRecord(value.usage) ? value.usage : {};
+    const valid = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x) && x >= 0;
+    attempts.push({
+      raw: ran.stdout,
+      usage: {
+        ...(valid(u.input_tokens) ? { input: u.input_tokens } : {}),
+        ...(valid(u.output_tokens) ? { output: u.output_tokens } : {}),
+      },
+      ...(valid(value.total_cost_usd) ? { costUsd: value.total_cost_usd } : {}),
+    });
+    const exhausted =
+      value.is_error === true &&
+      (value.api_error === 'max_output_tokens' ||
+        (typeof value.result === 'string' &&
+          /^API Error: Claude's response exceeded the \d+ output token maximum\./.test(value.result)));
+    if (!exhausted) {
+      if (n && (ran.code !== 0 || value.is_error === true || value.type !== 'result')) throw fail();
+      return { ran, accounting: n ? { ...totals(), thinkingRecovery: recovery() } : {} };
+    }
+  }
+  throw fail();
 }
