@@ -10,7 +10,7 @@ import type { Atom, Edge } from '../schema';
  *   route      a route atom to the skill or helper it loads
  *   reference  a skill or helper to a file its body names (a reference atom)
  *   script     a skill to a script it ships
- *   dispatch   a skill or helper to a helper its body names
+ *   dispatch   a skill or helper to a helper its body names (in backticks, or by its plain name)
  *   enforces   a guard to a rule it checks
  *   event      a guard to the event it runs on
  *   allows     a skill or helper to a tool or skill it may use
@@ -87,7 +87,10 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
       .join('\n');
     for (const helper of helpers) {
       const name = String(helper.fields?.name ?? '');
-      if (name !== '' && positiveMention(visible, `\`${name}\``, ['dispatch', 'call', 'delegate', 'invoke']))
+      if (name === '') continue;
+      const verbs = ['dispatch', 'call', 'delegate', 'invoke'];
+      if (positiveMention(visible, `\`${name}\``, verbs)) add(unit.id, helper.id, 'dispatch');
+      else if (plainMention(visible, name) && positiveMention(visible, name, verbs))
         add(unit.id, helper.id, 'dispatch');
     }
   }
@@ -185,6 +188,16 @@ function statesRule(quote: string, literal: string): boolean {
   return Array.from(quote.matchAll(/`([^`]+)`|"([^"]+)"/g), (match) =>
     plain(match[1] ?? match[2] ?? ''),
   ).includes(b);
+}
+
+/**
+ * A helper named without backticks: its name as a whole word. A name that could be a common word (no digit,
+ * no hyphen) must be followed by agent, helper or subagent.
+ */
+function plainMention(text: string, name: string): boolean {
+  const word = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const tail = /[\d-]/.test(name) ? '' : '\\s+(?:agent|helper|subagent)\\b';
+  return new RegExp(`(?<![\\w-])${word}(?![\\w-])${tail}`, 'i').test(text);
 }
 
 /** True when two passages say the same words, or one holds the other, compared without markup. */
