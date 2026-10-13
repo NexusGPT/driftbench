@@ -1,0 +1,22 @@
+{
+  "model": "gemini-3.8-flash",
+  "matchedPairs": 20,
+  "byContestant": {
+    "ledger": {
+      "knownUsd": 0.35876925,
+      "interruptionReserveUsd": 0.27993975,
+      "knownPer100Usd": 1.7938462499999999,
+      "projected270Usd": 4.843384875,
+      "receivedCalls": 41,
+      "lostCalls": 4
+    },
+    "promptfoo": {
+      "knownUsd": 0.14288175,
+      "interruptionReserveUsd": 0.136659,
+      "knownPer100Usd": 0.71440875,
+      "projected270Usd": 1.9289036249999998,
+      "receivedCalls": 38,
+      "lostCalls": 2
+    }
+  }
+}

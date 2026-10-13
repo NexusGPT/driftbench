@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-13T08:10:50.638215+00:00",
+  "lostCalls": 4,
+  "reservedLiabilityUsd": 0.0379095,
+  "keys": [
+    "noise:gpt-6-luna:2aa40f83-9d2a-5a22-8c37-817397efb2e7:1:promptfoo:AB:0:174d3e0b47f6e2cc5406b11c8670dbd10d05cdc05931ec3529a97127a79a8d89",
+    "noise:gpt-6-luna:2aa40f83-9d2a-5a22-8c37-817397efb2e7:0:ledger:BA:0:c333b7181f86f72946624c10cd7c26efe7f610860a179b74f244da107ad09b0e",
+    "noise:gpt-6-luna:2aa40f83-9d2a-5a22-8c37-817397efb2e7:1:ledger:BA:0:c333b7181f86f72946624c10cd7c26efe7f610860a179b74f244da107ad09b0e",
+    "noise:gpt-6-luna:2aa40f83-9d2a-5a22-8c37-817397efb2e7:2:ledger:BA:0:c333b7181f86f72946624c10cd7c26efe7f610860a179b74f244da107ad09b0e"
+  ],
+  "policy": "Owner now authorizes transport-only retries, at most three total attempts; no surviving JB process."
+}

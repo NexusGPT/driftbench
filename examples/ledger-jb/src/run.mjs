@@ -45,7 +45,7 @@ const transport = await adapter.createTransport({ model, settings: freeze.models
 const journal = new Journal(join(root,'results/calls.jsonl'), {
   capUsd: 25,
   appendSpend(row) {
-    appendFileSync(spendPath, `| ${row.at} | ledger-jb ${row.phase} ${row.contestant} ${row.itemId} ${row.order} | ${row.model} | 1 call | ${row.costUsd.toFixed(8)} USD | lane liability ${journal.liability().toFixed(8)} USD |\n`);
+    appendFileSync(spendPath, `| ${row.at} | ledger-jb ${row.phase} ${row.contestant} ${row.itemId} ${row.order} | ${row.model} | 1 call | ${row.costUsd.toFixed(8)} USD${row.costEstimated ? " reserved, actual unknown" : ""} | lane liability ${journal.liability().toFixed(8)} USD |\n`);
   },
 });
 const outputPath = join(root,`results/decisions-${phase}-${model}.jsonl`);
@@ -58,9 +58,9 @@ let next = 0, stopped;
 async function runJob(job) {
   const call = async (prompt, { order, attempt = 0, schema } = {}) => {
     if (Date.now() >= Date.parse(freeze.lastCallCutoff)) throw new Error('Frozen last-call cutoff reached');
-    const key = `${job.key}:${order}:${attempt}:${hash(JSON.stringify({prompt,schema,settings:freeze.models[model]}))}`;
+    const key = `${job.key}:${order}:${attempt}:${hash(JSON.stringify({prompt,schema,settings:(freeze.cacheIdentityModels ?? freeze.models)[model]}))}`;
     const reserveUsd = transport.maximumCostUsd(prompt, schema);
-    return journal.call(key, reserveUsd, () => transport.call(prompt, { schema, reserveUsd }),
+    return journal.transportCall(key, reserveUsd, () => transport.call(prompt, { schema, reserveUsd }),
       { phase, model, contestant: job.contestant, itemId: job.itemId, repeat: job.repeat, order, attempt });
   };
   let result;

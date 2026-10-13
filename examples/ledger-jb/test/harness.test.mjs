@@ -48,3 +48,26 @@ test('unknown cost retains liability and concurrent reservations cannot overspen
   await assert.rejects(journal.call('unknown',.3,async()=>({text:'unpriced'})),/Unknown usage cost/);
   assert.ok(Math.abs(journal.liability()-.4)<1e-9);
 });
+
+
+test('transport retries stop at three and keep every failed reservation', async () => {
+  const path=join(mkdtempSync(join(temp,'jb-retry-')),'calls.jsonl');
+  const journal=new Journal(path,{capUsd:1}); let calls=0;
+  const response=await journal.transportCall('a',.2,async()=>{
+    calls++; if(calls<3)throw Object.assign(new Error('offline'),{code:'network',retryable:true});
+    return {text:'valid',costUsd:.01};
+  },{}, {sleep:async()=>{}});
+  assert.equal(response.text,'valid'); assert.equal(calls,3); assert.ok(Math.abs(journal.liability()-.41)<1e-9);
+  await journal.transportCall('a',.2,async()=>{throw new Error('returned answer reissued');},{},{sleep:async()=>{}});
+  assert.equal(calls,3);
+});
+test('three failed attempts exhaust and returned content is never retried', async () => {
+  const path=join(mkdtempSync(join(temp,'jb-retry-')),'calls.jsonl');
+  const journal=new Journal(path);let calls=0;
+  const exhausted=await journal.transportCall('a',.1,async()=>{calls++;throw Object.assign(new Error('offline'),{code:'network'});},{},{sleep:async()=>{}});
+  assert.equal(calls,3);assert.equal(exhausted.graderError,true);
+  const invalid=await journal.transportCall('b',.1,async()=>{calls++;return {text:'bad json',costUsd:.01};});
+  assert.equal(calls,4);assert.equal(invalid.text,'bad json');
+  const unpriced=await journal.transportCall('c',.1,async()=>{calls++;return {text:'answer'};});
+  assert.equal(calls,5);assert.equal(unpriced.costEstimated,true);
+});

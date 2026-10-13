@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-13T07:50:35.883025+00:00",
+  "execSession": 60679,
+  "processes": [
+    {
+      "pid": 69211,
+      "parentPid": 69206,
+      "command": "node --import tsx examples/ledger-jb/src/run.mjs --execute --core-dossier /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-core.md --spend-ledger /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/spend-ledger.md --model gemini-3.8-flash --phase pilot"
+    }
+  ],
+  "maxConcurrentCalls": 4
+}

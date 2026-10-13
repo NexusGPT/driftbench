@@ -1,0 +1,23 @@
+{
+  "model": "gpt-6-luna",
+  "matchedPairs": 20,
+  "receivedCalls": 81,
+  "knownUsd": 0.04717318,
+  "interruptionReserveUsd": 0,
+  "byContestant": {
+    "ledger": {
+      "correct": 19,
+      "knownUsd": 0.03267938,
+      "per100Usd": 0.1633969,
+      "calls": 41,
+      "graderErrors": 0
+    },
+    "promptfoo": {
+      "correct": 18,
+      "knownUsd": 0.0144938,
+      "per100Usd": 0.07246899999999999,
+      "calls": 40,
+      "graderErrors": 0
+    }
+  }
+}

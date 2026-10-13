@@ -68,7 +68,7 @@ for (const [name, c] of Object.entries(cheaters(data.dev))) {
   const t = cheaters(data.pool)[name];
   text.push(`| ${name} | ${c.correct}/${c.n} (${fmt(c.estimate)}) | ${t.correct}/${t.n} (${fmt(t.estimate)}) |`);
 }
-text.push('',`Measured spend: ${measuredUsd.toFixed(8)} USD. Received calls: ${finishes.length-interrupted.length}. Interrupted calls: ${interrupted.length}, reserved liability ${interruptionReserveUsd.toFixed(8)} USD. Unresolved calls: ${pending.length}.`,
+text.push('',`Measured spend: ${measuredUsd.toFixed(8)} USD. Received calls: ${finishes.length-interrupted.length}. Unpriced or interrupted attempts: ${interrupted.length}, reserved liability ${interruptionReserveUsd.toFixed(8)} USD. Unresolved calls: ${pending.length}.`,
 '',seal.powerRegistration,'',seal.familyDisclosure,'','Holm correction awaits the full 18-cell family. Missing cells never count as ties or wins.','',
 'Inputs and all measured quantities: data/seal.json and results/cells.json. Per-item decisions: results/items-<model>.json.');
 writeFileSync(join(root,'results/cells.md'),text.join('\n')+'\n');

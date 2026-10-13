@@ -1,0 +1,23 @@
+{
+  "model": "claude-haiku-5-5",
+  "matchedPairs": 20,
+  "receivedCalls": 81,
+  "knownUsd": 0.1097114,
+  "interruptionReserveUsd": 0,
+  "byContestant": {
+    "ledger": {
+      "correct": 19,
+      "knownUsd": 0.0747975,
+      "per100Usd": 0.37398750000000003,
+      "calls": 41,
+      "graderErrors": 0
+    },
+    "promptfoo": {
+      "correct": 19,
+      "knownUsd": 0.0349139,
+      "per100Usd": 0.1745695,
+      "calls": 40,
+      "graderErrors": 0
+    }
+  }
+}

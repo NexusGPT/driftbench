@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "createdAt": "2026-10-13T07:46:40.341766+00:00",
+  "version": 3,
+  "createdAt": "2026-10-13T08:12:27.121522+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
@@ -11,7 +11,7 @@
   "models": {
     "claude-haiku-5-5": {
       "reasoning": null,
-      "timeoutMs": 180000,
+      "timeoutMs": 300000,
       "maxTokens": 8192,
       "maxBudgetUsd": 0.1,
       "provider": "claude-cli",
@@ -20,7 +20,7 @@
     },
     "gpt-6-luna": {
       "reasoning": "medium",
-      "timeoutMs": 180000,
+      "timeoutMs": 300000,
       "maxTokens": 8192,
       "maxBudgetUsd": 0.1,
       "provider": "openai",
@@ -29,7 +29,7 @@
     },
     "gemini-3.8-flash": {
       "reasoning": "medium",
-      "timeoutMs": 180000,
+      "timeoutMs": 300000,
       "maxTokens": 8192,
       "maxBudgetUsd": 0.1,
       "provider": "google",
@@ -54,14 +54,14 @@
   "ledgerEndpoint": "Code-reconciled decision in both games; raw order decisions also published. Canonical third read uses the same model. No unearned cross-vendor seat.",
   "hashes": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-jb/src/core-adapter.mjs": "2caa5690920af485d2ef099b591a22db8fc261cd21bb7ecf3fd30f89a6300cd5",
-    "examples/ledger-jb/src/harness.mjs": "b413584010892700cb03cec6c10caba82817bda177d4603f044bb2a72425256a",
-    "examples/ledger-jb/src/report.mjs": "2c0fe33614217ebef43d4848c08cec1e570b7bc4f9de6bff82f7e5c60a8a722e",
-    "examples/ledger-jb/src/run.mjs": "68ad48bc488c78a02902fa1f933891d8f7a652e3d251305cbfa315cfd292946b",
+    "examples/ledger-jb/src/core-adapter.mjs": "b8bab2c0f04d4dab55ec9484139a07f06aea722d5602287adedfda7f8c191673",
+    "examples/ledger-jb/src/harness.mjs": "7aba17516767c9cf6f2e8866a069146c795285e8719a5cf0eaf745fdbf3df882",
+    "examples/ledger-jb/src/report.mjs": "ec0190720961f830863036c8fb5f9d5f6ff5e3c8abc63450ca4f75d51deac368",
+    "examples/ledger-jb/src/run.mjs": "07c86d56bd98c62a14ddbb5319b83de5f171ddaf4ce4f03508c50f93248dea60",
     "examples/ledger-jb/src/seal.py": "67996a4242a2856364eb193f3912708848c41a29972979941f0fcbe0a05ec706",
     "examples/ledger-jb/src/statistics.mjs": "898081d2408c2045ac9efe3d3b550ff6b45cacb2493f192d96b2328175e9db6f",
-    "examples/ledger-jb/test/core-adapter.test.mjs": "2d332d3597a3192762f3a56b1275df3187c8d4b63d3c47b0c3f0b5cdd5df6fb5",
-    "examples/ledger-jb/test/harness.test.mjs": "1d06342e6def1bf3bcb9dde1d749d92bccd5587a62becfd2d5f89036dcae95a5",
+    "examples/ledger-jb/test/core-adapter.test.mjs": "a8515a1013af952d631cb607979af174faa39de84ab9bec858605971a57313de",
+    "examples/ledger-jb/test/harness.test.mjs": "f903f0cfff4b93b1a0e3ca415a75ab35d482a7a0d03f79fcaec4795a36e3c217",
     "examples/ledger-jb/test/statistics.test.mjs": "5e150346ca3a38310b2f7f59b267fee4c52cccab239fbdc15f746cb0bd6d1e53",
     "packages/checks/src/checks/artifacts.ts": "92958e17bd8b47cca97eebe1641c56241d59a73f7b7f39feaa84e9584d00fad1",
     "packages/checks/src/checks/budget.ts": "b63238ecb106d9c9e68a4116c9f3a04dda9c5f7f2ab41a6e7710c0a714b6ceef",
@@ -159,11 +159,49 @@
     "examples/ledger-jb/data/promptfoo-select-best.txt": "f5d991e93bb0f5fefba9eb241f0feddae57276f8196f3c4e53137b5f4177562c",
     "examples/ledger-jb/README.md": "83583a99c7eb03ca4d599f622a680fb5b7b2f92662e1d0227e7c3e055e18ebe5",
     "pnpm-lock.yaml": "f7178145e417f8f11e28bc7cf1943db901077492226de4d172bd49994e213e04",
-    "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a"
+    "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
+    "examples/ledger-jb/run-driver.py": "60d1d1bccdb77cf2bee5a47f28fd6262d7a63473d80215606d09b6448b573a7b"
   },
   "amendment": {
-    "previousFreezeSha256": "5ba3bf87d1047ae45337cfb35c70ed2f6bd2e9f0555b8abd0df874bff7ae8e3c",
-    "reason": "Owner requires at most four concurrent calls after plugin crash. Only scheduling and cost/error reporting change; requests, parser, scoring and sealed inputs remain unchanged.",
-    "interruptionPolicy": "Lost responses are grader errors with no invented raw text. Full reservation retained as estimated liability. Same keys never billed again; only frozen schema reask may run."
+    "previousFreezeSha256": "08dc8d1f4763960ab36c1a606a734141f5dadc3016140664fc81fed4c2a51aa9",
+    "reason": "Owner reconnect instruction: max four calls, transport failures up to three tries, 300 s timeouts, never retry a returned answer.",
+    "cacheIdentity": "Original request keys retain execution-v2 model settings solely for replay identity. Timeout changes do not authorize duplicate answers. Actual transport settings use models above.",
+    "core": "Unchanged at requested 35f07309; only caller retry and timeout policy changes."
+  },
+  "cacheIdentityModels": {
+    "claude-haiku-5-5": {
+      "reasoning": null,
+      "timeoutMs": 180000,
+      "maxTokens": 8192,
+      "maxBudgetUsd": 0.1,
+      "provider": "claude-cli",
+      "dialect": "scratchpad-json",
+      "nativeReservationUsd": 0.25
+    },
+    "gpt-6-luna": {
+      "reasoning": "medium",
+      "timeoutMs": 180000,
+      "maxTokens": 8192,
+      "maxBudgetUsd": 0.1,
+      "provider": "openai",
+      "dialect": "openai-json-schema",
+      "nativeReservationUsd": 0.25
+    },
+    "gemini-3.8-flash": {
+      "reasoning": "medium",
+      "timeoutMs": 180000,
+      "maxTokens": 8192,
+      "maxBudgetUsd": 0.1,
+      "provider": "google",
+      "dialect": "google-response-schema",
+      "nativeReservationUsd": 0.25
+    }
+  },
+  "transportPolicy": {
+    "maxAttempts": 3,
+    "timeoutMs": 300000,
+    "retryOnly": "network failures and explicitly retryable HTTP failures",
+    "returnedAnswerPolicy": "Never issue a paid retry or schema re-ask after an answer returns. Invalid answers remain grader errors.",
+    "costPolicy": "Reserve each attempt separately. Unknown usage keeps the full conservative reservation."
   }
 }

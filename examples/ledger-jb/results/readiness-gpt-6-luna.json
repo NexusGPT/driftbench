@@ -1,9 +1,9 @@
 {
   "model": "gpt-6-luna",
-  "freezeSha256": "08dc8d1f4763960ab36c1a606a734141f5dadc3016140664fc81fed4c2a51aa9",
+  "freezeSha256": "909e1296e3b6d969efaccd0cb1b4ca5bd507c7f731c9b9b0e43118738b6a6f5d",
   "pilotComplete": true,
   "noiseComplete": false,
-  "fixturesComplete": false,
+  "fixturesComplete": true,
   "validityPassed": false,
   "cheaterGate": false,
   "prepAccuracy": null,
@@ -87,27 +87,27 @@
   "fixtureEarning": {
     "livebench": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
+      "measured": 18,
+      "correct": 15,
+      "kappa": 0.7142857142857144,
       "earned": false,
-      "status": "PENDING"
+      "status": "MEASURED"
     },
     "livecodebench": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
-      "earned": false,
-      "status": "PENDING"
+      "measured": 18,
+      "correct": 18,
+      "kappa": 1,
+      "earned": true,
+      "status": "MEASURED"
     },
     "mmlu": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
-      "earned": false,
-      "status": "PENDING"
+      "measured": 18,
+      "correct": 18,
+      "kappa": 1,
+      "earned": true,
+      "status": "MEASURED"
     }
   }
 }

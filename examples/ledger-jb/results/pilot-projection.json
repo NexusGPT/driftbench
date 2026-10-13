@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-13T07:53:01.727191+00:00",
+  "basis": "Complete 20-pair pilots. Linear projection of known provider costs only, not a promise; excludes lost-response liability. Validity may resolve by Stage 0 without calls.",
+  "models": {
+    "gpt-6-luna": {
+      "pilotUsdPerPair": {
+        "ledger": 0.001633969,
+        "promptfoo": 0.00072469
+      },
+      "projectedPhaseUsd": {
+        "pilot": 0.04717318,
+        "fixtures": 0.088234326,
+        "noise": 0.21227931,
+        "validity": 0.08169845,
+        "test": 0.63683793
+      },
+      "projectedTotalUsd": 1.066223196
+    },
+    "claude-haiku-5-5": {
+      "pilotUsdPerPair": {
+        "ledger": 0.003739875,
+        "promptfoo": 0.0017456949999999998
+      },
+      "projectedPhaseUsd": {
+        "pilot": 0.1097114,
+        "fixtures": 0.20195325,
+        "noise": 0.4937013,
+        "validity": 0.18699375000000001,
+        "test": 1.4811039
+      },
+      "projectedTotalUsd": 2.4734636
+    },
+    "gemini-3.8-flash": {
+      "pilotUsdPerPair": {
+        "ledger": 0.0179384625,
+        "promptfoo": 0.0071440875
+      },
+      "projectedPhaseUsd": {
+        "pilot": 0.501651,
+        "fixtures": 0.9686769749999999,
+        "noise": 2.2574294999999998,
+        "validity": 0.8969231249999999,
+        "test": 6.7722885
+      },
+      "projectedTotalUsd": 11.3969691
+    }
+  },
+  "projectedKnownTotalUsd": 14.936655896,
+  "lostResponseLiabilityUsd": 0.41659875
+}

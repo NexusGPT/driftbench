@@ -18,7 +18,7 @@ export const PRICES = {
   'gemini-3.8-flash': { input:.75, output:3.75 },
 };
 export const settingsFor = model => ({ reasoning:FROZEN_BENCHMARK_REASONING[model] ?? null,
-  timeoutMs:180000, maxTokens:8192, maxBudgetUsd:.1, provider:PROVIDERS[model].provider,
+  timeoutMs:300000, maxTokens:8192, maxBudgetUsd:.1, provider:PROVIDERS[model].provider,
   dialect:PROVIDERS[model].dialect, nativeReservationUsd:.25 });
 
 export function costFromCompletion(model, response) {
@@ -60,14 +60,20 @@ export async function createTransport({ model, settings }) {
 }
 
 export async function judgePair({ item, requirements, model, call, settings }) {
-  let nonRetry=0, previousOrder;
+  let nonRetry=0, previousOrder, previousResponse;
+  let physicalReads=0, suppressedReasks=0;
   const client={ id:`ledger-${model}`, cls:'system2',family:PROVIDERS[model].family, model,cost:10,
     dialect:settings.dialect,...(settings.reasoning?{reasoning:settings.reasoning}:{}),
     async judge(request) {
       const attempt=request.budget==='large'?1:0;
+      if (attempt && previousResponse) {
+        suppressedReasks++;
+        return {...parsePairLedgerText(previousResponse.text,request),costUsd:0,metadata:{schemaReaskSuppressed:true}};
+      }
       const order=attempt?previousOrder:['AB','BA','canonical'][nonRetry++];
       previousOrder=order;
       const response=await call(buildPrompt(request),{order,attempt,schema:pairLedgerSchema(request)});
+      physicalReads++; previousResponse=response;
       return {...parsePairLedgerText(response.text,request),costUsd:response.costUsd};
     },
   };
@@ -84,6 +90,6 @@ export async function judgePair({ item, requirements, model, call, settings }) {
   });
   return {games:[decision,decision],decision,rawGames,graderErrors:result.reads.filter(x=>x.result.unparsed).length,
     repairedAttempts:result.reads.flatMap(x=>x.attempts).filter(x=>x.repaired).length,
-    stage0:result.stage0,verdict:result.verdict??null,reads:result.reads,status:result.status,calls:result.calls,
+    stage0:result.stage0,verdict:result.verdict??null,reads:result.reads,status:result.status,calls:physicalReads,coreReadInvocations:result.calls,suppressedReasks,
     endpoint:'Official pair-net score applied to the code-reconciled pair decision in both games. Raw order games retained separately.'};
 }

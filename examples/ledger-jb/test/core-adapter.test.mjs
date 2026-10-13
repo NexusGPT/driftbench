@@ -14,11 +14,12 @@ test('adapter runs the actual core in both orders and does not consume the label
   assert.equal(seen[0].prompt.user.indexOf(item.a)<seen[0].prompt.user.indexOf(item.b),true);
   assert.equal(seen[1].prompt.user.indexOf(item.b)<seen[1].prompt.user.indexOf(item.a),true);
 });
-test('core owns the one re-ask, with a distinct recorded attempt',async()=>{
+test('a returned malformed answer never triggers a paid schema re-ask',async()=>{
   const attempts=[];
   const result=await judgePair({item,requirements:REQUIREMENTS,model:'gpt-6-luna',settings:settingsFor('gpt-6-luna'),
     call:async(_,meta)=>{attempts.push(`${meta.order}:${meta.attempt}`);return {text:attempts.length===1?'broken':ledger(meta.order),costUsd:0};}});
-  assert.deepEqual(attempts,['AB:0','AB:1','BA:0']); assert.equal(result.graderErrors,0);
+  assert.deepEqual(attempts,['AB:0','BA:0']); assert.equal(result.graderErrors,1);
+  assert.equal(result.suppressedReasks,1); assert.equal(result.calls,2);
 });
 test('missing usage is never zero cost, cached input is priced separately',()=>{
   assert.equal(costFromCompletion('gpt-6-luna',{}),undefined);
