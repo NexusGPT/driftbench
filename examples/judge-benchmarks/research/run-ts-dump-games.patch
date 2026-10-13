@@ -1,0 +1,30 @@
+diff --git a/examples/judge-benchmarks/src/run.ts b/examples/judge-benchmarks/src/run.ts
+index 44b1b8a9..26a71e44 100644
+--- a/examples/judge-benchmarks/src/run.ts
++++ b/examples/judge-benchmarks/src/run.ts
+@@ -523,6 +523,11 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
+       });
+       const results = await pool(tasks, options.concurrency ?? 4);
+       summary = scorePairs(options.bench, results);
++      if (process.env.DUMP_GAMES) {
++        const { appendFileSync } = await import('node:fs');
++        for (const r of results)
++          appendFileSync(process.env.DUMP_GAMES, `${JSON.stringify({ c: contestant.id, id: r.item.id, label: (r.item as PairItem).label, group: r.item.group, games: r.games, missing: r.missing })}\n`);
++      }
+       mode = contestant.rubricEngine
+         ? 'pointwise rubric, shared both orders'
+         : usePair
+diff --git a/tsconfig.base.json b/tsconfig.base.json
+index 4cb7f5c2..c11a4fe2 100644
+--- a/tsconfig.base.json
++++ b/tsconfig.base.json
+@@ -15,7 +15,8 @@
+     "types": ["node"],
+     "paths": {
+       "@agent-nexus/driftbench": ["./packages/cli/src/index.ts"],
+-      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
++      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"],
++      "@driftbench/*": ["./packages/*/src/index.ts"]
+     },
+     "ignoreDeprecations": "6.0"
+   }
