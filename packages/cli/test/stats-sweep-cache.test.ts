@@ -25,6 +25,17 @@ function fixture(component = 'stats') {
 }
 
 describe('stats measurements within one sweep', () => {
+  it('keeps floor-capped and uncapped measurements in separate entries', async () => {
+    const f = fixture();
+    const cache = createStatsMeasurementCache(() => 'same');
+    const seeds = [{ seed: 1, hidden: false }];
+    const capped = { full: false, maxLevel: 1 };
+    await cache.run(f.ladder, seeds, '/fixture');
+    await cache.run(f.ladder, seeds, '/fixture', capped);
+    await cache.run(f.ladder, seeds, '/fixture', capped);
+    expect(f.calls()).toBe(2);
+  });
+
   it('reuses each stats revision and seed and matches a fresh result exactly', async () => {
     const f = fixture();
     const cache = createStatsMeasurementCache(() => 'stats-commit-1');
