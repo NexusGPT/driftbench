@@ -67,18 +67,19 @@ def main():
         lines.append(f"| {split} | {len(load('seals/'+split+'.json'))} | `{freeze['sealCommits'][split]}` | `{sha}` |")
     lines+=['','## Model cells','',
         'Scores use normalized presentation games. Ties and unparsed pair-ledger or promptfoo games are wrong. Reader-first retains its frozen longer-response fallback when a rubric ballot is invalid; the error count exposes that behavior.','',
-        '| Model | Contestant | Pairs / 173 | Correct games | Accuracy % | Wilson 95% | Errors | USD / 100 pairs |',
-        '|---|---|---:|---:|---:|---|---:|---:|']
+        '| Model | Contestant | Pairs / 173 | Correct games | Accuracy % | Wilson 95% | Errors | USD / 100 pairs | USD / 100 games |',
+        '|---|---|---:|---:|---:|---|---:|---:|---:|']
     for row in cells:
         if row['model']=='machine':continue
-        lines.append(f"| {row['model']} | {row['contestant']} | {row['pairs']} | {row['correct']}/{row['games']} | {f(row['accuracy'])} | {interval(row['wilson95'])} | {row['graderErrors']} | {f(row['usdPer100Pairs'],5)} |")
+        lines.append(f"| {row['model']} | {row['contestant']} | {row['pairs']} | {row['correct']}/{row['games']} | {f(row['accuracy'])} | {interval(row['wilson95'])} | {row['graderErrors']} | {f(row['usdPer100Pairs'],5)} | {f(row['usdPer100Games'],5)} |")
     lines+=['','Reader-first is the separate opt-in PR 157 row at `c50b2dc3`. It has a length prior and a defect-gated override. It is not included in the primary pair-ledger family. Both its games share one normalized decision; pair-ledger reconciliation does the same. Raw readings remain in `results/decisions.jsonl`.','',
         '| Model | Challenger vs promptfoo | Matched pairs | Wins / losses | Difference, points | Request-cluster 95% | Exact two-sided p | Holm-18 |',
         '|---|---|---:|---:|---:|---|---:|---|']
     for row in cells:
         comparison=row.get('comparison')
         if comparison is None:continue
-        lines.append(f"| {row['model']} | {row['contestant']} | {comparison['matchedPairs']} | {comparison['wins']}/{comparison['losses']} | {f(comparison['deltaPoints'])} | {interval(comparison['requestCluster95'])} | {f(comparison['mcnemarTwoSided'],6)} | pending full primary family |")
+        holm='not applicable, exploratory' if row['contestant']=='reader-first-c50b2dc3' else 'pending full primary family'
+        lines.append(f"| {row['model']} | {row['contestant']} | {comparison['matchedPairs']} | {comparison['wins']}/{comparison['losses']} | {f(comparison['deltaPoints'])} | {interval(comparison['requestCluster95'])} | {f(comparison['mcnemarTwoSided'],6)} | {holm} |")
     lines+=['','Per-cell game McNemar is the requested nominal test. Games sharing a pair and request are dependent. Interpret the request-cluster interval alongside that p value. Holm awaits the complete cross-benchmark primary family. Reader-first remains exploratory. Source: `results/cells.json` and frozen `stats.py`.','',
         '## Cheaters on the identical test seal','',
         '| Control | Correct games | Accuracy % | Wilson 95% | USD |','|---|---:|---:|---|---:|']
@@ -133,6 +134,7 @@ def main():
         '- The first plugin crash interrupts six pilot calls; their 0.90 USD reservations remain uncertain. A second reconnect finds one Gemini fetch failure and three unfinished native calls. All uncertain reservations remain counted. See `runtime-recovery.json`, `runtime-recovery-2.json`, and `results/spend.jsonl`.',
         '- The latest owner authorization permits three retries after an initial HTTP 429, with waits of 60, 120 and 240 seconds. Other transport failures allow three submissions total. Timeouts are 300 seconds. Returned model answers never receive transport retries.',
         '- Haiku and Luna run first with at most four concurrent calls. Gemini runs last with at most two. HTTP 429 returns no model answer and is counted separately per cell, never as a judge failure. Exhausted Gemini rate-limit recovery is parked and disclosed.',
+        f"- Last-call cutoff: `{freeze['lastCallUtc']}`. The owner extends it from 13:00 to 16:00 UTC because shared Gemini quota requires model reordering. This changes no source hash, seal or spending cap; the authorization is in `freeze.json`.",
         '- Both HTTP models use medium reasoning for every contestant and the same 4096 output-token cap. Haiku uses native Claude CLI without an exposed reasoning setting.',
         '- The owner unblocks Gemini billing and restricts key files to `openai.key` and `gemini-driftbench.key`. Keys load inside each command and are not printed.',
         '- Six analysis tests and seven initial harness tests pass before calls; the transport amendments add two passing error-classification and backoff tests, including source tamper rejection, concurrent spend reservation, output polarity and the pushed-core adapter.',
