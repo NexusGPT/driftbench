@@ -89,7 +89,7 @@ export type JudgeResult = {
   readonly factLedger?: FactLedgerAnswer;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
   readonly checks?: CriterionLedger['checks'];
-  /** Model-invented requirement ids, ignored during scoring and retained for diagnostics. */
+  /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {
     readonly attempts: number;
