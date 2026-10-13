@@ -40,6 +40,7 @@ Every page says what exists today and what is not built yet, with the phase that
 ## Reference
 
 * [Spec reference](reference/spec.md): every field of a spec, generated from the zod schemas.
+* [Campaign configuration reference](reference/campaign.md): every field of the `campaign:` key in `driftbench.yaml`.
 * [Task family reference](reference/family.md): every field of a task family file and its review file, generated from the zod schemas.
 * [Map reference](reference/map.md): every field of a map proposal and of an approved map.
 * [Interview reference](reference/interview.md): every field of the intake questionnaire.
@@ -123,7 +124,7 @@ There is no separate phase for code agents. A task spec runs through each phase 
 
 ## Working on the docs
 
-* `pnpm docs:reference` writes [the spec reference](reference/spec.md) and the reference page of every other file people write (family, map, interview, criteria and labels, personas and red-team, change manifest, estate files) from the zod schemas. `pnpm docs:reference --check` exits 1 when a committed page is stale.
+* `pnpm docs:reference` writes [the spec reference](reference/spec.md) and the reference page of every other file people write (family, campaign configuration, map, interview, criteria and labels, personas and red-team, change manifest, estate files) from the zod schemas. `pnpm docs:reference --check` exits 1 when a committed page is stale.
 * `pnpm docs:links` checks that every relative link in `docs/` resolves and that every page is reachable from this one.
 * `pnpm test` runs the tests of both tools, and checks the pages: every YAML example loads, no page has an em dash or an en dash, every issue and warning code is on the CLI page, names that belong to one runtime appear only under `docs/adapters`, and every comparison cell has a source and a read date.
 * Pages use present tense and short sentences. A claim about a part that is not built says "planned, phase N". A number has a source, or it is left out. Command output on a page is what the command printed.
