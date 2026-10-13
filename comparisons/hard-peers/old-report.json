@@ -418,5 +418,95 @@
       "only_theirs": 0,
       "mcnemar_exact_p": 0.25
     }
+  },
+  {
+    "competitor": "deepeval",
+    "row": "task completion (tool receipts, the README bar)",
+    "items": 72,
+    "earlier_shipped_right": 72,
+    "earlier_shipped_items": 72,
+    "competitor_right": 72,
+    "default": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 0,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 1.0
+    },
+    "audit": {
+      "right": 72,
+      "complete": 72,
+      "wilson95": [
+        94.93,
+        100
+      ],
+      "only_ours": 0,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 1.0
+    }
+  },
+  {
+    "competitor": "langwatch",
+    "row": "criterion labels, short cohort",
+    "items": 240,
+    "earlier_shipped_right": 238,
+    "earlier_shipped_items": 240,
+    "competitor_right": 240,
+    "default": {
+      "right": 240,
+      "complete": 240,
+      "wilson95": [
+        98.42,
+        100
+      ],
+      "only_ours": 0,
+      "only_theirs": 0,
+      "mcnemar_exact_p": 1.0
+    },
+    "audit": {
+      "right": 227,
+      "complete": 240,
+      "wilson95": [
+        90.95,
+        96.81
+      ],
+      "only_ours": 0,
+      "only_theirs": 13,
+      "mcnemar_exact_p": 0.000244140625
+    }
+  },
+  {
+    "competitor": "langwatch",
+    "row": "criterion labels, long cohort",
+    "items": 240,
+    "earlier_shipped_right": 205,
+    "earlier_shipped_items": 240,
+    "competitor_right": 230,
+    "default": {
+      "right": 233,
+      "complete": 240,
+      "wilson95": [
+        94.1,
+        98.58
+      ],
+      "only_ours": 5,
+      "only_theirs": 2,
+      "mcnemar_exact_p": 0.453125
+    },
+    "audit": {
+      "right": 186,
+      "complete": 240,
+      "wilson95": [
+        71.81,
+        82.33
+      ],
+      "only_ours": 2,
+      "only_theirs": 46,
+      "mcnemar_exact_p": 8.363087999896379e-12
+    }
   }
 ]
