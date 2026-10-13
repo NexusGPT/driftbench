@@ -343,6 +343,13 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
     );
     return split === text ? undefined : split;
   },
+  // Caesar shifts other than 13, of a short text: every shift is a line of its own.
+  (text) =>
+    text.length > 400
+      ? undefined
+      : Array.from({ length: 24 }, (_, i) => shift(text, i + 1))
+          .filter((_, i) => i + 1 !== 13)
+          .join('\n'),
   // Compatibility forms: fullwidth letters and the like read as plain letters.
   (text) => {
     const folded = text.normalize('NFKC');
