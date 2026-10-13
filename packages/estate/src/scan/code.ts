@@ -667,6 +667,11 @@ function referenceAtoms(
   }
 }
 
+/** A routing table's ask column, by its header. */
+const ASK_HEADER = /\b(?:when|wants?|asks?|if|situation|trigger)\b/i;
+/** A first column of people: such a table says who keeps a skill, not when to load it. */
+const PEOPLE_HEADER = /^(?:owners?|maintainers?|authors?|people|persons?|who|teams?|contacts?|reviewers?)\b/i;
+
 function routeAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
@@ -677,9 +682,15 @@ function routeAtoms(
   const file = files.get(chunk.file);
   if (!file) return;
   for (const table of readTables(file.text, chunk.startLine, chunk.endLine)) {
+    const header = table.header.map((cell) => cell.replace(/[`*]/g, '').trim());
+    // The ask sits in the column whose header says when (`When the user wants to`, `Use when`), else the
+    // first. A table whose first column names people (owners, maintainers) routes nothing.
+    const named = header.findIndex((cell) => ASK_HEADER.test(cell));
+    if (named < 0 && PEOPLE_HEADER.test(header[0] ?? '')) continue;
+    const askAt = Math.max(0, named);
     for (const row of table.rows) {
-      const ask = row.cells[0]?.replace(/[`*]/g, '').trim() ?? '';
-      for (const cell of row.cells.slice(1)) {
+      const ask = row.cells[askAt]?.replace(/[`*]/g, '').trim() ?? '';
+      for (const cell of row.cells.filter((_, index) => index !== askAt)) {
         // A target and the words it is written with in the cell, to check the cell does not negate it.
         const written = new Map<string, string>();
         for (const match of cell.matchAll(/`\/?([^`]+)`/g)) written.set(match[1] ?? '', match[1] ?? '');
