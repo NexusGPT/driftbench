@@ -42,17 +42,17 @@ for (const model of ['claude-haiku-5-5','gpt-6-luna','gemini-3.8-flash']) {
     validityPassed:Object.values(checks).every(x=>x.passed)&&cheaterGate,
     cheaterGate, prepAccuracy, prepCheaters, checks, fixtureEarning };
   writeFileSync(join(root,`results/readiness-${model}.json`),JSON.stringify(readiness,null,2)+'\n');
-  const cell={model,status:summary.n?'MEASURED':'PENDING_CORE',...summary,cost,noise,fixtureEarning,pilot,validity:checks,cheaterGate,prepAccuracy,
+  const cell={model,status:summary.n?'MEASURED':'PENDING_MEASUREMENT',...summary,cost,noise,fixtureEarning,pilot,validity:checks,cheaterGate,prepAccuracy,
     cheaters:{dev:cheaters(data.dev),test:cheaters(data.pool)},powerRegistration:seal.powerRegistration,familyDisclosure:seal.familyDisclosure};
   cells.push(cell);
   writeFileSync(join(root,`results/items-${model}.json`),JSON.stringify(summary.decisions,null,2)+'\n');
 }
 
 const finishes=calls.filter(x=>x.type==='finish'),finishedKeys=new Set(finishes.map(x=>x.key));
-const measuredUsd=finishes.reduce((n,x)=>n+x.costUsd,0), pending=calls.filter(x=>x.type==='start'&&!finishedKeys.has(x.key));
+const measuredUsd=finishes.filter(x=>!x.costEstimated).reduce((n,x)=>n+x.costUsd,0), interrupted=finishes.filter(x=>x.costEstimated), interruptionReserveUsd=interrupted.reduce((n,x)=>n+x.costUsd,0), pending=calls.filter(x=>x.type==='start'&&!finishedKeys.has(x.key));
 const summary={sealSha256:hash(readFileSync(join(root,'data/seal.json'))),poolSha256:seal.hashes['pool.json'],
   coreFreeze:existsSync(join(root,'freeze.json'))?hash(readFileSync(join(root,'freeze.json'))):null,
-  totalCalls:finishes.length,measuredUsd,unresolvedCalls:pending.length,reservedUsd:pending.reduce((n,x)=>n+x.reserveUsd,0),cells};
+  totalCalls:finishes.length,receivedCalls:finishes.length-interrupted.length,interruptedCalls:interrupted.length,interruptionReserveUsd,measuredUsd,unresolvedCalls:pending.length,reservedUsd:pending.reduce((n,x)=>n+x.reserveUsd,0),cells};
 writeFileSync(join(root,'results/cells.json'),JSON.stringify(summary,null,2)+'\n');
 const fmt=x=>x==null?'pending':(100*x).toFixed(2)+'%';
 const text=['# JudgeBench cell table','',`Pool: ${seal.eligibleCount} Claude-response pairs. ${seal.questionOverlapCount} source-question IDs overlap earlier GPT evaluations, including ${seal.exactQuestionOverlapCount} exact texts.`,'',
@@ -68,7 +68,7 @@ for (const [name, c] of Object.entries(cheaters(data.dev))) {
   const t = cheaters(data.pool)[name];
   text.push(`| ${name} | ${c.correct}/${c.n} (${fmt(c.estimate)}) | ${t.correct}/${t.n} (${fmt(t.estimate)}) |`);
 }
-text.push('',`Measured spend: ${measuredUsd.toFixed(8)} USD. Completed calls: ${finishes.length}. Unresolved calls: ${pending.length}.`,
+text.push('',`Measured spend: ${measuredUsd.toFixed(8)} USD. Received calls: ${finishes.length-interrupted.length}. Interrupted calls: ${interrupted.length}, reserved liability ${interruptionReserveUsd.toFixed(8)} USD. Unresolved calls: ${pending.length}.`,
 '',seal.powerRegistration,'',seal.familyDisclosure,'','Holm correction awaits the full 18-cell family. Missing cells never count as ties or wins.','',
 'Inputs and all measured quantities: data/seal.json and results/cells.json. Per-item decisions: results/items-<model>.json.');
 writeFileSync(join(root,'results/cells.md'),text.join('\n')+'\n');

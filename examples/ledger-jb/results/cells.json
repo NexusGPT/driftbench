@@ -1,15 +1,18 @@
 {
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
   "poolSha256": "489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236",
-  "coreFreeze": null,
-  "totalCalls": 0,
-  "measuredUsd": 0,
+  "coreFreeze": "08dc8d1f4763960ab36c1a606a734141f5dadc3016140664fc81fed4c2a51aa9",
+  "totalCalls": 188,
+  "receivedCalls": 182,
+  "interruptedCalls": 6,
+  "interruptionReserveUsd": 0.41659874999999996,
+  "measuredUsd": 0.2435845799999999,
   "unresolvedCalls": 0,
   "reservedUsd": 0,
   "cells": [
     {
       "model": "claude-haiku-5-5",
-      "status": "PENDING_CORE",
+      "status": "PENDING_MEASUREMENT",
       "n": 0,
       "planned": 270,
       "coverage": 0,
@@ -97,34 +100,397 @@
         }
       },
       "pilot": {
-        "n": 0,
+        "n": 20,
         "planned": 20,
-        "coverage": 0,
-        "wins": 0,
-        "losses": 0,
+        "coverage": 1,
+        "wins": 1,
+        "losses": 1,
         "ledger": {
-          "correct": 0,
-          "estimate": null,
-          "lower": null,
-          "upper": null
+          "correct": 19,
+          "estimate": 0.95,
+          "lower": 0.763868806553258,
+          "upper": 0.9911185511992047
         },
         "promptfoo": {
-          "correct": 0,
-          "estimate": null,
-          "lower": null,
-          "upper": null
+          "correct": 19,
+          "estimate": 0.95,
+          "lower": 0.763868806553258,
+          "upper": 0.9911185511992047
         },
         "difference": {
-          "estimate": null,
-          "lower": null,
-          "upper": null
+          "estimate": 0,
+          "lower": -0.15,
+          "upper": 0.15,
+          "repetitions": 10000,
+          "seed": "ledger-jb-bootstrap-v1"
         },
         "p": 1,
         "holmP": null,
         "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
         "conservative18CellBound": 1,
-        "verdict": "PARTIAL",
-        "decisions": []
+        "verdict": "PENDING_GLOBAL_HOLM",
+        "decisions": [
+          {
+            "id": "cae46f34-3909-5086-9b39-dd0aa53e4063",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "c5d13fd8-9d91-5e82-9ac9-3d5b372ea856",
+            "group": "livecodebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "97e2c15b-92c8-5934-bf37-c46fbf095930",
+            "group": "mmlu",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 0,
+            "difference": 1,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb",
+            "group": "livebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+            "group": "livecodebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "9eea6f37-5da7-5b9e-81f7-6f27eccf11da",
+            "group": "mmlu",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "0dbbab50-fb4b-59f5-83a7-883e9e6f53f3",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "5b5bd25b-3f2d-5ffc-9514-4464c551a497",
+            "group": "livecodebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "907c3d20-a0dc-5b21-b4ba-1e784d7cfaf6",
+            "group": "mmlu",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "12684959-2d5c-5dd7-8166-cf6dd83e6ef2",
+            "group": "livebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "5b3b51e9-36f5-535e-998e-6f9a5e677875",
+            "group": "livecodebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "c67cf264-33f9-5730-aeea-a7364756a96b",
+            "group": "mmlu",
+            "label": "B",
+            "ledger": 0,
+            "promptfoo": 1,
+            "difference": -1,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "01e7f689-32d4-53b7-a05b-32cbc6807a7c",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "5718cf3d-a1a8-5503-85dd-f58b8a7fac4d",
+            "group": "livecodebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "aecacdc0-1dfc-5339-b6c7-eea5baa1471d",
+            "group": "mmlu",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "561aa423-34b6-5d88-bbd1-011da24ad2b0",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "857131ea-e0ef-517b-9f31-996edf4dc832",
+            "group": "livecodebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "3b317691-c56f-50df-92a6-8ad2f444dfe4",
+            "group": "mmlu",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "56a1fdbb-c4ca-5626-851c-aae7e876e72a",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "0f999ea7-10a1-5b85-a175-b86d50338266",
+            "group": "mmlu",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          }
+        ]
       },
       "validity": {
         "base": {
@@ -242,7 +608,7 @@
     },
     {
       "model": "gpt-6-luna",
-      "status": "PENDING_CORE",
+      "status": "PENDING_MEASUREMENT",
       "n": 0,
       "planned": 270,
       "coverage": 0,
@@ -330,34 +696,397 @@
         }
       },
       "pilot": {
-        "n": 0,
+        "n": 20,
         "planned": 20,
-        "coverage": 0,
-        "wins": 0,
+        "coverage": 1,
+        "wins": 1,
         "losses": 0,
         "ledger": {
-          "correct": 0,
-          "estimate": null,
-          "lower": null,
-          "upper": null
+          "correct": 19,
+          "estimate": 0.95,
+          "lower": 0.763868806553258,
+          "upper": 0.9911185511992047
         },
         "promptfoo": {
-          "correct": 0,
-          "estimate": null,
-          "lower": null,
-          "upper": null
+          "correct": 18,
+          "estimate": 0.9,
+          "lower": 0.6989663547715128,
+          "upper": 0.9721335187862319
         },
         "difference": {
-          "estimate": null,
-          "lower": null,
-          "upper": null
+          "estimate": 0.05,
+          "lower": 0,
+          "upper": 0.15,
+          "repetitions": 10000,
+          "seed": "ledger-jb-bootstrap-v1"
         },
         "p": 1,
         "holmP": null,
         "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
         "conservative18CellBound": 1,
-        "verdict": "PARTIAL",
-        "decisions": []
+        "verdict": "PENDING_GLOBAL_HOLM",
+        "decisions": [
+          {
+            "id": "cae46f34-3909-5086-9b39-dd0aa53e4063",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "c5d13fd8-9d91-5e82-9ac9-3d5b372ea856",
+            "group": "livecodebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "97e2c15b-92c8-5934-bf37-c46fbf095930",
+            "group": "mmlu",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 0,
+            "difference": 1,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb",
+            "group": "livebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+            "group": "livecodebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "9eea6f37-5da7-5b9e-81f7-6f27eccf11da",
+            "group": "mmlu",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "0dbbab50-fb4b-59f5-83a7-883e9e6f53f3",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "5b5bd25b-3f2d-5ffc-9514-4464c551a497",
+            "group": "livecodebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "907c3d20-a0dc-5b21-b4ba-1e784d7cfaf6",
+            "group": "mmlu",
+            "label": "B",
+            "ledger": 0,
+            "promptfoo": 0,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "B",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "12684959-2d5c-5dd7-8166-cf6dd83e6ef2",
+            "group": "livebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "5b3b51e9-36f5-535e-998e-6f9a5e677875",
+            "group": "livecodebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "c67cf264-33f9-5730-aeea-a7364756a96b",
+            "group": "mmlu",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "01e7f689-32d4-53b7-a05b-32cbc6807a7c",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "5718cf3d-a1a8-5503-85dd-f58b8a7fac4d",
+            "group": "livecodebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "aecacdc0-1dfc-5339-b6c7-eea5baa1471d",
+            "group": "mmlu",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "561aa423-34b6-5d88-bbd1-011da24ad2b0",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "857131ea-e0ef-517b-9f31-996edf4dc832",
+            "group": "livecodebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "3b317691-c56f-50df-92a6-8ad2f444dfe4",
+            "group": "mmlu",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "56a1fdbb-c4ca-5626-851c-aae7e876e72a",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "0f999ea7-10a1-5b85-a175-b86d50338266",
+            "group": "mmlu",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          }
+        ]
       },
       "validity": {
         "base": {
@@ -475,8 +1204,311 @@
     },
     {
       "model": "gemini-3.8-flash",
-      "status": "PENDING_BILLING",
-      "reason": "Owner reports 429 quota; no calls authorized while blocked."
+      "status": "PENDING_MEASUREMENT",
+      "n": 0,
+      "planned": 270,
+      "coverage": 0,
+      "wins": 0,
+      "losses": 0,
+      "ledger": {
+        "correct": 0,
+        "estimate": null,
+        "lower": null,
+        "upper": null
+      },
+      "promptfoo": {
+        "correct": 0,
+        "estimate": null,
+        "lower": null,
+        "upper": null
+      },
+      "difference": {
+        "estimate": null,
+        "lower": null,
+        "upper": null
+      },
+      "p": 1,
+      "holmP": null,
+      "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
+      "conservative18CellBound": 1,
+      "verdict": "PARTIAL",
+      "decisions": [],
+      "cost": {
+        "ledger": {
+          "usd": 0,
+          "units": 0,
+          "per100": null
+        },
+        "promptfoo": {
+          "usd": 0,
+          "units": 0,
+          "per100": null
+        }
+      },
+      "noise": {
+        "ledger": {
+          "planned": 30,
+          "completed": 0,
+          "changedItems": 0,
+          "gameFlips": 0,
+          "comparisons": 0,
+          "rate": null,
+          "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
+        },
+        "promptfoo": {
+          "planned": 30,
+          "completed": 0,
+          "changedItems": 0,
+          "gameFlips": 0,
+          "comparisons": 0,
+          "rate": null,
+          "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
+        }
+      },
+      "fixtureEarning": {
+        "livebench": {
+          "expected": 18,
+          "measured": 0,
+          "correct": 0,
+          "kappa": null,
+          "earned": false,
+          "status": "PENDING"
+        },
+        "livecodebench": {
+          "expected": 18,
+          "measured": 0,
+          "correct": 0,
+          "kappa": null,
+          "earned": false,
+          "status": "PENDING"
+        },
+        "mmlu": {
+          "expected": 18,
+          "measured": 0,
+          "correct": 0,
+          "kappa": null,
+          "earned": false,
+          "status": "PENDING"
+        }
+      },
+      "pilot": {
+        "n": 4,
+        "planned": 20,
+        "coverage": 0.2,
+        "wins": 0,
+        "losses": 0,
+        "ledger": {
+          "correct": 4,
+          "estimate": 1,
+          "lower": 0.5101091635454027,
+          "upper": 1
+        },
+        "promptfoo": {
+          "correct": 4,
+          "estimate": 1,
+          "lower": 0.5101091635454027,
+          "upper": 1
+        },
+        "difference": {
+          "estimate": 0,
+          "lower": 0,
+          "upper": 0,
+          "repetitions": 10000,
+          "seed": "ledger-jb-bootstrap-v1"
+        },
+        "p": 1,
+        "holmP": null,
+        "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
+        "conservative18CellBound": 1,
+        "verdict": "PARTIAL",
+        "decisions": [
+          {
+            "id": "cae46f34-3909-5086-9b39-dd0aa53e4063",
+            "group": "livebench",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "c5d13fd8-9d91-5e82-9ac9-3d5b372ea856",
+            "group": "livecodebench",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "97e2c15b-92c8-5934-bf37-c46fbf095930",
+            "group": "mmlu",
+            "label": "B",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "B",
+              "B"
+            ],
+            "promptfooGames": [
+              "B",
+              "B"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          },
+          {
+            "id": "9eea6f37-5da7-5b9e-81f7-6f27eccf11da",
+            "group": "mmlu",
+            "label": "A",
+            "ledger": 1,
+            "promptfoo": 1,
+            "difference": 0,
+            "ledgerGames": [
+              "A",
+              "A"
+            ],
+            "promptfooGames": [
+              "A",
+              "A"
+            ],
+            "ledgerGraderErrors": 0,
+            "promptfooGraderErrors": 0
+          }
+        ]
+      },
+      "validity": {
+        "base": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 1,
+          "passed": false
+        },
+        "relabel": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 0.95,
+          "passed": false
+        },
+        "markdown-stripped": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 0.95,
+          "passed": false
+        },
+        "injection": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 1,
+          "passed": false
+        },
+        "changed-finals": {
+          "expected": 10,
+          "measured": 0,
+          "correct": 0,
+          "preservedOrFlipped": 0,
+          "rate": null,
+          "threshold": 0.9,
+          "passed": false
+        }
+      },
+      "cheaterGate": false,
+      "prepAccuracy": null,
+      "cheaters": {
+        "dev": {
+          "constant-first": {
+            "correct": 0,
+            "n": 121,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.03077069794747827
+          },
+          "constant-original-A": {
+            "correct": 65,
+            "n": 121,
+            "estimate": 0.5371900826446281,
+            "lower": 0.4485732934119226,
+            "upper": 0.6235181422779343
+          },
+          "longer-wins": {
+            "correct": 55,
+            "n": 121,
+            "estimate": 0.45454545454545453,
+            "lower": 0.3685882130623515,
+            "upper": 0.543300032205601
+          },
+          "refusal-wins": {
+            "correct": 0,
+            "n": 121,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.03077069794747827
+          }
+        },
+        "test": {
+          "constant-first": {
+            "correct": 0,
+            "n": 270,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.014028039571646583
+          },
+          "constant-original-A": {
+            "correct": 143,
+            "n": 270,
+            "estimate": 0.5296296296296297,
+            "lower": 0.4700965819342559,
+            "upper": 0.5883313860911281
+          },
+          "longer-wins": {
+            "correct": 118,
+            "n": 270,
+            "estimate": 0.43703703703703706,
+            "lower": 0.37916504442842786,
+            "upper": 0.4966755235176314
+          },
+          "refusal-wins": {
+            "correct": 0,
+            "n": 270,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.014028039571646583
+          }
+        }
+      },
+      "powerRegistration": "TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected.",
+      "familyDisclosure": "Claude-generated responses share the Anthropic family with the Haiku judge. Luna has no response-family overlap."
     }
   ]
 }

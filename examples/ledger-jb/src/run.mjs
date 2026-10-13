@@ -88,6 +88,6 @@ async function worker() {
   }
 }
 const concurrency = freeze.concurrency ?? 4;
-if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 6) throw new Error('Invalid frozen concurrency');
+if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw new Error('Invalid frozen concurrency');
 await Promise.all(Array.from({ length: concurrency }, worker));
 if (stopped) throw stopped;

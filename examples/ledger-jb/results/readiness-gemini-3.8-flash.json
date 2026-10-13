@@ -1,0 +1,113 @@
+{
+  "model": "gemini-3.8-flash",
+  "freezeSha256": "08dc8d1f4763960ab36c1a606a734141f5dadc3016140664fc81fed4c2a51aa9",
+  "pilotComplete": false,
+  "noiseComplete": false,
+  "fixturesComplete": false,
+  "validityPassed": false,
+  "cheaterGate": false,
+  "prepAccuracy": null,
+  "prepCheaters": {
+    "constant-first": {
+      "correct": 0,
+      "n": 68,
+      "estimate": 0,
+      "lower": 0,
+      "upper": 0.053471336520070537
+    },
+    "constant-original-A": {
+      "correct": 35,
+      "n": 68,
+      "estimate": 0.5147058823529411,
+      "lower": 0.39834753306325144,
+      "upper": 0.6294915452743935
+    },
+    "longer-wins": {
+      "correct": 33,
+      "n": 68,
+      "estimate": 0.4852941176470588,
+      "lower": 0.3705084547256065,
+      "upper": 0.6016524669367487
+    },
+    "refusal-wins": {
+      "correct": 0,
+      "n": 68,
+      "estimate": 0,
+      "lower": 0,
+      "upper": 0.053471336520070537
+    }
+  },
+  "checks": {
+    "base": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 1,
+      "passed": false
+    },
+    "relabel": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 0.95,
+      "passed": false
+    },
+    "markdown-stripped": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 0.95,
+      "passed": false
+    },
+    "injection": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 1,
+      "passed": false
+    },
+    "changed-finals": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 0.9,
+      "passed": false
+    }
+  },
+  "fixtureEarning": {
+    "livebench": {
+      "expected": 18,
+      "measured": 0,
+      "correct": 0,
+      "kappa": null,
+      "earned": false,
+      "status": "PENDING"
+    },
+    "livecodebench": {
+      "expected": 18,
+      "measured": 0,
+      "correct": 0,
+      "kappa": null,
+      "earned": false,
+      "status": "PENDING"
+    },
+    "mmlu": {
+      "expected": 18,
+      "measured": 0,
+      "correct": 0,
+      "kappa": null,
+      "earned": false,
+      "status": "PENDING"
+    }
+  }
+}

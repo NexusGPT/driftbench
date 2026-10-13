@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-13T07:46:40.341766+00:00",
+  "processCheck": "No surviving ledger-jb node or Python driver found via ps; prior exec session absent.",
+  "previousFreezeSha256": "5ba3bf87d1047ae45337cfb35c70ed2f6bd2e9f0555b8abd0df874bff7ae8e3c",
+  "lostCalls": 6,
+  "reservedLiabilityUsd": 0.41659875,
+  "keys": [
+    "pilot:gemini-3.8-flash:0ca7d4e7-aa30-589d-8379-693de96fa461:0:ledger:AB:0:36dabb4bcd851e1f7da3a7404d25540af25f2f69f5f3462402a37b05e45020d4",
+    "pilot:gemini-3.8-flash:4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb:0:ledger:BA:0:11a687e5ab9abf434fdca7e91b9b08f17556b081272c8772da8af6a01b7ac27f",
+    "pilot:gemini-3.8-flash:0dbbab50-fb4b-59f5-83a7-883e9e6f53f3:0:ledger:AB:0:6e3a625e46f6997d00a57cc73e4b261f62b070478866bb17f07c6612befa95d4",
+    "pilot:gemini-3.8-flash:0dbbab50-fb4b-59f5-83a7-883e9e6f53f3:0:promptfoo:AB:0:2d187baca6839ca997f28ec0971d57cab63a2cd227d49a93e1296e8f3d0c3eb3",
+    "pilot:gemini-3.8-flash:5b5bd25b-3f2d-5ffc-9514-4464c551a497:0:ledger:AB:0:6845214d451accfdaed63d749cfeedef8efa54cce7bf5d81688d56aee7c9ccc1",
+    "pilot:gemini-3.8-flash:0ca7d4e7-aa30-589d-8379-693de96fa461:0:promptfoo:BA:0:6214eb4dd9db2d56ec0071e5c99403e92432a370fd4536befc3ac560c552b464"
+  ]
+}
