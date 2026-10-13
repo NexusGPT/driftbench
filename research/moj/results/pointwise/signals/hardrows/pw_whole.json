@@ -1,0 +1,1730 @@
+{
+"rubric.094": {
+"pA": 0.04,
+"detail": {
+"asked": "rubric",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.371,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.063": {
+"pA": 0.04,
+"detail": {
+"asked": "rubric",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.369,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.103": {
+"pA": 0.98,
+"detail": {
+"asked": "rubric",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.371,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.115": {
+"pA": 0.98,
+"detail": {
+"asked": "rubric",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.032,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.027": {
+"pA": 0.03,
+"detail": {
+"asked": "rubric",
+"a": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.379,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.053": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.662,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.074": {
+"pA": 0.91,
+"detail": {
+"asked": "rubric",
+"a": 0.91
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.643,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.025": {
+"pA": 0.88,
+"detail": {
+"asked": "rubric",
+"a": 0.88
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.617,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.034": {
+"pA": 0.03,
+"detail": {
+"asked": "rubric",
+"a": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.63,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.098": {
+"pA": 0.03,
+"detail": {
+"asked": "rubric",
+"a": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.374,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.028": {
+"pA": 0.9,
+"detail": {
+"asked": "rubric",
+"a": 0.9
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.374,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.065": {
+"pA": 0.9,
+"detail": {
+"asked": "rubric",
+"a": 0.9
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.409,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.012": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.409,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.009": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.281,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.109": {
+"pA": 0.97,
+"detail": {
+"asked": "rubric",
+"a": 0.97
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.282,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.071": {
+"pA": 0.96,
+"detail": {
+"asked": "rubric",
+"a": 0.96
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.257,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.072": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.26,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.054": {
+"pA": 0.01,
+"detail": {
+"asked": "rubric",
+"a": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.253,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.030": {
+"pA": 0.87,
+"detail": {
+"asked": "rubric",
+"a": 0.87
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.272,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.002": {
+"pA": 0.9,
+"detail": {
+"asked": "rubric",
+"a": 0.9
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.346,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.078": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.335,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.040": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.265,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.070": {
+"pA": 0.95,
+"detail": {
+"asked": "rubric",
+"a": 0.95
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.276,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.029": {
+"pA": 0.95,
+"detail": {
+"asked": "rubric",
+"a": 0.95
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.28,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.010": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.244,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.088": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.28,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.038": {
+"pA": 0.99,
+"detail": {
+"asked": "rubric",
+"a": 0.99
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.382,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.006": {
+"pA": 0.99,
+"detail": {
+"asked": "rubric",
+"a": 0.99
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.305,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.090": {
+"pA": 0.86,
+"detail": {
+"asked": "rubric",
+"a": 0.86
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.292,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.077": {
+"pA": 0.86,
+"detail": {
+"asked": "rubric",
+"a": 0.86
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.308,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.104": {
+"pA": 0.97,
+"detail": {
+"asked": "rubric",
+"a": 0.97
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.286,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.113": {
+"pA": 0.97,
+"detail": {
+"asked": "rubric",
+"a": 0.97
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.282,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.057": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.32,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.060": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.275,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.097": {
+"pA": 0.98,
+"detail": {
+"asked": "rubric",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.335,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.033": {
+"pA": 0.98,
+"detail": {
+"asked": "rubric",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.334,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.017": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.32,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.052": {
+"pA": 0.01,
+"detail": {
+"asked": "rubric",
+"a": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.307,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.018": {
+"pA": 0.94,
+"detail": {
+"asked": "rubric",
+"a": 0.94
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.288,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.093": {
+"pA": 0.93,
+"detail": {
+"asked": "rubric",
+"a": 0.93
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.37,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.089": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.293,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.110": {
+"pA": 0.02,
+"detail": {
+"asked": "rubric",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.306,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.045": {
+"pA": 0.97,
+"detail": {
+"asked": "rubric",
+"a": 0.97
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.252,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.119": {
+"pA": 0.97,
+"detail": {
+"asked": "rubric",
+"a": 0.97
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.29,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.101": {
+"pA": 0.03,
+"detail": {
+"asked": "rubric",
+"a": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.274,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.026": {
+"pA": 0.03,
+"detail": {
+"asked": "rubric",
+"a": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.274,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.003": {
+"pA": 0.92,
+"detail": {
+"asked": "rubric",
+"a": 0.92
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.285,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.024": {
+"pA": 0.9,
+"detail": {
+"asked": "rubric",
+"a": 0.9
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.48,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.064": {
+"pA": 0.81,
+"detail": {
+"asked": "reference",
+"a": 0.81
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.944,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.013": {
+"pA": 0.76,
+"detail": {
+"asked": "reference",
+"a": 0.76
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.47,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.075": {
+"pA": 0.89,
+"detail": {
+"asked": "reference",
+"a": 0.89
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.481,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.041": {
+"pA": 0.94,
+"detail": {
+"asked": "reference",
+"a": 0.94
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.459,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.029": {
+"pA": 0.03,
+"detail": {
+"asked": "reference",
+"a": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.463,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.116": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.446,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.098": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.474,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.068": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.477,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.025": {
+"pA": 0.02,
+"detail": {
+"asked": "reference",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.472,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.101": {
+"pA": 0.03,
+"detail": {
+"asked": "reference",
+"a": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.729,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.062": {
+"pA": 0.99,
+"detail": {
+"asked": "reference",
+"a": 0.99
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.388,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.015": {
+"pA": 0.99,
+"detail": {
+"asked": "reference",
+"a": 0.99
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.366,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.099": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.337,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.036": {
+"pA": 0.03,
+"detail": {
+"asked": "reference",
+"a": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.28,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.086": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.297,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.105": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.324,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.065": {
+"pA": 0.03,
+"detail": {
+"asked": "reference",
+"a": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.302,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.021": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.703,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.011": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.314,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.007": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.378,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.032": {
+"pA": 0.05,
+"detail": {
+"asked": "reference",
+"a": 0.05
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.341,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.073": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.288,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.070": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.32,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.115": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.319,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.055": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.366,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.014": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.572,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.081": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.293,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.006": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.276,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.057": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.457,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.040": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.386,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.060": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.47,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.102": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.314,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.090": {
+"pA": 0.02,
+"detail": {
+"asked": "reference",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.305,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.042": {
+"pA": 0.02,
+"detail": {
+"asked": "reference",
+"a": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.314,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.063": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.3,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.118": {
+"pA": 0.99,
+"detail": {
+"asked": "reference",
+"a": 0.99
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.312,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.037": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.275,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.027": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.286,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.083": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.304,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.067": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.284,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.038": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.29,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.097": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"a": 0.04
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.272,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.010": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.314,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.114": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"a": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.027,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.113": {
+"pA": 0.7,
+"detail": {
+"asked": "reference",
+"a": 0.7
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.563,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.054": {
+"pA": 0.78,
+"detail": {
+"asked": "reference",
+"a": 0.78
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.29,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.005": {
+"pA": 0.76,
+"detail": {
+"asked": "reference",
+"a": 0.76
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.28,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.074": {
+"pA": 0.87,
+"detail": {
+"asked": "reference",
+"a": 0.87
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.463,
+"luna": 0
+},
+"missing": 0
+}
+}

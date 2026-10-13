@@ -131,5 +131,14 @@ Recordings are `recordings/pw-*.jsonl`, results are under `results/pointwise/`. 
 | `data/verify.json` | 95 DEV answers | only `question` and the answer in `a` | none. The benchmark gives the judge no reference, source passage or claim: the label says whether the final answer is correct. Upstream publishes a separate `verify_bench_hard_reference.jsonl`; no local harness fetches it and it is not used here |
 | `data/hardrows.json` | 96 tuning cases | factuality rows: `reference`. Rubric rows: `rubric` | the expert answer the reply must not contradict (factuality rows only) |
 
+| `data/verify-with-reference.json` | the same 95 DEV answers | `reference`: the upstream reference solution of the question | the reference text of the benchmark's reference-guided mode. A separate entry (`verify-with-reference`) with its own content class and its own halves, left out of tuning, so a reference-guided score is never mixed with a reference-free one |
+
+What the upstream reference file is, from the benchmark's own README (https://github.com/cjj826/LongJudgeBench, read 2026-10-13):
+"Reference files (`{dataset}_reference.jsonl`) contain ground-truth reference texts used by the reference prompt mode." and, in
+its list of prompt variants, "`reference`: Reference article provided for scoring". It also reports "Reference mode improves
+accuracy on verify_bench_hard (70.9% → 82.3%)". So the reference is an input the judge may see in the reference mode, and it is
+hidden in the vanilla mode: `data/verify.json` is the vanilla mode. Only rows whose id is a DEV id were read from that file.
+Recorded baselines are not carried to the reference-guided entry: they were recorded without a reference.
+
 Every item has `split_group`, a hash of the shared reference, criterion or question. The tuning and validation halves are
 cut on it, so items that share a prompt, a source or a reference stay in the same half.

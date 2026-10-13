@@ -1,0 +1,18 @@
+{
+ "luna": {
+  "answers": 1024,
+  "usd": 0.338497
+ },
+ "gemini": {
+  "answers": 382,
+  "usd": 1.627799
+ },
+ "haiku": {
+  "answers": 392,
+  "usd": 0.36042
+ },
+ "total_usd": 2.326716,
+ "budget_usd": 15.0,
+ "stopped": {},
+ "note": "System-2 spend of the pointwise benchmarks, derived from recorded usage. Haiku is the cost the local CLI reports."
+}

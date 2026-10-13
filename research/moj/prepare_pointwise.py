@@ -18,7 +18,7 @@ import json
 import os
 import sys
 
-W = sys.argv[1] if len(sys.argv) > 1 else '/Users/assem/Documents/GitHub/driftbench/.worktrees'
+W = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith('--') else '/Users/assem/Documents/GitHub/driftbench/.worktrees'
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -34,7 +34,7 @@ def rank(seed, value):
 def dump(name, rows):
     # split_group: items that share a prompt, a source or a reference carry the same value and land in the same half.
     for row in rows:
-        shared = row.get('reference') or row.get('rubric') or row['question']
+        shared = row['question'] if row.get('row', '').startswith('verify') else row.get('reference') or row.get('rubric') or row['question']
         row['split_group'] = name + ':' + hashlib.sha256(shared.encode()).hexdigest()[:16]
     json.dump(rows, open(os.path.join(HERE, 'data', name + '.json'), 'w'), ensure_ascii=False)
     print(name, len(rows), dict(collections.Counter((r['split'], r['label'], tuple(sorted(r['baselines']))) for r in rows)))
@@ -143,7 +143,27 @@ def hardrows(per_cell=2):
     dump('hardrows', out)
 
 
+def verify_with_reference(path):
+    """The reference-guided track of verify: the same 95 DEV answers plus the upstream reference text of each.
+
+    `path` is a downloaded copy of data_standardized/verify_bench_hard_reference.jsonl of cjj826/LongJudgeBench. The upstream
+    README says: "Reference files ({dataset}_reference.jsonl) contain ground-truth reference texts used by the reference
+    prompt mode." A row whose id is not one of the DEV ids is skipped unread. Recorded baselines are left out: they were
+    recorded without a reference.
+    """
+    items = {item['id']: item for item in json.load(open(os.path.join(HERE, 'data', 'verify.json')))}
+    out = {}
+    for row in lines(path):
+        if row.get('id') in items:
+            out[row['id']] = {**items[row['id']], 'row': 'verify-with-reference', 'reference': str(row['reference']), 'baselines': {}}
+    assert len(out) == len(items), (len(out), len(items))
+    dump('verify-with-reference', [out[item_id] for item_id in items])
+
+
 if __name__ == '__main__':
-    rubricbench()
-    verify()
-    hardrows()
+    if len(sys.argv) > 2 and sys.argv[1] == '--verify-reference':
+        verify_with_reference(sys.argv[2])
+    else:
+        rubricbench()
+        verify()
+        hardrows()

@@ -4,8 +4,8 @@
  "stage1": [
   "pw_rows"
  ],
- "hi": 0.9,
- "lo": 0.7,
+ "hi": 0.8,
+ "lo": 0.8,
  "cards": [
   {
    "expert": "pw_split_luna",
@@ -30,5 +30,115 @@
    }
   }
  ],
- "tune_tolerance_points": 2.0
+ "tune_tolerance_points": 2.0,
+ "calibrate": {
+  "pw_rows": {
+   "criterion": 0.9,
+   "question": 0.6
+  }
+ },
+ "tuned": {
+  "on": "tuning half only",
+  "trail": [
+   {
+    "calibrate": "pw_rows",
+    "class": "criterion",
+    "boundary": 0.9,
+    "tune_balanced": 82.142,
+    "options": [
+     [
+      0.2,
+      71.2225
+     ],
+     [
+      0.3,
+      78.9811
+     ],
+     [
+      0.4,
+      80.4179
+     ],
+     [
+      0.5,
+      80.4179
+     ],
+     [
+      0.6,
+      80.4179
+     ],
+     [
+      0.7,
+      80.4179
+     ],
+     [
+      0.8,
+      80.4179
+     ],
+     [
+      0.9,
+      82.142
+     ],
+     [
+      0.95,
+      77.5885
+     ]
+    ]
+   },
+   {
+    "calibrate": "pw_rows",
+    "class": "question",
+    "boundary": 0.6,
+    "tune_balanced": 82.5208,
+    "options": [
+     [
+      0.2,
+      79.9535
+     ],
+     [
+      0.3,
+      81.3845
+     ],
+     [
+      0.4,
+      81.0057
+     ],
+     [
+      0.5,
+      82.142
+     ],
+     [
+      0.6,
+      82.5208
+     ],
+     [
+      0.7,
+      82.5208
+     ],
+     [
+      0.8,
+      79.9535
+     ],
+     [
+      0.9,
+      77.7649
+     ],
+     [
+      0.95,
+      78.5225
+     ]
+    ]
+   },
+   {
+    "levels": {
+     "hi": 0.8,
+     "lo": 0.8
+    },
+    "tune_balanced": 85.2399,
+    "best_tune_balanced": 85.2399,
+    "tolerance_points": 2.0,
+    "tune_items": 162,
+    "tune_s2_calls": 529
+   }
+  ]
+ }
 }

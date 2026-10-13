@@ -1,6 +1,7 @@
 """The pointwise adapter: collection, tuning and scoreboard for benchmarks that judge one output.
 
   python3 -m moj.pointwise collect --bench verify --experts pw_whole,pw_rows,route [--limit 5] [--offline] [--workers 8]
+                                   [--offline-partial]   # replay only: an item with a call never recorded gets no signal
   python3 -m moj.pointwise tune configs/pw-moj-luna.json          # confidence boundaries, on the tuning half only
   python3 -m moj.pointwise score configs/pw-moj-luna.json         # one variant, zero model calls
   python3 -m moj.pointwise board configs/pw-*.json                # the scoreboard of every variant and baseline
@@ -48,21 +49,32 @@ def run_expert(item, name, offline=False, repeat=0):
             'seconds': {k: round(sum(v), 3) for k, v in ctx.seconds.items()}, 'missing': ctx.missing}
 
 
+def _guarded(item, name, offline, repeat):
+    """offline == 'partial': an item with a call that was never recorded gets no signal, and nothing is sent."""
+    try:
+        return run_expert(item, name, bool(offline), repeat)
+    except RuntimeError:
+        if offline == 'partial':
+            return None
+        raise
+
+
 def run_many(items, experts, offline=False, repeat=0, workers=8):
     """{expert: {id: signal}} for the given items. At most eight tasks run at a time; each model has its own limit."""
     tasks = [(item, name) for name in experts for item in items]
     with ThreadPoolExecutor(max_workers=max(1, min(workers, 8))) as pool:
-        results = list(pool.map(lambda task: run_expert(task[0], task[1], offline, repeat), tasks))
+        results = list(pool.map(lambda task: _guarded(task[0], task[1], offline, repeat), tasks))
     out = {name: {} for name in experts}
     for (item, name), signal in zip(tasks, results):
-        out[name][item['id']] = signal
+        if signal is not None:
+            out[name][item['id']] = signal
     return out
 
 
 def collect(bench, experts, limit=None, offline=False, workers=8):
     items = load_point(bench)[:limit]
     fresh = run_many(items, experts, offline, 0, workers)
-    totals = {'items': len(items), 'jev_calls': 0, 's2_calls': 0, 's2_usd': 0.0, 'missing': 0}
+    totals = {'items': len(items), 'signals': {name: len(fresh[name]) for name in experts}, 'jev_calls': 0, 's2_calls': 0, 's2_usd': 0.0, 'missing': 0}
     for name in experts:
         path = signal_path(bench, name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -87,7 +99,7 @@ def meta_of(item):
     # 'carries': what the item brings for the judge to check against. rows (rubric rows), criterion (one criterion text or
     # one reference) or question (nothing but the request). Boundaries and weights are fitted per class of content.
     return {'label': item['label'], 'half': item['half'], 'split': item['split'], 'group': item['group'], 'kind': item['kind'],
-            'carries': CLASSES[carried(item)],
+            'carries': POINT_BENCHES[item['bench']].get('carries') or CLASSES[carried(item)],
             'language': item['language'], 'swapped': item['swapped'], 'baselines': item.get('baselines', {})}
 
 
@@ -251,7 +263,7 @@ def board(config, benches=None, pooled=None):
 
 def tune(config, benches=None):
     """Picks hi, lo and the stage-1 boundaries on the tuning half only, by balanced accuracy. Ties go to the cheaper setting."""
-    benches = benches or list(POINT_BENCHES)
+    benches = benches or [bench for bench in POINT_BENCHES if POINT_BENCHES[bench].get('tune', True)]
     pooled = {bench: load_signals(bench) for bench in benches}
     tune_ids = [(b, i) for b in benches for i in pooled[b] if pooled[b][i]['_meta']['half'] == 'tune']
 
@@ -340,8 +352,10 @@ def scoreboard(configs, benches=None):
         for label, on_tune, on_valid in rows:
             usage = on_valid if on_valid.get('n') else on_tune
             both = ' / '.join('n/a' if not e.get('n') else f"{100 * e['balanced']:.0f}" for e in (on_tune, on_valid))
+            recorded = '(recorded)' in label  # a recorded baseline has no latency here, and a cost only where its harness stored one
+            usd = 'n/a' if recorded and not usage.get('usd_per_100') else fmt_num(usage, 'usd_per_100', 4)
             lines.append(f"| {label} | {fmt_acc(on_tune)} | {fmt_acc(on_valid)} | {both} | {fmt_num(usage, 's1_per_100', 0)} | {fmt_num(usage, 's2_per_100', 0)} | "
-                         f"{fmt_num(usage, 'usd_per_100', 4)} | {fmt_num(usage, 'seconds_per_item', 2)} |")
+                         f"{usd} | {'n/a' if recorded else fmt_num(usage, 'seconds_per_item', 2)} |")
             table.setdefault(bench, []).append({'row': label, 'tune': on_tune, 'valid': on_valid})
         lines.append('')
     return '\n'.join(lines), table, boards
@@ -358,7 +372,8 @@ if __name__ == '__main__':
         experts = arg('--experts', 'pw_whole,pw_rows,route').split(',')
         limit = int(arg('--limit')) if arg('--limit') else None
         for bench in arg('--bench', ','.join(POINT_BENCHES)).split(','):
-            print(bench, json.dumps(collect(bench, experts, limit, '--offline' in sys.argv, int(arg('--workers', 8)))), flush=True)
+            mode = 'partial' if '--offline-partial' in sys.argv else '--offline' in sys.argv
+            print(bench, json.dumps(collect(bench, experts, limit, mode, int(arg('--workers', 8)))), flush=True)
     elif command == 'tune':
         for path in paths:
             tuned = tune(load_config(path))

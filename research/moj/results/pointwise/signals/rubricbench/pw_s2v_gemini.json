@@ -1,0 +1,2164 @@
+{
+"rubric_eval_1055": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.021028,
+"seconds": {
+"jev": 0,
+"luna": 31.292
+},
+"missing": 0
+},
+"rubric_eval_161": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.003334,
+"seconds": {
+"jev": 0,
+"luna": 7.542
+},
+"missing": 0
+},
+"rubric_eval_776": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.01135,
+"seconds": {
+"jev": 0,
+"luna": 11.987
+},
+"missing": 0
+},
+"rubric_eval_484": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00643,
+"seconds": {
+"jev": 0,
+"luna": 10.914
+},
+"missing": 0
+},
+"rubric_eval_53": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004991,
+"seconds": {
+"jev": 0,
+"luna": 10.81
+},
+"missing": 0
+},
+"rubric_eval_468": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.003591,
+"seconds": {
+"jev": 0,
+"luna": 6.704
+},
+"missing": 0
+},
+"rubric_eval_30": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00449,
+"seconds": {
+"jev": 0,
+"luna": 9.225
+},
+"missing": 0
+},
+"rubric_eval_165": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006106,
+"seconds": {
+"jev": 0,
+"luna": 8.813
+},
+"missing": 0
+},
+"rubric_eval_769": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004937,
+"seconds": {
+"jev": 0,
+"luna": 14.426
+},
+"missing": 0
+},
+"rubric_eval_12": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.003121,
+"seconds": {
+"jev": 0,
+"luna": 7.199
+},
+"missing": 0
+},
+"rubric_eval_602": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006296,
+"seconds": {
+"jev": 0,
+"luna": 7.388
+},
+"missing": 0
+},
+"rubric_eval_736": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.001955,
+"seconds": {
+"jev": 0,
+"luna": 6.943
+},
+"missing": 0
+},
+"rubric_eval_349": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.011334,
+"seconds": {
+"jev": 0,
+"luna": 25.501
+},
+"missing": 0
+},
+"rubric_eval_901": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004474,
+"seconds": {
+"jev": 0,
+"luna": 9.897
+},
+"missing": 0
+},
+"rubric_eval_730": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.005782,
+"seconds": {
+"jev": 0,
+"luna": 10.004
+},
+"missing": 0
+},
+"rubric_eval_129": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00854,
+"seconds": {
+"jev": 0,
+"luna": 13.355
+},
+"missing": 0
+},
+"rubric_eval_327": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00493,
+"seconds": {
+"jev": 0,
+"luna": 8.994
+},
+"missing": 0
+},
+"rubric_eval_164": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.011061,
+"seconds": {
+"jev": 0,
+"luna": 13.6
+},
+"missing": 0
+},
+"rubric_eval_139": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006049,
+"seconds": {
+"jev": 0,
+"luna": 12.923
+},
+"missing": 0
+},
+"rubric_eval_283": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.002356,
+"seconds": {
+"jev": 0,
+"luna": 6.48
+},
+"missing": 0
+},
+"rubric_eval_1143": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.009252,
+"seconds": {
+"jev": 0,
+"luna": 15.726
+},
+"missing": 0
+},
+"rubric_eval_432": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.002059,
+"seconds": {
+"jev": 0,
+"luna": 5.577
+},
+"missing": 0
+},
+"rubric_eval_46": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.003335,
+"seconds": {
+"jev": 0,
+"luna": 6.954
+},
+"missing": 0
+},
+"rubric_eval_676": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.003408,
+"seconds": {
+"jev": 0,
+"luna": 7.266
+},
+"missing": 0
+},
+"rubric_eval_263": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006106,
+"seconds": {
+"jev": 0,
+"luna": 10.269
+},
+"missing": 0
+},
+"rubric_eval_1008": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006312,
+"seconds": {
+"jev": 0,
+"luna": 9.727
+},
+"missing": 0
+},
+"rubric_eval_699": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.007779,
+"seconds": {
+"jev": 0,
+"luna": 11.433
+},
+"missing": 0
+},
+"rubric_eval_616": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004685,
+"seconds": {
+"jev": 0,
+"luna": 11.406
+},
+"missing": 0
+},
+"rubric_eval_852": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.001982,
+"seconds": {
+"jev": 0,
+"luna": 5.7
+},
+"missing": 0
+},
+"rubric_eval_744": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.009643,
+"seconds": {
+"jev": 0,
+"luna": 19.067
+},
+"missing": 0
+},
+"rubric_eval_933": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.015496,
+"seconds": {
+"jev": 0,
+"luna": 29.596
+},
+"missing": 0
+},
+"rubric_eval_453": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004739,
+"seconds": {
+"jev": 0,
+"luna": 8.891
+},
+"missing": 0
+},
+"rubric_eval_436": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.005164,
+"seconds": {
+"jev": 0,
+"luna": 11.19
+},
+"missing": 0
+},
+"rubric_eval_43": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.007461,
+"seconds": {
+"jev": 0,
+"luna": 16.457
+},
+"missing": 0
+},
+"rubric_eval_711": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.023095,
+"seconds": {
+"jev": 0,
+"luna": 45.489
+},
+"missing": 0
+},
+"rubric_eval_836": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.009683,
+"seconds": {
+"jev": 0,
+"luna": 14.862
+},
+"missing": 0
+},
+"rubric_eval_973": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00942,
+"seconds": {
+"jev": 0,
+"luna": 17.802
+},
+"missing": 0
+},
+"rubric_eval_382": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006461,
+"seconds": {
+"jev": 0,
+"luna": 12.39
+},
+"missing": 0
+},
+"rubric_eval_199": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.009014,
+"seconds": {
+"jev": 0,
+"luna": 12.909
+},
+"missing": 0
+},
+"rubric_eval_754": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006428,
+"seconds": {
+"jev": 0,
+"luna": 11.266
+},
+"missing": 0
+},
+"rubric_eval_557": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004856,
+"seconds": {
+"jev": 0,
+"luna": 9.341
+},
+"missing": 0
+},
+"rubric_eval_594": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004579,
+"seconds": {
+"jev": 0,
+"luna": 9.912
+},
+"missing": 0
+},
+"rubric_eval_279": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00827,
+"seconds": {
+"jev": 0,
+"luna": 12.821
+},
+"missing": 0
+},
+"rubric_eval_569": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.005998,
+"seconds": {
+"jev": 0,
+"luna": 14.157
+},
+"missing": 0
+},
+"rubric_eval_13": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.008031,
+"seconds": {
+"jev": 0,
+"luna": 17.281
+},
+"missing": 0
+},
+"rubric_eval_376": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.003624,
+"seconds": {
+"jev": 0,
+"luna": 7.9
+},
+"missing": 0
+},
+"rubric_eval_244": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.017108,
+"seconds": {
+"jev": 0,
+"luna": 30.016
+},
+"missing": 0
+},
+"rubric_eval_109": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.009638,
+"seconds": {
+"jev": 0,
+"luna": 15.4
+},
+"missing": 0
+},
+"rubric_eval_801": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006161,
+"seconds": {
+"jev": 0,
+"luna": 10.202
+},
+"missing": 0
+},
+"rubric_eval_405": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.01185,
+"seconds": {
+"jev": 0,
+"luna": 22.432
+},
+"missing": 0
+},
+"rubric_eval_753": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.002662,
+"seconds": {
+"jev": 0,
+"luna": 5.556
+},
+"missing": 0
+},
+"rubric_eval_1134": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.015352,
+"seconds": {
+"jev": 0,
+"luna": 27.252
+},
+"missing": 0
+},
+"rubric_eval_794": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00421,
+"seconds": {
+"jev": 0,
+"luna": 9.055
+},
+"missing": 0
+},
+"rubric_eval_1141": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004353,
+"seconds": {
+"jev": 0,
+"luna": 8.917
+},
+"missing": 0
+},
+"rubric_eval_889": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00214,
+"seconds": {
+"jev": 0,
+"luna": 6.771
+},
+"missing": 0
+},
+"rubric_eval_320": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.012369,
+"seconds": {
+"jev": 0,
+"luna": 26.665
+},
+"missing": 0
+},
+"rubric_eval_942": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.008237,
+"seconds": {
+"jev": 0,
+"luna": 14.142
+},
+"missing": 0
+},
+"rubric_eval_1011": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006608,
+"seconds": {
+"jev": 0,
+"luna": 13.087
+},
+"missing": 0
+},
+"rubric_eval_603": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00395,
+"seconds": {
+"jev": 0,
+"luna": 8.82
+},
+"missing": 0
+},
+"rubric_eval_766": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.013853,
+"seconds": {
+"jev": 0,
+"luna": 24.189
+},
+"missing": 0
+},
+"rubric_eval_209": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.007456,
+"seconds": {
+"jev": 0,
+"luna": 13.389
+},
+"missing": 0
+},
+"rubric_eval_251": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.002789,
+"seconds": {
+"jev": 0,
+"luna": 8.024
+},
+"missing": 0
+},
+"rubric_eval_850": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.008411,
+"seconds": {
+"jev": 0,
+"luna": 16.187
+},
+"missing": 0
+},
+"rubric_eval_621": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004726,
+"seconds": {
+"jev": 0,
+"luna": 8.729
+},
+"missing": 0
+},
+"rubric_eval_409": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.013218,
+"seconds": {
+"jev": 0,
+"luna": 17.743
+},
+"missing": 0
+},
+"rubric_eval_218": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.005787,
+"seconds": {
+"jev": 0,
+"luna": 9.599
+},
+"missing": 0
+},
+"rubric_eval_112": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.008824,
+"seconds": {
+"jev": 0,
+"luna": 15.952
+},
+"missing": 0
+},
+"rubric_eval_368": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004627,
+"seconds": {
+"jev": 0,
+"luna": 7.271
+},
+"missing": 0
+},
+"rubric_eval_837": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.013086,
+"seconds": {
+"jev": 0,
+"luna": 20.852
+},
+"missing": 0
+},
+"rubric_eval_1091": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.009231,
+"seconds": {
+"jev": 0,
+"luna": 14.968
+},
+"missing": 0
+},
+"rubric_eval_888": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.002845,
+"seconds": {
+"jev": 0,
+"luna": 7.212
+},
+"missing": 0
+},
+"rubric_eval_1040": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.005086,
+"seconds": {
+"jev": 0,
+"luna": 10.512
+},
+"missing": 0
+},
+"rubric_eval_442": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.010013,
+"seconds": {
+"jev": 0,
+"luna": 15.271
+},
+"missing": 0
+},
+"rubric_eval_580": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006992,
+"seconds": {
+"jev": 0,
+"luna": 12.362
+},
+"missing": 0
+},
+"rubric_eval_689": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.003593,
+"seconds": {
+"jev": 0,
+"luna": 8.258
+},
+"missing": 0
+},
+"rubric_eval_336": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.016079,
+"seconds": {
+"jev": 0,
+"luna": 26.062
+},
+"missing": 0
+},
+"rubric_eval_458": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006358,
+"seconds": {
+"jev": 0,
+"luna": 12.175
+},
+"missing": 0
+},
+"rubric_eval_719": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.007542,
+"seconds": {
+"jev": 0,
+"luna": 12.486
+},
+"missing": 0
+},
+"rubric_eval_895": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.005078,
+"seconds": {
+"jev": 0,
+"luna": 10.222
+},
+"missing": 0
+},
+"rubric_eval_1005": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.002234,
+"seconds": {
+"jev": 0,
+"luna": 4.7
+},
+"missing": 0
+},
+"rubric_eval_739": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004609,
+"seconds": {
+"jev": 0,
+"luna": 9.917
+},
+"missing": 0
+},
+"rubric_eval_1098": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006653,
+"seconds": {
+"jev": 0,
+"luna": 11.907
+},
+"missing": 0
+},
+"rubric_eval_1135": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.012253,
+"seconds": {
+"jev": 0,
+"luna": 23.419
+},
+"missing": 0
+},
+"rubric_eval_276": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.008755,
+"seconds": {
+"jev": 0,
+"luna": 14.216
+},
+"missing": 0
+},
+"rubric_eval_237": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.003112,
+"seconds": {
+"jev": 0,
+"luna": 41.552
+},
+"missing": 0
+},
+"rubric_eval_384": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004076,
+"seconds": {
+"jev": 0,
+"luna": 8.735
+},
+"missing": 0
+},
+"rubric_eval_1030": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.003768,
+"seconds": {
+"jev": 0,
+"luna": 10.116
+},
+"missing": 0
+},
+"rubric_eval_654": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004456,
+"seconds": {
+"jev": 0,
+"luna": 10.025
+},
+"missing": 0
+},
+"rubric_eval_446": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.006128,
+"seconds": {
+"jev": 0,
+"luna": 10.764
+},
+"missing": 0
+},
+"rubric_eval_107": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.005157,
+"seconds": {
+"jev": 0,
+"luna": 9.46
+},
+"missing": 0
+},
+"rubric_eval_661": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.004268,
+"seconds": {
+"jev": 0,
+"luna": 8.872
+},
+"missing": 0
+},
+"rubric_eval_258": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.012897,
+"seconds": {
+"jev": 0,
+"luna": 21.594
+},
+"missing": 0
+},
+"rubric_eval_334": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00452,
+"seconds": {
+"jev": 0,
+"luna": 7.904
+},
+"missing": 0
+},
+"rubric_eval_21": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "fresh"
+},
+"calls": {
+"jev": 0,
+"luna": 2,
+"s2": {
+"gemini": 2
+}
+},
+"usd": 0.00658,
+"seconds": {
+"jev": 0,
+"luna": 12.037
+},
+"missing": 0
+}
+}

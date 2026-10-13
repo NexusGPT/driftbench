@@ -111,7 +111,18 @@ POINT_BENCHES = {
         'baselines': {'ledger': 'our judge (criterion ledger), recorded, claude-haiku-5-5', 'shipped': 'our shipped judge, recorded, claude-haiku-5-5',
                       'promptfoo': 'promptfoo default grader, recorded, claude-haiku-5-5'},
     },
+    # The reference-guided track of verify (upstream "reference prompt mode"). A separate entry with its own content class,
+    # so a reference-guided score is never mixed with a reference-free one. Left out of tuning.
+    'verify-with-reference': {
+        'kind': 'point',
+        'criterion': 'The final answer the response gives to the question is correct, checked against the reference solution.',
+        'cheaters': ['const_fail', 'const_pass'],
+        'baselines': {},
+        'carries': 'reference-solution',
+        'tune': False,
+    },
 }
+MAIN_POINT = [name for name, entry in POINT_BENCHES.items() if entry.get('tune', True)]
 
 
 def load_point(bench):

@@ -29,12 +29,6 @@
   }
  ],
  "tune_tolerance_points": 2.0,
- "calibrate": {
-  "pw_rows": {
-   "criterion": 0.9,
-   "question": 0.6
-  }
- },
  "tuned": {
   "on": "tuning half only",
   "trail": [
@@ -42,43 +36,43 @@
     "calibrate": "pw_rows",
     "class": "criterion",
     "boundary": 0.9,
-    "tune_balanced": 84.3171,
+    "tune_balanced": 82.142,
     "options": [
      [
       0.2,
-      72.6604
+      71.2225
      ],
      [
       0.3,
-      78.2159
+      78.9811
      ],
      [
       0.4,
-      82.1842
+      80.4179
      ],
      [
       0.5,
-      82.1842
+      80.4179
      ],
      [
       0.6,
-      82.1842
+      80.4179
      ],
      [
       0.7,
-      82.1842
+      80.4179
      ],
      [
       0.8,
-      82.1842
+      80.4179
      ],
      [
       0.9,
-      84.3171
+      82.142
      ],
      [
       0.95,
-      81.8866
+      77.5885
      ]
     ]
    },
@@ -86,43 +80,43 @@
     "calibrate": "pw_rows",
     "class": "question",
     "boundary": 0.6,
-    "tune_balanced": 84.7801,
+    "tune_balanced": 82.5208,
     "options": [
      [
       0.2,
-      76.9097
+      79.9535
      ],
      [
       0.3,
-      82.4653
+      81.3845
      ],
      [
       0.4,
-      84.7801
+      81.0057
      ],
      [
       0.5,
-      84.3171
+      82.142
      ],
      [
       0.6,
-      84.7801
+      82.5208
      ],
      [
       0.7,
-      84.3171
+      82.5208
      ],
      [
       0.8,
-      79.2245
+      79.9535
      ],
      [
       0.9,
-      77.3727
+      77.7649
      ],
      [
       0.95,
-      78.7616
+      78.5225
      ]
     ]
    },
@@ -131,12 +125,18 @@
      "hi": 0.55,
      "lo": 0.55
     },
-    "tune_balanced": 85.0071,
-    "best_tune_balanced": 85.2386,
+    "tune_balanced": 83.0069,
+    "best_tune_balanced": 83.1397,
     "tolerance_points": 2.0,
-    "tune_items": 145,
-    "tune_s2_calls": 74
+    "tune_items": 162,
+    "tune_s2_calls": 90
    }
   ]
+ },
+ "calibrate": {
+  "pw_rows": {
+   "criterion": 0.9,
+   "question": 0.6
+  }
  }
 }

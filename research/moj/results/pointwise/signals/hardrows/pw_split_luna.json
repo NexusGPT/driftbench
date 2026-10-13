@@ -1,0 +1,3186 @@
+{
+"rubric.094": {
+"pA": 0.03,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-141.",
+"The reply gives a total price of 71 credits, including the mandatory 7-credit fee."
+],
+"rows": {
+"r1": 0.97,
+"r2": 0.03
+},
+"rules": {
+"min": 0.03,
+"mean": 0.5,
+"prod": 0.029099999999999997
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 5e-05,
+"seconds": {
+"jev": 0.336,
+"luna": 1.242
+},
+"missing": 0
+},
+"rubric.063": {
+"pA": 0.03,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-129.",
+"The reply gives a total price of 59 credits, including the mandatory 7-credit fee."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.03
+},
+"rules": {
+"min": 0.03,
+"mean": 0.505,
+"prod": 0.0294
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 6.6e-05,
+"seconds": {
+"jev": 0.265,
+"luna": 1.607
+},
+"missing": 0
+},
+"rubric.103": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-117.",
+"The reply states that the total price is 47 credits, including the mandatory 7-credit fee."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.99,
+"prod": 0.9801
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.4e-05,
+"seconds": {
+"jev": 0.33,
+"luna": 2.269
+},
+"missing": 0
+},
+"rubric.115": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-105.",
+"The reply gives a total price of 35 credits, including the mandatory 7-credit fee."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.99,
+"prod": 0.9801
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 6.3e-05,
+"seconds": {
+"jev": 0.32,
+"luna": 1.83
+},
+"missing": 0
+},
+"rubric.027": {
+"pA": 0.03,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-125.",
+"The reply states that Lumen-125 costs 55 credits monthly.",
+"The reply states that Lumen-125 includes 40 GB.",
+"The reply states that Lumen-125 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.03,
+"r3": 0.98,
+"r4": 0.97
+},
+"rules": {
+"min": 0.03,
+"mean": 0.74,
+"prod": 0.027947639999999996
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 6.3e-05,
+"seconds": {
+"jev": 0.275,
+"luna": 1.545
+},
+"missing": 0
+},
+"rubric.053": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-101.",
+"The reply states that Lumen-101 costs 31 credits monthly.",
+"The reply states that Lumen-101 includes 40 GB.",
+"The reply states that Lumen-101 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.02,
+"r3": 0.98,
+"r4": 0.97
+},
+"rules": {
+"min": 0.02,
+"mean": 0.7374999999999999,
+"prod": 0.018631759999999997
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.8e-05,
+"seconds": {
+"jev": 0.303,
+"luna": 1.824
+},
+"missing": 0
+},
+"rubric.074": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-137.",
+"The reply states that Lumen-137 costs 67 credits monthly.",
+"The reply states that Lumen-137 includes 40 GB.",
+"The reply states that Lumen-137 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99,
+"r4": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.985,
+"prod": 0.9411900299999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.2e-05,
+"seconds": {
+"jev": 0.334,
+"luna": 1.765
+},
+"missing": 0
+},
+"rubric.025": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-149.",
+"The reply states that Lumen-149 costs 79 credits monthly.",
+"The reply states that Lumen-149 includes 40 GB.",
+"The reply states that Lumen-149 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.99,
+"r4": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.9824999999999999,
+"prod": 0.9316830599999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.1e-05,
+"seconds": {
+"jev": 0.381,
+"luna": 2.136
+},
+"missing": 0
+},
+"rubric.034": {
+"pA": 0.03,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-145.",
+"The reply states that Lumen-145 costs 75 credits monthly.",
+"The reply states that Lumen-145 includes 40 GB.",
+"The reply states that Lumen-145 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.03,
+"r3": 0.98,
+"r4": 0.97
+},
+"rules": {
+"min": 0.03,
+"mean": 0.74,
+"prod": 0.027947639999999996
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.7e-05,
+"seconds": {
+"jev": 0.438,
+"luna": 1.907
+},
+"missing": 0
+},
+"rubric.098": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-133.",
+"The reply states that Lumen-133 costs 63 credits monthly.",
+"The reply states that Lumen-133 includes 40 GB.",
+"The reply states that Lumen-133 excludes roaming."
+],
+"rows": {
+"r1": 0.97,
+"r2": 0.02,
+"r3": 0.98,
+"r4": 0.97
+},
+"rules": {
+"min": 0.02,
+"mean": 0.735,
+"prod": 0.018441640000000002
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.7e-05,
+"seconds": {
+"jev": 0.318,
+"luna": 1.8
+},
+"missing": 0
+},
+"rubric.028": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-121.",
+"The reply states that Lumen-121 costs 51 credits monthly.",
+"The reply states that Lumen-121 includes 40 GB.",
+"The reply states that Lumen-121 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.98,
+"r4": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.98,
+"prod": 0.9222721199999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.1e-05,
+"seconds": {
+"jev": 0.355,
+"luna": 2.307
+},
+"missing": 0
+},
+"rubric.065": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-157.",
+"The reply states that Lumen-157 costs 87 credits monthly.",
+"The reply states that Lumen-157 includes 40 GB.",
+"The reply states that Lumen-157 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.98,
+"r4": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.98,
+"prod": 0.9222721199999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 9.1e-05,
+"seconds": {
+"jev": 0.325,
+"luna": 2.403
+},
+"missing": 0
+},
+"rubric.012": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-108.",
+"The reply explicitly chooses either pickup or delivery; merely listing options is not a choice.",
+"The reply explicitly rejects the option it did not choose."
+],
+"rows": {
+"r1": 0.97,
+"r2": 0.02,
+"r3": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.33666666666666667,
+"prod": 0.000388
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000113,
+"seconds": {
+"jev": 0.26,
+"luna": 2.651
+},
+"missing": 0
+},
+"rubric.009": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-120.",
+"The reply chooses either pickup or delivery; listing options is not a choice.",
+"The reply explicitly rejects the option it did not choose."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.03,
+"r3": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.3433333333333333,
+"prod": 0.000588
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 9.6e-05,
+"seconds": {
+"jev": 0.272,
+"luna": 3.117
+},
+"missing": 0
+},
+"rubric.109": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-108.",
+"The reply explicitly chooses either pickup or delivery; merely listing options is not a choice.",
+"The reply explicitly rejects the option it did not choose."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.9833333333333334,
+"prod": 0.950796
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000113,
+"seconds": {
+"jev": 0.335,
+"luna": 2.651
+},
+"missing": 0
+},
+"rubric.071": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-144.",
+"The reply chooses either pickup or delivery and explicitly rejects the other; listing options is not a choice."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.985,
+"prod": 0.9702
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 9.3e-05,
+"seconds": {
+"jev": 0.338,
+"luna": 2.438
+},
+"missing": 0
+},
+"rubric.072": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-122.",
+"The reply states Lumen-122 includes 40 GB and does not contradict that anywhere in the reply.",
+"The reply states Lumen-122 has NO roaming and does not contradict that anywhere in the reply."
+],
+"rows": {
+"r1": 0.96,
+"r2": 0.03,
+"r3": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.33666666666666667,
+"prod": 0.000576
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000143,
+"seconds": {
+"jev": 0.289,
+"luna": 3.178
+},
+"missing": 0
+},
+"rubric.054": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-134.",
+"The reply states Lumen-134 includes 40 GB, without contradicting this anywhere in the reply.",
+"The reply states Lumen-134 includes NO roaming, without contradicting this anywhere in the reply."
+],
+"rows": {
+"r1": 0.95,
+"r2": 0.84,
+"r3": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.6033333333333333,
+"prod": 0.01596
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000163,
+"seconds": {
+"jev": 0.265,
+"luna": 3.657
+},
+"missing": 0
+},
+"rubric.030": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-110.",
+"The reply does not contradict: Lumen-110 includes 40 GB.",
+"The reply does not contradict: Lumen-110 has NO roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.98,
+"r3": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.9766666666666666,
+"prod": 0.9315879999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000137,
+"seconds": {
+"jev": 0.43,
+"luna": 3.155
+},
+"missing": 0
+},
+"rubric.002": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-146.",
+"The reply does not contradict: Lumen-146 includes 40 GB.",
+"The reply does not contradict: Lumen-146 includes NO roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.98,
+"prod": 0.9410939999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000108,
+"seconds": {
+"jev": 0.398,
+"luna": 3.464
+},
+"missing": 0
+},
+"rubric.078": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-111.",
+"The reply states that Lumen-111 costs 41 credits monthly.",
+"The reply states that Lumen-111 includes 40 GB.",
+"The reply states that Lumen-111 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.02,
+"r3": 0.98,
+"r4": 0.98
+},
+"rules": {
+"min": 0.02,
+"mean": 0.74,
+"prod": 0.018823839999999998
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.9e-05,
+"seconds": {
+"jev": 0.352,
+"luna": 2.206
+},
+"missing": 0
+},
+"rubric.040": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-159.",
+"The reply states that Lumen-159 costs 89 credits monthly.",
+"The reply states that Lumen-159 includes 40 GB.",
+"The reply states that Lumen-159 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.02,
+"r3": 0.98,
+"r4": 0.98
+},
+"rules": {
+"min": 0.02,
+"mean": 0.74,
+"prod": 0.018823839999999998
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.2e-05,
+"seconds": {
+"jev": 0.505,
+"luna": 2.218
+},
+"missing": 0
+},
+"rubric.070": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-147.",
+"The reply states that Lumen-147 costs 77 credits monthly.",
+"The reply states that Lumen-147 includes 40 GB.",
+"The reply states that Lumen-147 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99,
+"r4": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.9875,
+"prod": 0.9508930199999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 9.6e-05,
+"seconds": {
+"jev": 0.331,
+"luna": 2.622
+},
+"missing": 0
+},
+"rubric.029": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-135.",
+"The reply states that Lumen-135 costs 65 credits monthly.",
+"The reply states that Lumen-135 includes 40 GB.",
+"The reply states that Lumen-135 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99,
+"r4": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.9875,
+"prod": 0.9508930199999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.2e-05,
+"seconds": {
+"jev": 0.309,
+"luna": 2.074
+},
+"missing": 0
+},
+"rubric.010": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-126.",
+"The reply explicitly says that roaming is NOT included."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.5,
+"prod": 0.0196
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 5.2e-05,
+"seconds": {
+"jev": 0.274,
+"luna": 1.898
+},
+"missing": 0
+},
+"rubric.088": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-114.",
+"The reply explicitly states that roaming is NOT included."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.5,
+"prod": 0.0196
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 6.4e-05,
+"seconds": {
+"jev": 0.278,
+"luna": 1.944
+},
+"missing": 0
+},
+"rubric.038": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-102.",
+"The reply explicitly says that roaming is NOT included."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.985,
+"prod": 0.9702
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 4.6e-05,
+"seconds": {
+"jev": 0.316,
+"luna": 1.576
+},
+"missing": 0
+},
+"rubric.006": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-150.",
+"The reply explicitly says that roaming is NOT included."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.99,
+"prod": 0.9801
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 5.1e-05,
+"seconds": {
+"jev": 0.345,
+"luna": 1.701
+},
+"missing": 0
+},
+"rubric.090": {
+"pA": 0.36,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-154.",
+"The reply acknowledges cancellation; a future promise to cancel does not meet this requirement.",
+"The reply acknowledges data deletion; a future promise to delete data does not meet this requirement."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.97,
+"r3": 0.36
+},
+"rules": {
+"min": 0.36,
+"mean": 0.7733333333333333,
+"prod": 0.34570799999999996
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.7e-05,
+"seconds": {
+"jev": 0.431,
+"luna": 2.203
+},
+"missing": 0
+},
+"rubric.077": {
+"pA": 0.04,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-106.",
+"The reply acknowledges that cancellation has occurred, not merely promises future cancellation.",
+"The reply acknowledges that data deletion has occurred, not merely promises future data deletion."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.96,
+"r3": 0.04
+},
+"rules": {
+"min": 0.04,
+"mean": 0.6633333333333333,
+"prod": 0.038015999999999994
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000146,
+"seconds": {
+"jev": 0.268,
+"luna": 4.216
+},
+"missing": 0
+},
+"rubric.104": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-118.",
+"The reply acknowledges cancellation, rather than merely promising future cancellation.",
+"The reply acknowledges data deletion, rather than merely promising future data deletion."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.9833333333333334,
+"prod": 0.950796
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000131,
+"seconds": {
+"jev": 0.443,
+"luna": 2.696
+},
+"missing": 0
+},
+"rubric.113": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-130.",
+"The reply acknowledges that cancellation has occurred, not merely promises future cancellation.",
+"The reply acknowledges that data deletion has occurred, not merely promises future data deletion."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.98,
+"prod": 0.9410939999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 9e-05,
+"seconds": {
+"jev": 0.271,
+"luna": 2.404
+},
+"missing": 0
+},
+"rubric.057": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-128.",
+"The reply gives a monthly cost of exactly 58 credits, not a range or a cost for a different period."
+],
+"rows": {
+"r1": 0.97,
+"r2": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.495,
+"prod": 0.0194
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 6.1e-05,
+"seconds": {
+"jev": 0.363,
+"luna": 2.158
+},
+"missing": 0
+},
+"rubric.060": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-116.",
+"The reply gives a monthly cost of exactly 46 credits, not a range or a different period."
+],
+"rows": {
+"r1": 0.97,
+"r2": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.495,
+"prod": 0.0194
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 5.8e-05,
+"seconds": {
+"jev": 0.279,
+"luna": 1.551
+},
+"missing": 0
+},
+"rubric.097": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-104.",
+"The reply gives a monthly cost of exactly 34 credits, not a range or a different period."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.99,
+"prod": 0.9801
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7e-05,
+"seconds": {
+"jev": 0.29,
+"luna": 2.308
+},
+"missing": 0
+},
+"rubric.033": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-140.",
+"The reply gives a monthly cost of exactly 70 credits, not a range or a cost for a different period."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.99,
+"prod": 0.9801
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 5.9e-05,
+"seconds": {
+"jev": 0.327,
+"luna": 1.688
+},
+"missing": 0
+},
+"rubric.017": {
+"pA": 0.01,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-143.",
+"The reply states that the claim “roaming is included” is false; merely quoting the claim does not count as denying it."
+],
+"rows": {
+"r1": 0.97,
+"r2": 0.01
+},
+"rules": {
+"min": 0.01,
+"mean": 0.49,
+"prod": 0.0097
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 6.6e-05,
+"seconds": {
+"jev": 0.321,
+"luna": 1.89
+},
+"missing": 0
+},
+"rubric.052": {
+"pA": 0.01,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-131.",
+"The reply states that the claim “roaming is included” is false; quoting the claim alone does not count as denying it."
+],
+"rows": {
+"r1": 0.97,
+"r2": 0.01
+},
+"rules": {
+"min": 0.01,
+"mean": 0.49,
+"prod": 0.0097
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 6.2e-05,
+"seconds": {
+"jev": 0.277,
+"luna": 1.831
+},
+"missing": 0
+},
+"rubric.018": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-131.",
+"The reply states that the claim “roaming is included” is false; quoting the claim alone does not count as denying it."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.975,
+"prod": 0.9506
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 6.2e-05,
+"seconds": {
+"jev": 0.278,
+"luna": 1.831
+},
+"missing": 0
+},
+"rubric.093": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-155.",
+"The reply states that the claim “roaming is included” is FALSE; merely quoting the claim does not count."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.975,
+"prod": 0.9506
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8e-05,
+"seconds": {
+"jev": 0.276,
+"luna": 2.355
+},
+"missing": 0
+},
+"rubric.089": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-139.",
+"The reply does not contradict: The final recommendation is Lumen-139.",
+"The reply does not contradict: The final recommendation is not Lumen-139-Plus.",
+"The reply does not contradict: Earlier discussion is not the recommendation."
+],
+"rows": {
+"r1": 0.71,
+"r2": 0.02,
+"r3": 0.02,
+"r4": 0.24
+},
+"rules": {
+"min": 0.02,
+"mean": 0.2475,
+"prod": 6.815999999999998e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000163,
+"seconds": {
+"jev": 0.293,
+"luna": 3.862
+},
+"missing": 0
+},
+"rubric.110": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-151.",
+"The reply's final recommendation is Lumen-151, not Lumen-151-Plus; earlier discussion is not treated as the recommendation."
+],
+"rows": {
+"r1": 0.71,
+"r2": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.365,
+"prod": 0.014199999999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000125,
+"seconds": {
+"jev": 0.274,
+"luna": 2.92
+},
+"missing": 0
+},
+"rubric.045": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-127.",
+"The reply's final recommendation is Lumen-127, not Lumen-127-Plus; earlier discussion is not the recommendation."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.99,
+"prod": 0.9801
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000107,
+"seconds": {
+"jev": 0.313,
+"luna": 2.6
+},
+"missing": 0
+},
+"rubric.119": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-151.",
+"The reply's final recommendation is Lumen-151, not Lumen-151-Plus; earlier discussion is not treated as the recommendation."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.985,
+"prod": 0.9702
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000125,
+"seconds": {
+"jev": 0.294,
+"luna": 2.92
+},
+"missing": 0
+},
+"rubric.101": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-112.",
+"The reply states that Lumen-112 costs 42 credits monthly.",
+"The reply states that Lumen-112 includes 40 GB.",
+"The reply states that Lumen-112 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.02,
+"r3": 0.98,
+"r4": 0.97
+},
+"rules": {
+"min": 0.02,
+"mean": 0.7374999999999999,
+"prod": 0.018631759999999997
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.4e-05,
+"seconds": {
+"jev": 0.334,
+"luna": 1.998
+},
+"missing": 0
+},
+"rubric.026": {
+"pA": 0.06,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-160.",
+"The reply does not contradict: Lumen-160 costs 90 credits monthly.",
+"The reply does not contradict: Lumen-160 includes 40 GB.",
+"The reply does not contradict: Lumen-160 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.06,
+"r3": 0.97,
+"r4": 0.97
+},
+"rules": {
+"min": 0.06,
+"mean": 0.745,
+"prod": 0.05532491999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000175,
+"seconds": {
+"jev": 0.335,
+"luna": 4.071
+},
+"missing": 0
+},
+"rubric.003": {
+"pA": 0.96,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-112.",
+"The reply states that Lumen-112 costs 42 credits monthly.",
+"The reply states that Lumen-112 includes 40 GB.",
+"The reply states that Lumen-112 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.98,
+"r4": 0.96
+},
+"rules": {
+"min": 0.96,
+"mean": 0.9775,
+"prod": 0.9127641599999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.4e-05,
+"seconds": {
+"jev": 0.338,
+"luna": 1.998
+},
+"missing": 0
+},
+"rubric.024": {
+"pA": 0.97,
+"detail": {
+"requirements": [
+"The reply identifies offer Lumen-148.",
+"The reply does not contradict: Lumen-148 costs 78 credits monthly.",
+"The reply does not contradict: Lumen-148 includes 40 GB.",
+"The reply does not contradict: Lumen-148 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.98,
+"r4": 0.97
+},
+"rules": {
+"min": 0.97,
+"mean": 0.98,
+"prod": 0.9222721199999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000102,
+"seconds": {
+"jev": 0.332,
+"luna": 4.821
+},
+"missing": 0
+},
+"factuality.064": {
+"pA": 0.91,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-106 has a base monthly charge of 29 credits plus a mandatory 7-credit monthly service fee.",
+"The reply does not contradict: Lumen-106 includes 40 GB of data.",
+"The reply does not contradict: Lumen-106 has no roaming."
+],
+"rows": {
+"r1": 0.91,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.91,
+"mean": 0.9633333333333334,
+"prod": 0.891891
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000121,
+"seconds": {
+"jev": 0.28,
+"luna": 3.144
+},
+"missing": 0
+},
+"factuality.013": {
+"pA": 0.68,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-118 has a base monthly charge of 41 credits.",
+"The reply does not contradict: Lumen-118 has a mandatory monthly service fee of 7 credits.",
+"The reply does not contradict: Lumen-118 includes 40 GB of data.",
+"The reply does not contradict: Lumen-118 has no roaming."
+],
+"rows": {
+"r1": 0.68,
+"r2": 0.7,
+"r3": 0.99,
+"r4": 0.99
+},
+"rules": {
+"min": 0.68,
+"mean": 0.84,
+"prod": 0.4665276
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.8e-05,
+"seconds": {
+"jev": 0.303,
+"luna": 1.788
+},
+"missing": 0
+},
+"factuality.075": {
+"pA": 0.67,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-130 has a base monthly charge of 53 credits.",
+"The reply does not contradict: Lumen-130 has a mandatory monthly service fee of 7 credits.",
+"The reply does not contradict: Lumen-130 includes 40 GB of data.",
+"The reply does not contradict: Lumen-130 has no roaming."
+],
+"rows": {
+"r1": 0.67,
+"r2": 0.73,
+"r3": 0.99,
+"r4": 0.99
+},
+"rules": {
+"min": 0.67,
+"mean": 0.845,
+"prod": 0.47936691000000003
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000116,
+"seconds": {
+"jev": 0.263,
+"luna": 2.448
+},
+"missing": 0
+},
+"factuality.041": {
+"pA": 0.06,
+"detail": {
+"requirements": [
+"The reply states that Lumen-154 has a base monthly charge of 77 credits.",
+"The reply states that Lumen-154 has a mandatory monthly service fee of 7 credits.",
+"The reply states that Lumen-154 includes 40 GB of data.",
+"The reply states that Lumen-154 has no roaming."
+],
+"rows": {
+"r1": 0.06,
+"r2": 0.09,
+"r3": 0.99,
+"r4": 0.97
+},
+"rules": {
+"min": 0.06,
+"mean": 0.5275,
+"prod": 0.005185619999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000108,
+"seconds": {
+"jev": 0.332,
+"luna": 2.808
+},
+"missing": 0
+},
+"factuality.029": {
+"pA": 0.04,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-143 costs 73 credits per month.",
+"The reply does not contradict: Lumen-143 includes 40 GB.",
+"The reply does not contradict: Lumen-143 excludes roaming.",
+"The reply does not contradict: A 5-credit discount applies only to students.",
+"The reply does not contradict: The customer is not a student."
+],
+"rows": {
+"r1": 0.04,
+"r2": 0.98,
+"r3": 0.99,
+"r4": 0.81,
+"r5": 0.91
+},
+"rules": {
+"min": 0.04,
+"mean": 0.746,
+"prod": 0.028605376800000002
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000154,
+"seconds": {
+"jev": 0.279,
+"luna": 3.413
+},
+"missing": 0
+},
+"factuality.116": {
+"pA": 0.04,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-155 costs 85 credits per month.",
+"The reply does not contradict: Lumen-155 includes 40 GB.",
+"The reply does not contradict: Lumen-155 excludes roaming.",
+"The reply does not contradict: the 5-credit discount applies only to students.",
+"The reply does not contradict: the customer is not a student."
+],
+"rows": {
+"r1": 0.04,
+"r2": 0.98,
+"r3": 0.98,
+"r4": 0.85,
+"r5": 0.91
+},
+"rules": {
+"min": 0.04,
+"mean": 0.752,
+"prod": 0.029714776
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000162,
+"seconds": {
+"jev": 0.342,
+"luna": 3.238
+},
+"missing": 0
+},
+"factuality.098": {
+"pA": 0.95,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-143 costs 73 credits per month.",
+"The reply does not contradict: Lumen-143 includes 40 GB.",
+"The reply does not contradict: Lumen-143 excludes roaming.",
+"The reply does not contradict: A 5-credit discount applies only to students.",
+"The reply does not contradict: The customer is not a student."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99,
+"r4": 0.95,
+"r5": 0.97
+},
+"rules": {
+"min": 0.95,
+"mean": 0.978,
+"prod": 0.8941305284999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000154,
+"seconds": {
+"jev": 0.305,
+"luna": 3.413
+},
+"missing": 0
+},
+"factuality.068": {
+"pA": 0.96,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-107 costs 37 credits per month.",
+"The reply does not contradict: Lumen-107 includes 40 GB.",
+"The reply does not contradict: Lumen-107 excludes roaming.",
+"The reply does not contradict: a 5-credit discount applies only to students.",
+"The reply does not contradict: the customer is not a student."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99,
+"r4": 0.96,
+"r5": 0.97
+},
+"rules": {
+"min": 0.96,
+"mean": 0.9800000000000001,
+"prod": 0.9035424287999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.00015,
+"seconds": {
+"jev": 0.284,
+"luna": 3.462
+},
+"missing": 0
+},
+"factuality.025": {
+"pA": 0.04,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-108 costs 38 credits per month.",
+"The reply does not contradict: Lumen-108 includes 40 GB.",
+"The reply does not contradict: Lumen-108 excludes roaming."
+],
+"rows": {
+"r1": 0.04,
+"r2": 0.87,
+"r3": 0.89
+},
+"rules": {
+"min": 0.04,
+"mean": 0.6,
+"prod": 0.030972
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 9.5e-05,
+"seconds": {
+"jev": 0.38,
+"luna": 2.48
+},
+"missing": 0
+},
+"factuality.101": {
+"pA": 0.05,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-120 costs 50 credits per month.",
+"The reply does not contradict: Lumen-120 includes 40 GB.",
+"The reply does not contradict: Lumen-120 excludes roaming."
+],
+"rows": {
+"r1": 0.05,
+"r2": 0.89,
+"r3": 0.9
+},
+"rules": {
+"min": 0.05,
+"mean": 0.6133333333333334,
+"prod": 0.04005
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.3e-05,
+"seconds": {
+"jev": 0.424,
+"luna": 2.148
+},
+"missing": 0
+},
+"factuality.062": {
+"pA": 0.91,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-156 costs 86 credits per month.",
+"The reply does not contradict: Lumen-156 includes 40 GB.",
+"The reply does not contradict: Lumen-156 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.92,
+"r3": 0.91
+},
+"rules": {
+"min": 0.91,
+"mean": 0.9400000000000001,
+"prod": 0.8288280000000001
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.9e-05,
+"seconds": {
+"jev": 0.428,
+"luna": 2.002
+},
+"missing": 0
+},
+"factuality.015": {
+"pA": 0.91,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-120 costs 50 credits per month.",
+"The reply does not contradict: Lumen-120 includes 40 GB.",
+"The reply does not contradict: Lumen-120 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.92,
+"r3": 0.91
+},
+"rules": {
+"min": 0.91,
+"mean": 0.9400000000000001,
+"prod": 0.8288280000000001
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.3e-05,
+"seconds": {
+"jev": 0.424,
+"luna": 2.148
+},
+"missing": 0
+},
+"factuality.099": {
+"pA": 0.06,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-145 costs 75 credits per month.",
+"The reply does not contradict: Lumen-145 includes 40 GB.",
+"The reply does not contradict: Lumen-145 excludes roaming."
+],
+"rows": {
+"r1": 0.06,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.06,
+"mean": 0.6766666666666666,
+"prod": 0.05821199999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.8e-05,
+"seconds": {
+"jev": 0.362,
+"luna": 1.926
+},
+"missing": 0
+},
+"factuality.036": {
+"pA": 0.05,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-121 costs 51 credits per month.",
+"The reply does not contradict: Lumen-121 includes 40 GB.",
+"The reply does not contradict: Lumen-121 excludes roaming."
+],
+"rows": {
+"r1": 0.05,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.05,
+"mean": 0.6733333333333333,
+"prod": 0.048510000000000005
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.7e-05,
+"seconds": {
+"jev": 0.304,
+"luna": 2.092
+},
+"missing": 0
+},
+"factuality.086": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-145 costs 75 credits per month.",
+"The reply does not contradict: Lumen-145 includes 40 GB.",
+"The reply does not contradict: Lumen-145 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.8e-05,
+"seconds": {
+"jev": 0.361,
+"luna": 1.926
+},
+"missing": 0
+},
+"factuality.105": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-109 costs 39 credits per month.",
+"The reply does not contradict: Lumen-109 includes 40 GB.",
+"The reply does not contradict: Lumen-109 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000102,
+"seconds": {
+"jev": 0.284,
+"luna": 2.411
+},
+"missing": 0
+},
+"factuality.065": {
+"pA": 0.03,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-127 costs 57 credits per month.",
+"The reply does not contradict: Lumen-127 includes 40 GB.",
+"The reply does not contradict: Lumen-127 excludes roaming."
+],
+"rows": {
+"r1": 0.03,
+"r2": 0.98,
+"r3": 0.99
+},
+"rules": {
+"min": 0.03,
+"mean": 0.6666666666666666,
+"prod": 0.029106
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.5e-05,
+"seconds": {
+"jev": 0.329,
+"luna": 2.099
+},
+"missing": 0
+},
+"factuality.021": {
+"pA": 0.03,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-103 costs 33 credits per month.",
+"The reply does not contradict: Lumen-103 includes 40 GB.",
+"The reply does not contradict: Lumen-103 excludes roaming."
+],
+"rows": {
+"r1": 0.03,
+"r2": 0.98,
+"r3": 0.98
+},
+"rules": {
+"min": 0.03,
+"mean": 0.6633333333333333,
+"prod": 0.028811999999999997
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.8e-05,
+"seconds": {
+"jev": 0.328,
+"luna": 2.659
+},
+"missing": 0
+},
+"factuality.011": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-127 costs 57 credits per month.",
+"The reply does not contradict: Lumen-127 includes 40 GB.",
+"The reply does not contradict: Lumen-127 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.5e-05,
+"seconds": {
+"jev": 0.327,
+"luna": 2.099
+},
+"missing": 0
+},
+"factuality.007": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-151 costs 81 credits per month.",
+"The reply does not contradict: Lumen-151 includes 40 GB.",
+"The reply does not contradict: Lumen-151 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.98,
+"r3": 0.99
+},
+"rules": {
+"min": 0.98,
+"mean": 0.9866666666666667,
+"prod": 0.960498
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.0001,
+"seconds": {
+"jev": 0.271,
+"luna": 2.323
+},
+"missing": 0
+},
+"factuality.032": {
+"pA": 0.08,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-160 costs 90 credits per month.",
+"The reply does not contradict: Lumen-160 includes 40 GB.",
+"The reply does not contradict: Lumen-160 excludes roaming."
+],
+"rows": {
+"r1": 0.08,
+"r2": 0.97,
+"r3": 0.96
+},
+"rules": {
+"min": 0.08,
+"mean": 0.6699999999999999,
+"prod": 0.07449599999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.6e-05,
+"seconds": {
+"jev": 0.269,
+"luna": 1.882
+},
+"missing": 0
+},
+"factuality.073": {
+"pA": 0.06,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-148 costs 78 credits per month.",
+"The reply does not contradict: Lumen-148 includes 40 GB.",
+"The reply does not contradict: Lumen-148 excludes roaming."
+],
+"rows": {
+"r1": 0.06,
+"r2": 0.97,
+"r3": 0.97
+},
+"rules": {
+"min": 0.06,
+"mean": 0.6666666666666666,
+"prod": 0.05645399999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.2e-05,
+"seconds": {
+"jev": 0.273,
+"luna": 4.214
+},
+"missing": 0
+},
+"factuality.070": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-136 costs 66 credits per month.",
+"The reply does not contradict: Lumen-136 includes 40 GB.",
+"The reply does not contradict: Lumen-136 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.98,
+"r3": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.98,
+"prod": 0.9411919999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 9e-05,
+"seconds": {
+"jev": 0.274,
+"luna": 2.312
+},
+"missing": 0
+},
+"factuality.115": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-112 costs 42 credits per month.",
+"The reply does not contradict: Lumen-112 includes 40 GB.",
+"The reply does not contradict: Lumen-112 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.98,
+"r3": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.98,
+"prod": 0.9411919999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.2e-05,
+"seconds": {
+"jev": 0.367,
+"luna": 2.192
+},
+"missing": 0
+},
+"factuality.055": {
+"pA": 0.04,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-147 costs 77 credits per month.",
+"The reply does not contradict: Lumen-147 includes 40 GB.",
+"The reply does not contradict: Lumen-147 excludes roaming."
+],
+"rows": {
+"r1": 0.04,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.04,
+"mean": 0.6699999999999999,
+"prod": 0.038808
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000143,
+"seconds": {
+"jev": 0.312,
+"luna": 2.57
+},
+"missing": 0
+},
+"factuality.014": {
+"pA": 0.03,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-111 costs 41 credits per month.",
+"The reply does not contradict: Lumen-111 includes 40 GB.",
+"The reply does not contradict: Lumen-111 excludes roaming."
+],
+"rows": {
+"r1": 0.03,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.03,
+"mean": 0.6666666666666666,
+"prod": 0.029105999999999996
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000137,
+"seconds": {
+"jev": 0.467,
+"luna": 1.65
+},
+"missing": 0
+},
+"factuality.081": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-123 costs 53 credits per month.",
+"The reply does not contradict: Lumen-123 includes 40 GB.",
+"The reply does not contradict: Lumen-123 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.00015,
+"seconds": {
+"jev": 0.481,
+"luna": 1.949
+},
+"missing": 0
+},
+"factuality.006": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-135 costs 65 credits per month.",
+"The reply does not contradict: Lumen-135 includes 40 GB.",
+"The reply does not contradict: Lumen-135 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000146,
+"seconds": {
+"jev": 0.372,
+"luna": 1.996
+},
+"missing": 0
+},
+"factuality.057": {
+"pA": 0.05,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-137 costs 67 credits per month.",
+"The reply does not contradict: Lumen-137 includes 40 GB.",
+"The reply does not contradict: Lumen-137 excludes roaming."
+],
+"rows": {
+"r1": 0.05,
+"r2": 0.98,
+"r3": 0.98
+},
+"rules": {
+"min": 0.05,
+"mean": 0.6699999999999999,
+"prod": 0.04802
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 9.1e-05,
+"seconds": {
+"jev": 0.338,
+"luna": 2.499
+},
+"missing": 0
+},
+"factuality.040": {
+"pA": 0.06,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-149 costs 79 credits per month.",
+"The reply does not contradict: Lumen-149 includes 40 GB.",
+"The reply does not contradict: Lumen-149 excludes roaming."
+],
+"rows": {
+"r1": 0.06,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.06,
+"mean": 0.6766666666666666,
+"prod": 0.05821199999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.6e-05,
+"seconds": {
+"jev": 0.316,
+"luna": 2.078
+},
+"missing": 0
+},
+"factuality.060": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-125 costs 55 credits per month.",
+"The reply does not contradict: Lumen-125 includes 40 GB.",
+"The reply does not contradict: Lumen-125 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.5e-05,
+"seconds": {
+"jev": 0.259,
+"luna": 1.877
+},
+"missing": 0
+},
+"factuality.102": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-113 costs 43 credits per month.",
+"The reply does not contradict: Lumen-113 includes 40 GB.",
+"The reply does not contradict: Lumen-113 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.4e-05,
+"seconds": {
+"jev": 0.328,
+"luna": 2.253
+},
+"missing": 0
+},
+"factuality.090": {
+"pA": 0.01,
+"detail": {
+"requirements": [
+"The reply states Lumen-114 costs 44 credits per month.",
+"The reply states Lumen-114 includes 40 GB.",
+"The reply states Lumen-114 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.01
+},
+"rules": {
+"min": 0.01,
+"mean": 0.6633333333333333,
+"prod": 0.009801
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.1e-05,
+"seconds": {
+"jev": 0.368,
+"luna": 2.188
+},
+"missing": 0
+},
+"factuality.042": {
+"pA": 0.02,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-150 costs 80 credits per month.",
+"The reply does not contradict: Lumen-150 includes 40 GB.",
+"The reply does not contradict: Lumen-150 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.98,
+"r3": 0.02
+},
+"rules": {
+"min": 0.02,
+"mean": 0.66,
+"prod": 0.019208
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.1e-05,
+"seconds": {
+"jev": 0.33,
+"luna": 2.092
+},
+"missing": 0
+},
+"factuality.063": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-150 costs 80 credits per month.",
+"The reply does not contradict: Lumen-150 includes 40 GB.",
+"The reply does not contradict: Lumen-150 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.1e-05,
+"seconds": {
+"jev": 0.351,
+"luna": 2.092
+},
+"missing": 0
+},
+"factuality.118": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-138 costs 68 credits per month.",
+"The reply does not contradict: Lumen-138 includes 40 GB.",
+"The reply does not contradict: Lumen-138 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.4e-05,
+"seconds": {
+"jev": 0.326,
+"luna": 1.804
+},
+"missing": 0
+},
+"factuality.037": {
+"pA": 0.11,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-158 costs 88 credits per month.",
+"The reply does not contradict: Lumen-158 includes 40 GB.",
+"The reply does not contradict: Lumen-158 excludes roaming."
+],
+"rows": {
+"r1": 0.98,
+"r2": 0.11,
+"r3": 0.98
+},
+"rules": {
+"min": 0.11,
+"mean": 0.69,
+"prod": 0.10564399999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.4e-05,
+"seconds": {
+"jev": 0.324,
+"luna": 1.907
+},
+"missing": 0
+},
+"factuality.027": {
+"pA": 0.13,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-122 costs 52 credits per month.",
+"The reply does not contradict: Lumen-122 includes 40 GB.",
+"The reply does not contradict: Lumen-122 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.13,
+"r3": 0.99
+},
+"rules": {
+"min": 0.13,
+"mean": 0.7033333333333333,
+"prod": 0.127413
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.2e-05,
+"seconds": {
+"jev": 0.329,
+"luna": 2.048
+},
+"missing": 0
+},
+"factuality.083": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-110 costs 40 credits per month.",
+"The reply does not contradict: Lumen-110 includes 40 GB.",
+"The reply does not contradict: Lumen-110 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.5e-05,
+"seconds": {
+"jev": 0.265,
+"luna": 2.332
+},
+"missing": 0
+},
+"factuality.067": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-158 costs 88 credits per month.",
+"The reply does not contradict: Lumen-158 includes 40 GB.",
+"The reply does not contradict: Lumen-158 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.4e-05,
+"seconds": {
+"jev": 0.286,
+"luna": 1.907
+},
+"missing": 0
+},
+"factuality.038": {
+"pA": 0.03,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-116 currently costs 46 credits per month.",
+"The reply does not contradict: Lumen-116 includes 40 GB.",
+"The reply does not contradict: Lumen-116 excludes roaming."
+],
+"rows": {
+"r1": 0.03,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.03,
+"mean": 0.6666666666666666,
+"prod": 0.029105999999999996
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.2e-05,
+"seconds": {
+"jev": 0.317,
+"luna": 2.024
+},
+"missing": 0
+},
+"factuality.097": {
+"pA": 0.03,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-140 currently costs 70 credits per month.",
+"The reply does not contradict: Lumen-140 includes 40 GB.",
+"The reply does not contradict: Lumen-140 excludes roaming."
+],
+"rows": {
+"r1": 0.03,
+"r2": 0.98,
+"r3": 0.98
+},
+"rules": {
+"min": 0.03,
+"mean": 0.6633333333333333,
+"prod": 0.028811999999999997
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000118,
+"seconds": {
+"jev": 0.333,
+"luna": 2.95
+},
+"missing": 0
+},
+"factuality.010": {
+"pA": 0.99,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-152 currently costs 82 credits per month.",
+"The reply does not contradict: Lumen-152 includes 40 GB.",
+"The reply does not contradict: Lumen-152 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 0.000118,
+"seconds": {
+"jev": 0.265,
+"luna": 2.316
+},
+"missing": 0
+},
+"factuality.114": {
+"pA": 0.98,
+"detail": {
+"requirements": [
+"The reply states that the current Lumen-104 costs 34 credits per month.",
+"The reply states that the current Lumen-104 includes 40 GB.",
+"The reply states that the current Lumen-104 excludes roaming."
+],
+"rows": {
+"r1": 0.99,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.98,
+"mean": 0.9866666666666667,
+"prod": 0.960498
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 8.9e-05,
+"seconds": {
+"jev": 0.311,
+"luna": 2.506
+},
+"missing": 0
+},
+"factuality.113": {
+"pA": 0.87,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-153 costs 996 credits per year.",
+"The reply does not contradict: Lumen-153 includes 40 GB.",
+"The reply does not contradict: Lumen-153 excludes roaming."
+],
+"rows": {
+"r1": 0.87,
+"r2": 0.99,
+"r3": 0.99
+},
+"rules": {
+"min": 0.87,
+"mean": 0.9500000000000001,
+"prod": 0.852687
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.4e-05,
+"seconds": {
+"jev": 0.261,
+"luna": 2.025
+},
+"missing": 0
+},
+"factuality.054": {
+"pA": 0.83,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-117 costs 564 credits per year.",
+"The reply does not contradict: Lumen-117 includes 40 GB.",
+"The reply does not contradict: Lumen-117 excludes roaming."
+],
+"rows": {
+"r1": 0.83,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.83,
+"mean": 0.9333333333333332,
+"prod": 0.8052659999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 7.5e-05,
+"seconds": {
+"jev": 0.266,
+"luna": 1.87
+},
+"missing": 0
+},
+"factuality.005": {
+"pA": 0.85,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-129 costs 708 credits per year.",
+"The reply does not contradict: Lumen-129 includes 40 GB.",
+"The reply does not contradict: Lumen-129 excludes roaming."
+],
+"rows": {
+"r1": 0.85,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.85,
+"mean": 0.94,
+"prod": 0.82467
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 6.4e-05,
+"seconds": {
+"jev": 0.327,
+"luna": 2.293
+},
+"missing": 0
+},
+"factuality.074": {
+"pA": 0.93,
+"detail": {
+"requirements": [
+"The reply does not contradict: Lumen-105 costs 420 credits per year.",
+"The reply does not contradict: Lumen-105 includes 40 GB.",
+"The reply does not contradict: Lumen-105 excludes roaming."
+],
+"rows": {
+"r1": 0.93,
+"r2": 0.99,
+"r3": 0.98
+},
+"rules": {
+"min": 0.93,
+"mean": 0.9666666666666667,
+"prod": 0.902286
+}
+},
+"calls": {
+"jev": 1,
+"luna": 1,
+"s2": {
+"luna": 1
+}
+},
+"usd": 9.9e-05,
+"seconds": {
+"jev": 0.264,
+"luna": 2.618
+},
+"missing": 0
+}
+}

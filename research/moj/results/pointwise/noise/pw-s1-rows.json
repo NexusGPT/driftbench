@@ -1,0 +1,177 @@
+{
+ "variant": "pw-s1-rows",
+ "items_per_bench": 30,
+ "repeats": 3,
+ "benches": {
+  "rubricbench": {
+   "items": 30,
+   "variant": {
+    "accuracy": [
+     83.3,
+     86.7,
+     86.7
+    ],
+    "mean": 85.6,
+    "range_points": 3.3,
+    "sd_points": 1.9,
+    "flips": 0.033
+   },
+   "stage1": {
+    "accuracy": [
+     83.3,
+     86.7,
+     86.7
+    ],
+    "mean": 85.6,
+    "range_points": 3.3,
+    "sd_points": 1.9,
+    "flips": 0.033
+   },
+   "usage_per_repeat": [
+    {
+     "s1_calls": 60,
+     "s2_calls": 0,
+     "usd": 0.0
+    },
+    {
+     "s1_calls": 60,
+     "s2_calls": 0,
+     "usd": 0.0
+    },
+    {
+     "s1_calls": 60,
+     "s2_calls": 0,
+     "usd": 0.0
+    }
+   ],
+   "recorded": {
+    "ledger": {
+     "items": 30,
+     "accuracy": [
+      81.7,
+      80.0,
+      80.0
+     ],
+     "mean": 80.6,
+     "range_points": 1.7,
+     "sd_points": 1.0,
+     "flips": 0.067
+    }
+   },
+   "floor_points": 3.3
+  },
+  "verify": {
+   "items": 30,
+   "variant": {
+    "accuracy": [
+     30.0,
+     30.0,
+     30.0
+    ],
+    "mean": 30.0,
+    "range_points": 0.0,
+    "sd_points": 0.0,
+    "flips": 0.0
+   },
+   "stage1": {
+    "accuracy": [
+     30.0,
+     30.0,
+     30.0
+    ],
+    "mean": 30.0,
+    "range_points": 0.0,
+    "sd_points": 0.0,
+    "flips": 0.0
+   },
+   "usage_per_repeat": [
+    {
+     "s1_calls": 30,
+     "s2_calls": 0,
+     "usd": 0.0
+    },
+    {
+     "s1_calls": 30,
+     "s2_calls": 0,
+     "usd": 0.0
+    },
+    {
+     "s1_calls": 30,
+     "s2_calls": 0,
+     "usd": 0.0
+    }
+   ],
+   "recorded": {
+    "ledger": {
+     "items": 30,
+     "accuracy": [
+      76.7,
+      86.7,
+      83.3
+     ],
+     "mean": 82.2,
+     "range_points": 10.0,
+     "sd_points": 5.1,
+     "flips": 0.133
+    },
+    "promptfoo": {
+     "items": 30,
+     "accuracy": [
+      63.3,
+      60.0,
+      70.0
+     ],
+     "mean": 64.4,
+     "range_points": 10.0,
+     "sd_points": 5.1,
+     "flips": 0.3
+    }
+   },
+   "floor_points": 0.0
+  },
+  "hardrows": {
+   "items": 30,
+   "variant": {
+    "accuracy": [
+     95.0,
+     96.7,
+     96.7
+    ],
+    "mean": 96.1,
+    "range_points": 1.7,
+    "sd_points": 1.0,
+    "flips": 0.033
+   },
+   "stage1": {
+    "accuracy": [
+     95.0,
+     96.7,
+     96.7
+    ],
+    "mean": 96.1,
+    "range_points": 1.7,
+    "sd_points": 1.0,
+    "flips": 0.033
+   },
+   "usage_per_repeat": [
+    {
+     "s1_calls": 30,
+     "s2_calls": 0,
+     "usd": 0.0
+    },
+    {
+     "s1_calls": 30,
+     "s2_calls": 0,
+     "usd": 0.0
+    },
+    {
+     "s1_calls": 30,
+     "s2_calls": 0,
+     "usd": 0.0
+    }
+   ],
+   "recorded": {},
+   "floor_points": 1.7
+  }
+ }
+}

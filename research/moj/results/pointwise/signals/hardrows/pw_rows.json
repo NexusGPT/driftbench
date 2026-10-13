@@ -1,0 +1,2806 @@
+{
+"rubric.094": {
+"pA": 0.3433333333333333,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.02,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.3433333333333333,
+"prod": 0.000588
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.371,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.063": {
+"pA": 0.35000000000000003,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.03,
+"whole": 0.04
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.35000000000000003,
+"prod": 0.001176
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.369,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.103": {
+"pA": 0.9866666666666667,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.99,
+"whole": 0.98
+}
+},
+"rules": {
+"min": 0.98,
+"mean": 0.9866666666666667,
+"prod": 0.960498
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.367,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.115": {
+"pA": 0.9866666666666667,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.99,
+"whole": 0.98
+}
+},
+"rules": {
+"min": 0.98,
+"mean": 0.9866666666666667,
+"prod": 0.960498
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.341,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.027": {
+"pA": 0.275,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.04,
+"req_3": 0.05,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.275,
+"prod": 5.879999999999999e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.545,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.053": {
+"pA": 0.27,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.03,
+"req_3": 0.04,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.27,
+"prod": 3.5279999999999994e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.389,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.074": {
+"pA": 0.9025,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.96,
+"req_3": 0.77,
+"whole": 0.89
+}
+},
+"rules": {
+"min": 0.77,
+"mean": 0.9025,
+"prod": 0.65130912
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.283,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.025": {
+"pA": 0.9,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.97,
+"req_3": 0.75,
+"whole": 0.89
+}
+},
+"rules": {
+"min": 0.75,
+"mean": 0.9,
+"prod": 0.6410002499999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.276,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.034": {
+"pA": 0.275,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.04,
+"req_3": 0.05,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.275,
+"prod": 5.879999999999999e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.431,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.098": {
+"pA": 0.275,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.04,
+"req_3": 0.05,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.275,
+"prod": 5.879999999999999e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.33,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.028": {
+"pA": 0.905,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.96,
+"req_3": 0.77,
+"whole": 0.9
+}
+},
+"rules": {
+"min": 0.77,
+"mean": 0.905,
+"prod": 0.6586272
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.354,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.065": {
+"pA": 0.91,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.96,
+"req_3": 0.79,
+"whole": 0.9
+}
+},
+"rules": {
+"min": 0.79,
+"mean": 0.91,
+"prod": 0.6757344
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.71,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.012": {
+"pA": 0.285,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.02,
+"req_3": 0.12,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.285,
+"prod": 4.704e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.429,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.009": {
+"pA": 0.2925,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.02,
+"req_3": 0.15,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.2925,
+"prod": 5.88e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.29,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.109": {
+"pA": 0.9625,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.98,
+"req_3": 0.91,
+"whole": 0.97
+}
+},
+"rules": {
+"min": 0.91,
+"mean": 0.9625,
+"prod": 0.85639554
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.422,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.071": {
+"pA": 0.9625,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.98,
+"req_3": 0.91,
+"whole": 0.97
+}
+},
+"rules": {
+"min": 0.91,
+"mean": 0.9625,
+"prod": 0.85639554
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.352,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.072": {
+"pA": 0.33666666666666667,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.97,
+"req_2": 0.02,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.33666666666666667,
+"prod": 0.000388
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.303,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.054": {
+"pA": 0.33666666666666667,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.97,
+"req_2": 0.02,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.33666666666666667,
+"prod": 0.000388
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.272,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.030": {
+"pA": 0.94,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.94,
+"whole": 0.89
+}
+},
+"rules": {
+"min": 0.89,
+"mean": 0.94,
+"prod": 0.828234
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.413,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.002": {
+"pA": 0.9333333333333332,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.93,
+"whole": 0.89
+}
+},
+"rules": {
+"min": 0.89,
+"mean": 0.9333333333333332,
+"prod": 0.811146
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.319,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.078": {
+"pA": 0.2675,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.03,
+"req_3": 0.04,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.2675,
+"prod": 2.352e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.583,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.040": {
+"pA": 0.27,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.03,
+"req_3": 0.04,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.27,
+"prod": 3.5279999999999994e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.799,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.070": {
+"pA": 0.9525,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.98,
+"req_3": 0.89,
+"whole": 0.95
+}
+},
+"rules": {
+"min": 0.89,
+"mean": 0.9525,
+"prod": 0.8203041
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.31,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.029": {
+"pA": 0.94,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.98,
+"req_3": 0.85,
+"whole": 0.94
+}
+},
+"rules": {
+"min": 0.85,
+"mean": 0.94,
+"prod": 0.7751897999999998
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.306,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.010": {
+"pA": 0.34,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.02,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.34,
+"prod": 0.000392
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.371,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.088": {
+"pA": 0.3433333333333333,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.02,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.3433333333333333,
+"prod": 0.000588
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.308,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.038": {
+"pA": 0.9899999999999999,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.99,
+"whole": 0.99
+}
+},
+"rules": {
+"min": 0.99,
+"mean": 0.9899999999999999,
+"prod": 0.9702989999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.349,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.006": {
+"pA": 0.9866666666666667,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.99,
+"whole": 0.98
+}
+},
+"rules": {
+"min": 0.98,
+"mean": 0.9866666666666667,
+"prod": 0.960498
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.368,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.090": {
+"pA": 0.87,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.97,
+"req_3": 0.7,
+"whole": 0.82
+}
+},
+"rules": {
+"min": 0.7,
+"mean": 0.87,
+"prod": 0.5512121999999998
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.629,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.077": {
+"pA": 0.895,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.98,
+"req_3": 0.74,
+"whole": 0.87
+}
+},
+"rules": {
+"min": 0.74,
+"mean": 0.895,
+"prod": 0.6246147599999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.349,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.104": {
+"pA": 0.975,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.98,
+"req_3": 0.96,
+"whole": 0.97
+}
+},
+"rules": {
+"min": 0.96,
+"mean": 0.975,
+"prod": 0.9034502399999998
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.315,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.113": {
+"pA": 0.9775,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.98,
+"req_3": 0.96,
+"whole": 0.98
+}
+},
+"rules": {
+"min": 0.96,
+"mean": 0.9775,
+"prod": 0.9127641599999998
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.485,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.057": {
+"pA": 0.27,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.02,
+"req_3": 0.05,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.27,
+"prod": 2.9399999999999996e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.279,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.060": {
+"pA": 0.2675,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.02,
+"req_3": 0.05,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.2675,
+"prod": 1.96e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.293,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.097": {
+"pA": 0.9824999999999999,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.99,
+"req_3": 0.97,
+"whole": 0.98
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.9824999999999999,
+"prod": 0.9316830599999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.363,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.033": {
+"pA": 0.9824999999999999,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.99,
+"req_3": 0.97,
+"whole": 0.98
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.9824999999999999,
+"prod": 0.9316830599999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.282,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.017": {
+"pA": 0.3225,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.97,
+"req_2": 0.01,
+"req_3": 0.29,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.01,
+"mean": 0.3225,
+"prod": 5.626e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.28,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.052": {
+"pA": 0.31,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.97,
+"req_2": 0.01,
+"req_3": 0.24,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.01,
+"mean": 0.31,
+"prod": 4.6559999999999995e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.297,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.018": {
+"pA": 0.96,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.97,
+"req_3": 0.94,
+"whole": 0.94
+}
+},
+"rules": {
+"min": 0.94,
+"mean": 0.96,
+"prod": 0.8485210799999998
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.31,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.093": {
+"pA": 0.955,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.97,
+"req_3": 0.93,
+"whole": 0.94
+}
+},
+"rules": {
+"min": 0.93,
+"mean": 0.955,
+"prod": 0.83101452
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.377,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.089": {
+"pA": 0.29500000000000004,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.81,
+"req_2": 0.02,
+"req_3": 0.33,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.29500000000000004,
+"prod": 0.00010692000000000003
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.518,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.110": {
+"pA": 0.3,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.76,
+"req_2": 0.02,
+"req_3": 0.4,
+"whole": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.3,
+"prod": 0.00012160000000000001
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.261,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.045": {
+"pA": 0.97,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.98,
+"req_3": 0.94,
+"whole": 0.97
+}
+},
+"rules": {
+"min": 0.94,
+"mean": 0.97,
+"prod": 0.8846283599999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.512,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.119": {
+"pA": 0.9675,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.98,
+"req_3": 0.93,
+"whole": 0.97
+}
+},
+"rules": {
+"min": 0.93,
+"mean": 0.9675,
+"prod": 0.87521742
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.301,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.101": {
+"pA": 0.27749999999999997,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.04,
+"req_3": 0.06,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.27749999999999997,
+"prod": 7.055999999999999e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.242,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.026": {
+"pA": 0.2825,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.98,
+"req_2": 0.05,
+"req_3": 0.07,
+"whole": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.2825,
+"prod": 0.00010290000000000001
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.271,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.003": {
+"pA": 0.925,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.97,
+"req_3": 0.81,
+"whole": 0.93
+}
+},
+"rules": {
+"min": 0.81,
+"mean": 0.925,
+"prod": 0.72339399
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.239,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.024": {
+"pA": 0.915,
+"detail": {
+"asked": "rubric",
+"rows": {
+"a": {
+"req_1": 0.99,
+"req_2": 0.96,
+"req_3": 0.8,
+"whole": 0.91
+}
+},
+"rules": {
+"min": 0.8,
+"mean": 0.915,
+"prod": 0.6918912
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.925,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.064": {
+"pA": 0.9199999999999999,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.89,
+"ref_2": 0.99,
+"ref_3": 0.96,
+"no_disagreement": 0.84
+}
+},
+"rules": {
+"min": 0.84,
+"mean": 0.9199999999999999,
+"prod": 0.7105190399999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.465,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.013": {
+"pA": 0.8475,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.66,
+"ref_2": 0.99,
+"ref_3": 0.96,
+"no_disagreement": 0.78
+}
+},
+"rules": {
+"min": 0.66,
+"mean": 0.8475,
+"prod": 0.48926591999999997
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.195,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.075": {
+"pA": 0.9375,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.91,
+"ref_2": 0.99,
+"ref_3": 0.96,
+"no_disagreement": 0.89
+}
+},
+"rules": {
+"min": 0.89,
+"mean": 0.9375,
+"prod": 0.76972896
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.527,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.041": {
+"pA": 0.9575,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.94,
+"ref_2": 0.99,
+"ref_3": 0.97,
+"no_disagreement": 0.93
+}
+},
+"rules": {
+"min": 0.93,
+"mean": 0.9575,
+"prod": 0.83949426
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.37,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.029": {
+"pA": 0.26999999999999996,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.04,
+"ref_2": 0.82,
+"ref_3": 0.19,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.26999999999999996,
+"prod": 0.00018695999999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.364,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.116": {
+"pA": 0.265,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.04,
+"ref_2": 0.74,
+"ref_3": 0.24,
+"no_disagreement": 0.04
+}
+},
+"rules": {
+"min": 0.04,
+"mean": 0.265,
+"prod": 0.00028416
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.672,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.098": {
+"pA": 0.975,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"ref_2": 0.97,
+"ref_3": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.975,
+"prod": 0.9036403599999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.693,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.068": {
+"pA": 0.9724999999999999,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.97,
+"ref_2": 0.97,
+"ref_3": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.9724999999999999,
+"prod": 0.8944195399999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.743,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.025": {
+"pA": 0.025,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.03,
+"no_disagreement": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.025,
+"prod": 0.0006
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.713,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.101": {
+"pA": 0.03,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.03,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.03,
+"prod": 0.0009
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.433,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.062": {
+"pA": 0.985,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.99,
+"no_disagreement": 0.98
+}
+},
+"rules": {
+"min": 0.98,
+"mean": 0.985,
+"prod": 0.9702
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.609,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.015": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.99,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.98,
+"prod": 0.9602999999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.317,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.099": {
+"pA": 0.045,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.06,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.045,
+"prod": 0.0018
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.304,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.036": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.05,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.04,
+"prod": 0.0015
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.288,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.086": {
+"pA": 0.975,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.975,
+"prod": 0.9506
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.352,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.105": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"no_disagreement": 0.98
+}
+},
+"rules": {
+"min": 0.98,
+"mean": 0.98,
+"prod": 0.9603999999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.386,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.065": {
+"pA": 0.28,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.03,
+"ref_2": 0.78,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.28,
+"prod": 0.000702
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.382,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.021": {
+"pA": 0.27666666666666667,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.03,
+"ref_2": 0.77,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.27666666666666667,
+"prod": 0.0006929999999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.411,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.011": {
+"pA": 0.9700000000000001,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"ref_2": 0.96,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.96,
+"mean": 0.9700000000000001,
+"prod": 0.9125759999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.373,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.007": {
+"pA": 0.9700000000000001,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"ref_2": 0.96,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.96,
+"mean": 0.9700000000000001,
+"prod": 0.9125759999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.348,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.032": {
+"pA": 0.05,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.06,
+"no_disagreement": 0.04
+}
+},
+"rules": {
+"min": 0.04,
+"mean": 0.05,
+"prod": 0.0024
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.35,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.073": {
+"pA": 0.045,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.05,
+"no_disagreement": 0.04
+}
+},
+"rules": {
+"min": 0.04,
+"mean": 0.045,
+"prod": 0.002
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.369,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.070": {
+"pA": 0.96,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.97,
+"no_disagreement": 0.95
+}
+},
+"rules": {
+"min": 0.95,
+"mean": 0.96,
+"prod": 0.9215
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.284,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.115": {
+"pA": 0.96,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.97,
+"no_disagreement": 0.95
+}
+},
+"rules": {
+"min": 0.95,
+"mean": 0.96,
+"prod": 0.9215
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.29,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.055": {
+"pA": 0.09000000000000001,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.2,
+"ref_2": 0.04,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.09000000000000001,
+"prod": 0.00024
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.324,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.014": {
+"pA": 0.09000000000000001,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.2,
+"ref_2": 0.04,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.09000000000000001,
+"prod": 0.00024
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.297,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.081": {
+"pA": 0.9199999999999999,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.81,
+"ref_2": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.81,
+"mean": 0.9199999999999999,
+"prod": 0.7699860000000001
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.302,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.006": {
+"pA": 0.9366666666666666,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.86,
+"ref_2": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.86,
+"mean": 0.9366666666666666,
+"prod": 0.817516
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.776,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.057": {
+"pA": 0.035,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.04,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.035,
+"prod": 0.0012
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.461,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.040": {
+"pA": 0.05,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.06,
+"no_disagreement": 0.04
+}
+},
+"rules": {
+"min": 0.04,
+"mean": 0.05,
+"prod": 0.0024
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.326,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.060": {
+"pA": 0.975,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.975,
+"prod": 0.9506
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.316,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.102": {
+"pA": 0.975,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.975,
+"prod": 0.9506
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.325,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.090": {
+"pA": 0.02,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.02,
+"no_disagreement": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.02,
+"prod": 0.0004
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.496,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.042": {
+"pA": 0.02,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.02,
+"no_disagreement": 0.02
+}
+},
+"rules": {
+"min": 0.02,
+"mean": 0.02,
+"prod": 0.0004
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.613,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.063": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"no_disagreement": 0.98
+}
+},
+"rules": {
+"min": 0.98,
+"mean": 0.98,
+"prod": 0.9603999999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.304,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.118": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"no_disagreement": 0.98
+}
+},
+"rules": {
+"min": 0.98,
+"mean": 0.98,
+"prod": 0.9603999999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.326,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.037": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.05,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.04,
+"prod": 0.0015
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.306,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.027": {
+"pA": 0.04,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.05,
+"no_disagreement": 0.03
+}
+},
+"rules": {
+"min": 0.03,
+"mean": 0.04,
+"prod": 0.0015
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.314,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.083": {
+"pA": 0.975,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.975,
+"prod": 0.9506
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.459,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.067": {
+"pA": 0.98,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.99,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.97,
+"mean": 0.98,
+"prod": 0.9602999999999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.494,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.038": {
+"pA": 0.1775,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.04,
+"ref_2": 0.58,
+"ref_3": 0.05,
+"no_disagreement": 0.04
+}
+},
+"rules": {
+"min": 0.04,
+"mean": 0.1775,
+"prod": 4.64e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.444,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.097": {
+"pA": 0.145,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.04,
+"ref_2": 0.44,
+"ref_3": 0.05,
+"no_disagreement": 0.05
+}
+},
+"rules": {
+"min": 0.04,
+"mean": 0.145,
+"prod": 4.400000000000001e-05
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.445,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.010": {
+"pA": 0.9724999999999999,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"ref_2": 0.96,
+"ref_3": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.96,
+"mean": 0.9724999999999999,
+"prod": 0.8943244799999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.403,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.114": {
+"pA": 0.9724999999999999,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.98,
+"ref_2": 0.96,
+"ref_3": 0.98,
+"no_disagreement": 0.97
+}
+},
+"rules": {
+"min": 0.96,
+"mean": 0.9724999999999999,
+"prod": 0.8943244799999999
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.333,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.113": {
+"pA": 0.8049999999999999,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.85,
+"no_disagreement": 0.76
+}
+},
+"rules": {
+"min": 0.76,
+"mean": 0.8049999999999999,
+"prod": 0.646
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.561,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.054": {
+"pA": 0.8400000000000001,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.88,
+"no_disagreement": 0.8
+}
+},
+"rules": {
+"min": 0.8,
+"mean": 0.8400000000000001,
+"prod": 0.7040000000000001
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.389,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.005": {
+"pA": 0.8300000000000001,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.88,
+"no_disagreement": 0.78
+}
+},
+"rules": {
+"min": 0.78,
+"mean": 0.8300000000000001,
+"prod": 0.6864
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.529,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.074": {
+"pA": 0.905,
+"detail": {
+"asked": "reference",
+"rows": {
+"a": {
+"ref_1": 0.94,
+"no_disagreement": 0.87
+}
+},
+"rules": {
+"min": 0.87,
+"mean": 0.905,
+"prod": 0.8178
+}
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.427,
+"luna": 0
+},
+"missing": 0
+}
+}

@@ -109,7 +109,7 @@ def render(result):
 
 if __name__ == '__main__':
     paths = [value for value in sys.argv[1:] if value.endswith('.json')]
-    benches = arg('--bench', ','.join(POINT_BENCHES)).split(',')
+    benches = arg('--bench', ','.join(b for b in POINT_BENCHES if POINT_BENCHES[b].get('tune', True))).split(',')
     for path in paths:
         config = json.load(open(path))
         result = noise(config, benches, int(arg('--n', 30)), int(arg('--repeats', 3)), '--offline' in sys.argv, int(arg('--workers', 4)))

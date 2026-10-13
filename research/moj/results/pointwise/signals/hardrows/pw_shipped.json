@@ -1,0 +1,2210 @@
+{
+"rubric.094": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003021
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.063": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00030010000000000003
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.103": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003086
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.115": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00030260000000000004
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.027": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003105
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.053": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003065
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.074": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00031350000000000003
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.025": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00030750000000000005
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.034": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003133000000000001
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.098": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00031230000000000006
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.028": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003178
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.065": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00032130000000000006
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.012": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00029430000000000005
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.009": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003013
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.109": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00030370000000000006
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.071": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00030570000000000006
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.072": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003046
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.054": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003046
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.030": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003034
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.002": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003064
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.078": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0004287
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.040": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0004552
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.070": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0005097
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.029": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0004997000000000001
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.010": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002841
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.088": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002896
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.038": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002873
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.006": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002898
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.090": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0004209
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.077": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0004289
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.104": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.000306
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.113": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003065
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.057": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.000304
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.060": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00029949999999999996
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.097": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00029699999999999996
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.033": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002935
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.017": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002969
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.052": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00029890000000000006
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.018": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00030290000000000004
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.093": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003614
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.089": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002957
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.110": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002962
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.045": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003099
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.119": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003104
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.101": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003308
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.026": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00032030000000000003
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.003": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003538
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"rubric.024": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003308
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.064": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00033130000000000003
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.013": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00040380000000000006
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.075": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003488
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.041": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00036280000000000004
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.029": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003289
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.116": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003109
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.098": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003149
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.068": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003554
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.025": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002988
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.101": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003003
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.062": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0002963
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.015": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00030429999999999997
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.099": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00030789999999999995
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.036": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003179
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.086": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003664
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.105": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003159
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.065": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003231
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.021": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003241
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.011": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00032010000000000003
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.007": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00032010000000000003
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.032": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003291
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.073": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00032859999999999996
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.070": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003456
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.115": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003421
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.055": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0006023000000000001
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.014": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0005913000000000001
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.081": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0006028000000000001
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.006": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0006655
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.057": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00031810000000000003
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.040": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003166
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.060": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003216
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.102": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003216
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.090": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00029699999999999996
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.042": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00031899999999999995
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.063": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00032720000000000004
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.118": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00031270000000000007
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.037": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00031329999999999997
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.027": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003168
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.083": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003423
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.067": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003168
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.038": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00030609999999999996
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.097": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00031759999999999997
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.010": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003101
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.114": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003096
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.113": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00031250000000000006
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.054": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.0003085
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.005": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00047420000000000003
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"factuality.074": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B"
+],
+"source": "recorded",
+"model": "claude-haiku-5-5",
+"recorded_calls": 1,
+"recorded_usd": 0.00033650000000000005
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"s2": {}
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+}
+}
