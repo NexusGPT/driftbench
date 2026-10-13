@@ -4,6 +4,7 @@ import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS } from '.
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
 import { googleResponseSchema, isPairLedgerRequest, JUDGE_DIALECTS, withJudgeDialect } from './dialects';
+import { declinedBy, quoteAssessmentMaterial } from './provider-block';
 import { buildDialectRequest } from './transport';
 
 /**
@@ -70,11 +71,12 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
       temperatureRetry: 'drop on a 400 that names it',
       responseFormat: 'json_schema',
       ...(reasoning === undefined ? {} : { reasoning }),
+      ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.openai.id, options.reasoning);
       const reasoning = request.reasoning ?? options.reasoning;
-      const prompt = buildPrompt(request);
+      const prompt = quoteAssessmentMaterial(buildPrompt(request), options.quotedMaterial);
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('openai', { ...prompt, schema: responseSchema(request), reasoning }).payload
         : undefined;
@@ -125,10 +127,18 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         return { answer: inconclusive(`${model} answered without a choice`), raw, unparsed: true };
       }
       if (typeof message.refusal === 'string' && message.refusal !== '') {
-        return { answer: inconclusive(`${model} declined: ${message.refusal}`), raw };
+        return {
+          answer: inconclusive(`${model} declined: ${message.refusal}`),
+          raw,
+          ...declinedBy('openai', payload),
+        };
       }
       if (choice.finish_reason === 'content_filter') {
-        return { answer: inconclusive(`${model} declined: its content filter stopped the answer`), raw };
+        return {
+          answer: inconclusive(`${model} declined: its content filter stopped the answer`),
+          raw,
+          ...declinedBy('openai', payload),
+        };
       }
       const content = contentText(message.content);
       if (choice.finish_reason === 'length') return truncated(content, model);
@@ -155,10 +165,13 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
     model,
     dialect: JUDGE_DIALECTS.anthropic.id,
     cost: options.cost ?? CHAT_COST,
-    settings: settingsOf('anthropic-messages', { anthropicVersion: '2023-06-01' }),
+    settings: settingsOf('anthropic-messages', {
+      anthropicVersion: '2023-06-01',
+      ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
+    }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.anthropic.id);
-      const prompt = buildPrompt(request);
+      const prompt = quoteAssessmentMaterial(buildPrompt(request), options.quotedMaterial);
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('anthropic', prompt).payload
         : undefined;
@@ -181,7 +194,11 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         return { answer: inconclusive(`${model} answered without a content list`), raw, unparsed: true };
       }
       if (payload.stop_reason === 'refusal') {
-        return { answer: inconclusive(`${model} declined the request`), raw };
+        return {
+          answer: inconclusive(`${model} declined the request`),
+          raw,
+          ...declinedBy('anthropic', payload),
+        };
       }
       const text = payload.content
         .filter((block): block is { type: 'text'; text: string } => {
@@ -219,11 +236,12 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
     settings: settingsOf('google-generate-content', {
       responseMimeType: 'application/json',
       ...(reasoning === undefined ? {} : { reasoning }),
+      ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.google.id, options.reasoning);
       const reasoning = request.reasoning ?? options.reasoning;
-      const prompt = buildPrompt(request);
+      const prompt = quoteAssessmentMaterial(buildPrompt(request), options.quotedMaterial);
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('google', { ...prompt, schema: responseSchema(request), reasoning }).payload
         : undefined;
@@ -262,6 +280,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         return {
           answer: inconclusive(`${model} declined: the prompt was blocked (${feedback.blockReason})`),
           raw,
+          ...declinedBy('google', payload),
         };
       }
       if (!isRecord(candidate)) {
@@ -274,7 +293,11 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         .join('');
       if (candidate.finishReason === 'MAX_TOKENS') return truncated(text, model);
       if (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'RECITATION')
-        return { answer: inconclusive(`${model} declined the request`), raw };
+        return {
+          answer: inconclusive(`${model} declined the request`),
+          raw,
+          ...declinedBy('google', payload),
+        };
       return parseJudgeText(text, request);
     },
   };

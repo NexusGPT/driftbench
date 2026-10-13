@@ -267,7 +267,9 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
           ? await client.judgeComparison(request, swapped)
           : await client.judge(request);
       cassette.entries.push(
-        result.escalation ||
+        result.thinkingRecovery ||
+          result.retryReceipts ||
+          result.escalation ||
           result.comparison ||
           result.referenceAgreement ||
           result.referenceDisagreement !== undefined

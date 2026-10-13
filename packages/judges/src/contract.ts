@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
+import type { ClaudeThinkingRecovery } from './clients/claude-cli';
 import type { ConformanceAudit } from './conformance';
 import type { CriterionCheck, CriterionDecoderVersion, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
@@ -113,6 +114,15 @@ export type ComparisonResult = {
 
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly thinkingRecovery?: ClaudeThinkingRecovery;
+  readonly retryReceipts?: readonly import('./clients/claude-errors').ClaudeRetryReceipt[];
+  /** Every Claude CLI process started for this answer, recovery and retries included. */
+  readonly requestCount?: number;
+  /** A process of the call reported no cost: costUsd is absent and a total that adds it is partial. */
+  readonly costIncomplete?: true;
+  /** The provider declined to answer: an inconclusive answer, never an error, with its short signal. */
+  readonly declineReason?: import('./clients/provider-block').ProviderDecline['declineReason'];
+  readonly providerBlock?: import('./clients/provider-block').ProviderBlock;
   readonly pairLedger?: PairLedger;
   readonly parseSteps?: readonly LedgerParseStep[];
   readonly metadata?: { readonly graderError?: boolean };

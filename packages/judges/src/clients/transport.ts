@@ -4,8 +4,14 @@ import { join } from 'node:path';
 import type { ClientOptions } from '../client';
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { promptFingerprint } from '../prompt';
-import { CLAUDE_JUDGE_FLAGS, CLAUDE_SETTINGS, runClaudeCommand } from './claude-cli';
+import type { ClaudeCliOptions, ClaudeThinkingRecovery } from './claude-cli';
+import { CLAUDE_JUDGE_FLAGS, CLAUDE_SETTINGS, runClaudeJudgeCommand } from './claude-cli';
+import { type ClaudeRetryReceipt, ClaudeTransportError } from './claude-errors';
+
+export { ClaudeTransportError } from './claude-errors';
+
 import { googleResponseSchema, JUDGE_DIALECTS, type JudgeDialect } from './dialects';
+import { type ProviderDecline, providerBlock, quoteAssessmentMaterial } from './provider-block';
 import { type TokenUsage, usageFromResponse } from './usage';
 
 export type DialectProvider = 'openai' | 'google' | 'anthropic' | 'claude-cli';
@@ -19,6 +25,7 @@ export const FROZEN_BENCHMARK_REASONING = Object.freeze({
 } as const);
 
 export type DialectCompletionRequest = {
+  readonly quotedMaterial?: boolean;
   readonly system: string;
   readonly user: string;
   /** Absent: plain output, with no injected schema, JSON instructions or judge contract. */
@@ -27,6 +34,10 @@ export type DialectCompletionRequest = {
 };
 
 export type DialectCompletion = {
+  readonly thinkingRecovery?: ClaudeThinkingRecovery;
+  readonly retryReceipts?: readonly ClaudeRetryReceipt[];
+  /** Every Claude CLI process started for this completion, recovery and retries included. */
+  readonly requestCount?: number;
   readonly text: string;
   readonly raw: string;
   readonly dialect: JudgeDialect;
@@ -35,19 +46,25 @@ export type DialectCompletion = {
   /** Billed output includes Google thinking tokens; raw preserves the provider's separate counters. */
   readonly usage?: TokenUsage;
   readonly costUsd?: number;
+  /** A process of the call reported no cost: costUsd is absent, never the cost of a part. */
+  readonly costIncomplete?: true;
   readonly finishReason?: string;
   readonly truncated?: boolean;
   readonly refusal?: string;
+  /** Set with `refusal`: the provider declined, and its short signal, for counting refusals. */
+  readonly declineReason?: ProviderDecline['declineReason'];
+  readonly providerBlock?: ProviderDecline['providerBlock'];
 };
 
-export type DialectTransportOptions = ClientOptions & {
-  provider: DialectProvider;
-  /** Output limit. Defaults to 4096; native Claude CLI owns its own token limit. */
-  maxTokens?: number;
-  command?: string;
-  commandArgs?: readonly string[];
-  maxBudgetUsd?: number;
-};
+export type DialectTransportOptions = ClientOptions &
+  Pick<ClaudeCliOptions, 'claudeEffort' | 'retryMaxCostUsd'> & {
+    provider: DialectProvider;
+    /** Output limit. Defaults to 4096; native Claude CLI owns its own token limit. */
+    maxTokens?: number;
+    command?: string;
+    commandArgs?: readonly string[];
+    maxBudgetUsd?: number;
+  };
 
 export type DialectTransport = {
   readonly dialect: JudgeDialect;
@@ -56,36 +73,6 @@ export type DialectTransport = {
   readonly fingerprint: string;
   complete(request: DialectCompletionRequest): Promise<DialectCompletion>;
 };
-
-/** A completed Claude CLI process failed; retain its receipt so failed calls remain accountable. */
-export class ClaudeTransportError extends JudgeError {
-  readonly raw: string;
-  readonly exitCode: number | null;
-  /** Original provider counters, including cache creation and cache read usage. */
-  readonly usage?: Readonly<Record<string, unknown>>;
-  readonly costUsd?: number;
-
-  constructor(
-    code: 'http' | 'bad_response',
-    message: string,
-    processResult: { readonly stdout: string; readonly code: number | null },
-    payload?: unknown,
-  ) {
-    super(code, message);
-    this.name = 'ClaudeTransportError';
-    this.raw = processResult.stdout;
-    this.exitCode = processResult.code;
-    if (isRecord(payload)) {
-      if (isRecord(payload.usage)) this.usage = payload.usage;
-      if (
-        typeof payload.total_cost_usd === 'number' &&
-        Number.isFinite(payload.total_cost_usd) &&
-        payload.total_cost_usd >= 0
-      )
-        this.costUsd = payload.total_cost_usd;
-    }
-  }
-}
 
 /** Provider payload only: it carries no model, credentials, token budget or assessment contract. */
 export function buildDialectRequest(
@@ -96,6 +83,7 @@ export function buildDialectRequest(
   payload: Record<string, unknown>;
   fingerprint: string;
 } {
+  request = quoteAssessmentMaterial(request, request.quotedMaterial);
   const dialect = JUDGE_DIALECTS[provider].id;
   if (request.reasoning !== undefined && provider !== 'openai' && provider !== 'google')
     throw new JudgeError('config', `${provider} does not expose a reasoning setting in this dialect`);
@@ -152,6 +140,8 @@ export function buildDialectRequest(
 /** Raw text transport for any prompt or schema, including pointwise uncertainty cascades. No verdict parser runs. */
 export function createDialectTransport(options: DialectTransportOptions): DialectTransport {
   const provider = options.provider;
+  if (options.claudeEffort !== undefined && provider !== 'claude-cli')
+    throw new JudgeError('config', 'claudeEffort requires claude-cli');
   const env = options.env ?? process.env;
   const variables = {
     openai: 'OPENAI_JUDGE_MODEL',
@@ -200,6 +190,8 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
     dialect,
     model,
     maxTokens,
+    ...(options.claudeEffort === undefined ? {} : { claudeEffort: options.claudeEffort }),
+    ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     base,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     ...(provider !== 'claude-cli'
@@ -213,7 +205,11 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
     fingerprint,
     async complete(original) {
       const reasoning = original.reasoning ?? options.reasoning;
-      const request = { ...original, ...(reasoning === undefined ? {} : { reasoning }) };
+      const request = {
+        ...original,
+        quotedMaterial: original.quotedMaterial ?? options.quotedMaterial,
+        ...(reasoning === undefined ? {} : { reasoning }),
+      };
       const built = buildDialectRequest(provider, request);
       const identity = {
         dialect,
@@ -221,7 +217,7 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
       };
       if (provider === 'claude-cli') {
         folder ??= mkdtempSync(join(tmpdir(), 'driftbench-claude-transport-'));
-        const ran = await runClaudeCommand(
+        const sent = await runClaudeJudgeCommand(
           options.command ?? 'claude',
           [
             ...(options.commandArgs ?? []),
@@ -231,13 +227,20 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
             '--model',
             model,
             '--system-prompt',
-            request.system,
+            built.payload.system as string,
             ...CLAUDE_JUDGE_FLAGS,
             ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
           ],
           built.payload.user as string,
-          { cwd: folder, env, timeoutMs: options.timeoutMs ?? 120_000 },
+          {
+            ...options,
+            cwd: folder,
+            env,
+            timeoutMs: options.timeoutMs ?? 120_000,
+            system: built.payload.system as string,
+          },
         );
+        const ran = sent.ran;
         let value: unknown;
         try {
           value = JSON.parse(ran.stdout);
@@ -263,6 +266,10 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
           raw: ran.stdout,
           text: typeof value.result === 'string' ? value.result : '',
           ...(cost === undefined ? {} : { costUsd: cost }),
+          ...sent.accounting,
+          ...(sent.accounting.thinkingRecovery
+            ? { fingerprint: promptFingerprint({ initial: identity.fingerprint, recoveryEffort: 'low' }) }
+            : {}),
           ...(typeof value.subtype === 'string' ? { finishReason: value.subtype } : {}),
           ...(value.subtype === 'success' ? {} : { truncated: true }),
         };
@@ -291,6 +298,7 @@ function readCompletion(
   provider: Exclude<DialectProvider, 'claude-cli'>,
   value: unknown,
 ): Omit<DialectCompletion, 'dialect' | 'fingerprint'> {
+  const block = providerBlock(provider, value);
   const raw = JSON.stringify(value);
   let usage = usageFromResponse(provider, value);
   const record = isRecord(value) ? value : {};
@@ -327,7 +335,13 @@ function readCompletion(
     ...(Object.keys(usage).length ? { usage } : {}),
     ...(typeof finish === 'string' ? { finishReason: finish } : {}),
     ...(['length', 'MAX_TOKENS', 'max_tokens'].includes(String(finish)) ? { truncated: true } : {}),
-    ...(typeof refusal === 'string' && refusal ? { refusal } : {}),
+    ...(typeof refusal === 'string' && refusal
+      ? {
+          refusal,
+          declineReason: 'provider-blocked' as const,
+          providerBlock: block ?? { provider, reason: 'other' },
+        }
+      : {}),
   };
 }
 
