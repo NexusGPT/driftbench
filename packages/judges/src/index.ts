@@ -165,7 +165,14 @@ export {
   loadCriteria,
   parseCriterionFile,
 } from './criteria';
-export { CriterionLedger, type CriterionRequirement, requirementsFor } from './criterion-ledger';
+export {
+  CRITERION_DECODER_VERSION,
+  type CriterionCheck,
+  type CriterionDecoderVersion,
+  CriterionLedger,
+  type CriterionRequirement,
+  requirementsFor,
+} from './criterion-ledger';
 export { createEscalation, type EscalationConfig } from './escalation';
 export { type Grounding, groundEvidence } from './evidence';
 export { FACT_LEDGER_POINTWISE, FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';

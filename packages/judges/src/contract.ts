@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
 import type { ConformanceAudit } from './conformance';
-import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
+import type { CriterionCheck, CriterionDecoderVersion, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
 import type { LedgerParseStep, PairLedger } from './pair-ledger-contract';
 import type { ResponseRelevanceAnswer } from './response-relevance';
@@ -62,6 +62,8 @@ export type JudgeRequest = {
   readonly referenceDisagreement?: boolean;
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
+  /** Default-ledger decoder. Default 1: strict quote rejection. Opt-in 2 nulls an ungrounded string quote. */
+  readonly criterionDecoderVersion?: CriterionDecoderVersion;
   /** Provider output dialect and explicit reasoning setting for pair ledgers. */
   readonly dialect?: string;
   readonly reasoning?: 'low' | 'medium' | 'high';
@@ -129,7 +131,9 @@ export type JudgeResult = {
   /** Opt-in criterion-local conformance audit, with its outcome computed in code. */
   readonly conformance?: ConformanceAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
-  readonly checks?: CriterionLedger['checks'];
+  readonly checks?: readonly CriterionCheck[];
+  /** Number of ungrounded evidence strings nulled without changing their met values. */
+  readonly evidenceUnverified?: number;
   /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {

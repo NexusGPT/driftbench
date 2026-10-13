@@ -14,6 +14,7 @@ import {
   type JudgeResult,
   parseAnswerValue,
 } from './contract';
+import { CRITERION_DECODER_VERSION, type CriterionDecoderVersion } from './criterion-ledger';
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
 import { isPairLedgerRequest } from './pair-ledger-contract';
@@ -91,6 +92,8 @@ export const CassetteEntry = z.strictObject({
   criterion: z.string().optional(),
   /** Model-facing contract recorded with this entry. Missing on pre-ledger cassettes means legacy. */
   answerContract: z.enum(['ledger', 'legacy']).optional(),
+  /** Missing means strict v1 for a historical default-ledger entry. */
+  criterionDecoderVersion: z.union([z.literal(1), z.literal(2)]).optional(),
   /** Separates the new pair contract from older explicit-winner recordings. */
   pairContract: z.literal('ledger').optional(),
   note: z.string().optional(),
@@ -125,6 +128,7 @@ export type KeyClient = {
   readonly families?: readonly string[];
   readonly comparison?: boolean;
   readonly judgeComparison?: JudgeClient['judgeComparison'];
+  readonly criterionDecoderVersion?: CriterionDecoderVersion;
 };
 
 /**
@@ -188,12 +192,18 @@ export function requestKey(
             reasoning: request.reasoning ?? client?.reasoning,
           }
         : request;
+  const decoder =
+    request.criterionDecoderVersion ?? client?.criterionDecoderVersion ?? CRITERION_DECODER_VERSION;
   const fullKey = (r: JudgeRequest) =>
     contentHash({
       data: dataKey({ ...r, answerContract: 'ledger' }),
       answerContract: r.answerContract ?? 'ledger',
     });
   return contentHash({
+    // Version 1 omits the field to preserve historical request keys.
+    ...(effective.answerContract !== 'legacy' && !effective.assessment && decoder !== 1
+      ? { criterionDecoderVersion: decoder }
+      : {}),
     data: procedure ? fullKey(effective) : dataKey(effective),
     ...(swapped ? { comparison: fullKey(swapped) } : {}),
     prompt:
@@ -242,6 +252,13 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
         (client.cls === 'system1' && !client.families && !client.judgeComparison
           ? ('legacy' as const)
           : ('ledger' as const)),
+      // Version 1 entries omit the field, so default recordings stay byte-identical.
+      ...(request.answerContract !== 'legacy' &&
+      !request.assessment &&
+      (client.cls !== 'system1' || client.families || client.judgeComparison) &&
+      (request.criterionDecoderVersion ?? client.criterionDecoderVersion ?? CRITERION_DECODER_VERSION) === 2
+        ? { criterionDecoderVersion: 2 as const }
+        : {}),
     };
     const cost = (result: JudgeResult) => (result.costUsd === undefined ? {} : { cost_usd: result.costUsd });
     try {
@@ -281,6 +298,9 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
     ...(client.families ? { families: client.families } : {}),
     ...(client.model ? { model: client.model } : {}),
     ...(client.settings === undefined ? {} : { settings: client.settings }),
+    ...(client.criterionDecoderVersion === undefined
+      ? {}
+      : { criterionDecoderVersion: client.criterionDecoderVersion }),
     ...(client.dialect === undefined ? {} : { dialect: client.dialect }),
     ...(client.reasoning === undefined ? {} : { reasoning: client.reasoning }),
     judge: (request) => record(request),
@@ -294,7 +314,11 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
 export function playerClient(
   cassette: Cassette,
   judgeId: string,
-  options: { readonly prompt?: string; readonly answerContract?: 'ledger' | 'legacy' } = {},
+  options: {
+    readonly prompt?: string;
+    readonly answerContract?: 'ledger' | 'legacy';
+    readonly criterionDecoderVersion?: CriterionDecoderVersion;
+  } = {},
 ): JudgeClient {
   const judge = cassette.judges.find((candidate) => candidate.id === judgeId);
   if (!judge) throw new JudgeError('config', `the cassette lists no judge "${judgeId}"`);
@@ -311,16 +335,24 @@ export function playerClient(
     [...byKey.values()].some((list) => list.some((entry) => entry.answerContract === 'ledger'))
       ? 'ledger'
       : 'legacy');
+  const recordedDecoder =
+    options.criterionDecoderVersion ??
+    ([...byKey.values()].some((list) => list.some((entry) => entry.criterionDecoderVersion === 2)) ? 2 : 1);
   const play = async (request: JudgeRequest, swapped?: JudgeRequest): Promise<JudgeResult> => {
     const oldWinnerContract =
       request.assessment?.kind === 'pairwise' &&
       recordedContract === 'ledger' &&
       (byKey.has(requestKey(request, judge, options.prompt, swapped)) ||
         !cassette.entries.some((entry) => entry.judge === judgeId && entry.pairContract === 'ledger'));
-    const effective =
+    const contracted =
       !request.answerContract && !oldWinnerContract
         ? { ...request, answerContract: recordedContract }
         : request;
+    // A request without its own decoder version follows a cassette that records version 2.
+    const effective =
+      request.criterionDecoderVersion === undefined && recordedDecoder === 2
+        ? { ...contracted, criterionDecoderVersion: recordedDecoder }
+        : contracted;
     const key = requestKey(effective, judge, options.prompt, swapped);
     const matches = byKey.get(key) ?? [];
     if (matches.length === 0)
@@ -340,6 +372,7 @@ export function playerClient(
     ...(judge.families ? { families: judge.families } : {}),
     ...(judge.model ? { model: judge.model } : {}),
     ...(judge.settings === undefined ? {} : { settings: judge.settings }),
+    ...(recordedDecoder === 2 ? { criterionDecoderVersion: recordedDecoder } : {}),
     ...(judge.dialect === undefined ? {} : { dialect: judge.dialect }),
     ...(judge.reasoning === undefined ? {} : { reasoning: judge.reasoning }),
     judge: (request) => play(request),

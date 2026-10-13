@@ -1,4 +1,5 @@
 import type { JudgeClass, JudgeRequest, JudgeResult } from './contract';
+import type { CriterionDecoderVersion } from './criterion-ledger';
 import type { HttpOptions } from './http';
 
 /**
@@ -24,6 +25,8 @@ export interface JudgeClient {
    * Part of the cassette key: a recording made with other settings never replays.
    */
   readonly settings?: string;
+  /** Replay decoder inferred from a cassette. Absent means strict version 1. */
+  readonly criterionDecoderVersion?: CriterionDecoderVersion;
   /** The provider's ledger output dialect, included in ledger recording keys. */
   readonly dialect?: string;
   /** A client default; an explicit request reasoning setting takes precedence. */
