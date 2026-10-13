@@ -86,7 +86,11 @@ Product code only, in `packages/generate/src/seed`. One cause per commit, each w
 
 `worldFor` moved to `seed/world.ts` so `scenario.ts` can build a tool's answer without an import cycle. The Acme fixtures, the budget pin (`packages/generate/test/enumerate/fixtures/budget-categorical.json`), the pinned counts and the two generate transcripts (`docs/generating.md`, `docs/reference/cli.md`) are regenerated: 504 files, 332 complete specs, 24 cover specs. README.md lines 154 and 437 still say 508 files; README is outside the executor's scope.
 
-## Open items: items to rule on
+## Open items
+
+Every open item is an item to rule on, a decision for the owner or one product item still open; the last two have their own sections below.
+
+### Items to rule on
 
 Each group below fails on every seed unless a seed list is given. For each, the cause is in the validator or in the map it renders, and no change of the generator makes the item pass without failing another item. The evidence is reproducible with the tools at the end of this file.
 
@@ -118,7 +122,9 @@ Each group below fails on every seed unless a seed list is given. For each, the 
 
 `allocation.deviation.ratio` on seeds 5, 8 and 20: the tool failure class has 9 probes against 35 for the most probed class on seed 5 (it has no phrase, so no metamorphic family, and one tool). A top-up of the least probed classes after the cover seeder would fix it; not done.
 
-## Hypotheses tried and rejected
+## Hypotheses tried
+
+Tried and rejected:
 
 - A flow phrase opens the stage graph walk of a flow with one phrasing: passes on the hidden maps, fails 24 blocks on the Acme reference agent. Reverted.
 - A goal shift probed after the last stage of a walk (seed 8): the map's derived constraints forbid the class there. Reverted.
