@@ -1,0 +1,134 @@
+import { createHash } from 'node:crypto';
+import { appendFile, mkdir, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { appendRecording, readRecordingRows } from './recording-files';
+
+export type LedgerCompletion = {
+  text: string;
+  raw: string;
+  fingerprint: string;
+  costUsd?: number;
+  usage?: { input?: number; output?: number };
+  finishReason?: string;
+  truncated?: boolean;
+  refusal?: string;
+};
+export type CallIdentity = {
+  model: string;
+  phase: string;
+  item: string;
+  contestant: string;
+  /** Each independent repeat and canonical third read has a distinct sampling identity. */
+  sample: number;
+  ordinal: number;
+  transportFingerprint: string;
+  request: unknown;
+};
+type Start = { key: string; reserveUsd: number; identity: CallIdentity; startedAt: string };
+export type LedgerCall = {
+  key: string;
+  model: string;
+  text: string;
+  costUsd: number;
+  item: string;
+  contestant: string;
+  status: 'ok' | 'error';
+  costBasis: 'reported' | 'usage' | 'reservation';
+  identity: CallIdentity;
+  completion?: LedgerCompletion;
+  error?: string;
+};
+export class LedgerBudgetStop extends Error {}
+export class LedgerUncertainCall extends Error {}
+
+const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+
+/** Durable reservations prevent concurrent calls and restarts from exceeding the lane cap. */
+export class LedgerCalls {
+  private readonly completed = new Map<string, LedgerCall>();
+  private readonly started = new Map<string, Start>();
+  private pending: Promise<unknown> = Promise.resolve();
+  private readonly live = new Map<string, Promise<LedgerCall>>();
+  constructor(readonly directory: string, readonly capUsd: number) {
+    if (!(capUsd > 0 && Number.isFinite(capUsd))) throw new Error('Invalid spend cap');
+  }
+  async load(): Promise<this> {
+    await mkdir(this.directory, { recursive: true });
+    try {
+      for (const line of (await readFile(join(this.directory, 'starts.jsonl'), 'utf8')).split('\n').filter(Boolean)) {
+        const row = JSON.parse(line) as Start;
+        if (this.started.has(row.key)) throw new Error(`Duplicate start: ${row.key}`);
+        this.started.set(row.key, row);
+      }
+    } catch (e) { if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e; }
+    for (const row of await readRecordingRows(join(this.directory, 'calls.jsonl'))) {
+      const call = row as LedgerCall;
+      if (this.completed.has(call.key)) throw new Error(`Duplicate completion: ${call.key}`);
+      if (!this.started.has(call.key)) throw new Error(`Completion without reservation: ${call.key}`);
+      this.completed.set(call.key, call);
+    }
+    return this;
+  }
+  get chargedUsd(): number {
+    return [...this.started].reduce((sum, [key, start]) => sum +
+      (this.completed.get(key)?.costUsd ?? start.reserveUsd), 0);
+  }
+  get rows(): readonly LedgerCall[] { return [...this.completed.values()]; }
+  get uncertainKeys(): readonly string[] {
+    return [...this.started.keys()].filter((key) => !this.completed.has(key) && !this.live.has(key));
+  }
+  private async serial<T>(f: () => Promise<T>): Promise<T> {
+    const p = this.pending.then(f);
+    this.pending = p.catch(() => undefined);
+    return p;
+  }
+  complete(identity: CallIdentity, reserveUsd: number,
+    execute: () => Promise<LedgerCompletion>,
+    price: (completion: LedgerCompletion) => number | undefined,
+    replayOnly = false): Promise<LedgerCall> {
+    const key = hash(identity);
+    const hit = this.completed.get(key);
+    if (hit) return Promise.resolve(hit);
+    const inflight = this.live.get(key);
+    if (inflight) return inflight;
+    const job = this.run(key, identity, reserveUsd, execute, price, replayOnly);
+    this.live.set(key, job);
+    job.then(() => this.live.delete(key), () => this.live.delete(key));
+    return job;
+  }
+  private async run(key: string, identity: CallIdentity, reserveUsd: number,
+    execute: () => Promise<LedgerCompletion>, price: (c: LedgerCompletion) => number | undefined,
+    replayOnly: boolean): Promise<LedgerCall> {
+    await this.serial(async () => {
+      if (replayOnly) throw new Error(`Replay missing: ${identity.item} ${identity.contestant}`);
+      if (this.started.has(key)) throw new LedgerUncertainCall(`Prior call has no completion: ${key}`);
+      if (!Number.isFinite(reserveUsd) || reserveUsd <= 0) throw new Error('Invalid call reservation');
+      if (this.chargedUsd + reserveUsd > this.capUsd + 1e-12)
+        throw new LedgerBudgetStop(`USD ${this.capUsd} lane cap cannot reserve another USD ${reserveUsd}`);
+      const start: Start = { key, reserveUsd, identity, startedAt: new Date().toISOString() };
+      await appendFile(join(this.directory, 'starts.jsonl'), `${JSON.stringify(start)}\n`);
+      this.started.set(key, start);
+    });
+    let row: LedgerCall;
+    try {
+      const completion = await execute();
+      const estimated = price(completion);
+      const cost = completion.costUsd ?? estimated;
+      if (cost !== undefined && (!Number.isFinite(cost) || cost < 0)) throw new Error('Invalid provider cost');
+      row = { key, model: identity.model, text: completion.text, costUsd: cost ?? reserveUsd,
+        item: identity.item, contestant: identity.contestant, status: 'ok', identity, completion,
+        costBasis: completion.costUsd !== undefined ? 'reported' : estimated !== undefined ? 'usage' : 'reservation' };
+    } catch (e) {
+      row = { key, model: identity.model, text: '', costUsd: reserveUsd, item: identity.item,
+        contestant: identity.contestant, status: 'error', costBasis: 'reservation', identity,
+        error: e instanceof Error ? e.message : String(e) };
+    }
+    await this.serial(async () => {
+      await appendRecording(join(this.directory, 'calls.jsonl'), row);
+      this.completed.set(key, row);
+    });
+    if (row.costUsd > reserveUsd + 1e-12)
+      throw new LedgerBudgetStop(`Provider cost exceeded reservation for ${key}; recorded, stop and reproject`);
+    return row;
+  }
+}
