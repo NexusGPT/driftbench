@@ -18,15 +18,17 @@ describe('the stronger rendered reply contract', () => {
       for (const relation of states) {
         if (relation.kind !== 'states') throw new Error('not states');
         const contract = relation as typeof relation & { must_not: string[] };
+        const must = relation.must;
+        if (!must) throw new Error('missing reply requirements');
         expect(keys.has(`${relation.subject.value}:${relation.stage}:${relation.to}`)).toBe(true);
         const question = hidden.stages.find((stage) => stage.id === relation.to)?.question;
         expect(question).toBeDefined();
-        expect(relation.must.some((pattern) => new RegExp(pattern).test(question ?? ''))).toBe(true);
+        expect(must.some((pattern) => new RegExp(pattern).test(question ?? ''))).toBe(true);
         const called = hidden.tools.find((tool) => tool.stage === relation.to);
         for (const property of called?.output ?? []) {
-          expect(
-            relation.must.some((pattern) => pattern.includes(`{${called?.name}_out_${property.name}}`)),
-          ).toBe(true);
+          expect(must.some((pattern) => pattern.includes(`{${called?.name}_out_${property.name}}`))).toBe(
+            true,
+          );
         }
         expect(contract.must_not).toContain('Step [0-9]+:');
         for (const tool of hidden.tools.filter((tool) => tool !== called)) {
