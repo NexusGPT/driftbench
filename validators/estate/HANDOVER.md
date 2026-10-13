@@ -10,7 +10,15 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 0 |
 <!-- level-table:end -->
 
-### Current executor measurement, iteration 20
+### Current executor measurement, iteration 21
+
+Seed 1 passes 944 of 1170 items (0.8068376068376069), level 0, from row 20's 940. Exactly four registry items improve: scan.registry.json-guards-key, scan.catalogue.keyed-by-id, scan.catalogue.by-event and scan.catalogue.wrapped. No item regresses. Capture: .cache/estate-executor/iteration-21.json, immutable base 69177605 plus packages/estate/src/scan/claude-code.ts and packages/estate/test/scan/registry-shapes.test.ts.
+
+Six canonical cases fail first, with two passing controls. The normalized entries retain source keys, inherited events and explicit event overrides. They ignore unrelated nested metadata. All eight final cases and 295 estate tests pass. Typecheck initially rejects flatMap's inferred union after the event refinement; a private RegistryEntry type makes the normalized shape explicit. Refined typecheck, lint and thirteen related assertions pass before measurement. Nine owned component causes are complete, iterations 13 through 21. Own net new seed 1 gains total 61, plus one restored baseline portability item. Eighteen maintainer corrections remain excluded.
+
+The scheduled fresh handover review follows this commit. Save a quiet canonical brief and compare its reader failure ids against this capture before freezing source and evidence. The next pending negation test and candidate are local, not pushed; their full canonical paths appear in Next actions. Current CI is still running or queued at the last read, with Node 24 lint and typecheck passing on source 69177605. This is a step result, not a green-CI claim.
+
+### Previous executor measurement, iteration 20
 
 Seed 1 passes 940 of 1170 items (0.8034188034188035), level 0, from the matched post-import baseline of 937. Exactly three compaction items improve: scan.hazards.summarized, scan.hazards.window-full and blind.gates.skill-compactions-plural. No item regresses. Capture: .cache/estate-executor/iteration-20.json, immutable base 7b781747 plus packages/estate/src/scan/code.ts and packages/estate/test/scan/compaction-names.test.ts. Its before capture is iteration-19-main140.json on the same main instrument.
 
@@ -121,17 +129,17 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The e
 
 Canonical executor worktree: /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2. Files under .cache are local, not pushed. They exist only in the canonical executor worktree; they are absent from Git clones and frozen handover archives unless copied explicitly. A frozen archive under .cache/handover-18 reaches the canonical root through ../.. Source and capture paths below are relative to that canonical root.
 
-The routing test packages/estate/test/scan/routing-names.test.ts is committed with iteration 19; the compaction test packages/estate/test/scan/compaction-names.test.ts joins iteration 20. Both are absent only from the older frozen handover-18. Candidates .cache/s19candidate and .cache/s20candidate stay local, not pushed. The next registry-shapes test exists only at .cache/s27registry-shapes/packages/estate/test/scan/registry-shapes.test.ts, local and not pushed. It joins the separate iteration 21 fix after a canonical red run and measurement.
+The routing and compaction tests are committed in iterations 19 and 20; packages/estate/test/scan/registry-shapes.test.ts joins iteration 21. They are absent only from older frozen archives. Their .cache candidates remain local, not pushed. The next negation test exists locally at /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s22negation/packages/estate/test/scan/negated-mentions.test.ts. It is not pushed until its separate fix is measured and committed.
 
 The sweep source .cache/full-17 is local, not pushed and is absent from handover-18. Read the canonical .cache/estate-executor/full-17.state.json, full-17.source.json, full-17.json and full-17.stderr for it. The directory is immutable source c415e845. A missing directory in a frozen archive is not proof that the named canonical sweep stopped.
 
 ## Open items
 
-The published row 20 measurement is iteration-20.json, on immutable base 7b781747 plus its two compaction files. It passes 940 of 1170, with 230 failures; reader has 77 failures of 641. The journal uses the matched post-import baseline at 937. The separate pre-import row 19 measurement remains 930, with the seven maintainer gains stamped separately.
+The published row 21 measurement is iteration-21.json, immutable base 69177605 plus its two registry files. It passes 944 of 1170, with 226 failures; reader has 73 failures of 641. All measurements here use seed 1 unless an explicit sweep source is named.
 
 | Level | Passing | Failing |
 |---|---|---|
-| reader | 564/641 | 77 |
+| reader | 568/641 | 73 |
 | lint | 45/46 | 1 |
 | plan | 44/65 | 21 |
 | generation | 196/270 | 74 |
@@ -159,9 +167,9 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
-1. Iteration 21: copy packages/estate/test/scan/registry-shapes.test.ts from local .cache/s27registry-shapes and run it red. Apply only registryEntries and readJsonRegistry from that candidate to packages/estate/src/scan/claude-code.ts. Preserve current scalar/array behaviour, catalogue annotations and all other reader paths. Run related registry tests and all estate tests, then measure against row 20, journal, commit and push. Candidate and pending test are local, not pushed until that commit.
-2. Request the next fresh handover review at iteration 21, as the lead specifies. Save a quiet fresh brief and failed ids before freezing its source and captures. Current PR 110 CI remains watched; diagnose only actual fresh failures. Main 14225a2a is already imported and the required codemod changes zero files. Keep maintainer corrections separate from executor gains.
-3. Iteration 22 takes the next prepared negation cause in packages/estate/src/scan/code.ts and packages/estate/src/graph/edges.ts, with packages/estate/test/scan/negated-mentions.test.ts from local .cache/s21candidate. It is the tenth owned cause, so start another immutable full sweep after commit. Completed full-17 is 911 of 1170 on source c415e845; its .cache source and captures remain local, not pushed. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
+1. Iteration 22 fixes forbidden mentions in packages/estate/src/scan/code.ts and packages/estate/src/graph/edges.ts. Copy packages/estate/test/scan/negated-mentions.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s22negation, which is local, not pushed. Run it red, then apply only positiveMention and its reference, routing and graph-dispatch calls. Preserve the routing collision fix, compaction synonyms and comment/path masking. Its prepared six tests include a curly-apostrophe prohibition and affirmative but/until controls; the final related candidate suite has 23 passes.
+2. Measure iteration 22 against .cache/estate-executor/iteration-21.json, journal, commit and push after fresh typecheck and lint. It is the tenth owned cause, so immediately start another immutable seeds 1..20 plus hidden sweep. The scheduled fresh review is requested at iteration 21; the next scheduled request is iteration 24. Do not issue an extra review between them unless the lead directs it.
+3. Iteration 23 reads literal quoted file paths in packages/estate/src/scan/code.ts, with packages/estate/test/scan/quoted-paths.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s23quoted, local and not pushed. Apply only namedPaths, preserving its exclusions and the negation helper. Completed full-17 is 911 of 1170 on immutable c415e845; its source /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/full-17 is local, not pushed. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
 
 ### Historical next actions before takeover
 
@@ -174,11 +182,11 @@ Then the owner-flagged output items: lint codes, scan order, approve counts (122
 
 ## Pitfalls
 
-Current row 20 measures the full bank afresh on its explicitly stamped post-import snapshot. All 25 determinism items pass, including all five Node 22 comparisons. All 37 stats items and all 25 bench.defects items pass. The 41 unit.runner items still await the input-contract review. gen.task is reinstated, not quarantined. The bank has 1170 items. Rows 17 and 18 record fresh scale measurements and retain their different timing outcomes.
+Current row 21 measures the full bank afresh on its explicitly stamped post-import snapshot. All 25 determinism items pass, including all five Node 22 comparisons. All 37 stats items and all 25 bench.defects items pass. The 41 unit.runner items still await the input-contract review. gen.task is reinstated, not quarantined. The bank has 1170 items. Rows 17 and 18 record fresh scale measurements and retain their different timing outcomes.
 
 ### Historical pilot notes
 
-The former pilot bench gap list includes ignored reference folders, refused guard or setting mutants, the runtime pin, a phrase bank without a situation, short guard names and two ids in a registry cell. It is superseded: all 25 bench items pass at row 20.
+The former pilot bench gap list includes ignored reference folders, refused guard or setting mutants, the runtime pin, a phrase bank without a situation, short guard names and two ids in a registry cell. It is superseded: all 25 bench items pass at row 21.
 
 The following notes preserve the pilot's inputs, timings and earlier family sizes. They are historical observations, not the current open-item count or a current passing claim. Use the latest journal row and the measurements above for current values.
 
@@ -230,9 +238,9 @@ PR 110 on 17dee300 fails the Node 22 and Node 24 build jobs only because package
 
 The current estate unit command accepts native JSON UnitTest records. The bank's fixtureSuite gathers YAML core specs under specs/ and incomplete/, plus static JSON, but omits the generated native unit/ JSON. unitFamily then passes the gathered YAML mode-unit specs to the JSON-only command, producing exit 2 before a guard or script runs. This is an instrument mismatch, not proof that the native unit runner is absent. The frozen CLI flags and output shape are already implemented in packages/cli/src/commands/estate-unit.ts. The native guard tests also require outcomes recorded on an original, which this bank path does not perform. Keep this distinct from missing headless helper support and from the pre-existing long-TMPDIR TypeScript failure. Sources: bank/fixture-suite.ts, bank/unit.ts, commands/estate-unit.ts and estate/src/unit/run.ts. No protected code or oracle is changed.
 
-### Maintenance first-atom oracle conflict
+### Historical maintenance oracle conflict, corrected by PR 133
 
-The seven maintain.impact.<kind>-retires-its-tests items reject mixed-atom specs that the component correctly regenerates. Section 8 of docs/estate.md says to retire only when all metadata atoms are removed; a removed atom with other atoms remaining means regenerate. The private retiresExactly oracle uses only metadata.atoms[0], excluding journey ids. A fresh seed 1 probe exhibits remaining atoms and correct regeneration for instruction, gate, reference, script, register, route and subagent. Capture: .cache/estate-executor/impact-defect.json; review file: .cache/estate-executor/maintenance-bank-defect.md. Keep the documented component rule. These are logged defects, not progress.
+PR 133 corrects the earlier seven maintain.impact.<kind>-retires-its-tests oracles. All seven pass in the post-import measurements; these are maintainer gains. The original diagnostic captures show mixed-atom specs that the component correctly regenerates. Section 8 of docs/estate.md says to retire only when all metadata atoms are removed; a removed atom with other atoms remaining means regenerate. The pre-PR-133 retiresExactly oracle uses only metadata.atoms[0], excluding journey ids. A fresh seed 1 probe exhibits remaining atoms and correct regeneration for instruction, gate, reference, script, register, route and subagent. Capture: .cache/estate-executor/impact-defect.json; review file: .cache/estate-executor/maintenance-bank-defect.md. Keep the documented component rule. These are logged defects, not progress.
 
 ### Frozen pre-fix sweep
 

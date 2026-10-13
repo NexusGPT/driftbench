@@ -1181,6 +1181,31 @@ function stripAnchor(token: string): string {
   return token;
 }
 
+/** Entries in the known registry containers, an id map, or an event-grouped list. */
+type RegistryEntry = { row: Record<string, unknown>; key?: string; event?: string };
+
+function registryEntries(value: unknown): RegistryEntry[] {
+  let current = value;
+  while (isRecord(current)) {
+    const record = current;
+    const container = ['checks', 'hooks', 'entries', 'guards', 'catalogue', 'registry'].find(
+      (key) => Array.isArray(record[key]) || isRecord(record[key]),
+    );
+    if (container === undefined) break;
+    current = record[container];
+  }
+  if (Array.isArray(current)) return current.filter(isRecord).map((row) => ({ row }));
+  if (!isRecord(current)) return [];
+  return Object.entries(current).flatMap<RegistryEntry>(([key, row]) => {
+    if (Array.isArray(row)) return row.filter(isRecord).map((entry) => ({ row: entry, event: key }));
+    if (!isRecord(row)) return [];
+    const guard = [row.guard, row.script, row.check, row.hook, row.file, row.path].some(
+      (candidate) => typeof candidate === 'string',
+    );
+    return guard ? [{ row, key }] : [];
+  });
+}
+
 function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
   let json: unknown;
   try {
@@ -1189,30 +1214,28 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
     estate.notes.push({ file: file.path, message: `not JSON: ${String(cause)}` });
     return;
   }
-  // A registry or a catalogue of checks: a bare array, or the entries under checks, hooks or entries.
-  const rows = Array.isArray(json)
-    ? json
-    : isRecord(json)
-      ? (([json.checks, json.hooks, json.entries].find((value) => Array.isArray(value)) as
-          | unknown[]
-          | undefined) ?? [])
-      : [];
+  const rows = registryEntries(json);
   const cursor = { at: 0 };
-  for (const row of rows) {
-    if (!isRecord(row) || typeof row.id !== 'string') continue;
+  for (const { row, key, event } of rows) {
+    const id = typeof row.id === 'string' ? row.id : key;
+    if (id === undefined) continue;
     const named = [row.guard, row.script, row.check, row.hook, row.file, row.path].find(
       (value) => typeof value === 'string',
     );
     if (typeof named !== 'string') continue;
     const guard = basename(named);
-    const found = seekPattern(file, keyValue('id', row.id), cursor);
+    const found = seekPattern(
+      file,
+      key !== undefined ? new RegExp(`${escapeRegex(JSON.stringify(key))}\\s*:`) : keyValue('id', id),
+      cursor,
+    );
     if (!found) continue;
     const listed = [row.enforces, row.rules, row.gates].find((value) => Array.isArray(value)) as
       | unknown[]
       | undefined;
     const enforces = (listed ?? []).filter((item): item is string => typeof item === 'string');
     const entry: RegistryRow = {
-      id: row.id,
+      id,
       guard,
       enforces: enforces.map((item) =>
         /^[A-Za-z]{1,3}\d{1,3}$/.test(item) ? { id: item } : { quote: item },
@@ -1220,6 +1243,7 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
       at: found,
     };
     if (typeof row.event === 'string') entry.event = row.event;
+    else if (event !== undefined) entry.event = event;
     if (typeof row.verdict === 'string') entry.verdict = row.verdict;
     estate.registry.push(entry);
   }
