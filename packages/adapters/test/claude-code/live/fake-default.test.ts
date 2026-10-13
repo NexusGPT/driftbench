@@ -134,3 +134,227 @@ it('walks arbitrary estate stage names instead of a fixed recorded sequence', as
     .map((line) => JSON.parse(line).step);
   expect(stages).toEqual(['inspect', 'assemble', 'finish']);
 });
+
+const orderedBodies = [
+  [
+    'before above command',
+    'Before running the check, read `references/policy.md`.\nRun `node scripts/check.mjs`.',
+  ],
+  [
+    'before below command',
+    'Run `node scripts/check.mjs`.\nBefore running the check, read `references/policy.md`.',
+  ],
+  [
+    'before in another section',
+    '## Work\nRun `node scripts/check.mjs`.\n\n## Prerequisites\nRead `references/policy.md` before running the check.',
+  ],
+  ['after prefix', 'After reading `references/policy.md`, run `node scripts/check.mjs`.'],
+  ['only after suffix', 'Run `node scripts/check.mjs` only after reading `references/policy.md`.'],
+  [
+    'only after prefix below command',
+    'Run `node scripts/check.mjs`.\nOnly after reading `references/policy.md`, run the check.',
+  ],
+  [
+    'first in a later section',
+    '## Work\nRun `node scripts/check.mjs`.\n## Setup\nFirst read `references/policy.md`.',
+  ],
+  ['first then on one line', 'First read `references/policy.md`, then run `node scripts/check.mjs`.'],
+  ['until suffix', 'Do not run `node scripts/check.mjs` until you have read `references/policy.md`.'],
+  [
+    'until relation below command',
+    'Run `node scripts/check.mjs`.\nNever run the check until `references/policy.md` has been read.',
+  ],
+] as const;
+
+it.each(orderedBodies)('obeys the wording of %s', async (_name, body) => {
+  const work = await estate('invoice-audit', body);
+  const used = calls(play(work.dir));
+  expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
+  expect(used[1].input.file_path).toBe(join(work.dir, '.claude/skills/invoice-audit/references/policy.md'));
+  expect(used[2].input.command).toBe('node .claude/skills/invoice-audit/scripts/check.mjs');
+});
+
+it('applies two obligations to one command across sections, without repeating the command', async () => {
+  const work = await estate(
+    'invoice-audit',
+    [
+      '## Work',
+      'Run `node scripts/check.mjs`.',
+      '## Rules',
+      'Read `references/policy.md` before running the check.',
+      '## Limits',
+      'Only after reading `references/limits.md`, run the check.',
+    ].join('\n'),
+  );
+  await writeFile(
+    join(work.dir, '.claude/skills/invoice-audit/references/limits.md'),
+    'Limits for this estate.',
+  );
+  const used = calls(play(work.dir));
+  expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Read', 'Bash']);
+  expect(used.slice(1, 3).map((call) => call.input.file_path)).toEqual([
+    join(work.dir, '.claude/skills/invoice-audit/references/policy.md'),
+    join(work.dir, '.claude/skills/invoice-audit/references/limits.md'),
+  ]);
+});
+
+it('applies after in the reverse direction when the command produces the reference', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Read `references/policy.md` only after running `node scripts/check.mjs`.',
+  );
+  const script = join(work.dir, '.claude/skills/invoice-audit/scripts/check.mjs');
+  await writeFile(
+    script,
+    'import {writeFileSync} from "node:fs"; writeFileSync(".claude/skills/invoice-audit/references/policy.md", "Produced by the command.");',
+  );
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Bash', 'Read']);
+  expect(JSON.stringify(records)).toContain('Produced by the command.');
+});
+
+it('keeps source order for actions with no ordering words', async () => {
+  const work = await estate('invoice-audit', 'Run `node scripts/check.mjs`.\nRead `references/policy.md`.');
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill', 'Bash', 'Read']);
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill', 'Bash', 'Read']);
+});
+
+it('binds an obligation to its named command, not every command', async () => {
+  const work = await estate(
+    'invoice-audit',
+    [
+      'Run `node scripts/prepare.mjs`.',
+      'Run `node scripts/check.mjs`.',
+      'Before running the check, read `references/policy.md`.',
+    ].join('\n'),
+  );
+  await writeFile(
+    join(work.dir, '.claude/skills/invoice-audit/scripts/prepare.mjs'),
+    'console.log("prepared");',
+  );
+  const used = calls(play(work.dir));
+  expect(used.map((call) => call.name)).toEqual(['Skill', 'Bash', 'Read', 'Bash']);
+  expect(used[1].input.command).toContain('scripts/prepare.mjs');
+  expect(used[3].input.command).toContain('scripts/check.mjs');
+});
+
+it('keeps the exact reviewed cjs gate before its command in either placement', async () => {
+  const gate = 'Before running the check, read `references/policy.md`.';
+  const command = 'Run `node scripts/check.cjs`.';
+  for (const body of [`${gate}\n${command}`, `${command}\n${gate}`]) {
+    const work = await estate('invoice-audit', body);
+    await writeFile(
+      join(work.dir, '.claude/skills/invoice-audit/scripts/check.cjs'),
+      'console.log("checked");',
+    );
+    const used = calls(play(work.dir));
+    expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
+    expect(used[2].input.command).toBe('node .claude/skills/invoice-audit/scripts/check.cjs');
+  }
+});
+
+it.each([
+  'Run `node scripts/check.mjs`.\nRead `references/policy.md` first.',
+  'Run `node scripts/check.mjs`.\nBefore running the check read `references/policy.md`.',
+])('supports ordering words without relying on comma placement: %s', async (body) => {
+  const work = await estate('invoice-audit', body);
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
+});
+
+it('requires both prerequisites in one only-after clause', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Run `node scripts/check.mjs` only after reading `references/policy.md` and `references/limits.md`.',
+  );
+  await writeFile(join(work.dir, '.claude/skills/invoice-audit/references/limits.md'), 'Limits.');
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill', 'Read', 'Read', 'Bash']);
+});
+
+it('does not execute a command whose required file cannot be read', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Run `node scripts/check.mjs`.\nBefore running the check, read `references/missing.md`.',
+  );
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Read']);
+  expect(JSON.stringify(records)).toContain('File not found: references/missing.md');
+  expect(JSON.stringify(records)).not.toContain('checked this estate');
+});
+
+it('does not execute a command when a hook blocks its required read', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Run `node scripts/check.mjs`.\nNever run the check until `references/policy.md` has been read.',
+  );
+  await writeFile(
+    join(work.dir, '.claude/settings.json'),
+    JSON.stringify({
+      hooks: { PreToolUse: [{ matcher: 'Read', hooks: [{ type: 'command', command: 'exit 2' }] }] },
+    }),
+  );
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill', 'Read']);
+});
+
+it('stops on contradictory obligations instead of choosing a source order', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Run `node scripts/check.mjs` before reading `references/policy.md`.\nRead `references/policy.md` before running the check.',
+  );
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).toContain('contradictory ordering obligations');
+});
+
+it('stops when an ordering clause cannot identify its action', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Run `node scripts/check.mjs`.\nBefore publishing the package, read `references/policy.md`.',
+  );
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).toContain('actions cannot be resolved');
+});
+
+it.each([
+  'Run `node scripts/check.mjs`.\nNever run the check before reading `references/policy.md`.',
+  'Run `node scripts/check.mjs`.\nBefore reading `references/policy.md`, do not run the check.',
+])('treats a prohibition before a prerequisite as a gate: %s', async (body) => {
+  const work = await estate('invoice-audit', body);
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
+});
+
+it('applies first in a first-then clause ahead of unrelated earlier actions', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Run `node scripts/prepare.mjs`.\nFirst read `references/policy.md`, then run `node scripts/check.mjs`.',
+  );
+  await writeFile(
+    join(work.dir, '.claude/skills/invoice-audit/scripts/prepare.mjs'),
+    'console.log("prepared");',
+  );
+  const used = calls(play(work.dir));
+  expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash', 'Bash']);
+  expect(used[2].input.command).toContain('scripts/prepare.mjs');
+  expect(used[3].input.command).toContain('scripts/check.mjs');
+});
+
+it.each([
+  [
+    'Run `node scripts/check.mjs --label after reading`.\nRead `references/policy.md`.',
+    'node .claude/skills/invoice-audit/scripts/check.mjs --label after reading',
+  ],
+  [
+    'After running `node scripts/check.mjs --label after,reading`, read `references/policy.md`.',
+    'node .claude/skills/invoice-audit/scripts/check.mjs --label after,reading',
+  ],
+])('keeps quoted arguments out of the ordering grammar: %s', async (body, command) => {
+  const work = await estate('invoice-audit', body);
+  const used = calls(play(work.dir));
+  expect(used.map((call) => call.name)).toEqual(['Skill', 'Bash', 'Read']);
+  expect(used[1].input.command).toBe(command);
+});
+
+it('does not turn a plain prohibition into a gate from a quoted argument', async () => {
+  const work = await estate('invoice-audit', 'Never run `node scripts/check.mjs --label before reading`.');
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill']);
+});

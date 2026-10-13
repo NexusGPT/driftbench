@@ -178,6 +178,143 @@ function denied(settings, tool, input) {
   });
 }
 
+/**
+ * Collect the whole skill before acting. Explicit before/after/first/until clauses become dependency
+ * edges, including clauses in later sections. Repeated mentions identify the same action. Without an
+ * ordering clause, choose the earliest first mention among ready actions (source order, then code-span
+ * order). Unresolved relations and cycles stop the skill; they never silently fall back to prose order.
+ * This small grammar uses backticked paths/commands/helper names, or an unambiguous action description.
+ */
+function skillActions(unit, estate) {
+  // Sentence boundaries outside code spans only: dots in filenames and commands are not punctuation.
+  const statements = [];
+  let sentence = '';
+  for (const token of unit.body.match(/`[^`]*`|[.!?\n]|[^`.!?\n]+/g) ?? []) {
+    if (/^[.!?\n]$/.test(token)) {
+      if (sentence.trim()) statements.push(sentence.trim().replace(/^[-*\d.)\s]+/, ''));
+      sentence = '';
+    } else sentence += token;
+  }
+  if (sentence.trim()) statements.push(sentence.trim());
+  const negative = (clause) => /\b(never|do not|don't)\b/i.test(clause.replace(/`[^`]*`/g, ''));
+  const active = statements.filter(
+    (line) =>
+      !line.startsWith('#') &&
+      (!negative(line) || /\b(before|after|until)\b/i.test(line.replace(/`[^`]*`/g, ''))),
+  );
+  const actions = [];
+  const add = (kind, literal) => {
+    if (!actions.some((action) => action.kind === kind && action.literal === literal))
+      actions.push({ kind, literal, needs: new Set() });
+  };
+  for (const line of active) {
+    for (const match of line.matchAll(/`([^`]+)`/g)) {
+      const literal = match[1].trim();
+      if (/^[^\s]+\.(?:md|txt|json|csv)$/.test(literal)) add('Read', literal);
+      else if (/\s/.test(literal) && /\b(run(?:ning)?|execut(?:e|ing))\b/i.test(line)) add('Bash', literal);
+      else if (
+        estate.helpers.some((helper) => helper.name === literal) &&
+        /\b(dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing)|hand)\b/i.test(line)
+      )
+        add('Agent', literal);
+    }
+  }
+
+  const noise = new Set(
+    'before after first then only until run running execute executing command read reading file dispatch dispatching call calling do done must been have has you the a an of is it to'.split(
+      ' ',
+    ),
+  );
+  const terms = (text) => [...words(text)].filter((word) => !noise.has(word));
+  const matchActions = (clause) => {
+    const quoted = [...clause.matchAll(/`([^`]+)`/g)].map((match) => match[1].trim());
+    if (quoted.length) {
+      const found = actions.filter((action) => quoted.includes(action.literal));
+      return quoted.every((literal) => found.some((action) => action.literal === literal)) ? found : [];
+    }
+    const kind = /\bread(?:ing)?\b/i.test(clause)
+      ? 'Read'
+      : /\b(run(?:ning)?|execut(?:e|ing)|command)\b/i.test(clause)
+        ? 'Bash'
+        : /\b(dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing))\b/i.test(clause)
+          ? 'Agent'
+          : undefined;
+    const candidates = actions.filter((action) => !kind || action.kind === kind);
+    const named = terms(clause);
+    if (!named.length) return candidates.length === 1 ? candidates : [];
+    // Names come from the action's own input, including a script's basename, never from a fixture table.
+    const scores = candidates.map((action) => {
+      const labels = words(action.literal.replace(/[./_-]/g, ' '));
+      return { action, score: named.filter((word) => labels.has(word)).length };
+    });
+    const best = Math.max(0, ...scores.map(({ score }) => score));
+    const found = scores.filter(({ score }) => score === best && score > 0);
+    return found.length === 1 ? found.map(({ action }) => action) : [];
+  };
+  let unresolved = false;
+  const relate = (before, after) => {
+    const predecessors = matchActions(before);
+    const successors = matchActions(after);
+    if (!predecessors.length || !successors.length) {
+      unresolved = true;
+      return;
+    }
+    for (const successor of successors)
+      for (const predecessor of predecessors) successor.needs.add(predecessor);
+  };
+  const first = new Set();
+  for (const line of active) {
+    // Temporal words inside a quoted filename or command argument are data, not instructions.
+    const spans = [];
+    const prose = line.replace(/`[^`]*`/g, (span) => `\uE000${spans.push(span) - 1}\uE000`);
+    const restore = (clause) => clause.replace(/\uE000(\d+)\uE000/g, (_, index) => spans[Number(index)]);
+    const relation = (before, after) => relate(restore(before), restore(after));
+    const prefix =
+      /^(?:only\s+)?(before|after)\s+(.+?)(?:[,;]\s*|\s+(?=(?:read|run|execute|dispatch|call|do)\b))(.+)$/i.exec(
+        prose,
+      );
+    const suffix = /^(.+?)\s+(?:only\s+)?(before|after|until)\s+(.+)$/i.exec(prose);
+    const sequence = /^first\s*,?\s*(.+?)(?:,\s*|\s+)then\s+(.+)$/i.exec(prose);
+    if (prefix) {
+      if (prefix[1].toLowerCase() === 'before') {
+        if (negative(prefix[3])) relation(prefix[2], prefix[3]);
+        else relation(prefix[3], prefix[2]);
+      } else if (negative(prefix[3])) unresolved = true;
+      else relation(prefix[2], prefix[3]);
+    } else if (suffix) {
+      const word = suffix[2].toLowerCase();
+      if (word === 'before' && !negative(suffix[1])) relation(suffix[1], suffix[3]);
+      else if ((word === 'after' && negative(suffix[1])) || (word === 'until' && !negative(suffix[1])))
+        unresolved = true;
+      else relation(suffix[3], suffix[1]);
+    } else if (sequence) {
+      relation(sequence[1], sequence[2]);
+      for (const action of matchActions(restore(sequence[1]))) first.add(action);
+    } else if (/^first\b|\bfirst$/i.test(prose)) {
+      const named = matchActions(restore(prose.replace(/^first\s*,?\s*|\s+first$/gi, '')));
+      if (!named.length) unresolved = true;
+      for (const action of named) first.add(action);
+    } else if (/\b(before|after|first|until)\b/i.test(prose)) {
+      unresolved = true;
+    }
+  }
+  for (const action of actions)
+    if (!first.has(action)) for (const prerequisite of first) action.needs.add(prerequisite);
+  const ordered = [];
+  const remaining = new Set(actions);
+  while (remaining.size) {
+    const ready = actions.find(
+      (action) => remaining.has(action) && [...action.needs].every((need) => !remaining.has(need)),
+    );
+    if (!ready) return { error: 'The skill has contradictory ordering obligations.', actions: [] };
+    remaining.delete(ready);
+    ordered.push(ready);
+  }
+  return unresolved
+    ? { error: 'The skill has an ordering obligation whose actions cannot be resolved.', actions: [] }
+    : { actions: ordered };
+}
+
 export function planStream({ ask, cwd, sessionId, env }) {
   const estate = readEstate(cwd);
   const out = [];
@@ -299,38 +436,48 @@ export function planStream({ ask, cwd, sessionId, env }) {
   const unit = route(ask, estate);
   if (unit?.kind === 'skill') {
     call('Skill', { skill: unit.name }, () => ({ content: `Launching skill: ${unit.name}` }));
-    for (const line of unit.body.split('\n')) {
-      if (/\b(never|do not|don't)\b/i.test(line)) continue;
-      for (const match of line.matchAll(/`([^`\s]+\.(?:md|txt|json|csv))`/g)) {
-        const path = join(unit.folder, match[1]);
-        if (existsSync(join(cwd, path)))
-          call('Read', { file_path: join(cwd, path) }, () => ({ content: read(join(cwd, path)) ?? '' }));
-      }
-      // A command the body says to run, its script found in the skill folder; placeholders are left out.
-      const runs = /\brun\b/i.test(line) ? /`([^`]+\s[^`]+)`/.exec(line)?.[1] : undefined;
-      if (runs) {
-        const command = runs
+    const plan = skillActions(unit, estate);
+    if (plan.error) {
+      text(plan.error);
+      hooks('Stop', undefined, { stop_hook_active: false });
+      return { records: out, blocked: true };
+    }
+    for (const action of plan.actions) {
+      let result;
+      if (action.kind === 'Read') {
+        const path = join(cwd, unit.folder, action.literal);
+        result = call('Read', { file_path: path }, () => {
+          const content = read(path);
+          return content === undefined
+            ? { error: true, content: `File not found: ${action.literal}` }
+            : { content };
+        });
+      } else if (action.kind === 'Bash') {
+        // Resolve commands against the skill folder; omit unfilled placeholders as before.
+        const command = action.literal
           .split(/\s+/)
           .filter((token) => !/^<.*>$/.test(token))
           .map((token) => (existsSync(join(cwd, unit.folder, token)) ? join(unit.folder, token) : token))
           .join(' ');
-        call('Bash', { command, description: 'Run the command the skill names' }, () => {
+        result = call('Bash', { command, description: 'Run the command the skill names' }, () => {
           const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
           return {
             content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
             error: ran.status !== 0,
           };
         });
+      } else {
+        result = call(
+          'Agent',
+          { subagent_type: action.literal, description: `Brief for ${action.literal}`, prompt: ask },
+          () => ({ content: '{"status": "done"}' }),
+        );
       }
-      for (const helper of estate.helpers) {
-        if (line.includes(`\`${helper.name}\``) && /\b(dispatch|call|delegate|hand)\b/i.test(line))
-          call(
-            'Agent',
-            { subagent_type: helper.name, description: `Brief for ${helper.name}`, prompt: ask },
-            () => ({
-              content: '{"status": "done"}',
-            }),
-          );
+      // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
+      if (!result || result.error) {
+        text('A skill action could not complete; I stopped before continuing.');
+        hooks('Stop', undefined, { stop_hook_active: false });
+        return { records: out, blocked: true };
       }
     }
   } else if (unit?.kind === 'helper') {
