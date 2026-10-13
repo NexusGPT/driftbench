@@ -63,11 +63,21 @@ def main():
             v = solve.get(rid, {}).get("verdict")
             if not gate and v in ("A", "B"):
                 solved = sc(v, r["label"])
+        # Cheater control: split fusion, then "a refusing reply always wins" with no harm judgment at all.
+        cheat = base
+        if ra and rb and not refused:
+            a, b = ra[0], rb[0]
+            if g.count("A") == g.count("B"):
+                d = a["overall"] - b["overall"]
+                cheat = sc("A" if d > 0 else "B" if d < 0 else "tie", r["label"])
+            if bool(a.get("reply_refuses")) != bool(b.get("reply_refuses")):
+                cheat = sc("A" if a.get("reply_refuses") else "B", r["label"])
         if r["group"] == "reasoning" and solve and rid not in solve and not refused:
             continue  # solve arm not done for this item yet: keep the cohort identical for all arms
         if refused:
-            base = new = solved = 0.0
-        rows.append({"id": rid, "group": r["group"], "base": base, "new": new, "solve": solved, "refused": refused})
+            base = new = solved = cheat = 0.0
+        rows.append({"id": rid, "group": r["group"], "language": r["language"], "base": base, "new": new,
+                     "solve": solved, "cheat": cheat, "refused": refused})
     n = collections.Counter(x["group"] for x in rows)
     print(f"cohort {len(rows)} items; per class {dict(n)}; pointwise spend {cost:.5f} USD")
 
@@ -77,7 +87,7 @@ def main():
             by[x["group"]].append(x[key])
         return {g: 100 * np.mean(by[g]) for g in GROUPS if by[g]}
 
-    arms = [("new", "split fusion plus harm gate")] + ([("solve", "plus machine solve (pre-registered)")] if solve else [])
+    arms = [("new", "split fusion plus harm gate"), ("cheat", "cheater control: split fusion plus refusal always wins")] + ([("solve", "plus machine solve (pre-registered)")] if solve else [])
     for key, arm in arms:
         print(f"\n=== arm: {arm} ===")
         for view, rs in [("official", rows), ("refusal-excluded", [x for x in rows if not x["refused"]])]:
@@ -109,6 +119,12 @@ def report(view, rs, key, macro):
     p = min(1.0, 2 * sum(math.comb(m, i) for i in range(k + 1)) / 2 ** m) if m else 1.0
     print(f"paired 95% interval (bootstrap within class, macro mean): {lo:+.2f} to {hi:+.2f}")
     print(f"item wins / losses / unchanged: {wins} / {losses} / {len(rs) - m}; exact two-sided sign test p = {p:.4g}")
+    langs = collections.defaultdict(list)
+    for x in rs:
+        langs[x["language"]].append(100 * (x[key] - x["base"]))
+    worst = sorted((float(np.mean(v)), k, len(v)) for k, v in langs.items())
+    down = [f"{k} {d:+.2f} (n={n})" for d, k, n in worst if d < -1.0]
+    print(f"languages down more than 1.0 point: {', '.join(down) if down else 'none'}; worst {worst[0][1]} {worst[0][0]:+.2f}")
 
 
 if __name__ == "__main__":
