@@ -485,7 +485,7 @@ A proposal that does not load reports `PROPOSAL_PARSE`, `PROPOSAL_NOT_OBJECT`, `
 ## `driftbench generate`
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--tasks <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--tasks <n>] [--baseline <path>]... [--force] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
@@ -498,6 +498,7 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--t <n>` | the strength of the covering array; default 3 |
 | `--seed <n>` | the integer seed of every seeded choice; default 1 |
 | `--max <n>` | the most specs per seeder |
+| `--budget <n>` | budget mode: N conversations in place of the t-wise rows, placed by pair coverage first and value balance second; the other seeders are unchanged. Adds a `budget` block to the report. See [budget mode](../generating.md#budget-mode) |
 | `--tasks <n>` | instances built per task family the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
@@ -1462,8 +1463,8 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 | `battery run` | the runtime battery on agent traces | 4 |
 | a rerun of one stored cell | run one cell of a stored campaign again | no phase assigned |
 | `init` | start a project | no phase assigned |
-| `judge lint` | lint the rubric of every criterion in a folder (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
-| `judge compare` | judge two runs of the same specs side by side, in both orders, and report the winner per criterion and the position bias (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
+| `judge lint` | lint the rubric of every criterion in a folder (see [judges, Additional APIs](../concepts/judges.md#additional-judge-apis)) | no phase assigned |
+| `judge compare` | judge two runs of the same specs side by side, in both orders, and report the winner per criterion and the position bias (see [judges, Additional APIs](../concepts/judges.md#additional-judge-apis)) | no phase assigned |
 | `spec synth` | specs from traffic clusters | no phase assigned |
 
 ## `driftbench campaign run --cache-suite`

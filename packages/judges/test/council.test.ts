@@ -47,6 +47,108 @@ describe('majority of three', () => {
   });
 });
 
+describe('majority of any size: an outcome needs more than half of all votes cast', () => {
+  it('counts inconclusive votes in the total', () => {
+    const v = (outcome: 'pass' | 'fail' | 'inconclusive') => ({ judge: 'j', outcome });
+    expect(majority([v('pass'), v('pass'), v('inconclusive'), v('inconclusive')], 4)).toBe('split');
+    expect(majority([v('pass'), v('pass'), v('pass'), v('fail'), v('inconclusive')])).toBe('pass');
+    expect(majority([v('pass')], 1)).toBe('pass');
+    expect(majority([v('pass'), v('fail'), v('pass'), v('fail')])).toBe('split');
+  });
+});
+
+describe('majority with weights: a vote weighs its judge weight', () => {
+  it('weighs a vote by its judge weight, default 1, and refuses a weight that is not a finite number of at least 0', () => {
+    const v = (judge: string, outcome: 'pass' | 'fail') => ({ judge, outcome });
+    const votes = [v('j1', 'pass'), v('j2', 'fail'), v('j3', 'fail')];
+    expect(majority(votes)).toBe('fail');
+    expect(majority(votes, { weights: { j1: 2 } })).toBe('split');
+    expect(majority(votes, { weights: { j1: 3 } })).toBe('pass');
+    expect(() => majority(votes, { weights: { j1: -1 } })).toThrow(RangeError);
+    expect(() => majority(votes, { weights: { j1: Number.NaN } })).toThrow(RangeError);
+  });
+});
+
+describe('the council seats the size it is given', () => {
+  it('seats five judges and reads a majority of them, with five calls', async () => {
+    const council = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      size: 5,
+      judges: [s1('a', [PASS()]), s1('b', [PASS()]), s1('c', [PASS()]), s1('d', [FAIL]), s1('e', [FAIL])],
+    });
+    const result = await council.judge(REQUEST);
+    expect(result.outcome).toBe('pass');
+    expect(result.votes.length).toBe(5);
+  });
+
+  it('seats one judge, whose vote is the round', async () => {
+    const council = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      size: 1,
+      judges: [s1('a', [FAIL])],
+    });
+    const result = await council.judge(REQUEST);
+    expect(result.outcome).toBe('fail');
+    expect(result.votes.length).toBe(1);
+  });
+});
+
+describe('a cascade threshold can be set per judge', () => {
+  it('uses a judge own threshold in place of the default, so a sure pass of the cheapest judge is not enough', async () => {
+    const judges = [s1('cheap', [PASS(0.95)], 1), s1('mid', [FAIL], 5), s1('dear', [FAIL], 9)];
+    const own = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      cascade: { threshold: 0.9, thresholds: { cheap: 0.98 } },
+      judges,
+    });
+    const result = await own.judge(REQUEST);
+    expect(result.cascaded).toBe(false);
+    expect(result.votes.length).toBe(3);
+    const shared = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      cascade: { threshold: 0.9 },
+      judges: [s1('cheap', [PASS(0.95)], 1), s1('mid', [FAIL], 5), s1('dear', [FAIL], 9)],
+    });
+    expect((await shared.judge(REQUEST)).cascaded).toBe(true);
+  });
+});
+
+describe('the cascade threshold is a score above one half and at most one', () => {
+  it('refuses a threshold outside (0.5, 1] when the council is built', () => {
+    const judges = [s1('a', [PASS(0.99)]), s1('b', [PASS(0.99)]), s1('c', [PASS(0.99)])];
+    expect(() =>
+      createCouncil({ mode: 'system1', agentFamily: 'none', cascade: { threshold: 1.5 }, judges }),
+    ).toThrow(CouncilConfigError);
+    expect(() =>
+      createCouncil({ mode: 'system1', agentFamily: 'none', cascade: { threshold: 0.3 }, judges }),
+    ).toThrow(CouncilConfigError);
+    expect(() =>
+      createCouncil({ mode: 'system1', agentFamily: 'none', cascade: { threshold: 0.9 }, judges }),
+    ).not.toThrow();
+  });
+});
+
+describe('the council reports its cost', () => {
+  it('sums the cost of every judge called, cheap and full rounds alike', async () => {
+    const cheap = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      judges: [s1('a', [PASS()], 1), s1('b', [PASS()], 2), s1('c', [PASS()], 4)],
+    });
+    expect((await cheap.judge(REQUEST)).cost).toBe(7);
+    const full = createCouncil({
+      mode: 'system1',
+      agentFamily: 'none',
+      judges: [s1('a', [FAIL], 1), s1('b', [FAIL], 2), s1('c', [PASS()], 4)],
+    });
+    expect((await full.judge(REQUEST)).cost).toBe(7);
+  });
+});
+
 describe('the council', () => {
   it('records the retries each judge took in its own vote, and none in a vote that took none', async () => {
     /** A judge whose provider answers 503 once, then passes: the client retries under the shared policy. */
@@ -348,4 +450,11 @@ describe('configuration is refused before any call', () => {
     refused({ ...base, assignment: [{ ...row, rejudge: ['a', 'b', 'c'] }] }, /no other class/);
     refused({ ...base, assignment: [row, row] }, /two assignment rows/);
   });
+});
+
+it('retains main quorum for partial councils and the numeric seated-count argument', () => {
+  const one = [{ judge: 'j', outcome: 'pass' as const }];
+  expect(majority(one)).toBe('split');
+  expect(majority(one, 3)).toBe('split');
+  expect(majority(one, 1)).toBe('pass');
 });

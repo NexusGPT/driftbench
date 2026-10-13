@@ -57,7 +57,7 @@ The ledger has model-dependent fact extraction. Code validates its shape and rej
 
 ## Fresh held-out check
 
-The fact-ledger procedure is frozen before the held-out run. Its label is **fact-ledger procedure (not yet the shipped default)**. The shipped judge's original hard-set product number is **111/120**. The separate pointwise-ledger integration in PR 115 governs any production change; this comparison does not modify production judges.
+The fact-ledger procedure is frozen before the held-out run. Its label is **fact-ledger procedure (not yet the shipped default)**. The previous shipped contract's hard-set measurement is **111/120**. The separate pointwise-ledger integration in PR 115 governs any production change; this comparison does not modify production judges.
 
 The new seed 7291 selects profiles 48 through 52 using the same construction families, formulas and reply templates. Seed 481 reproduces the original profiles 0 through 4 byte for byte. The held-out set contains 120 new cases with 60 pass and 60 fail labels. None of its queries, references or replies overlaps the tuning set. `manifest.json` fixes its SHA-256 before any held-out call. Its prompts use the same systems and frozen audit text. Each contestant is called once per case, without tuning or selective retries on held-out answers.
 
@@ -74,3 +74,28 @@ pnpm exec biome check --write comparisons/langfuse/hard/heldout-run.json compari
 Paid runs use the same invocation cap, shared 8 USD cumulative budget and original deadline. Both sets' results appear side by side in the comparison page and report, including cost per 100 items for each contestant. The two template thresholds share their model calls and costs.
 
 Request digests are stored as `request_sha256`, not credential-like `key` fields. Each digest is computed from the model alias, system prompt and user prompt. No secret-scan rule is relaxed.
+
+## Approved default contract follow-up
+
+`PR 115 default` adds a fifth row: 114/120 hard and 116/120 on the original frozen held-out set. Its source is approved commit `8195902dd20c84267f85feba268c17868e00dfbe`. It replaces the shipped contract once PR 115 passes CI. This comparison changes no production code. The experimental fact-ledger procedure remains separate and is not promoted to the default.
+
+A fresh worktree starts at that exact commit, with the frozen comparison folder copied into it. Native `buildPrompt` uses the original criterion, transcript and trusted-reference input. No contract, requirement, assessment, fact-audit or system override is supplied. The default therefore checks the original unsplit criterion, with evidence and verdict aggregation in the native requirement-ledger parser. The benchmark's unchanged `run.py` decoding and quote repair precede native `parseJudgeValue`.
+
+`pr115-manifest.json` freezes both case files, all 240 rendered prompts, the unchanged repair, runner and native source before the first call. `pr115-calls.jsonl` retains 240 unique requests and full answers, costs and usage. Each case is called once, with no replacement, tuning or selective retry. All answers parse without repair and agree with the native CLI parser. The new round costs $0.13172400: $0.055769 per 100 hard items and $0.054001 per 100 held-out items.
+
+The cap is 1 USD for this round, separate from the original 8 USD experiment. `pr115-run.py` reserves 0.03 USD before each submission, includes prior round charges, and stops on unknown billing. Paid calls require the exact approved HEAD and matching frozen source. A zero cap permits recorded replay only.
+
+The held-out file is reused. Its labels and prior results are already known; this is not a newly generated blind holdout for PR 115. The one-item advantage over the template's best setting on each set does not establish statistical superiority. The ten disagreements are fail predictions against fixed pass labels. `pr115-results.md` shows every disagreement and all family scores.
+
+Run these from the pinned worktree, after copying this comparison folder and installing its locked dependencies:
+
+```sh
+node --import tsx comparisons/langfuse/hard/pr115-test.mts
+node --import tsx comparisons/langfuse/hard/render.mts hard.json --check
+node --import tsx comparisons/langfuse/hard/render.mts heldout-cases.json --check
+python3 -m unittest discover -s comparisons/langfuse/hard -p 'test_*.py'
+python3 comparisons/langfuse/hard/pr115-run.py --cap-usd 0
+python3 comparisons/langfuse/hard/pr115-analyse.py
+```
+
+The original renderer now explicitly selects the legacy contract for the old row. Its check mode verifies that every original model input is identical, without rewriting the frozen prompts. The PR 115 renderer selects the default through absent options. Neither renderer sends case IDs or labels to the model.

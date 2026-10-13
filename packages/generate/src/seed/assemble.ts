@@ -69,6 +69,8 @@ export type SpecDraft = {
   cell: Pick[];
   blocks: BlockDraft[];
   world?: WorldState;
+  /** Numeric budget settings the runner delivers to the adapter. */
+  vars?: Record<string, number>;
   perturbations?: PerturbationSpec[];
   rules?: Rules;
   criteria: CriterionDef[];
@@ -316,7 +318,14 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     tier: 'generated',
     ...(tags.length > 0 ? { tags } : {}),
     ...(covers.length > 0 ? { covers } : {}),
-    ...(draft.world ? { given: { world: draft.world } } : {}),
+    ...(draft.world || draft.vars
+      ? {
+          given: {
+            ...(draft.world ? { world: draft.world } : {}),
+            ...(draft.vars ? { vars: draft.vars } : {}),
+          },
+        }
+      : {}),
     ...(stages ? { stages } : {}),
     ...(!incomplete && draft.criteria.length > 0 ? { criteria: draft.criteria } : {}),
     blocks,
