@@ -5,7 +5,7 @@ id: gen-graph-004
 version: ed9e4089e9c5
 kind: conversation
 title: "Stage path 4: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -181,7 +181,7 @@ metadata:
       flow: upgrade
       user_type: existing-customer
       account_lookup: plan-not-in-catalog
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify

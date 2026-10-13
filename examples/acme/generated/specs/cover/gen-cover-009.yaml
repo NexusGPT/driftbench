@@ -5,7 +5,7 @@ id: gen-cover-009
 version: ed9e4089e9c5
 kind: conversation
 title: "Cell deviation=D1_off_topic, stage=port_number: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D1_off_topic at port_number"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -193,7 +193,7 @@ metadata:
       port_result: locked
       plan_choice: names-one
       customer_details: name-and-email
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-port_number

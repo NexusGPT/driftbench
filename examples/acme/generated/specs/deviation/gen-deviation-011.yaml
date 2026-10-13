@@ -5,7 +5,7 @@ id: gen-deviation-011
 version: ed9e4089e9c5
 kind: conversation
 title: "Deviation probe D8_tool_failure at callback: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of notify_sales at callback"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -114,7 +114,7 @@ metadata:
       coverage_result: no-service
       callback_phone: given
       failing_tool: notify_sales
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: deviation

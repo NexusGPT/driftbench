@@ -6,7 +6,7 @@ id: gen-boundary-016
 version: ed9e4089e9c5
 kind: conversation
 title: "Boundary value coverage.check.in.address.at-min-length: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -107,7 +107,7 @@ metadata:
       coverage_result: 5g-only
       plan_choice: loose-yes-to-single-offer
       customer_details: name-and-email
-      channel: chat
+      channel: whatsapp
       user_type: existing-customer
     blocks:
       - block: b1-needs-to-address

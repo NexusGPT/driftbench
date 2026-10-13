@@ -5,7 +5,7 @@ id: gen-boundary-071
 version: ed9e4089e9c5
 kind: conversation
 title: "Boundary value port_result=locked: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -190,7 +190,7 @@ metadata:
       user_type: new-customer
       plan_choice: names-one
       customer_details: name-and-email
-      channel: chat
+      channel: whatsapp
       coverage_result: none
     blocks:
       - block: b1-needs-to-port_number

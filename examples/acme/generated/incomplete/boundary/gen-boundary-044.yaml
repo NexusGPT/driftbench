@@ -6,7 +6,7 @@ id: gen-boundary-044
 version: ed9e4089e9c5
 kind: conversation
 title: "Boundary value order.create.in.port_number.present: Path home-callback of new-home: needs > address > offer > callback > handover"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -81,7 +81,7 @@ metadata:
       coverage_result: 5g-only
       plan_choice: asks-for-callback
       callback_phone: given
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: boundary

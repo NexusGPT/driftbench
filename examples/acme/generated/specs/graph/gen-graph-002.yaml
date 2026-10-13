@@ -5,7 +5,7 @@ id: gen-graph-002
 version: ed9e4089e9c5
 kind: conversation
 title: "Stage path 2: Path upgrade-unknown-email of upgrade: needs > identify > identify"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -177,7 +177,7 @@ metadata:
       flow: upgrade
       user_type: existing-customer
       account_lookup: not-found
-      channel: chat
+      channel: whatsapp
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify

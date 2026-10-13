@@ -43,7 +43,16 @@ export { worldFor } from './world';
  * map. A cell no path fits goes to incomplete/ with the reason.
  */
 
-export type SeedContext = { seed: number; t: number; max: number };
+export type SeedContext = {
+  seed: number;
+  t: number;
+  max: number;
+  /**
+   * Specs placed so far on each value of the context axes (a channel, a persona), by dimension then value.
+   * A walk whose context is free takes the allowed value placed on least, so the suite spreads over them.
+   */
+  usage?: Map<number, Map<number, number>>;
+};
 
 /** The most edges in one graph path: a path is one spec, and a reader follows it block by block. */
 export const MAX_PATH_LENGTH = 12;
@@ -118,7 +127,19 @@ function scenarioDraft(
                 : prepared.space.dimensions[prepared.stage as number]?.index.get(block.stage);
             return at === undefined ? [] : [[prepared.stage as number, at]];
           });
-    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng, reached)];
+    // A metamorphic family keeps its draws: its variants must differ in the one value the family varies.
+    context.usage ??= new Map();
+    const usage = seeder === 'metamorphic' ? undefined : context.usage;
+    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng, reached, usage)];
+    if (usage) {
+      for (const [dimension, value] of cell) {
+        if (!CONTEXT_KINDS.has(prepared.space.dimensions[dimension]?.kind ?? '')) continue;
+        if (!prepared.axes.has(dimension)) continue;
+        const placed = usage.get(dimension) ?? new Map<number, number>();
+        placed.set(value, (placed.get(value) ?? 0) + 1);
+        usage.set(dimension, placed);
+      }
+    }
     const behaviours = cell.filter(
       ([dimension]) =>
         prepared.space.dimensions[dimension]?.kind === 'behaviour' && dimension !== prepared.transition,
@@ -399,6 +420,7 @@ function contextAxes(
   fixed: readonly Pick[],
   rng: Rng,
   reached: readonly Pick[] = [],
+  usage?: ReadonlyMap<number, ReadonlyMap<number, number>>,
 ): Pick[] {
   // One value per dimension is fixed; a second value of the same dimension (a spec covering two flows)
   // must stay allowed with the draw, like a stage the spec reaches.
@@ -434,13 +456,26 @@ function contextAxes(
       .filter((index) => CONTEXT_KINDS.has(prepared.space.dimensions[index]?.kind ?? ''))
       .filter((index) => !base.some(([at]) => at === index))
       .map((index) => [index, full[index] ?? 0]);
-    if (
+    const fits = (candidate: readonly Pick[]) =>
+      prepared.feasibility.allowed([...base, ...candidate]) &&
       also.every((entry) =>
-        prepared.feasibility.allowed([...base.filter(([at]) => at !== entry[0]), ...picks, entry]),
-      )
-    ) {
-      return picks;
+        prepared.feasibility.allowed([...base.filter(([at]) => at !== entry[0]), ...candidate, entry]),
+      );
+    if (!fits(picks)) continue;
+    if (usage) {
+      // The draw stands unless another allowed value of the axis has been placed on less: then that one.
+      picks.forEach(([index, drawn], at) => {
+        const placed = usage.get(index);
+        const count = (value: number) => placed?.get(value) ?? 0;
+        let best = drawn;
+        prepared.space.dimensions[index]?.values.forEach((entry, value) => {
+          if (entry.id === NONE || count(value) >= count(best)) return;
+          if (fits(picks.map((pick, other) => (other === at ? [index, value] : pick)))) best = value;
+        });
+        picks[at] = [index, best];
+      });
     }
+    return picks;
   }
   return [];
 }

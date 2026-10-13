@@ -5,7 +5,7 @@ id: gen-deviation-002
 version: ed9e4089e9c5
 kind: conversation
 title: "Deviation probe D1_off_topic at closing: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D1_off_topic at closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -142,7 +142,7 @@ metadata:
       user_type: new-customer
       coverage_result: no-service
       callback_phone: given
-      channel: whatsapp
+      channel: chat
     blocks:
       - block: b1-needs-to-address
         seeder: deviation

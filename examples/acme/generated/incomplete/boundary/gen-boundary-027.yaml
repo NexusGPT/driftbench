@@ -6,7 +6,7 @@ id: gen-boundary-027
 version: ed9e4089e9c5
 kind: conversation
 title: "Boundary value coverage.check.out.five_g.false: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -82,7 +82,7 @@ metadata:
       user_type: existing-customer
       account_lookup: found
       plan_choice: names-one
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify

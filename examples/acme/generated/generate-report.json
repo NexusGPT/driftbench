@@ -30,8 +30,8 @@
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 227,
-        "pielou": 0.9528299934190619,
+        "hill_q0": 230,
+        "pielou": 0.9542124033500585,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -58,8 +58,8 @@
       "needs_then": 15,
       "cut": false,
       "measures": {
-        "hill_q0": 133,
-        "pielou": 0.9579738044498898,
+        "hill_q0": 138,
+        "pielou": 0.95692081180105,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -72,8 +72,8 @@
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 175,
-        "pielou": 0.9220016410673131,
+        "hill_q0": 182,
+        "pielou": 0.9291370643068941,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -114,8 +114,8 @@
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 216,
-        "pielou": 0.9314975912760255,
+        "hill_q0": 220,
+        "pielou": 0.9338722401701509,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -3996,8 +3996,8 @@
         "t": 3,
         "specs": 258,
         "allowed": 3510,
-        "covered": 2607,
-        "share": 0.7427350427350428,
+        "covered": 2612,
+        "share": 0.7441595441595441,
         "uncovered": [
           {
             "behaviour": "B-002",
@@ -7922,11 +7922,6 @@
           {
             "deviation": "D1_off_topic",
             "channel": "chat",
-            "stage": "port_number"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "channel": "chat",
             "stage": "details"
           },
           {
@@ -7938,6 +7933,11 @@
             "deviation": "D1_off_topic",
             "channel": "chat",
             "stage": "order_placed"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp",
+            "stage": "port_number"
           },
           {
             "deviation": "D1_off_topic",
@@ -7961,13 +7961,13 @@
           },
           {
             "deviation": "D5_language_switch",
-            "channel": "chat",
-            "stage": "handover"
+            "channel": "whatsapp",
+            "stage": "identify"
           },
           {
             "deviation": "D5_language_switch",
             "channel": "whatsapp",
-            "stage": "identify"
+            "stage": "handover"
           },
           {
             "deviation": "D5_language_switch",
@@ -8032,27 +8032,12 @@
           {
             "deviation": "D10_return",
             "channel": "whatsapp",
-            "stage": "port_number"
-          },
-          {
-            "deviation": "D10_return",
-            "channel": "whatsapp",
             "stage": "details"
           },
           {
             "deviation": "D7_silence_or_burst",
             "channel": "chat",
             "stage": "callback"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
-            "channel": "chat",
-            "stage": "closing"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
-            "channel": "whatsapp",
-            "stage": "port_number"
           },
           {
             "deviation": "D7_silence_or_burst",
@@ -8090,11 +8075,6 @@
             "stage": "handover"
           },
           {
-            "deviation": "D4_loose_confirmation",
-            "channel": "whatsapp",
-            "user_type": "existing-customer"
-          },
-          {
             "deviation": "D8_tool_failure",
             "channel": "whatsapp",
             "coverage_result": "not-in-map"
@@ -8122,7 +8102,7 @@
           {
             "deviation": "D1_off_topic",
             "stage": "order_placed",
-            "user_type": "existing-customer"
+            "user_type": "new-customer"
           },
           {
             "deviation": "D5_language_switch",
@@ -8503,11 +8483,6 @@
             "deviation": "D9_out_of_scope",
             "stage": "closing",
             "coverage_result": "no-service"
-          },
-          {
-            "stage": "needs",
-            "user_type": "existing-customer",
-            "coverage_result": "5g-only"
           },
           {
             "stage": "details",
@@ -8538,13 +8513,13 @@
       "chao_coverage": 0.9870810231623892,
       "chao1": 818.4647334673175,
       "hill_q0": 637,
-      "hill_q1": 287.6270386788096,
-      "hill_q2": 181.65614035087694,
-      "pielou": 0.8768571496769162,
-      "t3_share": 0.7427350427350428,
+      "hill_q1": 288.5659502708172,
+      "hill_q2": 182.63148595177037,
+      "pielou": 0.8773618944360035,
+      "t3_share": 0.7441595441595441,
       "t3_allowed": 3510,
       "weighted_share": 1.000000000000058,
-      "effective_sample_size": 185.9685311069646,
+      "effective_sample_size": 186.0689549633441,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,

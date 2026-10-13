@@ -6,7 +6,7 @@ id: gen-boundary-021
 version: ed9e4089e9c5
 kind: conversation
 title: "Boundary value coverage.check.out.address_id.absent: Path home-callback of new-home: needs > address > offer > callback > handover"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -84,7 +84,7 @@ metadata:
       coverage_result: fiber
       plan_choice: asks-for-callback
       callback_phone: given
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: boundary

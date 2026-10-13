@@ -6,7 +6,7 @@ id: gen-boundary-023
 version: ed9e4089e9c5
 kind: conversation
 title: "Boundary value coverage.check.out.fiber_mbps.at-minimum: Path upgrade-most-data of upgrade: needs > identify > closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -81,7 +81,7 @@ metadata:
       flow: upgrade
       user_type: existing-customer
       account_lookup: most-data
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify

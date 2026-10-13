@@ -12,7 +12,7 @@ tier: generated
 tags:
   - flow:order
   - data:fiber
-  - persona:new-customer
+  - persona:existing-customer
 stages:
   - needs
   - identify
@@ -84,7 +84,7 @@ metadata:
       plan_choice: names-one
       customer_details: name-and-email
       channel: whatsapp
-      user_type: new-customer
+      user_type: existing-customer
     blocks:
       - block: b1-needs-to-address
         seeder: boundary

@@ -6,13 +6,13 @@ id: gen-boundary-005
 version: ed9e4089e9c5
 kind: conversation
 title: "Boundary value catalog.search.in.customer_email.absent: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:order
   - data:5g-only
-  - persona:new-customer
+  - persona:existing-customer
 stages:
   - needs
   - identify
@@ -109,8 +109,8 @@ metadata:
       coverage_result: 5g-only
       plan_choice: loose-yes-to-single-offer
       customer_details: name-and-email
-      channel: whatsapp
-      user_type: new-customer
+      channel: chat
+      user_type: existing-customer
     blocks:
       - block: b1-needs-to-address
         seeder: boundary

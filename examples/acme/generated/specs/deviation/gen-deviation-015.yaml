@@ -5,7 +5,7 @@ id: gen-deviation-015
 version: ed9e4089e9c5
 kind: conversation
 title: "Deviation probe D7_silence_or_burst at closing: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D7_silence_or_burst at closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -191,7 +191,7 @@ metadata:
       coverage_result: 5g-only
       plan_choice: loose-yes-to-single-offer
       customer_details: name-and-email
-      channel: whatsapp
+      channel: chat
       user_type: existing-customer
     blocks:
       - block: b1-needs-to-address

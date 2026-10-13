@@ -5,7 +5,7 @@ id: gen-boundary-084
 version: ed9e4089e9c5
 kind: conversation
 title: "Boundary value callback_phone=given: Path home-callback of new-home: needs > address > offer > callback > handover"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -155,7 +155,7 @@ metadata:
       user_type: new-customer
       coverage_result: 5g-only
       plan_choice: asks-for-callback
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: boundary

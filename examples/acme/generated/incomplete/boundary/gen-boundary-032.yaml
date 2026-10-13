@@ -6,7 +6,7 @@ id: gen-boundary-032
 version: ed9e4089e9c5
 kind: conversation
 title: "Boundary value port.check.out.eligible.true: Path home-no-coverage of new-home: needs > address > callback > handover > closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -83,7 +83,7 @@ metadata:
       user_type: new-customer
       coverage_result: no-service
       callback_phone: given
-      channel: whatsapp
+      channel: chat
     blocks:
       - block: b1-needs-to-address
         seeder: boundary
