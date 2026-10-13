@@ -39,10 +39,10 @@ describe('bench CLI', () => {
     expect(r.code).toBe(2);
     expect(r.err).toContain('Unknown slice');
   });
-  it('explains the skipped Gemini model instead of treating it as a floor', async () => {
-    const r = await run(['bench', 'replay', '--model', 'gemini-3.8-flash']);
+  it('requires explicit spend authorization for Gemini too', async () => {
+    const r = await run(['bench', 'record', '--model', 'gemini-3.8-flash']);
     expect(r.code).toBe(2);
-    expect(r.err).toMatch(/billing/i);
+    expect(r.err).toContain('--spend-cap-usd');
   });
   it('requires explicit spend authorization before a record', async () => {
     const r = await run(['bench', 'record', '--slice', 'all', '--model', 'haiku']);

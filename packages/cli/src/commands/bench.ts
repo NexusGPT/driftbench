@@ -245,7 +245,7 @@ async function verifiedReplay(
   const expected = makeRecordingClient(
     model.id,
     new SpendBudget(1),
-    { OPENAI_API_KEY: 'unused-no-network' },
+    { OPENAI_API_KEY: 'unused-no-network', GEMINI_API_KEY: 'unused-no-network' },
     () => {},
     { haikuModel: model.model },
   );

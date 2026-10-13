@@ -77,14 +77,14 @@ The harness accepts only the default request fields: `criterion`, `transcript`, 
 | Model id | Recorded model | Status |
 |---|---|---|
 | `haiku` | `claude-haiku-5-5` | Active, through the public CLI judge |
-| `gpt-6-luna` | `gpt-6-luna` | Active, through the public OpenAI judge |
-| `gemini-3.8-flash` | `gemini-3.8-flash` | Skipped until billing is enabled |
+| `gpt-6-luna` | `gpt-6-luna` | Active, public OpenAI judge, medium reasoning |
+| `gemini-3.8-flash` | `gemini-3.8-flash` | Active, public Google judge, medium thinking, 300 second timeout |
 
-The manifest records the Gemini skip, and replay prints it. Explicitly selecting the skipped model fails. Enabling it requires a maintainer to update the recorder and workflow as well as the manifest.
+All three models use the same shipped prompt fingerprint. Explicit reasoning settings participate in each client's cassette key.
 
 ## Record and resume
 
-Recording is a maintainer action that makes live model calls. Select one model and supply an approved spending limit. Haiku needs an installed, authenticated `claude` executable. OpenAI needs `OPENAI_API_KEY` in the environment.
+Recording is a maintainer action that makes live model calls. Select one model and supply an approved spending limit. Haiku needs an installed, authenticated `claude` executable. OpenAI needs `OPENAI_API_KEY`; Gemini needs `GEMINI_API_KEY` in the environment.
 
 ```sh
 pnpm driftbench bench record --slice fresh-rubric --model haiku --spend-cap-usd <approved-cap>
@@ -105,7 +105,7 @@ The command writes:
 
 The report records the dataset identity, prompt fingerprint, client settings, commit and timestamps. The command checks that recording and replay produce identical case results before accepting the completed cassette. A transport-truncated response remains inconclusive during replay even if its raw JSON is parseable. A regression retains its evidence for diagnosis and returns a failure.
 
-The manual [bench record workflow](../.github/workflows/bench-record.yml) accepts a slice, model and cap. Its cap must be positive and at most 5 USD. OpenAI uses the repository secret on a hosted runner. Haiku uses a preconfigured self-hosted runner labelled `driftbench-bench` and `claude-cli`. The workflow uploads cassettes and evidence for review; it does not commit them or raise floors.
+The manual [bench record workflow](../.github/workflows/bench-record.yml) accepts a slice, model and cap. Its cap must be positive and at most 5 USD. OpenAI and Gemini use their repository secrets on a hosted runner. Haiku uses a preconfigured self-hosted runner labelled `driftbench-bench` and `claude-cli`. The workflow uploads cassettes and evidence for review; it does not commit them or raise floors.
 
 ## Floors and uncertainty
 
@@ -137,3 +137,5 @@ The [CI workflow](../.github/workflows/ci.yml) runs the public API check and `be
 [`validate protect`](validators.md#82-the-command) rejects changes from `exec/` branches to the benchmark folders, CLI implementation, public API check and enforcing workflows. Maintainers change recordings and floors from a maintainer branch, with the evidence run in the commit message. Review the raw responses and measured results before committing a new floor.
 
 The full flag and exit-code reference is under [`driftbench bench`](reference/cli.md#driftbench-bench).
+
+Gemini metering counts candidate and thinking tokens, and discounts cached input. The introductory rates expire after December 31, 2026; recording then refuses until the rates are updated. See [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).

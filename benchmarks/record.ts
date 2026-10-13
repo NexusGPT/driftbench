@@ -2,6 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import {
   buildPrompt,
   createClaudeCliJudge,
+  createGoogleJudge,
   createOpenAiJudge,
   type JudgeClient,
 } from '@agent-nexus/driftbench-judges';
@@ -72,6 +73,33 @@ export function openAiCost(usage: Usage): number {
     1_000_000
   );
 }
+// Introductory direct API text rates through 2026-12-31, including thinking output.
+// https://ai.google.dev/gemini-api/docs/pricing
+export const GEMINI_RATES = { input: 0.75, cached: 0.075, output: 3.75 };
+interface GeminiUsage {
+  promptTokenCount?: number;
+  candidatesTokenCount?: number;
+  thoughtsTokenCount?: number;
+  cachedContentTokenCount?: number;
+}
+export function geminiCost(usage: GeminiUsage): number {
+  const input = usage.promptTokenCount;
+  const output = usage.candidatesTokenCount ?? 0;
+  const thinking = usage.thoughtsTokenCount ?? 0;
+  const cached = usage.cachedContentTokenCount ?? 0;
+  if (
+    input === undefined ||
+    ![input, output, thinking, cached].every((n) => Number.isInteger(n) && n >= 0) ||
+    cached > input
+  )
+    throw new Error('Missing or invalid Gemini token usage');
+  return (
+    ((input - cached) * GEMINI_RATES.input +
+      cached * GEMINI_RATES.cached +
+      (output + thinking) * GEMINI_RATES.output) /
+    1_000_000
+  );
+}
 export function makeRecordingClient(
   model: string,
   budget: SpendBudget,
@@ -79,47 +107,81 @@ export function makeRecordingClient(
   log: (row: SpendRow) => void,
   options: { haikuModel?: string; fetch?: typeof fetch } = {},
 ): JudgeClient {
-  if (!['haiku', 'gpt-6-luna'].includes(model))
-    throw new Error(`Recording model ${model} is not enabled; Gemini is skipped until billing is enabled`);
-  for (const key of ['OPENAI_BASE_URL', 'OPENAI_JUDGE_MODEL', 'CLAUDE_JUDGE_MODEL']) {
+  if (!['haiku', 'gpt-6-luna', 'gemini-3.8-flash'].includes(model))
+    throw new Error(`Recording model ${model} is not enabled`);
+  for (const key of [
+    'OPENAI_BASE_URL',
+    'OPENAI_JUDGE_MODEL',
+    'CLAUDE_JUDGE_MODEL',
+    'GOOGLE_BASE_URL',
+    'GOOGLE_JUDGE_MODEL',
+  ]) {
     if (env[key]?.trim()) throw new Error(`${key} override is not allowed in a default bench recording`);
   }
   const actualModel = model === 'haiku' ? (options.haikuModel ?? 'claude-haiku-5-5') : model;
   const meter = new AsyncLocalStorage<{ cost?: number; model?: string; input?: number; output?: number }>();
+  const observedFetch = async (url: string, init: RequestInit) => {
+    // Observe the response; do not rewrite the public client's request or answer.
+    const response = await (options.fetch ?? fetch)(url, init);
+    if (response.ok) {
+      const payload = (await response.clone().json()) as {
+        usage?: Usage;
+        model?: string;
+        usageMetadata?: GeminiUsage;
+        modelVersion?: string;
+      };
+      const current = meter.getStore();
+      if (!current) throw new Error('Missing cost scope');
+      if (model === 'gemini-3.8-flash') {
+        if (!payload.usageMetadata) throw new Error('Gemini response has no usage');
+        current.cost = geminiCost(payload.usageMetadata);
+        current.model = payload.modelVersion;
+        current.input = payload.usageMetadata.promptTokenCount;
+        current.output =
+          (payload.usageMetadata.candidatesTokenCount ?? 0) + (payload.usageMetadata.thoughtsTokenCount ?? 0);
+      } else {
+        if (!payload.usage) throw new Error('OpenAI response has no usage');
+        current.cost = openAiCost(payload.usage);
+        current.model = payload.model;
+        current.input = payload.usage.prompt_tokens;
+        current.output = payload.usage.completion_tokens;
+      }
+    }
+    return response;
+  };
   const base =
     model === 'haiku'
       ? createClaudeCliJudge({ id: model, model: actualModel, env, maxBudgetUsd: 0.02 })
-      : createOpenAiJudge({
-          id: model,
-          model,
-          env,
-          maxRetries: 0,
-          fetch: async (url, init) => {
-            // Observe the response; do not rewrite the public client's request or answer.
-            const response = await (options.fetch ?? fetch)(url, init);
-            if (response.ok) {
-              const payload = (await response.clone().json()) as { usage?: Usage; model?: string };
-              const current = meter.getStore();
-              if (!current) throw new Error('Missing cost scope');
-              if (!payload.usage) throw new Error('OpenAI response has no usage');
-              current.cost = openAiCost(payload.usage);
-              current.model = payload.model;
-              current.input = payload.usage.prompt_tokens;
-              current.output = payload.usage.completion_tokens;
-            }
-            return response;
-          },
-        });
+      : model === 'gemini-3.8-flash'
+        ? createGoogleJudge({
+            id: model,
+            model,
+            env,
+            reasoning: 'medium',
+            timeoutMs: 300_000,
+            maxRetries: 0,
+            fetch: observedFetch,
+          })
+        : createOpenAiJudge({
+            id: model,
+            model,
+            env,
+            reasoning: 'medium',
+            maxRetries: 0,
+            fetch: observedFetch,
+          });
+  const rates = model === 'gemini-3.8-flash' ? GEMINI_RATES : LUNA_RATES;
   return {
     ...base,
     async judge(request) {
+      if (model === 'gemini-3.8-flash' && Date.now() >= Date.parse('2027-01-01T00:00:00Z'))
+        throw new Error('Gemini introductory pricing expired; update the metered rates before recording');
       const prompt = buildPrompt(request);
       // One UTF-8 byte per token is an intentionally loose upper bound, including protocol/schema overhead.
       const reservation =
         model === 'haiku'
           ? 0.02
-          : ((Buffer.byteLength(prompt.system + prompt.user) + 8192) * LUNA_RATES.input +
-              1024 * LUNA_RATES.output) /
+          : ((Buffer.byteLength(prompt.system + prompt.user) + 8192) * rates.input + 1024 * rates.output) /
             1_000_000;
       const token = budget.reserve(reservation);
       const data: { cost?: number; model?: string; input?: number; output?: number } = {};

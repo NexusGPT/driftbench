@@ -1,7 +1,6 @@
 name: bench record (maintainer)
 
 # Manual and billed. Review the artifacts and evidence before committing them on a maintainer branch.
-# Gemini is not active until billing is enabled and a maintainer adds its model and secret here.
 # The Haiku runner must already have claude installed and signed in. No login or install is attempted.
 # The recorder pins haiku to claude-haiku-5-5 and meters gpt-6-luna at the direct standard rates:
 # input 0.10, cached input 0.01, output 0.50 USD per million tokens.
@@ -14,12 +13,13 @@ on:
         required: true
         type: string
       model:
-        description: Model to record; Gemini is inactive until billing is enabled
+        description: Model to record
         required: true
         type: choice
         options:
           - haiku
           - gpt-6-luna
+          - gemini-3.8-flash
       spend-cap-usd:
         description: Maximum spend in USD for this run, at most 5
         required: true
@@ -38,8 +38,8 @@ env:
   BENCH_SPEND_CAP_USD: ${{ inputs.spend-cap-usd }}
 
 jobs:
-  openai:
-    if: inputs.model == 'gpt-6-luna'
+  api:
+    if: inputs.model != 'haiku'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -52,16 +52,17 @@ jobs:
       - run: node tools/bench-lint.mjs
       - name: Check spend cap
         run: node -e 'const cap = Number(process.env.BENCH_SPEND_CAP_USD); if (!(cap > 0 && cap <= 5)) throw new Error("Spend cap must be greater than 0 and at most 5 USD");'
-      - name: Record gpt-6-luna through the public OpenAI client
+      - name: Record at medium reasoning through the public provider client
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          pnpm driftbench bench record --slice "$BENCH_SLICE" --model "$BENCH_MODEL" --spend-cap-usd "$BENCH_SPEND_CAP_USD" --spend-ledger benchmarks/evidence/workflow-spend-ledger.jsonl --json
+          pnpm driftbench bench record --slice "$BENCH_SLICE" --model "$BENCH_MODEL" --spend-cap-usd "$BENCH_SPEND_CAP_USD" --concurrency 4 --spend-ledger benchmarks/evidence/workflow-spend-ledger.jsonl --json
       - name: Keep cassettes and evidence for maintainer review
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bench-record-openai-${{ github.run_id }}
+          name: bench-record-api-${{ github.run_id }}
           path: |
             benchmarks/cassettes/
             benchmarks/evidence/
@@ -85,7 +86,7 @@ jobs:
           claude --version
       - name: Record Haiku with claude -p through the public CLI client
         run: |
-          pnpm driftbench bench record --slice "$BENCH_SLICE" --model "$BENCH_MODEL" --spend-cap-usd "$BENCH_SPEND_CAP_USD" --spend-ledger benchmarks/evidence/workflow-spend-ledger.jsonl --json
+          pnpm driftbench bench record --slice "$BENCH_SLICE" --model "$BENCH_MODEL" --spend-cap-usd "$BENCH_SPEND_CAP_USD" --concurrency 4 --spend-ledger benchmarks/evidence/workflow-spend-ledger.jsonl --json
       - name: Keep cassettes and evidence for maintainer review
         if: always()
         uses: actions/upload-artifact@v4

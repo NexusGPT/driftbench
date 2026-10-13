@@ -37,7 +37,7 @@ async function json(path: string) {
 }
 
 describe('versioned benchmark slices', () => {
-  it('retains every full population and records the billing skip', async () => {
+  it('retains every full population and all three active models', async () => {
     const manifest = await json('benchmarks/manifest.json');
     expect(manifest.version).toBe(1);
     expect(Object.fromEntries(manifest.slices.map((s: SliceEntry) => [s.name, s.n]))).toEqual(population);
@@ -48,8 +48,7 @@ describe('versioned benchmark slices', () => {
       {
         id: 'gemini-3.8-flash',
         model: 'gemini-3.8-flash',
-        status: 'skipped',
-        reason: 'Billing is not enabled.',
+        status: 'active',
       },
     ]);
   });

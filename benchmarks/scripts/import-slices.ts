@@ -243,8 +243,7 @@ try {
           {
             id: 'gemini-3.8-flash',
             model: 'gemini-3.8-flash',
-            status: 'skipped',
-            reason: 'Billing is not enabled.',
+            status: 'active',
           },
         ],
         slices,
