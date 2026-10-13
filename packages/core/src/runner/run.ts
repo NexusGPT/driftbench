@@ -21,6 +21,7 @@ import { cloneJson, contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { cellId } from './cell';
+import { recheckCarriedEndState } from './carried-end-state';
 import { driftOf } from './drift';
 import { composeStates, type EndStateSnapshot, endStateSnapshot, snapshotValues } from './end-state-snapshot';
 import {
@@ -143,19 +144,26 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
       [...options.blocks].some((i) => !Number.isInteger(i) || i < 0 || i >= spec.blocks.length))
   )
     throw new RunnerError('block subsets require the scripted driver and valid block indices');
+  let selectedBlocks = options.blocks;
+  let blockRerunReason: string | undefined;
   let carriedBlocks: Map<number, BlockResult> | undefined;
-  if (options.blocks && options.blockReuse) {
-    const reuse = planBlockRerun(spec, target, options.adapter, options.driver, options.blockReuse, now());
-    if ('reason' in reuse) throw new RunnerError(reuse.reason);
-    if ([...reuse.indices].some((i) => !options.blocks?.has(i)))
-      throw new RunnerError('the block subset omits part of the radius');
-    carriedBlocks = new Map([...reuse.carried].filter(([i]) => !options.blocks?.has(i)));
+  if (options.blockReuse) {
+    const reuse = planBlockRerun(spec, { ...options, target }, options.blockReuse, now());
+    if ('reason' in reuse) {
+      if (options.blocks) throw new RunnerError(reuse.reason);
+      blockRerunReason = reuse.reason;
+    } else {
+      if (options.blocks && [...reuse.indices].some((i) => !options.blocks?.has(i)))
+        throw new RunnerError('the block subset omits part of the radius');
+      selectedBlocks = options.blocks ?? reuse.indices;
+      carriedBlocks = new Map([...reuse.carried].filter(([i]) => !selectedBlocks?.has(i)));
+    }
   }
   if (options.blocks && endState !== undefined && !carriedBlocks && options.blocks.size < spec.blocks.length)
     throw new RunnerError('end state cannot be recomposed: full cell rerun');
   // A run in a sandbox is neither replayed nor cached: a replay opens no workspace, so the artifact
   // checks could not read the files its blocks made. It goes live every time.
-  const cache = capabilities.sandbox || options.blocks ? undefined : options.cache;
+  const cache = capabilities.sandbox || selectedBlocks ? undefined : options.cache;
   // The events go to the observer as they happen, and to the record when asked for.
   const recorded: RunEvent[] | undefined = options.recordEvents ? [] : undefined;
   const reportEvent =
@@ -170,7 +178,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
       options.recordProvenance || options.recordEndStateSnapshots
         ? runProvenance({ ...options, target })
         : undefined,
-    selectedBlocks: options.blocks,
+    selectedBlocks,
+    blockRerunReason,
     carriedBlocks,
     recordEndStateSnapshots: options.recordEndStateSnapshots === true,
     spec,
@@ -234,6 +243,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 
 type RunContext = {
   selectedBlocks: ReadonlySet<number> | undefined;
+  blockRerunReason: string | undefined;
   carriedBlocks: Map<number, BlockResult> | undefined;
   recordEndStateSnapshots: boolean;
   provenance: RunResult['provenance'];
@@ -340,7 +350,6 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       if (run.selectedBlocks && step.kind === 'block' && !run.selectedBlocks.has(step.blockIndex)) {
         const kept = run.carriedBlocks?.get(step.blockIndex);
         if (kept) {
-          blocks.push(kept);
           if (kept.provenance?.endState) {
             const read = snapshotValues(kept.provenance.endState, sources);
             if (read) {
@@ -348,6 +357,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
               endRead = { states: composed, afterBlock: position };
             }
           }
+          blocks.push(await recheckCarriedEndState(kept, spec, run.target, run.checks,
+            composed ? endStateValue(run.endState, sources, composed) : undefined));
         }
         continue;
       }
@@ -564,14 +575,14 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     ...(run.provenance
       ? { provenance: run.provenance, provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }) }
       : {}),
-    ...(run.selectedBlocks
+    ...(run.selectedBlocks || run.blockRerunReason
       ? {
           blockRerun: {
-            selected: [...run.selectedBlocks].sort((a, b) => a - b),
+            selected: [...(run.selectedBlocks ?? blocks.map((b) => b.index))].sort((a, b) => a - b),
             downstreamNotRerun: [...(run.carriedBlocks?.keys() ?? [])].filter(
-              (i) => i > Math.min(...run.selectedBlocks),
+              (i) => i > Math.min(...(run.selectedBlocks ?? [])),
             ),
-            reason:
+            reason: run.blockRerunReason ??
               'Mode T blocks start from their canonical Given; downstream replies are not used as inputs. F and P require full conversation reruns.',
           },
         }
