@@ -2,7 +2,9 @@
 
 `driftbench view` serves a store as a local website: the campaigns, each campaign's scorecard, every run block by block, and the comparison of two campaigns. Under every block, a person can mark the block pass or fail on a criterion, with a note. The label goes to the folder that [`driftbench judge calibrate --labels`](concepts/judges.md) reads. The judges are calibrated against those labels.
 
-The viewer listens on `127.0.0.1` only. Its pages use the scorecard's renderer and style, in light and dark, at phone width. They load no script and no external asset; a content security policy says so to the browser.
+The viewer listens on `127.0.0.1` only. Its pages use the scorecard's renderer and style, in light and dark, at phone width. They load no external asset. A content security policy allows only the optional keyboard scripts described below; all forms work without JavaScript.
+
+Requests must use the exact `127.0.0.1:<port>` address printed at startup. Other Host headers are refused to block DNS rebinding. Writes also require the viewer's own Origin, or a same-origin Referer when Origin is absent, and a hidden form token generated at each start. Rejected requests return HTTP 403 with a plain message and write nothing. Reload an old form after restarting the viewer. These checks need no JavaScript.
 
 ## Start it
 
