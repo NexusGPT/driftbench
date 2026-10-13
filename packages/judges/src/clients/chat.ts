@@ -82,13 +82,15 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
       });
       const send = (withTemperature: boolean) =>
         postJson(url, { authorization: `Bearer ${key}` }, body(withTemperature), options);
+      // Read once: another request may flip the shared flag while this one is in flight, and it still retries.
+      const askedWithTemperature = sendTemperature;
       let payload: unknown;
       try {
-        payload = await send(sendTemperature);
+        payload = await send(askedWithTemperature);
       } catch (cause) {
         // Some models (gpt-6-luna) take only the default temperature and answer 400 to 0: ask again without it, for good.
         const text = cause instanceof Error ? cause.message : '';
-        if (!sendTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
+        if (!askedWithTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
         sendTemperature = false;
         payload = await send(false);
       }
