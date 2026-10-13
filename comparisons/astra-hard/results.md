@@ -2,14 +2,14 @@
 
 Main default is reported first. The primary cohort has 192 cases per row from the original 12 construction families, not the budget generator. The candidate is a separately registered third side on those exact cases, reusing the peer recordings. It is not an independent replication.
 
-Report generated at 2026-10-13T04:00:36.727227+00:00. Primary registration `9c1c2ff8` and candidate registration `b63b9103` remain unchanged.
+Report generated at 2026-10-13T04:15:28.856896+00:00. Primary registration `9c1c2ff8` and candidate registration `b63b9103` remain unchanged. The owner later authorized six concurrent calls, a shared $20 cap and a 06:35 local last-call cutoff; transport amendments are separate.
 
 ## Original 12 families
 
 | Row | Main default | Frozen candidate | Peer |
 |---|---:|---:|---:|
-| promptfoo rubric | 185/192 (96.354%) | Pending | 184/192 (95.833%) |
-| Langfuse reference correctness | 181/192 (94.271%) | Pending | 183/192 (95.312%) |
+| promptfoo rubric | 185/192 (96.354%) | 190/192 (98.958%) | 184/192 (95.833%) |
+| Langfuse reference correctness | 181/192 (94.271%) | 192/192 (100.000%) | 183/192 (95.312%) |
 
 W counts only the named procedure correct; L counts only the peer correct. Both-correct and both-wrong pairs do not enter the exact tests.
 
@@ -17,11 +17,29 @@ W counts only the named procedure correct; L counts only the peer correct. Both-
 |---|---|---:|---:|---:|---:|---|---|---|
 | promptfoo rubric | Main default | 3 | 2 | 182 | 5 | 1/2 = 0.5 | 1/1 = 1 | **equal** |
 | Langfuse reference correctness | Main default | 8 | 10 | 173 | 1 | 49785/65536 = 0.7596588135 | 53381/65536 = 0.8145294189 | **equal** |
+| promptfoo rubric | Frozen candidate | 7 | 1 | 183 | 1 | 9/256 = 0.03515625 | 9/128 = 0.0703125 | **lead** |
+| Langfuse reference correctness | Frozen candidate | 9 | 0 | 183 | 0 | 1/512 = 0.001953125 | 1/256 = 0.00390625 | **lead** |
 
 | Row | Procedure | Procedure accuracy, family bootstrap 95% | Peer accuracy, family bootstrap 95% | Paired difference, percentage points 95% | Procedure USD/100 | Peer USD/100 |
 |---|---|---|---|---|---:|---:|
 | promptfoo rubric | Main default | [90.625, 100.000] | [87.500, 100.000] | [-2.083, 4.167] | $0.04552943 | $0.03424781 |
 | Langfuse reference correctness | Main default | [88.021, 98.958] | [87.500, 100.000] | [-9.375, 8.867] | $0.05490677 | $0.05215438 |
+| promptfoo rubric | Frozen candidate | [97.396, 100.000] | [87.500, 100.000] | [-1.562, 10.938] | $0.04408573 | $0.03424781 |
+| Langfuse reference correctness | Frozen candidate | [100.000, 100.000] | [87.500, 100.000] | [0.000, 12.500] | $0.04353318 | $0.05215438 |
+
+| Row | Procedure | Procedure inconclusive | Peer inconclusive |
+|---|---|---:|---:|
+| promptfoo rubric | Main default | 7 | 0 |
+| Langfuse reference correctness | Main default | 0 | 0 |
+| promptfoo rubric | Frozen candidate | 2 | 0 |
+| Langfuse reference correctness | Frozen candidate | 0 | 0 |
+
+Original-cohort saturation, marked after the recorded third side with no filtering:
+
+| Row | All three correct | All three wrong | Mixed correctness |
+|---|---:|---:|---:|
+| promptfoo rubric | 181 | 0 | 11 |
+| Langfuse reference correctness | 173 | 0 | 19 |
 
 ## Tests and interpretation
 
@@ -41,7 +59,7 @@ The bootstrap resamples all 12 construction families with replacement, carrying 
 - Langfuse uses its pinned native managed Correctness template, the previously selected threshold 0.5 and the original comparison JSON decoder with strict quote repair.
 - The promptfoo candidate is the frozen criterion ledger procedure `d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587`. The Langfuse candidate is the fact ledger in `comparisons/langfuse/hard/audit.txt`, SHA-256 `5ab527bec76758641fcfd13ebe7c576486ae145fb2cce183a25d9b2838621ca8`.
 - Candidate requests and decoders were committed at `b63b910349938b2a15552544184aa527a94bba60` before candidate calls. The candidate side reuses all primary peer answers unchanged, with no additional peer cost.
-- Every recorded judge call resolves the haiku alias to `claude-haiku-5-5`. All sides have identical CLI model settings. There is one recorded answer per side and case, at most two calls concurrently, no retries and no tuning on outcomes.
+- Every recorded judge call resolves the haiku alias to `claude-haiku-5-5`. All sides have identical CLI model settings. There is one recorded answer per side and case, no retries and no tuning on outcomes. Primary used two concurrent calls. Candidate used two for the first 160 calls, then six under amendment `75ffb919`. All 160 started calls had successful recordings before the pause; none was lost or retried. Map uses six continuous workers under `stream-registration.json`, committed before its first call. These amendments change transport only.
 
 ## Optional map replication
 
@@ -52,39 +70,40 @@ The independently registered map cohort is pending. No map results are included 
 | Run | Calls | First call UTC | Last call UTC | Reported USD |
 |---|---:|---|---|---:|
 | Primary | 768 | 2026-10-13T03:30:16.210889+00:00 | 2026-10-13T04:00:16.120330+00:00 | $0.35872970 |
+| Candidate third side | 384 | 2026-10-13T04:00:28.904173+00:00 | 2026-10-13T04:14:17.957581+00:00 | $0.16822830 |
 
-Total reported judge-call spend: **$0.35872970 of $10.00**. Costs are CLI-reported run costs, including cache behavior; orchestration and the isolated audit agent are not metered by this runner. Per-row and per-side start/completion rows are appended to `scratchpad/spend-ledger.md`. Reused primary peer calls are charged once.
+Total reported judge-call spend: **$0.52695800 of $20.00**. Costs are CLI-reported run costs, including cache behavior; orchestration and the isolated audit agent are not metered by this runner. Per-row and per-side start/completion rows are appended to `scratchpad/spend-ledger.md`. Reused primary peer calls are charged once.
 
-Completed-run integrity checks verify request uniqueness, committed hashes, resolved model equality, cost completeness, the required run order and maximum concurrency of two. Completed calls finished before 07:30 Europe/Brussels. There were zero failed calls, unknown costs or retries.
+Completed-run integrity checks verify request uniqueness, committed hashes, resolved model equality, cost completeness, the required run order and maximum concurrency of six (two for the primary). All amended dispatches occurred before 06:35 Europe/Brussels, and completed calls finished before 06:40. There were zero failed calls, unknown costs or retries.
 
 ## Family accuracy counts
 
 | Cohort | Row | Family | Cases | Main default | Candidate | Peer |
 |---|---|---|---:|---:|---:|---:|
-| Original 12 families | promptfoo rubric | arithmetic | 16 | 16 | Pending | 16 |
-| Original 12 families | promptfoo rubric | conjunction | 16 | 15 | Pending | 16 |
-| Original 12 families | promptfoo rubric | cross-language | 16 | 16 | Pending | 16 |
-| Original 12 families | promptfoo rubric | disjunction | 16 | 16 | Pending | 16 |
-| Original 12 families | promptfoo rubric | later-contradiction | 16 | 16 | Pending | 16 |
-| Original 12 families | promptfoo rubric | long-fluent | 16 | 16 | Pending | 16 |
-| Original 12 families | promptfoo rubric | negation | 16 | 16 | Pending | 16 |
-| Original 12 families | promptfoo rubric | partial-completion | 16 | 16 | Pending | 16 |
-| Original 12 families | promptfoo rubric | period | 16 | 16 | Pending | 16 |
-| Original 12 families | promptfoo rubric | quoted-claim | 16 | 15 | Pending | 16 |
-| Original 12 families | promptfoo rubric | scope | 16 | 16 | Pending | 16 |
-| Original 12 families | promptfoo rubric | tag-injection | 16 | 11 | Pending | 8 |
-| Original 12 families | Langfuse reference correctness | conditions | 16 | 11 | Pending | 15 |
-| Original 12 families | Langfuse reference correctness | entity-binding | 16 | 16 | Pending | 16 |
-| Original 12 families | Langfuse reference correctness | fluent-extra | 16 | 16 | Pending | 16 |
-| Original 12 families | Langfuse reference correctness | instruction-data | 16 | 15 | Pending | 16 |
-| Original 12 families | Langfuse reference correctness | long-distractors | 16 | 16 | Pending | 16 |
-| Original 12 families | Langfuse reference correctness | multilingual | 16 | 16 | Pending | 15 |
-| Original 12 families | Langfuse reference correctness | near-number | 16 | 16 | Pending | 16 |
-| Original 12 families | Langfuse reference correctness | negation | 16 | 13 | Pending | 16 |
-| Original 12 families | Langfuse reference correctness | omission | 16 | 16 | Pending | 16 |
-| Original 12 families | Langfuse reference correctness | quantifiers | 16 | 16 | Pending | 16 |
-| Original 12 families | Langfuse reference correctness | revision | 16 | 14 | Pending | 16 |
-| Original 12 families | Langfuse reference correctness | units | 16 | 16 | Pending | 9 |
+| Original 12 families | promptfoo rubric | arithmetic | 16 | 16 | 16 | 16 |
+| Original 12 families | promptfoo rubric | conjunction | 16 | 15 | 16 | 16 |
+| Original 12 families | promptfoo rubric | cross-language | 16 | 16 | 16 | 16 |
+| Original 12 families | promptfoo rubric | disjunction | 16 | 16 | 16 | 16 |
+| Original 12 families | promptfoo rubric | later-contradiction | 16 | 16 | 16 | 16 |
+| Original 12 families | promptfoo rubric | long-fluent | 16 | 16 | 15 | 16 |
+| Original 12 families | promptfoo rubric | negation | 16 | 16 | 16 | 16 |
+| Original 12 families | promptfoo rubric | partial-completion | 16 | 16 | 16 | 16 |
+| Original 12 families | promptfoo rubric | period | 16 | 16 | 16 | 16 |
+| Original 12 families | promptfoo rubric | quoted-claim | 16 | 15 | 16 | 16 |
+| Original 12 families | promptfoo rubric | scope | 16 | 16 | 16 | 16 |
+| Original 12 families | promptfoo rubric | tag-injection | 16 | 11 | 15 | 8 |
+| Original 12 families | Langfuse reference correctness | conditions | 16 | 11 | 16 | 15 |
+| Original 12 families | Langfuse reference correctness | entity-binding | 16 | 16 | 16 | 16 |
+| Original 12 families | Langfuse reference correctness | fluent-extra | 16 | 16 | 16 | 16 |
+| Original 12 families | Langfuse reference correctness | instruction-data | 16 | 15 | 16 | 16 |
+| Original 12 families | Langfuse reference correctness | long-distractors | 16 | 16 | 16 | 16 |
+| Original 12 families | Langfuse reference correctness | multilingual | 16 | 16 | 16 | 15 |
+| Original 12 families | Langfuse reference correctness | near-number | 16 | 16 | 16 | 16 |
+| Original 12 families | Langfuse reference correctness | negation | 16 | 13 | 16 | 16 |
+| Original 12 families | Langfuse reference correctness | omission | 16 | 16 | 16 | 16 |
+| Original 12 families | Langfuse reference correctness | quantifiers | 16 | 16 | 16 | 16 |
+| Original 12 families | Langfuse reference correctness | revision | 16 | 14 | 16 | 16 |
+| Original 12 families | Langfuse reference correctness | units | 16 | 16 | 16 | 9 |
 
 ## Evidence and free reproduction
 
@@ -94,4 +113,6 @@ All evidence lives in `comparisons/astra-hard/` on `research/astra-hard-fresh`: 
 python3 comparisons/astra-hard/score.py
 python3 comparisons/astra-hard/verify.py
 node --import tsx comparisons/astra-hard/supplement.mts
+python3 comparisons/astra-hard/operations_analysis.py candidates
+node --import tsx comparisons/astra-hard/supplement.mts comparisons/astra-hard/candidates/scores.json
 ```

@@ -1,0 +1,17 @@
+{
+  "preregistration_commit": "b63b910349938b2a15552544184aa527a94bba60",
+  "committed_at": "2026-10-13T05:41:00+02:00",
+  "first_call": "2026-10-13T04:00:28.904173+00:00",
+  "last_call": "2026-10-13T04:14:17.957581+00:00",
+  "additional_unique_calls": 384,
+  "combined_max_concurrency_upper_bound": 6,
+  "unknown_costs": 0,
+  "retries": 0,
+  "additional_cost_usd": 0.1682283,
+  "primary_plus_candidate_cost_usd": 0.526958,
+  "peer_answers_reused_unchanged": true,
+  "operational_amendment_commit": "75ffb919fea8145ac3595e86c58d7a8e4f0af8a8",
+  "calls_under_amended_transport": 224,
+  "all_dispatches_before_0635_local": true,
+  "owner_cap_usd": 20
+}

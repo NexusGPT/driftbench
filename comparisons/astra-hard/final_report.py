@@ -47,7 +47,7 @@ def main():
             ('Frozen candidate', read(HERE / 'map/candidate-scores.json'), read(HERE / 'map/candidate-supplement.json'))]))
     lines = ['# Fresh hard rows', '',
         'Main default is reported first. The primary cohort has 192 cases per row from the original 12 construction families, not the budget generator. The candidate is a separately registered third side on those exact cases, reusing the peer recordings. It is not an independent replication.', '',
-        f'Report generated at {datetime.datetime.now(datetime.timezone.utc).isoformat()}. Primary registration `9c1c2ff8` and candidate registration `b63b9103` remain unchanged.', '']
+        f'Report generated at {datetime.datetime.now(datetime.timezone.utc).isoformat()}. Primary registration `9c1c2ff8` and candidate registration `b63b9103` remain unchanged. The owner later authorized six concurrent calls, a shared $20 cap and a 06:35 local last-call cutoff; transport amendments are separate.', '']
     for cohort, procedures in cohorts:
         lines += [f'## {cohort}', '', '| Row | Main default | Frozen candidate | Peer |', '|---|---:|---:|---:|']
         for name, title in NAMES.items():
@@ -70,6 +70,20 @@ def main():
             for name, title in NAMES.items():
                 r, s = data['summary'][name], supplement[name]
                 lines.append(f'| {title} | {procedure} | {interval(s["ours_family_bootstrap95"])} | {interval(s["peer_family_bootstrap95"])} | {interval(s["paired_difference_family_bootstrap95"])} | ${r["ours"]["usd_per_100"]:.8f} | ${r["peer"]["usd_per_100"]:.8f} |')
+        lines += ['', '| Row | Procedure | Procedure inconclusive | Peer inconclusive |', '|---|---|---:|---:|']
+        for procedure, data, supplement in procedures:
+            for name, title in NAMES.items():
+                r = data['summary'][name]
+                lines.append(f'| {title} | {procedure} | {r["ours"]["inconclusive"]} | {r["peer"]["inconclusive"]} |')
+        lines += ['']
+    if candidate:
+        lines += ['Original-cohort saturation, marked after the recorded third side with no filtering:', '',
+            '| Row | All three correct | All three wrong | Mixed correctness |', '|---|---:|---:|---:|']
+        lookup = {(r['row'], r['id']): r for r in candidate['rows']}
+        for name, title in NAMES.items():
+            values = [[r['ours']['correct'], r['peer']['correct'], lookup[(name, r['id'])]['ours']['correct']] for r in primary['rows'] if r['row'] == name]
+            correct, wrong = sum(all(v) for v in values), sum(not any(v) for v in values)
+            lines.append(f'| {title} | {correct} | {wrong} | {len(values) - correct - wrong} |')
         lines += ['']
     lines += ['## Tests and interpretation', '',
         'For W wins and L losses, the exact one-sided sign test is sum(comb(W+L,k), k=W..W+L) / 2**(W+L). This is also the directional exact McNemar test. The two-sided exact McNemar p is min(1, 2 * sum(comb(W+L,k), k=0..min(W,L)) / 2**(W+L)). Zero discordant pairs gives p=1. Inconclusive predictions count as wrong.', '',
@@ -84,7 +98,7 @@ def main():
         '- Langfuse uses its pinned native managed Correctness template, the previously selected threshold 0.5 and the original comparison JSON decoder with strict quote repair.',
         '- The promptfoo candidate is the frozen criterion ledger procedure `d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587`. The Langfuse candidate is the fact ledger in `comparisons/langfuse/hard/audit.txt`, SHA-256 `5ab527bec76758641fcfd13ebe7c576486ae145fb2cce183a25d9b2838621ca8`.',
         '- Candidate requests and decoders were committed at `b63b910349938b2a15552544184aa527a94bba60` before candidate calls. The candidate side reuses all primary peer answers unchanged, with no additional peer cost.',
-        f'- Every recorded judge call resolves the haiku alias to `{pv["resolved_models"][0]}`. All sides have identical CLI model settings. There is one recorded answer per side and case, at most two calls concurrently, no retries and no tuning on outcomes.', '',
+        f'- Every recorded judge call resolves the haiku alias to `{pv["resolved_models"][0]}`. All sides have identical CLI model settings. There is one recorded answer per side and case, no retries and no tuning on outcomes. Primary used two concurrent calls. Candidate used two for the first 160 calls, then six under amendment `75ffb919`. All 160 started calls had successful recordings before the pause; none was lost or retried. Map uses six continuous workers under `stream-registration.json`, committed before its first call. These amendments change transport only.', '',
         '## Optional map replication', '']
     if mapped:
         mv = read(HERE / 'map/verification.json')
@@ -120,8 +134,8 @@ def main():
     if mapped:
         total += mv['map_cost_usd']
         lines.append(f'| Separate map replication | 1008 | {mv["first_call"]} | {mv["last_call"]} | ${mv["map_cost_usd"]:.8f} |')
-    lines += ['', f'Total reported judge-call spend: **${total:.8f} of $10.00**. Costs are CLI-reported run costs, including cache behavior; orchestration and the isolated audit agent are not metered by this runner. Per-row and per-side start/completion rows are appended to `scratchpad/spend-ledger.md`. Reused primary peer calls are charged once.', '',
-        'Completed-run integrity checks verify request uniqueness, committed hashes, resolved model equality, cost completeness, the required run order and maximum concurrency of two. Completed calls finished before 07:30 Europe/Brussels. There were zero failed calls, unknown costs or retries.', '',
+    lines += ['', f'Total reported judge-call spend: **${total:.8f} of $20.00**. Costs are CLI-reported run costs, including cache behavior; orchestration and the isolated audit agent are not metered by this runner. Per-row and per-side start/completion rows are appended to `scratchpad/spend-ledger.md`. Reused primary peer calls are charged once.', '',
+        'Completed-run integrity checks verify request uniqueness, committed hashes, resolved model equality, cost completeness, the required run order and maximum concurrency of six (two for the primary). All amended dispatches occurred before 06:35 Europe/Brussels, and completed calls finished before 06:40. There were zero failed calls, unknown costs or retries.', '',
         '## Family accuracy counts', '', '| Cohort | Row | Family | Cases | Main default | Candidate | Peer |', '|---|---|---|---:|---:|---:|---:|']
     for cohort, procedures in cohorts:
         for name, title in NAMES.items():
@@ -134,8 +148,8 @@ def main():
         'python3 comparisons/astra-hard/score.py',
         'python3 comparisons/astra-hard/verify.py',
         'node --import tsx comparisons/astra-hard/supplement.mts',
-        *(['python3 comparisons/astra-hard/candidates/score.py', 'node --import tsx comparisons/astra-hard/supplement.mts comparisons/astra-hard/candidates/scores.json'] if candidate else []),
-        *(['python3 comparisons/astra-hard/map/score.py', 'node --import tsx comparisons/astra-hard/supplement.mts comparisons/astra-hard/map/default-scores.json', 'node --import tsx comparisons/astra-hard/supplement.mts comparisons/astra-hard/map/candidate-scores.json'] if mapped else []),
+        *(['python3 comparisons/astra-hard/operations_analysis.py candidates', 'node --import tsx comparisons/astra-hard/supplement.mts comparisons/astra-hard/candidates/scores.json'] if candidate else []),
+        *(['python3 comparisons/astra-hard/stream_analysis.py', 'node --import tsx comparisons/astra-hard/supplement.mts comparisons/astra-hard/map/default-scores.json', 'node --import tsx comparisons/astra-hard/supplement.mts comparisons/astra-hard/map/candidate-scores.json'] if mapped else []),
         '```', '']
     output = '\n'.join(lines)
     assert '\u2013' not in output and '\u2014' not in output
