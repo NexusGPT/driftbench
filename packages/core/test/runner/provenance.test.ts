@@ -28,6 +28,7 @@ it('records the actual stimulus, check inputs and driver only when requested', a
   };
   const plain = await runSpec(spec, opts);
   expect(plain).not.toHaveProperty('provenance');
+  expect(plain).not.toHaveProperty('provenanceDigest');
   expect(plain.blocks[0]).not.toHaveProperty('provenance');
   const recorded = await runSpec(spec, { ...opts, recordProvenance: true });
   expect(recorded.provenance).toMatchObject({
@@ -41,7 +42,7 @@ it('records the actual stimulus, check inputs and driver only when requested', a
     artifacts: [],
   });
   const strip = (run: typeof recorded) => {
-    const { provenance: _, ...rest } = run;
+    const { provenance: _, provenanceDigest: ___, ...rest } = run;
     return { ...rest, blocks: run.blocks.map(({ provenance: __, ...block }) => block) };
   };
   expect(strip(recorded)).toEqual(plain);

@@ -284,6 +284,24 @@ manifest's verified `from` to `to` agent transition, including its target varian
 context difference is justified by a small radius. Carried records retain the original observation's
 origin and age, and pin the current context whose compatibility was proved.
 
+Each recorded run also stores `provenanceDigest`: SHA-256 of canonical JSON over the complete run
+stamp and the ordered block entries (`index`, `blockId`, `injected`, `givenHash`, and the whole block
+stamp). Canonical JSON sorts object keys at every depth and preserves array order. The planner checks
+this digest before carrying anything. A missing or mismatched digest, an unknown stamp field, or a
+partial stamp makes the baseline legacy and forces a full rerun. The digest detects accidental changes
+and partial writes; it is not a signature against someone who can rewrite both the record and digest.
+
+The planner additionally requires `CarryLimits.currentSpec`. From this current spec it recomputes each
+block's index, resolved Given hash, and check ledger. Scripted and teacher-forced stimuli must match the
+spec's stimulus hash. The Given comparison uses the target that actually produced the observation;
+the verified manifest transition is the only permitted target difference. Generated stimuli rely on
+the already-compared driver identity and seeds. Their text is not recovered from a fingerprint: a later
+free-running block with an unreconstructable prefix forces a rerun, unless an explicit Given prefix
+resets that history. Perturbed trajectories and a carried prompt whose original text is unavailable
+also rerun when their block inputs cannot be reconstructed. A valid digest alone never proves these
+inputs compatible. A legitimate carry seals its updated run stamp again and retains the original block
+evidence, observation origin, and age.
+
 Stamp hashes are deterministic equality fingerprints, not secrets. Low-entropy values such as short
 identifiers or numeric seeds are guessable by enumeration. No per-store salt is used: fingerprints remain
 comparable across stores, and this change adds no store metadata or salt lifecycle. Protect results stores

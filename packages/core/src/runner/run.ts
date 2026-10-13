@@ -31,7 +31,7 @@ import {
   stimulusMessages,
 } from './given';
 import { describeContradiction, ledgerVerdicts } from './ledger';
-import { captureArtifacts, provenanceHash, runProvenance } from './provenance';
+import { captureArtifacts, provenanceDigest, provenanceHash, runProvenance } from './provenance';
 import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
@@ -510,7 +510,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
-    ...(run.provenance ? { provenance: run.provenance } : {}),
+    ...(run.provenance
+      ? {
+          provenance: run.provenance,
+          provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }),
+        }
+      : {}),
     runId: run.runId,
     specId: spec.id,
     specHash: run.specHash,

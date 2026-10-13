@@ -319,6 +319,11 @@ export type CarriedFrom = z.infer<typeof CarriedFrom>;
 
 export const RunResult = z.strictObject({
   provenance: RunProvenance.optional(),
+  /** Integrity of the run stamp and every block stamp, including the resolved Given hash. */
+  provenanceDigest: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/)
+    .optional(),
   runId: z.string().min(1),
   specId: z.string().min(1),
   specHash: z.string().min(1),

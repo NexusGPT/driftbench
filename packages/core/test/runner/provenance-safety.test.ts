@@ -98,6 +98,7 @@ it('rejects every incomplete stamp at the public planner boundary', async () => 
   const plan = (base: typeof baseline) =>
     planRadiusCampaign([cell], radius, manifest, base, {
       now: new Date(),
+      currentSpec: () => spec,
       currentProvenance: () => runProvenance({ ...options, target }),
     });
   expect(plan(baseline).carried).toHaveLength(1);
@@ -175,6 +176,7 @@ it('compares every current stamp field by default, including future fields', asy
   const plan = (context: typeof current | undefined) =>
     planRadiusCampaign([cell], radius, manifest, baseline, {
       now: new Date(),
+      currentSpec: () => spec,
       currentProvenance: () => context,
     });
   expect(plan(current).carried).toHaveLength(1);

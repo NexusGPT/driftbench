@@ -1,4 +1,4 @@
-import { provenanceHash } from '../runner/provenance';
+import { provenanceDigest, provenanceHash } from '../runner/provenance';
 import type { TargetRef } from '../schema/common';
 import { BlockProvenance, CampaignProvenance, RunProvenance } from '../schema/provenance';
 import type { Campaign, RunResult } from '../schema/run';
@@ -14,6 +14,7 @@ export function completeBaselineProvenance(baseline: {
   const campaign = CampaignProvenance.safeParse(baseline.provenance);
   if (!campaign.success || campaign.data.adapters.length === 0) return false;
   return baseline.runs.every((run) => {
+    if (!run.provenanceDigest || run.provenanceDigest !== provenanceDigest(run)) return false;
     const parsed = RunProvenance.safeParse(run.provenance);
     if (!parsed.success || parsed.data.driver.seedsHash === null || !completeRunStamp(run.provenance))
       return false;

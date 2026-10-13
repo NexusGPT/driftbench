@@ -4,12 +4,16 @@ import {
   campaignRadius,
   carriedRun,
   cellId,
+  contentHash,
+  initialGiven,
   type PlannedCell,
   planRadiusCampaign,
+  provenanceDigest,
   provenanceHash,
   type RadiusSpec,
   type RunResult,
   radiusOf,
+  resolveGiven,
   type Spec,
   type TargetRef,
 } from '../../src/index';
@@ -22,8 +26,8 @@ const spec = (id: string, stage: string): Spec => ({
   metadata: { generated: { cell: { flow: id } } },
 });
 const specs: RadiusSpec[] = [
-  { spec: spec('order', 'recap'), hash: 'h-order' },
-  { spec: spec('faq', 'needs'), hash: 'h-faq' },
+  { spec: spec('order', 'recap'), hash: contentHash(spec('order', 'recap')) },
+  { spec: spec('faq', 'needs'), hash: contentHash(spec('faq', 'needs')) },
 ];
 const manifest: ChangeManifest = { from: 'v1', to: 'v2', changes: [{ kind: 'stage', id: 'recap' }] };
 const radius = radiusOf(specs, manifest);
@@ -34,12 +38,17 @@ const target = (variant?: string): TargetRef => ({
   ...(variant === undefined ? {} : { variant }),
 });
 const cell = (id: string, variant: string | undefined, repeat = 0): PlannedCell => {
-  const key = { specHash: `h-${id}`, target: target(variant), mode: 'F' as const, repeat };
+  const key = {
+    specHash: contentHash(spec(id, id === 'order' ? 'recap' : 'needs')),
+    target: target(variant),
+    mode: 'F' as const,
+    repeat,
+  };
   return { cellId: cellId(key), specId: id, ...key, blocks: 1 };
 };
 const stored = (id: string, variant: string | undefined, over: Partial<RunResult> = {}): RunResult => {
   const planned = cell(id, variant);
-  return {
+  const run: RunResult = {
     runId: planned.cellId,
     specId: id,
     specHash: planned.specHash,
@@ -64,7 +73,12 @@ const stored = (id: string, variant: string | undefined, over: Partial<RunResult
     blocks: [
       {
         index: 0,
-        givenHash: '0123456789ab',
+        blockId: 'b1',
+        givenHash: resolveGiven(
+          initialGiven(spec(id, 'needs')),
+          [],
+          target(over.carried?.agentVersion ?? variant),
+        ).hash,
         provenance: {
           specIndex: 0,
           stimulusHash: provenanceHash({ user: 'Hello' }),
@@ -86,6 +100,7 @@ const stored = (id: string, variant: string | undefined, over: Partial<RunResult
     cacheHit: false,
     ...over,
   };
+  return { ...run, provenanceDigest: provenanceDigest(run) };
 };
 const cells = [cell('order', 'v2'), cell('faq', 'v2')];
 const now = new Date('2026-10-02T00:00:01.000Z');
@@ -117,7 +132,12 @@ const plan = (runs: RunResult[], limits = {}, planned = cells, change = manifest
         ],
       },
     },
-    { now, currentProvenance: (cell) => stored(cell.specId, cell.target.variant).provenance, ...limits },
+    {
+      now,
+      currentSpec: (cell) => specs.find((entry) => entry.spec.id === cell.specId)?.spec,
+      currentProvenance: (cell) => stored(cell.specId, cell.target.variant).provenance,
+      ...limits,
+    },
   );
 
 describe('planRadiusCampaign', () => {

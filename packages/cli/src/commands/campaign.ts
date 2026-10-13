@@ -1160,6 +1160,7 @@ async function radiusPlan(
     {
       now: deps.now(),
       currentProvenance,
+      currentSpec: (cell) => loaded.find((entry) => entry.hash === cell.specHash)?.spec,
       ...(maxCarry === undefined ? {} : { maxCarry }),
       ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
     },

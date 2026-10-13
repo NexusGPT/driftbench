@@ -1,8 +1,11 @@
 import type { Store } from '../contracts/store';
 import type { PlannedCell } from '../runner/campaign';
+import { provenanceDigest } from '../runner/provenance';
 import type { TargetRef } from '../schema/common';
 import type { Campaign, CampaignRadius, RunResult } from '../schema/run';
+import type { Spec } from '../schema/spec';
 import { canonicalJson } from '../spec/hash';
+import { sameBlockInputs } from './block-inputs';
 import { type ChangeManifest, changeLabel } from './change';
 import { completeBaselineProvenance, sameCarryContext } from './provenance';
 import type { RadiusReport } from './radius';
@@ -24,6 +27,8 @@ export type CarryLimits = {
   now: Date;
   /** Actual candidate context per cell. Missing or uncertain context always reruns. */
   currentProvenance?: (cell: PlannedCell) => RunResult['provenance'];
+  /** The actual candidate spec, used to reconstruct block inputs. Missing means rerun. */
+  currentSpec?: (cell: PlannedCell) => Spec | undefined;
 };
 
 export const DEFAULT_MAX_CARRY = 5;
@@ -157,6 +162,10 @@ export function planRadiusCampaign(
       refuse('current execution context differs or cannot be proved');
       continue;
     }
+    if (!sameBlockInputs(source, limits.currentSpec?.(cell))) {
+      refuse('current block inputs differ or cannot be reconstructed');
+      continue;
+    }
     const origin = source.carried;
     const campaigns = (origin?.age.campaigns ?? 0) + 1;
     // A carried copy keeps the times of the fresh run, so this is the end of the fresh run either way.
@@ -192,6 +201,7 @@ export function carriedRun(entry: CarriedCell): RunResult {
     runId: entry.cell.cellId,
     target: entry.cell.target,
     provenance: entry.provenance,
+    provenanceDigest: provenanceDigest({ provenance: entry.provenance, blocks: entry.source.blocks }),
     carried: entry.carried,
   };
 }
