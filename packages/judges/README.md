@@ -197,3 +197,13 @@ These are replayed synthetic cohort results, not a new model evaluation or a gen
 ## License
 
 Apache-2.0
+
+## Pointwise fact ledger (opt-in)
+
+For factual replies with a trusted reference, pass `assessment: { kind: 'fact-ledger' }`
+and `reference` in a `JudgeRequest`, without `candidates`. The model reports facts;
+code passes only when every fact is `match` and `unsupported` is empty. The default
+judge is unchanged. Add `grounding: 'strict'` inside `assessment` to reject copied
+text that cannot be grounded in its reference or reply.
+
+See the [API and recorded results](https://github.com/achammah/driftbench/blob/main/docs/concepts/judges.md#pointwise-fact-ledger-against-a-trusted-reference).

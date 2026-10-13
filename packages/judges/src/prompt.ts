@@ -3,7 +3,7 @@ import { validateAssessment } from './assessment';
 import { CONFORMANCE_SYSTEM_PROMPT, conformanceUser } from './conformance';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import { requirementsFor } from './criterion-ledger';
-import { auditData, FACT_LEDGER_SYSTEM } from './fact-audit';
+import { auditData, FACT_LEDGER_POINTWISE, FACT_LEDGER_SYSTEM, pointwiseAuditData } from './fact-audit';
 import { buildPrompt as buildLegacyPrompt, LEGACY_COMPARE_SYSTEM_PROMPT } from './legacy-prompt';
 import { isPairLedgerRequest, pairRequirements } from './pair-ledger-contract';
 import { FRAME_RULE, renderTranscriptFrame } from './transcript';
@@ -162,6 +162,7 @@ export function renderTranscript(entries: readonly TranscriptEntry[]): string {
 /** The user prompt: the rubric, then every data section, then the closing instruction. */
 export function renderUser(request: JudgeRequest): string {
   if (isPairLedgerRequest(request)) return renderPairLedgerUser(request);
+  if (request.assessment?.kind === 'fact-ledger' && !request.candidates) return pointwiseAuditData(request);
   if (request.assessment?.kind === 'conformance') return conformanceUser(request);
   if (request.factAudit && request.assessment?.kind !== 'rubric') return auditData(request);
   const parts = [
@@ -227,6 +228,8 @@ export function buildPrompt(request: JudgeRequest): { system: string; user: stri
     };
   }
   if (request.assessment) validateAssessment(request.assessment);
+  if (request.assessment?.kind === 'fact-ledger' && !request.candidates)
+    return { system: FACT_LEDGER_POINTWISE, user: pointwiseAuditData(request) };
   const base =
     request.assessment?.kind === 'fact-ledger'
       ? FACT_LEDGER_SYSTEM
