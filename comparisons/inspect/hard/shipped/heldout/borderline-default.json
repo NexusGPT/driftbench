@@ -24,11 +24,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "76e038659e7b2dc336129921b9b9c240e2c720dea3a5714fee8e8d2cc432cfb8",
         "4f198d30c94b6a19f8f8f74edb6a0f57a26ecae3a218093e56707b057b091ae7",
@@ -42,11 +38,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "9564ed2702ca40296763113ecd18f8d8efe0cc8d260b90521a1d89d2542330d4",
         "4e5508a5e8ace1fa899738d57443105a7fe636404ead886561f9de0eb025d7df",
@@ -60,11 +52,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "5ae768024f30858950766ce20652c534a8bd29e7596b9f2b8529503cbc2ffd56",
         "2575bf6d3154acb14db756231c90c777aaed9a78627590bb57d1d42e65aa17db",
@@ -78,11 +66,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "a0eff0e7381b95ac1a8fc21c17a03d5ae088dc3bb0086807580e9877e1aa3aee",
         "79705f75f2627aa484300c5a6aceb866a552d026563930ddac72007deab68f97",
@@ -96,11 +80,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "e2e59dcedc44bcc8db7971a279f47a582ff6c6cf856930fc78652d15e0b9b324",
         "b8e3e5a3f148dab038bb2f5b6908a9ff2bb2a7ed3ebd6e8a133fb185816545c3",
@@ -114,11 +94,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "74996d6ed7c9a61cc3323654fa5fd6d240b9682cf97812a54892add696da0bcd",
         "04eff876b50af8a029713f8a01c37ec44c5d6b1ab7ca5c80391f76f3e565946e",
@@ -132,11 +108,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "2fd27bf69e17a22c42c70e5fbab671df9dab4b93703b2c180df53461e2aab6f5",
         "e443898d931f68b5cbbad67e75a78d20264d994d1d8c9578f65968f8cd60cbfd",
@@ -150,11 +122,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "22d66eceb915bf7fff9c30f1fc07ebb78960e474aab537f635f214463546331a",
         "fa703be6194b22e183a680a8d312bfa970b6c8a47f53e2e23828cc1695cf91dd",
@@ -168,11 +136,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "0f9db8a04ac9e39563501e106352b58ae8af3c619413eb6a1842c855b5e2708b",
         "dd933a72abfbaab02d2f668acb49e14122d7f6338e2ea7e238d833fda9a8ba1d",
@@ -186,11 +150,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "a9bab5cb2d86ac358c454bffc2d27555e410cd0032d66aaadcc3dd91fa812a8d",
         "31be93c09c248dfad3462962244836cbab188cf087b0e17cf50c2fd237766932",
@@ -204,11 +164,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "a9bafdd38eae1ddec306f9ec60c00519a62021c153c5dae1dcd6a98d348e8776",
         "18a471ab07c96c468e0f403e489645ea0a61bb969a933cf57434198907241b9e",
@@ -222,11 +178,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "d3ac30b07b3fddb79181927155ba4ceed49b009530deec3963c5107e800fbf3f",
         "9981cc69004cd8ed68746f84ab4f075b55cfe86993336d8cce80ffd91556f48d",
@@ -240,11 +192,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "aaef700a186789eb6473fe1f3f1a90715040aae5fb7e4195dd913fa248bb11d8",
         "fd904b37be495cad8112aa7948002097ba9659ab8b6046d78fa596fe3af6ecce",
@@ -258,11 +206,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "287a301f3412a3772a1e5072ab19b47077ee0fb45f2b0d30e982f11bf4c9c4ee",
         "9b4bab4b12688ae29075cc18c61b1451c992a7c66305422612df98be1c1d7cf8",
@@ -276,11 +220,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "44c463fee21a565eb7f76d05b9042ac515860a90b3e877af98e25cdc87bcd517",
         "479762128ff683344c797be1bc3ab7f60fc50136c2cdec51cd2fbcef6fe67b78",
@@ -294,11 +234,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "c9c98fdc88d6c655b9b9500b01c49866250247dd53f7ac7cfa2f07e10ca7aaf0",
         "0cb2959070acdeab50c58ced3cc8e1bba63931205eedf2913b61ff52497fb48a",
@@ -312,11 +248,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "7efb5d78e8f8e81359685330f2e154e1e8ca65811e9f8ef334beca7dc0550daf",
         "dc4558597311c502e94685476c2e6a923571b2183b02b5ea42f6c33b8b070c5b",
@@ -330,11 +262,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "30ce6eadbe2b79c69029de3c5cf0b4b8380b441657f1d7482635265f7f0f5b4a",
         "33de2bf48c9832e8a1895c1aee1c9a04ae7985b12e428d91a247dcc84c0649de",
@@ -348,11 +276,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "b5a6609a71e6403723d76cbe681138c3e6150b1becc9974e3652b2bd99373bb9",
         "9e79bef067124dcff5c7b3d2d318e674a46ba8d925ff679ab2d965fb9cc73a82",
@@ -366,11 +290,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "330677956f56bc30677146a537b5b175bf10023955acf84ce9742545796ceef8",
         "71ac16f478031bfdbe7ab950c05213af97dfcdf71021447dff26058e05e9f616",
@@ -384,11 +304,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "9b8f676d7fae0d2dceab5b40eddcbf34e8bf20646d3f49b483c8b7c1537d1b13",
         "c65375e62d272d296072f5e428dd19c3b595e07fb694a666a56d343347a769ba",
@@ -402,11 +318,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "853c738946a517e69cab25b7d493cf4ef170e7161b7c63f2c2a6c5c6bbbe84af",
         "f17481ad8d8adfbcbee475dedf4394c0c5f174e0a59ea308d66daf2636fc1cc7",
@@ -420,11 +332,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "c4d1791a30ff02bf8ab0a5d2991baee6fb8206ecb5748d8627465afa0745881f",
         "d6c4136482f9cc2163b07d9a4aa9db468bad5ba822a2a34c1853451ef85711db",
@@ -438,11 +346,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "5753c50144306a3f624cbc46e1125040a8f57fc85cfce408b51fe428482d7442",
         "db29a3d38d8a6d906aac04b3a66d6a2e34932b94e800519b9623206a0920ed08",
@@ -456,11 +360,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "a2ac72060f54567e3b3eec32d03c6e3d4f6213dda4e65e9f43b07eb53944127d",
         "7df168e17653a0b225d9fbbe59758d36a091a43306a851607d73b18382b1eb94",
@@ -474,11 +374,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "72b7934a7c9d30e901689299b9c6895cf816ab55d2d3e72ddb2e4569d25cbfac",
         "bb462f5916fca33b71cf63d7ef31d4cf6898ec71ff27ebe5bed1da2e10f96396",
@@ -492,11 +388,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "5492557a0b5e0053ad5aa286f16978d97fc5735355b3308594f3fdcfa6e38b1a",
         "d8cbe74a1be0077a6f4850cbb3d198fb6620131ff6ac1f9014d488744aaa92f1",
@@ -510,11 +402,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "dd0d80570b8f6087e3c5c06805d439eddf9062174aff4ef5c420b1ffa12d0d6f",
         "82bfcbc8101fbfa5f4bad58a696c97996c859512f67f25f653abdc0ab646c422",
@@ -528,11 +416,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "b1d302ab1d599b170aca8946bcd7444fb7fb3aedb7556d9b8884fcebf14413c8",
         "537c6225a6af7b27e122a1821678990a9f01ba0b2fc4ac2c886234dbf8c1a3d6",
@@ -546,11 +430,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "bd55549ca4baaf28ae6cd284dd8fdaa7c2edbdde7d950c0f29c29f21fba81f9d",
         "d1a601a5c48cade1b94051f1b9e3e7c5caf250f0f473febfd4fcd4e9a1b0e8c5",
@@ -564,11 +444,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "9f7a31181118833ca0f171fac09f961dfde4c574892a581384dcedad2b07aef9",
         "aa902b85576c8cc79f6db43575e4f27d8cd77c1de2ab973c9464d792d7649ef9",
@@ -582,11 +458,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "32944902241272e7ada999a064d713b5babc847a89927c6ae4719719ca21819f",
         "5c024390bcd1d3a9a2484389ba5020f63ab0ac4887fb95349ca4722115dd5897",
@@ -600,11 +472,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "3be7ea65afba2be987a7eb72dd98cb0fa618d04ac33ac635375adbdf815b6d7f",
         "f9a3ce3139003efaf15ba104841401c3abf19e7fdab1b9315e5951a7fbe25ba2",
@@ -618,11 +486,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "7dcc35906cdfaf58b8fb64973f8dc59fc299d5c78fee95ea11f6045241ad9dc7",
         "1e3e3c0ccc997c3174e49ff43de480f3341622a83a58565a562849238e071831",
@@ -636,11 +500,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "262436f7984c74cac1126501667038121c1f2b114e26d736fd7c40343c12969a",
         "842b51bc243907bda7c81d41a2a310948564154130799e946ae02bc18f0f481f",
@@ -654,11 +514,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "59e4a0870f483d8909e63943dd1624abf4b7fe83d8215aee522e54a4fee7f7dc",
         "d923141c46bb3b3dacc8ec8ad62472c66dbf00f12078f0cabdd9989b0533ecb9",
@@ -672,11 +528,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "377766cd55b3a37f9f61790d5fc071431211bf635e9932bf8b52dd94a5ef41d2",
         "ed9723226eed1326718df39376d426f75335e710eefe5d33b8d5fcde9927f3f0",
@@ -690,11 +542,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "pass",
-        "fail",
-        "fail"
-      ],
+      "votes": ["pass", "fail", "fail"],
       "request_sha256": [
         "41a785c78e000a2a2beb1ad0f3914ab3dbb4444f5a6804e9dc6fd7ef6fccd658",
         "0395b8704dccf023d3fbb14fa6df8960758e7e71b6a3c2ac818e47b620604dd5",
@@ -708,11 +556,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "4be3b4b06083f15aa08d589fbf11233767cde28662a17cf2430836eab14ddaac",
         "b9f9d459bcb3303223d8087085122f1590cf6ddf04997435cc3c4a487a8c7df7",
@@ -726,11 +570,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "adcf0e4221cf94d51f00d96923cbc4a78dbd728322ed1b9038f7ebe0e5ac9e51",
         "202549d367764b2b59d21031cbd4a68394a572b4e2b109130d59e5f1ebc062dd",
@@ -744,11 +584,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "0c123df0e2c21061f11adf8bc70365eaffb953d1def89615c3d39951eaacfdde",
         "c49d8c2d4410743c2434b49fbf4ec11b9df5f1f6e4ffb2979b774eca4f80822c",
@@ -762,11 +598,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "b87a7280e49fd2e04656dcb1fe39347faaff2d0d1612b6debec469b59f446a4d",
         "21ef2333385bb43055be3709af5ea564fcbe68354ac6d7dcceb0aedeade157a4",
@@ -780,11 +612,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "018c17af5044e0db7da2b4e098e82a637c81c2e038ee7cdb48620f6d87a96a75",
         "e6818af93fec7e1fea030505daf5283d4b6191513807cd3180844e897a1c7ba7",
@@ -798,11 +626,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "f99b2ade608962ca5f09c85af83a66ac65ab9d7b9271667cbd9ff71747e69e0b",
         "88a0dd1274caba64e600caffab8972fa7e3b8c7fd207e6b4d11ff514dff0b1a4",
@@ -816,11 +640,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "051ed5b045ea1931e73c09d2d31c9d10870f3084d4d6e60c5961af9591ab9bd6",
         "e9c02a807f639f921dc9dc90603d108adf946b89a2c2866408bb1b01cba41842",
@@ -834,11 +654,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "39d8c13899bbaf11f0a27858078bd72425700a7f5c15f085c4f87028c3ea93be",
         "518d28034aa0ddd351b7260f03309960455f9458b7df0d0f64b0ccf1735641b6",
@@ -852,11 +668,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "ece8006bffab9dc23faba2ec8f4ba180e57f48c7db65e3675f517afb8270a10a",
         "66fffd16796136676e33d0a7ceb789adcded5afa45425fe781a48465f6d361f6",
@@ -870,11 +682,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "141d631a95950f73b09cff04d3ddbd168d5b142e43bd6463e25b3507142f8645",
         "680000b9492d734d23ec65389d7298e30701686fd101d8652a402ee92fb7e943",
@@ -888,11 +696,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "50a19e773f7798afa8a6fe4692bdaf41589e919f754641cb8aee6f1996b16f78",
         "9179f75f495853611a5f066d6dd45fff1bc403acc2e81d1d6f6f123666f85ec4",
@@ -906,11 +710,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "538dd69bc721e18d4ec9f1c53c49eb0ed2ba6e0f4f9241f2dd7f5a49016d8cea",
         "52adf6ad2e9534c0303662af119708780ac3e511cf613b28f9e606be0c7f4340",
@@ -924,11 +724,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "2dd0f038c0bcf7f60df428d287d7068ee32bdb15d35e6888d511886ee7473f56",
         "e9dac361916a9e6ebdfd01890bf824b3bff9b98c14e06074c39c59045368fcb4",
@@ -942,11 +738,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "d46433933144c1be7e3f098255d6d8a2a8fc0a52c157a604a3579f81cecb4f2d",
         "8790cce038b37ae649be5058faf036bc33733e4814233e187d88de4d38f2e212",
@@ -960,11 +752,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "1980a16074ebc31476103b872e084659939ad0c97ad425be7730c2168d0c0db5",
         "21d2597f58916c0915cc340d92c59c9a45ae57e41076bf748a0b24bc51bf6906",
@@ -978,11 +766,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "3998d287da8d0625679360af1522c7e47ac595b25cb38c45fe5196f4adff4ca7",
         "5793b687617e69d104ef2513a637f2742d5f1e803c66fb3f494ce253007d8f97",
@@ -996,11 +780,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "79c734049f3e8d116f94de353b8fe073e6d53f687a5feaf74c6305ce08dac28b",
         "606d65ff110dfd276d29952cca6cbe1c1c758a306be6a9db68aee8501f69f640",
@@ -1014,11 +794,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "ddace22660fb5574f32404c9dd03bc3e18367f47956adb7916851937e3257edc",
         "64fc1f7ed0a3d2e02b781d4a2cf5d3906934b85b95cd90fec1fff02c02648d50",
@@ -1032,11 +808,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "4c2efd2e422ef4d9987952139529978cf1963966ef759aec61ba2c4f9d559d2b",
         "7118c2078331a338ce34f14fb6d773688a62678c71b033f4f6048d1277796393",
@@ -1050,11 +822,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "e00770cdd66b778cddf11ae84c271e1b6a2cdc369408f2be2c564bee095ad8ab",
         "89a29f2a15bd8ec071055ce93b4a129f77fdd2cea3c895753e02781fd04eddb4",
@@ -1068,11 +836,7 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail",
-        "fail",
-        "fail"
-      ],
+      "votes": ["fail", "fail", "fail"],
       "request_sha256": [
         "553e8a7d75e35fc92fbd342f9e1a8242a0f078918053bbcfca446ac8bed76111",
         "5403c1fc96d3f8953aed132917c13839985b2e2d716a39acdd1cf7438349f8d3",
@@ -1086,11 +850,7 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass",
-        "pass",
-        "pass"
-      ],
+      "votes": ["pass", "pass", "pass"],
       "request_sha256": [
         "4880a24f015d5d23fa5cc47f9d5586da1ef4a04418d426dff7ce9111911b464e",
         "66551437e0bad5901be871eae31980e46d1fecafde4be34851ad13cac3f43585",

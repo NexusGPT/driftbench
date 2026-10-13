@@ -24,12 +24,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "bdebb6cabda7eaad84b67dde10374ccd61ed068246d61d7c60a2288c12e6e7b4"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["bdebb6cabda7eaad84b67dde10374ccd61ed068246d61d7c60a2288c12e6e7b4"],
       "costUsd": 0.0005607
     },
     {
@@ -38,12 +34,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "1b8c6f71d2850c7c63bb175c6c603c199facd4a475ec664b7a9d1c4e872e87bb"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["1b8c6f71d2850c7c63bb175c6c603c199facd4a475ec664b7a9d1c4e872e87bb"],
       "costUsd": 0.00048770000000000004
     },
     {
@@ -52,12 +44,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "6f6cbfd3e77dca6716e27f1aee484e3fe86300a4292f545190a920454df81de4"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["6f6cbfd3e77dca6716e27f1aee484e3fe86300a4292f545190a920454df81de4"],
       "costUsd": 0.0004732
     },
     {
@@ -66,12 +54,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "a6de03a62f3f1c9bac35cb915204c8e3eb2d32a3ef4a2fb05f2cba635b6777bb"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["a6de03a62f3f1c9bac35cb915204c8e3eb2d32a3ef4a2fb05f2cba635b6777bb"],
       "costUsd": 0.0006347
     },
     {
@@ -80,12 +64,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "f77a389bfa20fe401b85e75235f31a0873b5be85fdf3e1344b731279d33bccd7"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["f77a389bfa20fe401b85e75235f31a0873b5be85fdf3e1344b731279d33bccd7"],
       "costUsd": 0.0004397
     },
     {
@@ -94,12 +74,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "f07fff048ede54d018f405232310bbc5ee275056b3e86dfa7c335fcbcd51319c"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["f07fff048ede54d018f405232310bbc5ee275056b3e86dfa7c335fcbcd51319c"],
       "costUsd": 0.0005748000000000001
     },
     {
@@ -108,12 +84,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "b4df62e329974b5eee37f28da2c50b928b9d04cd70b739fe44fd05b7ce0d552e"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["b4df62e329974b5eee37f28da2c50b928b9d04cd70b739fe44fd05b7ce0d552e"],
       "costUsd": 0.0005088
     },
     {
@@ -122,12 +94,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "0c30a5f8555a4126799cc56cb06ae6ff4c49e4af693e6ec18b9e29567b181bc1"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["0c30a5f8555a4126799cc56cb06ae6ff4c49e4af693e6ec18b9e29567b181bc1"],
       "costUsd": 0.0005618000000000001
     },
     {
@@ -136,12 +104,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "7db222aebe2e9e3ef4f2737522ee1fbacdd1c597e9807ba5066558b90789c606"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["7db222aebe2e9e3ef4f2737522ee1fbacdd1c597e9807ba5066558b90789c606"],
       "costUsd": 0.0005803
     },
     {
@@ -150,12 +114,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "b2432e165076f3f57091126b6b22762f06444677622243691b2b558f40ab1c2e"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["b2432e165076f3f57091126b6b22762f06444677622243691b2b558f40ab1c2e"],
       "costUsd": 0.0004888000000000001
     },
     {
@@ -164,12 +124,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "550715ba836c8181bfb4070f7035a8f30a0f3d9723de8104f0f0e5252591c2f5"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["550715ba836c8181bfb4070f7035a8f30a0f3d9723de8104f0f0e5252591c2f5"],
       "costUsd": 0.0007596
     },
     {
@@ -178,12 +134,8 @@
       "label": "pass",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "7bbf243f8ba05976d151c446bdf560d5475cf0f636cd455ae65ffaafacbdabdb"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["7bbf243f8ba05976d151c446bdf560d5475cf0f636cd455ae65ffaafacbdabdb"],
       "costUsd": 0.0008371000000000001
     },
     {
@@ -192,12 +144,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "4621ef3097354ecde1c0a236aa62ba63750577e9d6a57554725a3bbe9e132d3e"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["4621ef3097354ecde1c0a236aa62ba63750577e9d6a57554725a3bbe9e132d3e"],
       "costUsd": 0.0005086
     },
     {
@@ -206,12 +154,8 @@
       "label": "pass",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "af7df31fe48f83618fe71974e23139b1918a4b28b538a948b0ab359f578a5c51"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["af7df31fe48f83618fe71974e23139b1918a4b28b538a948b0ab359f578a5c51"],
       "costUsd": 0.0007006
     },
     {
@@ -220,12 +164,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "95fbb80ac43fee8d030c2bc2374b5e4961691719a47372db7f3fe73b8dba5dc8"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["95fbb80ac43fee8d030c2bc2374b5e4961691719a47372db7f3fe73b8dba5dc8"],
       "costUsd": 0.0004121
     },
     {
@@ -234,12 +174,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "00f7f75f950a1490f233304df80a176de6ee3935508b524dc9c77f154e0c4c5b"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["00f7f75f950a1490f233304df80a176de6ee3935508b524dc9c77f154e0c4c5b"],
       "costUsd": 0.00046620000000000006
     },
     {
@@ -248,12 +184,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "cbde2a781deec576b7ece2290acf311f2252d05f98ea61c7953042f43d5bce9b"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["cbde2a781deec576b7ece2290acf311f2252d05f98ea61c7953042f43d5bce9b"],
       "costUsd": 0.0005617
     },
     {
@@ -262,12 +194,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "b19e9a03e651c0875c53bd378004745097c34f5b15d94185fbe8ce43f0824cc2"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["b19e9a03e651c0875c53bd378004745097c34f5b15d94185fbe8ce43f0824cc2"],
       "costUsd": 0.00047170000000000003
     },
     {
@@ -276,12 +204,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "2b0c5cbaaf78cee6b98ad3a9a00edc39f5005a3092bfe64bdf56a5c216b6972d"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["2b0c5cbaaf78cee6b98ad3a9a00edc39f5005a3092bfe64bdf56a5c216b6972d"],
       "costUsd": 0.0005527
     },
     {
@@ -290,12 +214,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "d1de76d3152d88f59c5bb42489e13afef97473a6215b35d56977f93a37e17d9c"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["d1de76d3152d88f59c5bb42489e13afef97473a6215b35d56977f93a37e17d9c"],
       "costUsd": 0.0005537000000000001
     },
     {
@@ -304,12 +224,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "3e125d832e204335e3c8bd897a036838a78a3d72aa248981ca38f30c87795c24"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["3e125d832e204335e3c8bd897a036838a78a3d72aa248981ca38f30c87795c24"],
       "costUsd": 0.0005908
     },
     {
@@ -318,12 +234,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "f3aea9cc0f2e00711997133de7229d826b3dae76e3c3b808aad1a09e70764f5c"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["f3aea9cc0f2e00711997133de7229d826b3dae76e3c3b808aad1a09e70764f5c"],
       "costUsd": 0.00045339999999999996
     },
     {
@@ -332,12 +244,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "749548e569e0bce994e0ae1d89b31a2b7427b0584ff84cee06ed2b3e9df76320"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["749548e569e0bce994e0ae1d89b31a2b7427b0584ff84cee06ed2b3e9df76320"],
       "costUsd": 0.0005043000000000001
     },
     {
@@ -346,12 +254,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "e80ae391d36b4f060283929e498a1ceda6cef4ee24cd119fd086513fd513c9ae"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["e80ae391d36b4f060283929e498a1ceda6cef4ee24cd119fd086513fd513c9ae"],
       "costUsd": 0.0005628
     },
     {
@@ -360,12 +264,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "a0f864ea8564b5e3bd342fa316b4989df00cedddf01a968142734013779eeec2"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["a0f864ea8564b5e3bd342fa316b4989df00cedddf01a968142734013779eeec2"],
       "costUsd": 0.0004994
     },
     {
@@ -374,12 +274,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "0926c2c8cd65de78a05446dba2ff8bd83d7bd080026d3f9d67b1e689b1163684"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["0926c2c8cd65de78a05446dba2ff8bd83d7bd080026d3f9d67b1e689b1163684"],
       "costUsd": 0.000647
     },
     {
@@ -388,12 +284,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "959eb5689d8c0fe21c25012e9158806acd69bf4c28b708470273d77d03afbf21"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["959eb5689d8c0fe21c25012e9158806acd69bf4c28b708470273d77d03afbf21"],
       "costUsd": 0.0007445
     },
     {
@@ -402,12 +294,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "11ad642dc917ad0dd73dd515c63c59e2cfd677924dbfdf83d0227f77f94586fe"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["11ad642dc917ad0dd73dd515c63c59e2cfd677924dbfdf83d0227f77f94586fe"],
       "costUsd": 0.000688
     },
     {
@@ -416,12 +304,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "e60541f0d1c5c62091324f93b5db6ea86f04857aa441dc1cb0682611723f0320"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["e60541f0d1c5c62091324f93b5db6ea86f04857aa441dc1cb0682611723f0320"],
       "costUsd": 0.0006204
     },
     {
@@ -430,12 +314,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "1b4dd8842d78a9c908077be30c59639de6aa6723d64a603e2ae62cb00c1596e4"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["1b4dd8842d78a9c908077be30c59639de6aa6723d64a603e2ae62cb00c1596e4"],
       "costUsd": 0.0005939000000000001
     },
     {
@@ -444,12 +324,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "0b2599c4d3b8624bb2ffe4edd86fd7170257b778da2b3a96721a755728830c04"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["0b2599c4d3b8624bb2ffe4edd86fd7170257b778da2b3a96721a755728830c04"],
       "costUsd": 0.00046750000000000003
     },
     {
@@ -458,12 +334,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "3459e7e66c9bc5eddafc3c908e6249899a6df90a6bb70e29ca66fe1f11adce67"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["3459e7e66c9bc5eddafc3c908e6249899a6df90a6bb70e29ca66fe1f11adce67"],
       "costUsd": 0.0005158000000000001
     },
     {
@@ -472,12 +344,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "b88b4f0335ac7ce90a3223a2a65535003c2b0421a0ddb039239d325169350b38"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["b88b4f0335ac7ce90a3223a2a65535003c2b0421a0ddb039239d325169350b38"],
       "costUsd": 0.000532
     },
     {
@@ -486,12 +354,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "ba89ddf405fb80d40a068919e0a239a43413dcb399cfe757fc824e84376fec45"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["ba89ddf405fb80d40a068919e0a239a43413dcb399cfe757fc824e84376fec45"],
       "costUsd": 0.0005375
     },
     {
@@ -500,12 +364,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "eb1a130035b891057cc113a2d411d314356e877184c38ddea1a8c66e305af8a9"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["eb1a130035b891057cc113a2d411d314356e877184c38ddea1a8c66e305af8a9"],
       "costUsd": 0.0005813000000000001
     },
     {
@@ -514,12 +374,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "d14371f1836bf302472c6ab8a5bbfd2bfd855023b83feca9df5f5af702863b42"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["d14371f1836bf302472c6ab8a5bbfd2bfd855023b83feca9df5f5af702863b42"],
       "costUsd": 0.00046560000000000004
     },
     {
@@ -528,12 +384,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "792084149249fb473849977da06332fe579b6d787c9f1da2038fb899c63acb71"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["792084149249fb473849977da06332fe579b6d787c9f1da2038fb899c63acb71"],
       "costUsd": 0.0005476
     },
     {
@@ -542,12 +394,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "906c20fd90ff4f396fc854f381569abba223002a989f000c8f270650464d24e0"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["906c20fd90ff4f396fc854f381569abba223002a989f000c8f270650464d24e0"],
       "costUsd": 0.0005194
     },
     {
@@ -556,12 +404,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "4b97e09802aad8078cc624357bc603b7704c3ae945a5c84d838fbed1ac790b88"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["4b97e09802aad8078cc624357bc603b7704c3ae945a5c84d838fbed1ac790b88"],
       "costUsd": 0.0004971
     },
     {
@@ -570,12 +414,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "d5fd32e4ab342880f9cad977b2d8c368332811b3f105fe97f198be56d0e5c833"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["d5fd32e4ab342880f9cad977b2d8c368332811b3f105fe97f198be56d0e5c833"],
       "costUsd": 0.0005744000000000001
     },
     {
@@ -584,12 +424,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "717aa7a701e78c73596b42b324c47271e31756ded260f4b6ff2b1934abd5d023"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["717aa7a701e78c73596b42b324c47271e31756ded260f4b6ff2b1934abd5d023"],
       "costUsd": 0.0004441
     },
     {
@@ -598,12 +434,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "48828c236bb3ec28fdcb964c0c165222ed6ab741af4eb19528eab9f96d143924"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["48828c236bb3ec28fdcb964c0c165222ed6ab741af4eb19528eab9f96d143924"],
       "costUsd": 0.0005911
     },
     {
@@ -612,12 +444,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "0301eb2bc86a5d439ed3906387ec68a6861db9fb16ef27831e35c15b0d5022d0"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["0301eb2bc86a5d439ed3906387ec68a6861db9fb16ef27831e35c15b0d5022d0"],
       "costUsd": 0.0005746
     },
     {
@@ -626,12 +454,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "7876942ae73e1c6b8b4bbad83b5beda782b8f111c927f343fb173e957c1b9234"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["7876942ae73e1c6b8b4bbad83b5beda782b8f111c927f343fb173e957c1b9234"],
       "costUsd": 0.0006566
     },
     {
@@ -640,12 +464,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "970b4c7e0b24b461457f3adeec9022c7342838198824939b53cb645af043f9e8"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["970b4c7e0b24b461457f3adeec9022c7342838198824939b53cb645af043f9e8"],
       "costUsd": 0.0004931
     },
     {
@@ -654,12 +474,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "5ce64bdbc0531d9d9306834a6d7f8d9c8610a58a799e5eecef6ebb6922a01c34"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["5ce64bdbc0531d9d9306834a6d7f8d9c8610a58a799e5eecef6ebb6922a01c34"],
       "costUsd": 0.0007598000000000001
     },
     {
@@ -668,12 +484,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "6aa48ab7bd9051ff069e14266b2d57f38c710d7997f5c7f3c9a97be21732c5e0"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["6aa48ab7bd9051ff069e14266b2d57f38c710d7997f5c7f3c9a97be21732c5e0"],
       "costUsd": 0.0007173000000000001
     },
     {
@@ -682,12 +494,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "72e8598c5a0f17a7d00e605e0856f8451360f0ea0f11b95162a5d9828fb854cc"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["72e8598c5a0f17a7d00e605e0856f8451360f0ea0f11b95162a5d9828fb854cc"],
       "costUsd": 0.0008023000000000001
     },
     {
@@ -696,12 +504,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "d594ed4187aec10cabb356ad718491c51b127e4b2716f863a1aacf2a86a75d7d"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["d594ed4187aec10cabb356ad718491c51b127e4b2716f863a1aacf2a86a75d7d"],
       "costUsd": 0.0007523000000000001
     },
     {
@@ -710,12 +514,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "d2392baf7968ec195b4753c4a08485b4ba02ef732481d06394705c5afe83ef7d"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["d2392baf7968ec195b4753c4a08485b4ba02ef732481d06394705c5afe83ef7d"],
       "costUsd": 0.0007708000000000001
     },
     {
@@ -724,12 +524,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "8ebf3b6cd09a039c60859ab0fa50817f2c10204d3145b8baca69660bf17ac359"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["8ebf3b6cd09a039c60859ab0fa50817f2c10204d3145b8baca69660bf17ac359"],
       "costUsd": 0.0005766
     },
     {
@@ -738,12 +534,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "92a03e710e377a9ebb72f9ce95533b491957bce41814b66cac5585ad8b0696e8"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["92a03e710e377a9ebb72f9ce95533b491957bce41814b66cac5585ad8b0696e8"],
       "costUsd": 0.0006035999999999999
     },
     {
@@ -752,12 +544,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "3cf8c98630af8300035f9124174eb6eee352c43fad5fb2ac890cf220e826db95"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["3cf8c98630af8300035f9124174eb6eee352c43fad5fb2ac890cf220e826db95"],
       "costUsd": 0.0006006
     },
     {
@@ -766,12 +554,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "b49c52bbbf818986227b2c02b0141863815ff6629fdd63e4d91586505a5ae5d4"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["b49c52bbbf818986227b2c02b0141863815ff6629fdd63e4d91586505a5ae5d4"],
       "costUsd": 0.0005611
     },
     {
@@ -780,12 +564,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "a060efb287b06b2c768e8e7f949ff78e1136b5dc4edf546d82700ca5fb15fc8e"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["a060efb287b06b2c768e8e7f949ff78e1136b5dc4edf546d82700ca5fb15fc8e"],
       "costUsd": 0.0005105999999999999
     },
     {
@@ -794,12 +574,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "433e344407bc6ddf5841b183cd7e1d13f08301d6296ba0fe8cce42c990ab3380"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["433e344407bc6ddf5841b183cd7e1d13f08301d6296ba0fe8cce42c990ab3380"],
       "costUsd": 0.0004538000000000001
     },
     {
@@ -808,12 +584,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "da658a520ff729801dcff42ba1d9446a26b853a255bac03a6180c08c7b60eca0"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["da658a520ff729801dcff42ba1d9446a26b853a255bac03a6180c08c7b60eca0"],
       "costUsd": 0.0005601
     },
     {
@@ -822,12 +594,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "791e6139c4ecd4a71c8faf32b6d55f4c83832815b04a3a8368df580f9cb4519b"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["791e6139c4ecd4a71c8faf32b6d55f4c83832815b04a3a8368df580f9cb4519b"],
       "costUsd": 0.0005088
     },
     {
@@ -836,12 +604,8 @@
       "label": "pass",
       "outcome": "pass",
       "complete": true,
-      "votes": [
-        "pass"
-      ],
-      "request_sha256": [
-        "4ca74cf790864d3b9356d5df3df16b2e0f1905371e867d7ac8bf0d0d4848cb8b"
-      ],
+      "votes": ["pass"],
+      "request_sha256": ["4ca74cf790864d3b9356d5df3df16b2e0f1905371e867d7ac8bf0d0d4848cb8b"],
       "costUsd": 0.0005156
     },
     {
@@ -850,12 +614,8 @@
       "label": "fail",
       "outcome": "fail",
       "complete": true,
-      "votes": [
-        "fail"
-      ],
-      "request_sha256": [
-        "dcfbccdf9ab0724b5aca778f183fb10865eb25841be2e1bb06e9501c6cf93ec4"
-      ],
+      "votes": ["fail"],
+      "request_sha256": ["dcfbccdf9ab0724b5aca778f183fb10865eb25841be2e1bb06e9501c6cf93ec4"],
       "costUsd": 0.00044630000000000006
     }
   ]
