@@ -11,7 +11,7 @@ describe('routing cells name a declared skill or helper', () => {
   it.each(['ship', '**ship**', '`ship`'])('reads %s as the exact target', async (cell) => {
     const root = await estate({
       ...skills,
-      'CLAUDE.md': '| When | Load |\n|---|---|\n| send an order | ' + cell + ' |\n',
+      'CLAUDE.md': `| When | Load |\n|---|---|\n| send an order | ${cell} |\n`,
     });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
     expect(map.atoms.filter((a) => a.kind === 'route' && a.fields?.via === 'table')).toMatchObject([

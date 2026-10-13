@@ -191,6 +191,19 @@ describe('driftbench holdout seal', () => {
     expect(missing.code).toBe(2);
     expect(missing.err).toContain('Cannot find');
   });
+
+  it('names the gate output folder when --specs is the specs folder inside it', async () => {
+    const out = join(await temp(), 'sealed');
+    const result = await run(['holdout', 'seal', '--specs', join(GATED, 'specs'), '--out', out]);
+    expect(result.code).toBe(2);
+    expect(result.err).toBe(
+      "--specs examples/acme/gated/specs is the specs folder inside a gate output. The specs the gate sealed are beside it, in examples/acme/gated/holdout. Pass the gate's output folder: --specs examples/acme/gated\n",
+    );
+    // The folder the message names seals as it is.
+    const fixed = await run(['holdout', 'seal', '--specs', GATED, '--out', out]);
+    expect(fixed.err).toBe('');
+    expect(fixed.code).toBe(0);
+  });
 });
 
 describe('driftbench holdout score', () => {

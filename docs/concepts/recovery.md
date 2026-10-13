@@ -2,7 +2,7 @@
 
 Users deviate. They ask something off-topic, change their mind, contradict themselves, or hide an instruction in data. Recovery measures whether the agent comes back to the flow, how fast, and what breaks on the way.
 
-Deviations run in perturbed mode, P. A campaign runs one P cell per perturbation and repeat: `driftbench campaign run <paths> --mode P`, or `--mode T,F,P` to get the free-running reference in the same campaign. The injecting driver of `@agent-nexus/driftbench-core` sends each perturbation the spec writes; the runner measures the recovery of every perturbed run, and `campaign status --detail` prints it. The perturbing driver, which draws deviations on its own, and the simulated user are planned, phase 3. See [run modes](run-modes.md#perturbed) and [running](../running.md).
+Deviations run in perturbed mode, P. A campaign runs one P cell per perturbation and repeat: `driftbench campaign run <paths> --mode P`, or `--mode T,F,P` to get the free-running reference in the same campaign. The injecting driver of `@agent-nexus/driftbench-core` sends each perturbation the spec writes; the runner measures the recovery of every perturbed run, and `campaign status --detail` prints it. The perturbing driver and simulated user are built in phase 3. See [run modes](run-modes.md#perturbed) and [running](../running.md).
 
 ## The twelve deviation classes
 

@@ -66,6 +66,7 @@ type CiCommandOptions = {
   specs: string;
   target: string;
   route?: string[];
+  processCommand?: string;
   baseline: string;
   store: string;
   margin: string;
@@ -163,6 +164,10 @@ export function registerCiCommand(
       'run the specs a tag marks on this target in the candidate too, such as flow:price-sheet=process:acme-ops; repeat for several',
       collect,
       [],
+    )
+    .option(
+      '--process-command <command>',
+      'the agent command for a process target other than process:acme-ops, as campaign run takes it: a JSON list such as ["python3","/path/to/agent.py"], or words split on spaces',
     )
     .requiredOption(
       '--baseline <campaign|store>',
@@ -284,6 +289,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
       cache: options.cache === true,
       concurrency: options.concurrency,
       ...(options.budgetUsd === undefined ? {} : { budgetUsd: options.budgetUsd }),
+      ...(options.processCommand === undefined ? {} : { processCommand: options.processCommand }),
       json: true,
     },
     capture,

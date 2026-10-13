@@ -93,7 +93,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `stages` | list of strings, each not empty | no |  | The stage catalogue of the flow. expect.stage and recovery.stage_after must name one of these. |
 | `criteria` | list of [CriterionDef](#criteriondef) | no |  | The judged criteria the blocks may reference. |
 | `blocks` | list of [Block](#block), at least 1 item | yes |  | The blocks, in order. At least one. |
-| `end` | [Spec end](#spec-end) | no |  | An end verdict, given after the last block: the run stops there with this verdict. |
+| `end` | [Spec end](#spec-end) | no |  | An end verdict: the run stops after block atBlock (the last block when absent) with this verdict. |
 | `rules` | [Rules](#rules) | no |  | Rules for the whole conversation. |
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
@@ -575,12 +575,13 @@ Limits for one block.
 
 ## Spec end
 
-An end verdict, given after the last block: the run stops there with this verdict.
+An end verdict: the run stops after block atBlock (the last block when absent) with this verdict.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `verdict` | `success` or `failure` | yes |  | success when the script ends the conversation well, failure when it ends it badly. |
 | `reason` | string, not empty | no |  | Why the script ends here. |
+| `atBlock` | integer, at least -1 | no |  | The index of the last block that runs, -1 for none. The blocks after it are skipped by the verdict. Absent means the last block. |
 
 ## Rules
 

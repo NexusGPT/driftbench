@@ -121,3 +121,24 @@ describe('D13: the owner allow-list', () => {
     expect(failing(verdicts)).toEqual([]);
   });
 });
+
+describe('the reserved-domain exclusion is an option, on by default', () => {
+  it('excludes example.org addresses by default, and finds them when the option is off', async () => {
+    const { scanPii } = await import('../src/support/pii');
+    expect(scanPii('mail marie@example.org now')).toEqual([]);
+    expect(scanPii('mail marie@example.org now', { reservedDomains: 'include' }).map((f) => f.kind)).toEqual([
+      'email',
+    ]);
+  });
+
+  it('keeps reserved domains excluded by default and counts them when the check is told to include them', async () => {
+    const text = 'Please write to marie@example.org today.';
+    const byDefault = await run(createPiiCheck(), context(coverage, 3, observed(text)));
+    expect(failing(byDefault)).toEqual([]);
+    const included = await run(
+      createPiiCheck({ reservedDomains: 'include' }),
+      context(coverage, 3, observed(text)),
+    );
+    expect(failing(included)).toEqual(['pii.email']);
+  });
+});
