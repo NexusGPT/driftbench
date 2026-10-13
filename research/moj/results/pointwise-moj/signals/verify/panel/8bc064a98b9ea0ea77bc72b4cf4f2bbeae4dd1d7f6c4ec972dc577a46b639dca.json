@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": null,
+        "key": "98ff29af4ab50c751e95b3199188caa18daa6daae4762b59417820e00c120eb5",
+        "reason": null,
+        "usd": 0.0009683000000000001
+      },
+      "gemini": {
+        "pA": null,
+        "key": "c375e5e1b6b9cd37aa53077d70e45270006d76a4204b4fe0c427e5fc4c0fad72",
+        "reason": null,
+        "usd": 0.0071955
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "665fe8a1c2af1cc41dcc8d496590f1c3f5b61a2ff22ef470c0ad9ffd5392e67f",
+        "reason": "The condition gives sqrt((x-2)^2+y^2)=|x+3|-1. For x>=-3 this becomes y^2=8x, and the requirement that the left side be nonnegative restricts it to x>=0. For x<-3 the case yields y^2=12(x+1), which has no real points consistent with x<=-4. Spot checks confirm the result: (0,0) gives 2=3-1, and (2,4) gives 4=5-1. The final answer y^2=8x is correct, though the reasoning is verbose and wanders before settling.",
+        "usd": 0.0028183
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "98ff29af4ab50c751e95b3199188caa18daa6daae4762b59417820e00c120eb5",
+      "count": 1,
+      "usd": 0.0009683000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "c375e5e1b6b9cd37aa53077d70e45270006d76a4204b4fe0c427e5fc4c0fad72",
+      "count": 1,
+      "usd": 0.0071955
+    },
+    {
+      "provider": "haiku",
+      "key": "665fe8a1c2af1cc41dcc8d496590f1c3f5b61a2ff22ef470c0ad9ffd5392e67f",
+      "count": 1,
+      "usd": 0.0028183
+    }
+  ]
+}

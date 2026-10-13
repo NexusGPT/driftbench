@@ -1,0 +1,6256 @@
+{
+  "rubricbench|rubric_eval_161": {
+    "pA": 0.6208333333333333,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "b394f0fab150f1f53e1ad985e1ce63133ed7aa6d7a1fe8277642f6c2b36709a0",
+        "seconds": 0.686,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_776": {
+    "pA": 1.0,
+    "verdict": "A",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.8723404255319149,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "f605f94ae515e04b09b6d6b6c6577fe28f27b5edf3b33dfc4d2e05e75d5d15de",
+        "seconds": 0.4,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 2,
+        "usd": 0.001008
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_769": {
+    "pA": 0.609,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "d18671c116d3fd4d54362cb34b2f1890e0e3711a2cb39014d183db20f53fbddc",
+        "seconds": 0,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_602": {
+    "pA": 0.4527777777777778,
+    "verdict": "B",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "bb0d3c3d628984fcca7ad1eb9c080f0e769c01bf5b296f4da5b2c2d8d1509fb6",
+        "seconds": 0.387,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_283": {
+    "pA": 0.22125,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "b8a54d276fb1991bb03deeae06cfc78555bc555bfcbb49caad29c9de956b19b6",
+        "seconds": 0.967,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_1143": {
+    "pA": 1.0,
+    "verdict": "A",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.8723404255319149,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "deebc5ff9e80980901310086dfa3e5a47a8560113d7e4c89104f563fb52c60c1",
+        "seconds": 0.41,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 2,
+        "usd": 0.000683
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_46": {
+    "pA": 0.0,
+    "verdict": "B",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.8723404255319149,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "86935729bba8e1c2fdc910fb24e82a5e4b151fd58facae63124eb2ec74a9da26",
+        "seconds": 2.998,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 2,
+        "usd": 0.000542
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_263": {
+    "pA": 0.465,
+    "verdict": "B",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "165d990b9911682dc05d907aae288513d2366259d3f2ca4bed6c267ce0fe0d1a",
+        "seconds": 0.714,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_1008": {
+    "pA": 0.6108333333333333,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "673bde25bae578eff1bf8e8c81328f63736aee4520b84202728df5c0ffb93823",
+        "seconds": 1.945,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_699": {
+    "pA": 0.45125000000000004,
+    "verdict": "B",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "7b8dac8687603cb9788b5744518643671705fddc04e19e0172af6fb0a4234764",
+        "seconds": 1.915,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_616": {
+    "pA": 0.5508333333333333,
+    "verdict": "A",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "bc41ecdbd96391adacfa7f3d9f8721102e98de92beb660f0e7c99ec3fb773a70",
+        "seconds": 2.222,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_744": {
+    "pA": 0.5366666666666666,
+    "verdict": "A",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "3f19afc230e728f74d5e28cdf4a7a32e8b240f1046ad5166cefd1b0d6f34340b",
+        "seconds": 2.184,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_933": {
+    "pA": 0.47800000000000004,
+    "verdict": "B",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.6666666666666666,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "1220c0350ad01279d23c5c7f55338777183d4b798703281032eb31ec2f241a1c",
+        "seconds": 2.283,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_453": {
+    "pA": 0.617,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "be341d6aaaf4cb3cb4bf4b09cbedd2730b431c892da1d700b20afd37a53e6a84",
+        "seconds": 8.718,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_836": {
+    "pA": 0.3983333333333333,
+    "verdict": "B",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "8edc7a0433da33bc6d1789bea0a1600092a6a042678a43a446b95f0f21d87626",
+        "seconds": 1.206,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_973": {
+    "pA": 0.5605,
+    "verdict": "A",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "96ff334fdb6b9e6cd75e0fd082e6497144e716c9ee1b3d7150d0536f44bb659b",
+        "seconds": 0.976,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_382": {
+    "pA": 0.426,
+    "verdict": "B",
+    "initial_confidence": 0.875,
+    "pre_panel_confidence": 0.875,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "69e87c62ef75e6fd009036f3f13f766da47465071c1dcb14223ac8e9eb2c59fe",
+        "seconds": 1.275,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_754": {
+    "pA": 0.5557142857142857,
+    "verdict": "A",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "28090ae662adb0b6f06e7bf66eb9912db065deb9ed9997c92cde8c3a732914db",
+        "seconds": 3.038,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_557": {
+    "pA": 0.0,
+    "verdict": "B",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.8723404255319149,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "01c4c867bcd28206a6341246fcf0cab84b9ff4af269a6ba0d02611474639880c",
+        "seconds": 1.904,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 2,
+        "usd": 0.000312
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_279": {
+    "pA": 0.429,
+    "verdict": "B",
+    "initial_confidence": 0.875,
+    "pre_panel_confidence": 0.875,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "6154f128305ba65177d783d330a1458a52392b73e21a40240a98851efcf0df50",
+        "seconds": 2.293,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_569": {
+    "pA": 1.0,
+    "verdict": "A",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.8723404255319149,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "7bc5e849e874c01d7794ab0b5a24c632ec285870da4fc0c459d1b08367657dd4",
+        "seconds": 1.889,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 2,
+        "usd": 0.000316
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_244": {
+    "pA": 0.3333333333333333,
+    "verdict": "B",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.5,
+    "path": [
+      "pw_rows",
+      "luna",
+      "panel"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "ff25684cd47ad4b01fe4b6b770cf2a1e95bfad6d81e04bf94e67acb70b65f383",
+        "seconds": 0.357,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 2,
+        "usd": 0.000517
+      },
+      {
+        "provider": "luna",
+        "key": "0b1268334cc27383b33a583179e70519aaca356946602dcc610b0e5bb47df8bf",
+        "count": 1,
+        "usd": 0.0002656
+      },
+      {
+        "provider": "gemini",
+        "key": "31c617b72df66228a1e908db8f79f4c06c62e5ce8a506dc370c2afeba64bc509",
+        "count": 1,
+        "usd": 0.00186825
+      },
+      {
+        "provider": "haiku",
+        "key": "de30260c67eac88be62996a745e7972acaa4a42ecd99e8a0057a39e73e64ee2b",
+        "count": 1,
+        "usd": 0.0011492
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_753": {
+    "pA": 0.023333333333333317,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "98f800d742822779293680ebb069a7696526e9cc48422a4974c194191dfbaf9f",
+        "seconds": 1.737,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_794": {
+    "pA": 0.6685714285714286,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "c15959e78d957a128020170a4a6f6aada87d68191b7ab980434240be32512276",
+        "seconds": 2.606,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_1141": {
+    "pA": 0.7929999999999999,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "7b7fa8d4967089986507b751cab551dd932d8cd86247021bdff6af64dcb221b4",
+        "seconds": 1.315,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_889": {
+    "pA": 0.38833333333333336,
+    "verdict": "B",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "b30a0f51b7bc98d36dbb2801476991dacedbf109e29609491102f7757a3a0a21",
+        "seconds": 0.999,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_942": {
+    "pA": 0.0,
+    "verdict": "B",
+    "initial_confidence": 0.7539393939393947,
+    "pre_panel_confidence": 0.8723404255319149,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "560017a5c5aff602f6411ac639b496c17a754e97897183a817df006195aaa853",
+        "seconds": 1.186,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 2,
+        "usd": 0.000422
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_1011": {
+    "pA": 0.361,
+    "verdict": "B",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "3f68b6c8f107b93adab7c37fb1067ac1911d2c6950e4fdb15e8e898883c3633c",
+        "seconds": 0.307,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_766": {
+    "pA": 0.49874999999999997,
+    "verdict": "B",
+    "initial_confidence": 0.28787878787876797,
+    "pre_panel_confidence": 0.28787878787876797,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "bf8a4ba212544f68279c1e9dee8b77c20f863cc09cd91162f30987c522c4db16",
+        "seconds": 1.57,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_209": {
+    "pA": 0.655,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "2e0418e37f125d9bb8220a066ce8965fa42bfbaef6bbe5f8e598e26eeccb7fae",
+        "seconds": 1.269,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_621": {
+    "pA": 0.6225,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "d2ce87fd1f49539687098e36625a2a9ab8ea5089ae26524f0c34f868a49288d8",
+        "seconds": 1.35,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_409": {
+    "pA": 0.4464285714285714,
+    "verdict": "B",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "aa0fd12f1e3523ca3638b8a2c5c3c2e42351274072bb6066b02f91ba64b2da81",
+        "seconds": 2.37,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_368": {
+    "pA": 0.5800000000000001,
+    "verdict": "A",
+    "initial_confidence": 0.875,
+    "pre_panel_confidence": 0.875,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "98153c743c2ce3fccdbd8392954995dd7ac4fe65c13672b6c14ec1a546952212",
+        "seconds": 2.069,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_689": {
+    "pA": 0.257,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "8f9e77272d2653efec6adcec8ca5c536504d04ac5fbbce5a28ea19417824c057",
+        "seconds": 2.342,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_336": {
+    "pA": 0.0,
+    "verdict": "B",
+    "initial_confidence": 0.28787878787876797,
+    "pre_panel_confidence": 0.8723404255319149,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "46fd113a24a66461c451feab115ff6ce69aaeff19d434f52119892fecfd12fd9",
+        "seconds": 1.763,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 2,
+        "usd": 0.000663
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_458": {
+    "pA": 0.6375,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "5faa19abf9d570e5bbddb134ceb9d5b0ca59c74b150ea44d2ab3808446fc9277",
+        "seconds": 1.479,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_739": {
+    "pA": 0.385,
+    "verdict": "B",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "74ff00192a869e601119b6d76fb90ba604ee43d9c4080efc90714565f66f64c7",
+        "seconds": 1.022,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_237": {
+    "pA": 0.259,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "45cdb7516e84b95686856895051bdd21fe89b5001cf2f6f4b0fb0ce6d76d8169",
+        "seconds": 1.023,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_384": {
+    "pA": 0.6060000000000001,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "88228374a8d4d2712eacb690ab952337f3df9032a694c8cf5bce78837530bdb9",
+        "seconds": 0.337,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_107": {
+    "pA": 0.35250000000000004,
+    "verdict": "B",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "17dd82d26c0ce948bebf08a7a88638f642e085f264968bf8dfdc2dbfb2e145d5",
+        "seconds": 1.003,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_334": {
+    "pA": 0.1825,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "56fa504e4b75ad230f002b7b44053318d18c97c34b61705f5ce7a663e27e784f",
+        "seconds": 0.391,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_21": {
+    "pA": 0.446875,
+    "verdict": "B",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "8b02cf093fa4d6b1710ad7bc26b1cbefec15122a4168c09ef20ab480a6b6fc98",
+        "seconds": 0.853,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_393": {
+    "pA": 0.71375,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "f756338c508e9d683e6262553ab94ed9a84d29d81996b86501892fe7b778bf2b",
+        "seconds": 0.856,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_142": {
+    "pA": 1.0,
+    "verdict": "A",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.8723404255319149,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "5d5dc5039fc019e0de26001118be44be48c6e98ece0f81315cb0e5e3ebcc135b",
+        "seconds": 0.77,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 2,
+        "usd": 0.001681
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_267": {
+    "pA": 0.595,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444444,
+    "pre_panel_confidence": 0.9444444444444444,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "0e1a4aaa435ff9f9eb91752b0e6458a03c8dcd58af4aa07e1423df66c35c49c0",
+        "seconds": 0.758,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "rubricbench|rubric_eval_40": {
+    "pA": 0.5391666666666666,
+    "verdict": "A",
+    "initial_confidence": 0.8,
+    "pre_panel_confidence": 0.8,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "e3e7ec433e5fbc47407a4040ed2b3594d4841a555ba62df16444687c99791eaf",
+        "seconds": 0.832,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.094": {
+    "pA": 0.0,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "64dd453c4d70253cd2fa7075b4511221c1b6229a14d0fd81163de30e4f657c25",
+        "seconds": 0.749,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 6.1e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.115": {
+    "pA": 1.0,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows",
+      "luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "1fd8f92b6c147efdb87fb29af9d19533a6fd195991a6be54238567b1bb2d1864",
+        "seconds": 0.775,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 5.7e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.053": {
+    "pA": 0.27,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 0.8666666666666667,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "6fab1ca7d6ff027af239577f0ecda2f4b92aea5bbb4f3d979ce275e2e8303435",
+        "seconds": 1.797,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.074": {
+    "pA": 0.9025,
+    "verdict": "A",
+    "initial_confidence": 0.9948717948717948,
+    "pre_panel_confidence": 0.9948717948717948,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "6ce1a5bf4ffdfa878e3c7d8e83fbd792f3cfa9236fcf5ab393d6b485be155544",
+        "seconds": 0.945,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.025": {
+    "pA": 0.9,
+    "verdict": "A",
+    "initial_confidence": 0.9897435897435898,
+    "pre_panel_confidence": 0.9897435897435898,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "38fcf1333099185b6dc5e5b17aa1eb6038e73e0a3da69d029c7ee5992846b96d",
+        "seconds": 1.095,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.034": {
+    "pA": 0.275,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 0.8666666666666667,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "b6def83fdf732774203817ca8868657652ad4620aa60ce940b9deb5878a605df",
+        "seconds": 1.085,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.065": {
+    "pA": 0.91,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "ee49ee1d738c4b15b52c53e9c7cee48f3961b6fcf1fc5e6d2eed46b2dc576f2b",
+        "seconds": 0.603,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.012": {
+    "pA": 0.285,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 0.8666666666666667,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "8846560a510b70a259ff50684b30c3f22b27fbe9fe0258e06bf20eb034a608b4",
+        "seconds": 1.15,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.009": {
+    "pA": 0.2925,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 0.8666666666666667,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "359a9861c538fba3b036c87b349593ed56e0248747fa98ec05cd6819503861ad",
+        "seconds": 1.131,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.109": {
+    "pA": 0.9625,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "00b3a7d9ab9499381a393c043a8f0352d25cafe5ed5a93535890f5ea2210e617",
+        "seconds": 0.367,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.072": {
+    "pA": 0.33666666666666667,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 0.8666666666666667,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "50fc4f5f91b4489844d6348996afbe897818bf7888eea5a2e71e44557832a544",
+        "seconds": 0.957,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.030": {
+    "pA": 0.94,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "250c1b0e36e5a914823f4c800b5edb9cfbdaf5c241af9b3f0889c3743cce5cc7",
+        "seconds": 0.818,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.002": {
+    "pA": 0.9333333333333332,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "6c93cae3fafc719f5504d4e3bd3c5767a5c4c8bc5780b593342610e759aee948",
+        "seconds": 0.754,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.078": {
+    "pA": 0.2675,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 0.8666666666666667,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "46245658c86d809445b027b9c4678ca568af5373daf5b23ea1e57d391bfe0904",
+        "seconds": 1.51,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.088": {
+    "pA": 0.3433333333333333,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 0.8666666666666667,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "39525f0e02e052af244027cc60dfdf86360514653830353f7533fcf6570fb3f5",
+        "seconds": 0.731,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.090": {
+    "pA": 0.87,
+    "verdict": "A",
+    "initial_confidence": 0.9282051282051282,
+    "pre_panel_confidence": 0.9282051282051282,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "2d7b7bf404d2269f6d49863d2b06590a86dd017b4fc09596c723812962165bcc",
+        "seconds": 0.955,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.077": {
+    "pA": 0.895,
+    "verdict": "A",
+    "initial_confidence": 0.9794871794871794,
+    "pre_panel_confidence": 0.9794871794871794,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "9891a5360ba51fed60c279ff5ada5bbf18fec06c59397a13f7b658e9721c6db6",
+        "seconds": 1.015,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.104": {
+    "pA": 0.975,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "6d8128fc8b7949c91f4c94d3dfd1d3b5a34149409c9f55e8f9eb5f8cac7e2df7",
+        "seconds": 1.016,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.113": {
+    "pA": 0.9775,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "42acdd29e720a741a6f9694d03731d14cc3055ac50f7d18c9d1b04b2e4ae8e55",
+        "seconds": 0.923,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.093": {
+    "pA": 0.955,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "58b03c248fcb2c02c23d26dc26322e13b3c441c7a9b2659f7a117d04e35d7ca3",
+        "seconds": 1.051,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.110": {
+    "pA": 0.3,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 0.8666666666666667,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "c4aba3629af1900b8b8882ab9c0b2da03bcda41b1e92437971b3d5e0efc16de9",
+        "seconds": 0.875,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.119": {
+    "pA": 0.9675,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "177961dc10e40d8231a3f9ca7b9097ff1e678f0f0ab26e483a0f7a84d2295671",
+        "seconds": 0.723,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.026": {
+    "pA": 0.2825,
+    "verdict": "B",
+    "initial_confidence": 0.8666666666666667,
+    "pre_panel_confidence": 0.8666666666666667,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "74149941cd8bd5805a39dfbc56b9204c9fd6816ee755518a2eb21be078e9d12c",
+        "seconds": 1.835,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|rubric.024": {
+    "pA": 0.915,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "path": [
+      "pw_rows"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      },
+      {
+        "provider": "jev",
+        "key": "fa354862fbe2a30a61fdf19326e8ea009c827985f194aab8f050f82980fa19fd",
+        "seconds": 1.382,
+        "usd": 0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.064": {
+    "pA": 0.81,
+    "verdict": "A",
+    "initial_confidence": 0.5833333333333335,
+    "pre_panel_confidence": 0.5833333333333335,
+    "confidence": 0.5833333333333335,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "068598f6d027eaadd453d14a881d3ab0dfe7b635246a53226125640196b40c95",
+        "seconds": 1.25,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.013": {
+    "pA": 0.76,
+    "verdict": "A",
+    "initial_confidence": 0.5,
+    "pre_panel_confidence": 0.5,
+    "confidence": 0.5,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0ca68eac23154fe4baa56718d4fe5776a2611bad523b40a98264af9adaebbf7a",
+        "seconds": 0.73,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.075": {
+    "pA": 0.89,
+    "verdict": "A",
+    "initial_confidence": 0.8055555555555556,
+    "pre_panel_confidence": 0.8055555555555556,
+    "confidence": 0.8055555555555556,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b5884b42b5384ada19034cf5bcfd3cff8fc61848a68a3668eebdbff916488471",
+        "seconds": 0.289,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.041": {
+    "pA": 0.94,
+    "verdict": "A",
+    "initial_confidence": 0.9444444444444443,
+    "pre_panel_confidence": 0.9444444444444443,
+    "confidence": 0.9444444444444443,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c8822c4495fdc97ab66a03d6709b03904581056ed94d41094fd1e86ceb82adaf",
+        "seconds": 0.659,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.116": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "647b3a41ea8fb0fa22522c03ffe1820512947b7385978b147ce11ff7cb81096c",
+        "seconds": 0.291,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.068": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "cc240c2470c5f85a15e139cc8a5a15bf97176faee36d26737a9b36da88d17faa",
+        "seconds": 0.995,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.101": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d866af1937262f4dfd7d9f9d4a7f19d9cd22a6646107ed6437504bc19863292a",
+        "seconds": 0.535,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.062": {
+    "pA": 0.99,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "847063d966fe10007070ef619b1a9cf913c1ea5ef1ffe8c183bd0a5c974d85d7",
+        "seconds": 0.826,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.015": {
+    "pA": 0.99,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "a68d419a314a47cb3c78c1993b3a84fb4c309fba3c75df2c7fc7624a71e60982",
+        "seconds": 0.843,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.099": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "41a7365c90e24e9ac84c4369254f2c8f85d525d8f2fae7e3d0367a621e816a06",
+        "seconds": 1.316,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.086": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e1d11085091a522944a5dc1144187fbe9c78be6917c6a5c9bb82f19790be7c91",
+        "seconds": 2.111,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.105": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e8b845d1fbd3e874c03d1ae0213aa5fa26d54d16771de178090823e6184c9f2c",
+        "seconds": 2.914,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.065": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "097d1b3beddde0a48e7ac285c463bec217b6ddbc4ebc9afb3695e9b5afc7d946",
+        "seconds": 1.312,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.011": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "bfeb8568f05fc6c10d5d6fa024b86b69055e3b0bef81331cc8d05caa54523918",
+        "seconds": 1.264,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.032": {
+    "pA": 0.05,
+    "verdict": "B",
+    "initial_confidence": 0.9722222222222222,
+    "pre_panel_confidence": 0.9722222222222222,
+    "confidence": 0.9722222222222222,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "a26d08bb42702cc51bfd77e10eb2594aa2f60975a0fa219b30508b649af08d8a",
+        "seconds": 1.927,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.070": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "fe8cf75378a5cbe6a10efe21393fa0e6e036949d75f345eccd6e52a0fee709c9",
+        "seconds": 0.521,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.115": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "430bf0db222b799bdbf40a45b405e63e34cebb65c2e9d4ac6a484805a7db0431",
+        "seconds": 1.299,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.014": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "bf50c37f1b228ea1d5105ef844b6172420fad1da97b7d4f5fa3074e748855d4a",
+        "seconds": 1.122,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.081": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e148d5e90a4dc8fca83749efdbcca03afc15463bb8b759819402e7daef63c6f8",
+        "seconds": 1.402,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.006": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "ac816055dbe3c449d865148fd5cc09d1b74851333430a6c5701e928fb043766e",
+        "seconds": 0.286,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.040": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b723e8ca7e6e2edb3df9c2e88d6c4439a20c42f7ac0d545f9fc3ba5c155afe2c",
+        "seconds": 0.803,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.042": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c2d8414f5574a954776316b76d7b6f76e7df28cf4d9f3c8dcf9f57302bce514e",
+        "seconds": 0.708,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.063": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3e6468bb0dbcbcb1b5d1c9ede30f38f44e842ea039cff4b7ae70467e1200f569",
+        "seconds": 0.275,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.037": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "6a1326366cf9fe2c2442cc076c48072d22a2034bc8acb906c7c1bf9fd4ef2c3c",
+        "seconds": 0.31,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.027": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "34ef1ab455a8b25d95180f3b92917f3ff9e5adb13fecb90b095a1be0755b8e4c",
+        "seconds": 0.659,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.083": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "fa1770e3cd922ed19c5cf904d4d71d2ae2543ecb960cb8e12d6be96b4e612c61",
+        "seconds": 0.775,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.067": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "94f1dbf42867d91c6d029056bedad1fedade881796eb3055aed4bebff2d4b7b3",
+        "seconds": 0.681,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.097": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "798df4b1e507cfd6114df76ec556bec76297d186054eaed81fa84f7b695d54a1",
+        "seconds": 0.68,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.010": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "155c7a9613983a57358868d637f72e7116d5a3cbc6ca7107a1211b3137da39bc",
+        "seconds": 0.825,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "hardrows|factuality.074": {
+    "pA": 0.87,
+    "verdict": "A",
+    "initial_confidence": 0.75,
+    "pre_panel_confidence": 0.75,
+    "confidence": 0.75,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "9cc68eebaf8aeb8c75c2df9703681be19998af179d6b9fd92d5f3759a34d48b3",
+        "seconds": 0.656,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+    "pA": 0.06,
+    "verdict": "B",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "687c0fa3102453bfeb34ce6aec71c215f678a0cda7d2661b34a049770f6b706f",
+        "seconds": 0.709,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000642
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960": {
+    "pA": 0.7,
+    "verdict": "A",
+    "initial_confidence": 0.4166666666666666,
+    "pre_panel_confidence": 0.4166666666666666,
+    "confidence": 0.4166666666666666,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c6a44133c325b6ee7ae92e0da29296aa8edfb5a1422d548d0f0ebaa19dab7d4d",
+        "seconds": 0.805,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000206
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "5a6ac17bd23f7f529b57154ac699957b812929e19c004ecd8382254a9d094a87",
+        "seconds": 0.605,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000206
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+    "pA": 0.06,
+    "verdict": "B",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "f0a9e2235799b2d2b98c3284d8e3794b3f6cb4ea34990cbb34640e4f35c8c159",
+        "seconds": 0.629,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000255
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3dfe4191a587655a55e71756a537d8cd4e823c29280cf2ff38e691a378c9c70e",
+        "seconds": 0.799,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000143
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "4d60bd910137f70145b9bf0e3a5e2471d0900b72af5a90d459f6da8fa91b646f",
+        "seconds": 0.774,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001689
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "88287c8aef7b471c58991573b165a014f4238546cd75731e6e9a18f66dc086a5",
+        "seconds": 1.13,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000891
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "85fe0fabebd9932e71245300337396e644a636c2d7ed77545cf9811296573eb2",
+        "seconds": 0.797,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00013
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b": {
+    "pA": 0.28,
+    "verdict": "B",
+    "initial_confidence": 0.44999999999999996,
+    "pre_panel_confidence": 0.44999999999999996,
+    "confidence": 0.44999999999999996,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "50f8b6e215b4fb77d9145e3701d98db1c16443fe15c47bedc5b17cf2ff362b84",
+        "seconds": 0.825,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.002901
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+    "pA": 0.21,
+    "verdict": "B",
+    "initial_confidence": 0.5303030303030304,
+    "pre_panel_confidence": 0.5303030303030304,
+    "confidence": 0.5303030303030304,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "058a27839cf29a237b66ad2ae679c0ec30aad3636e0c5f8dda8e8372f9f299cf",
+        "seconds": 0.782,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000534
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0cda12b717e30ccdd3df45346af89ca3ae8b413516d6b2e4c5f9b0c2824b33b9",
+        "seconds": 0.407,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000625
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+    "pA": 0.3,
+    "verdict": "B",
+    "initial_confidence": 0.4166666666666666,
+    "pre_panel_confidence": 0.4166666666666666,
+    "confidence": 0.4166666666666666,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3d135b2027c41811468738678be1c043d4bff1dd2235890ad789a5d3a4fbf730",
+        "seconds": 0.816,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00151
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d": {
+    "pA": 0.2,
+    "verdict": "B",
+    "initial_confidence": 0.537878787878788,
+    "pre_panel_confidence": 0.537878787878788,
+    "confidence": 0.537878787878788,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "225770835b0f2af66f68d721d5c8d6df8a74031dbf2e07419a255c59e02ef484",
+        "seconds": 1.137,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000465
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.6666666666666666,
+    "confidence": 0.6666666666666666,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "a827d2a6baff28470ec0aed8af45fd7ee7814c89d9256ad459178ae6ae956c64",
+        "seconds": 1.275,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000191
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e": {
+    "pA": 0.48,
+    "verdict": "B",
+    "initial_confidence": 0.3333333333333333,
+    "pre_panel_confidence": 0.3333333333333333,
+    "confidence": 0.3333333333333333,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "882829c7877511e957a7e97a38313416079a29fc73327ed4074d792cc6f52969",
+        "seconds": 0.82,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000274
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+    "pA": 0.97,
+    "verdict": "A",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.6666666666666666,
+    "confidence": 0.6666666666666666,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "53aa5095c7adbb4f60a4896b02d8d697d127ced54bbfc33002e2d06153c9cb40",
+        "seconds": 0.735,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001558
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "5e61433addd15bb53a0dd11280139b6b8c03b2c83144734a8d7acac3b5cdc7ab",
+        "seconds": 0.35,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001246
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "fe045a012e46c6ca9d1448b94c3a0ff96181436e9ee3a571f2d59ac71efb6701",
+        "seconds": 0.415,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000365
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898": {
+    "pA": 0.96,
+    "verdict": "A",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3bb5cbec6192ade1eb0c75eb7b070c7c8fb6701cca9594de90e59fd1c787af22",
+        "seconds": 0.812,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 4.4e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "176974c01b99e4db30a516b0c6ca546196083bfc8bd8331cb248f435d8151f60",
+        "seconds": 0.755,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000378
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+    "pA": 0.93,
+    "verdict": "A",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "1a5bd49fcc49b408846f285ddc386cafbf256adf341b1b7f0d4ee3a10fcebfca",
+        "seconds": 1.002,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000331
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "261298b45541379d59fac16da622a3415a10c4f1c77a05821c3678bc48cb51d6",
+        "seconds": 0.866,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000194
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+    "pA": 0.05,
+    "verdict": "B",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "483ab43f03ffbcef9806fd809ca9d4e22279e868ac907feac7b3dfe41f2babb4",
+        "seconds": 1.078,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000149
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+    "pA": 0.16,
+    "verdict": "B",
+    "initial_confidence": 0.5681818181818182,
+    "pre_panel_confidence": 0.5681818181818182,
+    "confidence": 0.5681818181818182,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "90c5707c5f915e695a49ad089974ae08e954907fc3dfd65303bb68c23ebd7198",
+        "seconds": 1.227,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 6.3e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "bd76e9f96cb50938c429c911bc9849e178f7140ca666708dad817a6fdd04f6e1",
+        "seconds": 1.698,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000616
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+    "pA": 0.99,
+    "verdict": "A",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "340f058337241888bf9085594f9e9722b41634acbac7319c8ddb0408bc6d3dd4",
+        "seconds": 1.084,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000692
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+    "pA": 0.93,
+    "verdict": "A",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "08e6c403f31860978dcbdcc89c38bf307e73e07aa59a1398eff25b0ceac5a6d9",
+        "seconds": 1.2,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000194
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+    "pA": 0.1,
+    "verdict": "B",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "5e99394571e00726ee4d13549ef1ba8d7a617b569699454d6a4bf2783e114a67",
+        "seconds": 1.892,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000129
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "98a71b8e7f1aecb64f7329a6b5adae63d9995755b020a36b2eb076cdab161a65",
+        "seconds": 1.137,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00022
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "2444fc531685b8906f9375ae8a06f726e2a7c773047c7cde19d30c3acd0c172b",
+        "seconds": 1.121,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000246
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+    "pA": 0.23,
+    "verdict": "B",
+    "initial_confidence": 0.5151515151515151,
+    "pre_panel_confidence": 0.5151515151515151,
+    "confidence": 0.5151515151515151,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "9c35f8118e9e4ffe713e276bd6a60a878d3e942fe07f951e24f43b6fb05684c9",
+        "seconds": 0.963,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.3e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174": {
+    "pA": 1,
+    "verdict": "A",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d5a78a970014fbd4af34b5af26e336f0ea3ff156b2f4ca45d3d24cf144751c66",
+        "seconds": 1.072,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 4.7e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e68cfe275c2d245abd6217f7b5213f86f8cb0659ce3ff1fae4430e9fe585a5cd",
+        "seconds": 0.571,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.6e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259": {
+    "pA": 0.3,
+    "verdict": "B",
+    "initial_confidence": 0.4166666666666666,
+    "pre_panel_confidence": 0.4166666666666666,
+    "confidence": 0.4166666666666666,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "4865a319409c81e54067ef4aead30bcae2e619127e5eb711d468fde56e7a5300",
+        "seconds": 0.722,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 4.9e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "af43e152b77c10969241f594f5f3f9dec5d4ca8c9be0c314a5b6ba552e6180b8",
+        "seconds": 0.992,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000115
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 0.6666666666666666,
+    "pre_panel_confidence": 0.6666666666666666,
+    "confidence": 0.6666666666666666,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "9150d15e3b987d9f2f9a20e48851aeb507dec09bbdbba8a8675aea1ce91b72d5",
+        "seconds": 0.788,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00029
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "8616425727f2e14d7b2b77fcb2a07e37a22e139a16d925e1b420f120ae32e89e",
+        "seconds": 0.75,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000126
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+    "pA": 0.28,
+    "verdict": "B",
+    "initial_confidence": 0.44999999999999996,
+    "pre_panel_confidence": 0.44999999999999996,
+    "confidence": 0.44999999999999996,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "655d15a9dae48a44f29767a2038f804a2505566184a1304ea0e18426588f31ca",
+        "seconds": 1.979,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000201
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+    "pA": 0.99,
+    "verdict": "A",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c3a849d0f7e36e1ce382338fe1d7630825722f348039da595c168fa3c1ca2fee",
+        "seconds": 0.824,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000711
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4": {
+    "pA": 0.1,
+    "verdict": "B",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "19ded218a170d7b8b52fdf0dda29baa455615bbe649f0ad5c8987ed3f79adfa8",
+        "seconds": 0.673,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000266
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "2df4c98230033d52b9ada71f168877e01ef990c6a913ba99f427af2d3db84183",
+        "seconds": 1.058,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.0001
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b": {
+    "pA": 0.16,
+    "verdict": "B",
+    "initial_confidence": 0.5681818181818182,
+    "pre_panel_confidence": 0.5681818181818182,
+    "confidence": 0.5681818181818182,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b806e2829c244f7d69eaad36cf45dad86bda30f55de167b5fc733bc2b3efa5c3",
+        "seconds": 0.752,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.7e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "88f93f1e34eb1e2d4e3038bb54b86a81f18a75bb4cbe2be4eb9caec8e54d11f9",
+        "seconds": 1.038,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001355
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+    "pA": 0.08,
+    "verdict": "B",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3c60c3d87d782c2e812ce59a717f0942d5d55b45c46575df92c619693f596a58",
+        "seconds": 1.016,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000233
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c328b040c503075599cf5346d234bbf383183a9447a83d1888a1b367d24b06c1",
+        "seconds": 1.001,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000335
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+    "pA": 0.96,
+    "verdict": "A",
+    "initial_confidence": 0.5833333333333334,
+    "pre_panel_confidence": 0.5833333333333334,
+    "confidence": 0.5833333333333334,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "43d25011bbcf58a1150d834425abf0e0bc56daf8ac788d35f87a3738f1f76004",
+        "seconds": 0.96,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 4.6e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+    "pA": 0.98,
+    "verdict": "A",
+    "initial_confidence": 0.7307692307692307,
+    "pre_panel_confidence": 0.7307692307692307,
+    "confidence": 0.7307692307692307,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0d7ac517d2f2425470c7e372886903cdd776bfc66e4b6f2d91379bbb39012b31",
+        "seconds": 0.915,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9e-05
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d": {
+    "pA": 0.49,
+    "verdict": "B",
+    "initial_confidence": 0.3333333333333333,
+    "pre_panel_confidence": 0.3333333333333333,
+    "confidence": 0.3333333333333333,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "f858098060939b682e7d2f7cf2a48984c7a847b03639682dc13fd0b15d045471",
+        "seconds": 0.927,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000332
+      }
+    ],
+    "missing_final": false
+  },
+  "verify|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99": {
+    "pA": 0.21,
+    "verdict": "B",
+    "initial_confidence": 0.5303030303030304,
+    "pre_panel_confidence": 0.5303030303030304,
+    "confidence": 0.5303030303030304,
+    "path": [
+      "terrain",
+      "pw_ref_luna"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "ffceced079d57d89ad0023dff203c8a5a0de0d8fcf550f1a72078a9674238d20",
+        "seconds": 0.639,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001549
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+    "pA": 0.06,
+    "verdict": "B",
+    "initial_confidence": 0.9444444444444443,
+    "pre_panel_confidence": 0.9444444444444443,
+    "confidence": 0.9444444444444443,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "8e1ce59caba18578d4a8e5d834ebe6ce16cb4077dee841146e452a0863b6421f",
+        "seconds": 1.042,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "1c510ff1d1f7ea8ea97e9fcfb23ea38984588f4c9a0a2430c73e7e247feb4a79",
+        "seconds": 0.839,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec": {
+    "pA": 0.07,
+    "verdict": "B",
+    "initial_confidence": 0.9166666666666665,
+    "pre_panel_confidence": 0.9166666666666665,
+    "confidence": 0.9166666666666665,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "6db35ffd77437e7694e1af660a2539f11f5b63caacbd07b5df58d0409b609b28",
+        "seconds": 2.328,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d7a7036aaa13da73a739cedf331ce3ef617126a508cb99ac665dfcef88a09e02",
+        "seconds": 1.131,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+    "pA": 0.07,
+    "verdict": "B",
+    "initial_confidence": 0.9166666666666665,
+    "pre_panel_confidence": 0.9166666666666665,
+    "confidence": 0.9166666666666665,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d162ecb024d7dd157a83b013ab039bda37c11952812cb2141d9a2934c78317f9",
+        "seconds": 1.175,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec": {
+    "pA": 0.73,
+    "verdict": "A",
+    "initial_confidence": 0.25,
+    "pre_panel_confidence": 0.25,
+    "confidence": 0.25,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0b926e4714669aab07a9a085396ddde0f10a1be3f1b41629d71898520bd06bcc",
+        "seconds": 1.165,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a": {
+    "pA": 0.84,
+    "verdict": "A",
+    "initial_confidence": 0.6666666666666665,
+    "pre_panel_confidence": 0.6666666666666665,
+    "confidence": 0.6666666666666665,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "7203feb028994aa1321732fa67e0d9f00fc09851dfc55666f1ab7cb662321d11",
+        "seconds": 1.146,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+    "pA": 0.22,
+    "verdict": "B",
+    "initial_confidence": 0.5,
+    "pre_panel_confidence": 0.5,
+    "confidence": 0.5,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "129da7ad51210e8ee76993a47120adffd4df5a3cb837b387113de2b16cf7683e",
+        "seconds": 1.252,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+    "pA": 0.06,
+    "verdict": "B",
+    "initial_confidence": 0.9444444444444443,
+    "pre_panel_confidence": 0.9444444444444443,
+    "confidence": 0.9444444444444443,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "78d88620a8e10e721637b567922e1c07a8d7cb5cacd51d62a9ae8dabc37a938a",
+        "seconds": 1.046,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "4bbd52152dfb6397fb786deabdd056d0ae7bd2303e63ecf79c14258c0f5c7e46",
+        "seconds": 0.973,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b3463e2700b18a454a4981993c25a17b5008c41cbd53312d2d9d4a3d337ada0c",
+        "seconds": 0.306,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636": {
+    "pA": 0.12,
+    "verdict": "B",
+    "initial_confidence": 0.7777777777777778,
+    "pre_panel_confidence": 0.7777777777777778,
+    "confidence": 0.7777777777777778,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "340126dda314862568e3693bc2dea8241036c780e785ac3fa1e673b4327c11ac",
+        "seconds": 0.669,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "61fb0af432821c0212069b7e5615c6a95092dce42618729ad033a27d81feb2a1",
+        "seconds": 1.068,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+    "pA": 0.16,
+    "verdict": "B",
+    "initial_confidence": 0.6666666666666665,
+    "pre_panel_confidence": 0.6666666666666665,
+    "confidence": 0.6666666666666665,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "2134d82507b979724b168827251ac68db91397b8edaf720963a4f2fac2b924cf",
+        "seconds": 0.632,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "416dab2188253911e9f28fc524b6f0575b232af65bb6fc260b41dab5c01d90ba",
+        "seconds": 0.768,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "ea447382e2ac8ae1b370802320c4bf5102891c949722f8221697500c4b253bc5",
+        "seconds": 0.969,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+    "pA": 0.15,
+    "verdict": "B",
+    "initial_confidence": 0.6944444444444443,
+    "pre_panel_confidence": 0.6944444444444443,
+    "confidence": 0.6944444444444443,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "5a0feb4b3590868471098b732f21eb1ee1a5f9633d85e3161af90b566404c459",
+        "seconds": 1.175,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+    "pA": 0.75,
+    "verdict": "A",
+    "initial_confidence": 0.4166666666666667,
+    "pre_panel_confidence": 0.4166666666666667,
+    "confidence": 0.4166666666666667,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "20844ced0e58579087205e685d1f705742d625e3b8a90bc1ba5a4e1969893cab",
+        "seconds": 0.829,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d94e03525dac7539538ab53ad673dc12c457b79b55021476f240a127871e8276",
+        "seconds": 1.309,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e": {
+    "pA": 0.1,
+    "verdict": "B",
+    "initial_confidence": 0.8333333333333334,
+    "pre_panel_confidence": 0.8333333333333334,
+    "confidence": 0.8333333333333334,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "24dd74fc4f895c4e55476dbf9e1c6f6abd4f59d46745780d80744c69f43a73b5",
+        "seconds": 0.825,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+    "pA": 0.09,
+    "verdict": "B",
+    "initial_confidence": 0.8611111111111113,
+    "pre_panel_confidence": 0.8611111111111113,
+    "confidence": 0.8611111111111113,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "126df3f02a217caa93deeacd3ec70223edd5b759ad0bf2993a3b3e9455fdd453",
+        "seconds": 0.41,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+    "pA": 0.65,
+    "verdict": "A",
+    "initial_confidence": 0.0,
+    "pre_panel_confidence": 0.0,
+    "confidence": 0.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b146a6e3eab5abe5def455eb852e2776c30b066d64c9b28532570ed5827ccc08",
+        "seconds": 1.418,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21": {
+    "pA": 0.38,
+    "verdict": "B",
+    "initial_confidence": 0.0,
+    "pre_panel_confidence": 0.0,
+    "confidence": 0.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "64218e09d760b242da6b022d93e8221fdbb980f9961ed7697e96d78bbbb8227f",
+        "seconds": 0.289,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e2c7e81981a1eff53fb519ea92bfa0bc98dbbb04be867adc94324f39f1b7fd16",
+        "seconds": 0.91,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "7fe857d0a436657361c9df7242d152af4987e67f608b905ff7068bcc7762cdf2",
+        "seconds": 1.2,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0": {
+    "pA": 0.66,
+    "verdict": "A",
+    "initial_confidence": 0.0,
+    "pre_panel_confidence": 0.0,
+    "confidence": 0.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "91e185067d5f2eb7a6c40f63f0b06d87544e7ad0580f985325ccae02ab2d2ab2",
+        "seconds": 1.201,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9": {
+    "pA": 0.05,
+    "verdict": "B",
+    "initial_confidence": 0.9722222222222222,
+    "pre_panel_confidence": 0.9722222222222222,
+    "confidence": 0.9722222222222222,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "68812c5415ba5ffbf868316b9fa8068505a26d9e9eb119beb23d05f0675de660",
+        "seconds": 1.171,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "132e3a9a8a6f175d57a9daf11e2d0bcf2ff9e695bf760e88d1f6c7f11be23eb3",
+        "seconds": 1.288,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+    "pA": 0.73,
+    "verdict": "A",
+    "initial_confidence": 0.25,
+    "pre_panel_confidence": 0.25,
+    "confidence": 0.25,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "77b8c71c9ea6cd47bcb5e9d72471e0e3e1ccada0e5f7952387a31ccf3b87e1e0",
+        "seconds": 1.244,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014": {
+    "pA": 0.4,
+    "verdict": "B",
+    "initial_confidence": 0.0,
+    "pre_panel_confidence": 0.0,
+    "confidence": 0.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "44d0cdb0d4b5240ea136d9d7676a834af95c9effe60c59a2d9e182f4a38f3b73",
+        "seconds": 0.974,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+    "pA": 0.23,
+    "verdict": "B",
+    "initial_confidence": 0.5,
+    "pre_panel_confidence": 0.5,
+    "confidence": 0.5,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b02ce17eb2bca65a740b25fb6283a1f94c6bd8005045da159552ac5ba379c098",
+        "seconds": 0.951,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+    "pA": 0.49,
+    "verdict": "B",
+    "initial_confidence": 0.0,
+    "pre_panel_confidence": 0.0,
+    "confidence": 0.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "8d5a33799e5b03f5bb48168d6a0b57b1755f435241baba4f35d7117656b18309",
+        "seconds": 1.003,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b85ae9ebb10b501cf73b13054f1b93471cdddfd0bb5072ff2a95d9e462e8282f",
+        "seconds": 0.755,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914": {
+    "pA": 0.42,
+    "verdict": "B",
+    "initial_confidence": 0.0,
+    "pre_panel_confidence": 0.0,
+    "confidence": 0.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "9e753eddfee1c1019fb168a82f8f50f9f840580df538ef2ef6504cf37365e825",
+        "seconds": 0.961,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|8afa540116fbcf61b6a65125a1272a82_10a36a85dc46ca3ce4659c52bd553f22": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0dd18b91821d3a776add05eeb21ee3fb132989299d056b835f8a872e6395ddbf",
+        "seconds": 0.886,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|8d5e34bb0c4ae72f49a999d4950d0d50_b386787e81fc71a19aeff29ecb5b7cae": {
+    "pA": 0.04,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "247b08d8660cff086820458eeef6215b23f2a025875907f9fe9a649b5350556b",
+        "seconds": 0.623,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "bd04a581fe1fcfadc62a1c9659465441735a9964e902c5f9cf76fb09e123e022",
+        "seconds": 0.851,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+    "pA": 0.43,
+    "verdict": "B",
+    "initial_confidence": 0.0,
+    "pre_panel_confidence": 0.0,
+    "confidence": 0.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0653a1595f4fe5d6af567d4ea6ce2c3ca3864a60d009787c896e384e7cc80ac4",
+        "seconds": 0.85,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|9627c5098f4185184311edb8a3ccb640_116a5adea8a225f8c8542f0576808a6e": {
+    "pA": 0.07,
+    "verdict": "B",
+    "initial_confidence": 0.9166666666666665,
+    "pre_panel_confidence": 0.9166666666666665,
+    "confidence": 0.9166666666666665,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c9227239d5723af1ce5452c97c9394fb425e8a94a5c3035c9dfa05db758d6668",
+        "seconds": 0.757,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590": {
+    "pA": 0.93,
+    "verdict": "A",
+    "initial_confidence": 0.9166666666666669,
+    "pre_panel_confidence": 0.9166666666666669,
+    "confidence": 0.9166666666666669,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c5510e0e966b6653ee774787e556a3edf91cbb56dcf31c09fb1547b532625672",
+        "seconds": 0.963,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50": {
+    "pA": 0.84,
+    "verdict": "A",
+    "initial_confidence": 0.6666666666666665,
+    "pre_panel_confidence": 0.6666666666666665,
+    "confidence": 0.6666666666666665,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "952a3c9ebf2faf28b3311ba9616839d5c2146822bed62ba013ea160c7cdcab43",
+        "seconds": 1.269,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+    "pA": 0.02,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "f9d3a6651601ac0c112bd7423eaefa9dd28e95493621d893c7dfc9e59e83acda",
+        "seconds": 0.829,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "cfa3c193e60d3dbedba4ee5260b68ab0b9c63432fb8fbeb799f78f3c3ed9eebf",
+        "seconds": 1.006,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d": {
+    "pA": 0.07,
+    "verdict": "B",
+    "initial_confidence": 0.9166666666666665,
+    "pre_panel_confidence": 0.9166666666666665,
+    "confidence": 0.9166666666666665,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "54d92a775e1c9aaae5d957d9d40cbdfab2afd479bd860d55277b3ae754924aa7",
+        "seconds": 2.542,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|aeffde6db44b11ba884385c6d3330778_86ab71bcb255a4099f268a5af4548add": {
+    "pA": 0.03,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "4260eb9e0a7f56a9ab045ed02b3929b876c72607720deb478f4e33878ea0e933",
+        "seconds": 0.347,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+    "pA": 0.14,
+    "verdict": "B",
+    "initial_confidence": 0.7222222222222222,
+    "pre_panel_confidence": 0.7222222222222222,
+    "confidence": 0.7222222222222222,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e44c4650d0cd4e5632f1bd2d3068211c2d55639987326aee8d775e9cbe4a9fb7",
+        "seconds": 0.883,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54": {
+    "pA": 0.29,
+    "verdict": "B",
+    "initial_confidence": 0.08333333333333334,
+    "pre_panel_confidence": 0.08333333333333334,
+    "confidence": 0.08333333333333334,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "7eb760636b9429afe61366404db0989c0cce23d72ad413fffaeea520881e149c",
+        "seconds": 0.664,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+    "pA": 0.13,
+    "verdict": "B",
+    "initial_confidence": 0.75,
+    "pre_panel_confidence": 0.75,
+    "confidence": 0.75,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "705a5b20d881c2d88a05eac8e2cd4895d28018b48f785f02ee6d86e7200e6137",
+        "seconds": 0.29,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+    "pA": 0.39,
+    "verdict": "B",
+    "initial_confidence": 0.0,
+    "pre_panel_confidence": 0.0,
+    "confidence": 0.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "16349a84201eabde11d39170384586c115df5e73e13e9229b94886b46d19f32b",
+        "seconds": 2.011,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "207fc4e657aab89268ced944438ed97b73dcfbf4008a1386a405ce4221907907",
+        "seconds": 1.258,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9": {
+    "pA": 0.52,
+    "verdict": "A",
+    "initial_confidence": 0.0,
+    "pre_panel_confidence": 0.0,
+    "confidence": 0.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "671e1378544b7020cb1f6a4c875c6095dfb8af33ba459c5e6d9f7d3e540589c2",
+        "seconds": 1.389,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|e05c879fa8330428d5f4c60e2165c671_a1cf5c7e22209a7dde60b811f14dcfa3": {
+    "pA": 0.14,
+    "verdict": "B",
+    "initial_confidence": 0.7222222222222222,
+    "pre_panel_confidence": 0.7222222222222222,
+    "confidence": 0.7222222222222222,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "9697c10b6ea07708b2602599b307e608303528b09bad78e883685c3fd0b94c85",
+        "seconds": 0.289,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+    "pA": 0.76,
+    "verdict": "A",
+    "initial_confidence": 0.5,
+    "pre_panel_confidence": 0.5,
+    "confidence": 0.5,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "2ae0d9b1f3d2296bf8046480288e78955615d34ca701fcfda9893818663003ef",
+        "seconds": 0.405,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|e33318504a7ac7627d557aa1c8a28757_2773ef67563d0ff7b53513d4038a7626": {
+    "pA": 0.01,
+    "verdict": "B",
+    "initial_confidence": 1.0,
+    "pre_panel_confidence": 1.0,
+    "confidence": 1.0,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e1b917f83bb02130d1383ec923cb631ef3211fc40fc06ead679d07fae8536f74",
+        "seconds": 0.414,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  },
+  "verify-with-reference|f7f4f5882b9c712068cbeac5acb4a0a4_7294b3b236c33212fbbe5aa24dbd47f4": {
+    "pA": 0.1,
+    "verdict": "B",
+    "initial_confidence": 0.8333333333333334,
+    "pre_panel_confidence": 0.8333333333333334,
+    "confidence": 0.8333333333333334,
+    "path": [
+      "terrain",
+      "pw_whole"
+    ],
+    "level": "terminal",
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "40349a6bd4e8d6532de21ba372720a73537ff0cf10d177a32ae39edb36017d1c",
+        "seconds": 0.377,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "missing_final": false
+  }
+}

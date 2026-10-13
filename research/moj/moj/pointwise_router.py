@@ -315,12 +315,128 @@ def panel_weights(train, stores, config):
     return out
 
 
+def terminal_expert(item, config):
+    """Content-only authority: a rubric is evidence, not unsupported correctness."""
+    if item['kind'] != 'pair':
+        if config.get('terminal_reference') and carried(item) == 'reference':
+            return 'pw_whole'
+        if config.get('solve_unreferenced') and carried(item) == 'question':
+            return 'pw_ref_luna'
+    return None
+
+
+def terminal_decision(item, stores, config):
+    name = terminal_expert(item, config)
+    if name is None:
+        return None
+    signal = old_signal(item, name, stores)
+    p = signal['pA']
+    if (not isinstance(p, (int, float)) or isinstance(p, bool)
+            or not math.isfinite(p) or not 0 <= p <= 1
+            or (name == 'pw_ref_luna' and not signal['detail'].get('reference'))):
+        raise RuntimeError('Required reference evidence missing: '+key(item))
+    terrain = get_signal(item, 'terrain')
+    if terrain is None:
+        raise RuntimeError('Terrain signal missing: '+key(item))
+    c = confidence(p, name, config.get('terminal_calibration', {}))
+    return {'pA': p, 'verdict': verdict(p), 'initial_confidence': c,
+            'pre_panel_confidence': c, 'confidence': c,
+            'path': ['terrain', name], 'level': 'terminal',
+            'usage': terrain['usage'] + signal['usage'], 'missing_final': False}
+
+
+def terminal_calibrator(train, stores):
+    maps = {}
+    rules = {'terminal_reference': True, 'solve_unreferenced': True}
+    for name in ('pw_whole', 'pw_ref_luna'):
+        samples = []
+        for item in train:
+            if terminal_expert(item, rules) != name:
+                continue
+            signal = old_signal(item, name, stores)
+            p = signal['pA']
+            if p is not None:
+                samples.append((max(p, 1-p), score_verdict(verdict(p), item['label'])))
+        if samples:
+            maps[name] = Isotonic.fit(*zip(*samples)).to_dict()
+    return maps
+
+
+def freeze_v2(args):
+    """Owner-prescribed changes, with confidence fitted on tuning only."""
+    base = json.loads(FROZEN.read_text())
+    train = rows('tune')
+    stores = load_stores()
+    maps = terminal_calibrator(train, stores)
+    for name, solve in (('pw-router-v2-reference', False), ('pw-router-v2-frozen', True)):
+        cfg = {**base, 'name': name, 'terminal_reference': True,
+               'solve_unreferenced': solve, 'terminal_calibration': maps,
+               'parent_config_digest': client.digest(base),
+               'source_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+               'selection': 'Owner-prescribed two fixes; no validation selection or threshold search.',
+               'terminal_rule': 'A usable reference comparison decides, regardless of calibrated confidence. Missing evidence stops the run.',
+               'design_deviation': 'Owner instruction takes precedence over the designer brief margin 0.3 gate. Raw expert probability determines verdict; calibration only reports confidence.'}
+        save(ROOT/'configs'/(name+'.json'), cfg)
+    print(json.dumps({'frozen': 'configs/pw-router-v2-frozen.json', 'tuning_items': len(train), 'new_calls': 0}))
+
+
+def freeze_v3(args):
+    """Select exactly one common confidence gate using grouped tuning folds."""
+    base = json.loads((ROOT/'configs/pw-router-v2-frozen.json').read_text())
+    train = rows('tune')
+    stores = load_stores()
+    grid = [0., .5, .6, .7, .8, .9, .95, .99, 1., 1.01]
+    # 1.01 is the explicit no-terminal control, since confidence is at most one.
+    folds = []
+    for fold in range(5):
+        in_fold = lambda i: int(hashlib.sha256(('pw-router-fold:'+group_key(i)).encode()).hexdigest(),16)%5 == fold
+        fitting = [i for i in train if not in_fold(i)]
+        held = [i for i in train if in_fold(i)]
+        folds.append((held, {**base, 'terminal_calibration': terminal_calibrator(fitting, stores)}))
+    trail = []
+    for threshold in grid:
+        ds = {}
+        for held, cfg in folds:
+            cfg = {**cfg, 'terminal_threshold': threshold}
+            for i in held:
+                ds[key(i)] = decide(i, stores, cfg, cfg['calibration'])
+        cells = {b:metrics([i for i in train if i['bench']==b], ds) for b in BENCHES}
+        objective = float(np.mean([c['balanced'] for c in cells.values()]))
+        s2 = sum(c['s2_per_100'] for c in cells.values())
+        trail.append({'threshold':threshold, 'mean_balanced':objective,
+                      's2_sum_per_100':s2, 'cells':cells,
+                      'terminal_n':sum(d.get('level')=='terminal' for d in ds.values()), 'decisions':ds})
+    chosen = max(trail, key=lambda t:(round(t['mean_balanced'],12), -t['s2_sum_per_100'], -t['threshold']))
+    cfg = {**base, 'name':'pw-router-v3-frozen', 'terminal_threshold': chosen['threshold'],
+           'terminal_calibration':terminal_calibrator(train, stores),
+           'parent_config_digest':client.digest(base),
+           'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+           'selection':'One threshold selected by mean balanced accuracy across primary tuning benchmarks; grouped five-fold expert confidence. Ties prefer fewer S2 calls, then the smaller threshold.',
+           'terminal_rule':'Expert calibrated confidence at or above terminal_threshold ends the item; below it the reference comparison enters the existing escalation and panel route.',
+           'design_deviation':'Owner correction: one tuning-fitted confidence threshold. No raw S1 correctness verdict enters the no-evidence path.',
+           'threshold_grid':grid,
+           'fitting_note':'Only new expert-confidence maps are cross-fitted. Inherited v1 routing and its maps remain frozen; tuning scores are conditional on that previously selected policy.'}
+    save(ROOT/'configs/pw-router-v3-frozen.json', cfg)
+    save(OUT/'v3/tuning-threshold.json', {'hypothesis':'Confidence-qualified terminal authority avoids overriding useful escalation.',
+         'refuted_when':'Tuning mean balanced accuracy does not exceed unconditional terminal authority.',
+         'selected':chosen['threshold'], 'trail':trail, 'validation_used':False})
+    print(json.dumps({'threshold':chosen['threshold'],'mean_tune_balanced':chosen['mean_balanced'],
+          'grid':[{k:t[k] for k in ('threshold','mean_balanced','s2_sum_per_100','terminal_n')} for t in trail]}))
+
+
 def decide(item, stores, config, maps, rec=None):
+    terminal = terminal_decision(item, stores, config)
+    if terminal is not None and terminal['confidence'] >= config.get('terminal_threshold', 0):
+        return terminal
     if 'by_content' in config:
         config = config['by_content'][content(item)]
         maps = config['calibration']
-    p, path, used = raw_base(item, stores, config['reference'], config.get('typed', False))
-    c = confidence(p, content(item), maps)
+    if terminal is not None:
+        p, path, used = terminal['pA'], list(terminal['path']), list(terminal['usage'])
+        c = terminal['confidence']
+    else:
+        p, path, used = raw_base(item, stores, config['reference'], config.get('typed', False))
+        c = confidence(p, content(item), maps)
     initial_c = c
     t = get_signal(item, 'terrain')['detail']
     reasoning = (t.get('needs_reasoning') or 0) >= .6
@@ -476,6 +592,9 @@ def fit(args):
 
 def baseline_decisions(items, stores, name):
     out={}
+    if name == 'pw-router-v1':
+        original = json.loads((OUT/'validation-decisions.json').read_text())
+        return {key(i):original[key(i)] for i in items if key(i) in original}
     board_path=ROOT/'results/pointwise/boards'/(name+'.json')
     if board_path.exists():
         board=json.loads(board_path.read_text())
@@ -525,17 +644,21 @@ def paired_interval(items, left, right):
 
 
 def report(args):
-    cfg=json.loads(FROZEN.read_text()); before=client.digest(cfg)
+    config_path = ROOT/args.config if getattr(args, 'config', None) else FROZEN
+    output = OUT/args.output if getattr(args, 'output', None) else OUT
+    if not output.resolve().is_relative_to(OUT.resolve()):
+        raise ValueError('Report output must stay inside owned results')
+    cfg=json.loads(config_path.read_text()); before=client.digest(cfg)
     stores=load_stores(True);items=rows('valid',True)
     rec=recorder(args.offline)
     with rec.exclusive():
         with ThreadPoolExecutor(max_workers=8) as pool:
             result=list(pool.map(lambda i:decide(i,stores,cfg,cfg['calibration'],rec),items))
         decisions={key(i):d for i,d in zip(items,result)}
-    save(OUT/'validation-decisions.json',decisions)
-    baseline_names=['pw-s1-whole','pw-s1-rows','pw-moj-luna','pw-moj-mix','reference-first-recorded','pw_ledger','pw_shipped','pw_seat','pw_promptfoo','pw_s2v_luna','pw_s2v_gemini','pw_s2v_haiku','const_fail','const_pass','length','first']
+    save(output/'validation-decisions.json',decisions)
+    baseline_names=['pw-router-v1','pw_whole','pw_ref_luna','pw-s1-whole','pw-s1-rows','pw-moj-luna','pw-moj-mix','reference-first-recorded','pw_ledger','pw_shipped','pw_seat','pw_promptfoo','pw_s2v_luna','pw_s2v_gemini','pw_s2v_haiku','const_fail','const_pass','length','first']
     report={'config_digest':before,'split_version':SPLIT_VERSION,'benchmarks':{},'residual':0,'matched_subset_unmet':0}
-    lines=['# Pointwise MoJ validation','','Frozen configuration: `configs/pw-router-frozen.json`. Selection uses grouped out-of-fold tuning scores only.','','All values are percentages except counts and USD. Sensitivity/specificity on RubricBench mean A/B recall after the fixed swap.','',
+    lines=['# Pointwise MoJ validation','',f'Frozen configuration: `{config_path.relative_to(ROOT)}`. '+cfg.get('selection', 'Selection uses grouped out-of-fold tuning scores only.'),'','All values are percentages except counts and USD. Sensitivity/specificity on RubricBench mean A/B recall after the fixed swap.','',
            '| Benchmark | Arm | n | Accuracy | Balanced | Sensitivity | Specificity | S2 calls/100 | Known USD/100 |',
            '|---|---|---:|---:|---:|---:|---:|---:|---:|']
     for b in (*BENCHES,DIAGNOSTIC):
@@ -580,15 +703,15 @@ def report(args):
             usd='n/a' if c['known_usd_per_100'] is None else f"{c['known_usd_per_100']:.4f}"
             lines.append(f"| {b} | {name} | {c['n']} | {fmt(c['accuracy'])} | {fmt(c['balanced'])} | {fmt(c['sensitivity'])} | {fmt(c['specificity'])} | {c['s2_per_100']:.1f} | {usd} |")
     report['spend_upper_estimate_usd']=rec.spend()
-    save(OUT/'validation.json',report)
+    save(output/'validation.json',report)
     lines += ['',f"Primary residual: {report['residual']} of 3 benchmarks.",'',
         'Noise floors are inherited recorded repeat ranges from moj/noise.py, not a fresh router-specific noise measurement. Returned answers are never requested again.',
         'The primary residual uses full-coverage baselines. Every partial baseline uses matched validation IDs and is reported separately. The domain-seat subset target is a tie within noise at fewer System-2 calls.',
         'Historical Gemini 3.8 results are baselines only; all new Gemini calls use gemini-3.5-flash-lite.',
         'Known USD excludes System-1 pricing, which the harness does not publish. Gemini uses the inherited conservative rate estimate, not an invoice.',
         'Verify with reference is a separate diagnostic. Its split differs from vanilla Verify and it is excluded from fitting and the primary residual.']
-    (OUT/'SCOREBOARD.md').write_text('\n'.join(lines)+'\n')
-    assert before==client.digest(json.loads(FROZEN.read_text()))
+    (output/'SCOREBOARD.md').write_text('\n'.join(lines)+'\n')
+    assert before==client.digest(json.loads(config_path.read_text()))
     print(json.dumps({'residual':report['residual'],'validation':{b:d['rows']['MoJ'] for b,d in report['benchmarks'].items()},'spend_upper_estimate_usd':rec.spend()},indent=2))
 
 
@@ -648,16 +771,18 @@ def replay(args):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command',choices=['collect','fit','report','replay','ablations'])
+    p.add_argument('command',choices=['collect','fit','report','replay','ablations','freeze-v2','freeze-v3'])
     p.add_argument('--half',choices=['tune','valid'],default='tune')
     p.add_argument('--offline',action='store_true')
     p.add_argument('--diagnostic',action='store_true')
     p.add_argument('--typed',action='store_true')
+    p.add_argument('--config', help='Frozen config path relative to research/moj')
+    p.add_argument('--output', help='Report directory relative to results/pointwise-moj')
     args=p.parse_args()
     OUT.mkdir(parents=True,exist_ok=True)
     with (OUT/'runner.lock').open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-        {'collect':collect,'fit':fit,'report':report,'replay':replay,'ablations':ablations}[args.command](args)
+        {'collect':collect,'fit':fit,'report':report,'replay':replay,'ablations':ablations,'freeze-v2':freeze_v2,'freeze-v3':freeze_v3}[args.command](args)
 
 
 if __name__=='__main__':

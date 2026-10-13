@@ -1,0 +1,1622 @@
+[
+  {
+    "key": "rubricbench|rubric_eval_776",
+    "label": "B",
+    "decision": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.6666666666666666,
+      "pre_panel_confidence": 0.8723404255319149,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "f605f94ae515e04b09b6d6b6c6577fe28f27b5edf3b33dfc4d2e05e75d5d15de",
+          "seconds": 0.4,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.001008
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.15,
+      "needs_reasoning": 0.23,
+      "safety": 0.03,
+      "long_context": 0.77,
+      "subjective_writing": 0.85,
+      "chars": 15299
+    }
+  },
+  {
+    "key": "rubricbench|rubric_eval_46",
+    "label": "A",
+    "decision": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.6666666666666666,
+      "pre_panel_confidence": 0.8723404255319149,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "86935729bba8e1c2fdc910fb24e82a5e4b151fd58facae63124eb2ec74a9da26",
+          "seconds": 2.998,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000542
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.12,
+      "needs_reasoning": 0.08,
+      "safety": 0.03,
+      "long_context": 0.26,
+      "subjective_writing": 0.04,
+      "chars": 2881
+    }
+  },
+  {
+    "key": "rubricbench|rubric_eval_244",
+    "label": "A",
+    "decision": {
+      "pA": 0.3333333333333333,
+      "verdict": "B",
+      "initial_confidence": 0.6666666666666666,
+      "pre_panel_confidence": 0.5,
+      "path": [
+        "pw_rows",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "ff25684cd47ad4b01fe4b6b770cf2a1e95bfad6d81e04bf94e67acb70b65f383",
+          "seconds": 0.357,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000517
+        },
+        {
+          "provider": "luna",
+          "key": "0b1268334cc27383b33a583179e70519aaca356946602dcc610b0e5bb47df8bf",
+          "count": 1,
+          "usd": 0.0002656
+        },
+        {
+          "provider": "gemini",
+          "key": "31c617b72df66228a1e908db8f79f4c06c62e5ce8a506dc370c2afeba64bc509",
+          "count": 1,
+          "usd": 0.00186825
+        },
+        {
+          "provider": "haiku",
+          "key": "de30260c67eac88be62996a745e7972acaa4a42ecd99e8a0057a39e73e64ee2b",
+          "count": 1,
+          "usd": 0.0011492
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.13,
+      "needs_reasoning": 0.66,
+      "safety": 0.03,
+      "long_context": 0.35,
+      "subjective_writing": 0.05,
+      "chars": 6861
+    }
+  },
+  {
+    "key": "rubricbench|rubric_eval_942",
+    "label": "A",
+    "decision": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7539393939393947,
+      "pre_panel_confidence": 0.8723404255319149,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "560017a5c5aff602f6411ac639b496c17a754e97897183a817df006195aaa853",
+          "seconds": 1.186,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000422
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.19,
+      "needs_reasoning": 0.62,
+      "safety": 0.02,
+      "long_context": 0.31,
+      "subjective_writing": 0.87,
+      "chars": 3523
+    }
+  },
+  {
+    "key": "hardrows|rubric.090",
+    "label": "B",
+    "decision": {
+      "pA": 0.87,
+      "verdict": "A",
+      "initial_confidence": 0.9282051282051282,
+      "pre_panel_confidence": 0.9282051282051282,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "2d7b7bf404d2269f6d49863d2b06590a86dd017b4fc09596c723812962165bcc",
+          "seconds": 0.955,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.2,
+      "needs_reasoning": 0.07,
+      "safety": 0.06,
+      "long_context": 0.09,
+      "subjective_writing": 0.06,
+      "chars": 284
+    }
+  },
+  {
+    "key": "hardrows|rubric.077",
+    "label": "B",
+    "decision": {
+      "pA": 0.895,
+      "verdict": "A",
+      "initial_confidence": 0.9794871794871794,
+      "pre_panel_confidence": 0.9794871794871794,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "9891a5360ba51fed60c279ff5ada5bbf18fec06c59397a13f7b658e9721c6db6",
+          "seconds": 1.015,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.2,
+      "needs_reasoning": 0.08,
+      "safety": 0.06,
+      "long_context": 0.09,
+      "subjective_writing": 0.07,
+      "chars": 284
+    }
+  },
+  {
+    "key": "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+    "label": "B",
+    "decision": {
+      "pA": 0.6666666666666666,
+      "verdict": "A",
+      "initial_confidence": 0.5833333333333334,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "687c0fa3102453bfeb34ce6aec71c215f678a0cda7d2661b34a049770f6b706f",
+          "seconds": 0.709,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000642
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001101
+        },
+        {
+          "provider": "luna",
+          "key": "205bd7f9ac958e7668b6d81a50d91bcc9f4d0b0ee7a75452f658dd69a8b40bea",
+          "count": 1,
+          "usd": 0.0007835
+        },
+        {
+          "provider": "gemini",
+          "key": "cbb17cb22bed42e155607d1c453d636509040d67d2b58c8aefb78e84b0349a03",
+          "count": 1,
+          "usd": 0.00466875
+        },
+        {
+          "provider": "haiku",
+          "key": "2ef32a2bbe45fe31c804b88fcafaa0f51e807284820dcf8d469198a19ced4e6c",
+          "count": 1,
+          "usd": 0.0021544
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.07,
+      "needs_reasoning": 0.5,
+      "safety": 0.02,
+      "long_context": 0.74,
+      "subjective_writing": 0.05,
+      "chars": 18512
+    }
+  },
+  {
+    "key": "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+    "label": "B",
+    "decision": {
+      "pA": 0.7,
+      "verdict": "A",
+      "initial_confidence": 0.4166666666666666,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "c6a44133c325b6ee7ae92e0da29296aa8edfb5a1422d548d0f0ebaa19dab7d4d",
+          "seconds": 0.805,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000206
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000297
+        },
+        {
+          "provider": "luna",
+          "key": "fad0d9607d5e49311c13cacc5554c59286328965ba51723d262b38ea96a787eb",
+          "count": 1,
+          "usd": 0.0002642
+        },
+        {
+          "provider": "gemini",
+          "key": "5e6cb687138882367cb51830d766e6824f5d32a67f5adda10f37307ecafd4856",
+          "count": 1,
+          "usd": 0.00148275
+        },
+        {
+          "provider": "haiku",
+          "key": "4924f8f2323844e645e47175678555cdcbeceaf4d528b2a57fce060627a84c45",
+          "count": 1,
+          "usd": 0.0009105000000000001
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.14,
+      "needs_reasoning": 0.96,
+      "safety": 0.02,
+      "long_context": 0.17,
+      "subjective_writing": 0.01,
+      "chars": 2780
+    }
+  },
+  {
+    "key": "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+    "label": "B",
+    "decision": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.5833333333333334,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "f0a9e2235799b2d2b98c3284d8e3794b3f6cb4ea34990cbb34640e4f35c8c159",
+          "seconds": 0.629,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000255
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000626
+        },
+        {
+          "provider": "luna",
+          "key": "5561adf2d9a7572b98fc443e66c4856477bf0773969a04db1519cec9f74fa1f7",
+          "count": 1,
+          "usd": 0.0005713000000000001
+        },
+        {
+          "provider": "gemini",
+          "key": "727ef71f880efb17584eed712c919a1f88562775841503550f14205cd49bb6bb",
+          "count": 1,
+          "usd": 0.00439725
+        },
+        {
+          "provider": "haiku",
+          "key": "599a86ba0309ba03d0c6392f9d92812b53e0868647dc7a8e51e10946737b57ab",
+          "count": 1,
+          "usd": 0.0019039
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.12,
+      "needs_reasoning": 0.92,
+      "safety": 0.01,
+      "long_context": 0.3,
+      "subjective_writing": 0.01,
+      "chars": 14897
+    }
+  },
+  {
+    "key": "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
+    "label": "B",
+    "decision": {
+      "pA": 0.6666666666666666,
+      "verdict": "A",
+      "initial_confidence": 0.537878787878788,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "225770835b0f2af66f68d721d5c8d6df8a74031dbf2e07419a255c59e02ef484",
+          "seconds": 1.137,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000465
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001206
+        },
+        {
+          "provider": "luna",
+          "key": "96a5a1e5c0acbba53f1205f28be8d876df295b2809e35a79210b5971a7896c0c",
+          "count": 1,
+          "usd": 0.0006531
+        },
+        {
+          "provider": "gemini",
+          "key": "695a7f196308d23da550ab54dec3698af1e751a851eb5b683f7fe2dbae2ebe0e",
+          "count": 1,
+          "usd": 0.00500925
+        },
+        {
+          "provider": "haiku",
+          "key": "be7ef3a582c88d4e69cb1c06c348de3178f5f5aeab4e5926545627c16f4c6be9",
+          "count": 1,
+          "usd": 0.0029077
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.14,
+      "needs_reasoning": 0.42,
+      "safety": 0.03,
+      "long_context": 0.26,
+      "subjective_writing": 0.03,
+      "chars": 24666
+    }
+  },
+  {
+    "key": "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+    "label": "A",
+    "decision": {
+      "pA": 0.03,
+      "verdict": "B",
+      "initial_confidence": 0.6666666666666666,
+      "pre_panel_confidence": 0.6666666666666666,
+      "confidence": 0.6666666666666666,
+      "path": [
+        "terrain",
+        "pw_ref_luna"
+      ],
+      "level": "terminal",
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "a827d2a6baff28470ec0aed8af45fd7ee7814c89d9256ad459178ae6ae956c64",
+          "seconds": 1.275,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000191
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.05,
+      "needs_reasoning": 0.81,
+      "safety": 0.02,
+      "long_context": 0.71,
+      "subjective_writing": 0.03,
+      "chars": 22740
+    }
+  },
+  {
+    "key": "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
+    "label": "B",
+    "decision": {
+      "pA": 0.6666666666666666,
+      "verdict": "A",
+      "initial_confidence": 0.3333333333333333,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "882829c7877511e957a7e97a38313416079a29fc73327ed4074d792cc6f52969",
+          "seconds": 0.82,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000274
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000451
+        },
+        {
+          "provider": "luna",
+          "key": "14748ffdb36a259ba0cfa0884625d6c353497d5b60094ec47bfa6503630272ee",
+          "count": 1,
+          "usd": 0.0003636
+        },
+        {
+          "provider": "gemini",
+          "key": "30c6847ba63ee1c4e35119c890dd0b1082521a3ae73f79e2fad00f92d8eb8c4a",
+          "count": 1,
+          "usd": 0.0023235
+        },
+        {
+          "provider": "haiku",
+          "key": "d0242e4df132c102bf414efe648cad31d8be2a938f44add69ef6311ed9657640",
+          "count": 1,
+          "usd": 0.0014694999999999999
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.12,
+      "needs_reasoning": 0.79,
+      "safety": 0.02,
+      "long_context": 0.86,
+      "subjective_writing": 0.03,
+      "chars": 9723
+    }
+  },
+  {
+    "key": "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b",
+    "label": "B",
+    "decision": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.5833333333333334,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "483ab43f03ffbcef9806fd809ca9d4e22279e868ac907feac7b3dfe41f2babb4",
+          "seconds": 1.078,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000149
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000519
+        },
+        {
+          "provider": "luna",
+          "key": "f288460f29f8681932954fa2fd7a0febf9d01dbd66174425f6c0e292afc19815",
+          "count": 1,
+          "usd": 0.0005636
+        },
+        {
+          "provider": "gemini",
+          "key": "720f5ea1917c05ce6d84a57581eae5e7faf00b1e81da75a7ac87e18db19a3969",
+          "count": 1,
+          "usd": 0.00365775
+        },
+        {
+          "provider": "haiku",
+          "key": "d815c9b7ad34d81e12fc438543b9aa722592a192fb02edd615bcd4f4be905103",
+          "count": 1,
+          "usd": 0.0014390000000000002
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.06,
+      "needs_reasoning": 0.94,
+      "safety": 0.02,
+      "long_context": 0.62,
+      "subjective_writing": 0.02,
+      "chars": 11983
+    }
+  },
+  {
+    "key": "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7",
+    "label": "B",
+    "decision": {
+      "pA": 0.99,
+      "verdict": "A",
+      "initial_confidence": 0.7307692307692307,
+      "pre_panel_confidence": 0.7307692307692307,
+      "confidence": 0.7307692307692307,
+      "path": [
+        "terrain",
+        "pw_ref_luna"
+      ],
+      "level": "terminal",
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "340f058337241888bf9085594f9e9722b41634acbac7319c8ddb0408bc6d3dd4",
+          "seconds": 1.084,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000692
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.09,
+      "needs_reasoning": 0.43,
+      "safety": 0.02,
+      "long_context": 0.85,
+      "subjective_writing": 0.04,
+      "chars": 28090
+    }
+  },
+  {
+    "key": "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+    "label": "B",
+    "decision": {
+      "pA": 0.6666666666666666,
+      "verdict": "A",
+      "initial_confidence": 0.5833333333333334,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "08e6c403f31860978dcbdcc89c38bf307e73e07aa59a1398eff25b0ceac5a6d9",
+          "seconds": 1.2,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000194
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000194
+        },
+        {
+          "provider": "luna",
+          "key": "3b3e42ad3a7de74c6b1a5a78e404c2cad82a2ed1145f7b37559b418cc2a26cf6",
+          "count": 1,
+          "usd": 0.00020830000000000002
+        },
+        {
+          "provider": "gemini",
+          "key": "2787bbfa9ad977dff6f11219a22fa5e3ef4fca74421b46614fcab170f9743589",
+          "count": 1,
+          "usd": 0.0011625
+        },
+        {
+          "provider": "haiku",
+          "key": "a6b7bf511898ce2f260839565e7153dc92b7f3ef63c5ae8cf68873f006ce124c",
+          "count": 1,
+          "usd": 0.0007505999999999999
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.11,
+      "needs_reasoning": 0.92,
+      "safety": 0.02,
+      "long_context": 0.22,
+      "subjective_writing": 0.03,
+      "chars": 2579
+    }
+  },
+  {
+    "key": "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a",
+    "label": "B",
+    "decision": {
+      "pA": 0.6666666666666666,
+      "verdict": "A",
+      "initial_confidence": 0.5151515151515151,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "9c35f8118e9e4ffe713e276bd6a60a878d3e942fe07f951e24f43b6fb05684c9",
+          "seconds": 0.963,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9.3e-05
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000383
+        },
+        {
+          "provider": "luna",
+          "key": "c8b7489ef288b009b2f33f23a004f5e460ebe9c477dfaba2d4b55141bb8ec390",
+          "count": 1,
+          "usd": 0.0003844
+        },
+        {
+          "provider": "gemini",
+          "key": "ca010da84967985dee78b12669ed0e554cf112cb76c27bb8b4d92d3087a89491",
+          "count": 1,
+          "usd": 0.002499
+        },
+        {
+          "provider": "haiku",
+          "key": "6dc34848a43d184c6e8dbe5ddd6594a9bbb4551d03f1be7711df14bb45969778",
+          "count": 1,
+          "usd": 0.0012966
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.09,
+      "needs_reasoning": 0.5,
+      "safety": 0.02,
+      "long_context": 0.22,
+      "subjective_writing": 0.03,
+      "chars": 11773
+    }
+  },
+  {
+    "key": "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+    "label": "B",
+    "decision": {
+      "pA": 1,
+      "verdict": "A",
+      "initial_confidence": 0.7307692307692307,
+      "pre_panel_confidence": 0.7307692307692307,
+      "confidence": 0.7307692307692307,
+      "path": [
+        "terrain",
+        "pw_ref_luna"
+      ],
+      "level": "terminal",
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "d5a78a970014fbd4af34b5af26e336f0ea3ff156b2f4ca45d3d24cf144751c66",
+          "seconds": 1.072,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.7e-05
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.15,
+      "needs_reasoning": 0.84,
+      "safety": 0.01,
+      "long_context": 0.22,
+      "subjective_writing": 0.01,
+      "chars": 8348
+    }
+  },
+  {
+    "key": "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259",
+    "label": "A",
+    "decision": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.4166666666666666,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "4865a319409c81e54067ef4aead30bcae2e619127e5eb711d468fde56e7a5300",
+          "seconds": 0.722,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.9e-05
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000228
+        },
+        {
+          "provider": "luna",
+          "key": "79756ee01e11900dc5e58768c11343f4b2049ef7d8aa764e29dab4fecdd48598",
+          "count": 1,
+          "usd": 0.0001854
+        },
+        {
+          "provider": "gemini",
+          "key": "273418fb89146d40bc1beaa51725a7b8e9463bb73d8dc433b090e5ad991bc6b7",
+          "count": 1,
+          "usd": 0.000996
+        },
+        {
+          "provider": "haiku",
+          "key": "4db72004116f3e9d566b4e2e47d42f22ca5a9c87e7eff2ba84a9e3f2ecd03473",
+          "count": 1,
+          "usd": 0.0006828
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.18,
+      "needs_reasoning": 0.75,
+      "safety": 0.02,
+      "long_context": 0.2,
+      "subjective_writing": 0.02,
+      "chars": 2165
+    }
+  },
+  {
+    "key": "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a",
+    "label": "B",
+    "decision": {
+      "pA": 0.99,
+      "verdict": "A",
+      "initial_confidence": 0.7307692307692307,
+      "pre_panel_confidence": 0.7307692307692307,
+      "confidence": 0.7307692307692307,
+      "path": [
+        "terrain",
+        "pw_ref_luna"
+      ],
+      "level": "terminal",
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "c3a849d0f7e36e1ce382338fe1d7630825722f348039da595c168fa3c1ca2fee",
+          "seconds": 0.824,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000711
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.12,
+      "needs_reasoning": 0.73,
+      "safety": 0.02,
+      "long_context": 0.82,
+      "subjective_writing": 0.02,
+      "chars": 44232
+    }
+  },
+  {
+    "key": "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4",
+    "label": "B",
+    "decision": {
+      "pA": 0.6666666666666666,
+      "verdict": "A",
+      "initial_confidence": 0.5833333333333334,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "19ded218a170d7b8b52fdf0dda29baa455615bbe649f0ad5c8987ed3f79adfa8",
+          "seconds": 0.673,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000266
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000875
+        },
+        {
+          "provider": "luna",
+          "key": "45faa004963fd244ac04655e97312e3861107b1938528f5ff3b72224bc9cbf78",
+          "count": 1,
+          "usd": 0.0007553000000000001
+        },
+        {
+          "provider": "gemini",
+          "key": "f3817afd9bebd9601d3a9fbbb9e13592bb2e1dca5184b9b10bc71298f9a0ba53",
+          "count": 1,
+          "usd": 0.00439575
+        },
+        {
+          "provider": "haiku",
+          "key": "fa85e7abec6f6fb405969b371eea0355392839fba50ead004d786cb0c6400d3d",
+          "count": 1,
+          "usd": 0.0024462
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.1,
+      "needs_reasoning": 0.92,
+      "safety": 0.02,
+      "long_context": 0.4,
+      "subjective_writing": 0.01,
+      "chars": 17955
+    }
+  },
+  {
+    "key": "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+    "label": "B",
+    "decision": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.5833333333333334,
+      "pre_panel_confidence": 0.6190476190476191,
+      "path": [
+        "terrain",
+        "pw_ref_luna",
+        "luna",
+        "panel"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "43d25011bbcf58a1150d834425abf0e0bc56daf8ac788d35f87a3738f1f76004",
+          "seconds": 0.96,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.6e-05
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00018
+        },
+        {
+          "provider": "luna",
+          "key": "b22b07008a7f545247ef674be90fb5aa82b575f497c8d9e6fba541eaf811afaf",
+          "count": 1,
+          "usd": 0.00017370000000000002
+        },
+        {
+          "provider": "gemini",
+          "key": "440c22456830f140b24fd02d26142236f83ec6bea70908ac9d6b02be62289452",
+          "count": 1,
+          "usd": 0.001215
+        },
+        {
+          "provider": "haiku",
+          "key": "6723786ef76a6f43e9cbeffbed8274fff7256a6aaa7ae0310034dbcd776f7582",
+          "count": 1,
+          "usd": 0.0007531
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.07,
+      "needs_reasoning": 0.31,
+      "safety": 0.02,
+      "long_context": 0.25,
+      "subjective_writing": 0.1,
+      "chars": 5788
+    }
+  },
+  {
+    "key": "verify-with-reference|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+    "label": "A",
+    "decision": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.25,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "terrain",
+        "pw_whole",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "0b926e4714669aab07a9a085396ddde0f10a1be3f1b41629d71898520bd06bcc",
+          "seconds": 1.165,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000419
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.88,
+      "needs_reasoning": 0.9,
+      "safety": 0.02,
+      "long_context": 0.69,
+      "subjective_writing": 0.03,
+      "chars": 4872
+    }
+  },
+  {
+    "key": "verify-with-reference|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+    "label": "A",
+    "decision": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.4166666666666667,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "terrain",
+        "pw_whole",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "20844ced0e58579087205e685d1f705742d625e3b8a90bc1ba5a4e1969893cab",
+          "seconds": 0.829,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000456
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.9,
+      "needs_reasoning": 0.97,
+      "safety": 0.03,
+      "long_context": 0.72,
+      "subjective_writing": 0.02,
+      "chars": 7378
+    }
+  },
+  {
+    "key": "verify-with-reference|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e",
+    "label": "B",
+    "decision": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "terrain",
+        "pw_whole",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "b146a6e3eab5abe5def455eb852e2776c30b066d64c9b28532570ed5827ccc08",
+          "seconds": 1.418,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000784
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.85,
+      "needs_reasoning": 0.69,
+      "safety": 0.02,
+      "long_context": 0.45,
+      "subjective_writing": 0.03,
+      "chars": 8479
+    }
+  },
+  {
+    "key": "verify-with-reference|7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0",
+    "label": "A",
+    "decision": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "terrain",
+        "pw_whole",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "91e185067d5f2eb7a6c40f63f0b06d87544e7ad0580f985325ccae02ab2d2ab2",
+          "seconds": 1.201,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000693
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.69,
+      "needs_reasoning": 0.81,
+      "safety": 0.03,
+      "long_context": 0.84,
+      "subjective_writing": 0.04,
+      "chars": 13135
+    }
+  },
+  {
+    "key": "verify-with-reference|81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014",
+    "label": "A",
+    "decision": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "terrain",
+        "pw_whole",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "44d0cdb0d4b5240ea136d9d7676a834af95c9effe60c59a2d9e182f4a38f3b73",
+          "seconds": 0.974,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000553
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.83,
+      "needs_reasoning": 0.96,
+      "safety": 0.04,
+      "long_context": 0.73,
+      "subjective_writing": 0.02,
+      "chars": 8719
+    }
+  },
+  {
+    "key": "verify-with-reference|daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9",
+    "label": "A",
+    "decision": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "terrain",
+        "pw_whole",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "671e1378544b7020cb1f6a4c875c6095dfb8af33ba459c5e6d9f7d3e540589c2",
+          "seconds": 1.389,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000892
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.65,
+      "needs_reasoning": 0.94,
+      "safety": 0.03,
+      "long_context": 0.67,
+      "subjective_writing": 0.03,
+      "chars": 3818
+    }
+  },
+  {
+    "key": "verify-with-reference|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b",
+    "label": "A",
+    "decision": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.5,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "terrain",
+        "pw_whole",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "2ae0d9b1f3d2296bf8046480288e78955615d34ca701fcfda9893818663003ef",
+          "seconds": 0.405,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000342
+        }
+      ],
+      "missing_final": false
+    },
+    "terrain": {
+      "has_reference": 0.97,
+      "needs_reasoning": 0.91,
+      "safety": 0.02,
+      "long_context": 0.39,
+      "subjective_writing": 0.02,
+      "chars": 5558
+    }
+  }
+]

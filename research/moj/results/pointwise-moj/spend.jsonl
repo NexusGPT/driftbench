@@ -582,3 +582,15 @@
 {"attempt": "087d9b27d8f312da8047199a57693e2fac92aad17077df2a1d010302636ab1ee:1", "provider": "haiku", "reserved": 0.1}
 {"attempt": "087d9b27d8f312da8047199a57693e2fac92aad17077df2a1d010302636ab1ee:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0007114}
 {"attempt": "33177cd8bd7101e441c28d64b4f4fe0b09de5a2571dfdcc7374acd4921bc7144:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0009914}
+{"attempt": "9ec8fb6d1023e8b1a6f7be98cd82fdc639a9993b226dcb0bc243306d1f4ee5ff:1", "provider": "luna", "reserved": 0.02172125}
+{"attempt": "9ec8fb6d1023e8b1a6f7be98cd82fdc639a9993b226dcb0bc243306d1f4ee5ff:1", "provider": "luna", "reserved": 0.02172125, "usd": 0.0002923}
+{"attempt": "795368d3b8aca108a54ac839c4b244dd7c411e455a175390cad3bbd40431e640:1", "provider": "gemini", "reserved": 0.02172125}
+{"attempt": "795368d3b8aca108a54ac839c4b244dd7c411e455a175390cad3bbd40431e640:1", "provider": "gemini", "reserved": 0.02172125, "usd": 0.0014025}
+{"attempt": "dee74cb647e003992f3a4d3e7d0f2d84e77e83e65a6364b84bfdd810996454e7:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "dee74cb647e003992f3a4d3e7d0f2d84e77e83e65a6364b84bfdd810996454e7:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0017020999999999998}
+{"attempt": "98ff29af4ab50c751e95b3199188caa18daa6daae4762b59417820e00c120eb5:1", "provider": "luna", "reserved": 0.10272125000000001}
+{"attempt": "98ff29af4ab50c751e95b3199188caa18daa6daae4762b59417820e00c120eb5:1", "provider": "luna", "reserved": 0.10272125000000001, "usd": 0.0009683000000000001}
+{"attempt": "c375e5e1b6b9cd37aa53077d70e45270006d76a4204b4fe0c427e5fc4c0fad72:1", "provider": "gemini", "reserved": 0.10272125000000001}
+{"attempt": "c375e5e1b6b9cd37aa53077d70e45270006d76a4204b4fe0c427e5fc4c0fad72:1", "provider": "gemini", "reserved": 0.10272125000000001, "usd": 0.0071955}
+{"attempt": "665fe8a1c2af1cc41dcc8d496590f1c3f5b61a2ff22ef470c0ad9ffd5392e67f:1", "provider": "haiku", "reserved": 0.1}
+{"attempt": "665fe8a1c2af1cc41dcc8d496590f1c3f5b61a2ff22ef470c0ad9ffd5392e67f:1", "provider": "haiku", "reserved": 0.1, "usd": 0.0028183}

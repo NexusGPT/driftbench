@@ -1,0 +1,9 @@
+{
+  "budget_usd": 15,
+  "before_usd": 0.7502442300000001,
+  "after_usd": 0.76462323,
+  "increment_usd": 0.01437899999999992,
+  "system1_new_calls": 0,
+  "new_panel_items": 2,
+  "note": "Threshold selection needed two tuning panels. Existing returned responses were reused; validation used no fresh calls."
+}
