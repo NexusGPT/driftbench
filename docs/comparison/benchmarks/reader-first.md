@@ -1,5 +1,120 @@
 # Reader-first judge (length-aware)
 
-This optional judge implements an explicit preference for longer writing, with evidence-based exceptions for structure, padding, litotes, context assumptions and difficult language. It is separate from the default judge.
+An explicit opt-in configuration favors the longer reply unless machine checks and the five-criterion model rubric justify a shorter-reply exception. It remains separate from the default judge.
 
-The benchmark study is running on the fixed LongJudge writing DEV split. No result is claimed yet. The source, preregistration, raw recordings and per-pair evidence are retained in `comparisons/reader-first/`.
+## Frozen DEV
+
+Report timestamp: 2026-10-13T04:32:13.657Z. TEST checkpoint: 2026-10-13T04:32:04.900Z.
+
+All 90 DEV pairs are covered, with 180 scored games. Each pair has two model presentations; code pools their scores, so the two reported games share one decision. Both presentations retain separate quotes and scores in the raw report.
+
+| Variant | Correct games | Games gained vs length | Games lost vs length | USD per 100 pairs |
+|---|---:|---:|---:|---:|
+| Length alone | 78.89% (142/180) | 0 | 0 | 0 |
+| Features plus length | 78.89% (142/180) | 0 | 0 | 0 |
+| Reader-first judge (length-aware): features plus judge plus length | 80.00% (144/180) | 4 | 2 | 0.81568 |
+| Frozen holistic, historical | 64.44% (116/180) | n/a | n/a | 0.57181 |
+
+Selected rule: judgeMargin=4, minFailures=1, featureMargin=5. The final full DEV replay runs after the selection commit 7797431e936dfcc7555aac6b91ac845f98a94e3e. Freeze record cites that DEV result and the exact source hashes. The committed frozen judge is c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4. Current evidence commit before this report: c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4.
+
+The shorter reply wins only when both ballots are valid, its pooled sum advantage reaches judgeMargin, and minFailures criteria have longer<=2, shorter>=3 and a machine flag present only in the longer reply. An invalid ballot retains the length default with an explicit invalid flag. Equal lengths tie. No holistic or competitor ballot enters this calculation.
+
+## Machine feature firing on DEV
+
+| Feature family | Reply flags | Pairs with flag | One-sided pairs | Qualifying supported failures |
+|---|---:|---:|---:|---:|
+| structure | 0/180 | 0/90 | 0 | 0 |
+| economy | 57/180 | 41/90 | 25 | 6 |
+| directness | 0/180 | 0/90 | 0 | 0 |
+| context | 85/180 | 52/90 | 19 | 2 |
+| simplicity | 4/180 | 4/90 | 4 | 2 |
+
+- Length: English whitespace units, Chinese Han characters. It exactly reproduces the supplied 142/180 baseline.
+- Structure: length>500, no heading/list, and one paragraph or mean paragraph length>250 English / 400 Chinese.
+- Economy: filler+hedge phrases>6 per 1,000 units, duplicate sentences>0.08, or redundant four-grams>0.15.
+- Directness: litotes>1 per 1,000 units.
+- Context: undefined acronyms>3, unexplained dictionary jargon>3, or context-reference phrases>1 per 1,000 units.
+- Simplicity: mean sentence length>35 English / 60 Chinese, or estimated English reading grade>14. Chinese has no English reading-grade estimate.
+
+All raw feature values, including headings, lists, paragraph counts, means and densities, are retained for every reply. These are heuristic flags, not semantic proof. Requested repetition and appropriate literary forms remain legitimate under the model rubric. Invalid-evidence fallbacks: 22/90 pairs.
+
+### DEV changes versus longer-wins
+
+| Pair | Language | A / B length | Longer | Reader-first | Gold | Effect | Supported failures |
+|---|---|---:|---|---|---|---|---|
+| d3f7457d-11ad-4f02-a849-31518f5a729d:c8879d119bae | zh | 1180 / 2816 | B | A | A | gain | economy |
+| 8a981764-d2ff-44a0-a3bb-78090ec8107f:301c17a7b13b | zh | 1701 / 2753 | B | A | A | gain | context |
+| 43b647a6-2c1f-4f0b-95b3-da61f793802c:f227cf6be572 | en | 5187 / 813 | A | B | A | loss | context, simplicity |
+
+### Machine-only changes versus longer-wins
+
+| Pair | Language | A / B length | Longer | Features | Gold | Effect | Support |
+|---|---|---:|---|---|---|---|---|
+
+No decisions differ from length alone.
+
+## Every DEV threshold variant
+
+The grid is declared before completion of the exploratory DEV run. Selection maximizes combined DEV accuracy, then minimizes overrides, then prefers a larger judge margin and failure count. The feature-only margin is selected independently, preferring a larger margin on ties. Final DEV replay confirms the chosen rule without new calls. This is tuning on DEV, not a fresh DEV estimate.
+
+| Judge margin | Minimum failures | DEV games correct | Override pairs | Gain pairs | Loss pairs |
+|---:|---:|---:|---:|---:|---:|
+| 4 | 1 | 144/180 | 3 | 2 | 1 |
+| 10 | 3 | 142/180 | 0 | 0 | 0 |
+| 10 | 2 | 142/180 | 0 | 0 | 0 |
+| 10 | 1 | 142/180 | 0 | 0 | 0 |
+| 8 | 3 | 142/180 | 0 | 0 | 0 |
+| 8 | 2 | 142/180 | 0 | 0 | 0 |
+| 8 | 1 | 142/180 | 0 | 0 | 0 |
+| 6 | 3 | 142/180 | 0 | 0 | 0 |
+| 5 | 3 | 142/180 | 0 | 0 | 0 |
+| 4 | 3 | 142/180 | 0 | 0 | 0 |
+| 3 | 3 | 142/180 | 0 | 0 | 0 |
+| 2 | 3 | 142/180 | 0 | 0 | 0 |
+| 3 | 1 | 142/180 | 4 | 2 | 2 |
+| 2 | 1 | 142/180 | 4 | 2 | 2 |
+| 6 | 2 | 140/180 | 1 | 0 | 1 |
+| 6 | 1 | 140/180 | 1 | 0 | 1 |
+| 5 | 2 | 140/180 | 1 | 0 | 1 |
+| 5 | 1 | 140/180 | 1 | 0 | 1 |
+| 4 | 2 | 140/180 | 1 | 0 | 1 |
+| 3 | 2 | 140/180 | 1 | 0 | 1 |
+| 2 | 2 | 140/180 | 1 | 0 | 1 |
+
+| Feature margin | DEV games correct | Override pairs | Gain pairs | Loss pairs |
+|---:|---:|---:|---:|---:|
+| 5 | 142/180 | 0 | 0 | 0 |
+| 4 | 142/180 | 0 | 0 | 0 |
+| 3 | 142/180 | 0 | 0 | 0 |
+| 2 | 142/180 | 2 | 1 | 1 |
+| 1 | 114/180 | 18 | 2 | 16 |
+
+## TEST status
+
+PARTIAL: 67/173 pairs (134/346 games), still running. Reader-first: 74/134; length: 68/134; features plus length: 68/134. These partial counts must not be compared directly with historical full-split holistic 204/346 or promptfoo 217/346. If incomplete at cutoff, remaining pairs resume after the outage from frozen commit c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4, with identical source hashes and cached calls. No full-TEST claim.
+
+Partial invalid-evidence fallbacks: 21/67. Partial recipe cost: USD 0.72166 per 100 pairs.
+
+| Feature family | Reply flags | Pairs with flag | One-sided pairs | Qualifying supported failures |
+|---|---:|---:|---:|---:|
+| structure | 0/134 | 0/67 | 0 | 0 |
+| economy | 19/134 | 15/67 | 11 | 1 |
+| directness | 0/134 | 0/67 | 0 | 0 |
+| context | 24/134 | 18/67 | 12 | 3 |
+| simplicity | 3/134 | 3/67 | 3 | 2 |
+
+| Pair | Language | A / B length | Longer | Reader-first | Gold | Effect | Supported failures |
+|---|---|---:|---|---|---|---|---|
+| c8156bb9-f3c1-492c-84fe-1466333c128b:374f6aace872 | zh | 746 / 3549 | B | A | A | gain | context |
+| ab7b3fb5-a0f1-4c7b-a04f-68e90a175261:9ef6b2a28174 | zh | 1408 / 2826 | B | A | A | gain | context |
+| 65fca3a9-6621-4162-a477-33083c83b1f4:bdb0d59fd0f1 | zh | 396 / 14334 | B | A | A | gain | economy, simplicity |
+
+## Cost, safety and default preservation
+
+Returned spend: USD 1.23853474, 319 returned calls. Interrupted-call uncertainty reserve: USD 0.20. Total accounted exposure: USD 1.43853474 of USD 20.00. The original two-worker process is stopped at the owner's concurrency update; its returned calls replay for free. Subsequent concurrency is at most six. New calls are refused at or after 2026-10-13 06:39 Brussels. Recipe costs count both required orders, including replayed calls, and are quoted per 100 pairs (200 presentations).
+
+All 42 pre-existing judge source files except the export index are byte-identical to base d702d90b. The index adds named exports. The full judges suite passes 602 tests with two test workers and a 60-second per-test timeout; the focused golden and configuration run passes 41 tests, including 1,028 legacy cassette entries. The new reader-first fixtures pass 20 tests. Root and research TypeScript checks pass. Two runs with the default five-second timeout time out during a dynamic import in an unchanged pairwise test; the run with a 60-second timeout passes without a code change. All nine caller cutoff and cost tests pass using fake processes, with no paid calls. Biome reports one formatting-only error in reader-first-features.ts; that whitespace correction waits until TEST completes to keep the frozen source unchanged. It remains an open PR check.
+
+The package API is createReaderFirstJudge(client, { configuration: 'reader-first' }). It is never selected automatically. The doc section is docs/concepts/judges.md. Default source hashes are in results/default-proof.json. Rules and source provenance are in README.md; each criterion's source quotes, scores, machine measurements and decisions are in results/final-dev.json and results/test.json when present. Raw responses are in recordings/haiku.jsonl. Public benchmark contact details in quoted evidence carry narrowly scoped guard annotations; the original evidence text remains intact. Model-generated punctuation in raw evidence is preserved.
+
+Historical baselines are supplied by the prior holistic and protocol reports. Length bias is deliberately used here. A better score on these labels does not establish better writing evaluation elsewhere. No default row is merged with this configuration.
