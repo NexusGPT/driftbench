@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { geminiCost, makeRecordingClient, openAiCost, SpendBudget } from '../record';
+import { GEMINI_LITE_RATES, geminiCost, makeRecordingClient, openAiCost, SpendBudget } from '../record';
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -225,4 +225,54 @@ it.each([
   expect(fetch).toHaveBeenCalledTimes(attempts);
   expect(sleep).toHaveBeenCalledTimes(waits);
   expect(rows).toHaveLength(1);
+});
+
+it('prices Flash-Lite cached input and thinking at its own rates', () => {
+  expect(
+    geminiCost(
+      {
+        promptTokenCount: 1000,
+        cachedContentTokenCount: 500,
+        candidatesTokenCount: 200,
+        thoughtsTokenCount: 300,
+      },
+      GEMINI_LITE_RATES,
+    ),
+  ).toBeCloseTo(0.001415, 12);
+});
+
+it('records Flash-Lite at medium with its own reservation, settings and resolved identity', async () => {
+  const budget = new SpendBudget(0.2);
+  const rows: Array<{ resolvedModel: string; chargedUsd: number; outputTokens?: number }> = [];
+  const reserve = vi.spyOn(budget, 'reserve');
+  const client = makeRecordingClient(
+    'gemini-3.5-flash-lite',
+    budget,
+    { GEMINI_API_KEY: 'fictional' },
+    (row) => rows.push(row),
+    {
+      fetch: async (url, init) => {
+        expect(String(url)).toContain('/gemini-3.5-flash-lite:generateContent');
+        expect(JSON.parse(String(init?.body)).generationConfig.thinkingConfig.thinkingLevel).toBe('medium');
+        return new Response(
+          JSON.stringify({
+            modelVersion: 'gemini-3.5-flash-lite',
+            usageMetadata: { promptTokenCount: 1000, candidatesTokenCount: 100, thoughtsTokenCount: 200 },
+            candidates: [{ finishReason: 'STOP', content: { parts: [{ text: '{}' }] } }],
+          }),
+          { status: 200 },
+        );
+      },
+    },
+  );
+  await client.judge({
+    criterion: { name: 'c', rubric: 'Reply politely.' },
+    transcript: [{ role: 'agent', text: 'Hello.' }],
+  });
+  expect(JSON.parse(client.settings ?? '{}').reasoning).toBe('medium');
+  expect(reserve.mock.calls[0]?.[0]).toBeGreaterThan((65536 * 2.5) / 1000000);
+  expect(reserve.mock.calls[0]?.[0]).toBeLessThan(0.2);
+  expect(rows).toHaveLength(1);
+  expect(rows[0]).toMatchObject({ resolvedModel: 'gemini-3.5-flash-lite', outputTokens: 300 });
+  expect(budget.spent).toBeCloseTo(0.00105, 12);
 });

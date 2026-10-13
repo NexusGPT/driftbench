@@ -37,7 +37,7 @@ async function json(path: string) {
 }
 
 describe('versioned benchmark slices', () => {
-  it('retains every full population and all three active models', async () => {
+  it('retains every full population, three active models and deferred Gemini Flash', async () => {
     const manifest = await json('benchmarks/manifest.json');
     expect(manifest.version).toBe(1);
     expect(Object.fromEntries(manifest.slices.map((s: SliceEntry) => [s.name, s.n]))).toEqual(population);
@@ -45,10 +45,12 @@ describe('versioned benchmark slices', () => {
     expect(manifest.models).toEqual([
       { id: 'haiku', model: 'claude-haiku-5-5', status: 'active' },
       { id: 'gpt-6-luna', model: 'gpt-6-luna', status: 'active' },
+      { id: 'gemini-3.5-flash-lite', model: 'gemini-3.5-flash-lite', status: 'active' },
       {
         id: 'gemini-3.8-flash',
         model: 'gemini-3.8-flash',
-        status: 'active',
+        status: 'skipped',
+        reason: 'Floors await a later recording slot; Flash-Lite is the active Gemini benchmark.',
       },
     ]);
   });

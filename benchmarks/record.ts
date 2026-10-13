@@ -75,13 +75,15 @@ export function openAiCost(usage: Usage): number {
 // Introductory direct API text rates through 2026-12-31, including thinking output.
 // https://ai.google.dev/gemini-api/docs/pricing
 export const GEMINI_RATES = { input: 0.75, cached: 0.075, output: 3.75 };
+// Standard Flash-Lite text rates, verified 2026-10-13 at the pricing URL above.
+export const GEMINI_LITE_RATES = { input: 0.3, cached: 0.03, output: 2.5 };
 interface GeminiUsage {
   promptTokenCount?: number;
   candidatesTokenCount?: number;
   thoughtsTokenCount?: number;
   cachedContentTokenCount?: number;
 }
-export function geminiCost(usage: GeminiUsage): number {
+export function geminiCost(usage: GeminiUsage, rates = GEMINI_RATES): number {
   const input = usage.promptTokenCount;
   const output = usage.candidatesTokenCount ?? 0;
   const thinking = usage.thoughtsTokenCount ?? 0;
@@ -93,10 +95,7 @@ export function geminiCost(usage: GeminiUsage): number {
   )
     throw new Error('Missing or invalid Gemini token usage');
   return (
-    ((input - cached) * GEMINI_RATES.input +
-      cached * GEMINI_RATES.cached +
-      (output + thinking) * GEMINI_RATES.output) /
-    1_000_000
+    ((input - cached) * rates.input + cached * rates.cached + (output + thinking) * rates.output) / 1_000_000
   );
 }
 export function makeRecordingClient(
@@ -106,7 +105,7 @@ export function makeRecordingClient(
   log: (row: SpendRow) => void,
   options: { haikuModel?: string; fetch?: typeof fetch; sleep?: (ms: number) => Promise<void> } = {},
 ): JudgeClient {
-  if (!['haiku', 'gpt-6-luna', 'gemini-3.8-flash'].includes(model))
+  if (!['haiku', 'gpt-6-luna', 'gemini-3.5-flash-lite', 'gemini-3.8-flash'].includes(model))
     throw new Error(`Recording model ${model} is not enabled`);
   for (const key of [
     'OPENAI_BASE_URL',
@@ -130,7 +129,8 @@ export function makeRecordingClient(
     pending?: { token: symbol; amount: number; rejected?: boolean };
   };
   const meter = new AsyncLocalStorage<Meter>();
-  const rates = model === 'gemini-3.8-flash' ? GEMINI_RATES : LUNA_RATES;
+  const isGemini = model === 'gemini-3.8-flash' || model === 'gemini-3.5-flash-lite';
+  const rates = model === 'gemini-3.5-flash-lite' ? GEMINI_LITE_RATES : isGemini ? GEMINI_RATES : LUNA_RATES;
   const settle = (current: Meter, actual: number | undefined) => {
     const pending = current.pending;
     if (!pending) return;
@@ -154,7 +154,7 @@ export function makeRecordingClient(
       // Reserve each wire request, including a recovery with a larger output allowance.
       // Gemini thinking may overshoot the requested cap, so reserve its full model ceiling.
       // https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash
-      const outputLimit = model === 'gemini-3.8-flash' ? 65_536 : body.max_completion_tokens;
+      const outputLimit = isGemini ? 65_536 : body.max_completion_tokens;
       if (outputLimit === undefined || !Number.isSafeInteger(outputLimit) || outputLimit <= 0)
         throw new Error('Recorder requires a bounded output allowance');
       const amount =
@@ -179,9 +179,9 @@ export function makeRecordingClient(
         modelVersion?: string;
       };
       let cost: number;
-      if (model === 'gemini-3.8-flash') {
+      if (isGemini) {
         if (!payload.usageMetadata) throw new Error('Gemini response has no usage');
-        cost = geminiCost(payload.usageMetadata);
+        cost = geminiCost(payload.usageMetadata, rates);
         current.model = payload.modelVersion;
         current.input = (current.input ?? 0) + (payload.usageMetadata.promptTokenCount ?? 0);
         current.output =
@@ -205,7 +205,7 @@ export function makeRecordingClient(
   const base =
     model === 'haiku'
       ? createClaudeCliJudge({ id: model, model: actualModel, env, maxBudgetUsd: 0.02 })
-      : model === 'gemini-3.8-flash'
+      : isGemini
         ? createGoogleJudge({
             id: model,
             model,
@@ -246,7 +246,7 @@ export function makeRecordingClient(
             } catch (cause) {
               if (data.failure) throw data.failure;
               if (
-                model !== 'gemini-3.8-flash' ||
+                !isGemini ||
                 !(cause instanceof Error) ||
                 !('status' in cause) ||
                 cause.status !== 429 ||

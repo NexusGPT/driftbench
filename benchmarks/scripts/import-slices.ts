@@ -240,10 +240,12 @@ try {
         models: [
           { id: 'haiku', model: 'claude-haiku-5-5', status: 'active' },
           { id: 'gpt-6-luna', model: 'gpt-6-luna', status: 'active' },
+          { id: 'gemini-3.5-flash-lite', model: 'gemini-3.5-flash-lite', status: 'active' },
           {
             id: 'gemini-3.8-flash',
             model: 'gemini-3.8-flash',
-            status: 'active',
+            status: 'skipped',
+            reason: 'Floors await a later recording slot; Flash-Lite is the active Gemini benchmark.',
           },
         ],
         slices,

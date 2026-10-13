@@ -1504,7 +1504,7 @@ Replay and floor checks make no model calls. Replay reports the correct count, W
 
 Recording uses the public client and retains raw responses. It checkpoints partial runs, checks recorded results against replay, and writes cassettes with measured spending evidence. `--resume` refuses stale data. Omit it for an intentional re-record; the previous completed cassette is archived by hash. A spend cap is per invocation, including after resume.
 
-The active model ids are `haiku` and `gpt-6-luna`. Haiku is pinned to `claude-haiku-5-5` and needs an authenticated `claude` executable. OpenAI needs `OPENAI_API_KEY`. `gemini-3.8-flash` is skipped until billing is enabled and cannot be selected for recording or replay.
+The active model ids are `haiku`, `gpt-6-luna` and `gemini-3.5-flash-lite`. Haiku is pinned to `claude-haiku-5-5` and needs an authenticated `claude` executable. OpenAI needs `OPENAI_API_KEY`; Gemini needs `GEMINI_API_KEY`. Luna and Flash-Lite use medium reasoning. `gemini-3.8-flash` awaits a later recording slot and cannot be selected until its manifest entry is activated.
 
 Floors validate evidence against the current cassette. The correct count cannot decrease within a dataset version. The same count can update evidence at a new fingerprint; unchanged count and fingerprint are refused. Earlier floor records remain in history.
 

@@ -40,7 +40,7 @@ describe('bench CLI', () => {
     expect(r.err).toContain('Unknown slice');
   });
   it('requires explicit spend authorization for Gemini too', async () => {
-    const r = await run(['bench', 'record', '--model', 'gemini-3.8-flash']);
+    const r = await run(['bench', 'record', '--model', 'gemini-3.5-flash-lite']);
     expect(r.code).toBe(2);
     expect(r.err).toContain('--spend-cap-usd');
   });

@@ -78,9 +78,10 @@ The harness accepts only the default request fields: `criterion`, `transcript`, 
 |---|---|---|
 | `haiku` | `claude-haiku-5-5` | Active, through the public CLI judge |
 | `gpt-6-luna` | `gpt-6-luna` | Active, public OpenAI judge, medium reasoning |
-| `gemini-3.8-flash` | `gemini-3.8-flash` | Active, public Google judge, medium thinking, 300 second timeout |
+| `gemini-3.5-flash-lite` | `gemini-3.5-flash-lite` | Active, public Google judge, medium thinking, 300 second timeout |
+| `gemini-3.8-flash` | `gemini-3.8-flash` | Skipped, floors await a later recording slot |
 
-All three models use the same shipped prompt fingerprint. Explicit reasoning settings participate in each client's cassette key.
+All active models use the same shipped prompt fingerprint. Explicit reasoning settings participate in each client's cassette key.
 
 ## Record and resume
 
@@ -142,4 +143,4 @@ The [CI workflow](../.github/workflows/ci.yml) runs the public API check and `be
 
 The full flag and exit-code reference is under [`driftbench bench`](reference/cli.md#driftbench-bench).
 
-Gemini metering counts candidate and thinking tokens, and discounts cached input. Reservations allow the [model's full 65,536-token output ceiling](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash), so a call requires that much budget headroom even though only measured usage is charged. The introductory rates expire after December 31, 2026; recording then refuses until the rates are updated. See [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).
+Gemini metering counts candidate and thinking tokens, and discounts cached input. Flash-Lite uses the standard rates of $0.30 input, $0.03 cached input and $2.50 output per million tokens. Reservations allow its [full 65,536-token output ceiling](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite), so each in-flight call requires that budget headroom even though only measured usage is charged. The separate Flash 3.8 introductory rates expire after December 31, 2026; recording that model then refuses until its rates are updated. Rates were verified on October 13, 2026 against [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).

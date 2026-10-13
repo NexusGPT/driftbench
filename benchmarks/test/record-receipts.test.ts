@@ -56,6 +56,7 @@ function receipt(model: string) {
 it.each([
   ['gpt-6-luna', 0.00006],
   ['gemini-3.8-flash', 0.00045],
+  ['gemini-3.5-flash-lite', 0.00028],
 ])('sums every billed %s receipt in one judgment', async (model, cost) => {
   const budget = new SpendBudget(1);
   const reserve = vi.spyOn(budget, 'reserve');
