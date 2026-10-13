@@ -10,19 +10,19 @@ Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 32 were made by a f
 | 1 | 0 |
 <!-- level-table:end -->
 
-Iteration 33, sweep at 540edba5: seed 1 passes 1032 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
+Iteration 34, sweep at 4581ef3c5: seed 1 passes 1074 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
 
-| Level | Passing at the takeover (5fbc3c9a) | Passing at 540edba5 |
+| Level | Passing at the takeover (5fbc3c9a) | Passing at 4581ef3c5 |
 |---|---|---|
 | reader | 584/641 | 640/641 |
 | lint | 45/46 | 46/46 |
 | plan | 44/65 | 64/65 |
-| generation | 196/270 | 196/270 |
+| generation | 196/270 | 237/270 |
 | agent-mutants | 22/75 | 22/75 |
-| maintenance | 49/53 | 49/53 (50/53 after b1b222cd, by family run) |
+| maintenance | 49/53 | 50/53 |
 | scale | 20/20 | 15/20 on this run (timing) |
 
-Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20 and 15 times across the six sweeps, with no change to scale code.
+Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20, 15 and 15 times across the seven sweeps, with no change to scale code.
 
 The cross-seed sweep (seeds 1 to 20 and hidden) was not rerun after these changes. It stops at the first failing level, which is level 1 on every seed while the defect stands.
 
@@ -54,24 +54,39 @@ The item asks that a rule respaced (two spaces inside it) touch no test. Section
 
 The items ask that a skill folder renamed with its name kept retire no test and bring no new atom. `packages/validators/test/estate/mutants.test.ts` ("names the tests maintenance regenerates instead of retiring") asserts the opposite of the product: `expect(renamed.length).toBeGreaterThan(0)` with `expected === 'kept' && got === 'retired'`. A product that follows the rename makes that test fail, and the executor may not edit it. The fix (match a renamed skill's atoms by skill name in `packages/estate/src/maintain/diff.ts`) should land together with the maintainer's change to that test.
 
+### Rulings in review (do not change the product for these items until each merges)
+
+| Finding | Items | PR |
+|---|---|---|
+| D1 | scan.hostile.prompt-hook | 230 |
+| D2 | plan.contract.journey-route | 231 |
+| D5 | unkillable agent mutants (31 atoms the rule follower cannot show) | 233 |
+| static records loaded as specs | gen.asks.all-load, records-provenance | 239 |
+| D6 and D4 | packages/validators/test/estate/mutants.test.ts pins the gate, deny and rename gaps | 240 |
+| judged criteria | gen.asks.judged-only-registers | 241 |
+| D3 | maintain.impact.spacing-touches-nothing | draft product PR for the owner: a white-space-only change touches no test (the owner's blast-radius direction; reverses docs/estate.md section 8) |
+
+Open, not now (owner): give the rule follower an observable act for about eight rule kinds, so more mutant classes are measured (follow-up of D5).
+
+The gate fix held back by D6 (a gate's read tied to its file, or to the edited file) is saved outside the repo as a patch and test; it kills two gate mutants once PR 240 lands.
+
 ## Open items
 
-First failing level (reader), seed 1: `scan.hostile.prompt-hook` only (D1).
+First failing level (reader), seed 1: `scan.hostile.prompt-hook` only (D1, PR 230).
 
-Beyond level 1, from the all-level run at 540edba5 and the family runs after it (about 80 failing items):
+Beyond level 1, from the all-level run at 4581ef3c5 (96 failing items):
 
 | Family | Failing | Note |
 |---|---|---|
-| unit.runner | 41 | `estate unit` reads native JSON tests; the bank hands it the generated YAML unit specs. See "Next actions". |
-| kill.fake | 31 | not yet examined in this takeover |
-| mutant.agent | 22 | mostly custom predicates with no registered check |
-| gen.complete | 14 | same custom predicates, guard message and stage reach checks |
+| kill.fake | 31 | not yet examined in depth: most rows have no complete live spec green on the original fixture under the fake runtime |
+| mutant.agent | 22 | mostly D5 (PR 233) and D6 (PR 240) |
+| gen.complete | 14 | custom predicates, guard message and stage reach checks |
 | gen.task | 9 | one cause: asks written as restated rules |
 | gen.coverage | 5 | |
-| gen.asks | 4 | one cause: k distinct positive phrases per route |
-| maintain.impact | 3 | D3 and D4 |
+| gen.asks | 4 | PRs 239 and 241, and k distinct phrases per route |
+| maintain.impact | 3 | D3 (draft PR) and D4 (PR 240) |
 | gen.reads | 1 | |
-| plan.contract | 1 | D2 |
+| plan.contract | 1 | D2 (PR 231) |
 
 ## Hypotheses tried
 
@@ -126,15 +141,24 @@ For the second, the relevance pairs are constraints of the space map, read for a
 
 After the sweep: static check records (`static/**.json`) count as tests of their atom, so a removed setting retires its record (`maintain.fixture.remove-env`).
 
+### Iteration 34
+
+1032 to 1074. Two commits:
+
+* static check records (`static/**.json`) count as tests of their atom in `estate impact` (maintain.fixture.remove-env);
+* `estate unit` judges the generated unit specs (`specs/unit/**.yaml`) on their own Then, with no recorded outcome (unit.runner 41 of 41).
+
+For the second: a guard spec takes its payloads from the native unit tests written beside the specs. The runner gains an observe mode, runs a guard from the project folder (the unanchored `python3 .claude/guards/ledger-guard.py` finds its script), and keeps `last_reply` beside `last_assistant_message` in a Stop payload. The generator writes a breach payload for a rule that quotes none: a reply one over a length cap, a removal under a folder the rule protects. A family run on a loaded host once showed 4 cells with no JSON; they passed by hand and on the sweep.
+
 ### What the previous executor got wrong
 
 The earlier stuck record held back 14 reader items as "contract conflicts": gate wordings beyond the four, routing outside tables, extra standing files, and relaxed step JSON. `NEEDS.md` keeps them in the bank, and none contradicts a decoy item. They were passable product gaps, and `docs/estate.md` and `docs/adapters/claude-code.md` now name the forms. Measurement note: each journal row of iterations 30 to 32 covers several one-cause commits measured by one sweep, because a full sweep takes 8 to 20 minutes on this host. Each commit was checked by running its affected families.
 
 ## Next actions
 
-1. Maintainer: decide D1 to D4. D1 alone opens level 1; after it, run `pnpm -s driftbench validate estate --seeds 1..20 --hidden --json`.
-2. unit.runner (41 items, 10 causes): make `driftbench estate unit` accept the generated YAML unit specs (`specs/unit/**.yaml`). Findings so far: each YAML spec has a native sibling with payloads (`unit/<type>/unit.<plan row>.json`; none for guard_register and contract_alone); the verdict must come from the spec's own `expect.guards` (count 0, count min 1, verdict) and `rules.custom` (guard_finished, guard_message), since the bank runs once on a copy with no recorded oracle. Known gaps on the pristine fixture: the runner runs a guard from a scratch folder, so the unanchored `python3 .claude/guards/ledger-guard.py` is not found; the reply-length payload is the rule's own sentence, far under 1,200 characters, so the guard never fires; `track.sh` with the documented `NWX 123` exits 1 on the pristine script, so a script spec has no oracle without declared fixtures.
-3. Custom predicates (about 15 items across gen.complete and mutant.agent): register checks for `permission`, `hazard_recovery`, `brief_fields`, `command_absent`, `grounded_values`, `helper_read_only`, `holds_under_pressure`, `no_value_change`, `reread_after_compaction`, and write the "some call matches", guard message and stage reach checks.
+1. After each ruling PR merges: merge main into this branch, then rerun the families it touches (see the table above).
+2. kill.fake (31 items, one cause per atom kind): find why the complete live specs of the fixture do not pass on the original under the fake runtime (`examples/estates/fixture/live/fake/claude.mjs`), starting with `estate run` on one instruction spec.
+3. gen.task (9 items, one cause): write every code-written ask as a task (a verb of acting and its object), never as a restated rule ("Please read git status before commit to git.").
 
 ## Pitfalls
 
@@ -143,7 +167,8 @@ The earlier stuck record held back 14 reader items as "contract conflicts": gate
 * `map-cache.test.ts` ("reads the copy when the text is the same") once failed under load, then passed alone.
 * An `@path` is an import only in a standing or memory file. In a skill body it stays a file to read (`unquoted-paths.test.ts`).
 * A guard literal enforces a rule only when it states most of it (60 percent) or equals a span the rule itself quotes (`git push --force`). The unit runner test of a leaky guard depends on the second case.
-* `unit.runner` passes YAML core specs to the native JSON unit runner (previous executor's diagnosis, not rechecked here).
+* `estate unit` takes either unit specs (`*.yaml`, judged on their Then) or native unit tests (`*.json`, compared with a recorded outcome), never both in one call.
+* Host: disk and load are critical. Run one focused test file at a time with a long timeout; no full suite and no repo-wide typecheck locally.
 * Never `git stash`: the stash is shared across worktrees.
 
 ## How to run
