@@ -1,8 +1,10 @@
 {
-  "at": "2026-10-13T12:39:09.627621+00:00",
+  "at": "2026-10-13T12:40:07.074390+00:00",
   "failures": [],
   "complete": true,
   "modelsChecked": [
+    "haiku",
+    "gpt-6-luna",
     "gemini-3.5-flash-lite"
   ],
   "sourceHashes": 191,

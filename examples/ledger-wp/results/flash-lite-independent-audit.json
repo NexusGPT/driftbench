@@ -1,0 +1,41 @@
+{
+  "at": "2026-10-13T12:39:22.347330+00:00",
+  "failures": [],
+  "maxConcurrentReturnedCalls": 8,
+  "allAppliedReasoning": "medium",
+  "coverage": {
+    "fixtures": {
+      "actual": 36,
+      "expected": 36
+    },
+    "validity": {
+      "actual": 40,
+      "expected": 40
+    },
+    "dev": {
+      "actual": 180,
+      "expected": 180
+    },
+    "test": {
+      "actual": 346,
+      "expected": 346
+    }
+  },
+  "testScores": {
+    "pair-ledger": {
+      "pairs": 173,
+      "correctGames": 204
+    },
+    "promptfoo": {
+      "pairs": 173,
+      "correctGames": 209
+    }
+  },
+  "recoveredNamedCalls": 8,
+  "recoverySubmissionPerCall": 1,
+  "networkErrorsBeforeRecovery": 24,
+  "knownModelCostUsd": 4.0151186,
+  "priceVerifiedFromTokenUsage": true,
+  "judgeInvocationUnchanged": true,
+  "gemini38OwnerHoldHonored": true
+}

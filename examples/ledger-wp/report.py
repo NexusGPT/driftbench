@@ -221,6 +221,15 @@ def main():
             '- Exactly 1,150 base answer requests remain. Estimated total: 1,196, rounded up after applying the observed DEV canonical-read rate, 17/72, to 191 primary comparisons. Observed schema re-asks are 0/281, so the empirical expected extra schema requests are zero.',
             '- The exact maximum is 1,914 answer requests if all primary comparisons require canonical escalation and every allowed schema re-ask. Transport retries are additional. Future answers determine the actual total; the expected count is not guaranteed.',
             '- Source: `results/gemini-remaining-requests.json`, raw calls and decisions.','']
+    audit=load('results/flash-lite-independent-audit.json',{})
+    if audit:
+        lines+=['## Completed Flash Lite recording audit','',
+            '- All 602 requested comparisons are present: 36 fixture, 40 edited-fixture, 180 DEV and 346 TEST comparisons. TEST contains every sealed pair once per contestant. Source: `results/flash-lite-independent-audit.json`.',
+            '- Independent recount: pair-ledger 204/346 games, 58.96%; promptfoo 209/346, 60.40%. Difference: -1.45 points; request-cluster 95% interval -7.49 to 4.57; exact two-sided McNemar p=0.671809. The preregistered outcome is TIE, not equivalence.',
+            '- The primary judge passes the planted fixtures and edit checks but fails the DEV longer-wins bar. The test longer-wins control remains 234/346, 67.63%, above both contestants. No superiority claim follows.',
+            '- Schema re-asks: 0/713 ordered readings across all phases and 0/433 on TEST. TEST has 44 tied primary games and zero grader errors; promptfoo has zero ties and zero grader errors. Sources: `results/reasks.json` and `results/cells.json`.',
+            '- All eight named no-answer calls succeed on submission four, their first fresh recovery submission. No new transport failure occurs after recovery. The 24 earlier no-answer attempts retain 2.40 USD in holds.',
+            f"- Recorded Flash Lite spend is {audit['knownModelCostUsd']:.8f} USD. Token usage reproduces the published price calculation; the maximum observed overlap is eight calls. Medium applies to every returned Flash Lite call. Phase barriers, the unchanged judge invocation block and the Gemini 3.8 owner-only hold all pass the independent audit.",'']
     text='\n'.join(lines)
     assert '\u2014' not in text and '\u2013' not in text
     DEST.write_text(text)
