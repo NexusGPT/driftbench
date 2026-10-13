@@ -14,7 +14,7 @@
   "deadlineAt": null,
   "capUsd": 25,
   "modelConcurrency": {
-    "gpt-6.1-sol": 8
+    "gpt-6.1-sol": 2
   },
   "totalConcurrentCalls": null,
   "hashes": {
@@ -141,11 +141,12 @@
     "examples/ledger-verify/pacing.py": "248ee9149371c28c53a82fdf017ef6d313f509ba3161e5f7622b7034f8778416",
     "examples/ledger-verify/test_pacing.py": "efbe31fced8d16f373cb147008b9f9576c164bca20db3786051f94606be6fb33",
     "examples/ledger-verify/new-cell-run.ts": "7e4c80d67251c0f35c41693edc7d9d448bb7a12025415a28bf207f289095dbbe",
-    "examples/ledger-verify/new-cell-transport.ts": "0950f0aba980ce4badc67d16c916a7b8f1d21cdf89fbfeeabad787d9a2f76220",
-    "examples/ledger-verify/new-cell-transport.sh": "06bc88c6e2cf982bb1a2bddc8c85ce1d7e47e8f61e19ab5a1f5a094e2c4f9850",
-    "examples/ledger-verify/new-cell-budget.py": "5f33aa0141172fa175ef5ac27ef006e790c54f9c345a18fc3051af887b2aefc1",
+    "examples/ledger-verify/new-cell-transport.ts": "f6f0775cf86147fded958510c2136e58dbfa2bbc9d35b392d95aecae3d963f57",
+    "examples/ledger-verify/new-cell-transport.sh": "082fab76eda59dca529c9be30de08321dde8ddffb80d2ebb185158391b92248f",
+    "examples/ledger-verify/new-cell-budget.py": "35b421d27ff0bd6c642d574c47ec80edb8dd5d69e0859969c36781f89d82baa0",
     "examples/ledger-verify/responses-adapter.ts": "56150dcbb6628935ad3864df6e9e8e201c64ba5fcb573971fc2798557a734181",
-    "examples/ledger-verify/new-cell-supervise.py": "de0642153e677512c963b48950e0c85354af1a7df961de03b3cb533c213370e1",
+    "examples/ledger-verify/new-cell-supervise.py": "a7543f23dad8c4e25ea075d8af8a65dc91dca19264ca8c45d52bca1b026d693a",
+    "examples/ledger-verify/transport-retry.py": "2d78ec63c10066b669eec0ecfa3edb23c047fd5e0b6dd9a15abb817a3a96e390",
     "examples/ledger-verify/evidence/new-model-cost-sample.json": "e80fdbedbb15cc563638c2c676554c47d2b3f0c4b6ea14bdd9f7c4c4adaa1455"
   },
   "pricesPerMillion": {

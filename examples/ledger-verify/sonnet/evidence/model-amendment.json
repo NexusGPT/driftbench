@@ -21,12 +21,12 @@
   },
   "reasoning": "medium",
   "timeoutMs": 300000,
-  "pacing": 4,
+  "pacing": 2,
   "scoring": "strict headline: every consumed output-limit hit is an error; product-final preserves the product fallback; same rule for both contestants",
   "exposure": "previously evaluated split",
   "poolSha256": "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5",
   "auditMapSha256": "3de476f85d4ce54ed88260f62d4ccab8c0fad36cddf50c1e74e2035055541eb6",
-  "retry": "No returned answer is resubmitted. HTTP 429 has 60/120/240-second waits; 402 stops immediately. Other no-answer outputs remain eligible only for an authorized missing-only recovery.",
+  "retry": "Owner network amendment supersedes prior no-answer attempt limits; answered outputs never resubmitted; 402 stops immediately.",
   "projection": "Five representative frozen DEV requests first. Estimate 379-unit spend by their per-stage costs times the gpt-6-luna recorded request counts; unsampled cascade stages use the highest sampled cascade cost. Re-estimate from complete 20-item pilot before proceeding.",
   "multiplicity": "Additional model, separate from original 18-cell family; adjustment pending collator",
   "route": "PR168 createDialectTransport claude-cli, alias sonnet",
@@ -37,7 +37,8 @@
     "status": "Measured native total_cost_usd per call; five-call gate required"
   },
   "lean": "Fresh empty directory; unchanged frozen judge system prompt; tools empty; settings sources empty; strict MCP; no session persistence; one turn",
-  "frozenAt": "2026-10-13T14:13:29.892813+00:00",
-  "runtimeSha256": "192c6e487836442c34386f8a78013df9cfafe488eb91de23d27b55180fe8eb6c",
-  "reportingSha256": "e7879d9cfed237a823bc60a5704a3ff6e93e9e7975dd05079fab7cb89c2db1b8"
+  "frozenAt": "2026-10-13T14:34:16.866565+00:00",
+  "runtimeSha256": "49e3f7b409f332bba0b4ef488da6831ba23beefee8dfdfcbddf26a2707139cfc",
+  "reportingSha256": "473f57c5a8d2a6bc5ab2e5f286ef51d3f69b7f61ec8a80d38aae5527b760e139",
+  "networkAmendment": "Ten healthy provider probes spaced 30 seconds apart before new calls, one model cell at a time, concurrency two. Three consecutive connection failures pause ten minutes and repeat the gate. Zero-token no-output transport requests retry missing-only without an attempt limit. Every answer stays cached."
 }

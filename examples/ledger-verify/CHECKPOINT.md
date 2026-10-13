@@ -146,3 +146,11 @@
 - The owner authorizes one missing-only recovery after initial TEST for up to eight empty native 300-second TEST timeouts. Four currently qualify; all original receipts and 2.00 USD holds remain.
 - recover_haiku_test_timeouts.py collects the final eligible set, stops the owned initial runner above eight, reconstructs exact requests offline and guards every additional submission with an atomic claim.
 - The first three-call authorization is retained in evidence/haiku-test-timeouts.initial-three.json. No returned answer is resubmitted.
+
+## 2026-10-13T14:45:11.112631+00:00 owner network amendment
+
+- All paid admissions pause until ten consecutive healthy provider probes spaced 30 seconds apart. Calls then run at concurrency two, one model cell at a time. Three consecutive connection failures trigger a ten-minute pause and a new gate.
+- Zero-token, no-output transport failures retry missing-only without an attempt limit. This supersedes the Haiku eight-timeout ceiling. Returned answers, original receipts and uncertain-charge holds remain.
+- Haiku initial TEST returns all 221 cascade verdicts; promptfoo has two transport-missing finals. Six empty native timeouts are eligible. Completed answers remain primary and only missing finals can change.
+- Sequence: finish Haiku recovery, then Sonnet, then Sol. A new model cost projection above 25 USD stops that cell before its full run. Gemini 3.8 remains parked with no timed restart.
+- Provider probes have no credentials and make no generation request. Evidence: evidence/network-pause-20261013.json, network-probes.jsonl and network-admission.json.

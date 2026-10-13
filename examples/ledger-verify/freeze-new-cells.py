@@ -9,10 +9,10 @@ for folder,model in [('sonnet','claude-sonnet-5-5'),('sol61','gpt-6.1-sol')]:
  b=BASE/folder
  assert not (b/'receipts/calls.jsonl').exists(), 'Cannot re-freeze after a provider call'
  hashes=dict(original['hashes'])
- for name in ['new-cell-run.ts','new-cell-transport.ts','new-cell-transport.sh','new-cell-budget.py','responses-adapter.ts','schemas.ts','capture-claude.sh','quota.ts','new-cell-supervise.py','evidence/new-model-cost-sample.json']:
+ for name in ['new-cell-run.ts','new-cell-transport.ts','new-cell-transport.sh','new-cell-budget.py','responses-adapter.ts','schemas.ts','capture-claude.sh','quota.ts','new-cell-supervise.py','transport-retry.py','evidence/new-model-cost-sample.json']:
   p=BASE/name;hashes[str(p.relative_to(ROOT))]=sha(p)
  ns=folder+'-medium-20261013'
- runtime={**original,'id':ns,'recordingsId':ns,'pilotRecordingsId':ns,'models':{model:{'timeoutMs':300000,'reasoning':'medium'}},'capUsd':25,'modelConcurrency':{model:4 if folder=='sonnet' else 8},'command':'examples/ledger-verify/new-cell-transport.sh','deadlineAt':None,'hashes':hashes,
+ runtime={**original,'id':ns,'recordingsId':ns,'pilotRecordingsId':ns,'models':{model:{'timeoutMs':300000,'reasoning':'medium'}},'capUsd':25,'modelConcurrency':{model:2},'command':'examples/ledger-verify/new-cell-transport.sh','deadlineAt':None,'hashes':hashes,
   'transportIdentity':'responses-standard-medium-output32768-v1' if folder=='sol61' else 'claude-cli-lean-sonnet-medium-output16384-v1'}
  (b/'evidence/runtime-freeze.json').write_text(json.dumps(runtime,indent=2)+'\n')
  (b/'evidence/pilot-runtime-freeze.json').write_text(json.dumps(runtime,indent=2)+'\n')

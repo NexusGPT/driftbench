@@ -29,7 +29,7 @@ try{
  fingerprint=createHash('sha256').update(JSON.stringify({core:freeze.coreSha,model,system,user,schema,reasoning:'medium',transport:freeze.transportIdentity})).digest('hex');
  await mkdir(resolve(base,'receipts/native'),{recursive:true});
  let calls:any[]=[];try{calls=(await readFile(resolve(base,'receipts/calls.jsonl'),'utf8')).trim().split('\n').filter(Boolean).map(x=>JSON.parse(x));}catch(e:any){if(e.code!=='ENOENT')throw e;}
- const hit=calls.find(r=>r.phase===phase&&r.fingerprint===fingerprint&&!['quota-pending','billing-pending'].includes(r.status));
+ const hit=calls.find(r=>r.phase===phase&&r.fingerprint===fingerprint&&r.output?.verify_answered!==false&&!['quota-pending','billing-pending'].includes(r.status));
  if(hit){process.stdout.write(JSON.stringify(hit.output));process.exit(0);}
  while(!slot){slot=budget('try-acquire').acquired;if(!slot)await new Promise(r=>setTimeout(r,250));}
  const inputBound=Buffer.byteLength(system+user)+4096;
@@ -43,14 +43,14 @@ try{
   const transport=createDialectTransport({provider:'claude-cli',model:'sonnet',env,command:resolve(parent,'capture-claude.sh'),timeoutMs:300000,maxBudgetUsd:.5});
   started=true;const response=await transport.complete({system,user});
   assert(response.costUsd!==undefined);raw=JSON.parse(response.raw);
-  output={result:response.text,total_cost_usd:response.costUsd,is_error:false};
+  output={result:response.text,total_cost_usd:response.costUsd,is_error:false,verify_receipt_id:id,verify_answered:true};
   metadata={...response,raw:undefined,text:undefined,nativeModelUsage:raw.modelUsage,nativeUsage:raw.usage};
  }else{
   const key=(await readFile(resolve(process.env.HOME!,'.nexus-secrets/openai.key'),'utf8')).trim();
   const transport=createDialectTransport({provider:'openai',model,env:{OPENAI_API_KEY:key},reasoning:'medium',maxTokens:32768,timeoutMs:300000,maxRetries:0,
    fetch:responsesFetch(async v=>{raw=v;nativeReceipt=resolve(base,'receipts/native',id+'.json');await writeFile(nativeReceipt,JSON.stringify(v)+'\n');})});
   started=true;const response=await withQuotaBackoff(()=>transport.complete({system,user,...(schema?{schema}:{})}),async event=>{await log('quota.jsonl',{id,at:new Date().toISOString(),model,phase,fingerprint,...event});});
-  output={result:response.text,total_cost_usd:responsesCost(raw),is_error:false};metadata={...response,raw:undefined,text:undefined,responsesStatus:raw.status,incompleteDetails:raw.incomplete_details,usage:raw.usage};
+  output={result:response.text,total_cost_usd:responsesCost(raw),is_error:false,verify_receipt_id:id,verify_answered:true};metadata={...response,raw:undefined,text:undefined,responsesStatus:raw.status,incompleteDetails:raw.incomplete_details,usage:raw.usage};
  }
  const state=budget('settle',output.total_cost_usd);reservation=false;
  await log('calls.jsonl',{id,at:new Date().toISOString(),model,phase,fingerprint,costUsd:output.total_cost_usd,text:output.result,metadata,nativeReceipt,state,output});
@@ -60,9 +60,9 @@ try{
  if(nativeReceipt&&!raw){try{raw=JSON.parse(await readFile(nativeReceipt,'utf8'));}catch(e:any){if(e.code!=='ENOENT'&&!(e instanceof SyntaxError))throw e;}}
  const message=error instanceof Error?error.message:String(error),billing=error?.status===402,quota=error instanceof QuotaPending;
  const cost=typeof raw?.total_cost_usd==='number'?raw.total_cost_usd:raw?.usage&&model==='gpt-6.1-sol'?responsesCost(raw):billing||quota?0:undefined;
- const returned=!!raw;
+ const returned=!!raw&&(Number(raw.usage?.output_tokens??0)>0||Object.values(raw.modelUsage??{}).some((v:any)=>v.outputTokens>0)||(!raw.is_error&&typeof raw.result==='string'&&raw.result.length>0)||(raw.output??[]).some((v:any)=>v.type==='message'&&(v.content??[]).some((c:any)=>c.type==='output_text'&&c.text?.length))); 
  if(billing)budget('billing-stop');
- const output={is_error:true,total_cost_usd:0,result:`Transport ${billing||!started?'limit':quota?'quota':'missing'}: ${message}`};
+ const output={is_error:true,total_cost_usd:cost??0,verify_receipt_id:id,verify_answered:returned,result:`Transport ${billing||!started?'limit':quota?'quota':'missing'}: ${message}`};
  if(reservation&&cost!==undefined){const state=budget('settle',cost);reservation=false;await log('calls.jsonl',{id,at:new Date().toISOString(),model,phase,fingerprint,costUsd:cost,status:billing?'billing-pending':quota?'quota-pending':'transport-failure',text:raw?.result??'',error:message,nativeReceipt,state,output});}
  await log('errors.jsonl',{id,at:new Date().toISOString(),model,phase,fingerprint,message,reservationRetained:reservation,nativeReceipt,noAnswer:!returned,returnedEnvelope:returned});
  process.stdout.write(JSON.stringify(output));

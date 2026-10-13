@@ -87,6 +87,10 @@ try:
     assert cells['fees']['maximumAccountedUsd'] <= 40
     cells['cheaterGateAuditFile'] = 'evidence/cheater-gate-audit.json'
     cells['predeclaredCheaterMarginEstablished'] = False
+    fee_path = BASE / 'evidence/luna-cache-write-reconciliation.json'
+    if fee_path.exists():
+        cells['lunaFeeReconciliation'] = json.loads(fee_path.read_text())
+        cells['freeze']['hashes']['evidence/luna-cache-write-reconciliation.json'] = hashlib.sha256(fee_path.read_bytes()).hexdigest()
     for cell in cells['cells']:
         cell['validityPassedScope'] = 'Planted mutation checks only; predeclared cheater margin not established'
     quota_path = BASE / 'evidence/gemini-daily-quota-amendment.json'
@@ -139,6 +143,13 @@ try:
     supplement += '- The full 95-item DEV cheater gate is not freshly measured. The validityPassed field in cells.json covers planted mutation checks only.\n'
     supplement += '- This documentation audit occurs after TEST starts. TEST predictions, endpoints and statistical code remain unchanged; no blanket validity or confirmatory superiority claim follows.\n'
     supplement += '- Cheater disclosure source: evidence/cheater-gate-audit.json.\n'
+    if fee_path.exists():
+        fee = cells['lunaFeeReconciliation']
+        supplement += '\n## Luna cache-write fee reconciliation\n\n'
+        supplement += '- The native usage records '+str(fee['cacheWriteTokens'])+' cache-write tokens. Published pricing adds '+str(fee['feeAdjustmentUsd'])+' USD to the original recorded fee calculation.\n'
+        supplement += '- One fee-only ledger row accounts for the difference inside the original 40 USD cap. All original receipts and model answers remain unchanged; no provider call is made.\n'
+        supplement += '- Historical unique-key cost-per-100 metrics retain the frozen calculation. The reconciled settled fee total includes this separate premium.\n'
+        supplement += '- Sources: evidence/luna-cache-write-reconciliation.json and https://developers.openai.com/api/docs/pricing.\n'
     if outage_path.exists():
         supplement += '\n## Haiku host-outage runtime amendment\n\n'
         supplement += '- The owner identifies a host DNS outage near 11:28 to 11:33 UTC and authorizes one retry of four ENOTFOUND calls and one 300-second timeout.\n'
@@ -154,9 +165,9 @@ try:
         supplement += '- Sources: evidence/haiku-pacing-amendment.json, receipts/budget.json, test_pacing.py and test_budget.py.\n'
     if test_recovery_path.exists():
         supplement += '\n## Haiku TEST timeout recovery\n\n'
-        supplement += '- The owner authorizes one additional submission per empty TEST timeout, up to eight initial timeouts; recovery follows initial TEST.\n'
-        supplement += '- A fresh connectivity probe passes before '+str(len(test_recovery['requests']))+' submissions. Their '+str(test_recovery['unknownHoldsRetainedUsd'])+' USD unknown-charge holds remain.\n'
-        supplement += '- These are intermediate requests. The complete initial verdicts and request histories remain unchanged; recovery outputs are supplemental receipts only.\n'
+        supplement += '- The network amendment replaces the earlier retry ceiling. Zero-token, no-output transport requests recover missing-only without an attempt limit; answers are never resubmitted.\n'
+        supplement += '- Ten healthy provider probes spaced 30 seconds apart precede recovery of '+str(len(test_recovery['requests']))+' missing requests, at two calls and one model cell at a time. Original holds total '+str(test_recovery['unknownHoldsRetainedUsd'])+' USD and remain reserved.\n'
+        supplement += '- Recovery preserves '+str(test_recovery['initialDecisionsPreserved'])+' answered finals and replaces only '+str(test_recovery['primaryResultsReplaced'])+' transport-missing finals. Initial reports and cassettes remain archived; intermediate recoveries remain supplemental.\n'
         supplement += '- The recovery settles '+str(test_recovery['newSettledUsd'])+' USD. Returned answers, including output-limit errors, are never resubmitted.\n'
         supplement += '- Sources: evidence/haiku-test-timeouts.json, evidence/haiku-test-timeout-execution.json and evidence/haiku-test-timeout-recovery.json.\n'
     if quota_path.exists():

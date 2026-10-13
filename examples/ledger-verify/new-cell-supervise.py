@@ -23,14 +23,14 @@ for i,r in enumerate(sample):
  p=BASE/'cache'/f'cost-sample-{i}.json'
  if p.exists():v=read(p)
  else:
-  result=subprocess.run(tsx+[str(PARENT/'new-cell-transport.ts'),'--model',MODEL,'--system-prompt',r['prompt']['system']],input=r['prompt']['user'],text=True,capture_output=True,cwd=ROOT,env=env,check=True)
+  result=subprocess.run(['python3',str(PARENT/'transport-retry.py'),'--model',MODEL,'--system-prompt',r['prompt']['system']],input=r['prompt']['user'],text=True,capture_output=True,cwd=ROOT,env=env,check=True)
   if result.stderr:(BASE/'logs'/f'cost-sample-{i}.stderr.log').write_text(result.stderr)
   v=json.loads(result.stdout);p.write_text(json.dumps(v)+'\n')
  outcomes.append(dict(index=i,labels=r['labels'],costUsd=v['total_cost_usd'],isError=v.get('is_error',False)))
  emit(phase='cost-sample',status='running',requestsFinished=len(outcomes))
  if v.get('is_error'):
   emit(phase='cost-sample',status='stopped; cost sample needs inspection',outcomes=outcomes);sys.exit(1)
-receipts=[json.loads(x) for x in (BASE/'receipts/calls.jsonl').read_text().splitlines()]
+receipts=[r for r in map(json.loads,(BASE/'receipts/calls.jsonl').read_text().splitlines()) if r.get('output',{}).get('verify_answered')]
 assert len(receipts)==5, 'Five-call gate must precede the full cell'
 if MODEL=='claude-sonnet-5-5':
  native=[read(Path(r['nativeReceipt'])) for r in receipts]

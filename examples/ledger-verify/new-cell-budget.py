@@ -9,18 +9,21 @@ def transact(folder,action,token,amount=0,model='',pid=0):
   assert math.isfinite(amount) and amount>=0
   active=s.setdefault('activeCalls',{})
   if action=='try-acquire':
+   gate_path=Path(__file__).resolve().parent/'evidence/network-admission.json'
+   gate=json.loads(gate_path.read_text()) if gate_path.exists() else {}
+   if not gate.get('open') or gate.get('model')!=model or time.time()-gate.get('lastProbeEpoch',0)>75:return dict(acquired=False)
    assert not s.get('billingStopped'), 'HTTP 402 stopped new admissions'
    for k,v in list(active.items()):
     try:os.kill(v['pid'],0)
     except ProcessLookupError:del active[k]
-   limit=8
+   limit=2
    if model=='claude-sonnet-5-5':
     recent=[];p=b/'receipts/errors.jsonl'
     if p.exists():
      for line in p.read_text().splitlines():
       e=json.loads(line)
       if e.get('noAnswer') and time.time()-datetime.datetime.fromisoformat(e['at'].replace('Z','+00:00')).timestamp()<600:recent.append(e['id'])
-    load=os.getloadavg()[0];limit=2 if load>60 or len(recent)>=2 else 4
+    load=os.getloadavg()[0];limit=2
     s['pacing']=dict(loadOneMinute=load,recentNoAnswerIds=recent,limit=limit)
    if len(active)>=limit:return dict(acquired=False)
    assert token not in active;active[token]=dict(pid=pid,model=model,at=datetime.datetime.now(datetime.timezone.utc).isoformat())

@@ -1,162 +1,102 @@
-"""Recover only the authorized TEST timeouts, preserving every initial verdict."""
-import concurrent.futures
-import datetime
-import hashlib
-import json
-import os
+"""Recover zero-output TEST timeouts under the owner network gate, without replaying answers."""
+import concurrent.futures,datetime,hashlib,json,os,re,subprocess,sys,time
 from pathlib import Path
-import subprocess
-import sys
-import time
-
-BASE = Path(__file__).resolve().parent
-ROOT = BASE.parents[1]
-STATE = BASE / 'evidence/haiku-test-timeout-recovery.json'
-CACHE = BASE / 'cache/haiku-test-outage'
-
-
-def now():
-    return datetime.datetime.now(datetime.timezone.utc).isoformat()
-
-
-def digest(data):
-    return hashlib.sha256(data).hexdigest()
-
-
+BASE=Path(__file__).resolve().parent;ROOT=BASE.parents[1]
+STATE=BASE/'evidence/haiku-test-timeout-recovery.json';CACHE=BASE/'cache/haiku-test-outage'
+def now():return datetime.datetime.now(datetime.timezone.utc).isoformat()
+def read(p):return json.loads(p.read_text())
+def rows(p):return [json.loads(x) for x in p.read_text().splitlines() if x.strip()] if p.exists() else []
+def digest(data):return hashlib.sha256(data).hexdigest()
 def save(**value):
-    STATE.write_text(json.dumps(dict(at=now(), pid=os.getpid(), **value), indent=2) + '\n')
-    print(json.dumps(value), flush=True)
-
-
-def archive(path, target):
-    content = path.read_bytes()
-    if target.exists():
-        assert target.read_bytes() == content
-    else:
-        target.write_bytes(content)
-    return content
-
+ value=dict(at=now(),pid=os.getpid(),**value);STATE.write_text(json.dumps(value,indent=2)+'\n');print(json.dumps(value),flush=True)
+def archive(p,target):
+ data=p.read_bytes()
+ if target.exists():assert target.read_bytes()==data
+ else:target.write_bytes(data)
+ return data
 
 def main():
-    amendment = json.loads((BASE / 'evidence/haiku-test-timeouts.json').read_text())
-    save(status='waiting for initial TEST and its offline report', stop='authorized submissions finish, timeout count exceeds eight, or a guard fails')
-    while True:
-        rows = [json.loads(line) for line in (BASE / 'receipts/errors.jsonl').read_text().splitlines()]
-        calls = [r for r in rows if all(r.get(k) == amendment['eligibility'][k] for k in ['model', 'phase', 'message'])]
-        if len(calls) > amendment['maxEligibleTimeouts']:
-            save(status='stopped: more than eight initial TEST timeouts', count=len(calls), requiresOwner=True)
-            active = json.loads((BASE / 'results/haiku.active.json').read_text())
-            pid = active['pid']
-            observed = subprocess.run(['ps', '-p', str(pid), '-o', 'command='], text=True, capture_output=True, check=True).stdout
-            assert 'examples/ledger-verify/run.ts haiku --resume-interrupted' in observed
-            os.kill(pid, 15)
-            raise RuntimeError('Haiku TEST exceeds the authorized eight-timeout ceiling')
-        try:
-            progress = json.loads((BASE / 'haiku.progress.json').read_text())
-            finalizer = json.loads((BASE / 'evidence/finalizer-state.json').read_text())
-            ready = progress.get('phase') == 'all' and progress.get('status') == 'complete'
-            ready = ready and finalizer.get('status') in ['offline evidence ready for review', 'offline verification failed']
-        except (FileNotFoundError, json.JSONDecodeError):
-            ready = False
-        if ready or '--prepare-only' in sys.argv:
-            break
-        time.sleep(15)
-    assert 0 < len(calls) <= amendment['maxEligibleTimeouts']
-    for call in calls:
-        native = Path(call['nativeReceipt'])
-        assert native.exists() and not native.read_text().strip(), 'A late native answer must never be retried'
-    amendment['calls'] = calls
-    amendment['callsCollectedAt'] = now()
-    amendment['unknownHoldsRetainedUsd'] = len(calls) * amendment['unknownHoldEachUsd']
-    (BASE / 'evidence/haiku-test-timeouts.json').write_text(json.dumps(amendment, indent=2) + '\n')
-    prepare_env = dict(os.environ, TMPDIR=str(ROOT / '.tmp'))
-    subprocess.run([str(ROOT / 'node_modules/.bin/tsx'), '--tsconfig', 'examples/ledger-verify/tsconfig.json', 'examples/ledger-verify/prepare-haiku-test-outage.ts'], cwd=ROOT, env=prepare_env, check=True)
-    requests = json.loads((CACHE / 'requests.json').read_text())
-    assert len(requests) == len(calls)
-    assert {r['fingerprint'] for r in requests} == {r['fingerprint'] for r in calls}
-    assert amendment['maxAdditionalSubmissionsEach'] == 1
-    source = (BASE / 'transport.ts').read_text()
-    original_source_hash = digest(source.encode())
-
-    def replace(old, new):
-        nonlocal source
-        assert source.count(old) == 1, old
-        source = source.replace(old, new)
-
-    replace('import { appendFile, mkdir, readFile }', 'import { appendFile, mkdir, readFile, writeFile }')
-    replace('  callFingerprint=fingerprint(freeze.coreSha);', '''  callFingerprint=fingerprint(freeze.coreSha);
+ assert read(BASE/'haiku.progress.json')['status']=='complete'
+ amendment=read(BASE/'evidence/haiku-test-timeouts.json')
+ calls=[r for r in rows(BASE/'receipts/errors.jsonl') if all(r.get(k)==amendment['eligibility'][k] for k in ['model','phase','message'])]
+ for r in calls:assert Path(r['nativeReceipt']).exists() and not Path(r['nativeReceipt']).read_text().strip()
+ amendment.update(calls=calls,callsCollectedAt=now(),unknownHoldsRetainedUsd=len(calls)*.5)
+ (BASE/'evidence/haiku-test-timeouts.json').write_text(json.dumps(amendment,indent=2)+'\n')
+ env=dict(os.environ,TMPDIR=str(ROOT/'.tmp'),VERIFY_PHASE='test')
+ for name in ['OPENAI_API_KEY','GEMINI_API_KEY','ANTHROPIC_API_KEY','VERIFY_OPENAI_KEY_FILE','VERIFY_GEMINI_KEY_FILE']:env.pop(name,None)
+ tsx=[str(ROOT/'node_modules/.bin/tsx'),'--tsconfig','examples/ledger-verify/tsconfig.json']
+ subprocess.run(tsx+[str(BASE/'prepare-haiku-test-outage.ts')],cwd=ROOT,env=env,check=True)
+ requests=read(CACHE/'requests.json');assert len(requests)==len(calls)
+ report=BASE/'results/haiku.json';runtime=read(BASE/'evidence/runtime-freeze.json');cassette=BASE/'recordings'/runtime['recordingsId']/'test/longjudge-verify/haiku.jsonl'
+ original_report=archive(report,report.with_name('haiku.pre-test-timeout-recovery.json'));original_cassette=archive(cassette,cassette.with_name('haiku.pre-test-timeout-recovery.jsonl'))
+ initial=json.loads(original_report);assert initial['items']==221 and not initial.get('stopped')
+ source=(BASE/'transport.ts').read_text();source_hash=digest(source.encode())
+ def replace(old,new):
+  nonlocal source
+  assert source.count(old)==1,old;source=source.replace(old,new)
+ replace('import { appendFile, mkdir, readFile }','import { appendFile, mkdir, readFile, writeFile }')
+ replace('  callFingerprint=fingerprint(freeze.coreSha);', '''  callFingerprint=fingerprint(freeze.coreSha);
   const recovery=JSON.parse(await readFile(resolve(base,'evidence/haiku-test-timeouts.json'),'utf8'));
   if(model!=='haiku'||process.env.VERIFY_PHASE!=='test'||!recovery.calls.some((r:any)=>r.fingerprint===callFingerprint))throw new Error('Outside authorized TEST timeout recovery');
   const excludedIds=new Set(recovery.calls.map((r:any)=>r.id));''')
-    replace('.find(r=>!', '.find(r=>!excludedIds.has(r.id)&&!')
-    replace("  await acquire();\n  budget('reserve'", """  await writeFile(resolve(base,'cache/haiku-test-outage',callFingerprint+'.claim.json'),JSON.stringify({id,at:new Date().toISOString(),fingerprint:callFingerprint}),{flag:'wx'});
+ replace('.find(r=>!', '.find(r=>!excludedIds.has(r.id)&&!')
+ replace("  await acquire();\n  budget('reserve'", '''  while(true){
+    const gate=JSON.parse(await readFile(resolve(base,'evidence/network-admission.json'),'utf8'));
+    if(gate.open&&gate.model===model&&Date.now()/1000-gate.lastProbeEpoch<75)break;
+    await new Promise(r=>setTimeout(r,1000));
+  }
+  await writeFile(resolve(base,'cache/haiku-test-outage',callFingerprint+'.'+id+'.claim.json'),JSON.stringify({id,at:new Date().toISOString(),fingerprint:callFingerprint}),{flag:'wx'});
   await acquire();
-  budget('reserve'""")
-    generated = BASE / 'haiku-test-timeout-transport.generated.ts'
-    generated.write_text(source)
-    execution = dict(authorization=amendment['authorization'], originalTransportSha256=original_source_hash,
-                     recoveryTransportSha256=digest(source.encode()), maxAdditionalSubmissionsEach=1,
-                     unknownHoldsRetainedUsd=amendment['unknownHoldsRetainedUsd'], requests=[dict(key=r['key'], fingerprint=r['fingerprint']) for r in requests])
-    (BASE / 'evidence/haiku-test-timeout-execution.json').write_text(json.dumps(dict(at=now(), **execution), indent=2) + '\n')
-    if '--prepare-only' in sys.argv:
-        print(json.dumps(dict(status='prepared offline', requests=len(requests))))
-        return
-    report = BASE / 'results/haiku.json'
-    runtime = json.loads((BASE / 'evidence/runtime-freeze.json').read_text())
-    cassette = BASE / 'recordings' / runtime['recordingsId'] / 'test/longjudge-verify/haiku.jsonl'
-    report_bytes = archive(report, report.with_name('haiku.pre-test-timeout-recovery.json'))
-    cassette_bytes = archive(cassette, cassette.with_name('haiku.pre-test-timeout-recovery.jsonl'))
-    initial = json.loads(report_bytes)
-    assert not initial.get('stopped') and initial['items'] == 221
-    assert all(len(c['decisions']) == 221 for c in initial['contestants'])
-    for call in amendment['calls']:
-        native = Path(call['nativeReceipt'])
-        assert native.exists() and not native.read_text().strip(), 'A late native answer must never be retried'
-    env = dict(os.environ)
-    for name in ['OPENAI_API_KEY', 'GEMINI_API_KEY', 'ANTHROPIC_API_KEY', 'VERIFY_OPENAI_KEY_FILE', 'VERIFY_GEMINI_KEY_FILE']:
-        env.pop(name, None)
-    env['TMPDIR'] = str(ROOT / '.tmp')
-    env['VERIFY_PHASE'] = 'test'
-    probe = subprocess.run(['node', '--input-type=module', '-e',
-        "import dns from 'node:dns/promises'; await dns.lookup('api.anthropic.com'); const r=await fetch('https://api.anthropic.com/',{signal:AbortSignal.timeout(20000)}); console.log(JSON.stringify({at:new Date().toISOString(),host:'api.anthropic.com',status:r.status,dns:true,http:true}));"],
-        cwd=ROOT, env=env, text=True, capture_output=True, check=True)
-    if probe.stderr:
-        print(probe.stderr, file=sys.stderr)
-    probe_value = json.loads(probe.stdout)
-    (BASE / 'evidence/haiku-test-timeout-connectivity.json').write_text(json.dumps(probe_value, indent=2) + '\n')
-    tsx = [str(ROOT / 'node_modules/.bin/tsx'), '--tsconfig', 'examples/ledger-verify/tsconfig.json']
-    before = {r['id'] for r in map(json.loads, (BASE / 'receipts/calls.jsonl').read_text().splitlines())}
-    save(status='recovering authorized no-answer calls', **execution)
-
-    def retry(request):
-        path = CACHE / (request['fingerprint'] + '.response.json')
-        if path.exists():
-            response = json.loads(path.read_text())
-        else:
-            value = subprocess.run(tsx + [str(generated), '--model', 'haiku', '--system-prompt', request['prompt']['system']],
-                input=request['prompt']['user'], text=True, capture_output=True, cwd=ROOT, env=env, check=True)
-            if value.stderr:
-                (CACHE / (request['fingerprint'] + '.stderr.log')).write_text(value.stderr)
-            response = json.loads(value.stdout)
-            path.write_text(json.dumps(response) + '\n')
-        assert not str(response.get('result', '')).startswith('Transport limit:'), response.get('result')
-        return dict(key=request['key'], fingerprint=request['fingerprint'], labels=request['labels'],
-                    isError=response.get('is_error', False), costUsd=response.get('total_cost_usd', 0),
-                    use='supplemental only; initial final verdict and complete request history preserved')
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-        recovered = list(pool.map(retry, requests))
-    assert report.read_bytes() == report_bytes and cassette.read_bytes() == cassette_bytes
-    receipts = [r for r in map(json.loads, (BASE / 'receipts/calls.jsonl').read_text().splitlines()) if r['id'] not in before]
-    assert all(r['model'] == 'haiku' and r['fingerprint'] in {x['fingerprint'] for x in requests} for r in receipts)
-    save(status='complete', **execution, outcomes=recovered, newReceiptIds=[r['id'] for r in receipts],
-         newSettledUsd=sum(r['costUsd'] for r in receipts), primaryReportSha256=digest(report_bytes),
-         primaryCassetteSha256=digest(cassette_bytes), initialDecisionsPreserved=442,
-         primaryResultsReplaced=0, returnedAnswersResent=0)
-    with (BASE / 'logs/haiku-test-timeout-finalize.log').open('w') as log:
-        subprocess.run(['python3', 'examples/ledger-verify/finish.py', '--allow-daily-quota'],
-                       cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
-
-
-if __name__ == '__main__':
-    main()
+  budget('reserve' ''')
+ generated=BASE/'haiku-test-timeout-transport.generated.ts';generated.write_text(source)
+ execution=dict(authorization=amendment['authorization'],originalTransportSha256=source_hash,recoveryTransportSha256=digest(source.encode()),maxAdditionalSubmissionsEach=None,unknownHoldsRetainedUsd=amendment['unknownHoldsRetainedUsd'],networkPolicy='evidence/network-pause-20261013.json',requests=[dict(key=r['key'],fingerprint=r['fingerprint']) for r in requests])
+ (BASE/'evidence/haiku-test-timeout-execution.json').write_text(json.dumps(dict(at=now(),**execution),indent=2)+'\n')
+ if '--prepare-only' in sys.argv:print(json.dumps(dict(requests=len(requests),providerCalls=0)));return
+ before={r['id'] for r in rows(BASE/'receipts/calls.jsonl')}
+ save(status='waiting for network gate; missing-only recovery',**execution)
+ def retry(request):
+  answer=CACHE/(request['fingerprint']+'.answered.json')
+  if answer.exists():return read(answer)
+  attempt=len(list(CACHE.glob(request['fingerprint']+'.attempt-*.json')))
+  while True:
+   attempt+=1
+   ran=subprocess.run(tsx+[str(generated),'--model','haiku','--system-prompt',request['prompt']['system']],input=request['prompt']['user'],text=True,capture_output=True,cwd=ROOT,env=env,check=True)
+   if ran.stderr:(CACHE/(request['fingerprint']+f'.attempt-{attempt}.stderr.log')).write_text(ran.stderr)
+   response=json.loads(ran.stdout)
+   receipts=[r for r in rows(BASE/'receipts/calls.jsonl') if r.get('fingerprint')==request['fingerprint'] and r.get('phase')=='test']
+   errors=[r for r in rows(BASE/'receipts/errors.jsonl') if r.get('fingerprint')==request['fingerprint'] and r.get('phase')=='test']
+   latest=sorted(receipts+errors,key=lambda x:x['at'])[-1]
+   native=Path(latest['nativeReceipt']) if latest.get('nativeReceipt') else None
+   native_nonempty=bool(native and native.exists() and native.stat().st_size)
+   answered=not response.get('is_error') or native_nonempty
+   value=dict(key=request['key'],fingerprint=request['fingerprint'],labels=request['labels'],output=response,receipt=latest['id'],attempt=attempt,returnedModelAnswer=answered,use='initial answered finals preserved; only transport-missing finals are replaced')
+   (CACHE/(request['fingerprint']+f'.attempt-{attempt}.json')).write_text(json.dumps(value,indent=2)+'\n')
+   if answered:answer.write_text(json.dumps(value,indent=2)+'\n');return value
+   assert re.search(r'ran past \d+ ms|ENOTFOUND|ECONNRESET|ETIMEDOUT|fetch failed|connect.*timeout',response.get('result',''),re.I),response.get('result')
+   time.sleep(30)
+ with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:recovered=list(pool.map(retry,requests))
+ assert report.read_bytes()==original_report and cassette.read_bytes()==original_cassette
+ missing={(c['contestant'],d['id']) for c in initial['contestants'] for d in c['decisions'] if d.get('missing',0)>0 or type(d.get('pass')) is not bool}
+ final_recoveries={r['key']:r for r in recovered if (r['labels']['contestant'],r['labels']['item']) in missing and r['labels']['order']=='single'}
+ recorded=[json.loads(x) for x in original_cassette.decode().splitlines()];replacements=0
+ for row in recorded:
+  if row['key'] not in final_recoveries:continue
+  assert 'failure' in row and not row['text'];v=final_recoveries[row['key']];out=v['output'];row.pop('failure',None)
+  row.update(text=out.get('result',''),costUsd=out.get('total_cost_usd',0),recoveredReceipt=v['receipt'])
+  if out.get('is_error'):row.update(text='',failure=out['result'])
+  replacements+=1
+ assert replacements==len(final_recoveries)
+ cassette.write_text(''.join(json.dumps(r)+'\n' for r in recorded))
+ subprocess.run(tsx+[str(BASE/'run.ts'),'haiku','--replay-only'],cwd=ROOT,env=env,check=True)
+ replay=read(BASE/'results/haiku.replay.json');assert replay['newCalls']==0
+ preserved=0
+ for original,updated in zip(initial['contestants'],replay['contestants']):
+  for old,new in zip(original['decisions'],updated['decisions']):
+   if (original['contestant'],old['id']) not in missing:assert old==new;preserved+=1
+ assert preserved==442-len(missing)
+ replay['recovery']={'initialReport':'haiku.pre-test-timeout-recovery.json','missingFinalsRecovered':replacements,'answeredDecisionsPreserved':preserved,'providerCallsDuringReplay':0}
+ report.write_text(json.dumps(replay,indent=2)+'\n')
+ receipts=[r for r in rows(BASE/'receipts/calls.jsonl') if r['id'] not in before]
+ save(status='complete',**execution,outcomes=recovered,newReceiptIds=[r['id'] for r in receipts],newSettledUsd=sum(r['costUsd'] for r in receipts),primaryReportSha256=digest(report.read_bytes()),primaryCassetteSha256=digest(cassette.read_bytes()),initialDecisionsPreserved=preserved,primaryResultsReplaced=replacements,returnedAnswersResent=0,transportMissingFinalItems=0)
+ with (BASE/'logs/haiku-test-timeout-finalize.log').open('w') as log:subprocess.run(['python3',str(BASE/'finish.py'),'--allow-daily-quota'],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
+if __name__=='__main__':main()

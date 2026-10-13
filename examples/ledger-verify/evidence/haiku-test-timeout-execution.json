@@ -1,10 +1,11 @@
 {
-  "at": "2026-10-13T14:04:23.606437+00:00",
-  "authorization": "Extended: the missing-only recovery authorization now covers the fourth timed-out Haiku TEST request (receipt 65a72335-0d82-4625-979e-7c183f92c6c7) on the same terms as the earlier three: one retry each, after initial TEST ends, the empty receipt kept on record, the 0.50 USD hold kept until it settles. Any further timeout of the same kind in this cell is covered the same way, up to 8 in total; past 8, stop and tell me, because that is a transport problem and not noise.",
+  "at": "2026-10-13T14:32:19.831952+00:00",
+  "authorization": "Owner network amendment: missing-only zero-token no-output transport recoveries, including Haiku timeouts, are unlimited after ten healthy provider probes spaced 30 seconds apart; concurrency two and one model cell at a time. After three consecutive connection failures, pause ten minutes and repeat the gate. Retain answers, receipts and holds; never resubmit any returned answer. No sealed result is final while transport-missing items remain.",
   "originalTransportSha256": "c621bb49d72cd20d7aa23e8b6d974026bbdae1ca6461680324098be849a3226a",
-  "recoveryTransportSha256": "f142a6f9f79d6567c89b4996362270177e9815530803c51e8c130b8e4ffa672a",
-  "maxAdditionalSubmissionsEach": 1,
-  "unknownHoldsRetainedUsd": 2.0,
+  "recoveryTransportSha256": "d666e8f3a6cfa5f86c6302a51c462a03b13e3e793307ce92ab065c4cfd48a374",
+  "maxAdditionalSubmissionsEach": null,
+  "unknownHoldsRetainedUsd": 3.0,
+  "networkPolicy": "evidence/network-pause-20261013.json",
   "requests": [
     {
       "key": "56bebfa085abfe96206a",
@@ -21,6 +22,14 @@
     {
       "key": "7678be8b5413c4550794",
       "fingerprint": "b32a97dbf9524b856d1e057b4ed98e23ee79fc936b8543b3a57ce2b8fceca1f8"
+    },
+    {
+      "key": "cb7367b99e093fed2116",
+      "fingerprint": "d362855a67300547f1ca362f356a95a39e8ebfadb2380df711593c1555c2ad9a"
+    },
+    {
+      "key": "610e897857bff2e6922b",
+      "fingerprint": "ee28d90faae77b16da1d8edfcd03e9fc645096f318e2563c5b8a2320b90b2f1d"
     }
   ]
 }
