@@ -1,12 +1,12 @@
 {
-  "stage": "test-v4",
+  "stage": "test-v5",
   "core": {
     "pr": "https://github.com/achammah/driftbench/pull/168",
     "commit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
     "verifiedRemoteHead": true
   },
   "lastCallCutoff": "2026-10-14T08:00:00+00:00",
-  "capUsd": 20,
+  "capUsd": 25,
   "models": {
     "haiku": "claude-haiku-5-5",
     "gpt-6-luna": {
@@ -15,6 +15,11 @@
     "gemini-3.8-flash": {
       "reasoning": "medium",
       "timeoutMs": 180000
+    },
+    "gemini-3.5-flash-lite": {
+      "reasoning": "medium",
+      "reasoningApplied": "thinkingConfig.thinkingLevel=medium, accepted by a live probe (HTTP 200, 209 thought tokens)",
+      "timeoutMs": 300000
     }
   },
   "baseFreeze": {
@@ -85,12 +90,12 @@
     "research/ledger-mm/artifacts/pool.json": "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb",
     "research/ledger-mm/artifacts/pilot.json": "1fa01e034f8fb2fe782bcf1fa6f6bc11c5856f5b69a9702fb4c2177169f5733a",
     "research/ledger-mm/artifacts/harm-fixtures.json": "cb26c07022016c8c0ecff5f1c7663991d673ed7d01c2cf50c9b82842a773467d",
-    "research/ledger-mm/run-test.mts": "7cedea43bcf472dcb4d59a96fe43fd1471834e0d46b69bec03b5f1bf5c3b0a09",
-    "research/ledger-mm/exec.mjs": "3671207f6315bf28db133ce9c81edec336593ce0eb564498305d4897a5bb554c",
-    "research/ledger-mm/test_exec.mjs": "3afda975b1ff7e189137faed917a6330df81d5bc1a704cc943dae4b06aa6a8ac",
+    "research/ledger-mm/run-test.mts": "a399be7299b009f6db0b631f7dd857cf63451a6bd6bfb59e1292b7305f7f21f3",
+    "research/ledger-mm/exec.mjs": "d99ce2c99c076f749c3c9db71cbae3239646c26592247b95998a75e7ede35119",
+    "research/ledger-mm/test_exec.mjs": "77928d78a8d17c02be6c35fff0ee7dfc6eaaa49a4f1bb2beee90b6c3dd89d9e5",
     "research/ledger-mm/eligibility.json": "84b05992165f14a4bc4e130a793f52ac2204fec691d0f43ce33916579c82bdeb",
     "research/ledger-mm/test_eligibility.py": "a84b5aeef9b7c796310442328d9529705a5faf32d720c21bdbb36a70b1009e60",
-    "research/ledger-mm/test_report.py": "bd30a3a4b1b77f44bfe1a875b90e1218ad90930ccba59a0877d338a45e6c16d8"
+    "research/ledger-mm/test_report.py": "9998a2b8dfedae9dd4ec10812a2b0dfcda3312f0513ce7aa77e48f72203b2c3d"
   },
   "executionRules": {
     "driver": "research/ledger-mm/run-test.mts, derived from frozen run.mts by execution changes only",
@@ -113,6 +118,12 @@
       "inputPer1M": 0.1,
       "cachedInputPer1M": 0.01,
       "outputPer1M": 0.5
+    },
+    "gemini-3.5-flash-lite": {
+      "inputPer1M": 0.3,
+      "cachedInputPer1M": 0.03,
+      "outputIncludingThinkingPer1M": 2.5,
+      "source": "https://ai.google.dev/gemini-api/docs/pricing, paid tier standard, read 2026-10-13"
     }
   },
   "amendment": "Owner execution rules for the sealed TEST cell after the Codex worker lost its connection. No prompt, criterion, requirement, earned seat, pool, model setting or scoring rule changes.",
@@ -129,5 +140,12 @@
     "by": "owner via coordinator",
     "text": "Eligibility round 1 for the 13 Gemini items with no model answer (26 decisions, 26 calls, all TRANSPORT_EXHAUSTED with no response). They are asked again with fresh reservation keys and a fresh 3-try count. Answered calls are never re-sent. Gemini gate rises to 25 USD for this step; Gemini last-call cutoff 2026-10-14T12:00:00Z. A later round row supersedes a no-answer row in the report. Start only on the coordinator word.",
     "file": "research/ledger-mm/eligibility.json"
+  },
+  "amendment5": {
+    "loggedUtc": "2026-10-13",
+    "by": "owner via coordinator",
+    "text": "New model cell gemini-3.5-flash-lite on the full 600 sealed pairs, both contestants on that model, same win rule. It is never mixed with the partial gemini-3.8-flash cell (393 of 600), which stays parked and is finished last. Reasoning: medium, same as gemini-3.8-flash, accepted. Harm seat: not earned (no fixture run for this model), so disabled by the registered rule. Pacing: 8 calls at a time; 429 waits 20, 60, 180 s (up to 4 tries); other transport failures 3 tries; 402 stops the run at once. Lane gate 25 USD. Reservation uses the gemini-3.8-flash price as a conservative upper bound; settled cost uses the flash-lite price.",
+    "projectedKnownUsd": 4.3,
+    "projectionBasis": "gemini-3.8-flash TEST token counts on 393 items, repriced at flash-lite and scaled to 600"
   }
 }

@@ -11,7 +11,7 @@ from stats import compare
 from prepare import GROUPS
 
 HERE = Path(__file__).parent
-MODELS = ['haiku', 'gpt-6-luna', 'gemini-3.8-flash']
+MODELS = ['haiku', 'gpt-6-luna', 'gemini-3.8-flash', 'gemini-3.5-flash-lite']
 CONTESTANTS = ['ledger', 'promptfoo']
 
 

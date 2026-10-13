@@ -55,3 +55,38 @@ test('a resumed call continues after the tries already recorded as failed', asyn
   await assert.rejects(withTransportRetry({ wait, first: 4, attempt: async (n) => { seen.push(n); } }), /TRANSPORT_EXHAUSTED/);
   assert.deepEqual(seen, [3]);
 });
+
+import { classifyHttp, PACING } from './exec.mjs';
+const lite = PACING['gemini-3.5-flash-lite'];
+const http = (code) => new Error(`https://x/models/m:generateContent answered ${code}: quota`);
+
+test('flash-lite: 429 waits 20, 60, 180 s, then gives up after 4 tries', async () => {
+  const waits = [];
+  await assert.rejects(withTransportRetry({ wait: async (ms) => waits.push(ms), classify: (e) => classifyHttp(e, lite), rateWaitsMs: lite.rateWaitsMs,
+    attempt: async () => { throw http(429); } }), /TRANSPORT_EXHAUSTED after 4 tries/);
+  assert.deepEqual(waits, [20000, 60000, 180000]);
+});
+
+test('flash-lite: a 402 stops at once with no retry', async () => {
+  let calls = 0;
+  await assert.rejects(withTransportRetry({ wait, classify: (e) => classifyHttp(e, lite), rateWaitsMs: lite.rateWaitsMs,
+    attempt: async () => { calls++; throw http(402); } }), (e) => e.providerStop === true && /PROVIDER_PAYMENT_STOP/.test(e.message));
+  assert.equal(calls, 1);
+});
+
+test('flash-lite: other transport errors keep 3 tries; a 429 then an answer returns the answer', async () => {
+  let n = 0;
+  await assert.rejects(withTransportRetry({ wait, classify: (e) => classifyHttp(e, lite), rateWaitsMs: lite.rateWaitsMs,
+    attempt: async () => { n++; throw new Error('could not be reached'); } }), /after 3 tries/);
+  assert.equal(n, 3);
+  const seq = [http(429)];
+  const got = await withTransportRetry({ wait, classify: (e) => classifyHttp(e, lite), rateWaitsMs: lite.rateWaitsMs,
+    attempt: async () => { if (seq.length) throw seq.shift(); return 'answer'; } });
+  assert.equal(got, 'answer');
+});
+
+test('models without pacing keep the original 3-try rule, and 402 is a plain retry there', async () => {
+  let n = 0;
+  await assert.rejects(withTransportRetry({ wait, classify: (e) => classifyHttp(e, undefined), attempt: async () => { n++; throw http(402); } }), /after 3 tries/);
+  assert.equal(n, 3);
+});

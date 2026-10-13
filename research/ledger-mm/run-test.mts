@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { append, Budget, costOf, hash, readLines, redact, workers } from './harness.mjs';
-import { MAX_CONCURRENT_CALLS, Semaphore, TIMEOUT_MS, TRIES, withTransportRetry } from './exec.mjs';
+import { classifyHttp, MAX_CONCURRENT_CALLS, PACING, Semaphore, TIMEOUT_MS, TRIES, withTransportRetry } from './exec.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '../..');
@@ -18,12 +18,16 @@ if (argv.includes('--help')) {
 const phase = flag('--phase', 'test')!;
 if (phase !== 'test') throw new Error('run-test.mts runs only the sealed TEST cell; use run.mts for DEV phases');
 const model = flag('--model', 'haiku')!;
-const concurrency = Number(flag('--workers', '4'));
-if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw new Error('workers must be 1 to 4');
+const pacing: any = (PACING as any)[flag('--model', 'haiku')!];
+const callLimit: number = pacing?.concurrency ?? MAX_CONCURRENT_CALLS;
+const concurrency = Number(flag('--workers', String(callLimit)));
+if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > callLimit) throw new Error(`workers must be 1 to ${callLimit}`);
 const models: Record<string, { model: string; provider: string; reasoning?: string }> = {
   haiku: { model: 'claude-haiku-5-5', provider: 'claude-cli' },
   'gpt-6-luna': { model: 'gpt-6-luna', provider: 'openai', reasoning: 'medium' },
   'gemini-3.8-flash': { model: 'gemini-3.8-flash', provider: 'google', reasoning: 'medium' },
+  // Separate cell (amendment 5): same medium thinking level, accepted by a live probe.
+  'gemini-3.5-flash-lite': { model: 'gemini-3.5-flash-lite', provider: 'google', reasoning: 'medium' },
 };
 if (!models[model] || !['fixture', 'pilot', 'noise', 'validity', 'test'].includes(phase)) throw new Error('invalid model or phase');
 const dry = argv.includes('--dry-run');
@@ -43,10 +47,11 @@ const eligible = eligibility?.model === model ? eligibility : null;
 const eligibleCalls = new Set<string>(eligible?.callKeys ?? []);
 const eligibleDecisions = new Set<string>(eligible?.decisionKeys ?? []);
 const round: number = eligible?.round ?? 0;
-const budget = new Budget(resolve(runDir, 'spend.jsonl'), eligible?.capUsd ?? 20);
+// Lane gate from the runtime freeze (owner raised it to 25 USD, amendment 5).
+const budget = new Budget(resolve(runDir, 'spend.jsonl'), eligible?.capUsd ?? read('runtime-freeze.json').capUsd ?? 20);
 const completed = new Map(readLines(callsFile).filter((r: any) => !(eligibleCalls.has(r.key) && r.transportExhausted === true && !('response' in r))).map((r: any) => [r.key, r]));
 const decisions = new Set(readLines(recordsFile).filter((r: any) => !(eligibleDecisions.has(r.key) && r.error && !r.games?.some((g: any) => g !== null))).map((r: any) => r.key));
-const capError = (e: any) => /BUDGET_CAP|LAST_CALL_CUTOFF|STOP_FILE/.test(String(e));
+const capError = (e: any) => /BUDGET_CAP|LAST_CALL_CUTOFF|STOP_FILE|PROVIDER_PAYMENT_STOP/.test(String(e));
 const cfg = models[model]!;
 let transport: any;
 let core: any;
@@ -76,7 +81,16 @@ if (!dry) {
     maxRetries: 0, maxBudgetUsd: .10 } as any);
 }
 
-const gate = new Semaphore(MAX_CONCURRENT_CALLS);
+const gate = new Semaphore(callLimit);
+// harness.mjs is frozen and prices every Google model as gemini-3.8-flash. flash-lite uses its own
+// published standard price (USD per 1M tokens): input 0.30, cached input 0.03, output with thinking 2.50.
+const priceOf = (response: any) => {
+  if (model !== 'gemini-3.5-flash-lite') return costOf(model, response);
+  const u = JSON.parse(response.raw).usageMetadata;
+  if (!u) throw new Error('MISSING_GOOGLE_USAGE');
+  const cached = u.cachedContentTokenCount ?? 0;
+  return (((u.promptTokenCount ?? 0) - cached) * .30 + cached * .03 + ((u.candidatesTokenCount ?? 0) + (u.thoughtsTokenCount ?? 0)) * 2.50) / 1e6;
+};
 const attemptsFile = resolve(runDir, 'attempts.jsonl');
 // Tries already recorded as failed (no answer) by an earlier process count toward the three.
 const failedTries = new Map<string, number>();
@@ -98,6 +112,8 @@ async function ask(meta: any, request: any) {
   try {
     got = await withTransportRetry({
       first: (failedTries.get(key) ?? 0) + 1,
+      classify: (e: any) => classifyHttp(e, pacing),
+      rateWaitsMs: pacing?.rateWaitsMs ?? null,
       // Cap, cutoff, stop and duplicate-reservation errors stop at once; they are never retried.
       before: (n: number) => {
         if (Date.now() >= cutoff) throw new Error('LAST_CALL_CUTOFF');
@@ -118,6 +134,8 @@ async function ask(meta: any, request: any) {
       },
     });
   } catch (error: any) {
+    // A 402 under the pacing rule halts every worker at once.
+    if (error?.providerStop === true) writeFileSync(resolve(here, 'stop'), `${new Date().toISOString()} ${redact(error)}\n`);
     if (error?.transportExhausted === true) {
       const row = { key, ...meta, model, error: redact(error), transportExhausted: true, tries: TRIES, reserveRetained: reserve, ...(tag === key ? {} : { round }) };
       append(callsFile, row); completed.set(key, row);
@@ -126,7 +144,7 @@ async function ask(meta: any, request: any) {
   }
   // A returned answer is final: never retried, whatever it says.
   try {
-    const usd = costOf(model, got.response);
+    const usd = priceOf(got.response);
     const row = { key, ...meta, model, attempt: got.n, seconds: got.seconds, usd, response: got.response };
     append(callsFile, row); completed.set(key, row);
     budget.settle(tryKey(got.n), usd);
@@ -233,7 +251,7 @@ async function evaluate(item: any, contestant: string, repeat: number, variant =
       const earned = existsSync(resolve(here, 'earned.json')) ? read('earned.json')[model]?.harm === true : false;
       const request = core.pairLedgerRequest(criterion, [{ role: 'user', text: item.question }], item.a, item.b, { requirements: requirements(item), reasoning: cfg.reasoning });
       const result = await core.judgePairLedger(client, request, { tiePolicy: 'tie', stage0: {
-        correctness: item.group === 'reasoning', language: item.language, timeoutMs: TRIES * TIMEOUT_MS + 100_000,
+        correctness: item.group === 'reasoning', language: item.language, timeoutMs: (pacing?.rateWaitsMs ? pacing.rateWaitsMs.length + 1 : TRIES) * TIMEOUT_MS + 300_000,
         compute: item.group === 'reasoning' ? computePort(meta) : false,
         ...(earned ? { harmPolicy: () => harm(item, meta) } : {}),
       } });

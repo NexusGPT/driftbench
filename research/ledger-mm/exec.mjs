@@ -24,25 +24,58 @@ export class Semaphore {
 }
 
 /**
- * Runs `attempt(n)` up to `tries` times. `attempt` returns { answer } when the model returned
- * anything, and throws only when no answer arrived (transport failure). `before(n)` runs ahead of
- * each try and may throw a cap error, which stops retrying at once. `failed(n, error)` records each
- * failed try. After the last try the function throws TRANSPORT_EXHAUSTED with the final error.
+ * Runs `attempt(n)` until a model answer returns. `attempt` throws only when no answer arrived.
+ * `before(n)` runs ahead of each try and may throw a cap error, which stops at once.
+ * `failed(n, error)` records each failed try. `classify(error)` may return 'stop' (halt the
+ * whole run at once, no retry) or 'rate' (a rate limit: wait rateWaitsMs[k] after the k-th one).
+ * Other failures retry up to `tries` in total with `backoffMs`. Exhaustion throws
+ * TRANSPORT_EXHAUSTED with the final error.
  */
-export async function withTransportRetry({ attempt, before = () => {}, failed = () => {}, tries = TRIES, backoffMs = BACKOFF_MS, wait = sleep, first = 1 }) {
-  let last;
-  // `first` above 1 resumes after tries already recorded as failed in an earlier process.
-  for (let n = first; n <= tries; n++) {
-    if (n > first) await wait(backoffMs[Math.min(n - 1, backoffMs.length - 1)]);
+export async function withTransportRetry({ attempt, before = () => {}, failed = () => {}, tries = TRIES, backoffMs = BACKOFF_MS, wait = sleep, first = 1, classify = () => 'retry', rateWaitsMs = null }) {
+  let last, lastN = first - 1, rate = 0, other = Math.max(0, first - 1), n = first;
+  const maxTries = rateWaitsMs ? Math.max(tries, rateWaitsMs.length + 1) : tries;
+  for (;;) {
+    if (n > maxTries) break;
     before(n);
+    lastN = n;
     try {
       return await attempt(n);
     } catch (error) {
       last = error;
       failed(n, error);
+      const kind = classify(error);
+      if (kind === 'stop') {
+        const stop = new Error(`PROVIDER_PAYMENT_STOP: ${String(error?.message ?? error)}`);
+        stop.providerStop = true;
+        throw stop;
+      }
+      let delay;
+      if (kind === 'rate' && rateWaitsMs) {
+        rate++;
+        if (rate > rateWaitsMs.length) break;
+        delay = rateWaitsMs[rate - 1];
+      } else {
+        other++;
+        if (other >= tries) break;
+        delay = backoffMs[Math.min(other, backoffMs.length - 1)];
+      }
+      n++;
+      if (n > maxTries) break;
+      await wait(delay);
     }
   }
-  const error = new Error(`TRANSPORT_EXHAUSTED after ${tries} tries: ${String(last?.message ?? last)}`);
+  const error = new Error(`TRANSPORT_EXHAUSTED after ${lastN} tries: ${String(last?.message ?? last)}`);
   error.transportExhausted = true;
   throw error;
+}
+
+/** Per-model pacing. gemini-3.5-flash-lite: owner rule, 8 calls at once, 429 waits 20, 60, 180 s, 402 stops. */
+export const PACING = {
+  'gemini-3.5-flash-lite': { concurrency: 8, rateWaitsMs: [20_000, 60_000, 180_000], stopOn402: true },
+};
+export function classifyHttp(error, pacing) {
+  const text = String(error?.message ?? error);
+  if (pacing?.stopOn402 && /answered 402\b/.test(text)) return 'stop';
+  if (pacing?.rateWaitsMs && /answered 429\b/.test(text)) return 'rate';
+  return 'retry';
 }
