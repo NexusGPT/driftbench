@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
-import { DIRECTORY, MODELS, SETTINGS, latestDecisions, validityFixtures, type DecisionRow } from './rubric-ledger-live';
+import { DIRECTORY, MODELS, SETTINGS, decisionKey, latestDecisions, validityFixtures, type DecisionRow } from './rubric-ledger-live';
 import { LedgerCalls } from './rubric-ledger-calls';
 import { readRecordingRows } from './recording-files';
 import { pairedStatistics } from './rubric-ledger-stats';
@@ -17,8 +17,15 @@ export function kappa(rows: readonly { label: string; decision: string }[]): num
 export async function report() {
   const plan = JSON.parse(await readFile(`${DIRECTORY}/development-plan.json`, 'utf8'));
   const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd).load();
-  const data: Record<string, DecisionRow[]> = Object.fromEntries(await Promise.all(['pilot', 'fixtures', 'noise', 'validity', 'test'].map(async (phase) =>
-    [phase, latestDecisions(await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`))] as const)));
+  const data: Record<string, DecisionRow[]> = Object.fromEntries(await Promise.all(['pilot', 'fixtures', 'noise', 'validity', 'test'].map(async (phase) => {
+    const rows = latestDecisions(await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`));
+    try {
+      const ordered: (DecisionRow & { recordIndex: number })[] = JSON.parse(await readFile(`${DIRECTORY}/ordered-${phase}.json`, 'utf8'));
+      const rank = new Map(ordered.map((r) => [decisionKey(r), r.recordIndex]));
+      rows.sort((a, b) => (rank.get(decisionKey(a)) ?? Infinity) - (rank.get(decisionKey(b)) ?? Infinity));
+    } catch (e) { if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e; }
+    return [phase, rows] as const;
+  })));
   const cost = (rows: readonly DecisionRow[]) => {
     const keys = new Set(rows.flatMap((r) => r.callKeys));
     const paid = calls.rows.filter((r) => keys.has(r.key));
