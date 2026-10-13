@@ -266,14 +266,18 @@ A complete generated block reads observed state, not only words. Code derives ea
 
 | Then | Derived from |
 |---|---|
-| `expect.stage` | the path's next stage |
+| `expect.stage` and `expect.stage_reported` | the path's next stage, reported by the runtime in this block |
 | `expect.tools` (label, count, input) | the `uses_tool` relations of the flow at that stage, inputs filled from the slots the cell's data values and the phrases bind; every other tool the scenario calls is expected 0 times in that turn |
 | `rules.forbidden_tools` | every tool the scenario never calls |
 | `end_state` on the last block | the path's end state, slots filled |
 | a probe block's stage, `must`, `must_not`, guards and calls | the recovery of that class in that flow; `pending` is the stage the conversation had reached |
 | a tool failure | the path's own turn, with the tool failing in its Given; the recovery's stage and calls; calls after the failing tool expected 0 times; the conversation stops there |
-| `expect.must` on a move | the `states` relations of the flow at that stage, such as the plans and prices the offer must quote |
+| `expect.must` and `expect.must_not` on a move | the approved `states` relations of the flow or behaviour at that stage, such as returned prices, the pending question, and forbidden invented facts |
 | `expect.lang` on every block | the `reply_language` relation, never the language of the user's message |
+
+A `states` relation names a `subject` (`dimension` and `value`), the departing `stage`, optional destination `to`, optional `when`, and `must`, `must_not`, or both. Each supplied list contains at least one regular expression. Both lists reuse the quoted-price relation's `{slot}` syntax: an approved `binds` relation supplies the value, which is escaped as literal regex text. Missing bindings make the scenario incomplete, with the reason in the report. Relations without approval do not contribute assertions. Existing `must`-only maps remain valid.
+
+Generated tool expectations with explicit `input` also set `input_closed: true`. List every permitted top-level input key in that map relation. Additional arguments fail the check. Existing saved specs do not gain these optional assertions automatically.
 
 Two blocks of `gen-graph-001`, the path `upgrade-order`. The email in the When and the expected input come from the same `binds` relation; the order's inputs come from the path's `uses_tool` relation:
 

@@ -125,15 +125,14 @@ describe('items with planted defects', () => {
     expect(result?.verdict.detail).toMatch(/the follower did: stage \w+; calls /);
   });
 
-  it('kills a stage fault and names a text fault no Then reads', async () => {
+  it('kills stage and fact faults with the approved stage and reply assertions', async () => {
     const data = new SeedData(1, { cheaters: [], faults: only('X3.skip', 'X2.fact-flip') }, noScale);
     // evaluate returns the items in bank order, so each is found by its id.
     const results = await evaluate(itemsOf('fault.X3.skip', 'fault.X2.fact-flip'), data);
     const skip = results.find((result) => result.item.id === 'fault.X3.skip');
     const flip = results.find((result) => result.item.id === 'fault.X2.fact-flip');
     expect(skip?.verdict.pass, skip?.verdict.detail).toBe(true);
-    expect(flip?.verdict.pass).toBe(false);
-    expect(flip?.verdict.detail).toMatch(/it lacks a must or must_not on the tool answer the reply states/);
+    expect(flip?.verdict.pass, flip?.verdict.detail).toBe(true);
   });
 
   it('leaves a family out when the run narrows the bank, and says so', async () => {

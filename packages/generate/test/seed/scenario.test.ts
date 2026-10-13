@@ -163,7 +163,7 @@ describe('buildScenario', () => {
     expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'help']);
     expect(built.blocks.map((block) => block.tools)).toEqual([
       [{ label: 'lookup', count: 0 }],
-      [{ label: 'lookup', count: 1, input: { account: '4' } }],
+      [{ label: 'lookup', count: 1, input: { account: '4' }, input_closed: true }],
     ]);
     expect(built.blocks.every((block) => block.lang === 'EN')).toBe(true);
     expect(built.endState).toEqual({ source: 'tool:lookup', mode: 'subset', expect: { account: '4' } });
@@ -341,8 +341,8 @@ describe('buildScenario', () => {
     if (!walked.ok) throw new Error(walked.reason);
     expect(walked.blocks.map((block) => block.stage)).toEqual(['verify', 'help', 'verify']);
     expect(walked.blocks[1]?.tools).toEqual([
-      { label: 'lookup', count: 1, input: { account: '4' } },
-      { label: 'notify', count: 1, input: { reason: 'checked' } },
+      { label: 'lookup', count: 1, input: { account: '4' }, input_closed: true },
+      { label: 'notify', count: 1, input: { reason: 'checked' }, input_closed: true },
     ]);
     const failed = buildScenario(prepared, rngFor(1, 't'), {
       path: path(prepared, 'balance-again'),
@@ -644,6 +644,7 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
         user: 'Are you open on Sunday?',
         expect: {
           stage: 'verify',
+          stage_reported: true,
           tools: [{ label: 'lookup', count: 0 }],
           must: ['open Sunday', 'a.b'],
           lang: 'EN',
@@ -976,5 +977,65 @@ describe('iteration 20: a block records what its Then reads', () => {
     expect(built.blocks[0]?.carries.some(([dimension]) => dimension === account)).toBe(false);
     // The lookup at verify reads the value: the block that calls it carries it.
     expect(built.blocks[1]?.carries.some(([dimension]) => dimension === account)).toBe(true);
+  });
+});
+
+describe('approved reply requirements', () => {
+  it('fills and regex-escapes must and must_not slots, preserving their source cells', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        {
+          kind: 'states',
+          subject: { dimension: 'flow', value: 'balance' },
+          stage: 'verify',
+          to: 'help',
+          must: ['account {account}'],
+          must_not: ['invented {account}', 'Step [0-9]+:'],
+          ...by,
+        },
+      ];
+      draft.relations = draft.relations.map((entry) =>
+        entry.kind === 'binds' && entry.subject.value === 'found'
+          ? { ...entry, slots: { account: '4.2+(x)' } }
+          : entry,
+      );
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    if (!built.ok) throw new Error(built.reason);
+    const block = built.blocks[1];
+    expect(new RegExp(block?.must?.[0] ?? '').test('account 4.2+(x)')).toBe(true);
+    expect(new RegExp(block?.must?.[0] ?? '').test('account 4X222x')).toBe(false);
+    expect(new RegExp(block?.must_not?.[0] ?? '').test('invented 4.2+(x)')).toBe(true);
+    expect(block?.must_not?.[1]).toBe('Step [0-9]+:');
+    expect(built.blocks[0]?.must_not).toBeUndefined();
+    const account = prepared.space.dimensions.findIndex((entry) => entry.id === 'account_state');
+    expect(block?.carries.some(([dimension]) => dimension === account)).toBe(true);
+  });
+
+  it('permits a forbid-only relation, and refuses an unbound forbidden pattern', () => {
+    const make = (pattern: string) =>
+      prepare((draft) => {
+        draft.relations = [
+          ...(draft.relations ?? []),
+          {
+            kind: 'states',
+            subject: { dimension: 'flow', value: 'balance' },
+            stage: 'verify',
+            to: 'help',
+            must_not: [pattern],
+            ...by,
+          },
+        ];
+      });
+    const good = make('Step [0-9]+:');
+    const built = buildScenario(good, rngFor(1, 't'), { path: path(good, 'balance-found'), fixed: [] });
+    expect(built.ok && built.blocks[1]?.must_not).toEqual(['Step [0-9]+:']);
+    const bad = make('{unbound_fact}');
+    const refused = buildScenario(bad, rngFor(1, 't'), { path: path(bad, 'balance-found'), fixed: [] });
+    expect(refused).toMatchObject({ ok: false, reason: expect.stringContaining('unbound_fact') });
   });
 });

@@ -58,6 +58,8 @@ export type Scenario =
       ok: true;
       cell: Pick[];
       blocks: BlockDraft[];
+      /** Tool output partitions whose bound values the reply assertions read. */
+      replyData: Pick[];
       endState?: EndStateSpec;
       rules?: Rules;
       /** The probe as placed: its class, the stage it is said at, the tool that fails. */
@@ -229,6 +231,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
 
   const toolNames = new Set(prepared.tools.map((tool) => tool.name));
   const blocks: BlockDraft[] = [];
+  const replyData: Pick[] = [];
   const lang = relations.replyLanguage;
   let movedAway = false;
   let turnPlaced = false;
@@ -331,6 +334,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     }
     // What the reply of this turn must state (a quoted price read from the tool's answer), from the map.
     const stated: string[] = [];
+    const unstated: string[] = [];
     for (const entry of relations.states) {
       const subject =
         entry.subject.dimension === 'flow'
@@ -338,17 +342,24 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
           : context[entry.subject.dimension] === entry.subject.value;
       if (!subject || entry.stage !== from || (entry.to !== undefined && entry.to !== to)) continue;
       if (!matches(entry.when, context)) continue;
-      for (const pattern of entry.must) {
-        const filled = fillText(pattern, slots, true);
-        if (!filled.ok)
-          return fail(`what the reply states at ${from} reads unbound slots ${filled.missing.join(', ')}`);
-        stated.push(filled.value);
+      for (const [patterns, target] of [
+        [entry.must ?? [], stated],
+        [entry.must_not ?? [], unstated],
+      ] as const) {
+        for (const pattern of patterns) {
+          const filled = fillText(pattern, slots, true);
+          if (!filled.ok)
+            return fail(`what the reply states at ${from} reads unbound slots ${filled.missing.join(', ')}`);
+          target.push(filled.value);
+        }
       }
       for (const dimension of Object.keys(entry.when ?? {})) {
         const value = held(indexOf(dimension));
         if (value) ruled.push(value);
       }
-      ruled.push(...sourcesOf(entry.must));
+      const sources = sourcesOf(entry.must, entry.must_not);
+      ruled.push(...sources);
+      replyData.push(...sources.filter(([at]) => prepared.toolDimensions.get(at)?.direction === 'out'));
     }
     const carries = unique([[prepared.transition as number, transition], ...ruled]);
     blocks.push({
@@ -359,6 +370,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       carries,
       ...(tools.length > 0 ? { tools } : {}),
       ...(stated.length > 0 ? { must: stated } : {}),
+      ...(unstated.length > 0 ? { must_not: unstated } : {}),
       ...(lang === undefined ? {} : { lang }),
     });
   }
@@ -444,6 +456,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     ok: true,
     cell,
     blocks,
+    replyData: unique(replyData),
     ...(end ? { endState: end } : {}),
     ...(Object.keys(rules).length > 0 ? { rules } : {}),
     ...(placed ? { probe: placed } : {}),
@@ -497,6 +510,7 @@ function recoveryExpect(
   if (!must || !mustNot) return undefined;
   return {
     stage: stageAfter(recovery, stage) ?? stage,
+    stage_reported: true,
     ...(tools.length > 0 ? { tools } : {}),
     ...(recovery.guards.length > 0 ? { guards: recovery.guards } : {}),
     ...(must.length > 0 ? { must } : {}),
@@ -608,6 +622,7 @@ function toolFailure(
   if (must.length > 0) block.must = must;
   else delete block.must;
   if (mustNot.length > 0) block.must_not = mustNot;
+  else delete block.must_not;
   const deviation = prepared.space.dimensions[prepared.deviation ?? -1]?.index.get(TOOL_FAILURE);
   if (deviation !== undefined) block.carries = [[prepared.deviation as number, deviation], ...block.carries];
   blocks.splice(chosen.index + 1);

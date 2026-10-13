@@ -227,7 +227,10 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
       placeholders.push({ dimension: block.stimulus.dimension, value: block.stimulus.value });
     }
     const expect: Expect = {};
-    if (block.stage !== undefined) expect.stage = block.stage;
+    if (block.stage !== undefined) {
+      expect.stage = block.stage;
+      expect.stage_reported = true;
+    }
     if (block.tools && block.tools.length > 0) expect.tools = block.tools;
     if (block.guards && block.guards.length > 0) expect.guards = block.guards;
     if (block.must && block.must.length > 0) expect.must = block.must;

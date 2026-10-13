@@ -63,6 +63,14 @@ The Observed of a block validates against the schema, and:
 * `text` is the text segments joined by a newline;
 * `cost` and `latencyMs` are present.
 
+## Optional observation assertions
+
+The shared checks apply `tools[].input_closed: true` and `expect.stage_reported: true` to every adapter. Adapters preserve all tool input keys in `toolCalls`; they never filter inputs to the keys a spec expects. Missing, null or malformed input is not evidence of an empty argument object.
+
+`stage_reported` reads only `observed.runtime.stages` for this block. Function and HTTP Observed replies can supply it directly. The process adapter reads current-block runtime events, including stages written by Python `Reply.stage`. OpenAI Agents handoffs, CrewAI task results and Claude Code step-feed events supply their runtime stages. An adapter or turn with no stage report fails this assertion; the runner never creates a report from tool calls or history. The Python `run_specs` wrapper uses this same CLI runner and checks.
+
+Both assertions are optional. Omitted or false preserves the existing checks. See [the spec fields](../reference/spec.md#expect) and [check semantics](../reference/checks.md#stage-and-facts).
+
 ## End-state sources
 
 `endState(session, source)` reads one source:

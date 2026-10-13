@@ -115,6 +115,13 @@ function scenarioDraft(
         prepared.space.dimensions[dimension]?.kind === 'behaviour' && dimension !== prepared.transition,
     );
     const criteria = behaviours.map((entry) => draftCriterion(prepared, entry));
+    // Only reply-bound outputs need an injected answer. Other output partitions can describe
+    // a real fixture's business state without being synthetic JSON Schema partitions.
+    const world = worldFor(prepared, built.replyData);
+    if (world.unsupported.length > 0) {
+      reasons.push(...world.unsupported);
+      continue;
+    }
     const blocks = built.blocks;
     const first = blocks[0];
     if (first && criteria.length > 0) first.criteria = criteria.map((criterion) => criterion.name);
@@ -135,6 +142,7 @@ function scenarioDraft(
         blocks,
         criteria,
         path: path.id,
+        ...(world.world ? { world: world.world } : {}),
         ...(built.rules ? { rules: built.rules } : {}),
         ...(built.endState ? { end_state: built.endState } : {}),
         ...(built.perturbations ? { perturbations: built.perturbations } : {}),
