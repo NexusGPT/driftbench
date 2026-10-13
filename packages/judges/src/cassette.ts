@@ -7,6 +7,10 @@ import { JudgeClass, type JudgeRequest, type JudgeResult, parseAnswerValue } fro
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
 import { PROMPT_FINGERPRINT } from './prompt';
+import {
+  RESPONSE_RELEVANCE_PROMPT_FINGERPRINT,
+  validateResponseRelevanceRequest,
+} from './response-relevance';
 
 /**
  * Cassettes: recorded judge answers. A recorder wraps a live client and keeps every answer; a player
@@ -86,11 +90,20 @@ export function dataKey(request: JudgeRequest): string {
  * silent replay of an answer to another question.
  */
 export function requestKey(request: JudgeRequest, client?: KeyClient, prompt?: string): string {
+  if (request.assessment?.kind === 'response-relevance') {
+    validateResponseRelevanceRequest(request);
+    if (client?.cls === 'system1') throw new RangeError('response-relevance requires a system2 judge');
+  }
   const effective = client?.cls === 'system1' ? { ...request, answerContract: 'legacy' as const } : request;
   return contentHash({
     data: dataKey(effective),
     prompt:
-      prompt ?? (effective.answerContract === 'legacy' ? LEGACY_PROMPT_FINGERPRINT : PROMPT_FINGERPRINT),
+      prompt ??
+      (effective.assessment?.kind === 'response-relevance'
+        ? RESPONSE_RELEVANCE_PROMPT_FINGERPRINT
+        : effective.answerContract === 'legacy'
+          ? LEGACY_PROMPT_FINGERPRINT
+          : PROMPT_FINGERPRINT),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }

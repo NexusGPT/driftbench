@@ -4,6 +4,7 @@ import type { JudgeRequest, TranscriptEntry } from './contract';
 import { requirementsFor } from './criterion-ledger';
 import { auditData, FACT_LEDGER_SYSTEM } from './fact-audit';
 import { buildPrompt as buildLegacyPrompt, LEGACY_COMPARE_SYSTEM_PROMPT } from './legacy-prompt';
+import { RESPONSE_RELEVANCE_SYSTEM_PROMPT, renderResponseRelevance } from './response-relevance';
 import { FRAME_RULE, renderTranscriptFrame } from './transcript';
 
 export { renderEntry } from './transcript';
@@ -154,6 +155,7 @@ export function renderTranscript(entries: readonly TranscriptEntry[]): string {
 
 /** The user prompt: the rubric, then every data section, then the closing instruction. */
 export function renderUser(request: JudgeRequest): string {
+  if (request.assessment?.kind === 'response-relevance') return renderResponseRelevance(request);
   if (request.factAudit && request.assessment?.kind !== 'rubric') return auditData(request);
   const parts = [
     request.assessment
@@ -195,6 +197,8 @@ export function renderUser(request: JudgeRequest): string {
 
 /** The full prompt of one request. */
 export function buildPrompt(request: JudgeRequest): { system: string; user: string } {
+  if (request.assessment?.kind === 'response-relevance')
+    return { system: RESPONSE_RELEVANCE_SYSTEM_PROMPT, user: renderResponseRelevance(request) };
   if (request.answerContract === 'legacy')
     return buildLegacyPrompt({
       ...request,
