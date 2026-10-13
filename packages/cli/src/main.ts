@@ -1,6 +1,6 @@
 import { Command, CommanderError } from 'commander';
 import { registerAttackCommand } from './commands/attack';
-import { registerCampaignCommands } from './commands/campaign';
+import { type CampaignDeps, registerCampaignCommands } from './commands/campaign';
 import { registerCiCommand } from './commands/ci';
 import { registerCompareCommand } from './commands/compare';
 import { registerEstateCommand } from './commands/estate';
@@ -29,11 +29,34 @@ import { registerSpecCommands } from './commands/spec';
 import { registerValidateCommand } from './commands/validate';
 import { registerViewCommand } from './commands/view';
 import { type Io, processIo } from './io';
+import { applyPlugins, type DriftbenchPlugin, pluginsFromRun, resetPlugins } from './plugins';
 import { VERSION } from './version';
 
-/** Runs the CLI with arguments (without `node` and the script) and returns the exit code. */
-export async function main(argv: string[], io: Io = processIo): Promise<number> {
+/** What a caller in code may give `main` beside the arguments. */
+export type MainOptions = {
+  /**
+   * What the commands run with, in place of `defaultDeps`: the adapters, the checks, the driver, the store.
+   * Read by campaign, smoke, family, perturb, simulate, attack, ci and monitor.
+   */
+  deps?: CampaignDeps;
+  /** Plugins given in code; they run before the plugins of the project config and of `--plugin`. */
+  plugins?: readonly DriftbenchPlugin[];
+};
+
+/**
+ * Runs the CLI with arguments (without `node` and the script) and returns the exit code. Plugins load first:
+ * those of `options.plugins`, of the project config's `plugins` list and of `--plugin` (see `./plugins`).
+ */
+export async function main(argv: string[], io: Io = processIo, options: MainOptions = {}): Promise<number> {
   let exitCode = 0;
+  resetPlugins();
+  if (options.plugins !== undefined) await applyPlugins(options.plugins, io.cwd);
+  const run = await pluginsFromRun(argv, io);
+  if (!run.ok) {
+    io.err(`driftbench: ${run.message}\n`);
+    return 2;
+  }
+  const deps = options.deps;
   const program = new Command('driftbench')
     .description('Block-level evaluation for AI agents.')
     .version(VERSION)
@@ -44,8 +67,8 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
     exitCode = code;
   };
   registerSpecCommands(program, io, setExit);
-  registerCampaignCommands(program, io, setExit);
-  registerSmokeCommand(program, io, setExit);
+  registerCampaignCommands(program, io, setExit, deps);
+  registerSmokeCommand(program, io, setExit, deps);
   registerSpaceCommands(program, io, setExit);
   registerExtractCommand(program, io, setExit);
   registerGenerateCommand(program, io, setExit);
@@ -53,17 +76,17 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerEstateCommand(program, io, setExit);
   registerReplayCommand(program, io, setExit);
   registerGateCommand(program, io, setExit);
-  registerFamilyCommand(program, io, setExit);
+  registerFamilyCommand(program, io, setExit, deps);
   registerPilotCommand(program, io, setExit);
-  registerPerturbCommand(program, io, setExit);
-  registerSimulateCommand(program, io, setExit);
-  registerAttackCommand(program, io, setExit);
+  registerPerturbCommand(program, io, setExit, deps);
+  registerSimulateCommand(program, io, setExit, deps);
+  registerAttackCommand(program, io, setExit, deps);
   registerJudgeCommand(program, io, setExit);
   registerValidateCommand(program, io, setExit);
   registerReportCommand(program, io, setExit);
   registerCompareCommand(program, io, setExit);
-  registerCiCommand(program, io, setExit);
-  registerMonitorCommand(program, io, setExit);
+  registerCiCommand(program, io, setExit, deps);
+  registerMonitorCommand(program, io, setExit, deps);
   registerSelectCommand(program, io, setExit);
   registerRadiusCommand(program, io, setExit);
   registerHoldoutCommand(program, io, setExit);
@@ -74,7 +97,7 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerTraceImportCommands(program, io, setExit);
 
   try {
-    await program.parseAsync(argv, { from: 'user' });
+    await program.parseAsync(run.argv, { from: 'user' });
   } catch (cause) {
     if (cause instanceof CommanderError) return cause.exitCode === 0 ? 0 : 2;
     // A path the user gave that cannot be used as asked (a file where a folder must go, a folder where a file
