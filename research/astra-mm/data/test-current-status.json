@@ -1,0 +1,28 @@
+{
+  "time": "2026-10-13T07:45:49.504831+00:00",
+  "complete": false,
+  "expected": 1212,
+  "baseItems": 170,
+  "escalatedItems": 9,
+  "pendingPanelPositions": 0,
+  "waitingGeminiItems": [],
+  "waitingGeminiCalls": 0,
+  "panelReceipts": {
+    "gemini": 18,
+    "openai": 18,
+    "jev": 27
+  },
+  "haikuReceipts": 371,
+  "haikuRefusals": 0,
+  "recordedTestSpendUsd": {
+    "haiku": 0.42690813,
+    "openai": 0.0044273,
+    "gemini": 0.02740425
+  },
+  "totalRecordedDevAndTestUsd": 1.3290779,
+  "jevTokens": {
+    "inputTokens": 42450,
+    "outputTokens": 567
+  },
+  "jevPrice": "price not published"
+}

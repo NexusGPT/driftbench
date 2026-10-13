@@ -1,10 +1,10 @@
 # MM-Eval frozen cascade: TEST confirmation
 
-TEST status: running. The complete remaining eligible population contains 1,212 items, sealed before the first TEST call at commit 2154225b and pushed to research/astra-mm-replicate. Current checkpoint: 32 base decisions, 0 escalations, 0 outstanding panel positions. Updated 2026-10-13T07:28:01.149708+00:00.
+TEST status: running. The complete remaining eligible population contains 1,212 items, sealed before the first TEST call at commit 2154225b and pushed to research/astra-mm-replicate. Current checkpoint: 170 base decisions, 9 escalations, 0 outstanding panel positions. Updated 2026-10-13T07:45:49.504831+00:00.
 
 The fixed seed is `astra-mm-test-20261013-v1`. This is a census, so subset allocation exactly matches the remaining eligible population. Seeded ranks determine order within subsets, with proportional interleaving. Selection used no labels or outcomes. The original 950-item TEST sample, the 600-item pool sealed on research/ledger-mm at 5a357fa1, and every prior exposure in that lane's audit are excluded. There were 1,812 eligible never-scored TEST items before reserving the other lane's 600, leaving 1,212 here. ID intersections with both protected pools are empty. The seal, exclusion IDs, source hashes and request-bank hash are committed.
 
-The candidate is exactly the frozen DEV candidate, including gpt-6-luna at low, Gemini 3.8 Flash with low thinking, and Jev's three original framings. The owner's medium setting belongs to a separate promptfoo matrix and was not used here. Gemini uses the authorized gemini-driftbench.key, a 180-second timeout, one retry and at most two concurrent calls. Total concurrency is at most six. No tuning or second TEST pass is permitted.
+The candidate is exactly the frozen DEV candidate, including gpt-6-luna at low, Gemini 3.8 Flash with low thinking, and Jev's three original framings. The owner's medium setting belongs to a separate promptfoo matrix and was not used here. Gemini uses the authorized gemini-driftbench.key, a 180-second timeout, one retry and at most two concurrent calls. After the plugin-crash resume, total concurrency is at most four (previously six). No tuning or second TEST pass is permitted.
 
 | Subset | Sealed items |
 |---|---:|
@@ -18,9 +18,9 @@ The main metric remains the equal-weight mean of the five subset means. The rema
 
 ## Spend and saved state
 
-Recorded TEST spend: Haiku 0.08592872 USD, OpenAI 0.00000000 USD, Gemini 0.00000000 USD. Measured DEV plus TEST total: 0.95626694 USD against the 30 USD cap. DEV's three interrupted earlier Haiku calls have unknown remote completion and unreported charges, as documented below.
+Recorded TEST spend: Haiku 0.42690813 USD, OpenAI 0.00442730 USD, Gemini 0.02740425 USD. Measured DEV plus TEST total: 1.32907790 USD against the 30 USD cap. DEV's three interrupted earlier Haiku calls have unknown remote completion and unreported charges, as documented below. The TEST plugin crash also left four occupied Haiku slots and two Gemini requests without completion receipts; their remote completion and charges are unknown. All saved hashes were reused, and only missing requests were retried under the owner's explicit resume instruction. No duplicate completed TEST receipt key has been observed.
 
-TEST Jev usage: 0 input tokens, 0 output tokens, price not published. DEV Jev usage remains separately documented below.
+TEST Jev usage: 42,450 input tokens, 567 output tokens, price not published. DEV Jev usage remains separately documented below.
 
 Gemini waiting items: none. Waiting Gemini call positions: 0. Other pending panel positions: 0. Every completed response is checkpointed; successful request hashes are reused on resume. Artifacts live in `research/astra-mm/data/test*`; frozen source and prompt hashes remain unchanged.
 

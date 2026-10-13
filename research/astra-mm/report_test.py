@@ -62,7 +62,7 @@ These inference costs count unique saved request hashes used in the final replay
  (D/'test-current-status.json').write_text(json.dumps(status,indent=2)+'\n')
 text+=f'''\n## Spend and saved state
 
-Recorded TEST spend: Haiku {spend['haiku']:.8f} USD, OpenAI {spend['openai']:.8f} USD, Gemini {spend['gemini']:.8f} USD. Measured DEV plus TEST total: {total:.8f} USD against the 30 USD cap. DEV's three interrupted earlier Haiku calls have unknown remote completion and unreported charges, as documented below.
+Recorded TEST spend: Haiku {spend['haiku']:.8f} USD, OpenAI {spend['openai']:.8f} USD, Gemini {spend['gemini']:.8f} USD. Measured DEV plus TEST total: {total:.8f} USD against the 30 USD cap. DEV's three interrupted earlier Haiku calls have unknown remote completion and unreported charges, as documented below. The TEST plugin crash also left four occupied Haiku slots and two Gemini requests without completion receipts; their remote completion and charges are unknown. All saved hashes were reused, and only missing requests were retried under the owner's explicit resume instruction. No duplicate completed TEST receipt key has been observed.
 
 TEST Jev usage: {jev['inputTokens']:,} input tokens, {jev['outputTokens']:,} output tokens, price not published. DEV Jev usage remains separately documented below.
 
