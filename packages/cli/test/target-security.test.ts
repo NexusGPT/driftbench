@@ -244,6 +244,28 @@ describe('target reply redaction', () => {
     },
   );
 
+  it.each(
+    adapters.flatMap((adapter) =>
+      ['percent', 'base64', 'base64url', 'hex'].flatMap((outer) =>
+        ['percent', 'base64', 'base64url', 'hex'].map((inner) => [adapter, outer, inner]),
+      ),
+    ),
+  )('%s redacts %s(%s(key)) and the composed Bearer form', async (adapter, outer, inner) => {
+    const encode = (value: string) =>
+      encodings[outer as keyof typeof encodings](encodings[inner as keyof typeof encodings](value));
+    vi.stubGlobal('fetch', successFetch(`${encode(secret)} ${encode(`Bearer ${secret}`)}`));
+    const result = await run(adapter);
+    expect(result.code).toBe(0);
+    absent(result, [secret, encode(secret), encode(`Bearer ${secret}`)]);
+    const store = openStore(result.store);
+    try {
+      const [record] = await store.listRuns({});
+      expect(record?.blocks[0]?.observed.text).toBe('[redacted] [redacted]');
+    } finally {
+      await store.close();
+    }
+  });
+
   it('redacts tool payloads and strips credentials from echoed request metadata', async () => {
     const encoded = encodings.base64(secret);
     vi.stubGlobal(

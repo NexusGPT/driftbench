@@ -6,6 +6,14 @@ The litellm adapter runs an agent whose model sits behind a [LiteLLM](https://do
 
 From the command line, a spec whose target is `litellm:<model>` with `options.base_url` reaches this adapter with no code, through a client built on `fetch`: see [targets from settings](../running.md#targets-from-settings).
 
+## CLI target credential handling
+
+::: warning Successful replies and sensitive stores
+A successful reply is stored as the agent sent it, except for the redactions described here. The CLI scans for literal keys, percent, base64, base64url and hex encodings, and all 16 ordered two-level compositions of those encodings, including `base64(percent(key))`. It also scans the encoded `Bearer <key>` forms. A key echoed in another form can remain in results. Keys split across fields are not detected; deeper or unlisted encodings are outside this protection. Use a test-scoped key and treat the results store and cache as sensitive.
+:::
+
+**CLI error-path guarantee:** with `target.options.debug_error_body` absent or false, upstream error bodies, headers and thrown transport details never enter output or storage. Diagnostics contain only fixed messages, status, request host and body length when known. `debug_error_body: true` is an explicitly unsafe opt-in to error-body disclosure. This guarantee belongs to the CLI target wrapper; directly constructing the library adapter does not install that wrapper.
+
 ## Options
 
 ```ts

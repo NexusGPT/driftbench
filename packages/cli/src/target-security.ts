@@ -105,24 +105,31 @@ export function secretForms(secrets: readonly (string | undefined)[]): string[] 
     if (!secret) continue;
     const bare = secret.replace(/^Bearer\s+/i, '');
     for (const value of new Set([secret, bare, `Bearer ${bare}`])) {
-      const percent = encodeURIComponent(value);
-      const base64 = Buffer.from(value).toString('base64');
-      const hex = Buffer.from(value).toString('hex');
-      for (const form of [
-        value,
-        percent,
-        percent.replace(/%[A-F\d]{2}/g, (part) => part.toLowerCase()),
-        base64,
-        base64.replace(/=+$/, ''),
-        base64.replace(/\+/g, '-').replace(/\//g, '_'),
-        Buffer.from(value).toString('base64url'),
-        hex,
-        hex.toUpperCase(),
-      ])
-        forms.add(form);
+      forms.add(value);
+      for (const once of encodedForms(value)) {
+        forms.add(once);
+        for (const twice of encodedForms(once)) forms.add(twice);
+      }
     }
   }
   return [...forms].sort((a, b) => b.length - a.length);
+}
+
+/** Every supported spelling of the four encodings, used at each level of composition. */
+function encodedForms(value: string): string[] {
+  const percent = encodeURIComponent(value);
+  const base64 = Buffer.from(value).toString('base64');
+  const hex = Buffer.from(value).toString('hex');
+  return [
+    percent,
+    percent.replace(/%[A-F\d]{2}/g, (part) => part.toLowerCase()),
+    base64,
+    base64.replace(/=+$/, ''),
+    base64.replace(/\+/g, '-').replace(/\//g, '_'),
+    Buffer.from(value).toString('base64url'),
+    hex,
+    hex.toUpperCase(),
+  ];
 }
 
 /** Strip request metadata, but preserve and scrub agent content, including object keys and tool payloads. */
@@ -221,7 +228,7 @@ export function withoutSecrets(
   const { trace, endState, readArtifact } = adapter;
   return {
     id: adapter.id,
-    version: `${adapter.version}+safe-target-v2`,
+    version: `${adapter.version}+safe-target-v3`,
     capabilities: () => adapter.capabilities(),
     open: (given) => kept(() => adapter.open(given)),
     send: (session, turn) => observed(() => adapter.send(session, turn)),
