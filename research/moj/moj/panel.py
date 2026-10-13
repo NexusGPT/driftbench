@@ -6,8 +6,8 @@ import json
 from pathlib import Path
 import numpy as np
 from .benches import HERE, load
-from .panel_clients import Recorder, digest
-from .policy import fit_logistic, score_games, score_verdict, wilson
+from .panel_clients import Recorder, digest, default_recorder
+from .policy import fit_logistic, score_games, score_verdict, wilson, folds
 
 FAMILIES = ('luna', 'gemini', 'haiku')
 DIRECTORY = Path(HERE)/'results/panel'
@@ -28,9 +28,11 @@ def member(ctx, family, recorder):
         games.append(pick if order == 'AB' else {'A': 'B', 'B': 'A'}.get(pick))
     valid = all(g in ('A', 'B') for g in games)
     costs = [(r.get('answer') or {}).get('usd') for r in calls]
+    accounting = [recorder.accounting(r['key']) for r in calls] if hasattr(recorder, 'accounting') else None
     return {'pA': sum(g == 'A' for g in games)/2 if valid else None, 'games': games,
-            'calls': len(calls), 'usd': sum(c for c in costs if c is not None),
-            'cost_complete': all(c is not None for c in costs), 'keys': [r['key'] for r in calls],
+            'calls': sum(a['calls'] for a in accounting) if accounting else sum(r.get('submission', 1) for r in calls),
+            'usd': sum(a['usd'] for a in accounting) if accounting else sum(c for c in costs if c is not None),
+            'cost_complete': all(a['cost_complete'] for a in accounting) if accounting else all(c is not None for c in costs), 'keys': [r['key'] for r in calls],
             'seconds': sum(r.get('seconds', 0) for r in calls)}
 
 
@@ -42,20 +44,26 @@ def combine(members, weights=None):
     if weights is None:
         p = sum(values)/len(values)
     else:
+        if len(weights) != len(values):
+            raise ValueError('One fitted weight is required per member')
         z = sum(float(w)*(2*p-1) for w, p in zip(weights, values))
         p = float(1/(1+np.exp(-np.clip(z, -30, 30))))
     return {'pA': p, 'confidence': agreement, 'agreement': agreement, 'complete': True}
 
 
-def cross_family_panel(ctx, cascade=False, recorder=None):
+def cross_family_panel(ctx, cascade=False, recorder=None, initial_pair=None):
     """Catalogue expert. Caller must establish low_confidence before any call."""
     if ctx.item.get('low_confidence') is not True:
         return {'pA': None, 'detail': {'skipped': 'low_confidence must be explicitly true'}}
-    recorder = recorder or getattr(ctx, 'panel_recorder', None) or Recorder(offline=ctx.offline)
-    members = {f: member(ctx, f, recorder) for f in FAMILIES[:2]}
+    recorder = recorder or getattr(ctx, 'panel_recorder', None) or default_recorder(offline=ctx.offline)
+    initial_pair = tuple(initial_pair or FAMILIES[:2])
+    if len(initial_pair) != 2 or len(set(initial_pair)) != 2 or not set(initial_pair) <= set(FAMILIES):
+        raise ValueError('Expected two distinct panel families')
+    members = {f: member(ctx, f, recorder) for f in initial_pair}
     first = [r['pA'] for r in members.values()]
     if not cascade or first[0] != first[1] or first[0] in (None, .5):
-        members['haiku'] = member(ctx, 'haiku', recorder)
+        third = next(f for f in FAMILIES if f not in members)
+        members[third] = member(ctx, third, recorder)
     out = combine(members)
     if hasattr(ctx, 'calls'):
         ctx.calls['luna'] += sum(v['calls'] for v in members.values())
@@ -102,6 +110,20 @@ def frozen_population():
     return rows
 
 
+def unique_population(rows):
+    """Practice files can repeat one id across source splits; count the item once."""
+    unique = {}
+    for row in rows:
+        if row['key'] in unique:
+            a = {k:v for k,v in unique[row['key']].items() if k != 'input_hash'}
+            b = {k:v for k,v in row.items() if k != 'input_hash'}
+            if a != b:
+                raise ValueError('Conflicting duplicate practice item: ' + row['key'])
+        else:
+            unique[row['key']] = row
+    return list(unique.values())
+
+
 def collect(population, recorder, limit=None):
     from .experts import Ctx
     items = {(b, i['id']): i for b in ('judgebench', 'mmeval', 'writing') for i in load(b)}
@@ -110,6 +132,8 @@ def collect(population, recorder, limit=None):
         eligible = eligible[:limit]
     def one(row):
         item = dict(items[(row['bench'], row['id'])])
+        # Later helpers append repeat-run metadata; it is not a judge input.
+        item.pop('repeats', None)
         if digest(item) != row['input_hash']:
             raise ValueError('Frozen input changed: '+row['key'])
         item['low_confidence'] = True
@@ -136,7 +160,8 @@ def stats(rows):
     if len(set(scores)) == 1 and scores[0] in (0, 1):
         ci = list(wilson(scores[0], n))
     return {'n': n, 'accuracy': float(np.mean(scores)), 'ci95': ci,
-            'calls_per_100': sum(r['calls'] for r in rows)*100/n,
+            'calls_per_100': sum(r['calls'] for r in rows)*100/n if all(r['calls'] is not None for r in rows) else None,
+            'known_calls_per_100': sum(r['calls'] or 0 for r in rows)*100/n,
             'known_usd_per_100': sum(r['usd'] for r in rows)*100/n,
             'cost_complete': all(r['cost_complete'] for r in rows),
             'missing': sum(r.get('missing', False) for r in rows)}
@@ -157,9 +182,17 @@ def evaluate(population, observations):
         usd = sum(sum(v['usd'] for v in selected(observations[r['key']], pair).values()) for r in tune)
         return (acc, -usd)
     pair = max(pairs, key=pair_quality)
+    tune_oof = []
+    for held in folds([r['key'] for r in tune]):
+        train = [i for i, r in enumerate(tune) if r['key'] not in held]
+        w = fit_logistic(X[train], np.array([tune[i]['label'] == 'A' for i in train])) if train else np.ones(3)
+        for r in tune:
+            if r['key'] in held:
+                p = combine(observations[r['key']], w)['pA']
+                tune_oof.append({'key': r['key'], 'pA': p, 'score': score_verdict(verdict(p), r['label'])})
     names = ['recorded-stage1-or-fallback', 'panel-majority', 'panel-weighted', 'panel-cascade', 'ledger', 'promptfoo']
     output = {'fit': {'tune_low_n': len(tune), 'weights': dict(zip(FAMILIES, map(float, weights))),
-                      'cascade_initial_pair': list(pair), 'l2': 1.0}, 'variants': {}, 'decisions': {}}
+                      'cascade_initial_pair': list(pair), 'l2': 1.0, 'tune_oof': tune_oof}, 'variants': {}, 'decisions': {}}
     for name in names:
         decisions = []
         for row in population:
@@ -174,6 +207,8 @@ def evaluate(population, observations):
                 if not b:
                     continue
                 score = score_games(b['games'], row['label'])
+                missing = any(g not in ('A', 'B', 'tie') for g in b['games'])
+                p = base_probability(b['games'])
                 cost, calls, complete = b.get('costUsd', 0), b.get('calls', 2), b.get('costUsd') is not None
             else:
                 if name.startswith('panel-') and row['low']:
@@ -196,7 +231,47 @@ def evaluate(population, observations):
             'incremental_usd_per_100': sum(r['incremental_usd'] for r in decisions)*100/max(1, len(decisions)),
             'incremental_calls_per_100': sum(r['incremental_calls'] for r in decisions)*100/max(1, len(decisions))}
         output['decisions'][name] = decisions
+    common = {r['key'] for r in population if r['half'] == 'valid'
+              and all(b in r['baselines'] for b in ('ledger', 'promptfoo'))}
+    output['common_baseline_population_n'] = len(common)
+    for name, decisions in output['decisions'].items():
+        matched = [r for r in decisions if r['key'] in common]
+        output['variants'][name]['matched_overall'] = stats(matched)
+        output['variants'][name]['matched_incremental_usd_per_100'] = sum(r['incremental_usd'] for r in matched)*100/max(1,len(matched))
     return output
+
+
+
+def route_item(ctx, config, stage1, fallback=None):
+    """Check a supplied reference before stage1, then route only low confidence."""
+    from .reference_first import eligible, reference_first
+    path = []
+    if eligible(ctx.item):
+        ref = reference_first(ctx)
+        path.append('reference_first')
+        if ref['pA'] is not None and ref['confidence'] >= config.get('reference_stop', .7):
+            return {**ref, 'path': path}
+    initial = stage1(ctx)
+    path.append('stage1')
+    p = initial.get('pA')
+    low = p is None or max(p, 1-p) < config.get('low_below', .7)
+    if not low:
+        return {**initial, 'path': path}
+    old = ctx.item
+    ctx.item = {**old, 'low_confidence': True}
+    try:
+        out = cross_family_panel(ctx, cascade=config.get('variant') == 'cascade', initial_pair=config.get('initial_pair'))
+    finally:
+        ctx.item = old
+    if config.get('variant') == 'weighted':
+        members = out['detail']['members']
+        combined = combine(members, [config['weights'][f] for f in members])
+        out = {'pA': combined['pA'], 'detail': {**out['detail'], **combined}}
+    path.append('panel')
+    if out['pA'] is None and fallback is not None:
+        out = fallback(ctx)
+        path.append('fallback')
+    return {**out, 'path': path}
 
 
 def main():
@@ -209,7 +284,7 @@ def main():
     DIRECTORY.mkdir(parents=True, exist_ok=True)
     rec = Recorder(offline=args.offline)
     with rec.exclusive():
-        population = frozen_population()
+        population = unique_population(frozen_population())
         observed = collect(population, rec, args.limit)
         if args.limit is not None:
             print(json.dumps({'items': len(observed), 'complete': sum(all(v['pA'] is not None for v in m.values()) for m in observed.values()),

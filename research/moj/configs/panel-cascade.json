@@ -1,0 +1,24 @@
+{
+  "name": "panel-cascade",
+  "entrypoint": "moj.panel.route_item",
+  "variant": "cascade",
+  "low_below": 0.7,
+  "reference_stop": 0.7,
+  "reference_priority": true,
+  "stage1": [
+    "s1p"
+  ],
+  "hi": 0.9,
+  "lo": 0.7,
+  "cards": [],
+  "always": [],
+  "low": [
+    "panel_cascade"
+  ],
+  "offline_replay": "python3 -m moj.panel --offline",
+  "note": "Use route_item for live routing; moj.score does not implement within-panel weighting or reference priority.",
+  "initial_pair": [
+    "luna",
+    "gemini"
+  ]
+}

@@ -89,3 +89,31 @@ class RecorderTests(unittest.TestCase):
 
 
 if __name__ == '__main__':unittest.main()
+
+
+class RouterTests(unittest.TestCase):
+    def test_reference_goes_first_and_can_stop(self):
+        from .panel import route_item
+        ctx = context()
+        ctx.item['reference'] = 'trusted'
+        with patch('moj.reference_first.reference_first', return_value={'pA': .9, 'confidence': .9, 'detail': {}}) as ref:
+            stage = unittest.mock.Mock(side_effect=AssertionError('stage1 should not run'))
+            out = route_item(ctx, {}, stage)
+        self.assertEqual(out['path'], ['reference_first'])
+        ref.assert_called_once()
+    def test_uncertain_reference_then_low_stage_then_panel(self):
+        from .panel import route_item
+        ctx = context()
+        ctx.item['reference'] = 'trusted'
+        events=[]
+        def ref(c):events.append('reference');return {'pA': .5, 'confidence': .5, 'detail': {}}
+        def s1(c):events.append('stage1');return {'pA': .6, 'detail': {}}
+        def panel(c, **kw):events.append('panel');return {'pA': 1, 'detail': {}}
+        with patch('moj.reference_first.reference_first', side_effect=ref), patch('moj.panel.cross_family_panel', side_effect=panel):
+            out=route_item(ctx,{},s1)
+        self.assertEqual(events,['reference','stage1','panel'])
+        self.assertEqual(out['path'],['reference_first','stage1','panel'])
+    def test_high_stage_never_calls_panel(self):
+        from .panel import route_item
+        with patch('moj.panel.cross_family_panel',side_effect=AssertionError('should not call')):
+            self.assertEqual(route_item(context(),{},lambda c:{'pA':.9})['path'],['stage1'])

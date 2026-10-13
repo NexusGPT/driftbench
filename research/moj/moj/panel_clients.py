@@ -130,6 +130,23 @@ class Recorder:
             latest[r['attempt']] = r
         return sum(r.get('usd') if r.get('usd') is not None else r['reserved'] for r in latest.values())
 
+    def accounting(self, key):
+        latest = {}
+        for row in lines(self.spend_path):
+            if row['attempt'].startswith(key + ':'):
+                latest[row['attempt']] = row
+        return {'calls': len(latest), 'usd': sum(r.get('usd') or 0 for r in latest.values()),
+                'cost_complete': bool(latest) and all(r.get('usd') is not None for r in latest.values()),
+                'unpriced_reservations_usd': sum(r['reserved'] for r in latest.values() if r.get('usd') is None)}
+
+    def blocked(self, key, provider, request, reason):
+        row = {'key': key, 'provider': provider, 'request': request, 'answer': None,
+               'error': reason, 'submission': 0, 'not_submitted': True}
+        with self.lock:
+            append(self.path, row)
+            self.rows.append(row)
+        return row
+
     def call(self, provider, system, user, tag):
         request = {'provider': provider, 'model': MODELS[provider], 'system': system, 'user': user,
                    'tag': tag, 'effort': 'low', 'format_version': 1}
@@ -145,13 +162,13 @@ class Recorder:
                     return previous[-1]
                 raise RuntimeError('Offline recording miss: ' + key)
             if provider == 'gemini' and self.gemini_stopped:
-                return {'key': key, 'provider': provider, 'answer': None, 'error': 'Gemini stopped after HTTP 402'}
+                return self.blocked(key, provider, request, 'Gemini stopped after HTTP 402')
             submissions = max([r.get('submission', 0) for r in previous] or [0])
             if previous and previous[-1].get('http') in (400, 401, 403, 404, 413, 422):
                 return previous[-1]
             with self.semaphores[provider]:
                 if provider == 'gemini' and self.gemini_stopped:
-                    return {'key': key, 'provider': provider, 'answer': None, 'error': 'Gemini stopped after HTTP 402'}
+                    return self.blocked(key, provider, request, 'Gemini stopped after HTTP 402')
                 for submission in range(submissions + 1, 4):
                     attempt = key + ':' + str(submission)
                     reserve = .10 if provider == 'haiku' else max(.02, len((system+user).encode())*3.75/1e6+.008)
@@ -192,4 +209,20 @@ class Recorder:
                         time.sleep((60, 120, 240)[submission-1])
                     elif submission < 3:
                         time.sleep(2*submission)
-            return self.rows[-1] if not previous else next(r for r in reversed(self.rows) if r['key'] == key)
+            return next(r for r in reversed(self.rows) if r['key'] == key)
+
+
+_default_lock = threading.Lock()
+_defaults = {}
+
+
+def default_recorder(offline=False):
+    """Share pacing and budget state across catalogue calls in this process.
+
+    A process-level caller should hold Recorder.exclusive for the whole run.
+    The isolated command-line runners do so automatically.
+    """
+    with _default_lock:
+        if offline not in _defaults:
+            _defaults[offline] = Recorder(offline=offline)
+        return _defaults[offline]
