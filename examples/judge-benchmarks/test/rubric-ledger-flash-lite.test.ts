@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { expect, test } from 'vitest';
 import { type DialectTransport } from '@agent-nexus/driftbench-judges';
 import { type PairItem } from '../src/data';
-import { LITE_MODEL, LITE_SETTINGS, liteJobs, litePrice } from '../src/rubric-ledger-flash-lite';
+import { LITE_MODEL, LITE_SETTINGS, assertBudgetOnlyAmendment, liteJobs, litePrice } from '../src/rubric-ledger-flash-lite';
 import { DIRECTORY, MODELS, SETTINGS, evaluate, sha, validityFixtures } from '../src/rubric-ledger-live';
 import { LedgerCalls, LedgerRateLimitStop } from '../src/rubric-ledger-calls';
 import { scratch } from './scratch';
@@ -43,4 +43,12 @@ test('Flash-Lite uses its own 429 waits, cap and price, and never retries an ans
   const judge = () => evaluate(item, [], LITE_MODEL, 'pilot', 0, 'promptfoo', answered, answeredCalls, true,
     undefined, undefined, undefined, { price: litePrice });
   await judge(); await judge(); expect(answers).toBe(2); expect(answeredCalls.chargedUsd).toBeCloseTo(.0056);
+});
+
+test('a cap amendment preserves the original settings and judge source', () => {
+  const original = { settings: { capUsd: 8, model: LITE_MODEL, reasoning: 'medium' }, hashes: { judge: 'unchanged' } };
+  const current = { ...original, settings: { ...original.settings, capUsd: 12 } };
+  expect(() => assertBudgetOnlyAmendment(current, original)).not.toThrow();
+  expect(() => assertBudgetOnlyAmendment({ ...current, settings: { ...current.settings, reasoning: 'low' } }, original)).toThrow();
+  expect(() => assertBudgetOnlyAmendment({ ...current, hashes: { judge: 'changed' } }, original)).toThrow();
 });

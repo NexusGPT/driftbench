@@ -18,7 +18,7 @@ export const LITE_SETTINGS = {
   pricePerMillion: { input: 0.30, outputIncludingThinking: 2.50 },
   priceSource: 'https://ai.google.dev/gemini-api/docs/pricing', priceReadUtc: '2026-10-13',
   reasoningSource: 'https://ai.google.dev/gemini-api/docs/generate-content/whats-new-gemini-3.6',
-  capUsd: 8, concurrency: 8, rateLimitWaitMs: [20000, 60000, 180000],
+  capUsd: 12, concurrency: 8, rateLimitWaitMs: [20000, 60000, 180000],
   timeoutMs: 300000, transportTries: 3, maxTokens: 8192, reserveUsd: 0.10,
   testOrderSeed: SETTINGS.testOrderSeed, coreCommit: SETTINGS.coreCommit,
   providerBlockPolicy: SETTINGS.providerBlockPolicy, prepaymentPolicy: SETTINGS.prepaymentPolicy,
@@ -32,6 +32,16 @@ export function litePrice(completion: LedgerCompletion): number | undefined {
   const { input, output } = completion.usage ?? {};
   return input === undefined || output === undefined ? undefined :
     (input * LITE_SETTINGS.pricePerMillion.input + output * LITE_SETTINGS.pricePerMillion.outputIncludingThinking) / 1e6;
+}
+
+/** A budget amendment may preserve the original TEST seal without changing the judge. */
+export function assertBudgetOnlyAmendment(current: { settings: Record<string, unknown>; hashes: Record<string, string> },
+  original: { settings: Record<string, unknown>; hashes: Record<string, string> }): void {
+  const settings = { ...current.settings, capUsd: original.settings.capUsd };
+  if (JSON.stringify(settings) !== JSON.stringify(original.settings)) throw new Error('Budget amendment changed a non-budget setting');
+  for (const [path, hash] of Object.entries(original.hashes))
+    if (path !== 'examples/judge-benchmarks/src/rubric-ledger-flash-lite.ts' && current.hashes[path] !== hash)
+      throw new Error(`Budget amendment changed frozen judge source: ${path}`);
 }
 
 export type LiteJob = { item: PairItem; phase: string; sample: number; contestant: 'pair-ledger' | 'promptfoo' | 'seat'; model: typeof LITE_MODEL };
@@ -64,7 +74,7 @@ export async function liteReport() {
 
 async function main() {
   if (process.argv.includes('--help')) {
-    console.log('Usage: rubric-ledger-flash-lite.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|report|test [--execute] [--probe-one-call]. Separate USD 8 cell; medium; eight calls; no automatic Gemini 3.8 calls.'); return;
+    console.log('Usage: rubric-ledger-flash-lite.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|report|test [--execute] [--probe-one-call]. Separate USD 12 cell; medium; eight calls; no automatic Gemini 3.8 calls.'); return;
   }
   const phase = process.argv[process.argv.indexOf('--phase') + 1];
   if (!['seal', 'pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'report', 'test'].includes(phase ?? '')) throw new Error('Select a phase');
@@ -96,7 +106,13 @@ async function main() {
     const gatePath = `${LITE_DIRECTORY}/test-run-seal.json`, text = await readFile(gatePath, 'utf8');
     if (text !== execFileSync('git', ['show', `HEAD:${gatePath}`], { encoding: 'utf8' })) throw new Error('TEST seal not committed');
     const gate = JSON.parse(text);
-    if (!gate.allowTest || gate.freezeSha256 !== sha(freezeText)) throw new Error('TEST validity/freeze gate failed');
+    if (!gate.allowTest) throw new Error('TEST validity gate failed');
+    if (gate.freezeSha256 !== sha(freezeText)) {
+      const originalText = await readFile(`${LITE_DIRECTORY}/contestant-freeze.v1.json`, 'utf8');
+      if (gate.freezeSha256 !== sha(originalText) || freeze.testSealFreezeSha256 !== sha(originalText))
+        throw new Error('TEST freeze ancestry failed');
+      assertBudgetOnlyAmendment(freeze, JSON.parse(originalText));
+    }
   }
   const calls = await new LedgerCalls(`${LITE_DIRECTORY}/live`, LITE_SETTINGS.capUsd, probe ? 1 : Infinity).load();
   if (calls.uncertainKeys.length) throw new Error(`Unfinished reservations: ${calls.uncertainKeys.length}`);

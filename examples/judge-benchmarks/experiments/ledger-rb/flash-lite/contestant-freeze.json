@@ -11,7 +11,7 @@
     "priceSource": "https://ai.google.dev/gemini-api/docs/pricing",
     "priceReadUtc": "2026-10-13",
     "reasoningSource": "https://ai.google.dev/gemini-api/docs/generate-content/whats-new-gemini-3.6",
-    "capUsd": 8,
+    "capUsd": 12,
     "concurrency": 8,
     "rateLimitWaitMs": [
       20000,
@@ -55,7 +55,7 @@
     "examples/judge-benchmarks/experiments/ledger-rb/requirements.json": "b63f8962e4a531b4bded4f4ef1a25389e657360f352c1a15e99688fce58f28a1",
     "examples/judge-benchmarks/experiments/ledger-rb/development-plan.json": "acbb723c6daa66806a9ecee52730b9e6f3aa9684306f52a588c30cfd73724e91",
     "examples/judge-benchmarks/experiments/ledger-rb/test-ids.json": "d547cd73d72ca07d2ded86382947d7859ebdb643b38fb8d588000bd8359ad06f",
-    "examples/judge-benchmarks/src/rubric-ledger-flash-lite.ts": "5d81b0736eceadbf3820ece6120f935f3795c93e621674b7dc2c600157d29a1c"
+    "examples/judge-benchmarks/src/rubric-ledger-flash-lite.ts": "c2ff76d162016ef742fe29f9eb4f3d41f2a429618e58d8cc725ae7043187e986"
   },
   "authority": "Owner explicitly authorizes the separate Flash-Lite cell, USD 8, same validity checks then full 790 sealed TEST, eight concurrent calls; Haiku continues.",
   "originalSealSha256": "600f4a8e0afaba006018c2441d225722091b5565490d506d36d5e650b6abef00",
@@ -1109,5 +1109,22 @@
       }
     }
   ],
-  "testGate": "All same-model pre-TEST checks pass and cost projection plus pre-TEST hashes are committed before any TEST call."
+  "testGate": "All same-model pre-TEST checks pass and cost projection plus pre-TEST hashes are committed before any TEST call.",
+  "testSealFreezeSha256": "11c4a1303ed9a44d3b92f302c5cd70f9fec10bc2672ed0d69afeb96ade1043f8",
+  "runtimeAmendments": [
+    {
+      "at": "2026-10-13T12:36:09.467624+00:00",
+      "authority": "Owner: Approved, logged as a freeze amendment: Flash Lite cell cap 12 USD, to complete all 790 pairs. The six provider blocks on our side again count against us, as registered.",
+      "previousCapUsd": 8,
+      "capUsd": 12,
+      "unchanged": [
+        "model and medium reasoning",
+        "provider-block headline errors and shared exclusion score",
+        "judge prompt/schema/contract",
+        "same 790 pairs and sealed record order",
+        "eight-call pacing and retry rules"
+      ],
+      "originalTestSealImmutable": true
+    }
+  ]
 }
