@@ -17,7 +17,7 @@ export type ReaderFirstOptions = {
   /** Minimum supported failure criteria in the longer reply. */
   minFailures?: number;
 };
-export const READER_FIRST_THRESHOLDS = Object.freeze({ judgeMargin: 4, featureMargin: 2, minFailures: 2 });
+export const READER_FIRST_THRESHOLDS = Object.freeze({ judgeMargin: 4, featureMargin: 5, minFailures: 1 });
 export type ReaderScore = {
   name: ReaderCriterion;
   a: number;

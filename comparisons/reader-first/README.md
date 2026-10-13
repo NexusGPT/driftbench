@@ -6,7 +6,7 @@ The owner asks for a longer answer unless it fails structure, economy, directnes
 
 ## Initial DEV plan
 
-Only the fixed 90-pair DEV split is used for tuning. Two sequential calls per pair; two concurrent pair workers. No automatic retries. A returned error stops the run and reserves its per-call limit. The total authorization is USD 10.00. Raw responses, recipe cost and fresh spend are retained separately.
+Only the fixed 90-pair DEV split is used for tuning. Two sequential calls per pair; six concurrent pair workers after the owner raises the concurrency limit. No automatic retries. A returned error stops the run and reserves its per-call limit. The total authorization is USD 20.00. Raw responses, recipe cost and fresh spend are retained separately.
 
 Length uses English whitespace words or Chinese Han characters. The machine-only ablation flips the longer choice when its risk count exceeds the shorter reply by `featureMargin`. The combined variant flips only when both ballots validate, the pooled five-score advantage exceeds `judgeMargin`, and at least `minFailures` criteria have a longer score <=2, shorter score >=3, and a matching machine flag present only in the longer reply. Equal-length replies tie. Both games use the pooled decision; they are not independent votes.
 
@@ -17,3 +17,7 @@ Initial thresholds: judgeMargin 4, featureMargin 2, minFailures 2. DEV-only sear
 Use worktree-local `TMPDIR` and `DRIFTBENCH_BENCH_CACHE` with `pnpm exec tsx comparisons/reader-first/src/study.ts --phase explore`. `--phase final-dev` only replays exact recordings. `--phase test` requires the committed freeze hashes and creates an exclusive run receipt before reading the split. A second TEST invocation is refused. Raw candidate text is loaded from the public dataset, never copied from a judge summary.
 
 Harness source: `research/opus-wp` at af25ea12, `examples/judge-benchmarks/src/{data,call}.ts`. The call harness uses one attempt here so unreturned retries cannot silently spend. The default judging code is imported without edits.
+
+## Deadline update
+
+The owner raises concurrency to six and the budget to USD 20.00. Last new call: 2026-10-13 06:35 Brussels. Commit, push and report deadline: 06:40. Two in-flight calls from the original two-worker process are stopped and reserve USD 0.20. Returned recordings replay without spending again. TEST starts only when frozen DEV passes and measured remaining runtime fits the cutoff.
