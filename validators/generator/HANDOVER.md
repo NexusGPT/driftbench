@@ -101,3 +101,37 @@ pnpm driftbench validate generator --journal .exec/row.json
 
 * Hidden specification per seed: `hiddenSpec(seed)` in `packages/validators/src/ladders/generator/hidden.ts`, rendered by `render.ts`; seed 1 is kept in `packages/validators/fixtures/generator/seed-1/`.
 * Rule follower `follower.ts`, faults `faults.ts`, cheaters `cheaters.ts`, items `bank*.ts` and `acme.ts`.
+
+## Spec cap
+
+### Interface and preservation target
+
+`--budget N` still bounds only the budget seeder's t-wise rows. The independent `--spec-cap N` bounds total written specs. `--spec-cap-mode tuples` is the default: preserve every pair, triple and requested-strength tuple reached by the candidate pool. Explicit `--spec-cap-mode pairs` permits reported triple losses. Both modes retain every graph, boundary, deviation, metamorphic and task probe, plus every incomplete spec. Only complete t-wise and cover specs can be trimmed. A cap below the protected count is refused; a cap losing a target tuple exits 1 and lists that tuple.
+
+The full candidate pool remains necessary: a 10x trial with `--budget 256 --t 3` reaches 1,465 pairs, below the uncapped suite's 1,485. The total cap therefore selects after both the existing budget/t-wise seeder and cover seeder. Budget mode remains available independently and composes with the cap. The reported `preserving` size is the deterministic greedy selection's minimum passing limit, not a proof of a globally optimal set cover.
+
+The coverage report now leads with actual axis-map coverage of written complete specs. The candidate t-wise or budget array appears second and is labelled as measured before total-cap selection. `coverage.actual[].uncovered` lists all missed axis tuples; `spec_cap.coverage[].lost` distinguishes new cap losses from pre-existing gaps.
+
+### The 41 uncovered pairs at 10x
+
+Actual uncapped coverage is **1,485 of 1,526 pairs (97.31 percent)**. Every missing pair is one of the behaviours below paired with `stage=opening`. The candidate array's 2,049 of 2,049 triples is a different denominator and does not establish full axis-map coverage.
+
+Cause: the first-turn recovery stays at the initial stage and requires no tool call. The first-turn discriminator rejects that probe. All 41 targeted `coverDraft` attempts reproduce this cause; some alternative paths additionally have no recovery for the requested class. These are alternate path failures for the same pairs, not additional uncovered pairs.
+
+- `B-001`, `B-002`, `B-003`, `B-004`, `B-006`, `B-1000`, `B-1001`
+- `B-1003`, `B-1004`, `B-1006`, `B-1007`, `B-1009`, `B-1010`, `B-1012`
+- `B-1013`, `B-1016`, `B-1019`, `B-1020`, `B-1021`, `B-1022`, `B-1023`
+- `B-1024`, `B-1025`, `B-1027`, `B-1028`, `B-1030`, `B-1031`, `B-1034`
+- `B-1036`, `B-1037`, `B-1039`, `B-1040`, `B-1042`, `B-1043`, `B-1044`
+- `B-1045`, `B-1046`, `B-1049`, `B-1051`, `B-1052`, `B-1053`
+
+Other causes: **0 pairs**. The complete pair list and per-path reasons are in [generator-cap-opening.json](../../tools/analysis/generator-cap-opening.json).
+
+The guard remains unchanged at `packages/generate/src/seed/scenario.ts:203`; its discriminator is at `scenario.ts:471`. A diagnostic fix at `scenario.ts:223` now names this rejection when an approved opening phrase exists. It no longer incorrectly attributes that case to a missing phrase. The scenario tests retain the positive control where an approved recovery requires a call at the first stage, and add the negative control with an approved phrase but no discriminating recovery.
+
+Next-owner handoff:
+
+- `packages/generate/src/seed/seeders.ts:1553` already tries all opening-compatible classes when a missing pair targets the start stage.
+- `packages/generate/src/seed/possible.ts:76` treats these conversational events as possible. Do not remove them from the declared axis denominator to report 100 percent.
+- `packages/validators/src/ladders/generator/hidden.ts:379` defines the fictional recoveries; D1, D5, D6 and D9 remain at the pending stage without a required call. `packages/validators/src/ladders/generator/render.ts:301` copies those contracts into the map.
+- Closing these pairs needs an approved opening contract and matching follower behaviour that distinguishes an idle or echo reply, followed by a gate check. The prior handover records 53 extra constant/echo passes when the first-turn filter was bypassed. This change preserves that filter and does not invent new map behaviour or modify the validator.
