@@ -1,18 +1,32 @@
 import type { Change, ChangeManifest } from './change';
+import { normalizePrompt, type PromptRegion, promptDiff } from './prompt-diff';
 
 /** An approved map entry and the dependencies derived from its exact evidence quote. */
-export type PromptAnchor = {
-  entry: string;
-  source: string;
-  quote: string;
-  changes: Change[];
-};
+export type PromptAnchor = { entry: string; source: string; quote: string; changes: Change[] };
+type Span = { start: number; end: number };
+
+/** Lookahead advances one code unit, so overlapping occurrences are counted too. */
+function occurrences(text: string, quote: string): Span[] {
+  const pattern = quote
+    .trim()
+    .split(/\s+/)
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('\\s+');
+  if (!pattern) return [];
+  return [...text.matchAll(new RegExp(`(?=(${pattern}))`, 'g'))].map((match) => ({
+    start: match.index,
+    end: match.index + (match[1]?.length ?? 0),
+  }));
+}
+const overlap = (a: Span, b: Span) => a.start < b.end && b.start < a.end;
+// Strict interior also rejects insertions/deletions at either boundary.
+const inside = (start: number, end: number, span: Span) => span.start < start && end < span.end;
+const label = (r: PromptRegion) => `region old:${r.oldStart}-${r.oldEnd} new:${r.newStart}-${r.newEnd}`;
 
 /**
- * Map the changed text to approved evidence quotes. No fuzzy match can justify a carry. The enclosing
- * changed span must be covered in full: matching one edit never hides a second, unmapped edit. Multiple
- * separated edits may therefore over-select. Insertions at a quote boundary are unknown, since they may
- * introduce a new global instruction. Ambiguous, stale or unmapped evidence also fails closed.
+ * Every diff region needs one unique, nonoverlapping anchor on BOTH sides. An edited anchor is located
+ * in the candidate only through its unchanged first/last characters in a unique optimal alignment;
+ * its resulting quote must itself occur exactly once. Missing edges or any doubt selects everything.
  */
 export function promptChangeManifest(
   before: string,
@@ -20,62 +34,67 @@ export function promptChangeManifest(
   anchors: readonly PromptAnchor[],
   versions: { from: string; to: string },
 ): ChangeManifest {
-  const whole = (note: string): ChangeManifest => ({
+  before = normalizePrompt(before);
+  after = normalizePrompt(after);
+  const whole = (notes: string[]): ChangeManifest => ({
     ...versions,
-    changes: [{ kind: 'prompt', global: true, note }],
+    changes: [{ kind: 'prompt', global: true, note: notes.join('\n') }],
   });
-  if (before === after) {
+  if (before === after)
     return versions.from === versions.to
       ? { ...versions, changes: [] }
-      : whole('no changed quote explains the version transition');
-  }
-  let start = 0;
-  while (start < before.length && start < after.length && before[start] === after[start]) start++;
-  let end = before.length;
-  let nextEnd = after.length;
-  while (end > start && nextEnd > start && before[end - 1] === after[nextEnd - 1]) {
-    end--;
-    nextEnd--;
-  }
-  const matches: { anchor: PromptAnchor; start: number; end: number }[] = [];
+      : whole(['region none: no normalized change explains the version transition; whole suite']);
+  const diff = promptDiff(before, after);
+  const fail = (rule: string) =>
+    whole(diff.regions.map((region) => `${label(region)}: ${rule}; whole suite`));
+  const located: { anchor: PromptAnchor; old: Span; next: Span }[] = [];
   for (const anchor of anchors) {
-    if (!anchor.quote.trim()) return whole(`empty quote: ${anchor.entry}`);
-    // Map whitespace-normalised evidence back to raw offsets; changed prompt bytes are never normalised.
-    const pattern = anchor.quote
-      .trim()
-      .split(/\s+/)
-      .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-      .join('\\s+');
-    const occurrences = [...before.matchAll(new RegExp(pattern, 'g'))];
-    if (occurrences.length === 0) return whole(`stale quote: ${anchor.entry}`);
-    const matching = occurrences.filter((found) => {
-      const at = found.index,
-        until = at + found[0].length;
-      return start === end ? at < start && start < until : at < end && start < until;
-    });
-    if (matching.length === 0) continue;
-    if (occurrences.length > 1) return whole(`ambiguous quote: ${anchor.entry}`);
-    const [match] = matching;
-    if (!match) continue;
-    const at = match.index;
-    const until = at + match[0].length;
-    if (anchor.changes.length === 0) return whole(`unmapped quote: ${anchor.entry}`);
-    matches.push({ anchor, start: at, end: until });
+    const quote = normalizePrompt(anchor.quote);
+    if (!quote.trim()) return fail(`empty quote: ${anchor.entry}`);
+    const oldMatches = occurrences(before, quote);
+    const old = oldMatches[0];
+    if (oldMatches.length !== 1 || !old)
+      return fail(`${old ? 'ambiguous' : 'stale'} quote in old text: ${anchor.entry}`);
+    const start = diff.equal.get(old.start),
+      last = diff.equal.get(old.end - 1);
+    if (start === undefined || last === undefined || last < start)
+      return fail(`anchor cannot be located unambiguously in new text: ${anchor.entry}`);
+    const next = { start, end: last + 1 };
+    const nextMatches = occurrences(after, after.slice(next.start, next.end));
+    if (nextMatches.length !== 1 || nextMatches[0]?.start !== next.start || nextMatches[0]?.end !== next.end)
+      return fail(`ambiguous quote in new text: ${anchor.entry}`);
+    if (located.some((other) => overlap(old, other.old) || overlap(next, other.next)))
+      return fail(`overlapping anchors: ${anchor.entry}`);
+    located.push({ anchor, old, next });
   }
-  if (matches.length === 0) return whole('no quote matched: the change is outside every declared anchor');
-  let covered = start;
-  for (const match of [...matches].sort((a, b) => a.start - b.start)) {
-    if (match.start > covered) break;
-    covered = Math.max(covered, match.end);
+  if (diff.uncertainty) return fail(diff.uncertainty);
+  const changes: Change[] = [];
+  const notes: string[] = [];
+  let unsafe = false;
+  for (const region of diff.regions) {
+    const matches = located.filter(
+      (item) =>
+        inside(region.oldStart, region.oldEnd, item.old) && inside(region.newStart, region.newEnd, item.next),
+    );
+    const matched = matches[0];
+    if (matches.length !== 1 || !matched) {
+      unsafe = true;
+      notes.push(
+        `${label(region)}: no quote matched on both sides; outside or boundary of declared anchors; whole suite`,
+      );
+      continue;
+    }
+    const { anchor, old, next } = matched;
+    const note = `${label(region)}: anchor ${anchor.entry} (${anchor.source}; old:${old.start}-${old.end}, new:${next.start}-${next.end}): ${JSON.stringify(anchor.quote)}`;
+    if (anchor.changes.length === 0) {
+      unsafe = true;
+      notes.push(`${note}; unmapped anchor; whole suite`);
+    } else {
+      notes.push(`${note}; covered on both sides`);
+      changes.push(
+        ...anchor.changes.map((change) => ({ ...change, note: `${note}; covered on both sides` })),
+      );
+    }
   }
-  if (covered < end) return whole('changed text outside the declared anchors');
-  return {
-    ...versions,
-    changes: matches.flatMap(({ anchor, start: at, end: until }) =>
-      anchor.changes.map((change) => ({
-        ...change,
-        note: `anchor ${anchor.entry} (${anchor.source}:${at}-${until}): ${JSON.stringify(anchor.quote)}`,
-      })),
-    ),
-  };
+  return unsafe ? whole(notes) : { ...versions, changes };
 }

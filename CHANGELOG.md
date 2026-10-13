@@ -7,6 +7,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 - Add opt-in `campaign rejudge` with observation compatibility proofs, selected criterion verdicts, judge cost accounting and scorecard provenance.
 - Record optional hashed execution provenance for new campaigns, including process command identity, retaining legacy store compatibility and refusing missing or incomplete stamps at the shared blast-radius carry boundary. Carries also require equal current execution context apart from the manifest-verified agent transition, an intact digest over all run and block evidence, and independently reconstructed block inputs.
 * Block cache keys include an explicit agent version, including for pinned targets; campaign resume retains it. Runs without an agent version preserve their earlier keys. The process adapter keeps version `0.1.0`; a separate cache identity includes its command and arguments.
+- Prompt quote mapping checks every normalized diff region on both sides; boundary edits, overlapping or ambiguous anchors select the whole suite and explain the rule.
 
 * `radius auto --prompt <old> <new> --map <approved>` maps changed prompt evidence quotes to dependencies. `radius --explain` shows the anchors and affected blocks; unanchored or uncertain edits select the whole suite.
 

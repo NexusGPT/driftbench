@@ -367,18 +367,38 @@ and re-judged block counts, zero agent calls and judge spend.
 
 `radius auto` compares two prompt files against the approved map's `evidence.quote` anchors. It writes a normal change manifest, so campaign carry, age limits and audits keep their existing checks. The source path selects exactly one of the map's declared sources. Every other source is assumed unchanged; include its change separately if it changed too.
 
-For Acme, change the offer price expression and derive the manifest:
+For Acme, use a quote map declaring just the approved offer anchor, then change its price expression.
+The full Acme map contains repeated and overlapping evidence; it conservatively selects the whole suite.
+The focused map below does not justify any other edit: text changed outside its one anchor still selects everything.
 
 ```sh
 node -e 'const fs = require("node:fs"); const text = fs.readFileSync("examples/acme/src/policy.ts", "utf8"); fs.writeFileSync("/tmp/acme-price-next.ts", text.replace("plan.monthly_usd}", "plan.monthly_usd + 1}"));'
-pnpm -s driftbench radius auto --prompt examples/acme/src/policy.ts /tmp/acme-price-next.ts --map examples/acme/map/approved.yaml --from-version acme-v1 --to-version acme-v2 --out /tmp/acme-price-change.yaml
+node --input-type=module -e 'import fs from "node:fs"; import { parse } from "yaml"; const map = parse(fs.readFileSync("examples/acme/map/approved.yaml", "utf8")); const offer = map.relations.find(r => r.kind === "states" && r.to === "offer"); fs.writeFileSync("/tmp/acme-price-quotes.json", JSON.stringify({ ...map, dimensions: [], constraints: [], phrases: [], relations: [offer] }));'
+pnpm -s driftbench radius auto --prompt examples/acme/src/policy.ts /tmp/acme-price-next.ts --map /tmp/acme-price-quotes.json --source ../src/policy.ts --from-version acme-v1 --to-version acme-v2 --out /tmp/acme-price-change.yaml
 pnpm -s driftbench radius examples/acme/gated/specs --change /tmp/acme-price-change.yaml --mode T --explain
 ```
 
-The manifest records each matched entry, its source, the quote and its raw character offsets. `--explain` prints those anchors, then every block's dependency reasons and state. Mode F and P still close forward and rerun complete conversations. Without `--explain`, existing radius output is unchanged.
+The manifest records each changed region, its old and new offsets, the matched entry, source and quote, and the rule that selected blocks or forced a full run. `--explain` prints those anchors, then every block's dependency reasons and state. Mode F and P still close forward and rerun complete conversations. Without `--explain`, existing radius output is unchanged.
 
-Supported anchors are dimension values, phrases, and `states`, `path`, `recovery`, `uses_tool` and `reply_language` relations. Changed unsupported entries select the whole suite. Whitespace in evidence quotes can span source indentation; the prompt diff itself compares raw bytes as JavaScript text, including whitespace.
+Supported anchors are dimension values, phrases, and `states`, `path`, `recovery`, `uses_tool` and
+`reply_language` relations. Changed unsupported entries select the whole suite.
 
-Unknown means everything: an edit outside the anchors, an insertion at their boundary, stale evidence, or an ambiguous matching quote selects the whole suite. A matching price edit cannot conceal an unanchored language edit. Multiple separated edits are enclosed in one span; gaps between anchors conservatively select the whole suite. No fuzzy matching narrows the radius.
+The diff normalizes CRLF and CR to LF, and Unicode to NFC. Offsets count UTF-16 code units in that
+normalized text. Every other whitespace character is retained and follows the same rule as other edits.
+Evidence quotes may match source whitespace runs so an extracted quote can span indentation. A
+normalized no-change with different version labels selects everything; with identical labels it adds no change.
+
+The mapper computes a character edit-distance alignment, with separate regions for separated edits.
+Every region must lie strictly inside exactly one declared anchor in BOTH the old and new prompt.
+It locates an edited anchor in the new text through the unchanged first and last characters of its old
+occurrence in a unique alignment, then verifies that the resulting quote occurs exactly once in the new
+prompt. Boundary edits and removed anchors therefore select everything. It counts overlapping quote
+occurrences too. Repeated quotes, overlapping distinct anchors, missing anchors, ambiguous alignments,
+unmapped changed anchors, or any region outside the anchors select everything. A matching price edit
+cannot hide an inserted language instruction before or after its quote.
+
+For bounded resource use, alignment admits at most 64 single-character edits and 8,000,000 band cells.
+Exceeding either limit selects everything, with the reason in the manifest. `radius --explain` prints the
+rule for each changed region, followed by block dependency reasons. No fuzzy match narrows the radius.
 
 Always use the agent versions your campaigns record. Without explicit version flags, `auto` uses the text content hashes; these need not equal a prompt registry's hash. The learned dependency table and automatic estate-diff ingestion remain separate work. Existing estate atom manifests continue to work.
