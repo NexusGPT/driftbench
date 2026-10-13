@@ -4,6 +4,11 @@ from common import HERE,load_module
 r=load_module('tested_extended',HERE/'extended-run.py')
 
 class ExtendedProtocol(unittest.TestCase):
+    def test_budget_amendment_only_changes_its_cell(self):
+        with tempfile.TemporaryDirectory(dir=HERE) as tmp:
+            path=r.Path(tmp);self.assertEqual(r.cell_cap(path),25)
+            (path/'budget-amendment.json').write_text('{"cell_cap_usd":45}')
+            self.assertEqual(r.cell_cap(path),45)
     def test_sol_cost_does_not_double_charge_reasoning(self):
         self.assertAlmostEqual(r.sol_cost({'input_tokens':1000,'input_tokens_details':{'cached_tokens':200,'cache_write_tokens':100},'output_tokens':100,'output_tokens_details':{'reasoning_tokens':90}}),.00267)
     def test_token_limited_response_is_lost_even_with_text(self):

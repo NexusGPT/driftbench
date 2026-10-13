@@ -1,0 +1,22 @@
+{
+  "created": "2026-10-13T13:48:05.429214+00:00",
+  "scope": "Runtime Sonnet budget and five-call cache pilot only. Existing Sol driver drains on its original USD 25 source; no Sol request or scheduling setting changes. Frozen statistics are unchanged except the independently enforced cell budget check.",
+  "authority_file": "sonnet-5-5/budget-amendment.json",
+  "budget_amendment_sha256": "25be91c20ee2ab813e3163e41b856a6feb2950caf6981255fd8ca4075af28a3e",
+  "source_replacements": {
+    "comparisons/ledger-hard/extended-run.py": {
+      "original": "b4c3892eea5987e9e442e05ef2ebc0d00e4f4abe3d66d5549c09f9bc8278d49c",
+      "runtime": "603d7e72857749908198f84222c85d135854e06c3ecf2eff5d42ee1d1673a128"
+    },
+    "comparisons/ledger-hard/extended-score.py": {
+      "original": "1bea532d01f834ca8ef604e283c18c5f7cb0c837cd4f72c64f1b1525df3c5d6c",
+      "runtime": "59dba8fa51eaf92ce232f5222d0e33ccff2d4b9ce759a7f7dfd1775ab902cc1b"
+    },
+    "comparisons/ledger-hard/test_extended.py": {
+      "original": "fb89dc6dc6a948ab8b18bb4f770cd3618b80112605160256f33da0b57b5dc651",
+      "runtime": "05a56964af3c645dbe4e427e04760f39dd2b97bc7c61e8bb3b4ba21220788718"
+    }
+  },
+  "original_seal_commit": "afbd8abf",
+  "runtime_call_metadata": "Every post-amendment Sonnet call records DISABLE_PROMPT_CACHING in runtime_environment. The existing request key remains the stable sealed unit; its cache transport amendment is explicit."
+}

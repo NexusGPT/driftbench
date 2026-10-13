@@ -21,13 +21,13 @@ def main(cell,require_complete=False):
             if cell=='gpt-6.1-sol':assert abs(a['measured_usd']-r.sol_cost(a['usage']))<1e-12 and a['reasoning_applied']=='medium'
         decode=native.outcome if a['experiment']=='primary' else r.variant.outcome
         assert a['outcome']==(decode(a['text'],a['side'],a['row']) if a['success'] else 'inconclusive')
-    measured,reserved=r.accounting(dest);assert measured+reserved<=25
+    measured,reserved=r.accounting(dest);cap=r.cell_cap(dest);assert measured+reserved<=cap
     result={'generated':stamp(),'model':seal['model'],'cell':cell,'reasoning':'medium','unique_calls':len(answers),'planned_unique':len(keys),'complete':set(by)==keys,
             'measured_usd':measured,'unknown_attempt_reserve_usd':reserved,'max_concurrent_calls':maximum,'seal_sha256':digest(dest/'seal.json'),'experiments':{}}
     decisions=[];lost=[]
     report=[f'# Additional model: {seal["model"]}','',f'Generated {result["generated"]}. Sources: `{cell}/seal.json`, `requests.json`, `attempts.jsonl`, both `calls.jsonl` files and `scores.json`.','',
             f'{len(answers)}/{len(keys)} unique requests recorded; 384 sealed cases per row in each experiment. Both contestants use medium reasoning. Each experiment remains separate.', '',
-            f'Measured USD {measured:.8f}; unknown-attempt reserve USD {reserved:.8f}; model-cell cap USD 25. First five sealed requests form the cost pilot and are retained once. `pilot.json` and `cost-forecast.json` record cost-only projections.', '',
+            f'Measured USD {measured:.8f}; unknown-attempt reserve USD {reserved:.8f}; model-cell cap USD {cap}. First five sealed requests form the cost pilot and are retained once. `pilot.json` and `cost-forecast.json` record cost-only projections.', '',
             'The total generated-token limit is 4096, including hidden reasoning. No answer is retried, including malformed or token-limited output. Token-limit and other lost items are listed in `lost-items.json`; they remain in the denominator and earn no credit.', '']
     if cell=='gpt-6.1-sol':report+=['Standard short-context prices per million tokens, verified 2026-10-13: input USD 2, cached input USD 0.10, cache write USD 2.50, output including reasoning USD 10. [OpenAI pricing](https://developers.openai.com/api/docs/pricing). The route is the Responses API; temperature is omitted. Raw token counts and reported reasoning are retained per call.','']
     else:report+=['Sonnet uses the Claude print-mode route, alias `sonnet`, an empty folder, explicit grading system text, disabled settings/tools/MCP/session persistence, and safe mode. `CLAUDE_CODE_MAX_OUTPUT_TOKENS=4096` bounds adaptive thinking plus visible output; a fixed thinking budget is not supported by Sonnet 5.5. CLI-reported `total_cost_usd` is authoritative. [Claude environment documentation](https://code.claude.com/docs/en/env-vars).','']

@@ -12,6 +12,9 @@ CLI_ENV={'CLAUDE_CODE_MAX_OUTPUT_TOKENS':'4096','CLAUDE_CODE_EFFORT_LEVEL':'medi
 def lines(path):return [json.loads(s) for s in path.read_text().splitlines()] if path.exists() else []
 def answers(dest):return [a for e in ('primary','dialect') for a in lines(dest/e/'calls.jsonl')]
 def append(path,value):primary.append(path,value)
+def cell_cap(dest):
+    path=dest/'budget-amendment.json'
+    return json.loads(path.read_text())['cell_cap_usd'] if path.exists() else 25
 def sol_cost(usage):
     details=usage.get('input_tokens_details') or {};total=usage.get('input_tokens',0)
     cached=details.get('cached_tokens',0);written=details.get('cache_write_tokens',0)
@@ -76,7 +79,18 @@ def prepare(cell):
 def verify(cell):
     dest=HERE/cell;seal=json.loads((dest/'seal.json').read_text())
     assert subprocess.check_output(['git','show',f'HEAD:comparisons/ledger-hard/{cell}/seal.json'],cwd=ROOT)==(dest/'seal.json').read_bytes()
-    for p,h in seal['sha256'].items():assert digest(ROOT/p)==h,p
+    amendment=HERE/'extended-runtime-amendment.json'
+    replacements={}
+    if amendment.exists():
+        assert subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/extended-runtime-amendment.json'],cwd=ROOT)==amendment.read_bytes()
+        replacements=json.loads(amendment.read_text())['source_replacements']
+    for p,h in seal['sha256'].items():
+        if p in replacements:
+            assert replacements[p]['original']==h
+            h=replacements[p]['runtime']
+        assert digest(ROOT/p)==h,p
+    budget=dest/'budget-amendment.json'
+    if budget.exists():assert subprocess.check_output(['git','show',f'HEAD:comparisons/ledger-hard/{cell}/budget-amendment.json'],cwd=ROOT)==budget.read_bytes()
     for p,h in seal['prior_journal_sha256'].items():assert digest(ROOT/p)==h,p
     primary.verify_seal();variant.verify();return seal
 
@@ -90,6 +104,7 @@ class Driver:
     def __init__(self,cell):
         self.cell=cell;self.dest=HERE/cell;self.cfg=CELLS[cell];self.lock=threading.RLock();self.stop=threading.Event()
         self.measured,self.reserved=accounting(self.dest)
+        self.cache_disabled=None
     def totals(self):
         with self.lock:return self.measured,self.reserved
     def attempt(self,r,number):
@@ -102,6 +117,9 @@ class Driver:
                 a.update(parse_response(raw))
             else:
                 env=dict(os.environ);env.pop('CLAUDECODE',None);env.pop('MAX_THINKING_TOKENS',None);env.pop('CLAUDE_CODE_DISABLE_THINKING',None);env.update(CLI_ENV)
+                if self.cache_disabled is not None:
+                    env['DISABLE_PROMPT_CACHING']='1' if self.cache_disabled else '0'
+                    a['runtime_environment']={'DISABLE_PROMPT_CACHING':env['DISABLE_PROMPT_CACHING']}
                 ran=subprocess.run(['claude',*CLI_FLAGS,'--system-prompt',r['body']['system']],input=r['body']['user'],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,env=env,cwd=self.dest/'empty',timeout=180)
                 a['cli_stdout']=ran.stdout
                 raw=json.loads(ran.stdout);usage=raw.get('usage') or {};a.update(provider_response=raw,exit_code=ran.returncode,
@@ -169,18 +187,27 @@ def forecast(dest):
             'method':'experiment/row/contestant stratified' if all(counts[k] for k in totals) else 'prefix mean; family mix may change','outcomes_used':False}
     dump(dest/'cost-forecast.json',result);return result
 
-def run(cell,pilot=False):
+def run(cell,pilot=False,cache_pilot=False):
     seal=verify(cell);d=Driver(cell);dest=d.dest
+    cap=cell_cap(dest)
     with (dest/'runner.lock').open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         allreq=ordered_unique(dest);old=answers(dest);seen={a['request_sha256'] for a in old};assert len(seen)==len(old)
         starts={x['request_sha256'] for x in lines(dest/'starts.jsonl')};assert not starts-seen,'Reconcile unknown started requests before resending'
-        if pilot:assert not old
+        if cache_pilot:
+            assert cell=='sonnet-5-5' and len(old)==5
+            assert cap==45
+            d.cache_disabled=True
+        elif pilot:assert not old
         else:
             assert len(old)>=5,'Run five-call pilot first'
-            gate=forecast(dest);assert gate['projected_usd']<=25,'Projected cost exceeds USD 25; owner decision required'
+            gate=forecast(dest);assert gate['projected_usd']<=cap,'Projected cost exceeds cell cap; owner decision required'
             assert all(x.get('model_match') and not x.get('integrity_stop') for x in old)
-        queue=collections.deque(r for r in (allreq[:5] if pilot else allreq) if r['request_sha256'] not in seen)
+            if cell=='sonnet-5-5' and (dest/'budget-amendment.json').exists():
+                choice=json.loads((dest/'cache-choice.json').read_text())
+                assert subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/sonnet-5-5/cache-choice.json'],cwd=ROOT)==(dest/'cache-choice.json').read_bytes()
+                d.cache_disabled=choice['disable_prompt_caching']
+        queue=collections.deque(r for r in (allreq[5:10] if cache_pilot else allreq[:5] if pilot else allreq) if r['request_sha256'] not in seen)
         reason=None;inflight={};fresh=0;last_projection=len(old)
         signal.signal(signal.SIGTERM,lambda *_:d.stop.set());signal.signal(signal.SIGINT,lambda *_:d.stop.set())
         with concurrent.futures.ThreadPoolExecutor(max_workers=d.cfg['concurrency']) as pool:
@@ -189,7 +216,7 @@ def run(cell,pilot=False):
                 if datetime.datetime.now(datetime.timezone.utc)>=datetime.datetime.fromisoformat(seal['last_call_cutoff']):d.stop.set();reason='cutoff'
                 measured,reserved=d.totals()
                 while queue and not d.stop.is_set() and len(inflight)<d.cfg['concurrency']:
-                    if measured+reserved+(len(inflight)+1)*d.cfg['reserve']>25:
+                    if measured+reserved+(len(inflight)+1)*d.cfg['reserve']>cap:
                         if not inflight:d.stop.set();reason='budget reserve'
                         break
                     r=queue.popleft();append(dest/'starts.jsonl',{k:v for k,v in r.items() if k!='body'}|{'started':stamp()});inflight[pool.submit(d.work,r)]=r
@@ -201,17 +228,20 @@ def run(cell,pilot=False):
                     fresh+=1
                     if a.get('integrity_stop'):reason='model identity or token cap defect'
                 count=len(old)+fresh
-                if not pilot and (count>=50 and last_projection<50 or count-last_projection>=100):
+                if not pilot and not cache_pilot and (count>=50 and last_projection<50 or count-last_projection>=100):
                     projected=forecast(dest);last_projection=count
-                    if projected['projected_usd']>25:d.stop.set();reason='projection exceeds USD 25'
+                    if projected['projected_usd']>cap:d.stop.set();reason='projection exceeds cell cap'
                 measured,reserved=d.totals()
                 dump(dest/'run-state.json',{'stamp':stamp(),'model':d.cfg['model'],'completed':count,'planned':6560,'inflight':len(inflight),'measured_usd':measured,'unknown_attempt_reserve_usd':reserved,'stop_reason':reason})
         state={'stamp':stamp(),'model':d.cfg['model'],'completed':len(answers(dest)),'planned':6560,'inflight':0,'measured_usd':accounting(dest)[0],'unknown_attempt_reserve_usd':accounting(dest)[1],'stop_reason':reason,'pilot':pilot}
         dump(dest/'run-state.json',state);projected=forecast(dest)
         if pilot:dump(dest/'pilot.json',projected|{'requests':[r['request_sha256'] for r in allreq[:5]],'retained_once':True})
-        with primary.LEDGER.open('a') as f:f.write(f'\n| {stamp()} | ledger-hard {cell} {"five-call pilot" if pilot else "sealed run"} | {state["completed"]}/6560 recorded | {state["measured_usd"]:.8f} USD; {state["unknown_attempt_reserve_usd"]:.8f} reserve | 25 USD model-cell cap; projected {projected["projected_usd"]}; stop {reason} |\n')
+        if cache_pilot:
+            new=[a for a in answers(dest) if a['request_sha256'] not in seen]
+            dump(dest/'cache-pilot.json',{'stamp':stamp(),'requests':[a['request_sha256'] for a in new],'recorded':len(new),'measured_usd':sum(a.get('measured_usd') or 0 for a in new),'disable_prompt_caching':True,'retained_once':True,'outcomes_used':False})
+        with primary.LEDGER.open('a') as f:f.write(f'\n| {stamp()} | ledger-hard {cell} {"cache pilot" if cache_pilot else "five-call pilot" if pilot else "sealed run"} | {state["completed"]}/6560 recorded | {state["measured_usd"]:.8f} USD; {state["unknown_attempt_reserve_usd"]:.8f} reserve | {cap} USD model-cell cap; projected {projected["projected_usd"]}; stop {reason} |\n')
         print(json.dumps(state|{'projected_usd':projected['projected_usd']}),flush=True)
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('mode',choices=['prepare','pilot','run']);p.add_argument('cell',choices=CELLS);a=p.parse_args()
-    prepare(a.cell) if a.mode=='prepare' else run(a.cell,a.mode=='pilot')
+    p=argparse.ArgumentParser();p.add_argument('mode',choices=['prepare','pilot','cache-pilot','run']);p.add_argument('cell',choices=CELLS);a=p.parse_args()
+    prepare(a.cell) if a.mode=='prepare' else run(a.cell,a.mode=='pilot',a.mode=='cache-pilot')
