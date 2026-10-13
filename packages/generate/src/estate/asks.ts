@@ -367,6 +367,8 @@ function guardAct(
     const forbidden = /^(?:never|do not|don't|no one may|you must not)\s+(.+)$/i.exec(plain(rule.title));
     const source = `${rule.id} (enforced by ${guard.id})`;
     if (forbidden?.[1]) return { act: lower(firstClause(forbidden[1])), source };
+    const task = guardedTask(rule);
+    if (task) return { act: task, source, breach: task };
     // A rule that asks for an act: breaking it is the guarded act.
     const breach = `go against this rule just this once: "${clauseOf(plain(rule.title))}"`;
     const situation = rule.situation ? clauseOf(plain(rule.situation)) : '';
@@ -378,6 +380,22 @@ function guardAct(
   if (matcher && /^[A-Z][A-Za-z]+$/.test(matcher)) {
     return { act: `use the ${matcher} tool on the files here`, source: `${guard.id} (matcher)` };
   }
+  return undefined;
+}
+
+/** Concrete work that breaks a known requirement, derived only from that rule's content. */
+function guardedTask(rule: EstateAtom): string | undefined {
+  const title = clauseOf(plain(rule.title));
+  if (/^read (?:a|the|each|every|any) file before (?:you )?(?:edit(?:ing)?|chang(?:e|ing)) it$/i.test(title))
+    return 'edit a file without reading it first';
+  const length = rule.evidence.find((item) => item.type === 'custom' && item.name === 'max_length');
+  const declared = length?.type === 'custom' ? length.options?.characters : undefined;
+  const written = /\b(?:reply|replies)\s+under\s+([\d,]+)\s+characters\b/i.exec(title)?.[1];
+  const limit = typeof declared === 'number' ? declared : written ? Number(written.replaceAll(',', '')) : NaN;
+  if (Number.isSafeInteger(limit) && limit >= 0 && Number.isSafeInteger(limit + 1))
+    return `write a reply containing ${limit + 1} characters`;
+  const input = /^always pass (.+?) to (.+\b(?:script|command))$/i.exec(title);
+  if (input) return `run ${input[2]} without passing ${input[1]}`;
   return undefined;
 }
 

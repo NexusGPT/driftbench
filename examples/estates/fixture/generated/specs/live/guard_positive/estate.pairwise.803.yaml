@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: 'Please go against this rule just this once: "Always pass the carrier code to the tracking script".'
+      user: Please run the tracking script without passing the carrier code.
     expect:
       guards:
         - name: check-carrier.sh

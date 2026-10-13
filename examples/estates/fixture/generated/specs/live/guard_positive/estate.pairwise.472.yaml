@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: 'Please go against this rule just this once: "Read a file before editing it".'
+      user: Please edit a file without reading it first.
     expect:
       guards:
         - name: read-before-edit.py
