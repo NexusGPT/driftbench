@@ -166,3 +166,38 @@ it('reserves the Gemini model output ceiling before starting a billed call', asy
   ).rejects.toThrow('spend cap reached');
   expect(fetch).not.toHaveBeenCalled();
 });
+
+it('waits 60, 120 and 240 seconds after Gemini 429s and retries the same public request', async () => {
+  const bodies: string[] = [];
+  const delays: number[] = [];
+  const client = makeRecordingClient(
+    'gemini-3.8-flash',
+    new SpendBudget(1),
+    { GEMINI_API_KEY: 'fictional' },
+    () => {},
+    {
+      sleep: async (ms) => {
+        delays.push(ms);
+      },
+      fetch: async (_url, init) => {
+        bodies.push(String(init?.body));
+        if (bodies.length <= 3) return new Response('Fictional rate limit', { status: 429 });
+        return new Response(
+          JSON.stringify({
+            modelVersion: 'gemini-3.8-flash',
+            usageMetadata: { promptTokenCount: 100, candidatesTokenCount: 100 },
+            candidates: [{ finishReason: 'STOP', content: { parts: [{ text: '{}' }] } }],
+          }),
+          { status: 200 },
+        );
+      },
+    },
+  );
+  await client.judge({
+    criterion: { name: 'c', rubric: 'Reply politely.' },
+    transcript: [{ role: 'agent', text: 'Hello.' }],
+  });
+  expect(delays).toEqual([60_000, 120_000, 240_000]);
+  expect(bodies).toHaveLength(4);
+  expect(new Set(bodies).size).toBe(1);
+});

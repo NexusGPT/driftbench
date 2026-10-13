@@ -105,7 +105,7 @@ export function makeRecordingClient(
   budget: SpendBudget,
   env: Record<string, string | undefined>,
   log: (row: SpendRow) => void,
-  options: { haikuModel?: string; fetch?: typeof fetch } = {},
+  options: { haikuModel?: string; fetch?: typeof fetch; sleep?: (ms: number) => Promise<void> } = {},
 ): JudgeClient {
   if (!['haiku', 'gpt-6-luna', 'gemini-3.8-flash'].includes(model))
     throw new Error(`Recording model ${model} is not enabled`);
@@ -191,7 +191,32 @@ export function makeRecordingClient(
       let status: 'ok' | 'error' = 'error';
       try {
         return await meter.run(data, async () => {
-          const result = await base.judge(request);
+          const sleep =
+            options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
+          let result: Awaited<ReturnType<JudgeClient['judge']>>;
+          for (let attempt = 0; ; attempt++) {
+            try {
+              result = await base.judge(request);
+              break;
+            } catch (cause) {
+              if (
+                model !== 'gemini-3.8-flash' ||
+                !(cause instanceof Error) ||
+                !('status' in cause) ||
+                cause.status !== 429 ||
+                attempt >= 3
+              )
+                throw cause;
+              // Shared Gemini quota: retry only explicit rate limits, with a fresh request timeout.
+              const retryAfter =
+                'retryAfterMs' in cause &&
+                typeof cause.retryAfterMs === 'number' &&
+                Number.isFinite(cause.retryAfterMs)
+                  ? cause.retryAfterMs
+                  : 0;
+              await sleep(Math.max(60_000 * 2 ** attempt, retryAfter));
+            }
+          }
           data.cost ??= result.costUsd;
           if (data.cost === undefined) throw new Error('Recorder refuses an unmetered answer');
           status = 'ok';

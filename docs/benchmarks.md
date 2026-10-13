@@ -105,6 +105,8 @@ The command writes:
 
 The report records the dataset identity, prompt fingerprint, client settings, commit and timestamps. The command checks that recording and replay produce identical case results before accepting the completed cassette. A transport-truncated response remains inconclusive during replay even if its raw JSON is parseable. A regression retains its evidence for diagnosis and returns a failure.
 
+Gemini retries HTTP 429 responses after 60, 120 and 240 seconds, honoring a longer provider retry delay. Each retry gets a fresh 300 second timeout. The manual workflow uses two concurrent Gemini calls, eight Luna calls and four Haiku calls.
+
 The manual [bench record workflow](../.github/workflows/bench-record.yml) accepts a slice, model and cap. Its cap must be positive and at most 5 USD. OpenAI and Gemini use their repository secrets on a hosted runner. Haiku uses a preconfigured self-hosted runner labelled `driftbench-bench` and `claude-cli`. The workflow uploads cassettes and evidence for review; it does not commit them or raise floors.
 
 ## Floors and uncertainty
