@@ -27,7 +27,7 @@
     "gemini-3.8-flash": "google-response-schema"
   },
   "capUsd": 35,
-  "lastCallUtc": "2026-10-13T13:00:00Z",
+  "lastCallUtc": "2026-10-13T16:00:00Z",
   "maxOutputTokensHttp": 4096,
   "seals": {
     "test": "178754731d81f74abd2f6c001eca58ef4d16df7bbcd22bb702611e7bd09e7f0a",
@@ -261,5 +261,13 @@
       240
     ],
     "maxOtherTransportSubmissions": 3
+  },
+  "cutoffAmendment": {
+    "at": "2026-10-13T08:37:30.840799+00:00",
+    "previousLastCallUtc": "2026-10-13T13:00:00Z",
+    "lastCallUtc": "2026-10-13T16:00:00Z",
+    "parentFreezeSha256": "655ce818fd7aea90c0a60303a2c36bd1136cf15846b6f82fbf941c5ebf78acc5",
+    "reason": "Shared Gemini quota requires Haiku and Luna first, Gemini last with concurrency two. Pilot-duration projection exceeds the original cutoff.",
+    "authorization": "Yes. Extend the last-call cutoff to 16:00 UTC as a runtime-only amendment and log it in the freeze record with the reason (shared Gemini quota, model reordering). Cap, sealed order and judge contract stay fixed."
   }
 }

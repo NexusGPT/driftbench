@@ -135,7 +135,7 @@ def main():
         '- Haiku and Luna run first with at most four concurrent calls. Gemini runs last with at most two. HTTP 429 returns no model answer and is counted separately per cell, never as a judge failure. Exhausted Gemini rate-limit recovery is parked and disclosed.',
         '- Both HTTP models use medium reasoning for every contestant and the same 4096 output-token cap. Haiku uses native Claude CLI without an exposed reasoning setting.',
         '- The owner unblocks Gemini billing and restricts key files to `openai.key` and `gemini-driftbench.key`. Keys load inside each command and are not printed.',
-        '- Six analysis tests and seven initial harness tests pass before calls; the transport amendment adds one passing error-classification test, including source tamper rejection, concurrent spend reservation, output polarity and the pushed-core adapter.',
+        '- Six analysis tests and seven initial harness tests pass before calls; the transport amendments add two passing error-classification and backoff tests, including source tamper rejection, concurrent spend reservation, output polarity and the pushed-core adapter.',
         '- All paths above are relative to `examples/ledger-wp` unless prefixed otherwise. The branch is [research/ledger-wp](https://github.com/achammah/driftbench/tree/research/ledger-wp). Remote delivery is verified separately at handoff.','']
     text='\n'.join(lines)
     assert '\u2014' not in text and '\u2013' not in text
