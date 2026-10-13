@@ -360,11 +360,13 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'guard':
       if (untraced(then, atom, evidence.name, ctx)) return;
-      addGuard(then, {
-        name: evidence.name,
-        ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
-        count: 0,
-      });
+      // The runtime can invoke a guard on every matching event and report allow when it is quiet.
+      // A negative control forbids an intervention, not that ordinary invocation. An explicit
+      // verdict remains authoritative, including a runtime-specific one.
+      for (const verdict of evidence.verdict === undefined
+        ? ['deny', 'ask', 'warn', 'nudge']
+        : [evidence.verdict])
+        addGuard(then, { name: evidence.name, verdict, count: 0 });
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
