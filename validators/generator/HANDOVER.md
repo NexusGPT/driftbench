@@ -173,6 +173,12 @@ The uncapped suite and chosen caps leave the same 26 classes uncaught. Changed b
 
 ### Verification and speed handoff
 
-Typecheck passes. Lint passes with 20 existing warnings. The final cap, coverage-report, CLI and scenario test run passes **52 tests in 3 files**. A full `pnpm test --maxWorkers=2` run is active; it reports the base handover's Acme fixture mismatches and Acme pilot/extract assertions, plus a generator ladder assertion. Final details will be appended after it finishes. The CLI test was re-run successfully after the report wording changed. `node tools/rename-scope.mjs` ran after the initial main merge and changed zero files.
+Typecheck passes. Lint passes with 20 existing warnings. The final cap, coverage-report, CLI and scenario test run passes **52 tests in 3 files**. A fresh full `pnpm test --maxWorkers=2` run is active against the fixed source. An isolated Acme check reproduces five stale-fixture assertions already named by the base handover. The pilot additionally reports that the committed suite has map hash `b583de68c530` while the approved map has hash `6d29ed7a7539`. The extraction checks pass when re-run with a 60-second test timeout; their first run hit the 5-second default. These fixture and runtime issues are not marked as passes. `node tools/rename-scope.mjs` ran after the initial main merge and changed zero files.
 
 The separate speed worker has the request to measure `--spec-cap 6127 --spec-cap-mode pairs` with and without its speed fixes. No completed speed-worker result has been received at this checkpoint. The single-generation CPU column above does not establish the validator's two-generation 60-second time gate.
+
+### Post-outage integration
+
+The owner directs this PR to remain on its measured base before the outage. At the pre-outage checkpoint, GitHub reports conflicts against `exec/generator-v2` in `packages/generate/src/enumerate/generate.ts`, `packages/generate/src/seed/seeders.ts`, `packages/generate/test/enumerate/acme.test.ts` and this handover. The branch has not merged the newer A/B contracts.
+
+After network restoration, merge `origin/exec/generator-v2` into `exec/generator-cap` in this worktree, preserve both the new contracts and these cap/report invariants, and run `node tools/rename-scope.mjs`. Then re-measure the uncapped and capped suites against the new fault contracts. Recompute the smallest passing limits, retain every reached pair and protected probe, and compare the exact caught class sets. Commit the newly stamped evidence separately from the base merge. Re-run typecheck, lint and tests, and add the speed worker's completed result if supplied. Do not reuse this pre-A/B fault count as evidence for the combined implementation.
