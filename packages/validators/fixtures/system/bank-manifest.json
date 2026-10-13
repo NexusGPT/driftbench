@@ -11348,7 +11348,7 @@
       "level": 7,
       "source": "research",
       "component": "packages/stats/src/variance.ts",
-      "cause": "the mean design effect estimated over 100 clustered campaigns (m 4, rho 0.25) lies in the 0.999 interval of its exact finite-sample law"
+      "cause": "the true design effect 1.75 lies in the 0.999 bootstrap interval of the mean estimate over 100 clustered campaigns"
     },
     {
       "id": "variance/parity-power",

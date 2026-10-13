@@ -11,18 +11,7 @@ import * as stats from '@agent-nexus/driftbench-stats';
 import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { SYSTEM_COMPONENTS } from '../components';
-import {
-  CLUSTER_RATE,
-  CLUSTER_RHO,
-  CLUSTER_SIZE,
-  CLUSTERS,
-  DEFF_ALPHA,
-  type DesignEffectLaw,
-  designEffectCalibration,
-  parityLevel,
-  runEffect,
-  wilsonCalibration,
-} from '../effect';
+import { CLUSTER_RHO, CLUSTER_SIZE, calibrationLevel, DEFF_ALPHA, parityLevel, runEffect } from '../effect';
 import type { Behaviour, RawSpec } from '../plant';
 import { between, rngFor } from '../random';
 import { type BankItem, type Draft, expectAll, fail, PASS, type Tier, withCauses } from './types';
@@ -55,71 +44,6 @@ export function referenceIcc(groups: readonly (readonly number[])[]): number {
   const between_ = Math.max(0, (msb - msw) / m);
   const within = Math.max(0, msw);
   return between_ + within > 0 ? between_ / (between_ + within) : 0;
-}
-
-/**
- * The exact finite-sample law of the design effect 1 + (m - 1) rho with rho from referenceIcc, on one clustered
- * campaign of the plant: `clusters` specs of `size` runs, each spec passing with probability rate plus or minus
- * delta (one half each), delta squared over rate times one minus rate being the correlation. Every histogram of
- * pass counts over the specs is enumerated with its multinomial probability, so the moments are exact.
- */
-export function exactDesignEffectLaw(
-  clusters = CLUSTERS,
-  size = CLUSTER_SIZE,
-  rate = CLUSTER_RATE,
-  rho = CLUSTER_RHO,
-): DesignEffectLaw {
-  const delta = Math.sqrt(rho * rate * (1 - rate));
-  const choose = (n: number, k: number) => {
-    let out = 1;
-    for (let i = 1; i <= k; i += 1) out = (out * (n - k + i)) / i;
-    return out;
-  };
-  const binomial = (c: number, p: number) => {
-    const q = Math.min(1, Math.max(0, p));
-    return choose(size, c) * q ** c * (1 - q) ** (size - c);
-  };
-  const perCount = Array.from(
-    { length: size + 1 },
-    (_, c) => (binomial(c, rate + delta) + binomial(c, rate - delta)) / 2,
-  );
-  const logFactorial = [0];
-  for (let i = 1; i <= clusters; i += 1) logFactorial.push((logFactorial[i - 1] as number) + Math.log(i));
-  const outcomes: Array<[number, number]> = [];
-  const histogram: number[] = [];
-  const walk = (count: number, left: number) => {
-    if (count === size) {
-      histogram.push(left);
-      let logP = logFactorial[clusters] as number;
-      histogram.forEach((specs, c) => {
-        if (specs > 0) logP += specs * Math.log(perCount[c] as number) - (logFactorial[specs] as number);
-      });
-      const groups = histogram.flatMap((specs, c) =>
-        Array.from({ length: specs }, () => Array.from({ length: size }, (_, r) => (r < c ? 1 : 0))),
-      );
-      outcomes.push([Math.exp(logP), 1 + (size - 1) * referenceIcc(groups)]);
-      histogram.pop();
-      return;
-    }
-    for (let specs = 0; specs <= left; specs += 1) {
-      histogram.push(specs);
-      walk(count + 1, left - specs);
-      histogram.pop();
-    }
-  };
-  walk(0, clusters);
-  const total = outcomes.reduce((sum, [p]) => sum + p, 0);
-  const mean = outcomes.reduce((sum, [p, value]) => sum + p * value, 0) / total;
-  const moment = (k: number) =>
-    outcomes.reduce((sum, [p, value]) => sum + p * (value - mean) ** k, 0) / total;
-  const sd = Math.sqrt(moment(2));
-  return { mean, sd, skew: moment(3) / sd ** 3 };
-}
-
-let law: DesignEffectLaw | undefined;
-function plantLaw(): DesignEffectLaw {
-  law ??= exactDesignEffectLaw();
-  return law;
 }
 
 type Design = { clusters: number; size: number };
@@ -332,7 +256,7 @@ export function varianceItems(): BankItem[] {
     title:
       'at least 93 of 100 Wilson intervals on the stored baseline pass rate hold the true rate 0.93 (50 pairs per campaign)',
     async check({ seed }) {
-      const measure = wilsonCalibration(await effectFor(seed), seed, stats);
+      const measure = calibrationLevel(await effectFor(seed), seed, stats);
       return measure.value >= 0.93
         ? PASS
         : fail(
@@ -350,16 +274,11 @@ export function varianceItems(): BankItem[] {
     level: 7,
     component: SYSTEM_COMPONENTS.designEffect,
     source: 'research',
-    title: `the mean design effect estimated over 100 clustered campaigns (m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO}) lies in the ${1 - DEFF_ALPHA} interval of its exact finite-sample law`,
+    title: `the true design effect ${1 + (CLUSTER_SIZE - 1) * CLUSTER_RHO} lies in the ${1 - DEFF_ALPHA} bootstrap interval of the mean estimate over 100 clustered campaigns`,
     async check({ seed }) {
-      const measure = designEffectCalibration(await effectFor(seed), seed, stats, plantLaw());
-      if (measure.value === 1) return PASS;
-      return fail(
-        measure.items
-          .slice(0, 3)
-          .map((item) => item.detail)
-          .join('; '),
-      );
+      const measure = calibrationLevel(await effectFor(seed), seed, stats);
+      const miss = measure.items.find((item) => item.id === 'design-effect');
+      return miss ? fail(miss.detail) : PASS;
     },
   });
   out.push({
