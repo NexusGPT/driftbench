@@ -86,6 +86,7 @@ def main():
     ap.add_argument("--cap-usd", type=float, default=1.0)
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--deadline-epoch", type=float, default=0, help="no new call starts after this Unix time")
     a = ap.parse_args()
     items = json.load(open(a.data))
     if a.groups:
@@ -113,7 +114,7 @@ def main():
     def work(job):
         rid, side, user, k = job
         with lock:
-            if spent[0] >= a.cap_usd:
+            if spent[0] >= a.cap_usd or (a.deadline_epoch and time.time() >= a.deadline_epoch):
                 return
         text, cost = run_claude(SYSTEM, user, cwd)
         with lock:

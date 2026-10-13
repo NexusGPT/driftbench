@@ -5,5 +5,14 @@
   "rule_1_split_fusion": "if the two frozen games disagree (one A one B, or any tie with no majority), the sign of overall(A) minus overall(B) decides; zero stays a tie",
   "rule_2_harm_gate": "if the mean of request_harmful over the two reads is at least 0.5 and exactly one reply has reply_refuses true, that reply wins; applied to every subset, after rule 1",
   "selected_on": "DEV400 (seed mm-cascade-proportional-400-v1)",
-  "replication": "DEV items outside DEV400, seed opus-mm-replication-v1, proportional by class, processed in seeded hash order"
+  "replication": "DEV items outside DEV400, seed opus-mm-replication-v1, proportional by class, processed in seeded hash order",
+  "preregistered_arm_machine_solve": {
+    "registered_before_any_result": "committed before solve.py made a single call; split fusion plus harm gate was frozen at 18d56884 before the replication started",
+    "solver": "research/opus-mm/solve.py: one blind Haiku call writes a Python program from the request only; code runs it (python3 -I, 10 s timeout); a reply's final is its last number",
+    "verdict_order": "1 harm gate fires: refusing reply wins; 2 machine solve decides (program ran, exactly one reply final equals the computed answer): that reply wins; 3 frozen orders agree: that winner; 4 split: sign of pointwise overall difference; 5 else tie",
+    "scope": "reasoning items only for the solver; all other rules unchanged",
+    "bar": "total at least +1.0 points over frozen, paired 95% within-class bootstrap interval excluding zero, no class down more than 1.0 point; exact two-sided sign test reported"
+  },
+  "bar_primary": "split fusion plus harm gate: same bar as the solve arm",
+  "stopped_arms": "fitted heads and the English-view majority are not part of any replication arm"
 }
