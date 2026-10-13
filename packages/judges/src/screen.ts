@@ -185,6 +185,18 @@ const OTHER_LANGUAGES: readonly {
     judge: ['معايير التقييم', 'التقييم', 'المقي\u0651\u0645', 'المقيم', 'القاضي', 'الحكم'],
     verdict: ['ناجح', 'نجاح', 'ينجح', 'رسب', 'فشل'],
   },
+  {
+    // Swedish
+    judge: [
+      'bed[öo]mningskriterier\\p{L}*',
+      'bed[öo]mning\\p{L}*',
+      'domare\\p{L}*',
+      'kriterier\\p{L}*',
+      'betyg\\p{L}*',
+      'rubrik\\p{L}*',
+    ],
+    verdict: ['godk[äa]nt', 'godk[äa]nd\\p{L}*', 'klarat', 'underk[äa]nt', 'lyckad\\p{L}*'],
+  },
 ];
 
 const VERDICT_WORDS = [
