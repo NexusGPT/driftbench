@@ -30,6 +30,21 @@ const roleToken = /\[(?:user|agent|assistant|system|context|card|tool(?:_call|_r
 const withoutRoles = (text: string): string => text.replace(roleToken, ' ');
 const substantive = (text: string): boolean => /[\p{L}\p{N}]/u.test(withoutRoles(text));
 
+/** The spelling of an empty JSON object or array, white space aside; undefined for any other text. */
+function emptyContainer(text: string): '{}' | '[]' | undefined {
+  const compact = text.replace(/\s+/g, '');
+  return compact === '{}' || compact === '[]' ? compact : undefined;
+}
+
+/**
+ * An empty object or array holds no letter or digit, so no substantive quote can come from it. Its exact
+ * copy is grounded only in a source whose whole text is that same empty container: nothing else is copied.
+ */
+const quotesWholeEmptySource = (text: string, quote: string): boolean => {
+  const empty = emptyContainer(quote);
+  return empty !== undefined && empty === emptyContainer(text);
+};
+
 const isWordChar = (ch: string | undefined): boolean => ch !== undefined && /[\p{L}\p{N}]/u.test(ch);
 
 /** The first index at or after `from` where `needle` stands on word boundaries, or -1. */
@@ -47,10 +62,17 @@ function findOnWords(hay: string, needle: string, from: number): number {
  * stripped, the quote must be found on word boundaries inside one data place: a transcript entry
  * (`transcript.<index>`), the artifact (`artifact`) or the Given (`given`, as JSON). The parts of a quote split by
  * "..." are found in order in one place. The rubric, a tool name, an absent or an empty quote are never grounded.
+ * One exception holds no letter or digit: `{}` or `[]` quoted from a place whose whole text is that empty container.
  * `where` names the first place: transcript entries in order, then the artifact, then the Given.
  */
 export function groundEvidence(request: JudgeRequest, answer: JudgeAnswer): Grounding {
   let quote = fold(answer.evidence ?? '');
+  if (emptyContainer(quote)) {
+    for (const [i, entry] of request.transcript.entries())
+      if (quotesWholeEmptySource(entry.text, quote)) return { grounded: true, where: `transcript.${i}` };
+    const whole = dataPlaces(request).find(([, text]) => quotesWholeEmptySource(text, quote));
+    return whole ? { grounded: true, where: whole[0] } : { grounded: false };
+  }
   if (/^".*"$/.test(quote)) quote = quote.slice(1, -1).trim();
   if (!substantive(quote)) return { grounded: false };
   const parts = quote.split(/\s*\.\.\.\s*/).filter(Boolean);
@@ -374,7 +396,7 @@ export function groundEvidenceSpan(request: JudgeRequest, span: EvidenceSpan): G
   }
   const place = dataPlaces(request).find(([where]) => where === span.source);
   if (place)
-    return textContainsQuote(place[1], span.quote)
+    return quotesWholeEmptySource(place[1], span.quote) || textContainsQuote(place[1], span.quote)
       ? { grounded: true, where: span.source }
       : { grounded: false };
   // A bare input path or absent generic source can name the sole declared input.
@@ -383,7 +405,7 @@ export function groundEvidenceSpan(request: JudgeRequest, span: EvidenceSpan): G
   if (
     input &&
     (span.source === input.path || ['reference', 'given', 'artifact'].includes(span.source)) &&
-    textContainsQuote(input.text, span.quote)
+    (quotesWholeEmptySource(input.text, span.quote) || textContainsQuote(input.text, span.quote))
   )
     return { grounded: true, where: `input.${input.path}` };
   return { grounded: false };
