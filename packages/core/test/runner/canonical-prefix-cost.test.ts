@@ -90,3 +90,24 @@ describe('resolved teacher-forced snapshots', () => {
     expect(retained[3]).toHaveLength(6);
   });
 });
+
+describe('canonical prefix registration cost', () => {
+  it('registers only the new suffix after an owned prefix grows', () => {
+    const spec = fixture(202);
+    const target = { adapter: 'function', agent: 'test' };
+    resolveCanonicalGiven(spec, 200, target);
+    const has = WeakMap.prototype.has;
+    let visited = 0;
+    WeakMap.prototype.has = function (key: object) {
+      if ((key as Message).role) visited += 1;
+      return has.call(this, key);
+    };
+    try {
+      const next = resolveCanonicalGiven(spec, 201, target);
+      expect(next.given.prefix).toHaveLength(402);
+    } finally {
+      WeakMap.prototype.has = has;
+    }
+    expect(visited).toBeLessThanOrEqual(2);
+  });
+});

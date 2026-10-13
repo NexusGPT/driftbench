@@ -1,4 +1,4 @@
-import { immutableHistorySource } from '../contracts/history';
+import { immutableHistorySource, snapshotImmutableHistory } from '../contracts/history';
 import type { Assertion, Count, Message, TargetRef, WorldState } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
@@ -48,8 +48,12 @@ export function resolveGiven(
   prefix: readonly Message[],
   target: TargetRef,
 ): ResolvedGiven {
+  return resolveMarkedGiven(state, immutableHistorySource([...prefix]), target);
+}
+
+function resolveMarkedGiven(state: RunningGiven, prefix: Message[], target: TargetRef): ResolvedGiven {
   const body = {
-    prefix: immutableHistorySource([...prefix]),
+    prefix,
     ledger: structuredClone(state.ledger),
     world: structuredClone(state.world),
     vars: structuredClone(state.vars),
@@ -119,7 +123,10 @@ export function resolveCanonicalGiven(
   target: TargetRef,
 ): { state: RunningGiven; given: ResolvedGiven } {
   const canonical = canonicalState(spec, blockIndex);
-  return { state: canonical.state, given: resolveGiven(canonical.state, canonical.prefix, target) };
+  return {
+    state: canonical.state,
+    given: resolveMarkedGiven(canonical.state, snapshotImmutableHistory(canonical.prefix), target),
+  };
 }
 
 function canonicalState(spec: Spec, blockIndex: number): { state: RunningGiven; prefix: Message[] } {

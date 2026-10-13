@@ -20,6 +20,24 @@ export function isImmutableHistorySource(history: readonly Message[]): boolean {
   return immutableSources.has(history);
 }
 
+const registeredPrefixLengths = new WeakMap<readonly Message[], number>();
+
+/** Snapshot an internally owned append-only prefix, registering only its new suffix. */
+export function snapshotImmutableHistory(history: readonly Message[]): Message[] {
+  const previous = registeredPrefixLengths.get(history) ?? 0;
+  const start = previous <= history.length ? previous : 0;
+  for (let index = start; index < history.length; index += 1) {
+    const message = history[index];
+    if (!message || messageTemplates.has(message)) continue;
+    const template = messageTemplate(message);
+    if (template) messageTemplates.set(message, template);
+  }
+  registeredPrefixLengths.set(history, history.length);
+  const snapshot = [...history];
+  immutableSources.add(snapshot);
+  return snapshot;
+}
+
 type ReadonlyJson<T> = T extends object ? { readonly [K in keyof T]: ReadonlyJson<T[K]> } : T;
 
 /** A point-in-time history view. Reads borrow immutable messages; legacy writes detach a private copy. */
