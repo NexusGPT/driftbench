@@ -11,7 +11,7 @@ Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (
 * `function:acme-sales`, or its short form `function:acme`: the Acme sales assistant behind the [function adapter](adapters/function.md). The Acme conversation specs name it.
 * `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`) behind the [process adapter](adapters/process.md), in a local sandbox. The Acme task spec names it.
 
-Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@agent-nexus/driftbench-artifacts`. Other adapters are used from code: see [runSpec](#runspec).
+Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@agent-nexus/driftbench-artifacts`. Other adapters are used from code: see [runSpec](#runspec). A [plugin](plugins.md) loads any adapter, your own checks and your own judge into the command line.
 
 A target is written `<adapter>` or `<adapter>:<agent>`. Without `--target`, each spec runs on the target it names, and a spec that names none is refused. A `--target` overrides the target every spec names, and `plan` and `run` print a note for each spec whose own target names another adapter. `--route <tag=target>` keeps a part of a mixed suite on its own agent: a spec carrying the tag runs on that target instead, and no note is printed for it. On the Acme suites, `--route flow:price-sheet=process:acme-ops` keeps the price-sheet task specs on the ops agent while `--target` names the sales agent; `ci` takes the same option, where a route may also name a `fault:<id>` of `--faults`, such as a fault of the ops agent.
 
@@ -485,13 +485,14 @@ A transcript holds what the agent did in each block: the segments, the tool call
 
 ## Project config and the pull-request gate
 
-`driftbench.yaml` in the working folder, or the file `--config <file>` names, is the project config. `campaign run`, `campaign plan`, `report`, `ci` and `view` read it. It has three keys, all optional:
+`driftbench.yaml` in the working folder, or the file `--config <file>` names, is the project config. `campaign run`, `campaign plan`, `report`, `ci` and `view` read it. It has four keys, all optional:
 
 | Key | Read by | Holds |
 |---|---|---|
 | `aggregates` | `report`, `ci` | the campaign-level criteria, one `name:op threshold` string each |
 | `scales` | `view` | per criterion, the `min` and `max` of the score a reviewer may give its queue item, with `min` below `max`. A criterion without one keeps 0 to 1 |
 | `campaign` | `campaign run`, `campaign plan`, `ci` | the settings of a campaign, each the flag of `campaign run` it names; see [the campaign key](#the-campaign-key) |
+| `plugins` | every command | modules of your own code to load before the command runs: paths relative to the file, or package names; see [CLI plugins](plugins.md) |
 
 
 

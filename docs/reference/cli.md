@@ -254,6 +254,7 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 |---|---|
 | `-V`, `--version` | print the version |
 | `-h`, `--help` | print the usage of the program or of a command; `driftbench help <command>` does the same |
+| `--plugin <module>` | load a [plugin](../plugins.md) before the command runs: a module path, relative to the working folder, or a package name. Repeat it for several. It may stand anywhere on the command line. |
 
 ## Campaigns and smoke
 

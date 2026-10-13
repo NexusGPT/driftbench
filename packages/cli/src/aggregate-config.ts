@@ -51,7 +51,7 @@ export async function readScaleConfig(path: string): Promise<ScaleLoad> {
   return { ok: true, scales };
 }
 
-const KEYS = new Set(['aggregates', 'scales', 'campaign']);
+const KEYS = new Set(['aggregates', 'scales', 'campaign', 'plugins']);
 
 function lineOf(text: string, offset: number): number {
   return text.slice(0, offset).split('\n').length;

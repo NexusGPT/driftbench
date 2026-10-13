@@ -78,6 +78,7 @@ import type { Command } from 'commander';
 import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { pluginAdapter, pluginAdapterNames } from '../plugins';
 import { noStoreAt } from '../store-path';
 import { pricesFromConfig } from '../token-prices';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
@@ -231,7 +232,7 @@ export const defaultDeps: CampaignDeps = {
       return acmeFunctionAdapter();
     }
     if (target.adapter === 'process' && target.agent === 'acme-ops') return acmeOpsAdapter(scope);
-    return undefined;
+    return pluginAdapter(target, scope);
   },
   checks: defaultChecks(),
   artifacts: defaultReaders(),
@@ -1501,7 +1502,9 @@ async function adaptersFor(
 /** Why a target cannot run: no adapter is set up for it. Names the specs whose own target it is. */
 export function noAdapter(target: TargetRef, specIds: readonly string[] = []): string {
   const whose = specIds.length === 0 ? '' : `, the target of ${specIds.join(', ')}`;
-  return `No adapter is set up for ${showTarget(target)}${whose}. ${KNOWN_TARGETS}`;
+  const added = pluginAdapterNames();
+  const plugins = added.length === 0 ? '' : ` Plugins add the adapters ${added.join(', ')}.`;
+  return `No adapter is set up for ${showTarget(target)}${whose}. ${KNOWN_TARGETS}${plugins}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */
