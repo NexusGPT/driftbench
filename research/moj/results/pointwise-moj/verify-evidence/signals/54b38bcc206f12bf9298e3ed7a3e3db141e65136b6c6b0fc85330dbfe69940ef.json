@@ -1,0 +1,25 @@
+{
+  "pA": 0.24,
+  "detail": {
+    "error_found": true,
+    "quote": "Other options (A, B, D, E) were analyzed and found to evaluate to **False** through similar detailed steps.",
+    "explanation": "Option B is true: its term `not not not ((not not not (max(1, -6, -7, 1) - min(1, -6, -7, 1) <= 6) and not not (-9 * 8 + -3 * 3 > -3 * 10)) and ...)` evaluates to true. The range is 8, so `8 <= 6` is false and its triple negation is true; `-81 > -30` is false, so its double negation is false. Their conjunction is false, making the enclosing triple negation true. Thus B’s disjunction is true, contrary to the candidate’s final claim that B is false; C is not the only true option.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e5c892ffa9e07d39e22d0f25708992481cda415987b8b436974273fba44487fe",
+      "count": 1,
+      "usd": 0.001835
+    },
+    {
+      "provider": "jev",
+      "key": "d765f99e524bae16703b5b0f3e3af7554c9418f1f5664819b38cedd91587a9d4",
+      "seconds": 0.918,
+      "usd": 0
+    }
+  ]
+}

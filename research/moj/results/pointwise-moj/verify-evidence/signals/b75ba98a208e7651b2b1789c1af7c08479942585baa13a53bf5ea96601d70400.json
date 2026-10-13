@@ -1,0 +1,25 @@
+{
+  "pA": 0.14,
+  "detail": {
+    "error_found": true,
+    "quote": "Since it precedes **k** without an intervening vowel, an apostrophe is inserted between **t** and **k** to mark the syllable break and insert the schwa **[ə]** (as seen in examples like *tplutaqan* [ətpəludaɣan]).",
+    "explanation": "The cited example does not establish that an apostrophe marks a schwa: *tplutaqan* has no apostrophe, yet its transcription contains schwas. The candidate’s final spelling therefore relies on an unsupported rule. The examples also write [k] with orthographic g in forms such as *an’stawteg* [anəstawtek], not k, so the proposed *alapt’k* is not justified by the supplied correspondences.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "a28d639f1d1654844ca13b7cd90273a969794734643a1e411244c5abee2cca2f",
+      "count": 1,
+      "usd": 0.0010675
+    },
+    {
+      "provider": "jev",
+      "key": "4b7ff6a7eb7fcea006a499ba5aafb689fd769e03592a20980dfbf3b7108df165",
+      "seconds": 0.608,
+      "usd": 0
+    }
+  ]
+}

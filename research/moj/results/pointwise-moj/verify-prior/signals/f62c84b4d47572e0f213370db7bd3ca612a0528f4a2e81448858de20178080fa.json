@@ -1,0 +1,22 @@
+{
+  "pA": 0.9,
+  "detail": {
+    "reference": "A",
+    "reasoning": "Xiao Liu is explicitly a member of Save the Earth, and his illness prevents him from volunteering at the Shanghai World Expo. The other options make claims not established by the passage.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "3ab1d2795081dd27d04ee70ebca1282eee5569fba6fbace1933f41ef3881ee55",
+      "count": 1,
+      "usd": 8.54e-05
+    },
+    {
+      "provider": "jev",
+      "key": "7116320765032f7e13c05521b0459d7afcc6d40b978817cd486d7ee425eb630e",
+      "seconds": 5.396,
+      "usd": 0
+    }
+  ]
+}

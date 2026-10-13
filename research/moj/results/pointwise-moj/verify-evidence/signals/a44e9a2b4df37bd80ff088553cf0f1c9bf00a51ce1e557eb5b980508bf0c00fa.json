@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "Since the culture did not fully disappear, then B is the wrong example.",
+    "explanation": "The definition allows cultural change when some cultural elements disappear; it does not require an entire culture to vanish. The continued existence of Maya people and cultural traditions therefore does not, by itself, make the decline of ancient Maya culture a non-example. The candidate’s factual observation may cast doubt on B’s wording, but it does not support this stated inference.",
+    "changes_final_answer": false,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e00d9b4a8f3e8f4a338fd7cf42923130384fa720646b5f29c919d02073db5db3",
+      "count": 1,
+      "usd": 0.0010207
+    },
+    {
+      "provider": "jev",
+      "key": "0839997bb4866d6bffee2e7ff33e27290ed8e7ce297c33d858b9c9e01e7cd522",
+      "seconds": 1.243,
+      "usd": 0
+    }
+  ]
+}

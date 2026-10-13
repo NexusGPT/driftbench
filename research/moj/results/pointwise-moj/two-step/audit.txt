@@ -1,0 +1,413 @@
+{
+  "replayed": 204,
+  "residual": 3,
+  "comparisons": {
+    "rubricbench": {
+      "single_threshold": {
+        "n": 46,
+        "accuracy": 0.9130434782608695,
+        "balanced": 0.9147727272727273,
+        "sensitivity": 0.875,
+        "specificity": 0.9545454545454546,
+        "positive_n": 24,
+        "negative_n": 22,
+        "ci95": [
+          0.796750643647758,
+          0.9656646881232924
+        ],
+        "s2_per_100": 45.65217391304348,
+        "s1_per_100": 300.0,
+        "known_usd_per_100": 0.020493586956521738
+      },
+      "two_step": {
+        "n": 46,
+        "accuracy": 0.8804347826086957,
+        "balanced": 0.8816287878787878,
+        "sensitivity": 0.8541666666666666,
+        "specificity": 0.9090909090909091,
+        "positive_n": 24,
+        "negative_n": 22,
+        "ci95": [
+          0.7563834069575537,
+          0.9458412407263088
+        ],
+        "s2_per_100": 26.08695652173913,
+        "s1_per_100": 263.04347826086956,
+        "known_usd_per_100": 0.006658695652173912
+      },
+      "paired_delta_vs_single": {
+        "groups": 46,
+        "draws": 20000,
+        "ci95_points": [
+          -13.043478260869565,
+          5.434782608695652
+        ]
+      },
+      "committed": 21,
+      "abstained": 25,
+      "baseline_comparisons": [
+        {
+          "baseline": "pw-router-v1",
+          "difference_points": -3.2608695652173836,
+          "met": false
+        },
+        {
+          "baseline": "pw_whole",
+          "difference_points": -2.1739130434782594,
+          "met": false
+        },
+        {
+          "baseline": "pw-s1-whole",
+          "difference_points": -2.1739130434782594,
+          "met": false
+        },
+        {
+          "baseline": "pw-s1-rows",
+          "difference_points": -5.434782608695654,
+          "met": false
+        },
+        {
+          "baseline": "pw-moj-luna",
+          "difference_points": -5.434782608695654,
+          "met": false
+        },
+        {
+          "baseline": "pw-moj-mix",
+          "difference_points": -3.2608695652173836,
+          "met": false
+        },
+        {
+          "baseline": "pw_s2v_luna",
+          "difference_points": 0.0,
+          "met": false
+        },
+        {
+          "baseline": "pw_s2v_haiku",
+          "difference_points": 7.608695652173914,
+          "met": true
+        },
+        {
+          "baseline": "length",
+          "difference_points": 48.91304347826087,
+          "met": true
+        },
+        {
+          "baseline": "first",
+          "difference_points": 38.04347826086957,
+          "met": true
+        }
+      ]
+    },
+    "hardrows": {
+      "single_threshold": {
+        "n": 54,
+        "accuracy": 0.9629629629629629,
+        "balanced": 0.96,
+        "sensitivity": 1.0,
+        "specificity": 0.92,
+        "positive_n": 29,
+        "negative_n": 25,
+        "ci95": [
+          0.8746459065659669,
+          0.9897838464145869
+        ],
+        "s2_per_100": 7.407407407407407,
+        "s1_per_100": 200.0,
+        "known_usd_per_100": 0.0006185185185185185
+      },
+      "two_step": {
+        "n": 54,
+        "accuracy": 0.9259259259259259,
+        "balanced": 0.9199999999999999,
+        "sensitivity": 1.0,
+        "specificity": 0.84,
+        "positive_n": 29,
+        "negative_n": 25,
+        "ci95": [
+          0.8244564280657937,
+          0.9708189446763159
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 100.0,
+        "known_usd_per_100": 0.0
+      },
+      "paired_delta_vs_single": {
+        "groups": 47,
+        "draws": 20000,
+        "ci95_points": [
+          -9.615384615384617,
+          0.0
+        ]
+      },
+      "committed": 54,
+      "abstained": 0,
+      "baseline_comparisons": [
+        {
+          "baseline": "pw-router-v1",
+          "difference_points": -3.703703703703698,
+          "met": false
+        },
+        {
+          "baseline": "pw_whole",
+          "difference_points": 0.0,
+          "met": false
+        },
+        {
+          "baseline": "pw-s1-whole",
+          "difference_points": -1.851851851851849,
+          "met": false
+        },
+        {
+          "baseline": "pw-s1-rows",
+          "difference_points": -4.629629629629628,
+          "met": false
+        },
+        {
+          "baseline": "pw-moj-luna",
+          "difference_points": -5.555555555555558,
+          "met": false
+        },
+        {
+          "baseline": "pw-moj-mix",
+          "difference_points": -5.555555555555558,
+          "met": false
+        },
+        {
+          "baseline": "pw_ledger",
+          "difference_points": -7.4074074074074066,
+          "met": false
+        },
+        {
+          "baseline": "pw_shipped",
+          "difference_points": -3.703703703703698,
+          "met": false
+        },
+        {
+          "baseline": "pw_promptfoo",
+          "difference_points": 3.703703703703709,
+          "met": true
+        },
+        {
+          "baseline": "pw_s2v_luna",
+          "difference_points": -7.4074074074074066,
+          "met": false
+        },
+        {
+          "baseline": "pw_s2v_gemini",
+          "difference_points": -7.4074074074074066,
+          "met": false
+        },
+        {
+          "baseline": "pw_s2v_haiku",
+          "difference_points": 0.0,
+          "met": false
+        },
+        {
+          "baseline": "const_fail",
+          "difference_points": 46.2962962962963,
+          "met": true
+        },
+        {
+          "baseline": "const_pass",
+          "difference_points": 38.888888888888886,
+          "met": true
+        }
+      ]
+    },
+    "verify": {
+      "single_threshold": {
+        "n": 49,
+        "accuracy": 0.6938775510204082,
+        "balanced": 0.7023809523809523,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.6904761904761905,
+        "positive_n": 7,
+        "negative_n": 42,
+        "ci95": [
+          0.5547184259930626,
+          0.8048467650685251
+        ],
+        "s2_per_100": 295.9183673469388,
+        "s1_per_100": 200.0,
+        "known_usd_per_100": 0.28295602040816326
+      },
+      "two_step": {
+        "n": 49,
+        "accuracy": 0.7959183673469388,
+        "balanced": 0.7619047619047619,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.8095238095238095,
+        "positive_n": 7,
+        "negative_n": 42,
+        "ci95": [
+          0.6636272988905616,
+          0.885182729571862
+        ],
+        "s2_per_100": 151.0204081632653,
+        "s1_per_100": 300.0,
+        "known_usd_per_100": 0.07513877551020409
+      },
+      "paired_delta_vs_single": {
+        "groups": 49,
+        "draws": 20000,
+        "ci95_points": [
+          2.0408163265306123,
+          18.41836734693432
+        ]
+      },
+      "committed": 0,
+      "abstained": 49,
+      "baseline_comparisons": [
+        {
+          "baseline": "pw-router-v1",
+          "difference_points": 18.36734693877551,
+          "met": true
+        },
+        {
+          "baseline": "pw_whole",
+          "difference_points": 24.489795918367353,
+          "met": true
+        },
+        {
+          "baseline": "pw_ref_luna",
+          "difference_points": -2.0408163265306145,
+          "met": false
+        },
+        {
+          "baseline": "pw-s1-whole",
+          "difference_points": 19.387755102040817,
+          "met": true
+        },
+        {
+          "baseline": "pw-s1-rows",
+          "difference_points": 24.489795918367353,
+          "met": true
+        },
+        {
+          "baseline": "pw-moj-luna",
+          "difference_points": 6.122448979591832,
+          "met": true
+        },
+        {
+          "baseline": "pw-moj-mix",
+          "difference_points": 8.163265306122447,
+          "met": true
+        },
+        {
+          "baseline": "pw_s2v_gemini",
+          "difference_points": -4.081632653061229,
+          "met": false
+        },
+        {
+          "baseline": "pw_s2v_haiku",
+          "difference_points": 10.204081632653061,
+          "met": true
+        },
+        {
+          "baseline": "const_fail",
+          "difference_points": -6.122448979591832,
+          "met": false
+        },
+        {
+          "baseline": "const_pass",
+          "difference_points": 65.3061224489796,
+          "met": true
+        }
+      ]
+    },
+    "verify-with-reference": {
+      "single_threshold": {
+        "n": 55,
+        "accuracy": 0.8727272727272727,
+        "balanced": 0.6888888888888889,
+        "sensitivity": 0.4,
+        "specificity": 0.9777777777777777,
+        "positive_n": 10,
+        "negative_n": 45,
+        "ci95": [
+          0.7598272515317739,
+          0.9369586958251979
+        ],
+        "s2_per_100": 29.09090909090909,
+        "s1_per_100": 200.0,
+        "known_usd_per_100": 0.02039272727272727
+      },
+      "two_step": {
+        "n": 55,
+        "accuracy": 0.9818181818181818,
+        "balanced": 0.9888888888888889,
+        "sensitivity": 1.0,
+        "specificity": 0.9777777777777777,
+        "positive_n": 10,
+        "negative_n": 45,
+        "ci95": [
+          0.9039399953951678,
+          0.9967833024077472
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 100.0,
+        "known_usd_per_100": 0.0
+      },
+      "paired_delta_vs_single": {
+        "groups": 55,
+        "draws": 20000,
+        "ci95_points": [
+          3.6363636363636362,
+          20.0
+        ]
+      },
+      "committed": 55,
+      "abstained": 0,
+      "baseline_comparisons": [
+        {
+          "baseline": "pw-router-v1",
+          "difference_points": 18.181818181818176,
+          "met": true
+        },
+        {
+          "baseline": "pw_whole",
+          "difference_points": 1.8181818181818188,
+          "met": true
+        },
+        {
+          "baseline": "pw-s1-whole",
+          "difference_points": 1.8181818181818188,
+          "met": true
+        },
+        {
+          "baseline": "pw-s1-rows",
+          "difference_points": 18.181818181818176,
+          "met": true
+        },
+        {
+          "baseline": "pw-moj-luna",
+          "difference_points": 16.36363636363636,
+          "met": true
+        },
+        {
+          "baseline": "pw-moj-mix",
+          "difference_points": 16.36363636363636,
+          "met": true
+        },
+        {
+          "baseline": "reference-first-recorded",
+          "difference_points": 2.7272727272727226,
+          "met": true
+        },
+        {
+          "baseline": "const_fail",
+          "difference_points": 16.36363636363636,
+          "met": true
+        },
+        {
+          "baseline": "const_pass",
+          "difference_points": 80.0,
+          "met": true
+        }
+      ]
+    }
+  },
+  "new_submissions": 563,
+  "new_answers": 551,
+  "missing_stages": 4
+}

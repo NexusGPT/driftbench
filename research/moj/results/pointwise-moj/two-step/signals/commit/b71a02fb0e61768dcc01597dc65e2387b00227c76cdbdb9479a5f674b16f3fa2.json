@@ -1,0 +1,16 @@
+{
+  "pA": 0.53,
+  "detail": {
+    "a_better": 0.46,
+    "b_better": 0.4,
+    "can_commit": 0.46
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "1b102ab9d718491bf32ea5c184c923d79a0e6704f019c32b169b67e1fb43936d",
+      "seconds": 3.063,
+      "usd": 0
+    }
+  ]
+}

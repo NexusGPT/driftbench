@@ -1,0 +1,1220 @@
+{
+  "rubric_escalations": [
+    {
+      "key": "rubricbench|rubric_eval_776",
+      "label": "B",
+      "before_luna": {
+        "pA": 0.52,
+        "detail": {
+          "asked": "rows",
+          "a": 0.18,
+          "b": 0.14
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 3.346,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "luna": {
+        "pA": 1.0,
+        "detail": {
+          "games": [
+            "A",
+            "A"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 2,
+          "s2": {
+            "luna": 2
+          }
+        },
+        "usd": 0.001008,
+        "seconds": {
+          "jev": 0,
+          "luna": 5.861
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.001008
+          }
+        ]
+      },
+      "rows": {
+        "pA": 0.488125,
+        "detail": {
+          "asked": "rows",
+          "rows": {
+            "a": {
+              "rb_1": 0.98,
+              "rb_2": 0.31,
+              "rb_3": 0.2,
+              "rb_4": 0.9,
+              "rb_5": 0.13,
+              "rb_6": 0.78,
+              "rb_7": 0.68,
+              "rb_8": 0.32
+            },
+            "b": {
+              "rb_1": 0.98,
+              "rb_2": 0.44,
+              "rb_3": 0.08,
+              "rb_4": 0.99,
+              "rb_5": 0.53,
+              "rb_6": 0.63,
+              "rb_7": 0.15,
+              "rb_8": 0.69
+            }
+          },
+          "rules": {
+            "min": 0.525,
+            "mean": 0.488125,
+            "prod": 0.500013184467632
+          }
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 2.855,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "two_step": {
+        "pA": 1.0,
+        "verdict": "A",
+        "confidence": 0.5,
+        "path": [
+          "abstain",
+          "route",
+          "pw_whole",
+          "pw_s2v_luna"
+        ],
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "6b56fbce0827df23b9779f06aa8959aefa52f9ee1881be344966a18a6dc0f93d",
+            "seconds": 0.423,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "9882c12182f3f0d9906a5905b2da63a1fc44c97859e326de6297fcef7d6630f7",
+            "seconds": 0.503,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.001008
+          }
+        ],
+        "level": "routed",
+        "commit_confidence": 0.6842105263157895
+      }
+    },
+    {
+      "key": "rubricbench|rubric_eval_744",
+      "label": "A",
+      "before_luna": {
+        "pA": 0.51,
+        "detail": {
+          "asked": "rows",
+          "a": 0.08,
+          "b": 0.06
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 0.588,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "luna": {
+        "pA": 0.0,
+        "detail": {
+          "games": [
+            "B",
+            "B"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 2,
+          "s2": {
+            "luna": 2
+          }
+        },
+        "usd": 0.000561,
+        "seconds": {
+          "jev": 0,
+          "luna": 11.512
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000561
+          }
+        ]
+      },
+      "rows": {
+        "pA": 0.5366666666666666,
+        "detail": {
+          "asked": "rows",
+          "rows": {
+            "a": {
+              "rb_1": 0.99,
+              "rb_2": 0.92,
+              "rb_3": 0.51,
+              "rb_4": 0.16,
+              "rb_5": 0.7,
+              "rb_6": 0.03
+            },
+            "b": {
+              "rb_1": 0.85,
+              "rb_2": 0.13,
+              "rb_3": 0.69,
+              "rb_4": 0.29,
+              "rb_5": 0.88,
+              "rb_6": 0.03
+            }
+          },
+          "rules": {
+            "min": 0.5,
+            "mean": 0.5366666666666666,
+            "prod": 0.50048850758
+          }
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 0.827,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "two_step": {
+        "pA": 0.0,
+        "verdict": "B",
+        "confidence": 0.5,
+        "path": [
+          "abstain",
+          "route",
+          "pw_whole",
+          "pw_s2v_luna"
+        ],
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "04101a17e113950cca493b949a32a01dec8cba5fac26d2c90578df9c1e256fb0",
+            "seconds": 1.569,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "66c8c9948da61212e53d9922e5dfaf32096f55cafd0ca031e8585480bb6c7e1d",
+            "seconds": 0.372,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000561
+          }
+        ],
+        "level": "routed",
+        "commit_confidence": 0.6
+      }
+    },
+    {
+      "key": "rubricbench|rubric_eval_569",
+      "label": "A",
+      "before_luna": {
+        "pA": 0.495,
+        "detail": {
+          "asked": "rows",
+          "a": 0.61,
+          "b": 0.62
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 0.973,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "luna": {
+        "pA": 1.0,
+        "detail": {
+          "games": [
+            "A",
+            "A"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 2,
+          "s2": {
+            "luna": 2
+          }
+        },
+        "usd": 0.000316,
+        "seconds": {
+          "jev": 0,
+          "luna": 7.382
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000316
+          }
+        ]
+      },
+      "rows": {
+        "pA": 0.493,
+        "detail": {
+          "asked": "rows",
+          "rows": {
+            "a": {
+              "rb_1": 0.68,
+              "rb_2": 0.96,
+              "rb_3": 0.73,
+              "rb_4": 0.9,
+              "rb_5": 0.47
+            },
+            "b": {
+              "rb_1": 0.67,
+              "rb_2": 0.92,
+              "rb_3": 0.72,
+              "rb_4": 0.81,
+              "rb_5": 0.69
+            }
+          },
+          "rules": {
+            "min": 0.39999999999999997,
+            "mean": 0.493,
+            "prod": 0.47676691039999997
+          }
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 0.666,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "two_step": {
+        "pA": 1.0,
+        "verdict": "A",
+        "confidence": 0.4,
+        "path": [
+          "abstain",
+          "route",
+          "pw_whole",
+          "pw_s2v_luna"
+        ],
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "a32aede9d72fa05cf939ae00a7a0bc7380d02961589ebcf4733772ff3c7df322",
+            "seconds": 0.442,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "ad9b48bd39af2d2a46cadb5a6851adacc0970e4e24fcff4e740efa23a165162d",
+            "seconds": 0.767,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000316
+          }
+        ],
+        "level": "routed",
+        "commit_confidence": 0.6541774015458226
+      }
+    },
+    {
+      "key": "rubricbench|rubric_eval_244",
+      "label": "A",
+      "before_luna": {
+        "pA": 0.5,
+        "detail": {
+          "asked": "rows",
+          "a": 0.01,
+          "b": 0.01
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 0.707,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "luna": {
+        "pA": 0.5,
+        "detail": {
+          "games": [
+            "B",
+            "A"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 2,
+          "s2": {
+            "luna": 2
+          }
+        },
+        "usd": 0.000517,
+        "seconds": {
+          "jev": 0,
+          "luna": 6.207
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000517
+          }
+        ]
+      },
+      "rows": {
+        "pA": 0.494375,
+        "detail": {
+          "asked": "rows",
+          "rows": {
+            "a": {
+              "rb_1": 0.58,
+              "rb_2": 0.02,
+              "rb_3": 0.02,
+              "rb_4": 0.39,
+              "rb_5": 0.09,
+              "rb_6": 0.24,
+              "rb_7": 0.9,
+              "rb_8": 0.3
+            },
+            "b": {
+              "rb_1": 0.06,
+              "rb_2": 0.02,
+              "rb_3": 0.02,
+              "rb_4": 0.37,
+              "rb_5": 0.88,
+              "rb_6": 0.37,
+              "rb_7": 0.03,
+              "rb_8": 0.88
+            }
+          },
+          "rules": {
+            "min": 0.5,
+            "mean": 0.494375,
+            "prod": 0.5000002256741504
+          }
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 1.445,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "two_step": {
+        "pA": 0.5,
+        "verdict": "tie",
+        "confidence": 0.4,
+        "path": [
+          "abstain",
+          "route",
+          "pw_whole",
+          "pw_s2v_luna"
+        ],
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "22389b90cc06ec4e46a3a1cbaa09d9f62ff1c9b493908b54ed1cb60d4d0c4282",
+            "seconds": 1.35,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "25aa51685525475ef3ef2e6fe89ea18753916db0de1015d2d139ff59b5880b6c",
+            "seconds": 1.103,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000517
+          }
+        ],
+        "level": "routed",
+        "commit_confidence": 0.6842105263157895
+      }
+    },
+    {
+      "key": "rubricbench|rubric_eval_1011",
+      "label": "B",
+      "before_luna": {
+        "pA": 0.485,
+        "detail": {
+          "asked": "rows",
+          "a": 0.14,
+          "b": 0.17
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 0.71,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "luna": {
+        "pA": 0.0,
+        "detail": {
+          "games": [
+            "B",
+            "B"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 2,
+          "s2": {
+            "luna": 2
+          }
+        },
+        "usd": 0.000328,
+        "seconds": {
+          "jev": 0,
+          "luna": 4.648
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000328
+          }
+        ]
+      },
+      "rows": {
+        "pA": 0.361,
+        "detail": {
+          "asked": "rows",
+          "rows": {
+            "a": {
+              "rb_1": 0.48,
+              "rb_2": 0.94,
+              "rb_3": 0.8,
+              "rb_4": 0.1,
+              "rb_5": 0.03
+            },
+            "b": {
+              "rb_1": 0.98,
+              "rb_2": 0.81,
+              "rb_3": 0.94,
+              "rb_4": 0.98,
+              "rb_5": 0.03
+            }
+          },
+          "rules": {
+            "min": 0.5,
+            "mean": 0.361,
+            "prod": 0.4895727116
+          }
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 0.587,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "two_step": {
+        "pA": 0.0,
+        "verdict": "B",
+        "confidence": 0.5,
+        "path": [
+          "abstain",
+          "route",
+          "pw_whole",
+          "pw_s2v_luna"
+        ],
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "20266d0054be36b3eb7e3177a114704de4b25b6d448710f4fc4bf378a2f4a3cf",
+            "seconds": 0.408,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "25f67e0aba1932964a6670eade6b89a03bcd1c1ec8bac44454e2da6e74b8c1d8",
+            "seconds": 1.564,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000328
+          }
+        ],
+        "level": "routed",
+        "commit_confidence": 0.6842105263157895
+      }
+    },
+    {
+      "key": "rubricbench|rubric_eval_21",
+      "label": "B",
+      "before_luna": {
+        "pA": 0.51,
+        "detail": {
+          "asked": "rows",
+          "a": 0.1,
+          "b": 0.08
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 1.054,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "luna": {
+        "pA": 0.0,
+        "detail": {
+          "games": [
+            "B",
+            "B"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 2,
+          "s2": {
+            "luna": 2
+          }
+        },
+        "usd": 0.000333,
+        "seconds": {
+          "jev": 0,
+          "luna": 4.299
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000333
+          }
+        ]
+      },
+      "rows": {
+        "pA": 0.446875,
+        "detail": {
+          "asked": "rows",
+          "rows": {
+            "a": {
+              "rb_1": 0.88,
+              "rb_2": 0.89,
+              "rb_3": 0.37,
+              "rb_4": 0.78,
+              "rb_5": 0.91,
+              "rb_6": 0.34,
+              "rb_7": 0.06,
+              "rb_8": 0.13
+            },
+            "b": {
+              "rb_1": 0.93,
+              "rb_2": 0.94,
+              "rb_3": 0.87,
+              "rb_4": 0.86,
+              "rb_5": 0.95,
+              "rb_6": 0.55,
+              "rb_7": 0.04,
+              "rb_8": 0.07
+            }
+          },
+          "rules": {
+            "min": 0.51,
+            "mean": 0.446875,
+            "prod": 0.4997942862780632
+          }
+        },
+        "calls": {
+          "jev": 2,
+          "luna": 0,
+          "s2": {}
+        },
+        "usd": 0.0,
+        "seconds": {
+          "jev": 0.726,
+          "luna": 0
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          }
+        ]
+      },
+      "two_step": {
+        "pA": 0.0,
+        "verdict": "B",
+        "confidence": 0.5,
+        "path": [
+          "abstain",
+          "route",
+          "pw_whole",
+          "pw_s2v_luna"
+        ],
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "deeef4e60c85efb8052ab6f8ba7ef1bef8e5b565b15fcff9e488dd8d15473dfc",
+            "seconds": 1.303,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "a242b56cf9b319dcecd222a107e24b6206015968dc5f6db678b471abb037dd5e",
+            "seconds": 0.322,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "count": 2,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 0,
+            "usd": 0.0
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 2,
+            "usd": 0.000333
+          }
+        ],
+        "level": "routed",
+        "commit_confidence": 0.6
+      }
+    }
+  ],
+  "hard_errors": [
+    {
+      "key": "hardrows|rubric.090",
+      "label": "B",
+      "first_framing": 0.91,
+      "second_framing": 0.83,
+      "round_result": {
+        "pA": 0.91,
+        "verdict": "A",
+        "confidence": 1.0,
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "e99382dbb3b5fd02155468a98567d46aba6746f142b17694c86d3389bbff86d8",
+            "seconds": 1.045,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "1ed395eb6a100cb5c6d012a961e04f37228d0250cdc78d8f655d2c87694584a0",
+            "seconds": 0.579,
+            "usd": 0
+          }
+        ],
+        "path": [
+          "terrain",
+          "commit-agreement"
+        ],
+        "level": "commit",
+        "agreement": true
+      },
+      "experts": {
+        "pw_whole": 0.86,
+        "pw_rows": 0.87,
+        "pw_s2v_luna": 0.0
+      }
+    },
+    {
+      "key": "hardrows|rubric.077",
+      "label": "B",
+      "first_framing": 0.88,
+      "second_framing": 0.84,
+      "round_result": {
+        "pA": 0.88,
+        "verdict": "A",
+        "confidence": 1.0,
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "2fe7123e315c13916bbe957270f577a43ddfae83856d84185c01957ea31fb282",
+            "seconds": 0.958,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "9569d5fd88d8f6990aa6949cac1d8bf98aa5faefab7b1e4e8b090a8466c7fa9e",
+            "seconds": 1.847,
+            "usd": 0
+          }
+        ],
+        "path": [
+          "terrain",
+          "commit-agreement"
+        ],
+        "level": "commit",
+        "agreement": true
+      },
+      "experts": {
+        "pw_whole": 0.86,
+        "pw_rows": 0.895,
+        "pw_s2v_luna": 0.0
+      }
+    },
+    {
+      "key": "hardrows|factuality.064",
+      "label": "B",
+      "first_framing": 0.91,
+      "second_framing": 0.86,
+      "round_result": {
+        "pA": 0.0,
+        "verdict": "B",
+        "confidence": 1.0,
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "2932f2b70033bc9f0a1ff70fd651c18a2520c6155549ccdadabb79042b80a36a",
+            "seconds": 1.033,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "a2a9f9579325d6a13e5ff3f28e73013259fa9cfde1d2c528e4aca0ce4e79bdd6",
+            "seconds": 0.298,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "462ef9cba5b476741ddaa24191c3f27e9350ce024bb1dd2dab1e093a4f12bed8",
+            "seconds": 3.209,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "2a8e3656cc1d54243244110a44b01c92b7d67b69f1b0f060c60fdfb95e3bf75d",
+            "seconds": 1.131,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000114
+          }
+        ],
+        "path": [
+          "terrain",
+          "abstain",
+          "route",
+          "pw_s2v_luna"
+        ],
+        "level": "routed",
+        "agreement": true
+      },
+      "experts": {
+        "pw_whole": 0.81,
+        "pw_rows": 0.9199999999999999,
+        "pw_s2v_luna": 0.0
+      }
+    },
+    {
+      "key": "hardrows|factuality.013",
+      "label": "B",
+      "first_framing": 0.82,
+      "second_framing": 0.83,
+      "round_result": {
+        "pA": 0.0,
+        "verdict": "B",
+        "confidence": 0.37499999999999795,
+        "usage": [
+          {
+            "provider": "jev",
+            "key": "9109582e9acbe71072112fc82297925d2b0513e49b7606cb68b6058e34db21b1",
+            "seconds": 1.03,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "cba3862cc9be32a7506f6bdaa1fbd73d03c973c3de90457de528357bb57cb4c1",
+            "seconds": 0.292,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "50c4865a0084276c5d7d9c9a46631fac6dd7eebf02b1f2fe1c8e303137d2a0eb",
+            "seconds": 3.499,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "key": "6028885e9b073f9127594c113b1b4aaf81c462031a17dc5c2be760c019fe1af5",
+            "seconds": 0.959,
+            "usd": 0
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000102
+          }
+        ],
+        "path": [
+          "terrain",
+          "abstain",
+          "route",
+          "pw_s2v_luna"
+        ],
+        "level": "routed",
+        "agreement": true
+      },
+      "experts": {
+        "pw_whole": 0.76,
+        "pw_rows": 0.8475,
+        "pw_s2v_luna": 0.0
+      }
+    }
+  ]
+}

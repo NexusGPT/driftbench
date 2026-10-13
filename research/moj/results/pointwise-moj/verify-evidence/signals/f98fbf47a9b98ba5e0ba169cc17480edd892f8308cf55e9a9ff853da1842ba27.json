@@ -1,0 +1,25 @@
+{
+  "pA": 0.06999999999999995,
+  "detail": {
+    "error_found": true,
+    "quote": "The possible cases are:\n1. First draw is red (1), second draw is blue (2).\n2. First draw is blue (1), second draw is red (2).",
+    "explanation": "This omits the other two valid ordered outcomes: red (2) then blue (1), and blue (2) then red (1). Each omitted outcome has probability \\(4/81\\), so part (1) should be \\(16/81\\), not \\(8/81\\).",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "0adf7e94f12537e6fa2373ec0e34a97d4781cb810a35706a2f303dfad01e4ad9",
+      "count": 1,
+      "usd": 0.0007242
+    },
+    {
+      "provider": "jev",
+      "key": "7bc7f290ceacd09d4e96c130168c669808fc24b451f62e9677ca7e14b460c721",
+      "seconds": 0.573,
+      "usd": 0
+    }
+  ]
+}

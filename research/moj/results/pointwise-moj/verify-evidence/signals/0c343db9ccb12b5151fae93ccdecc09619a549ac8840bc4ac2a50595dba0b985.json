@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "1. **Initial reports and-decisions**: The board was initiallyKC2.05.72.04 \\\\$1.56 per share",
+    "explanation": "The candidate’s response is corrupted at this point and never gives a Yes or No answer. The question asks for a typical person’s judgment; the expected answer is Yes, reflecting the common intuition that the board intentionally harmed the environment by knowingly proceeding with the program. The candidate provides no usable answer.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "fef3fbc64288c0479f1cb6899f353d1a380936480d87737c74c1a7ecca893b4e",
+      "count": 1,
+      "usd": 0.000462
+    },
+    {
+      "provider": "jev",
+      "key": "d347fe51e21184ace2f9e8bd7a70afdf0c03fe73115a4be2670ccce126dc06e9",
+      "seconds": 0.8,
+      "usd": 0
+    }
+  ]
+}

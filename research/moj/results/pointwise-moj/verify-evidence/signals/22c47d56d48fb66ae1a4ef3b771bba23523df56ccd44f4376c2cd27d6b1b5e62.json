@@ -1,0 +1,25 @@
+{
+  "pA": 0.07999999999999996,
+  "detail": {
+    "error_found": true,
+    "quote": "Option I: glass bangladeshi old-fashioned snorkeling nice magenta prismlike canvas\nBreaking it down:\n- glass (material)\n- bangladeshi (origin)\n- old-fashioned (opinion)\n- snorkeling (purpose)\n- nice (opinion)\n- magenta (color)\n- prismlike (opinion)\n- canvas (type)\n\nMaterial and origin come before opinion, which is wrong. Opinions should be first. So incorrect.",
+    "explanation": "The candidate applies a blanket “opinions should be first” rule that the examples contradict. The examples include “plastic egyptian necklace” (material before origin), “turkish old green box” (origin before age and color), and “cardboard typing lovely flower pot” (material and purpose before opinion). These support the ordering in I rather than the candidate’s reason for rejecting it; the final answer K therefore omits a correct choice.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "92525684a697170096964355edf14ad28b9938eb18c272e04e235976cd2ca8b5",
+      "count": 2,
+      "usd": 0.000978
+    },
+    {
+      "provider": "jev",
+      "key": "7e0826868df0763daf2249125edc63b0502c9e1519c9e39998ccbf3e1112d9b2",
+      "seconds": 30.605,
+      "usd": 0
+    }
+  ]
+}

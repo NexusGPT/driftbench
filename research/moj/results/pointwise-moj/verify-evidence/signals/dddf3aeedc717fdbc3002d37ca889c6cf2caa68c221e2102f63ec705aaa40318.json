@@ -1,0 +1,25 @@
+{
+  "pA": 0.16000000000000003,
+  "detail": {
+    "error_found": true,
+    "quote": "The loop is divided into five equal segments, each 5.4 blocks long.",
+    "explanation": "The question provides no diagram or information that A–E are equally spaced—or even where those points and the starting point lie. The candidate invents that geometry, so its conclusion that the meeting point is closest to E is unsupported; the answer cannot be determined from the supplied information alone.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "6dc55ae62ffb73888fcf854c21867140349bf6b01776c0a4a15347569dc60a18",
+      "count": 1,
+      "usd": 0.0008511
+    },
+    {
+      "provider": "jev",
+      "key": "f10dde8ba673032c04dbed087b54e16bb21296df09936f3d42739f88b4324ec5",
+      "seconds": 0.604,
+      "usd": 0
+    }
+  ]
+}

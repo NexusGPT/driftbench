@@ -1,0 +1,25 @@
+{
+  "pA": 0.24,
+  "detail": {
+    "error_found": true,
+    "quote": "Option D is stronger because it demonstrates that arthritis can occur without the supposed cause (wearing less), directly challenging the cause-effect link Ms. Zhang suggests.",
+    "explanation": "This incorrectly treats Ms. Zhang’s claim that wearing less causes arthritis as a claim that wearing less is necessary for arthritis. D only says that some people who wear more also get arthritis; that is compatible with wearing less being a contributing risk factor. So D does not establish the claimed contradiction or justify the final answer.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "db831fa6e351d7f319a579fc126d1f44b635734f4782d48c5b7e17bd18417c1f",
+      "count": 1,
+      "usd": 0.0005424000000000001
+    },
+    {
+      "provider": "jev",
+      "key": "d47204bf88a766022b212e44ec03aa43544026e18eb28fcf07f3446b5976e9fe",
+      "seconds": 1.02,
+      "usd": 0
+    }
+  ]
+}

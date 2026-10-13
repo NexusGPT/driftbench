@@ -1,0 +1,22 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "B",
+    "reasoning": "把“食不时”解释为不吃反季节蔬菜，必须假设孔子所处时代已经有应季和反季节蔬菜之分；否则这一解释缺乏现实对象。",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "a668078896e5f85912d28f56617a5948ef3634cfc6e2fbedf4bf5f47ec83da93",
+      "count": 3,
+      "usd": 0.00012020000000000001
+    },
+    {
+      "provider": "jev",
+      "key": "6911204e48295376e5bc57f0339a2110d023e18f344096f0beeb2369d2bef92f",
+      "seconds": 0.558,
+      "usd": 0
+    }
+  ]
+}

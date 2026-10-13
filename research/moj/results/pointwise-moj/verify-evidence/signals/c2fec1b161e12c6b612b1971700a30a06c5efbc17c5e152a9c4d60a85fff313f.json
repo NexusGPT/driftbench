@@ -1,0 +1,25 @@
+{
+  "pA": 0.14,
+  "detail": {
+    "error_found": true,
+    "quote": "So, along BF, from F to G is 20, and from G to E is 15.",
+    "explanation": "The given EF = 15 is the whole segment from E to F, not EG. In the depicted order B–E–G–F, EF = EG + GF, so EF must be greater than GF; the stated lengths 15 and 20 are inconsistent. The candidate silently treats EF as EG, and its final calculation depends on that substitution.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "7f85c17a8a0c157a43562f1a1c6f4e331fbdf22483167ea724d6bfd1f05dd668",
+      "count": 1,
+      "usd": 0.0016023
+    },
+    {
+      "provider": "jev",
+      "key": "d13fa0f134b3acde6289d04606547d2b96a6b45e1b10835b37fa3c448d60132b",
+      "seconds": 0.952,
+      "usd": 0
+    }
+  ]
+}

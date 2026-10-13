@@ -1,0 +1,25 @@
+{
+  "pA": 0.27,
+  "detail": {
+    "error_found": true,
+    "quote": "Because if there were both, then you can choose.",
+    "explanation": "The existence of seasonal and out-of-season vegetables does not establish that people could choose between them. The candidate uses that unsupported implication to dismiss C and select B. C is the assumption that directly makes the advice relevant as a dietary choice; B alone does not establish that choice.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "a3ae62abcc4f857a9b0b5296c56f8eee7baa2e0926b255e2f459283f28b388bb",
+      "count": 2,
+      "usd": 0.0004082
+    },
+    {
+      "provider": "jev",
+      "key": "8b7cda2aae43452b3d6c9bb628a0512c630dddfba8af5a212e1d6298455b047c",
+      "seconds": 34.027,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "pA": 0.88,
+  "detail": {
+    "reference": "The soda costs cannot be determined without knowing how many cups were ordered. The sodas cost $2.50 total; if there was one cup per friend, each cup cost $0.50.",
+    "reasoning": "They paid 5 × $5 = $25. The hamburgers, fries, and spaghetti cost $15 + $4.80 + $2.70 = $22.50, leaving $2.50 for soda. The price per cup depends on the number of cups.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "f47d03c0f1ca28a4cb24349042a5de8cb8daffaa2b3fca8b774ee1f41d7b76d9",
+      "count": 1,
+      "usd": 0.00016759999999999998
+    },
+    {
+      "provider": "jev",
+      "key": "324168e67f15d978403a5693f5b1c9234dea535006d9b9c2e91b56fdf81a60a5",
+      "seconds": 1.109,
+      "usd": 0
+    }
+  ]
+}

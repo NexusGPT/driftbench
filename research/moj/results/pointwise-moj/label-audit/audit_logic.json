@@ -1,0 +1,3210 @@
+[
+  {
+    "index": 4,
+    "id": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": [
+      "disproved",
+      "unknown"
+    ],
+    "candidate_final": "Let's analyze the rules and the given information to determine the truth value of the statement \"Does the finch capture the king of the pigeon?\"\n\nHere's a breakdown of the rules and how they apply:\n\n*   **Rule 11:** \"The frog will not destroy the wall constructed by the swan if it (the frog) is less than 4 years old.\" This is relevant. The frog is less than 4 years old.\n\n*   **Rule 12:** \"If you are positive that you saw one of the animals creates one castle for the dragon, you can be certain that it will also refuse to help the dinosaur.\" This is relevant.  We know the dragon creates a castle.\n\n*   **Rule 13:** \"If at least one animal takes over the emperor of the monkey, then the bee does not refuse to help the dinosaur.\"  We don't know if the monkey emperor takes over the dinosaur.\n\n*   **Rule 14:** \"If something wants to see the fangtooth, then it does not shout at the beetle.\"  We don't know if the fangtooth is present.\n\n*   **Rule 15:** \"There exists an animal which trades one of the pieces in its possession with the bison? Then, the swan definitely does not unite with the ostrich.\" This is a complex rule. We don't know if the bison trades a piece with the swan.\n\n*   **Rule 16:** \"Regarding the frog, if it has a card with a primary color, then we can conclude that it does not destroy the wall constructed by the swan.\"  The frog *does* have a primary color card.\n\n*   **Rule 17:** \"From observing that an animal does not refuse to help the dinosaur, one can conclude that it reveals something that is supposed to be a secret to the zebra.\"  The frog *does* not refuse to help the dinosaur.\n\n*   **Rule 18:** \"If something does not shout at the beetle but reveals a secret to the zebra, then it will not trade one of the pieces in its possession with the stork.\"  The frog *does not* shout at the beetle.\n\n*   **Rule 19:** \"If something refuses to help the badger, then it shouts at the dragonfly, too.\"  The frog *does* refuse to help the badger.\n\n*   **Rule 20:** \"If you are positive that you saw one of the animals shouts at the dragonfly, you can be certain that it will also shout at the beaver.\"  The frog *does* shout at the dragonfly.\n\n*   **Rule 21:** \"Regarding the frog, if it has a leafy green vegetable, then we can conclude that it destroys the wall constructed by the swan.\"  The frog *does* have a leafy green vegetable.\n\n*   **Rule 22:** \"If you are positive that you saw one of the animals shouts at the peafowl, you can be certain that it will also shout at the beaver.\"  The frog *does* shout at the peafowl.\n\n*   **Rule 23:** \"Here is an important piece of information about the snake: if it works fewer hours than before then it tears down the castle of the dove for sure.\"  This is a rule about the snake's behavior.\n\n*   **Rule 24:** \"The swan unquestionably shouts at the peafowl, in the case where the frog destroys the wall built by the swan.\"  The frog destroys the wall.\n\n**Analysis and Conclusion:**\n\nLet's examine the relationships between the rules:\n\n*   Rule 19:  The frog *refuses* to help the badger.\n*   Rule 20: The frog *does* shout at the dragonfly.\n*   Rule 18: The frog *does* not trade one of its pieces with the stork.\n*   Rule 21: The frog *has* a leafy green vegetable.\n*   Rule 22: The frog *does* shout at the peafowl.\n\nBased on the above, the frog *does* not capture the king of the pigeon.\n\nTherefore, the answer is: **disproved**",
+    "evidence": {
+      "rules": [
+        {
+          "number": 1,
+          "antecedents": [
+            "swan_shout_beaver"
+          ],
+          "conclusion": "swan_unite"
+        },
+        {
+          "number": 2,
+          "antecedents": [
+            "snake_tear_dove"
+          ],
+          "conclusion": "woodpecker_take_monkey"
+        },
+        {
+          "number": 3,
+          "antecedents": [
+            "animal_persuade_rhino"
+          ],
+          "conclusion": "!swan_shout_beaver"
+        },
+        {
+          "number": 4,
+          "antecedents": [
+            "bee_not_trade",
+            "beetle_trade"
+          ],
+          "conclusion": "stork_wants_goat"
+        },
+        {
+          "number": 5,
+          "antecedents": [
+            "bee_not_tear_badger"
+          ],
+          "conclusion": "bee_refuse_badger"
+        },
+        {
+          "number": 6,
+          "antecedents": [
+            "seahorse_enjoy_ant"
+          ],
+          "conclusion": "!swan_shout_peafowl"
+        },
+        {
+          "number": 7,
+          "antecedents": [
+            "swan_unite"
+          ],
+          "conclusion": "beetle_trade"
+        },
+        {
+          "number": 8,
+          "antecedents": [
+            "bee_create_dragon"
+          ],
+          "conclusion": "bee_refuse_dinosaur"
+        },
+        {
+          "number": 10,
+          "antecedents": [
+            "stork_wants_goat"
+          ],
+          "conclusion": "!finch_capture"
+        },
+        {
+          "number": 11,
+          "antecedents": [
+            "frog_young"
+          ],
+          "conclusion": "!frog_destroy"
+        },
+        {
+          "number": 12,
+          "antecedents": [
+            "seahorse_not_create_vampire"
+          ],
+          "conclusion": "seahorse_enjoy_ant"
+        },
+        {
+          "number": 13,
+          "antecedents": [
+            "woodpecker_take_monkey"
+          ],
+          "conclusion": "!bee_refuse_dinosaur"
+        },
+        {
+          "number": 14,
+          "antecedents": [
+            "bee_wants_fangtooth"
+          ],
+          "conclusion": "!bee_shout_beetle"
+        },
+        {
+          "number": 15,
+          "antecedents": [
+            "animal_trade_bison"
+          ],
+          "conclusion": "!swan_unite"
+        },
+        {
+          "number": 16,
+          "antecedents": [
+            "frog_primary"
+          ],
+          "conclusion": "!frog_destroy"
+        },
+        {
+          "number": 17,
+          "antecedents": [
+            "!bee_refuse_dinosaur"
+          ],
+          "conclusion": "bee_reveal_zebra"
+        },
+        {
+          "number": 18,
+          "antecedents": [
+            "!bee_shout_beetle",
+            "bee_reveal_zebra"
+          ],
+          "conclusion": "bee_not_trade"
+        },
+        {
+          "number": 19,
+          "antecedents": [
+            "bee_refuse_badger"
+          ],
+          "conclusion": "bee_shout_dragonfly"
+        },
+        {
+          "number": 20,
+          "antecedents": [
+            "bee_shout_dragonfly"
+          ],
+          "conclusion": "bee_wants_fangtooth"
+        },
+        {
+          "number": 21,
+          "antecedents": [
+            "frog_leafy"
+          ],
+          "conclusion": "frog_destroy"
+        },
+        {
+          "number": 22,
+          "antecedents": [
+            "swan_shout_peafowl"
+          ],
+          "conclusion": "swan_shout_beaver"
+        },
+        {
+          "number": 23,
+          "antecedents": [
+            "snake_reduced_hours"
+          ],
+          "conclusion": "snake_tear_dove"
+        },
+        {
+          "number": 24,
+          "antecedents": [
+            "frog_destroy"
+          ],
+          "conclusion": "swan_shout_peafowl"
+        }
+      ],
+      "preferences": [
+        [
+          11,
+          21
+        ],
+        [
+          15,
+          1
+        ],
+        [
+          16,
+          21
+        ],
+        [
+          24,
+          6
+        ],
+        [
+          3,
+          22
+        ],
+        [
+          8,
+          13
+        ]
+      ],
+      "lexical_bridges": [
+        "frog_primary",
+        "frog_leafy",
+        "snake_reduced_hours"
+      ],
+      "variants": [
+        {
+          "bridges": {
+            "frog_primary": false,
+            "frog_leafy": false,
+            "snake_reduced_hours": false
+          },
+          "answer": "unknown",
+          "closure": [
+            "!bee_shout_beetle",
+            "!swan_shout_peafowl",
+            "bee_not_tear_badger",
+            "bee_refuse_badger",
+            "bee_shout_dragonfly",
+            "bee_wants_fangtooth",
+            "seahorse_enjoy_ant",
+            "seahorse_not_create_vampire"
+          ],
+          "rounds": [
+            [
+              5,
+              12
+            ],
+            [
+              5,
+              6,
+              12,
+              19
+            ],
+            [
+              5,
+              6,
+              12,
+              19,
+              20
+            ],
+            [
+              5,
+              6,
+              12,
+              14,
+              19,
+              20
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "frog_primary": false,
+            "frog_leafy": false,
+            "snake_reduced_hours": true
+          },
+          "answer": "unknown",
+          "closure": [
+            "!bee_refuse_dinosaur",
+            "!bee_shout_beetle",
+            "!swan_shout_peafowl",
+            "bee_not_tear_badger",
+            "bee_not_trade",
+            "bee_refuse_badger",
+            "bee_reveal_zebra",
+            "bee_shout_dragonfly",
+            "bee_wants_fangtooth",
+            "seahorse_enjoy_ant",
+            "seahorse_not_create_vampire",
+            "snake_reduced_hours",
+            "snake_tear_dove",
+            "woodpecker_take_monkey"
+          ],
+          "rounds": [
+            [
+              5,
+              12,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              19,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              13,
+              19,
+              20,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              13,
+              14,
+              17,
+              19,
+              20,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              13,
+              14,
+              17,
+              18,
+              19,
+              20,
+              23
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "frog_primary": false,
+            "frog_leafy": true,
+            "snake_reduced_hours": false
+          },
+          "answer": "unknown",
+          "closure": [
+            "!bee_shout_beetle",
+            "bee_not_tear_badger",
+            "bee_refuse_badger",
+            "bee_shout_dragonfly",
+            "bee_wants_fangtooth",
+            "beetle_trade",
+            "frog_destroy",
+            "frog_leafy",
+            "seahorse_enjoy_ant",
+            "seahorse_not_create_vampire",
+            "swan_shout_beaver",
+            "swan_shout_peafowl",
+            "swan_unite"
+          ],
+          "rounds": [
+            [
+              5,
+              12,
+              21
+            ],
+            [
+              5,
+              12,
+              19,
+              21,
+              24
+            ],
+            [
+              5,
+              12,
+              19,
+              20,
+              21,
+              22,
+              24
+            ],
+            [
+              1,
+              5,
+              12,
+              14,
+              19,
+              20,
+              21,
+              22,
+              24
+            ],
+            [
+              1,
+              5,
+              7,
+              12,
+              14,
+              19,
+              20,
+              21,
+              22,
+              24
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "frog_primary": false,
+            "frog_leafy": true,
+            "snake_reduced_hours": true
+          },
+          "answer": "disproved",
+          "closure": [
+            "!bee_refuse_dinosaur",
+            "!bee_shout_beetle",
+            "!finch_capture",
+            "bee_not_tear_badger",
+            "bee_not_trade",
+            "bee_refuse_badger",
+            "bee_reveal_zebra",
+            "bee_shout_dragonfly",
+            "bee_wants_fangtooth",
+            "beetle_trade",
+            "frog_destroy",
+            "frog_leafy",
+            "seahorse_enjoy_ant",
+            "seahorse_not_create_vampire",
+            "snake_reduced_hours",
+            "snake_tear_dove",
+            "stork_wants_goat",
+            "swan_shout_beaver",
+            "swan_shout_peafowl",
+            "swan_unite",
+            "woodpecker_take_monkey"
+          ],
+          "rounds": [
+            [
+              5,
+              12,
+              21,
+              23
+            ],
+            [
+              2,
+              5,
+              12,
+              19,
+              21,
+              23,
+              24
+            ],
+            [
+              2,
+              5,
+              12,
+              13,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            [
+              1,
+              2,
+              5,
+              12,
+              13,
+              14,
+              17,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            [
+              1,
+              2,
+              5,
+              7,
+              12,
+              13,
+              14,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            [
+              1,
+              2,
+              4,
+              5,
+              7,
+              12,
+              13,
+              14,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            [
+              1,
+              2,
+              4,
+              5,
+              7,
+              10,
+              12,
+              13,
+              14,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "frog_primary": true,
+            "frog_leafy": false,
+            "snake_reduced_hours": false
+          },
+          "answer": "unknown",
+          "closure": [
+            "!bee_shout_beetle",
+            "!frog_destroy",
+            "!swan_shout_peafowl",
+            "bee_not_tear_badger",
+            "bee_refuse_badger",
+            "bee_shout_dragonfly",
+            "bee_wants_fangtooth",
+            "frog_primary",
+            "seahorse_enjoy_ant",
+            "seahorse_not_create_vampire"
+          ],
+          "rounds": [
+            [
+              5,
+              12,
+              16
+            ],
+            [
+              5,
+              6,
+              12,
+              16,
+              19
+            ],
+            [
+              5,
+              6,
+              12,
+              16,
+              19,
+              20
+            ],
+            [
+              5,
+              6,
+              12,
+              14,
+              16,
+              19,
+              20
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "frog_primary": true,
+            "frog_leafy": false,
+            "snake_reduced_hours": true
+          },
+          "answer": "unknown",
+          "closure": [
+            "!bee_refuse_dinosaur",
+            "!bee_shout_beetle",
+            "!frog_destroy",
+            "!swan_shout_peafowl",
+            "bee_not_tear_badger",
+            "bee_not_trade",
+            "bee_refuse_badger",
+            "bee_reveal_zebra",
+            "bee_shout_dragonfly",
+            "bee_wants_fangtooth",
+            "frog_primary",
+            "seahorse_enjoy_ant",
+            "seahorse_not_create_vampire",
+            "snake_reduced_hours",
+            "snake_tear_dove",
+            "woodpecker_take_monkey"
+          ],
+          "rounds": [
+            [
+              5,
+              12,
+              16,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              16,
+              19,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              13,
+              16,
+              19,
+              20,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              13,
+              14,
+              16,
+              17,
+              19,
+              20,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              13,
+              14,
+              16,
+              17,
+              18,
+              19,
+              20,
+              23
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "frog_primary": true,
+            "frog_leafy": true,
+            "snake_reduced_hours": false
+          },
+          "answer": "unknown",
+          "closure": [
+            "!bee_shout_beetle",
+            "!frog_destroy",
+            "!swan_shout_peafowl",
+            "bee_not_tear_badger",
+            "bee_refuse_badger",
+            "bee_shout_dragonfly",
+            "bee_wants_fangtooth",
+            "frog_leafy",
+            "frog_primary",
+            "seahorse_enjoy_ant",
+            "seahorse_not_create_vampire"
+          ],
+          "rounds": [
+            [
+              5,
+              12,
+              16
+            ],
+            [
+              5,
+              6,
+              12,
+              16,
+              19
+            ],
+            [
+              5,
+              6,
+              12,
+              16,
+              19,
+              20
+            ],
+            [
+              5,
+              6,
+              12,
+              14,
+              16,
+              19,
+              20
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "frog_primary": true,
+            "frog_leafy": true,
+            "snake_reduced_hours": true
+          },
+          "answer": "unknown",
+          "closure": [
+            "!bee_refuse_dinosaur",
+            "!bee_shout_beetle",
+            "!frog_destroy",
+            "!swan_shout_peafowl",
+            "bee_not_tear_badger",
+            "bee_not_trade",
+            "bee_refuse_badger",
+            "bee_reveal_zebra",
+            "bee_shout_dragonfly",
+            "bee_wants_fangtooth",
+            "frog_leafy",
+            "frog_primary",
+            "seahorse_enjoy_ant",
+            "seahorse_not_create_vampire",
+            "snake_reduced_hours",
+            "snake_tear_dove",
+            "woodpecker_take_monkey"
+          ],
+          "rounds": [
+            [
+              5,
+              12,
+              16,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              16,
+              19,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              13,
+              16,
+              19,
+              20,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              13,
+              14,
+              16,
+              17,
+              19,
+              20,
+              23
+            ],
+            [
+              2,
+              5,
+              6,
+              12,
+              13,
+              14,
+              16,
+              17,
+              18,
+              19,
+              20,
+              23
+            ]
+          ]
+        }
+      ]
+    },
+    "reason": "Result depends on lexical/world-knowledge bridges not stated as rules; bounded variants retained without relabeling.",
+    "question_sha256": "c68c5fc81f9be5ff511e098fc6bd9467bc949983497bdc84b9b1c3fa1fdc6a74",
+    "candidate_sha256": "df41e0ab12783e16934904bfa6615d703c2f3a59305c80e200295540d6d7fb41"
+  },
+  {
+    "index": 6,
+    "id": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "disproved",
+    "candidate_final": "To determine if the mouse shouts at the beetle, we need to analyze the given rules and the current state of the game step by step.\n\n1. **Current State of the Game:**\n   - The antnegotiates a deal with the stork.\n   - The dragonacquires a photograph of the fish.\n   - themanikin cigarbitrary a card that she has from the liger.\n   - The mouse is currently in Nigeria.\n   - The stork has 98 dollars.\n   - The worm negles the chihuahua.\n   - The crow does not surrendered to the wolf.\n   - The dalmatian does not trade one of its pieces with the stork.\n\n2. ** Rules:**\n   - Rule1: If the antnegotiates a deal with the stork and the dalmatian does not trade one of the pieces in its possession with the stork, then, inevitably, the stork builds a power plant close to the green fields of the goat.\n   - Rule2: If at least one animal builds a power plant close to the green fields of the goat, then the mouse does not shout at the beetle.\n   - Rule3: If the stork has more money than the walrus, then the stork does not build a power plant close to the green fields of the goat.\n   - Rule4: If the mouse is in Africa at the moment, then the mouse smilesthe cobra.\n   - Rule5: If something hugs the dinosaur and smilesthe cobra, then it shoutsthe beetle.\n   - Rule6: The llama will call the husky if it (the llama) has a musical instrument.\n   - Rule7: regarding the mouse, if it works in agriculture, then we can conclude that it does not smile the cobra.\n   - Rule8: If there is evidence that one animal, no matter which one, acquires a photograph of the fish, then the llama is not going to call the husky.\n\n3. ** Analysis:**\n   - From the current state, we know the antnegotiates a deal with the stork, and the dalmatian does not trade one of its pieces with the stork.\n   - Rule1 states that if the antnegotiates a deal with the stork and the dalmatian does not trade one of the pieces in its possession with the stork, then the stork builds a power plant close to the green fields of the goat. Therefore, the stork builds a power plant close to the green fields of the goat.\n   - Rule2 states that if at least one animal builds a power plant close to the green fields of the goat, then the mouse does not shout at the beetle. Since the stork builds a power plant close to the green fields of the goat, the mouse does not shout at the beetle.\n   - Rule3 is preferred over Rule1, but it is not applicable here because we already have Rule1 applicable.\n   - Rule4 is not applicable because the mouse is not in Africa.\n   - Rule5 is preferred over Rule2, but it is not applicable here because we already have Rule2 applicable.\n   - Rule6 is not applicable because we do not know if the llama has a musical instrument.\n   - Rule7 is preferred over Rule4, but it is not applicable here because we already have Rule4 not applicable.\n   - Rule8 is not applicable because we do not know if any animal acquires a photograph of the fish.\n\nSince Rule2 is applicable and it states that if at least one animal builds a power plant close to the green fields of the goat, then the mouse does not shout at the beetle, and we have established that the stork builds a power plant close to the green fields of the goat, the mouse does not shout at the beetle.\n\nTherefore, the answer is \\boxed{\\text{proved}}.",
+    "evidence": {
+      "rules": [
+        {
+          "number": 1,
+          "antecedents": [
+            "ant_negotiate",
+            "dalmatian_not_trade"
+          ],
+          "conclusion": "stork_build"
+        },
+        {
+          "number": 2,
+          "antecedents": [
+            "stork_build"
+          ],
+          "conclusion": "!mouse_shout"
+        },
+        {
+          "number": 3,
+          "antecedents": [
+            "stork_richer_walrus"
+          ],
+          "conclusion": "!stork_build"
+        },
+        {
+          "number": 4,
+          "antecedents": [
+            "mouse_africa"
+          ],
+          "conclusion": "mouse_smile"
+        },
+        {
+          "number": 5,
+          "antecedents": [
+            "mouse_hug",
+            "mouse_smile"
+          ],
+          "conclusion": "mouse_shout"
+        }
+      ],
+      "preferences": [
+        [
+          3,
+          1
+        ],
+        [
+          5,
+          2
+        ]
+      ],
+      "lexical_bridges": [
+        "mouse_africa"
+      ],
+      "variants": [
+        {
+          "bridges": {
+            "mouse_africa": false
+          },
+          "answer": "disproved",
+          "closure": [
+            "!mouse_shout",
+            "ant_negotiate",
+            "dalmatian_not_trade",
+            "dragon_photo",
+            "stork_build"
+          ],
+          "rounds": [
+            [
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "mouse_africa": true
+          },
+          "answer": "disproved",
+          "closure": [
+            "!mouse_shout",
+            "ant_negotiate",
+            "dalmatian_not_trade",
+            "dragon_photo",
+            "mouse_africa",
+            "mouse_smile",
+            "stork_build"
+          ],
+          "rounds": [
+            [
+              1,
+              4
+            ],
+            [
+              1,
+              2,
+              4
+            ]
+          ]
+        }
+      ]
+    },
+    "reason": "Candidate negates the queried predicate but calls it proved/proven; inconsistent final output prevents a provable relabeling.",
+    "question_sha256": "01a8a1ea221b18a5d1cb69d3b95f02114eab1bc030423076e01496a961d87be3",
+    "candidate_sha256": "dad8d58f4bf956ea56052883283077f7f1dd587dbfc23795c9187d28a6008ecd"
+  },
+  {
+    "index": 11,
+    "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "C",
+    "candidate_final": "B",
+    "evidence": {
+      "atom_names": [
+        "The capital of Afghanistan is Kabul.",
+        "The capital of Armenia is Gyumri.",
+        "The capital of Canada is Ottawa.",
+        "The capital of Gambia is Banjul.",
+        "The capital of Iran is Isfahan.",
+        "The capital of Jordan is Beirut.",
+        "The capital of Malaysia is Kuala Lumpur."
+      ],
+      "assignments": 128,
+      "true_counts": {
+        "A": 0,
+        "B": 0,
+        "C": 128,
+        "D": 0,
+        "E": 0
+      },
+      "possible_true_sets": [
+        [
+          "C"
+        ]
+      ],
+      "admissible_true_sets": [
+        [
+          "C"
+        ]
+      ],
+      "premise": "The question states exactly one expression is true."
+    },
+    "reason": "Exact rational arithmetic over every capital-city assignment, restricted by the supplied exactly-one-true premise; no external world facts assumed.",
+    "question_sha256": "bc7e17c9fabaddf05c0d3d8761fd8a54f8df5c5d21a173953a069f58ee1d327b",
+    "candidate_sha256": "76a9b53ad87c066757cac575a63dde3107fa709ecf376f802f84478c1d1d9ffa"
+  },
+  {
+    "index": 17,
+    "id": "7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": [
+      "disproved",
+      "unknown"
+    ],
+    "candidate_final": "The reindeer does not acquire a photograph of the liger because Rule7 overrides Rule1, preventing the creation of the castle, and without both actions (creating the castle and investing), Rule4 does not apply. Therefore, the photo is not acquired.\n\n**Answer:** Disproven.",
+    "evidence": {
+      "rules": [
+        {
+          "number": 1,
+          "antecedents": [
+            "reindeer_germany"
+          ],
+          "conclusion": "reindeer_castle"
+        },
+        {
+          "number": 2,
+          "antecedents": [
+            "reindeer_b_color"
+          ],
+          "conclusion": "reindeer_invest"
+        },
+        {
+          "number": 4,
+          "antecedents": [
+            "reindeer_castle",
+            "reindeer_invest"
+          ],
+          "conclusion": "!reindeer_photo"
+        },
+        {
+          "number": 7,
+          "antecedents": [
+            "lizard_not_tear",
+            "stork_trade"
+          ],
+          "conclusion": "!reindeer_castle"
+        }
+      ],
+      "preferences": [
+        [
+          7,
+          1
+        ]
+      ],
+      "lexical_bridges": [
+        "reindeer_germany",
+        "reindeer_b_color"
+      ],
+      "variants": [
+        {
+          "bridges": {
+            "reindeer_germany": false,
+            "reindeer_b_color": false
+          },
+          "answer": "unknown",
+          "closure": [
+            "stork_trade"
+          ],
+          "rounds": []
+        },
+        {
+          "bridges": {
+            "reindeer_germany": false,
+            "reindeer_b_color": true
+          },
+          "answer": "unknown",
+          "closure": [
+            "reindeer_b_color",
+            "reindeer_invest",
+            "stork_trade"
+          ],
+          "rounds": [
+            [
+              2
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "reindeer_germany": true,
+            "reindeer_b_color": false
+          },
+          "answer": "unknown",
+          "closure": [
+            "reindeer_castle",
+            "reindeer_germany",
+            "stork_trade"
+          ],
+          "rounds": [
+            [
+              1
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "reindeer_germany": true,
+            "reindeer_b_color": true
+          },
+          "answer": "disproved",
+          "closure": [
+            "!reindeer_photo",
+            "reindeer_b_color",
+            "reindeer_castle",
+            "reindeer_germany",
+            "reindeer_invest",
+            "stork_trade"
+          ],
+          "rounds": [
+            [
+              1,
+              2
+            ],
+            [
+              1,
+              2,
+              4
+            ]
+          ]
+        }
+      ]
+    },
+    "reason": "Result depends on lexical/world-knowledge bridges not stated as rules; bounded variants retained without relabeling.",
+    "question_sha256": "b3f0b9b18474c342e3ac1f4e43b2f83c85a72bca291e1e2d3fd580061c6e123b",
+    "candidate_sha256": "127829ca32c465b9a9b94f343d7cc8e6c36436424e8682a74f43b67c827d85fd"
+  },
+  {
+    "index": 20,
+    "id": "81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "A",
+    "candidate_final": "[no selected option]",
+    "evidence": {
+      "atom_names": [
+        "The capital of Armenia is Gyumri.",
+        "The capital of Canada is Toronto.",
+        "The capital of Colombia is Bogota.",
+        "The capital of Denmark is Copenhagen.",
+        "The capital of Gambia is Banjul.",
+        "The capital of Jordan is Amman.",
+        "The capital of Nepal is Kathmandu.",
+        "The capital of Turkey is Istanbul."
+      ],
+      "assignments": 256,
+      "true_counts": {
+        "A": 256,
+        "B": 0,
+        "C": 0,
+        "D": 0,
+        "E": 0
+      },
+      "possible_true_sets": [
+        [
+          "A"
+        ]
+      ],
+      "admissible_true_sets": [
+        [
+          "A"
+        ]
+      ],
+      "premise": "The question states exactly one expression is true."
+    },
+    "reason": "Candidate never supplies an option. The computed answer is retained, but omission is not a contradicted stated final answer; no relabeling.",
+    "question_sha256": "3e955bdcfeb9c56f313c902394309383569a72cc400b596a5d12bdf4cb7609c7",
+    "candidate_sha256": "080708c87ba3ffb433cb61047589e68d65b64501241d31613618cbe930adb2df",
+    "provisional_candidate_correct": false
+  },
+  {
+    "index": 27,
+    "id": "97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "proved",
+    "candidate_final": "The basenji does not hide her cards from the songbird.\n\n**Step-by-Step Explanation:**\n\n1. **Basenji's Actions:**\n   - Basenji has sharp objects (cutter and knife), so she doesn't disarm the dove (Rule1).\n   - Therefore, she wants to see the reindeer (Rule8).\n\n2. **Goat's Negotiation:**\n   - The goat negotiated with the pigeon (Rule3), suggesting it won't neglect the goose.\n   - However, Rule6 (preferred over Rule3) says if the beetle doesn't leave and the monkey trades, the goat neglects the goose. The monkey traded, but we don't know about the beetle. Without this info, we can't definitively apply Rule6.\n\n3. **Surrendering and Hiding Cards:**\n   - If the goat neglects (from Rule6), it doesn't surrender (Rule5 doesn't apply), so Basenji doesn't hide (Rule4 doesn't apply).\n   - If the goat doesn't neglect (from Rule3), it surrenders (Rule5), so Basenji hides (Rule4). However, Rule7 is preferred over Rule4.\n\n4. **Rule7 Application:**\n   - Basenji wants to see the reindeer (Rule8). Assuming she doesn't destroy the leopard's wall, Rule7 applies, meaning she won't hide her cards.\n   - Since Rule7 is preferred over Rule4, this conclusion takes precedence regardless of other rules.\n\n**Conclusion:** The basenji does not hide her cards from the songbird. **Proved.**",
+    "evidence": {
+      "rules": [
+        {
+          "number": 1,
+          "antecedents": [
+            "basenji_sharp"
+          ],
+          "conclusion": "!basenji_disarm"
+        },
+        {
+          "number": 2,
+          "antecedents": [
+            "basenji_primary"
+          ],
+          "conclusion": "!basenji_disarm"
+        },
+        {
+          "number": 3,
+          "antecedents": [
+            "goat_negotiate"
+          ],
+          "conclusion": "!goat_neglect"
+        },
+        {
+          "number": 4,
+          "antecedents": [
+            "goat_surrender"
+          ],
+          "conclusion": "basenji_hide"
+        },
+        {
+          "number": 5,
+          "antecedents": [
+            "!goat_neglect"
+          ],
+          "conclusion": "goat_surrender"
+        },
+        {
+          "number": 6,
+          "antecedents": [
+            "beetle_not_leave",
+            "monkey_trade"
+          ],
+          "conclusion": "goat_neglect"
+        },
+        {
+          "number": 7,
+          "antecedents": [
+            "basenji_not_destroy",
+            "basenji_wants"
+          ],
+          "conclusion": "!basenji_hide"
+        },
+        {
+          "number": 8,
+          "antecedents": [
+            "!basenji_disarm"
+          ],
+          "conclusion": "basenji_wants"
+        }
+      ],
+      "preferences": [
+        [
+          6,
+          3
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "lexical_bridges": [
+        "basenji_sharp",
+        "basenji_primary"
+      ],
+      "variants": [
+        {
+          "bridges": {
+            "basenji_sharp": false,
+            "basenji_primary": false
+          },
+          "answer": "proved",
+          "closure": [
+            "!goat_neglect",
+            "basenji_hide",
+            "goat_negotiate",
+            "goat_surrender",
+            "monkey_trade"
+          ],
+          "rounds": [
+            [
+              3
+            ],
+            [
+              3,
+              5
+            ],
+            [
+              3,
+              4,
+              5
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "basenji_sharp": false,
+            "basenji_primary": true
+          },
+          "answer": "proved",
+          "closure": [
+            "!basenji_disarm",
+            "!goat_neglect",
+            "basenji_hide",
+            "basenji_primary",
+            "basenji_wants",
+            "goat_negotiate",
+            "goat_surrender",
+            "monkey_trade"
+          ],
+          "rounds": [
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              3,
+              5,
+              8
+            ],
+            [
+              2,
+              3,
+              4,
+              5,
+              8
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "basenji_sharp": true,
+            "basenji_primary": false
+          },
+          "answer": "proved",
+          "closure": [
+            "!basenji_disarm",
+            "!goat_neglect",
+            "basenji_hide",
+            "basenji_sharp",
+            "basenji_wants",
+            "goat_negotiate",
+            "goat_surrender",
+            "monkey_trade"
+          ],
+          "rounds": [
+            [
+              1,
+              3
+            ],
+            [
+              1,
+              3,
+              5,
+              8
+            ],
+            [
+              1,
+              3,
+              4,
+              5,
+              8
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "basenji_sharp": true,
+            "basenji_primary": true
+          },
+          "answer": "proved",
+          "closure": [
+            "!basenji_disarm",
+            "!goat_neglect",
+            "basenji_hide",
+            "basenji_primary",
+            "basenji_sharp",
+            "basenji_wants",
+            "goat_negotiate",
+            "goat_surrender",
+            "monkey_trade"
+          ],
+          "rounds": [
+            [
+              1,
+              2,
+              3
+            ],
+            [
+              1,
+              2,
+              3,
+              5,
+              8
+            ],
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              8
+            ]
+          ]
+        }
+      ]
+    },
+    "reason": "Candidate negates the queried predicate but calls it proved/proven; inconsistent final output prevents a provable relabeling.",
+    "question_sha256": "40f3e57c330a9a3fb750e277f083dd7af0da381d51f7df3e33e5cb03833a96ed",
+    "candidate_sha256": "9f26000ff01d8da7b2d3fceb502438e0bb357646f71d9fe1cdbe56b591da15e5"
+  },
+  {
+    "index": 28,
+    "id": "9d4c782a67b4228b731a91cc3bf87657_0f6ea49ff3dbd1e15e81461f46f5192b",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "kiwi",
+    "candidate_final": "[no final object]",
+    "evidence": {
+      "first_trace": [
+        [
+          "down-right",
+          "one",
+          [
+            1,
+            1
+          ],
+          "rug"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            0,
+            2
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -1,
+            3
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            0,
+            2
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            1,
+            1
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            2,
+            2
+          ],
+          "grapefrut"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            1,
+            3
+          ],
+          "tube"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            0,
+            4
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            1,
+            5
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            2,
+            4
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            1,
+            3
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            2,
+            4
+          ],
+          "printer"
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            3,
+            5
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            4,
+            6
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "two",
+          [
+            2,
+            4
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            1,
+            5
+          ],
+          "backpack"
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            2,
+            6
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            3,
+            7
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "two",
+          [
+            1,
+            5
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            0,
+            4
+          ],
+          "knife"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -1,
+            5
+          ],
+          null
+        ],
+        [
+          "right",
+          "two",
+          [
+            3,
+            5
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            2,
+            4
+          ],
+          null
+        ],
+        [
+          "left",
+          "one",
+          [
+            0,
+            4
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -1,
+            5
+          ],
+          "tomato"
+        ],
+        [
+          "down-left",
+          "two",
+          [
+            -3,
+            7
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -2,
+            6
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -1,
+            5
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            0,
+            6
+          ],
+          "crib"
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            1,
+            7
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            2,
+            8
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "two",
+          [
+            0,
+            6
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            1,
+            7
+          ],
+          "kiwi"
+        ],
+        [
+          "left",
+          "one",
+          [
+            -1,
+            7
+          ],
+          "fox"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -2,
+            8
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -1,
+            7
+          ],
+          null
+        ],
+        [
+          "left",
+          "one",
+          [
+            -3,
+            7
+          ],
+          "clementine"
+        ],
+        [
+          "down-left",
+          "two",
+          [
+            -5,
+            9
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -4,
+            8
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -3,
+            7
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -2,
+            6
+          ],
+          "towel"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -3,
+            7
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            -2,
+            8
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            -1,
+            9
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "two",
+          [
+            -3,
+            7
+          ],
+          null
+        ],
+        [
+          "right",
+          "one",
+          [
+            -1,
+            7
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            0,
+            8
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            1,
+            9
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            2,
+            10
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "three",
+          [
+            -1,
+            7
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -2,
+            8
+          ],
+          "bread"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -3,
+            9
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -2,
+            8
+          ],
+          null
+        ],
+        [
+          "left",
+          "one",
+          [
+            -4,
+            8
+          ],
+          "pomegranate"
+        ],
+        [
+          "down-left",
+          "two",
+          [
+            -6,
+            10
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -5,
+            9
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -4,
+            8
+          ],
+          null
+        ],
+        [
+          "right",
+          "one",
+          [
+            -2,
+            8
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -3,
+            9
+          ],
+          "fig"
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            -2,
+            10
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            -1,
+            11
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            0,
+            12
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "three",
+          [
+            -3,
+            9
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -4,
+            10
+          ],
+          "toy"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -5,
+            11
+          ],
+          null
+        ],
+        [
+          "right",
+          "two",
+          [
+            -1,
+            11
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            -2,
+            10
+          ],
+          null
+        ],
+        [
+          "left",
+          "one",
+          [
+            -4,
+            10
+          ],
+          null
+        ],
+        [
+          "right",
+          "one",
+          [
+            -2,
+            10
+          ],
+          "plum"
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            -1,
+            11
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            0,
+            12
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "two",
+          [
+            -2,
+            10
+          ],
+          null
+        ],
+        [
+          "left",
+          "one",
+          [
+            -4,
+            10
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -5,
+            11
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -6,
+            12
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -5,
+            11
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -4,
+            10
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            -5,
+            9
+          ],
+          "laptop"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -6,
+            10
+          ],
+          null
+        ],
+        [
+          "right",
+          "two",
+          [
+            -2,
+            10
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            -3,
+            9
+          ],
+          null
+        ],
+        [
+          "left",
+          "one",
+          [
+            -5,
+            9
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            -4,
+            10
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            -3,
+            11
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            -2,
+            12
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "two",
+          [
+            -4,
+            10
+          ],
+          null
+        ],
+        [
+          "left",
+          "one",
+          [
+            -6,
+            10
+          ],
+          "pencil"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -7,
+            11
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -6,
+            10
+          ],
+          null
+        ]
+      ],
+      "second_trace": [
+        [
+          "down-left",
+          "one",
+          [
+            -1,
+            1
+          ],
+          "cucumber"
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            0,
+            2
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            1,
+            3
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            2,
+            4
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "three",
+          [
+            -1,
+            1
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            0,
+            0
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -1,
+            1
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -2,
+            2
+          ],
+          null
+        ],
+        [
+          "right",
+          "two",
+          [
+            2,
+            2
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            1,
+            1
+          ],
+          null
+        ],
+        [
+          "left",
+          "one",
+          [
+            -1,
+            1
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            0,
+            2
+          ],
+          "snake"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -1,
+            3
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            0,
+            2
+          ],
+          null
+        ],
+        [
+          "left",
+          "one",
+          [
+            -2,
+            2
+          ],
+          "bike"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -3,
+            3
+          ],
+          "cranberry"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -4,
+            4
+          ],
+          "doll"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -5,
+            5
+          ],
+          null
+        ],
+        [
+          "down-right",
+          "one",
+          [
+            -4,
+            6
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -3,
+            5
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            -4,
+            4
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -5,
+            5
+          ],
+          "stone"
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            -6,
+            4
+          ],
+          "car"
+        ],
+        [
+          "down-left",
+          "two",
+          [
+            -8,
+            6
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -7,
+            5
+          ],
+          null
+        ],
+        [
+          "up-right",
+          "one",
+          [
+            -6,
+            4
+          ],
+          null
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -7,
+            5
+          ],
+          "plum"
+        ],
+        [
+          "down-left",
+          "one",
+          [
+            -8,
+            6
+          ],
+          null
+        ],
+        [
+          "right",
+          "one",
+          [
+            -6,
+            6
+          ],
+          null
+        ],
+        [
+          "up-left",
+          "one",
+          [
+            -7,
+            5
+          ],
+          null
+        ]
+      ],
+      "shared_objects": [
+        "plum"
+      ],
+      "vertex_V": [
+        5,
+        5
+      ],
+      "final_coordinate": [
+        1,
+        7
+      ],
+      "objects": {
+        "bear": [
+          0,
+          0
+        ],
+        "rug": [
+          1,
+          1
+        ],
+        "grapefrut": [
+          2,
+          2
+        ],
+        "tube": [
+          1,
+          3
+        ],
+        "printer": [
+          2,
+          4
+        ],
+        "backpack": [
+          1,
+          5
+        ],
+        "knife": [
+          0,
+          4
+        ],
+        "tomato": [
+          -1,
+          5
+        ],
+        "crib": [
+          0,
+          6
+        ],
+        "kiwi": [
+          1,
+          7
+        ],
+        "fox": [
+          -1,
+          7
+        ],
+        "clementine": [
+          -3,
+          7
+        ],
+        "towel": [
+          -2,
+          6
+        ],
+        "bread": [
+          -2,
+          8
+        ],
+        "pomegranate": [
+          -4,
+          8
+        ],
+        "fig": [
+          -3,
+          9
+        ],
+        "toy": [
+          -4,
+          10
+        ],
+        "plum": [
+          -2,
+          10
+        ],
+        "laptop": [
+          -5,
+          9
+        ],
+        "pencil": [
+          -6,
+          10
+        ],
+        "pie": [
+          5,
+          5
+        ],
+        "cucumber": [
+          4,
+          6
+        ],
+        "snake": [
+          5,
+          7
+        ],
+        "bike": [
+          3,
+          7
+        ],
+        "cranberry": [
+          2,
+          8
+        ],
+        "doll": [
+          1,
+          9
+        ],
+        "stone": [
+          0,
+          10
+        ],
+        "car": [
+          -1,
+          9
+        ]
+      },
+      "last_response_line": "127. Move left to (-2"
+    },
+    "reason": "Integer triangular-lattice tracing aligns the two paths through their shared object. No stated final object is supplied, so no relabeling is permitted.",
+    "question_sha256": "eba083a93718077eb1a207a70484256075a40f2e8a85681d212f6e8ce6552e69",
+    "candidate_sha256": "de5cc993bd842c6bc303e5f77a0e3e38da45dd3be7b2b0d3d0d8e929e057f076",
+    "provisional_candidate_correct": false
+  },
+  {
+    "index": 34,
+    "id": "b399132127b57ffbf6fe2023a8971cf0_5489558bf570728f589efe731e286105",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "B",
+    "candidate_final": "C",
+    "evidence": {
+      "atom_names": [
+        "The capital of Armenia is Yerevan.",
+        "The capital of Azerbaijan is Baku.",
+        "The capital of Azerbaijan is Ganja.",
+        "The capital of Colombia is Bogota.",
+        "The capital of Gambia is Libreville.",
+        "The capital of Iran is Isfahan.",
+        "The capital of Turkey is Ankara.",
+        "The capital of Turkey is Istanbul.",
+        "The capital of UAE is Dubai."
+      ],
+      "assignments": 512,
+      "true_counts": {
+        "A": 0,
+        "B": 512,
+        "C": 0,
+        "D": 0,
+        "E": 0
+      },
+      "possible_true_sets": [
+        [
+          "B"
+        ]
+      ],
+      "admissible_true_sets": [
+        [
+          "B"
+        ]
+      ],
+      "premise": "The question states exactly one expression is true."
+    },
+    "reason": "Exact rational arithmetic over every capital-city assignment, restricted by the supplied exactly-one-true premise; no external world facts assumed.",
+    "question_sha256": "2eaf8cb202372815250dcf0dfeab54658c270634cee538927f453ef85ba34ffa",
+    "candidate_sha256": "243916429dd00742a0fe26e9b759750e6ea31aea461af3527bad6f37c5a1b03d"
+  },
+  {
+    "index": 37,
+    "id": "c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": ">",
+    "candidate_final": "}>",
+    "evidence": {
+      "input": "<{({})<>}",
+      "candidate_completion": "}>",
+      "completion_stack_result": [
+        null,
+        9
+      ]
+    },
+    "reason": "Stack processing includes every input symbol; compare the exact missing suffix.",
+    "question_sha256": "b47b253c0a7bfb12627d9a1b78d9ef707497541bb0b592aa2c092f5f093efccc",
+    "candidate_sha256": "b11b88caed38674f178d745287f561874cb81be9e7d4eeba3eb1c73fe49391f5"
+  },
+  {
+    "index": 54,
+    "id": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "B",
+    "candidate_final": "[no selected option]",
+    "evidence": {
+      "atom_names": [
+        "The capital of Afghanistan is Kabul.",
+        "The capital of Canada is Toronto.",
+        "The capital of Gambia is Banjul.",
+        "The capital of Gambia is Libreville.",
+        "The capital of Iran is Tehran.",
+        "The capital of Malaysia is Kuala Lumpur.",
+        "The capital of Nepal is Pokhara.",
+        "The capital of Turkey is Istanbul.",
+        "The capital of the Nigeria is Abuja."
+      ],
+      "assignments": 512,
+      "true_counts": {
+        "A": 0,
+        "B": 512,
+        "C": 0,
+        "D": 256,
+        "E": 0
+      },
+      "possible_true_sets": [
+        [
+          "B"
+        ],
+        [
+          "B",
+          "D"
+        ]
+      ],
+      "admissible_true_sets": [
+        [
+          "B"
+        ]
+      ],
+      "premise": "The question states exactly one expression is true."
+    },
+    "reason": "Candidate never supplies an option. The computed answer is retained, but omission is not a contradicted stated final answer; no relabeling.",
+    "question_sha256": "cad2f2e58779f92fac760237e11bcd55d1aa7d5eb9cd28d759d4137398343d36",
+    "candidate_sha256": "46456f158428b4a679c686660597ad1a5787a1a997a24337aa760de81619afd7",
+    "provisional_candidate_correct": false
+  },
+  {
+    "index": 59,
+    "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": ")]",
+    "candidate_final": ")])]",
+    "evidence": {
+      "input": "({<{(({})())}{}<{}><>>}{}({({{}})[()]}))[([]",
+      "candidate_completion": ")])]",
+      "completion_stack_result": [
+        null,
+        46
+      ]
+    },
+    "reason": "Stack processing includes every input symbol; compare the exact missing suffix.",
+    "question_sha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+    "candidate_sha256": "56794c0f0810f2aa751b501811b0f0cc9e0eb04ebe591eff470fc568ed3f3eaa"
+  },
+  {
+    "index": 60,
+    "id": "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": [
+      "disproved",
+      "unknown"
+    ],
+    "candidate_final": "Based on the given game state and rules, the conclusion is that the pelikan will never swear to the lizard. \n\n**Answer:** Proven.",
+    "evidence": {
+      "rules": [
+        {
+          "number": 1,
+          "antecedents": [
+            "gadwall_fewer_six"
+          ],
+          "conclusion": "gadwall_build"
+        },
+        {
+          "number": 3,
+          "antecedents": [
+            "!badger_trade"
+          ],
+          "conclusion": "!mannikin_unite"
+        },
+        {
+          "number": 4,
+          "antecedents": [
+            "gadwall_france_color"
+          ],
+          "conclusion": "gadwall_build"
+        },
+        {
+          "number": 5,
+          "antecedents": [
+            "!gadwall_hug",
+            "!mannikin_unite"
+          ],
+          "conclusion": "!pelikan_swear"
+        },
+        {
+          "number": 7,
+          "antecedents": [
+            "badger_seat"
+          ],
+          "conclusion": "!badger_trade"
+        },
+        {
+          "number": 9,
+          "antecedents": [
+            "gadwall_castle"
+          ],
+          "conclusion": "gadwall_hug"
+        },
+        {
+          "number": 10,
+          "antecedents": [
+            "same_initial"
+          ],
+          "conclusion": "!badger_trade"
+        },
+        {
+          "number": 12,
+          "antecedents": [
+            "gadwall_build"
+          ],
+          "conclusion": "!gadwall_hug"
+        }
+      ],
+      "preferences": [
+        [
+          9,
+          12
+        ]
+      ],
+      "lexical_bridges": [
+        "gadwall_france_color",
+        "badger_seat"
+      ],
+      "variants": [
+        {
+          "bridges": {
+            "gadwall_france_color": false,
+            "badger_seat": false
+          },
+          "answer": "unknown",
+          "closure": [
+            "mouse_refuse"
+          ],
+          "rounds": []
+        },
+        {
+          "bridges": {
+            "gadwall_france_color": false,
+            "badger_seat": true
+          },
+          "answer": "unknown",
+          "closure": [
+            "!badger_trade",
+            "!mannikin_unite",
+            "badger_seat",
+            "mouse_refuse"
+          ],
+          "rounds": [
+            [
+              7
+            ],
+            [
+              3,
+              7
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "gadwall_france_color": true,
+            "badger_seat": false
+          },
+          "answer": "unknown",
+          "closure": [
+            "!gadwall_hug",
+            "gadwall_build",
+            "gadwall_france_color",
+            "mouse_refuse"
+          ],
+          "rounds": [
+            [
+              4
+            ],
+            [
+              4,
+              12
+            ]
+          ]
+        },
+        {
+          "bridges": {
+            "gadwall_france_color": true,
+            "badger_seat": true
+          },
+          "answer": "disproved",
+          "closure": [
+            "!badger_trade",
+            "!gadwall_hug",
+            "!mannikin_unite",
+            "!pelikan_swear",
+            "badger_seat",
+            "gadwall_build",
+            "gadwall_france_color",
+            "mouse_refuse"
+          ],
+          "rounds": [
+            [
+              4,
+              7
+            ],
+            [
+              3,
+              4,
+              7,
+              12
+            ],
+            [
+              3,
+              4,
+              5,
+              7,
+              12
+            ]
+          ]
+        }
+      ]
+    },
+    "reason": "Candidate negates the queried predicate but calls it proved/proven; inconsistent final output prevents a provable relabeling.",
+    "question_sha256": "f1eec418bc1a1abe2aba2a2d0b939ff1b82db41efdce8714928d19fb5d23098f",
+    "candidate_sha256": "288cc4432a8739697d65ddd69e44486b5cc839060c09801650b5929d649058e2"
+  },
+  {
+    "index": 61,
+    "id": "5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "B",
+    "candidate_final": "B",
+    "evidence": {
+      "atom_names": [
+        "The capital of Belarus is Grodno.",
+        "The capital of Colombia is Bogota.",
+        "The capital of Iraq is Beirut.",
+        "The capital of Nepal is Kathmandu.",
+        "The capital of Nepal is Pokhara.",
+        "The capital of Norway is Bergen.",
+        "The capital of Norway is Oslo.",
+        "The capital of the Nigeria is Abuja."
+      ],
+      "assignments": 256,
+      "true_counts": {
+        "A": 0,
+        "B": 256,
+        "C": 0,
+        "D": 0,
+        "E": 128
+      },
+      "possible_true_sets": [
+        [
+          "B"
+        ],
+        [
+          "B",
+          "E"
+        ]
+      ],
+      "admissible_true_sets": [
+        [
+          "B"
+        ]
+      ],
+      "premise": "The question states exactly one expression is true."
+    },
+    "reason": "Exact rational arithmetic over every capital-city assignment, restricted by the supplied exactly-one-true premise; no external world facts assumed.",
+    "question_sha256": "fe673be25ef0bd449afb475f0a1774523b00d4dea8d38dafc9ae79fc77dbaa79",
+    "candidate_sha256": "5d266401f2ac5a5fe56beb4331bfc0e6aa973a77242b14208c87a11e701a2bbe"
+  },
+  {
+    "index": 64,
+    "id": "5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "not specified",
+    "candidate_final": "The context provided states that Bernhard is a rhino but does not explicitly mention his color. While other rhinos (Julius, Brian, Greg) have their colors specified (yellow, white, white respectively), Bernhard's color is not listed. Since there is no information given about Bernhard's color, the answer is that **it is not specified in the context**. \n\nHowever, if the question assumes a pattern (e.g., all rhinos except Julius are white), Bernhard might be inferred as white. But this is an assumption and not explicitly stated. Strictly following the given data, the answer is:\n\n**Bernhard's color is not provided in the context.** \n\nIf forced to choose based on the most common color among listed rhinos (Brian and Greg are white), the closest guess would be **white**, but this is an inference beyond the explicit information.",
+    "evidence": {
+      "subject": "Bernhard",
+      "stated_facts": {
+        "Julius": [
+          "rhino",
+          "yellow"
+        ],
+        "Brian": [
+          "rhino",
+          "white"
+        ],
+        "Lily": [
+          "gray",
+          "lion"
+        ],
+        "Greg": [
+          "rhino",
+          "white"
+        ],
+        "Bernhard": [
+          "rhino"
+        ]
+      },
+      "possible_colors": [
+        "blue",
+        "gray",
+        "green",
+        "red",
+        "white",
+        "yellow"
+      ]
+    },
+    "reason": "Context entails no color. Candidate states that fact but ends with a white guess; mixed final answer prevents a provable label correction.",
+    "question_sha256": "6d0a545bcd56a39e6b688b9adeedf577516c5ef14eb02e4255e8969f33a5f5c5",
+    "candidate_sha256": "177fee2aea79e288e52c899d8ddd95a83d63c000e0c6d60461228ce859e30a32"
+  },
+  {
+    "index": 66,
+    "id": "5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": [
+      "disproved",
+      "unknown"
+    ],
+    "candidate_final": "The crab does not swear to the beetle. The conclusion is proven.\n\n**Step-by-Step Explanation:**\n\n1. **Game State:**\n   - The flamingo has traded with the songbird.\n   - The songbird possesses a computer.\n\n2. **Applying Rule3:**\n   - Rule3 states that if the songbird has a device to connect to the internet (which it does via the computer), it will smile at the crab.\n   - Therefore, the songbird smiles at the crab.\n\n3. **Checking Rule1:**\n   - Rule1 requires both the flamingo and the dugong to have traded with the songbird for it to apply.\n   - The flamingo has traded, but there's no mention of the dugong trading.\n   - Since the dugong hasn't traded, Rule1 doesn't apply.\n\n4. **Rule1's Preference Over Rule3:**\n   - Rule1 is preferred over Rule3, but since Rule1 doesn't apply (dugong hasn't traded), Rule3 takes effect, leading to the songbird smiling.\n\n5. **Applying Rule2:**\n   - Rule2 states that if the songbird smiles at the crab, the crab does not swear to the beetle.\n   - Since the songbird smiles, the crab does not swear.\n\n**Conclusion:** The crab does not swear to the beetle. This is proven based on the rules and game state.\n\n**Answer:** Proven. The crab does not swear to the beetle.",
+    "evidence": {
+      "rules": [
+        {
+          "number": 1,
+          "antecedents": [
+            "flamingo_trade",
+            "dugong_trade"
+          ],
+          "conclusion": "!songbird_smile"
+        },
+        {
+          "number": 2,
+          "antecedents": [
+            "songbird_smile"
+          ],
+          "conclusion": "!crab_swear"
+        },
+        {
+          "number": 3,
+          "antecedents": [
+            "internet_device"
+          ],
+          "conclusion": "songbird_smile"
+        },
+        {
+          "number": 4,
+          "antecedents": [
+            "crab_leave"
+          ],
+          "conclusion": "crab_swear"
+        }
+      ],
+      "preferences": [
+        [
+          1,
+          3
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "lexical_bridges": [
+        "internet_device"
+      ],
+      "variants": [
+        {
+          "bridges": {
+            "internet_device": false
+          },
+          "answer": "unknown",
+          "closure": [
+            "flamingo_trade"
+          ],
+          "rounds": []
+        },
+        {
+          "bridges": {
+            "internet_device": true
+          },
+          "answer": "disproved",
+          "closure": [
+            "!crab_swear",
+            "flamingo_trade",
+            "internet_device",
+            "songbird_smile"
+          ],
+          "rounds": [
+            [
+              3
+            ],
+            [
+              2,
+              3
+            ]
+          ]
+        }
+      ]
+    },
+    "reason": "Candidate negates the queried predicate but calls it proved/proven; inconsistent final output prevents a provable relabeling.",
+    "question_sha256": "d587aa7857c9ada41cd0f2efe91f7ae24bc5dc20adffaf3f3b7396fe5eff7294",
+    "candidate_sha256": "73af8041ba6f710036c675e416c66da84548b49e9fb768b2d4c0df1e3c9197cd"
+  },
+  {
+    "index": 81,
+    "id": "a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": 5,
+    "candidate_final": 7,
+    "evidence": {
+      "letter_errors": [
+        {
+          "thought": 5,
+          "word": "cheerful",
+          "claimed_letter": "e",
+          "actual_letter": "h",
+          "claimed_number": 5
+        },
+        {
+          "thought": 5,
+          "word": "chaos",
+          "claimed_letter": "a",
+          "actual_letter": "h",
+          "claimed_number": 1
+        },
+        {
+          "thought": 7,
+          "word": "cancelling",
+          "claimed_letter": "c",
+          "actual_letter": "n",
+          "claimed_number": 3
+        },
+        {
+          "thought": 7,
+          "word": "chaos",
+          "claimed_letter": "o",
+          "actual_letter": "a",
+          "claimed_number": 15
+        },
+        {
+          "thought": 9,
+          "word": "insufferable",
+          "claimed_letter": "u",
+          "actual_letter": "n",
+          "claimed_number": 21
+        }
+      ],
+      "letter_thoughts_checked": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "earlier_group_orders_verified": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "alphabetical_answer": [
+        "advert",
+        "ama",
+        "blare",
+        "cancelling",
+        "catharsis",
+        "chaos",
+        "cheerful",
+        "chlorine",
+        "cossack",
+        "fishpond",
+        "insufferable",
+        "ionic",
+        "joust",
+        "lemma",
+        "murder",
+        "sagacious",
+        "schroeder",
+        "turquoise",
+        "veto",
+        "wahl"
+      ]
+    },
+    "reason": "Validate each quoted character and alphabet position; all preceding grouping displays preserve all words and correct block order.",
+    "question_sha256": "f4b71efad10c47d015e701859f56fca4e41a4c222c22ff3bb31e37615dc2e71e",
+    "candidate_sha256": "42231e2a80a328c9336825c7fa906e7a3962a2a180fdec3645a3d80d4affd991"
+  },
+  {
+    "index": 87,
+    "id": "be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "]}",
+    "candidate_final": "]]}",
+    "evidence": {
+      "input": "{[[][]",
+      "candidate_completion": "]]}",
+      "completion_stack_result": [
+        null,
+        7
+      ]
+    },
+    "reason": "Stack processing includes every input symbol; compare the exact missing suffix.",
+    "question_sha256": "c8dec3a619aa952eba19b3369cd9bb9ae00bc7cfd7a42f4898861539e1322f97",
+    "candidate_sha256": "c96cc9f565dc0a8b4efbf6144f17f97fc3e3b18812839f16ceb1a746d6dfc685"
+  },
+  {
+    "index": 91,
+    "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "not specified",
+    "candidate_final": "Greg's color is not explicitly stated in the context. While Brian, another rhino, is described as yellow, there is no information provided about Greg's color. Since swans can vary in color (e.g., Julius is green despite other yellow swans), it\u2019s possible Greg could be a different color. However, without explicit information, the answer is **not specified**. \n\nBut if forced to infer based on the only given rhino example (Brian being yellow), a reasonable assumption might be that Greg is **yellow**. The most precise answer, however, is that **the context does not provide Greg's color**. \n\n**Answer:** The context does not specify Greg's color.",
+    "evidence": {
+      "subject": "Greg",
+      "stated_facts": {
+        "Bernhard": [
+          "swan",
+          "yellow"
+        ],
+        "Lily": [
+          "swan",
+          "yellow"
+        ],
+        "Julius": [
+          "green",
+          "swan"
+        ],
+        "Brian": [
+          "rhino",
+          "yellow"
+        ],
+        "Greg": [
+          "rhino"
+        ]
+      },
+      "possible_colors": [
+        "blue",
+        "gray",
+        "green",
+        "red",
+        "white",
+        "yellow"
+      ]
+    },
+    "reason": "At least two models satisfy every stated fact and give different colors; no species-to-color rule is supplied.",
+    "question_sha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+    "candidate_sha256": "2b435422ab5faee84a3b75033770cf3aa6923e7ab0ddc96cb15e1691d9e6994d"
+  }
+]

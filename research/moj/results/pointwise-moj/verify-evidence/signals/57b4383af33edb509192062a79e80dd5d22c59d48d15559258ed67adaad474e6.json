@@ -1,0 +1,25 @@
+{
+  "pA": 0.15000000000000002,
+  "detail": {
+    "error_found": true,
+    "quote": "From 2008 to 2015 is 7 years, with 2 leap years (2008 and 2012). This gives a total of 7 × 365 + 2 = 2557 days.",
+    "explanation": "The 2008 leap day occurred before Natalie’s March 22 birthday, so it is not included in the elapsed time. The date difference is 2,556 days to March 22, 2015, plus 212 days to October 19, for 2,768 days—not the final answer of 2,770.",
+    "changes_final_answer": true,
+    "error_type": "arithmetic"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "ded390e157cebed48fa262739276f9ae8251d111f63e2e90e3e79e92cbd45dd8",
+      "count": 1,
+      "usd": 0.000554
+    },
+    {
+      "provider": "jev",
+      "key": "70b1fe54b55622872e0e3626b7e173425667f50f3328f612a07830ab50cd67b6",
+      "seconds": 0.507,
+      "usd": 0
+    }
+  ]
+}

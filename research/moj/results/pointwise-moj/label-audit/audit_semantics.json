@@ -1,0 +1,287 @@
+[
+  {
+    "index": 2,
+    "id": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "tap\u0268",
+    "evidence": {},
+    "reason": "The task infers a historical sound-change system from examples. No formal rule class or exception policy is given; a mapping fitted to the observed words does not prove its value for an unseen word."
+  },
+  {
+    "index": 5,
+    "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "B",
+    "evidence": {},
+    "reason": "Whether advice presupposes availability is a pragmatic assumption. Advice can prohibit unavailable things; the text supplies no formal semantics that makes one multiple-choice answer necessary."
+  },
+  {
+    "index": 7,
+    "id": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "D",
+    "evidence": {
+      "source_unit_token": "0,15 ha",
+      "translation_unit_token": "0.15 km",
+      "scope": "Unit mismatch is explicit; category priority is unspecified"
+    },
+    "reason": "The source has both a named-entity substitution and an explicit ha-to-km unit substitution. Code can detect the latter tokens, but cannot select the intended single error category without a priority rule."
+  },
+  {
+    "index": 10,
+    "id": "4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "D",
+    "evidence": {},
+    "reason": "Ranking which statement most challenges a causal claim requires causal and linguistic assumptions. The text gives no structural causal model, effect size, or formal ranking rule."
+  },
+  {
+    "index": 13,
+    "id": "579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "D",
+    "evidence": {},
+    "reason": "Selecting the passage's most comprehensive characterization requires semantic interpretation. The options overlap and one is malformed; no formal predicates or selection rule determine a computed answer."
+  },
+  {
+    "index": 14,
+    "id": "5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "A, C, D; A if one answer is expected",
+    "evidence": {
+      "member": {
+        "Liu": true,
+        "Other": true
+      },
+      "qualified": {
+        "Liu": true,
+        "Other": true
+      },
+      "participates": {
+        "Liu": false,
+        "Other": true
+      },
+      "premises_hold": true,
+      "option_A_holds": false,
+      "scope": "Literal distinct-predicate reading only; no label correction"
+    },
+    "reason": "Qualification, ability to volunteer, and actually volunteering are not explicitly equated. A literal countermodel defeats A, but the ambiguity prevents a conclusive label correction for the candidate's final selection."
+  },
+  {
+    "index": 16,
+    "id": "6a3431d6cab874b5d26e1963a5952a89_58a69db1ee812fe90dcc48f6d0534f3d",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "B",
+    "evidence": {},
+    "reason": "Support for an empirical causal argument depends on the meanings of accurate, satisfaction, and subconscious. No quantitative experimental data or formal support metric is supplied."
+  },
+  {
+    "index": 29,
+    "id": "9d9b9827b9c7f258b3b21b1c42a2d0ab_eff2f462cb62e139749f5a7aa067a8a6",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "B",
+    "evidence": {},
+    "reason": "The definition and options require interpreting cultural extinction, physical destruction, and historical assertions. Treating those as Boolean inputs would hardcode the disputed semantic judgments."
+  },
+  {
+    "index": 36,
+    "id": "be73eb99a5ea91d6c472aa92c6fae571_5068cdce1c8e345dd0640c60d72950d1",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "D",
+    "evidence": {},
+    "reason": "Processing quality is not mentioned in the premises, but a complete formalization also needs the unspecified meaning of other things being equal and an unbounded value domain. A finite enumeration cannot satisfy the premise that no object has highest value. No complete computed certificate is claimed."
+  },
+  {
+    "index": 42,
+    "id": "e05c879fa8330428d5f4c60e2165c671_a1cf5c7e22209a7dde60b811f14dcfa3",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "No Yes/No verdict; response degenerates into repeated share prices",
+    "evidence": {},
+    "reason": "Typical-person intentionality is an empirical judgment, not a logical consequence. The response supplies no verdict, but a format failure is not a computed proof of the underlying Yes/No answer."
+  },
+  {
+    "index": 46,
+    "id": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "alapt\u2019k",
+    "evidence": {},
+    "reason": "The task infers orthography from examples without an explicit finite rule system. Context-sensitive spelling and exceptions are unspecified. An inferred transcription mapping is not a proof."
+  },
+  {
+    "index": 58,
+    "id": "50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "C",
+    "evidence": {
+      "universe": [
+        0,
+        1
+      ],
+      "subset_pairs_enumerated": 16,
+      "countermodels": [
+        {
+          "P": [
+            0,
+            1
+          ],
+          "Q": [
+            0
+          ]
+        },
+        {
+          "P": [
+            0,
+            1
+          ],
+          "Q": [
+            1
+          ]
+        }
+      ],
+      "scope": "A and D intermediate validity claims only; final choice not adjudicated"
+    },
+    "reason": "The wording does not distinguish selecting an invalid inference from selecting an inference unlike the invalid example. A and D have computed countermodels despite the candidate calling them valid, but C may also be invalid. Wrong supporting reasoning alone does not prove the final selected option wrong."
+  },
+  {
+    "index": 76,
+    "id": "8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "D only",
+    "candidate_final": "C and D",
+    "evidence": {
+      "truth_table": [
+        {
+          "savings": false,
+          "capital": false,
+          "development": false,
+          "premises": true,
+          "A": true,
+          "B": true,
+          "C": true,
+          "D": true
+        },
+        {
+          "savings": false,
+          "capital": false,
+          "development": true,
+          "premises": false,
+          "A": true,
+          "B": true,
+          "C": true,
+          "D": false
+        },
+        {
+          "savings": false,
+          "capital": true,
+          "development": false,
+          "premises": false,
+          "A": false,
+          "B": true,
+          "C": true,
+          "D": true
+        },
+        {
+          "savings": false,
+          "capital": true,
+          "development": true,
+          "premises": false,
+          "A": true,
+          "B": true,
+          "C": true,
+          "D": false
+        },
+        {
+          "savings": true,
+          "capital": false,
+          "development": false,
+          "premises": true,
+          "A": true,
+          "B": false,
+          "C": false,
+          "D": true
+        },
+        {
+          "savings": true,
+          "capital": false,
+          "development": true,
+          "premises": false,
+          "A": true,
+          "B": false,
+          "C": false,
+          "D": true
+        },
+        {
+          "savings": true,
+          "capital": true,
+          "development": false,
+          "premises": true,
+          "A": false,
+          "B": true,
+          "C": true,
+          "D": true
+        },
+        {
+          "savings": true,
+          "capital": true,
+          "development": true,
+          "premises": true,
+          "A": true,
+          "B": true,
+          "C": true,
+          "D": true
+        }
+      ],
+      "entailed_options": [
+        "D"
+      ],
+      "countermodels_to_candidate_C": [
+        {
+          "savings": true,
+          "capital": false,
+          "development": false,
+          "premises": true,
+          "A": true,
+          "B": false,
+          "C": false,
+          "D": true
+        }
+      ]
+    },
+    "reason": "All eight Boolean valuations are enumerated. D is entailed and C has a countermodel, so the final answer includes a non-inference."
+  },
+  {
+    "index": 93,
+    "id": "e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "A, followed by B, C, G",
+    "evidence": {},
+    "reason": "No audience ratings or similarity metric is provided. Audience preference similarity cannot be derived by enumeration of the supplied movie titles."
+  }
+]

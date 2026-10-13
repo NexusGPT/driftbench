@@ -1,0 +1,857 @@
+[
+  {
+    "key": "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+    "first_commit": {
+      "pA": 0.67,
+      "detail": {
+        "pass": 0.67,
+        "can_commit": 0.37
+      },
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "67e64bb30f94552f07dc607f286cd9a7d6a852458e9038ed1b030aa047582505",
+          "seconds": 1.093,
+          "usd": 0
+        }
+      ]
+    },
+    "two_step": {
+      "pA": 0.7,
+      "verdict": "A",
+      "confidence": 0.5,
+      "path": [
+        "abstain",
+        "route",
+        "pw_ref_luna",
+        "pw_s2v_luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "67e64bb30f94552f07dc607f286cd9a7d6a852458e9038ed1b030aa047582505",
+          "seconds": 1.093,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "7d575e19406efc9e6dec04dfd9244d473e9fd6004e602849b0647173702d55c3",
+          "seconds": 2.132,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000206
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000297
+        }
+      ],
+      "level": "routed",
+      "commit_confidence": 0.8461538461538461
+    },
+    "experts": {
+      "pw_whole": {
+        "pA": 0.63,
+        "detail": {
+          "asked": "question",
+          "a": 0.63
+        }
+      },
+      "pw_rows": {
+        "pA": 0.5075,
+        "detail": {
+          "asked": "question",
+          "rows": {
+            "a": {
+              "final_correct": 0.58,
+              "steps_valid": 0.12,
+              "computations_right": 0.45,
+              "answers_what_is_asked": 0.88
+            }
+          },
+          "rules": {
+            "min": 0.12,
+            "mean": 0.5075,
+            "prod": 0.027561600000000002
+          }
+        }
+      },
+      "pw_ref_luna": {
+        "pA": 0.7,
+        "detail": {
+          "reference": "(1) The tangent line is \\(y=x-1\\). (2) Since \\(\\frac{(x+1)\\ln x}{x-1}>2\\) for every \\(x>1\\), the required range is \\(\\boxed{a\\le 2}\\).",
+          "confidence": "high",
+          "a": 0.7
+        }
+      },
+      "pw_s2v_luna": {
+        "pA": null,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "missing"
+          ],
+          "source": "fresh"
+        }
+      }
+    }
+  },
+  {
+    "key": "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+    "first_commit": {
+      "pA": 0.92,
+      "detail": {
+        "pass": 0.92,
+        "can_commit": 0.66
+      },
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "4e5a2ec33ad37bfcc6ceefa00b617fcf50fbfed67bd8ecca6a4f8b7269d754a9",
+          "seconds": 1.55,
+          "usd": 0
+        }
+      ]
+    },
+    "two_step": {
+      "pA": 1.0,
+      "verdict": "A",
+      "confidence": 0.5,
+      "path": [
+        "abstain",
+        "route",
+        "pw_ref_luna",
+        "pw_s2v_luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "4e5a2ec33ad37bfcc6ceefa00b617fcf50fbfed67bd8ecca6a4f8b7269d754a9",
+          "seconds": 1.55,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "993e6cc4bb3e66c9761e7bf9c56f907a7be79d67bc417e3ca456809c27e9ff13",
+          "seconds": 1.843,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000255
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000626
+        }
+      ],
+      "level": "routed",
+      "commit_confidence": 0.8461538461538461
+    },
+    "experts": {
+      "pw_whole": {
+        "pA": 0.93,
+        "detail": {
+          "asked": "question",
+          "a": 0.93
+        }
+      },
+      "pw_rows": {
+        "pA": 0.8475,
+        "detail": {
+          "asked": "question",
+          "rows": {
+            "a": {
+              "final_correct": 0.91,
+              "steps_valid": 0.64,
+              "computations_right": 0.87,
+              "answers_what_is_asked": 0.97
+            }
+          },
+          "rules": {
+            "min": 0.64,
+            "mean": 0.8475,
+            "prod": 0.49148736000000004
+          }
+        }
+      },
+      "pw_ref_luna": {
+        "pA": 0.06,
+        "detail": {
+          "reference": "(1) The probability is \\(2[(2/9)(2/9)+(4/9)(1/9)]=\\boxed{16/81}\\). (2) \\(P(A)=6/9=\\boxed{2/3}\\), and \\(P(B)=3/9=\\boxed{1/3}\\). Also, \\(P(A\\cap B)=(2/9)(2/8)+(4/9)(3/8)=2/9=P(A)P(B)\\), so \\(A\\) and \\(B\\) are independent.",
+          "confidence": "high",
+          "a": 0.06
+        }
+      },
+      "pw_s2v_luna": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        }
+      }
+    }
+  },
+  {
+    "key": "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
+    "first_commit": {
+      "pA": 0.86,
+      "detail": {
+        "pass": 0.86,
+        "can_commit": 0.82
+      },
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "c9b0151f3d8e70335b566b4bba206a840c40dc36d0dd68e0919e0b826a6545f6",
+          "seconds": 1.846,
+          "usd": 0
+        }
+      ]
+    },
+    "two_step": {
+      "pA": 1.0,
+      "verdict": "A",
+      "confidence": 0.5,
+      "path": [
+        "abstain",
+        "route",
+        "pw_ref_luna",
+        "pw_s2v_luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "c9b0151f3d8e70335b566b4bba206a840c40dc36d0dd68e0919e0b826a6545f6",
+          "seconds": 1.846,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "efe3e97786b2eb3919a035670d6cd131297f10cb6a7b4344c7f5349afc1de3c0",
+          "seconds": 1.246,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000274
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000451
+        }
+      ],
+      "level": "routed",
+      "commit_confidence": 0.8461538461538461
+    },
+    "experts": {
+      "pw_whole": {
+        "pA": 0.85,
+        "detail": {
+          "asked": "question",
+          "a": 0.85
+        }
+      },
+      "pw_rows": {
+        "pA": 0.8325,
+        "detail": {
+          "asked": "question",
+          "rows": {
+            "a": {
+              "final_correct": 0.86,
+              "steps_valid": 0.59,
+              "computations_right": 0.93,
+              "answers_what_is_asked": 0.95
+            }
+          },
+          "rules": {
+            "min": 0.59,
+            "mean": 0.8325,
+            "prod": 0.44828789999999996
+          }
+        }
+      },
+      "pw_ref_luna": {
+        "pA": 0.48,
+        "detail": {
+          "reference": "proved",
+          "confidence": "high",
+          "a": 0.48
+        }
+      },
+      "pw_s2v_luna": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        }
+      }
+    }
+  },
+  {
+    "key": "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7",
+    "first_commit": {
+      "pA": 0.55,
+      "detail": {
+        "pass": 0.55,
+        "can_commit": 0.47
+      },
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "b7ba0e6f196df4818767f2f3d2f538e747883a80aa93a822e0d96e31ac416556",
+          "seconds": 2.519,
+          "usd": 0
+        }
+      ]
+    },
+    "two_step": {
+      "pA": 0.99,
+      "verdict": "A",
+      "confidence": 1.0,
+      "path": [
+        "abstain",
+        "route",
+        "pw_ref_luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "b7ba0e6f196df4818767f2f3d2f538e747883a80aa93a822e0d96e31ac416556",
+          "seconds": 2.519,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "20718af0c8400d2f4d40b5a897f5bef40ad10efcf16eddcb37802b2973079bb8",
+          "seconds": 2.068,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000692
+        }
+      ],
+      "level": "routed",
+      "commit_confidence": 0.8461538461538461
+    },
+    "experts": {
+      "pw_whole": {
+        "pA": 0.58,
+        "detail": {
+          "asked": "question",
+          "a": 0.58
+        }
+      },
+      "pw_rows": {
+        "pA": 0.6475000000000001,
+        "detail": {
+          "asked": "question",
+          "rows": {
+            "a": {
+              "final_correct": 0.54,
+              "steps_valid": 0.2,
+              "computations_right": 0.93,
+              "answers_what_is_asked": 0.92
+            }
+          },
+          "rules": {
+            "min": 0.2,
+            "mean": 0.6475000000000001,
+            "prod": 0.09240480000000002
+          }
+        }
+      },
+      "pw_ref_luna": {
+        "pA": 0.99,
+        "detail": {
+          "reference": "BC",
+          "confidence": "high",
+          "a": 0.99
+        }
+      },
+      "pw_s2v_luna": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        }
+      }
+    }
+  },
+  {
+    "key": "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a",
+    "first_commit": {
+      "pA": 0.74,
+      "detail": {
+        "pass": 0.74,
+        "can_commit": 0.65
+      },
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "6e9b1c2798691208159ea81adb3cebbcf22fba2a098f99d62889aab6b1d376c4",
+          "seconds": 2.598,
+          "usd": 0
+        }
+      ]
+    },
+    "two_step": {
+      "pA": 1.0,
+      "verdict": "A",
+      "confidence": 0.5,
+      "path": [
+        "abstain",
+        "route",
+        "pw_ref_luna",
+        "pw_s2v_luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "6e9b1c2798691208159ea81adb3cebbcf22fba2a098f99d62889aab6b1d376c4",
+          "seconds": 2.598,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "10301c86044509e7857ddf9be7fe60fa24014af86686896ee4ef92510d98a244",
+          "seconds": 0.441,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9.3e-05
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000383
+        }
+      ],
+      "level": "routed",
+      "commit_confidence": 0.8461538461538461
+    },
+    "experts": {
+      "pw_whole": {
+        "pA": 0.73,
+        "detail": {
+          "asked": "question",
+          "a": 0.73
+        }
+      },
+      "pw_rows": {
+        "pA": 0.73,
+        "detail": {
+          "asked": "question",
+          "rows": {
+            "a": {
+              "final_correct": 0.72,
+              "steps_valid": 0.68,
+              "computations_right": 0.93,
+              "answers_what_is_asked": 0.59
+            }
+          },
+          "rules": {
+            "min": 0.59,
+            "mean": 0.73,
+            "prod": 0.26864352
+          }
+        }
+      },
+      "pw_ref_luna": {
+        "pA": 0.23,
+        "detail": {
+          "reference": "D. Without a high savings rate, the transition to developed countries cannot be achieved.",
+          "confidence": "high",
+          "a": 0.23
+        }
+      },
+      "pw_s2v_luna": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        }
+      }
+    }
+  },
+  {
+    "key": "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+    "first_commit": {
+      "pA": 0.99,
+      "detail": {
+        "pass": 0.99,
+        "can_commit": 0.83
+      },
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "d94978506dc42f5de7c8fcb06f537dafcaac400151035dfbf2c3fa0ba0fe8ca1",
+          "seconds": 0.323,
+          "usd": 0
+        }
+      ]
+    },
+    "two_step": {
+      "pA": 1,
+      "verdict": "A",
+      "confidence": 1.0,
+      "path": [
+        "abstain",
+        "route",
+        "pw_ref_luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "d94978506dc42f5de7c8fcb06f537dafcaac400151035dfbf2c3fa0ba0fe8ca1",
+          "seconds": 0.323,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "f4004711e94a842880ffa131188578964e560c62f0874ff449f64684930afb1d",
+          "seconds": 0.972,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.7e-05
+        }
+      ],
+      "level": "routed",
+      "commit_confidence": 0.8461538461538461
+    },
+    "experts": {
+      "pw_whole": {
+        "pA": 0.99,
+        "detail": {
+          "asked": "question",
+          "a": 0.99
+        }
+      },
+      "pw_rows": {
+        "pA": 0.9225,
+        "detail": {
+          "asked": "question",
+          "rows": {
+            "a": {
+              "final_correct": 0.99,
+              "steps_valid": 0.74,
+              "computations_right": 0.97,
+              "answers_what_is_asked": 0.99
+            }
+          },
+          "rules": {
+            "min": 0.74,
+            "mean": 0.9225,
+            "prod": 0.7035157799999999
+          }
+        }
+      },
+      "pw_ref_luna": {
+        "pA": 1,
+        "detail": {
+          "reference": "The expected sum is 9.",
+          "confidence": "high",
+          "a": 1
+        }
+      },
+      "pw_s2v_luna": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        }
+      }
+    }
+  },
+  {
+    "key": "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a",
+    "first_commit": {
+      "pA": 0.88,
+      "detail": {
+        "pass": 0.88,
+        "can_commit": 0.76
+      },
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "d3447a50783d899d473354d70d5d28bf767c4ce365a908b56ec7c87a0fa6daee",
+          "seconds": 2.571,
+          "usd": 0
+        }
+      ]
+    },
+    "two_step": {
+      "pA": 0.99,
+      "verdict": "A",
+      "confidence": 1.0,
+      "path": [
+        "abstain",
+        "route",
+        "pw_ref_luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "d3447a50783d899d473354d70d5d28bf767c4ce365a908b56ec7c87a0fa6daee",
+          "seconds": 2.571,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "267257e9407af56749728c46012a41689eb48688f9a04ffbf800d58e42c1ab65",
+          "seconds": 0.802,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000711
+        }
+      ],
+      "level": "routed",
+      "commit_confidence": 0.8461538461538461
+    },
+    "experts": {
+      "pw_whole": {
+        "pA": 0.85,
+        "detail": {
+          "asked": "question",
+          "a": 0.85
+        }
+      },
+      "pw_rows": {
+        "pA": 0.7875,
+        "detail": {
+          "asked": "question",
+          "rows": {
+            "a": {
+              "final_correct": 0.86,
+              "steps_valid": 0.44,
+              "computations_right": 0.88,
+              "answers_what_is_asked": 0.97
+            }
+          },
+          "rules": {
+            "min": 0.44,
+            "mean": 0.7875,
+            "prod": 0.32300224
+          }
+        }
+      },
+      "pw_ref_luna": {
+        "pA": 0.99,
+        "detail": {
+          "reference": "E: Both of Greene’s paintings and both of Hidalgo’s paintings could be displayed in upper positions.",
+          "confidence": "high",
+          "a": 0.99
+        }
+      },
+      "pw_s2v_luna": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        }
+      }
+    }
+  },
+  {
+    "key": "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+    "first_commit": {
+      "pA": 0.75,
+      "detail": {
+        "pass": 0.75,
+        "can_commit": 0.46
+      },
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "3fc0657941ef81eb1711d3e9351ca6659f4805db482bfc805c24a091b0c09e5b",
+          "seconds": 0.309,
+          "usd": 0
+        }
+      ]
+    },
+    "two_step": {
+      "pA": 1.0,
+      "verdict": "A",
+      "confidence": 0.5,
+      "path": [
+        "abstain",
+        "route",
+        "pw_ref_luna",
+        "pw_s2v_luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "key": "3fc0657941ef81eb1711d3e9351ca6659f4805db482bfc805c24a091b0c09e5b",
+          "seconds": 0.309,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "4068e28875a15aa59b636a5259db3464f7cfb2f14b3a1dedcb3391f722e19d64",
+          "seconds": 1.198,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.6e-05
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00018
+        }
+      ],
+      "level": "routed",
+      "commit_confidence": 0.8461538461538461
+    },
+    "experts": {
+      "pw_whole": {
+        "pA": 0.74,
+        "detail": {
+          "asked": "question",
+          "a": 0.74
+        }
+      },
+      "pw_rows": {
+        "pA": 0.645,
+        "detail": {
+          "asked": "question",
+          "rows": {
+            "a": {
+              "final_correct": 0.74,
+              "steps_valid": 0.32,
+              "computations_right": 0.97,
+              "answers_what_is_asked": 0.55
+            }
+          },
+          "rules": {
+            "min": 0.32,
+            "mean": 0.645,
+            "prod": 0.12633280000000002
+          }
+        }
+      },
+      "pw_ref_luna": {
+        "pA": 0.96,
+        "detail": {
+          "reference": "Greg's color is not specified.",
+          "confidence": "high",
+          "a": 0.96
+        }
+      },
+      "pw_s2v_luna": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        }
+      }
+    }
+  }
+]

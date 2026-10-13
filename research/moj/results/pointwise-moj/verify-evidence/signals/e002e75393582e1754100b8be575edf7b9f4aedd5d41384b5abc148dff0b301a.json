@@ -1,0 +1,25 @@
+{
+  "pA": 0.050000000000000044,
+  "detail": {
+    "error_found": true,
+    "quote": "The center of the cube is the midpoint of the diagonal $AB.$",
+    "explanation": "$AB$ is not a cube diagonal: its squared length is 24, while $AC$ has squared length 72 and is the body diagonal for these vertices. The center is the midpoint of $AC$, namely $(3,2,4)$, not the midpoint of $AB$. The final answer $(2,3,4)$ is also incorrect.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "7f87733824c9ec88e786129476940ec38437a8a1b70bd1c85da0744e48bd191d",
+      "count": 1,
+      "usd": 0.0004627
+    },
+    {
+      "provider": "jev",
+      "key": "f7ed7264154f2fc0cd77650c9e16b4888377d656aed99ae59f515ea42d4137b5",
+      "seconds": 0.601,
+      "usd": 0
+    }
+  ]
+}

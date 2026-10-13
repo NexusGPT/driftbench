@@ -1,0 +1,25 @@
+{
+  "pA": 0.06000000000000005,
+  "detail": {
+    "error_found": true,
+    "quote": "the options that most likely have more similar movies in terms of whether a group of people will like them or not are **(A) The Diary of Anne Frank, Boy, Schindler's List, Fargo, Forrest Gump** and closely followed by **(B) Seven, Forrest Gump, Fargo, Boy, The Silence of the Lambs**, **(C) The Silence of the Lambs, Seven, Fargo, Forrest Gump, Schindler's List**, and **(G) Fargo, Schindler's List, Seven, Boy, The Silence of the Lambs**.",
+    "explanation": "The question asks which single option has the more similar movies, but the candidate names four options and does not establish which one is the answer. Its conclusion therefore does not resolve the question.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "fbcedd73bc710aeb25ed0cec44f7987eeaaee6a93ee5f3066fb0604c771dc535",
+      "count": 1,
+      "usd": 0.000548
+    },
+    {
+      "provider": "jev",
+      "key": "bbf999769f924d37ff9adb47b8d36904a45027417db477aa55afa25560a95a9c",
+      "seconds": 0.459,
+      "usd": 0
+    }
+  ]
+}

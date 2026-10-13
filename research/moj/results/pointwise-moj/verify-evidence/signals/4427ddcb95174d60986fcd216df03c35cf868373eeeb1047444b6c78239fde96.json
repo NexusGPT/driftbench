@@ -1,0 +1,25 @@
+{
+  "pA": 0.18999999999999995,
+  "detail": {
+    "error_found": true,
+    "quote": "So, it seems the order is:\n\n1. Opinion/Quality (e.g., good, wonderful, silly)\n2. Size (e.g., big, small, enormous)\n3. Age (e.g., ancient, new, brand-new)\n4. Shape (e.g., spherical, rectangular, pyramidal)\n5. Color (e.g., gray, yellow, blue)\n6. Origin (e.g., indian, egyptian, thai)\n7. Material (e.g., steel, fiberglass)\n8. Purpose (e.g., typing, whittling, hiking)",
+    "explanation": "The proposed order contradicts the supplied example “good gray archaic piano”: gray is a color and archaic is an age adjective, so the example places color before age, not age before color as the candidate claims. The candidate then uses the unsupported order to reject the options and selects K; that final answer is therefore not justified.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "b908e9659a2d1971e6d52344a847c442fa12a35afb94ff0371c3cc16bd860daf",
+      "count": 1,
+      "usd": 0.0010222999999999999
+    },
+    {
+      "provider": "jev",
+      "key": "de54369625a944b802f0c9974db0b46a6e2453491fedd086c7354f51b9a5dd6b",
+      "seconds": 0.509,
+      "usd": 0
+    }
+  ]
+}

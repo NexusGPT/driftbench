@@ -1,0 +1,25 @@
+{
+  "pA": 0.12,
+  "detail": {
+    "error_found": true,
+    "quote": "**Final Answer:**  \nThe completed sequence is:  \n`( { < { ( ( { } ) ( ) ) } { } < { } > < > > } { } ( { ( { { } } ) [ ( ) ] } ) ) [ ( [ ] ) ] ) ]`",
+    "explanation": "The input already ends with `[ ( [ ]`: the final `]` closes the innermost `[`. The remaining open symbols are therefore `[` and `(`, in that order, so the required additions are `) ]`. The candidate instead appends `] ) ] )`, which adds extra closers and does not give a properly nested sequence.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "3183242402747a296c42275919c58d52346d26be76edfae6ceb4cbd75b561fd0",
+      "count": 1,
+      "usd": 0.0013191
+    },
+    {
+      "provider": "jev",
+      "key": "6d3365b13c0d856b43613be3edfc1ab35815a3497bf283777b1e79269d0a8837",
+      "seconds": 0.625,
+      "usd": 0
+    }
+  ]
+}

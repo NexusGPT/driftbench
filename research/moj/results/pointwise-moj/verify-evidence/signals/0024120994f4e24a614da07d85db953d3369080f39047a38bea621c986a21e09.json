@@ -1,0 +1,25 @@
+{
+  "pA": 0.050000000000000044,
+  "detail": {
+    "error_found": true,
+    "quote": "The contrapositive of Q → P is ¬Q → ¬P (If there is no capital support, then the savings rate is not high) → This is option C.",
+    "explanation": "The contrapositive of Q → P is ¬P → ¬Q, not ¬Q → ¬P. The passage supports that without a high savings rate, one cannot obtain the capital support; it does not support option C. The final answer incorrectly includes C, though D follows from the chain of necessary conditions.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "b375acb539df8546e488894166c119a9292f95d8f4ddfc98b2d394cf29944b3e",
+      "count": 1,
+      "usd": 0.00047290000000000006
+    },
+    {
+      "provider": "jev",
+      "key": "1051a526ddcab610e813cd457d848394e99a62279262ca86dae2d704a48b775a",
+      "seconds": 0.493,
+      "usd": 0
+    }
+  ]
+}

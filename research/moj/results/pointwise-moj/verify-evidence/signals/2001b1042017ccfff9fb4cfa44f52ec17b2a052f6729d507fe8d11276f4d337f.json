@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "D is supported by the passage: it explains what questioning means and describes its purpose and practical value, illustrated by Einstein’s example. The passage also mentions scientific development, but that does not establish a decisive error in choosing the broader, more comprehensive option D.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "1f733f9d2d9da80f93a25c503de44c6fd84eaf42278182698a0bdb104c596c66",
+      "count": 1,
+      "usd": 0.000453
+    },
+    {
+      "provider": "jev",
+      "key": "360ae1968bd957debe3e54c5ba109ba28666b17824930bb4090bfa0831e9af7a",
+      "seconds": 1.3,
+      "usd": 0
+    }
+  ]
+}

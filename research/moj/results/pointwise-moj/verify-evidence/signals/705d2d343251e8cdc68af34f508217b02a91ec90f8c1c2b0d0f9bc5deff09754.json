@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "Then $Y = \\bar{X}_n$. Then $Y \\sim \\text{Normal}(\\mu, \\sigma^2)$, where $\\mu = np$ and $\\sigma^2 = np(1-p)$.",
+    "explanation": "Those are the mean and variance of the head count $X$, not the observed proportion $\\bar X_n=X/n$. The proportion has mean $p$ and variance $p(1-p)/n$. The subsequent standardization therefore uses the wrong distribution, so the boxed answer is not supported. The candidate also assumes $p=0.5$ without justification, though the distributional error occurs first.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "9740e3d8062503b387766d68c8bd8f346c77e9194d7cbbe6e8bf46704856a4ea",
+      "count": 1,
+      "usd": 0.00042570000000000005
+    },
+    {
+      "provider": "jev",
+      "key": "65e2343c0208e9201cdfaf4441a70a3946675fae764baa459abb238b1ae0ebd1",
+      "seconds": 0.712,
+      "usd": 0
+    }
+  ]
+}

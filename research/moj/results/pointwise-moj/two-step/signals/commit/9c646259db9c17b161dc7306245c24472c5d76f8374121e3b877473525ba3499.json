@@ -1,0 +1,16 @@
+{
+  "pA": null,
+  "detail": {
+    "a_better": null,
+    "b_better": null,
+    "can_commit": null
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "8e1f04c4dec8e502205d3ac72a0f4cbac15481c10cccb389c2d44676dff4e136",
+      "seconds": 0,
+      "usd": 0
+    }
+  ]
+}

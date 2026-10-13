@@ -1,0 +1,56 @@
+[
+  {
+    "threshold": 0.5,
+    "n": 110,
+    "accuracy": 0.8909090909090909,
+    "safe": false
+  },
+  {
+    "threshold": 0.6,
+    "n": 108,
+    "accuracy": 0.8888888888888888,
+    "safe": false
+  },
+  {
+    "threshold": 0.7,
+    "n": 95,
+    "accuracy": 0.9157894736842105,
+    "safe": false
+  },
+  {
+    "threshold": 0.8,
+    "n": 87,
+    "accuracy": 0.9540229885057471,
+    "safe": false
+  },
+  {
+    "threshold": 0.9,
+    "n": 75,
+    "accuracy": 0.96,
+    "safe": false
+  },
+  {
+    "threshold": 0.95,
+    "n": 54,
+    "accuracy": 0.9444444444444444,
+    "safe": false
+  },
+  {
+    "threshold": 0.99,
+    "n": 45,
+    "accuracy": 0.9555555555555556,
+    "safe": false
+  },
+  {
+    "threshold": 1.0,
+    "n": 44,
+    "accuracy": 0.9545454545454546,
+    "safe": false
+  },
+  {
+    "threshold": 1.01,
+    "n": 0,
+    "accuracy": null,
+    "safe": true
+  }
+]

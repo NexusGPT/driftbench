@@ -1,0 +1,23 @@
+{
+  "network_disabled": true,
+  "replayed": {
+    "two-step": 204,
+    "two-step-terrain": 204,
+    "verify-prior": 49,
+    "final": 204,
+    "moj.two_step_raw_s1_signals": 569,
+    "moj.two_step_terrain_raw_s1_signals": 217,
+    "error_hunt_raw_s2_and_s1_signals": 95,
+    "independent_second_solves": 18
+  },
+  "missing_s1_answers_retained": {
+    "moj.two_step": 4,
+    "moj.two_step_terrain": 0
+  },
+  "all_three_accepted_cells_hash_unchanged": true,
+  "verify_cross_mode_tuning_purge": true,
+  "duplicate_returned_answers": 0,
+  "reserved_plus_known_usd": 1.65812343,
+  "source_hashes_match": true,
+  "raw_replay_excludes_latency_only": true
+}

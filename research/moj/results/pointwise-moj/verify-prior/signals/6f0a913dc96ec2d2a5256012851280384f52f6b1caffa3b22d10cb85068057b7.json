@@ -1,0 +1,22 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "A. There is no Laokeng jade with the highest transparency.",
+    "reasoning": "With other conditions equal, greater transparency means greater value. If Laokeng jade had a highest transparency, it would therefore have the highest unit value, contrary to the statement that no Laokeng jade has the highest unit value.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e13636527294b36e9176b3cd7c219eb9d872b8f681e70e33bca0c2a3f9582e02",
+      "count": 1,
+      "usd": 0.0002674
+    },
+    {
+      "provider": "jev",
+      "key": "67d7aeb05d82ca0b05c74d1178725a86d9ff27519e1fc0173b1bd12a876be976",
+      "seconds": 0.331,
+      "usd": 0
+    }
+  ]
+}

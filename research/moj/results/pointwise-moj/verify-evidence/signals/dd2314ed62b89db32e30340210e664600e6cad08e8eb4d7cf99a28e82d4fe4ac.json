@@ -1,0 +1,25 @@
+{
+  "pA": 0.050000000000000044,
+  "detail": {
+    "error_found": true,
+    "quote": "Final Answer: The final answer is $\\boxed{1}$",
+    "explanation": "The candidate itself identifies $(x_1,x_2,x_3)=(0,0,0)$ as a solution, but the final answer lists only 1. Since the question asks for all real solutions, omitting the zero solution makes the final answer incomplete.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "71cfc67094c951e20ffa90b7815dc24b1cd7ff8f63dcbea9df32483c299fad53",
+      "count": 1,
+      "usd": 0.00032720000000000004
+    },
+    {
+      "provider": "jev",
+      "key": "fb1571389b55e4402e207ddd34147817b9581dd59b8b83ca4e668b26459b12e7",
+      "seconds": 0.712,
+      "usd": 0
+    }
+  ]
+}

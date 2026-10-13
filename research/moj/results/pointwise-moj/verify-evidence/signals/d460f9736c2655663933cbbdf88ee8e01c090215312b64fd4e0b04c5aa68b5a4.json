@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "So, I'll go with E)6.",
+    "explanation": "The candidate’s own eight listed orderings all satisfy the stated constraints, so concluding 6 merely because it is an answer choice is unsupported. In fact, the stated conditions yield 8 orderings, which is absent from the choices; the final answer is therefore incorrect.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "b11d7f7c5c5f24cddc16fb1ea421fd18623f4aea46ced1eb3168a1a7a1c849f9",
+      "count": 1,
+      "usd": 0.0019525
+    },
+    {
+      "provider": "jev",
+      "key": "ece88078d7db9bc2b036a114ecd11878a2bf00aeedd7677efae95372d8a7ac7d",
+      "seconds": 12.281,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "pA": 0.03,
+  "detail": {
+    "reference": "(D) 5",
+    "reasoning": "Since blue precedes green, yellow, and red, blue must be first or second. If blue is first, the remaining houses can be ordered in 4 ways satisfying green-before-red and orange-before-red; 1 has yellow immediately after blue, leaving 3. If blue is second, orange must be first. Of the 3 orders of green, yellow, and red with green before red, 1 places yellow immediately after blue, leaving 2. Thus there are 3 + 2 = 5 orderings.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "770ef818c73edb93333957f9799e6f99967a2cc8a7f908032fce88eda4edc874",
+      "count": 1,
+      "usd": 0.0003733
+    },
+    {
+      "provider": "jev",
+      "key": "90a8012594441b7b5fd83794fca3d74a2ff0b6b334380676432bc7394c2f341e",
+      "seconds": 3.952,
+      "usd": 0
+    }
+  ]
+}

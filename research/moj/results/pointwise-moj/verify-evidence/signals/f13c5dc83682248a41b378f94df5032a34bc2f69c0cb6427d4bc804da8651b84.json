@@ -1,0 +1,25 @@
+{
+  "pA": 0.07999999999999996,
+  "detail": {
+    "error_found": true,
+    "quote": "So, the points (10.07,0.0), (6.39355,6.36534), (5.03429,8.71965), (1.45994,2.5287), (0.0,0.0), and back to (10.07,0.0) via (10.07,0.0).",
+    "explanation": "The listed segments do not close this pentagon: the segment from (0,0) to (10.07,0) is absent. The candidate treats the vertical segment at x=10.07 as if it supplied that missing horizontal edge, so the claimed convex pentagon (and thus the final selection of 7 and 8) is unsupported.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e10a77485e6f80ed0cb189e4e62bfd7e43110d020674e2d86175cb163a058b49",
+      "count": 1,
+      "usd": 0.0017092000000000001
+    },
+    {
+      "provider": "jev",
+      "key": "4c80357543676984643efddd7b5be9cf30a684dddb48eab8a05bb349a1a3b0c5",
+      "seconds": 5.479,
+      "usd": 0
+    }
+  ]
+}

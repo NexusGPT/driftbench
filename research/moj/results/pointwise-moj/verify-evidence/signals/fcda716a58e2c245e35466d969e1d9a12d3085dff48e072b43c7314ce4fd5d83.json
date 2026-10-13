@@ -1,0 +1,25 @@
+{
+  "pA": 0.12,
+  "detail": {
+    "error_found": true,
+    "quote": "**Answer:** Proven. The crab does not swear to the beetle.",
+    "explanation": "The question asks whether the crab swears. The candidate’s own reasoning derives that the crab does not swear, which supports classifying the queried claim as disproved—not proven. Also, the claim that the dugong “hasn't traded” is not stated; only that its trade is not mentioned.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "6e422c2094918d77121932d6e35c251f86015177653c7e4bc588099d87d94d25",
+      "count": 1,
+      "usd": 0.0005372
+    },
+    {
+      "provider": "jev",
+      "key": "5307d3da0d237014add4091835300261a311d97e08c562be749167e491ac3ab0",
+      "seconds": 0.486,
+      "usd": 0
+    }
+  ]
+}

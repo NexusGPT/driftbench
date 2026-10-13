@@ -1,0 +1,25 @@
+{
+  "pA": 0.06000000000000005,
+  "detail": {
+    "error_found": true,
+    "quote": "So, even though the reindeer is in Germany, because the stork traded and the lizard didn't tear down, Rule7 takes precedence, so the reindeer does not create the castle for the flamingo.",
+    "explanation": "The game state says the stork traded with the reindeer, but gives no information about whether the lizard tears down the reindeer’s castle. Rule7 applies only if both its conditions hold, so the candidate cannot assume its missing condition and conclude that it overrides Rule1. This unsupported conclusion is carried into the final answer. Moreover, even if Rule4 were not triggered, that would not establish that the reindeer does not acquire the photograph.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "ee27c0575d470f81d01a177fb268a13557c56833d8770617da7139ea48a30424",
+      "count": 1,
+      "usd": 0.0005778
+    },
+    {
+      "provider": "jev",
+      "key": "0ac34ade5591083938080511b1006498cff96c71b380a044692446d4f70c7a06",
+      "seconds": 0.566,
+      "usd": 0
+    }
+  ]
+}

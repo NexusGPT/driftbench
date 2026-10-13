@@ -1,0 +1,22 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "(B) 4 and 5",
+    "reasoning": "The line segments include a right triangle and a parallelogram whose adjacent sides are not perpendicular. The other listed shapes do not appear as complete outlines. In particular, the triangle is classified as a right triangle, not as a non-right triangle.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e23947135c5b3ba9ac4e383a64bb48539fd96e8fb826ae9769cfdbba1ed791fd",
+      "count": 3,
+      "usd": 0.0008476
+    },
+    {
+      "provider": "jev",
+      "key": "fc2b116c990c8cb2c31f1fbb21a06f5e2f1e5399d57b1173c92ab8030336292f",
+      "seconds": 0.283,
+      "usd": 0
+    }
+  ]
+}

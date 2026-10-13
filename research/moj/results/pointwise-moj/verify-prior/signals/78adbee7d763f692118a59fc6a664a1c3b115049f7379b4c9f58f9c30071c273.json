@@ -1,0 +1,22 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "(B) Numerical Values",
+    "reasoning": "The source gives an area of 0.15 ha, but the translation changes the unit to km. The numerical measurement is therefore incorrect.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "085024f5f8bdb7ac66f95b11a0f1992c8a598403826884920ecb5fed57ea8082",
+      "count": 1,
+      "usd": 0.0002435
+    },
+    {
+      "provider": "jev",
+      "key": "5363f74ffc4e951acd7ca1ba2201d2937a30ae7999e64159b859acf3585e88a9",
+      "seconds": 0.35,
+      "usd": 0
+    }
+  ]
+}

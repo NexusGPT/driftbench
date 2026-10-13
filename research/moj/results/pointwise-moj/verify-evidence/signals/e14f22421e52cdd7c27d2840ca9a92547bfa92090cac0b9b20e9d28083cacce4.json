@@ -1,0 +1,25 @@
+{
+  "pA": 0.040000000000000036,
+  "detail": {
+    "error_found": true,
+    "quote": "Thus, B evaluates to True.",
+    "explanation": "In the original expression (B), the clause “and (The capital of Armenia is Gyumri.)” is a direct conjunct of the whole expression. That statement is false (Armenia’s capital is Yerevan), so (B) must be false regardless of the other clauses. The candidate’s final answer, (B), is therefore wrong.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "f2e50342f60a851e75af5e39386535c00cf0b9e1e8019ed80de7f9794363b180",
+      "count": 2,
+      "usd": 0.0014344000000000002
+    },
+    {
+      "provider": "jev",
+      "key": "16b528e67c210f0dbdf9195cb921ca15f5eb175b309b801c977a976e4576d6e0",
+      "seconds": 5.904,
+      "usd": 0
+    }
+  ]
+}

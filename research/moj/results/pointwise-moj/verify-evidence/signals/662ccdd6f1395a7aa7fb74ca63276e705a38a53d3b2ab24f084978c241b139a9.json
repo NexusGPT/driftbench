@@ -1,0 +1,25 @@
+{
+  "pA": 0.27,
+  "detail": {
+    "error_found": true,
+    "quote": "*   Minutes: 47 // 60 = 7 minutes with a remainder of 7",
+    "explanation": "After converting 347 minutes into 5 hours, the remaining 47 minutes should stay 47 minutes; it should not be divided by 60 again. The average for Question 1 is 5, 47, 40, so this error changes the values used in the subsequent questions.",
+    "changes_final_answer": true,
+    "error_type": "arithmetic"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "40faa4663aee623b92a3b0e39d4d430d68a820a4e8806d68c7684980ef6211c3",
+      "count": 1,
+      "usd": 0.00026510000000000005
+    },
+    {
+      "provider": "jev",
+      "key": "ea424a11f0df4424fad069fcb1e129517c55c9d388d006beb5442938254ad243",
+      "seconds": 1.262,
+      "usd": 0
+    }
+  ]
+}

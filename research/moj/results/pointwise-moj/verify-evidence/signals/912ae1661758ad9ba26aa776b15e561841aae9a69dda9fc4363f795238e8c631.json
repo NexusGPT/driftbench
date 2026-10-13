@@ -1,0 +1,25 @@
+{
+  "pA": 0.040000000000000036,
+  "detail": {
+    "error_found": true,
+    "quote": "Case 1: 1921: Onyx, 1922: Ryan, 1923: Louis, 1924: Tiffany or Yoshio.",
+    "explanation": "The premise requires Yoshio to be assigned. Since Onyx and Ryan occupy 1921 and 1922, Yoshio must be in either 1923 or 1924; 1923 cannot be Yoshio, so Yoshio must be in 1924. The proposed alternative with Tiffany in 1924 leaves Yoshio unassigned, so it is invalid. In fact, A could be true (Louis in 1923 and Yoshio in 1924), while D cannot be true.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "f770b57de6ec006484bffafae152aa112c137403a301031ddf2e4d757392847c",
+      "count": 1,
+      "usd": 0.0009582000000000001
+    },
+    {
+      "provider": "jev",
+      "key": "0365180363a62a8bf6157b905efc2109a8ceff3b85271a54c88dee239d999ac0",
+      "seconds": 0.59,
+      "usd": 0
+    }
+  ]
+}

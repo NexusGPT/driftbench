@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "Rule3 is preferred over Rule1, but it is not applicable here because we already have Rule1 applicable.",
+    "explanation": "A rule’s applicability depends on whether its antecedent is satisfied, not on whether another rule is applicable. Rule3 requires evidence that the stork has more money than the walrus; the game state gives no such evidence. The candidate’s conclusion that Rule3 does not apply may be right, but its stated reason is invalid.",
+    "changes_final_answer": false,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "25ed6748029a47c6feca655910724f227e8f052701bcbc2310a70d862f4fe27f",
+      "count": 2,
+      "usd": 0.000538
+    },
+    {
+      "provider": "jev",
+      "key": "64edda7730b48d4837584bdcb25915c9262f85ba5045acca01ac6e40b3e5b931",
+      "seconds": 15.983,
+      "usd": 0
+    }
+  ]
+}

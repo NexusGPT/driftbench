@@ -1,0 +1,2835 @@
+[
+  {
+    "index": 3,
+    "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "provisional_candidate_correct": true,
+    "expected": [
+      "E"
+    ],
+    "candidate_final": "E",
+    "assessment_scope": "final selected option only; does not certify candidate reasoning",
+    "candidate_final_quote": "oid with exactly one pair of parallel sides and with no diagonals drawn:** Not formed by the path.\n   - **Irregular convex pentagon with no diagonals drawn:** Not formed by the path.\n   - **Irregular concave pentagon with no diagonals drawn:** Not formed by the path.\n   - **Regular pentagon with no diagonals drawn:** Not formed by the path.\n   - **Regular hexagon with no diagonals drawn:** Not formed by the path.\n\nThe correct answer is: **E** 1, 5, 7, 8, 4, and 6.\n\nThe final answer is \\boxed{E}.",
+    "candidate_prose_conflicts_with_option": true,
+    "option_mapping_caveat": null,
+    "evidence": [
+      {
+        "shapes": [
+          1,
+          5,
+          7,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              7.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              7.0
+            ]
+          ],
+          "5": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              20.49493,
+              -28.84999
+            ],
+            [
+              20.49493,
+              -21.75139
+            ]
+          ],
+          "8": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              0.0,
+              -7.0986
+            ],
+            [
+              6.14757,
+              -3.5493
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "7": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              20.49493,
+              -21.75139
+            ],
+            [
+              34.99586,
+              -14.98949
+            ],
+            [
+              24.85302,
+              6.76189
+            ],
+            [
+              11.74658,
+              15.93912
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 33,
+        "edges": 15,
+        "tolerance": 2e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          1,
+          5,
+          7,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              7.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              7.0
+            ]
+          ],
+          "5": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              20.49493,
+              -28.84999
+            ],
+            [
+              20.49493,
+              -21.75139
+            ]
+          ],
+          "8": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              0.0,
+              -7.0986
+            ],
+            [
+              6.14757,
+              -3.5493
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "7": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              20.49493,
+              -21.75139
+            ],
+            [
+              34.99586,
+              -14.98949
+            ],
+            [
+              24.85302,
+              6.76189
+            ],
+            [
+              11.74658,
+              15.93912
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 33,
+        "edges": 15,
+        "tolerance": 2e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          1,
+          5,
+          7,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              7.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              7.0
+            ]
+          ],
+          "5": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              20.49493,
+              -28.84999
+            ],
+            [
+              20.49493,
+              -21.75139
+            ]
+          ],
+          "8": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              0.0,
+              -7.0986
+            ],
+            [
+              6.14757,
+              -3.5493
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "7": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              20.49493,
+              -21.75139
+            ],
+            [
+              34.99586,
+              -14.98949
+            ],
+            [
+              24.85302,
+              6.76189
+            ],
+            [
+              11.74658,
+              15.93912
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 33,
+        "edges": 15,
+        "tolerance": 5e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          1,
+          5,
+          7,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              7.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              7.0
+            ]
+          ],
+          "5": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              20.49493,
+              -28.84999
+            ],
+            [
+              20.49493,
+              -21.75139
+            ]
+          ],
+          "8": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              0.0,
+              -7.0986
+            ],
+            [
+              6.14757,
+              -3.5493
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "7": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              20.49493,
+              -21.75139
+            ],
+            [
+              34.99586,
+              -14.98949
+            ],
+            [
+              24.85302,
+              6.76189
+            ],
+            [
+              11.74658,
+              15.93912
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 33,
+        "edges": 15,
+        "tolerance": 5e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          1,
+          5,
+          7,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              7.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              7.0
+            ]
+          ],
+          "5": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              20.49493,
+              -28.84999
+            ],
+            [
+              20.49493,
+              -21.75139
+            ]
+          ],
+          "8": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              0.0,
+              -7.0986
+            ],
+            [
+              6.14757,
+              -3.5493
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "7": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              20.49493,
+              -21.75139
+            ],
+            [
+              34.99586,
+              -14.98949
+            ],
+            [
+              24.85302,
+              6.76189
+            ],
+            [
+              11.74658,
+              15.93912
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 33,
+        "edges": 15,
+        "tolerance": 0.0001,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          1,
+          5,
+          7,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              7.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              7.0
+            ]
+          ],
+          "5": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              20.49493,
+              -28.84999
+            ],
+            [
+              20.49493,
+              -21.75139
+            ]
+          ],
+          "8": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              10.35209,
+              -7.0986
+            ],
+            [
+              0.0,
+              -7.0986
+            ],
+            [
+              6.14757,
+              -3.5493
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "7": [
+            [
+              10.35209,
+              0.0
+            ],
+            [
+              20.49493,
+              -21.75139
+            ],
+            [
+              34.99586,
+              -14.98949
+            ],
+            [
+              24.85302,
+              6.76189
+            ],
+            [
+              11.74658,
+              15.93912
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 33,
+        "edges": 15,
+        "tolerance": 0.0001,
+        "semantics": "literal_diagonal"
+      }
+    ],
+    "proof_limitation": "Tolerance sweeps do not quantify over the full +/-0.000005 coordinate rounding intervals. Independent within-interval perturbations can destroy exact collinearity, parallelism, or right angles. The prompt says to ignore slight differences but supplies no formal equivalence rule. No interval certificate of the intended polygon reconstruction is available.",
+    "reason": "Provisional final-option classification is stable across tested tolerances and both diagonal interpretations, but is not a proof suitable for changing labels."
+  },
+  {
+    "index": 15,
+    "id": "662cc73cee1fdf39a1094a764dfd3e9f_4fb33ca6bf4220a5115d35eeddd6702b",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "provisional_candidate_correct": false,
+    "expected": [
+      "I"
+    ],
+    "candidate_final": "F",
+    "assessment_scope": "final selected option only; does not certify candidate reasoning",
+    "candidate_final_quote": "resent. So, the answer is F: none of the above.\n\nBut wait, let me make sure. Maybe I'm miscounting. The figure has a square, a rectangle, triangles, and a parallelogram. So, all of these are present except for right triangle, trapezoid, pentagons, hexagons.\n\nSo, the answer is F: none of the above.\n</think>\n\nThe SVG path draws a figure that includes a square, a rectangle, triangles, and a parallelogram. Since none of the provided options include all these shapes, the correct answer is:\n\n\\boxed{F}",
+    "candidate_prose_conflicts_with_option": false,
+    "option_mapping_caveat": null,
+    "evidence": [
+      {
+        "shapes": [
+          2,
+          8
+        ],
+        "witnesses": {
+          "8": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              0.0,
+              22.67885
+            ],
+            [
+              6.9282,
+              18.67885
+            ],
+            [
+              0.0,
+              14.67885
+            ]
+          ],
+          "2": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              14.67885
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 14,
+        "edges": 12,
+        "tolerance": 2e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          2,
+          8
+        ],
+        "witnesses": {
+          "8": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              0.0,
+              22.67885
+            ],
+            [
+              6.9282,
+              18.67885
+            ],
+            [
+              0.0,
+              14.67885
+            ]
+          ],
+          "2": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              14.67885
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 14,
+        "edges": 12,
+        "tolerance": 2e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          2,
+          8
+        ],
+        "witnesses": {
+          "8": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              0.0,
+              22.67885
+            ],
+            [
+              6.9282,
+              18.67885
+            ],
+            [
+              0.0,
+              14.67885
+            ]
+          ],
+          "2": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              14.67885
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 14,
+        "edges": 12,
+        "tolerance": 5e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          2,
+          8
+        ],
+        "witnesses": {
+          "8": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              0.0,
+              22.67885
+            ],
+            [
+              6.9282,
+              18.67885
+            ],
+            [
+              0.0,
+              14.67885
+            ]
+          ],
+          "2": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              14.67885
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 14,
+        "edges": 12,
+        "tolerance": 5e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          2,
+          8
+        ],
+        "witnesses": {
+          "8": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              0.0,
+              22.67885
+            ],
+            [
+              6.9282,
+              18.67885
+            ],
+            [
+              0.0,
+              14.67885
+            ]
+          ],
+          "2": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              14.67885
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 14,
+        "edges": 12,
+        "tolerance": 0.0001,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          2,
+          8
+        ],
+        "witnesses": {
+          "8": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              0.0,
+              22.67885
+            ],
+            [
+              6.9282,
+              18.67885
+            ],
+            [
+              0.0,
+              14.67885
+            ]
+          ],
+          "2": [
+            [
+              10.2141,
+              14.67885
+            ],
+            [
+              10.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              22.67885
+            ],
+            [
+              18.2141,
+              14.67885
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 14,
+        "edges": 12,
+        "tolerance": 0.0001,
+        "semantics": "literal_diagonal"
+      }
+    ],
+    "proof_limitation": "Tolerance sweeps do not quantify over the full +/-0.000005 coordinate rounding intervals. Independent within-interval perturbations can destroy exact collinearity, parallelism, or right angles. The prompt says to ignore slight differences but supplies no formal equivalence rule. No interval certificate of the intended polygon reconstruction is available.",
+    "reason": "Provisional final-option classification is stable across tested tolerances and both diagonal interpretations, but is not a proof suitable for changing labels."
+  },
+  {
+    "index": 24,
+    "id": "8d5e34bb0c4ae72f49a999d4950d0d50_b386787e81fc71a19aeff29ecb5b7cae",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "provisional_candidate_correct": false,
+    "expected": [
+      "B"
+    ],
+    "candidate_final": "K",
+    "assessment_scope": "final selected option only; does not certify candidate reasoning",
+    "candidate_final_quote": "by lines 9, 10, 11, 12, and 13.\n- **Irregular concave pentagon:** Formed by lines 13, 14, 15, 16, and 17.\n- **Regular pentagon:** Not formed by the given lines.\n- **Regular hexagon:** Not formed by the given lines.\n\nTherefore, the shapes that can be viewed are:\n- Triangle (not a right triangle)\n- Right triangle\n- Parallelogram (not a rectangle)\n- Trapezoid with exactly one pair of parallel sides\n- Irregular convex pentagon\n- Irregular concave pentagon\n\nThe correct answer is \\(\\boxed{\\text{K}}\\).",
+    "candidate_prose_conflicts_with_option": false,
+    "option_mapping_caveat": null,
+    "evidence": [
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              -9.79426,
+              -10.18059
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              -8.9065,
+              -1.29396
+            ],
+            [
+              -18.70075,
+              -11.47455
+            ]
+          ],
+          "4": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              19.0
+            ],
+            [
+              9.4929,
+              9.86734
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 43,
+        "edges": 12,
+        "tolerance": 2e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              -9.79426,
+              -10.18059
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              -8.9065,
+              -1.29396
+            ],
+            [
+              -18.70075,
+              -11.47455
+            ]
+          ],
+          "4": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              19.0
+            ],
+            [
+              9.4929,
+              9.86734
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 43,
+        "edges": 12,
+        "tolerance": 2e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              -9.79426,
+              -10.18059
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              -8.9065,
+              -1.29396
+            ],
+            [
+              -18.70075,
+              -11.47455
+            ]
+          ],
+          "4": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              19.0
+            ],
+            [
+              9.4929,
+              9.86734
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 43,
+        "edges": 12,
+        "tolerance": 5e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              -9.79426,
+              -10.18059
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              -8.9065,
+              -1.29396
+            ],
+            [
+              -18.70075,
+              -11.47455
+            ]
+          ],
+          "4": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              19.0
+            ],
+            [
+              9.4929,
+              9.86734
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 43,
+        "edges": 12,
+        "tolerance": 5e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              -9.79426,
+              -10.18059
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              -8.9065,
+              -1.29396
+            ],
+            [
+              -18.70075,
+              -11.47455
+            ]
+          ],
+          "4": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              19.0
+            ],
+            [
+              9.4929,
+              9.86734
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 43,
+        "edges": 12,
+        "tolerance": 0.0001,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              -9.79426,
+              -10.18059
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              -8.9065,
+              -1.29396
+            ],
+            [
+              -18.70075,
+              -11.47455
+            ]
+          ],
+          "4": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              19.0
+            ],
+            [
+              9.4929,
+              9.86734
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 43,
+        "edges": 12,
+        "tolerance": 0.0001,
+        "semantics": "literal_diagonal"
+      }
+    ],
+    "proof_limitation": "Tolerance sweeps do not quantify over the full +/-0.000005 coordinate rounding intervals. Independent within-interval perturbations can destroy exact collinearity, parallelism, or right angles. The prompt says to ignore slight differences but supplies no formal equivalence rule. No interval certificate of the intended polygon reconstruction is available.",
+    "reason": "Provisional final-option classification is stable across tested tolerances and both diagonal interpretations, but is not a proof suitable for changing labels."
+  },
+  {
+    "index": 26,
+    "id": "9627c5098f4185184311edb8a3ccb640_116a5adea8a225f8c8542f0576808a6e",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "provisional_candidate_correct": false,
+    "expected": [
+      "G"
+    ],
+    "candidate_final": "E",
+    "assessment_scope": "final selected option only; does not certify candidate reasoning",
+    "candidate_final_quote": "ercomplicating, and the figure is only 8.\n\nI think I'll go with E: only 8.\n</think>\n\nThe SVG path draws multiple lines that form an irregular concave pentagon. The figure does not form a rectangle without diagonals, a square, a triangle without a right angle, a parallelogram without diagonals, a trapezoid with exactly one pair of parallel sides, a regular pentagon, or a regular hexagon. The figure is best described as an irregular concave pentagon with no diagonals drawn.\n\n**Answer: (E) only 8**",
+    "candidate_prose_conflicts_with_option": false,
+    "option_mapping_caveat": "Computed shape set has no listed non-none option. Under the tested reconstruction, the candidate excludes a rectangle. This reconstruction is not interval-certified.",
+    "evidence": [
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "8": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              0.0,
+              17.61117
+            ],
+            [
+              9.95929,
+              23.36117
+            ],
+            [
+              0.0,
+              29.11117
+            ]
+          ],
+          "1": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              32.25,
+              17.61117
+            ],
+            [
+              32.25,
+              29.11117
+            ]
+          ],
+          "3": [
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              12.75,
+              10.61117
+            ],
+            [
+              18.81218,
+              14.11117
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 17,
+        "edges": 15,
+        "tolerance": 2e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              10.61117
+            ],
+            [
+              32.25,
+              10.61117
+            ],
+            [
+              32.25,
+              29.11117
+            ]
+          ],
+          "8": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              0.0,
+              17.61117
+            ],
+            [
+              9.95929,
+              23.36117
+            ],
+            [
+              0.0,
+              29.11117
+            ]
+          ],
+          "3": [
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              12.75,
+              10.61117
+            ],
+            [
+              18.81218,
+              14.11117
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 17,
+        "edges": 15,
+        "tolerance": 2e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "8": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              0.0,
+              17.61117
+            ],
+            [
+              9.95929,
+              23.36117
+            ],
+            [
+              0.0,
+              29.11117
+            ]
+          ],
+          "1": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              32.25,
+              17.61117
+            ],
+            [
+              32.25,
+              29.11117
+            ]
+          ],
+          "3": [
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              12.75,
+              10.61117
+            ],
+            [
+              18.81218,
+              14.11117
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 17,
+        "edges": 15,
+        "tolerance": 5e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              10.61117
+            ],
+            [
+              32.25,
+              10.61117
+            ],
+            [
+              32.25,
+              29.11117
+            ]
+          ],
+          "8": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              0.0,
+              17.61117
+            ],
+            [
+              9.95929,
+              23.36117
+            ],
+            [
+              0.0,
+              29.11117
+            ]
+          ],
+          "3": [
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              12.75,
+              10.61117
+            ],
+            [
+              18.81218,
+              14.11117
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 17,
+        "edges": 15,
+        "tolerance": 5e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "8": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              0.0,
+              17.61117
+            ],
+            [
+              9.95929,
+              23.36117
+            ],
+            [
+              0.0,
+              29.11117
+            ]
+          ],
+          "1": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              32.25,
+              17.61117
+            ],
+            [
+              32.25,
+              29.11117
+            ]
+          ],
+          "3": [
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              12.75,
+              10.61117
+            ],
+            [
+              18.81218,
+              14.11117
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 17,
+        "edges": 15,
+        "tolerance": 0.0001,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              10.61117
+            ],
+            [
+              32.25,
+              10.61117
+            ],
+            [
+              32.25,
+              29.11117
+            ]
+          ],
+          "8": [
+            [
+              12.75,
+              29.11117
+            ],
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              0.0,
+              17.61117
+            ],
+            [
+              9.95929,
+              23.36117
+            ],
+            [
+              0.0,
+              29.11117
+            ]
+          ],
+          "3": [
+            [
+              12.75,
+              17.61117
+            ],
+            [
+              12.75,
+              10.61117
+            ],
+            [
+              18.81218,
+              14.11117
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 17,
+        "edges": 15,
+        "tolerance": 0.0001,
+        "semantics": "literal_diagonal"
+      }
+    ],
+    "proof_limitation": "Tolerance sweeps do not quantify over the full +/-0.000005 coordinate rounding intervals. Independent within-interval perturbations can destroy exact collinearity, parallelism, or right angles. The prompt says to ignore slight differences but supplies no formal equivalence rule. No interval certificate of the intended polygon reconstruction is available.",
+    "reason": "Provisional final-option classification is stable across tested tolerances and both diagonal interpretations, but is not a proof suitable for changing labels."
+  },
+  {
+    "index": 38,
+    "id": "c79635cb392bd0cff8e73bb148ed437f_4725ee3614c57d1a8271e3350be4f05d",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "provisional_candidate_correct": true,
+    "expected": [
+      "I"
+    ],
+    "candidate_final": "I",
+    "assessment_scope": "final selected option only; does not certify candidate reasoning",
+    "candidate_final_quote": " regular pentagon, and a regular hexagon.\n\n3. **Determine the correct answer:**\n   - The path can form a rectangle (not a square), a square, a triangle (not a right triangle), a right triangle, a parallelogram (not a rectangle), a trapezoid (with exactly one pair of parallel sides), an irregular convex pentagon, an irregular concave pentagon, a regular pentagon, and a regular hexagon.\n   - From the given options, the correct answer is (I) 4, 5 and 10.\n\nTherefore, the correct answer is \\boxed{I}.",
+    "candidate_prose_conflicts_with_option": true,
+    "option_mapping_caveat": null,
+    "evidence": [
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              4.5,
+              16.71833
+            ],
+            [
+              0.0,
+              12.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "4": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.43049,
+              -11.8553
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 35,
+        "edges": 27,
+        "tolerance": 2e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              4.5,
+              16.71833
+            ],
+            [
+              0.0,
+              12.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "4": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.43049,
+              -11.8553
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 35,
+        "edges": 27,
+        "tolerance": 2e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              4.5,
+              16.71833
+            ],
+            [
+              0.0,
+              12.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "4": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.43049,
+              -11.8553
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 35,
+        "edges": 27,
+        "tolerance": 5e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              4.5,
+              16.71833
+            ],
+            [
+              0.0,
+              12.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "4": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.43049,
+              -11.8553
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 35,
+        "edges": 27,
+        "tolerance": 5e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              4.5,
+              16.71833
+            ],
+            [
+              0.0,
+              12.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "4": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.43049,
+              -11.8553
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 35,
+        "edges": 27,
+        "tolerance": 0.0001,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          4,
+          5
+        ],
+        "witnesses": {
+          "5": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              4.5,
+              16.71833
+            ],
+            [
+              0.0,
+              12.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "4": [
+            [
+              4.5,
+              4.71833
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              12.43049,
+              -11.8553
+            ]
+          ]
+        },
+        "cycles": 6,
+        "vertices": 35,
+        "edges": 27,
+        "tolerance": 0.0001,
+        "semantics": "literal_diagonal"
+      }
+    ],
+    "proof_limitation": "Tolerance sweeps do not quantify over the full +/-0.000005 coordinate rounding intervals. Independent within-interval perturbations can destroy exact collinearity, parallelism, or right angles. The prompt says to ignore slight differences but supplies no formal equivalence rule. No interval certificate of the intended polygon reconstruction is available.",
+    "reason": "Provisional final-option classification is stable across tested tolerances and both diagonal interpretations, but is not a proof suitable for changing labels."
+  },
+  {
+    "index": 39,
+    "id": "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "provisional_candidate_correct": false,
+    "expected": [
+      "E"
+    ],
+    "candidate_final": "P",
+    "assessment_scope": "final selected option only; does not certify candidate reasoning",
+    "candidate_final_quote": "he bottom side. So, unless we consider that as a rectangle with a missing side, but in reality, it's not a complete rectangle.\n\nTherefore, I think only the two pentagons are complete polygons. So, option (P) is correct.\n</think>\n\nThe SVG path consists of multiple line segments that form two distinct pentagons: one convex and one concave. No complete rectangles, squares, or other polygons are fully formed due to missing sides. Therefore, the correct answer is:\n\n(P) 7 and 8\n\n**Answer:**\n\n\\boxed{P}",
+    "candidate_prose_conflicts_with_option": false,
+    "option_mapping_caveat": null,
+    "evidence": [
+      {
+        "shapes": [
+          2,
+          7,
+          8
+        ],
+        "witnesses": {
+          "7": [
+            [
+              -6.31126,
+              21.54093
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              0.0,
+              25.18474
+            ]
+          ],
+          "2": [
+            [
+              16.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              31.18474
+            ],
+            [
+              16.06858,
+              31.18474
+            ]
+          ],
+          "8": [
+            [
+              5.03429,
+              8.71965
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              0.0
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 35,
+        "edges": 14,
+        "tolerance": 2e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          2,
+          7,
+          8
+        ],
+        "witnesses": {
+          "7": [
+            [
+              -6.31126,
+              21.54093
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              0.0,
+              25.18474
+            ]
+          ],
+          "2": [
+            [
+              16.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              31.18474
+            ],
+            [
+              16.06858,
+              31.18474
+            ]
+          ],
+          "8": [
+            [
+              5.03429,
+              8.71965
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              0.0
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 35,
+        "edges": 14,
+        "tolerance": 2e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          2,
+          7,
+          8
+        ],
+        "witnesses": {
+          "7": [
+            [
+              -6.31126,
+              21.54093
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              0.0,
+              25.18474
+            ]
+          ],
+          "2": [
+            [
+              16.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              31.18474
+            ],
+            [
+              16.06858,
+              31.18474
+            ]
+          ],
+          "8": [
+            [
+              5.03429,
+              8.71965
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              0.0
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 35,
+        "edges": 14,
+        "tolerance": 5e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          2,
+          7,
+          8
+        ],
+        "witnesses": {
+          "7": [
+            [
+              -6.31126,
+              21.54093
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              0.0,
+              25.18474
+            ]
+          ],
+          "2": [
+            [
+              16.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              31.18474
+            ],
+            [
+              16.06858,
+              31.18474
+            ]
+          ],
+          "8": [
+            [
+              5.03429,
+              8.71965
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              0.0
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 35,
+        "edges": 14,
+        "tolerance": 5e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          2,
+          7,
+          8
+        ],
+        "witnesses": {
+          "7": [
+            [
+              -6.31126,
+              21.54093
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              0.0,
+              25.18474
+            ]
+          ],
+          "2": [
+            [
+              16.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              31.18474
+            ],
+            [
+              16.06858,
+              31.18474
+            ]
+          ],
+          "8": [
+            [
+              5.03429,
+              8.71965
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              0.0
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 35,
+        "edges": 14,
+        "tolerance": 0.0001,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          2,
+          7,
+          8
+        ],
+        "witnesses": {
+          "7": [
+            [
+              -6.31126,
+              21.54093
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              0.0,
+              25.18474
+            ]
+          ],
+          "2": [
+            [
+              16.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              25.18474
+            ],
+            [
+              10.06858,
+              31.18474
+            ],
+            [
+              16.06858,
+              31.18474
+            ]
+          ],
+          "8": [
+            [
+              5.03429,
+              8.71965
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              17.89712
+            ],
+            [
+              10.06858,
+              17.89712
+            ],
+            [
+              10.06858,
+              0.0
+            ]
+          ]
+        },
+        "cycles": 4,
+        "vertices": 35,
+        "edges": 14,
+        "tolerance": 0.0001,
+        "semantics": "literal_diagonal"
+      }
+    ],
+    "proof_limitation": "Tolerance sweeps do not quantify over the full +/-0.000005 coordinate rounding intervals. Independent within-interval perturbations can destroy exact collinearity, parallelism, or right angles. The prompt says to ignore slight differences but supplies no formal equivalence rule. No interval certificate of the intended polygon reconstruction is available.",
+    "reason": "Provisional final-option classification is stable across tested tolerances and both diagonal interpretations, but is not a proof suitable for changing labels."
+  },
+  {
+    "index": 57,
+    "id": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "provisional_candidate_correct": null,
+    "expected": [
+      "B"
+    ],
+    "candidate_final": null,
+    "assessment_scope": "final selected option only; does not certify candidate reasoning",
+    "candidate_final_quote": " from the path, which are primarily a rectangle (1) and triangles (3), with a nuanced consideration for right triangles (4) based on geometric suggestions rather than clear formation. This nuance aligns more closely with the intent of the question as it stands, but the options provided create a slight mismatch with the most precise interpretation, favoring (I) 1 and 3, with 4 being a conceptual stretch from the lines' geometric implications, not directly formed \"right triangle\" clear formations.",
+    "candidate_prose_conflicts_with_option": true,
+    "option_mapping_caveat": null,
+    "evidence": [
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -0.0,
+              21.72644
+            ],
+            [
+              -15.59808,
+              21.72644
+            ],
+            [
+              -15.59808,
+              14.80251
+            ]
+          ],
+          "8": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -15.59808,
+              14.80251
+            ],
+            [
+              -15.59808,
+              8.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ],
+          "3": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 16,
+        "edges": 14,
+        "tolerance": 2e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -0.0,
+              21.72644
+            ],
+            [
+              -15.59808,
+              21.72644
+            ],
+            [
+              -15.59808,
+              14.80251
+            ]
+          ],
+          "8": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -15.59808,
+              14.80251
+            ],
+            [
+              -15.59808,
+              8.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ],
+          "3": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 16,
+        "edges": 14,
+        "tolerance": 2e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -0.0,
+              21.72644
+            ],
+            [
+              -15.59808,
+              21.72644
+            ],
+            [
+              -15.59808,
+              14.80251
+            ]
+          ],
+          "8": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -15.59808,
+              14.80251
+            ],
+            [
+              -15.59808,
+              8.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ],
+          "3": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 16,
+        "edges": 14,
+        "tolerance": 5e-05,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -0.0,
+              21.72644
+            ],
+            [
+              -15.59808,
+              21.72644
+            ],
+            [
+              -15.59808,
+              14.80251
+            ]
+          ],
+          "8": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -15.59808,
+              14.80251
+            ],
+            [
+              -15.59808,
+              8.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ],
+          "3": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 16,
+        "edges": 14,
+        "tolerance": 5e-05,
+        "semantics": "literal_diagonal"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -0.0,
+              21.72644
+            ],
+            [
+              -15.59808,
+              21.72644
+            ],
+            [
+              -15.59808,
+              14.80251
+            ]
+          ],
+          "8": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -15.59808,
+              14.80251
+            ],
+            [
+              -15.59808,
+              8.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ],
+          "3": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 16,
+        "edges": 14,
+        "tolerance": 0.0001,
+        "semantics": "empty_interior"
+      },
+      {
+        "shapes": [
+          1,
+          3,
+          8
+        ],
+        "witnesses": {
+          "1": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -0.0,
+              21.72644
+            ],
+            [
+              -15.59808,
+              21.72644
+            ],
+            [
+              -15.59808,
+              14.80251
+            ]
+          ],
+          "8": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              -15.59808,
+              14.80251
+            ],
+            [
+              -15.59808,
+              8.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ],
+          "3": [
+            [
+              0.0,
+              14.80251
+            ],
+            [
+              0.0,
+              8.80251
+            ],
+            [
+              -5.19615,
+              11.80251
+            ]
+          ]
+        },
+        "cycles": 10,
+        "vertices": 16,
+        "edges": 14,
+        "tolerance": 0.0001,
+        "semantics": "literal_diagonal"
+      }
+    ],
+    "proof_limitation": "Tolerance sweeps do not quantify over the full +/-0.000005 coordinate rounding intervals. Independent within-interval perturbations can destroy exact collinearity, parallelism, or right angles. The prompt says to ignore slight differences but supplies no formal equivalence rule. No interval certificate of the intended polygon reconstruction is available.",
+    "reason": "Final option is ambiguous and geometry is not interval-certified; no label correction is justified."
+  }
+]

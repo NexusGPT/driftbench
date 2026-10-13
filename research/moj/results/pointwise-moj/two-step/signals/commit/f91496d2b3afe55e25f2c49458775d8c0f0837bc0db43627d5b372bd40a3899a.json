@@ -1,0 +1,15 @@
+{
+  "pA": 0.83,
+  "detail": {
+    "pass": 0.83,
+    "can_commit": 0.81
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "6eebcf1d394a45db5051e240c7d24e665024d15c1770792e02b1099c3641ed11",
+      "seconds": 1.746,
+      "usd": 0
+    }
+  ]
+}

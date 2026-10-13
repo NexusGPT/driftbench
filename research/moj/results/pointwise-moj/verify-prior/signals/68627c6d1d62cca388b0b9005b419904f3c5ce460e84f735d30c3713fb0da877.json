@@ -1,0 +1,22 @@
+{
+  "pA": 0.75,
+  "detail": {
+    "reference": "disproved",
+    "reasoning": "The ant–stork deal and the dalmatian’s refusal to trade are facts, so Rule1 supports the stork building a power plant. There is no evidence that the stork has more money than the walrus, so preferred Rule3 does not apply to defeat Rule1. Rule2 therefore derives that the mouse does not shout at the beetle. Rule5 cannot derive that it does shout because no one is stated to hug the dinosaur.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "d549be9b1345d6af9a7f3783be72e99dd62f814bbea26e8d5065d228fac6aa01",
+      "count": 3,
+      "usd": 0.00023019999999999998
+    },
+    {
+      "provider": "jev",
+      "key": "88d62972318b2b867a37caa97f3f432e330375f5f7c0564f31b5a6c3e20baf0c",
+      "seconds": 1.188,
+      "usd": 0
+    }
+  ]
+}

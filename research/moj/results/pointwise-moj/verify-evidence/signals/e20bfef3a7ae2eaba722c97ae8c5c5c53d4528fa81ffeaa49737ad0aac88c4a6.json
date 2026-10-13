@@ -1,0 +1,25 @@
+{
+  "pA": 0.10999999999999999,
+  "detail": {
+    "error_found": true,
+    "quote": "Based on the above, the frog *does* not capture the king of the pigeon.\n\nTherefore, the answer is: **disproved**",
+    "explanation": "The conclusion does not follow from the listed rules: Rule 10 can establish that the finch does not capture the king of the pigeon only if an animal wants to see the goat, and the candidate provides no valid derivation of that prerequisite. The rules concern the finch, not whether the frog captures the king. The statement is therefore not proved false by the candidate’s reasoning.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "50fad59eab686895e57b8549615e49a325cf61e60395f38ae95918bb4a91e996",
+      "count": 2,
+      "usd": 0.0007715
+    },
+    {
+      "provider": "jev",
+      "key": "4078087d79303836f3bd7b511e53067b48b7c091003374457860e3adac6a1ae9",
+      "seconds": 33.085,
+      "usd": 0
+    }
+  ]
+}

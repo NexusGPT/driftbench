@@ -1,0 +1,25 @@
+{
+  "pA": 0.12,
+  "detail": {
+    "error_found": true,
+    "quote": "3. Move down-left to (0, -2) and see a grapefruit.",
+    "explanation": "After the rug, the first down-left move has no object specified. The grapefruit is seen only after two down-left moves, two up-right moves, and then a down-right move. The candidate assigns the grapefruit to the wrong step, so its trace is already incorrect here.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "2775f890b6338e6b7ad26535afcc23dad39c9e92a9d4085aef03f37900960567",
+      "count": 1,
+      "usd": 0.0007762
+    },
+    {
+      "provider": "jev",
+      "key": "238fe9cbd426910d01736edcaa9a1b77a236b655e9c6bb46382ec8eadc234fd3",
+      "seconds": 0.545,
+      "usd": 0
+    }
+  ]
+}

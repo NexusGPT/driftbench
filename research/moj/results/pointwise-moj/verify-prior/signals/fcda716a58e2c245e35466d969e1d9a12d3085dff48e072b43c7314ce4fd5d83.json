@@ -1,0 +1,22 @@
+{
+  "pA": 0.03,
+  "detail": {
+    "reference": "unknown",
+    "reasoning": "The facts do not establish that the songbird smiles at the crab: having a computer is not stated to imply having a device to connect to the internet, and Rule1 lacks the fact that the dugong trades with the songbird. Thus Rule2 does not establish that the crab does not swear. Rule4 has no matching observation, and no rule establishes that the crab swears. The crab’s swearing is therefore unknown.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "2a317422c97ad0b68b7a7dbfb3c65c9b2fa0cf24a559cdf6d39f4f80a89097d5",
+      "count": 1,
+      "usd": 0.000234
+    },
+    {
+      "provider": "jev",
+      "key": "e89e915e85ea9adf9b2ed08f6c5bdf0117f270bafc450d785afe9af8acb269eb",
+      "seconds": 1.045,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "pA": 0.98,
+  "detail": {
+    "reference": "(F) none of the above",
+    "reasoning": "The segments include the square with corners (10.2141, 14.67885), (18.2141, 14.67885), (18.2141, 22.67885), and (10.2141, 22.67885), so shape 2 is present. They also form a non-right triangle with vertices (0, 14.67885), (0, 22.67885), and (6.9282, 18.67885), so shape 3 is present. No listed option contains exactly shapes 2 and 3; hence none of the above.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e21a0931737ebe4097b067c757c1e7c09198e922605f127c3f0bc7f55ade752a",
+      "count": 3,
+      "usd": 0.0008837999999999999
+    },
+    {
+      "provider": "jev",
+      "key": "f312eac4b844da0a995451788d280f8bd22a64c0d2cf4a30d1ce6eedacae3077",
+      "seconds": 8.232,
+      "usd": 0
+    }
+  ]
+}

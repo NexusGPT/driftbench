@@ -1,0 +1,1185 @@
+{
+  "status": "Validation-only diagnosis, never used to select a cutoff. Bounds apply to these recorded score rankings, not to all possible Luna prompts or the label set.",
+  "threshold_curves": {
+    "raw_first_reference": [
+      {
+        "threshold": 0,
+        "accuracy": 0.14285714285714285,
+        "balanced": 0.5,
+        "sensitivity": 1.0,
+        "specificity": 0.0
+      },
+      {
+        "threshold": 0.01,
+        "accuracy": 0.14285714285714285,
+        "balanced": 0.5,
+        "sensitivity": 1.0,
+        "specificity": 0.0
+      },
+      {
+        "threshold": 0.02,
+        "accuracy": 0.30612244897959184,
+        "balanced": 0.5952380952380952,
+        "sensitivity": 1.0,
+        "specificity": 0.19047619047619047
+      },
+      {
+        "threshold": 0.03,
+        "accuracy": 0.4489795918367347,
+        "balanced": 0.6785714285714286,
+        "sensitivity": 1.0,
+        "specificity": 0.35714285714285715
+      },
+      {
+        "threshold": 0.04,
+        "accuracy": 0.4489795918367347,
+        "balanced": 0.6190476190476191,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.38095238095238093
+      },
+      {
+        "threshold": 0.05,
+        "accuracy": 0.4897959183673469,
+        "balanced": 0.6428571428571428,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.42857142857142855
+      },
+      {
+        "threshold": 0.06,
+        "accuracy": 0.5102040816326531,
+        "balanced": 0.6547619047619048,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.4523809523809524
+      },
+      {
+        "threshold": 0.08,
+        "accuracy": 0.5510204081632653,
+        "balanced": 0.6785714285714286,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.5
+      },
+      {
+        "threshold": 0.1,
+        "accuracy": 0.5714285714285714,
+        "balanced": 0.6904761904761905,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.5238095238095238
+      },
+      {
+        "threshold": 0.16,
+        "accuracy": 0.6122448979591837,
+        "balanced": 0.7142857142857142,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.5714285714285714
+      },
+      {
+        "threshold": 0.2,
+        "accuracy": 0.6530612244897959,
+        "balanced": 0.7380952380952381,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.6190476190476191
+      },
+      {
+        "threshold": 0.21,
+        "accuracy": 0.673469387755102,
+        "balanced": 0.75,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.6428571428571429
+      },
+      {
+        "threshold": 0.23,
+        "accuracy": 0.7142857142857143,
+        "balanced": 0.7738095238095237,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.6904761904761905
+      },
+      {
+        "threshold": 0.28,
+        "accuracy": 0.7346938775510204,
+        "balanced": 0.7857142857142857,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.7142857142857143
+      },
+      {
+        "threshold": 0.3,
+        "accuracy": 0.7755102040816326,
+        "balanced": 0.8095238095238095,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.7619047619047619
+      },
+      {
+        "threshold": 0.48,
+        "accuracy": 0.7755102040816326,
+        "balanced": 0.75,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.7857142857142857
+      },
+      {
+        "threshold": 0.49,
+        "accuracy": 0.7959183673469388,
+        "balanced": 0.7619047619047619,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.8095238095238095
+      },
+      {
+        "threshold": 0.7,
+        "accuracy": 0.8163265306122449,
+        "balanced": 0.7738095238095238,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.8333333333333334
+      },
+      {
+        "threshold": 0.93,
+        "accuracy": 0.8367346938775511,
+        "balanced": 0.7857142857142857,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.8571428571428571
+      },
+      {
+        "threshold": 0.96,
+        "accuracy": 0.8775510204081632,
+        "balanced": 0.8095238095238095,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.9047619047619048
+      },
+      {
+        "threshold": 0.97,
+        "accuracy": 0.8775510204081632,
+        "balanced": 0.75,
+        "sensitivity": 0.5714285714285714,
+        "specificity": 0.9285714285714286
+      },
+      {
+        "threshold": 0.98,
+        "accuracy": 0.8571428571428571,
+        "balanced": 0.6785714285714286,
+        "sensitivity": 0.42857142857142855,
+        "specificity": 0.9285714285714286
+      },
+      {
+        "threshold": 0.99,
+        "accuracy": 0.7959183673469388,
+        "balanced": 0.4642857142857143,
+        "sensitivity": 0.0,
+        "specificity": 0.9285714285714286
+      },
+      {
+        "threshold": 1,
+        "accuracy": 0.8367346938775511,
+        "balanced": 0.4880952380952381,
+        "sensitivity": 0.0,
+        "specificity": 0.9761904761904762
+      },
+      {
+        "threshold": 1.01,
+        "accuracy": 0.8571428571428571,
+        "balanced": 0.5,
+        "sensitivity": 0.0,
+        "specificity": 1.0
+      }
+    ],
+    "frozen_posterior": [
+      {
+        "threshold": 0,
+        "accuracy": 0.14285714285714285,
+        "balanced": 0.5,
+        "sensitivity": 1.0,
+        "specificity": 0.0
+      },
+      {
+        "threshold": 0.18893231154940598,
+        "accuracy": 0.14285714285714285,
+        "balanced": 0.5,
+        "sensitivity": 1.0,
+        "specificity": 0.0
+      },
+      {
+        "threshold": 0.19155898754275727,
+        "accuracy": 0.2653061224489796,
+        "balanced": 0.5714285714285714,
+        "sensitivity": 1.0,
+        "specificity": 0.14285714285714285
+      },
+      {
+        "threshold": 0.1931246775267021,
+        "accuracy": 0.3877551020408163,
+        "balanced": 0.6428571428571428,
+        "sensitivity": 1.0,
+        "specificity": 0.2857142857142857
+      },
+      {
+        "threshold": 0.19425315222699205,
+        "accuracy": 0.3877551020408163,
+        "balanced": 0.5833333333333333,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.30952380952380953
+      },
+      {
+        "threshold": 0.1951411716861387,
+        "accuracy": 0.42857142857142855,
+        "balanced": 0.6071428571428571,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.35714285714285715
+      },
+      {
+        "threshold": 0.19587675478947805,
+        "accuracy": 0.4489795918367347,
+        "balanced": 0.6190476190476191,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.38095238095238093
+      },
+      {
+        "threshold": 0.1970601273260689,
+        "accuracy": 0.46938775510204084,
+        "balanced": 0.6309523809523809,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.40476190476190477
+      },
+      {
+        "threshold": 0.1980021252973751,
+        "accuracy": 0.4897959183673469,
+        "balanced": 0.6428571428571428,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.42857142857142855
+      },
+      {
+        "threshold": 0.2000853871932575,
+        "accuracy": 0.5102040816326531,
+        "balanced": 0.6547619047619048,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.4523809523809524
+      },
+      {
+        "threshold": 0.20114265217135283,
+        "accuracy": 0.5510204081632653,
+        "balanced": 0.6785714285714286,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.5
+      },
+      {
+        "threshold": 0.2013818289120245,
+        "accuracy": 0.5714285714285714,
+        "balanced": 0.6904761904761905,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.5238095238095238
+      },
+      {
+        "threshold": 0.20286937837741034,
+        "accuracy": 0.5918367346938775,
+        "balanced": 0.7023809523809523,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.5476190476190477
+      },
+      {
+        "threshold": 0.20325058280210434,
+        "accuracy": 0.6326530612244898,
+        "balanced": 0.7261904761904762,
+        "sensitivity": 0.8571428571428571,
+        "specificity": 0.5952380952380952
+      },
+      {
+        "threshold": 0.20643847821284558,
+        "accuracy": 0.6326530612244898,
+        "balanced": 0.6666666666666667,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.6190476190476191
+      },
+      {
+        "threshold": 0.2067400504849455,
+        "accuracy": 0.6530612244897959,
+        "balanced": 0.6785714285714286,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.6428571428571429
+      },
+      {
+        "threshold": 0.20841866474521883,
+        "accuracy": 0.6938775510204082,
+        "balanced": 0.7023809523809523,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.6904761904761905
+      },
+      {
+        "threshold": 0.21643661000728612,
+        "accuracy": 0.7142857142857143,
+        "balanced": 0.7142857142857143,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.7142857142857143
+      },
+      {
+        "threshold": 0.21893959246714068,
+        "accuracy": 0.7346938775510204,
+        "balanced": 0.7261904761904763,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.7380952380952381
+      },
+      {
+        "threshold": 0.22004463923713294,
+        "accuracy": 0.7551020408163265,
+        "balanced": 0.7380952380952381,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.7619047619047619
+      },
+      {
+        "threshold": 0.22921608033138569,
+        "accuracy": 0.7755102040816326,
+        "balanced": 0.75,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.7857142857142857
+      },
+      {
+        "threshold": 0.23039495012209474,
+        "accuracy": 0.7959183673469388,
+        "balanced": 0.7619047619047619,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.8095238095238095
+      },
+      {
+        "threshold": 0.23265423171385452,
+        "accuracy": 0.8163265306122449,
+        "balanced": 0.7738095238095238,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.8333333333333334
+      },
+      {
+        "threshold": 0.23598017107909927,
+        "accuracy": 0.8367346938775511,
+        "balanced": 0.7857142857142857,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.8571428571428571
+      },
+      {
+        "threshold": 0.23731898742913626,
+        "accuracy": 0.8571428571428571,
+        "balanced": 0.7976190476190477,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.8809523809523809
+      },
+      {
+        "threshold": 0.25914214447693823,
+        "accuracy": 0.8775510204081632,
+        "balanced": 0.8095238095238095,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.9047619047619048
+      },
+      {
+        "threshold": 0.2605318186298047,
+        "accuracy": 0.8775510204081632,
+        "balanced": 0.75,
+        "sensitivity": 0.5714285714285714,
+        "specificity": 0.9285714285714286
+      },
+      {
+        "threshold": 0.26247822011932415,
+        "accuracy": 0.8571428571428571,
+        "balanced": 0.6785714285714286,
+        "sensitivity": 0.42857142857142855,
+        "specificity": 0.9285714285714286
+      },
+      {
+        "threshold": 0.26579230884642635,
+        "accuracy": 0.7959183673469388,
+        "balanced": 0.4642857142857143,
+        "sensitivity": 0.0,
+        "specificity": 0.9285714285714286
+      },
+      {
+        "threshold": 1.01,
+        "accuracy": 0.8571428571428571,
+        "balanced": 0.5,
+        "sensitivity": 0.0,
+        "specificity": 1.0
+      }
+    ]
+  },
+  "false_passes_of_first_reference": [
+    {
+      "key": "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+      "first": {
+        "pA": 0.7,
+        "detail": {
+          "reference": "(1) The tangent line is \\(y=x-1\\). (2) Since \\(\\frac{(x+1)\\ln x}{x-1}>2\\) for every \\(x>1\\), the required range is \\(\\boxed{a\\le 2}\\).",
+          "confidence": "high",
+          "a": 0.7
+        },
+        "calls": {
+          "jev": 1,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000206,
+        "seconds": {
+          "jev": 0.301,
+          "luna": 4.943
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000206
+          }
+        ]
+      },
+      "full": {
+        "pA": null,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "missing"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000297,
+        "seconds": {
+          "jev": 0,
+          "luna": 3.775
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000297
+          }
+        ]
+      },
+      "second": null,
+      "triggered": false,
+      "prior_result": {
+        "pA": 0.22921608033138569,
+        "verdict": "A",
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000206
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000297
+          }
+        ],
+        "path": [
+          "pw_ref_luna",
+          "pw_s2v_luna"
+        ]
+      }
+    },
+    {
+      "key": "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e",
+      "first": {
+        "pA": 0.93,
+        "detail": {
+          "reference": "disproved",
+          "confidence": "high",
+          "a": 0.93
+        },
+        "calls": {
+          "jev": 1,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000331,
+        "seconds": {
+          "jev": 0.439,
+          "luna": 6.606
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000331
+          }
+        ]
+      },
+      "full": {
+        "pA": 0.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "B"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000446,
+        "seconds": {
+          "jev": 0,
+          "luna": 5.799
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000446
+          }
+        ]
+      },
+      "second": {
+        "pA": 0.03,
+        "detail": {
+          "reference": "unknown",
+          "reasoning": "The facts do not establish that the songbird smiles at the crab: having a computer is not stated to imply having a device to connect to the internet, and Rule1 lacks the fact that the dugong trades with the songbird. Thus Rule2 does not establish that the crab does not swear. Rule4 has no matching observation, and no rule establishes that the crab swears. The crab’s swearing is therefore unknown.",
+          "independent": true
+        },
+        "usage": [
+          {
+            "provider": "luna",
+            "key": "2a317422c97ad0b68b7a7dbfb3c65c9b2fa0cf24a559cdf6d39f4f80a89097d5",
+            "count": 1,
+            "usd": 0.000234
+          },
+          {
+            "provider": "jev",
+            "key": "e89e915e85ea9adf9b2ed08f6c5bdf0117f270bafc450d785afe9af8acb269eb",
+            "seconds": 1.045,
+            "usd": 0
+          }
+        ]
+      },
+      "triggered": true,
+      "prior_result": {
+        "pA": 0.21893959246714068,
+        "verdict": "A",
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000331
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000446
+          },
+          {
+            "provider": "luna",
+            "key": "2a317422c97ad0b68b7a7dbfb3c65c9b2fa0cf24a559cdf6d39f4f80a89097d5",
+            "count": 1,
+            "usd": 0.000234
+          },
+          {
+            "provider": "jev",
+            "key": "e89e915e85ea9adf9b2ed08f6c5bdf0117f270bafc450d785afe9af8acb269eb",
+            "seconds": 1.045,
+            "usd": 0
+          }
+        ],
+        "path": [
+          "pw_ref_luna",
+          "pw_s2v_luna",
+          "independent_solve_compare"
+        ]
+      }
+    },
+    {
+      "key": "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7",
+      "first": {
+        "pA": 0.99,
+        "detail": {
+          "reference": "BC",
+          "confidence": "high",
+          "a": 0.99
+        },
+        "calls": {
+          "jev": 1,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000692,
+        "seconds": {
+          "jev": 0.342,
+          "luna": 13.338
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000692
+          }
+        ]
+      },
+      "full": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000944,
+        "seconds": {
+          "jev": 0,
+          "luna": 5.582
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000944
+          }
+        ]
+      },
+      "second": null,
+      "triggered": false,
+      "prior_result": {
+        "pA": 0.26579230884642635,
+        "verdict": "A",
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000692
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000944
+          }
+        ],
+        "path": [
+          "pw_ref_luna",
+          "pw_s2v_luna"
+        ]
+      }
+    },
+    {
+      "key": "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+      "first": {
+        "pA": 0.93,
+        "detail": {
+          "reference": "The soda total is $2.50, but the number of cups isn’t specified, so the price per cup can’t be determined. If there was one cup per friend, each cost $0.50.",
+          "confidence": "high",
+          "a": 0.93
+        },
+        "calls": {
+          "jev": 1,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000194,
+        "seconds": {
+          "jev": 0.383,
+          "luna": 4.698
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000194
+          }
+        ]
+      },
+      "full": {
+        "pA": 0.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "B"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000194,
+        "seconds": {
+          "jev": 0,
+          "luna": 3.197
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000194
+          }
+        ]
+      },
+      "second": {
+        "pA": 0.88,
+        "detail": {
+          "reference": "The soda costs cannot be determined without knowing how many cups were ordered. The sodas cost $2.50 total; if there was one cup per friend, each cup cost $0.50.",
+          "reasoning": "They paid 5 × $5 = $25. The hamburgers, fries, and spaghetti cost $15 + $4.80 + $2.70 = $22.50, leaving $2.50 for soda. The price per cup depends on the number of cups.",
+          "independent": true
+        },
+        "usage": [
+          {
+            "provider": "luna",
+            "key": "f47d03c0f1ca28a4cb24349042a5de8cb8daffaa2b3fca8b774ee1f41d7b76d9",
+            "count": 1,
+            "usd": 0.00016759999999999998
+          },
+          {
+            "provider": "jev",
+            "key": "324168e67f15d978403a5693f5b1c9234dea535006d9b9c2e91b56fdf81a60a5",
+            "seconds": 1.109,
+            "usd": 0
+          }
+        ]
+      },
+      "triggered": true,
+      "prior_result": {
+        "pA": 0.20841866474521883,
+        "verdict": "B",
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000194
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000194
+          },
+          {
+            "provider": "luna",
+            "key": "f47d03c0f1ca28a4cb24349042a5de8cb8daffaa2b3fca8b774ee1f41d7b76d9",
+            "count": 1,
+            "usd": 0.00016759999999999998
+          },
+          {
+            "provider": "jev",
+            "key": "324168e67f15d978403a5693f5b1c9234dea535006d9b9c2e91b56fdf81a60a5",
+            "seconds": 1.109,
+            "usd": 0
+          }
+        ],
+        "path": [
+          "pw_ref_luna",
+          "pw_s2v_luna",
+          "independent_solve_compare"
+        ]
+      }
+    },
+    {
+      "key": "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "first": {
+        "pA": 1,
+        "detail": {
+          "reference": "The expected sum is 9.",
+          "confidence": "high",
+          "a": 1
+        },
+        "calls": {
+          "jev": 1,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 4.7e-05,
+        "seconds": {
+          "jev": 0.309,
+          "luna": 1.842
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 4.7e-05
+          }
+        ]
+      },
+      "full": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000315,
+        "seconds": {
+          "jev": 0,
+          "luna": 1.574
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000315
+          }
+        ]
+      },
+      "second": null,
+      "triggered": false,
+      "prior_result": {
+        "pA": 0.26579230884642635,
+        "verdict": "A",
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 4.7e-05
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000315
+          }
+        ],
+        "path": [
+          "pw_ref_luna",
+          "pw_s2v_luna"
+        ]
+      }
+    },
+    {
+      "key": "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a",
+      "first": {
+        "pA": 0.99,
+        "detail": {
+          "reference": "E: Both of Greene’s paintings and both of Hidalgo’s paintings could be displayed in upper positions.",
+          "confidence": "high",
+          "a": 0.99
+        },
+        "calls": {
+          "jev": 1,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.000711,
+        "seconds": {
+          "jev": 0.375,
+          "luna": 17.552
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000711
+          }
+        ]
+      },
+      "full": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.001209,
+        "seconds": {
+          "jev": 0,
+          "luna": 2.998
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.001209
+          }
+        ]
+      },
+      "second": null,
+      "triggered": false,
+      "prior_result": {
+        "pA": 0.26579230884642635,
+        "verdict": "A",
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.000711
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.001209
+          }
+        ],
+        "path": [
+          "pw_ref_luna",
+          "pw_s2v_luna"
+        ]
+      }
+    },
+    {
+      "key": "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "first": {
+        "pA": 0.96,
+        "detail": {
+          "reference": "Greg's color is not specified.",
+          "confidence": "high",
+          "a": 0.96
+        },
+        "calls": {
+          "jev": 1,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 4.6e-05,
+        "seconds": {
+          "jev": 0.322,
+          "luna": 2.089
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 4.6e-05
+          }
+        ]
+      },
+      "full": {
+        "pA": 1.0,
+        "detail": {
+          "template": "llm-rubric",
+          "games": [
+            "A"
+          ],
+          "source": "fresh"
+        },
+        "calls": {
+          "jev": 0,
+          "luna": 1,
+          "s2": {
+            "luna": 1
+          }
+        },
+        "usd": 0.00018,
+        "seconds": {
+          "jev": 0,
+          "luna": 1.453
+        },
+        "missing": 0,
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.00018
+          }
+        ]
+      },
+      "second": null,
+      "triggered": false,
+      "prior_result": {
+        "pA": 0.25914214447693823,
+        "verdict": "A",
+        "usage": [
+          {
+            "provider": "jev",
+            "count": 1,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 4.6e-05
+          },
+          {
+            "provider": "jev",
+            "count": 0,
+            "usd": 0
+          },
+          {
+            "provider": "luna",
+            "count": 1,
+            "usd": 0.00018
+          }
+        ],
+        "path": [
+          "pw_ref_luna",
+          "pw_s2v_luna"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "pA": 0.06999999999999995,
+  "detail": {
+    "error_found": true,
+    "quote": "If the day before tomorrow is June 27, then tomorrow is June 28, so today is June 26.",
+    "explanation": "The day before tomorrow is today, not the day before today. Thus today is 2014-06-27, and the candidate's date for Question 1—and the derived values for Question 2—are off by one day.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "202c1dea7e2c7d2a068ae7ab413cac9e2e8398310c11eb116fb8160a6d6da3af",
+      "count": 1,
+      "usd": 0.0005225
+    },
+    {
+      "provider": "jev",
+      "key": "92ea83a8439f889dd24c24b64cdbfe5a0304a9ace35175b3299c7dc681d08c1a",
+      "seconds": 0.503,
+      "usd": 0
+    }
+  ]
+}

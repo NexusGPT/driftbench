@@ -1,0 +1,25 @@
+{
+  "pA": 0.21999999999999997,
+  "detail": {
+    "error_found": true,
+    "quote": "However, upon closer inspection, this conclusion is actually valid because if not all Hunan people like pepper, it implies that some pepper lovers must be outside Hunan.",
+    "explanation": "That implication is invalid. The premise can be true when some Hunan residents dislike pepper and every pepper-lover is from Hunan, making the conclusion false. The same kind of unsupported reversal also appears in the candidate’s claim that D is valid, so the claim that C is the only invalid option is not established.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "3fe1038c132adfdd7d459b938f42c14b99bc4c185b4ba9d4619fd4f7f8aadaa4",
+      "count": 1,
+      "usd": 0.0010516
+    },
+    {
+      "provider": "jev",
+      "key": "6ed4b1312901865bdbaec3c7477150ad32d1f6cfe0345220e1ee4b8751756b5d",
+      "seconds": 0.559,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": null,
+  "detail": {
+    "reference": 0.89,
+    "rubric": 0.76,
+    "pair": 0.98,
+    "reasoning": 0.96,
+    "subjective": 0.04,
+    "reference_solution": 0.84,
+    "compound_rubric": 0.76,
+    "s1_reference": 0.42,
+    "s2_solve_compare": 0.63,
+    "s2_full": 0.48,
+    "s1_rows": 0.57
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "2a72ba3d816f93f418aeb8a928111768f7d9e38b83d7cbbbc4ef152a4e4acff4",
+      "seconds": 1.379,
+      "usd": 0
+    }
+  ]
+}

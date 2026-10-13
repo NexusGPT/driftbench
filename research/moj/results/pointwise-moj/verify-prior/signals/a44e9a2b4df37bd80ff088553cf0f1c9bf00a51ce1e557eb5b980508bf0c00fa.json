@@ -1,0 +1,22 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "A",
+    "reasoning": "Cultural change concerns changes to a group’s culture, such as cultural practices or language being replaced or disappearing. A describes the destruction of a city by a volcanic eruption, not a change in culture. B, C, and D describe cultural loss or replacement.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "a674f0cab176a8f0e1326c81926c2598217964483d7b00aeccec9ee110c4a8f2",
+      "count": 1,
+      "usd": 0.0002006
+    },
+    {
+      "provider": "jev",
+      "key": "1ebaae5d057f6c5087a2c4e0c41a07e8e4ea145ac4ca9044160edf55d9d71920",
+      "seconds": 39.705,
+      "usd": 0
+    }
+  ]
+}

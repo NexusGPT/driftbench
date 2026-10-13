@@ -1,0 +1,301 @@
+[
+  {
+    "index": 47,
+    "id": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "y=x-1; a<=2",
+    "candidate_final": "y=x-1; a<2",
+    "evidence": {
+      "tangent_slope": 1,
+      "h_derivative_numerator": [
+        1,
+        -2,
+        1
+      ],
+      "h_derivative_denominator": "x*(x+1)^2",
+      "certificate": "h(1)=0; h'(x)>0 for every x>1. Thus a=2 satisfies f(x)>0 everywhere on x>1. It is excluded by the candidate."
+    },
+    "reason": "The excluded endpoint a=2 is a rigorous counterexample to the claimed parameter range.",
+    "question_sha256": "05b34fa8f37d78aad3afbff21c09e0a1d7ed42ae509faa5f813b1941fcd7233e",
+    "candidate_sha256": "0b60f387f5e5a1c3af4dd1539f4be7a77c352459314de132f9f68907040d9022"
+  },
+  {
+    "index": 48,
+    "id": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "Option 3",
+    "candidate_final": "Option 1",
+    "evidence": {
+      "point": {
+        "tau": 1,
+        "s": 0
+      },
+      "jacobian_determinant": 3,
+      "u_x": "-1/3",
+      "u_y": "2",
+      "u_x*u_y-u": "-5/3",
+      "option_3_certificate": "With E=exp(s), p=tau*E/2 and q=2*tau*E satisfy the Charpit equations and the given initial data by exact monomial coefficient identities."
+    },
+    "reason": "The selected parametric surface violates the PDE at an initial point with nonsingular parameter Jacobian.",
+    "question_sha256": "5d34de367a265ad96b11bc6d51bd4e4d0866003ac89401b8d46823d06342c04b",
+    "candidate_sha256": "cd904181da3cdc0d6e8c60d4a890614186ceb59a04fee4182c71b2db86c48f65"
+  },
+  {
+    "index": 49,
+    "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "16/81; P(A)=2/3; P(B)=1/3; independent",
+    "candidate_final": "8/81; P(A)=2/3; P(B)=1/3; independent",
+    "evidence": {
+      "replacement_hits": 16,
+      "replacement_draws": 81,
+      "nonreplacement_draws": 72,
+      "P_AB": "2/9"
+    },
+    "reason": "The candidate omits the reverse orders in part (1).",
+    "question_sha256": "3eacf2e4d1c1a90c44d541c3839559e7150c4e171270523ce9d03501b2dd5e3b",
+    "candidate_sha256": "672f9d40731d4980f2ad8386dd23aced47c52588f9ceac3e1f387358aa73f6c8"
+  },
+  {
+    "index": 50,
+    "id": "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "Diverges to +infinity as an improper integral",
+    "candidate_final": "1",
+    "evidence": {
+      "log_lower_bound_derivative_numerator": [
+        0,
+        1
+      ],
+      "dyadic_interval_lower_bound": "1/4",
+      "certificate": "For every integer k>=0, the dyadic interval has integral at least 1/4. Arbitrarily many disjoint such intervals lie next to the lower endpoint, so the integral diverges for every epsilon>0."
+    },
+    "reason": "The integral starting at x=2 has a positive nonintegrable endpoint singularity; the second integral cannot cancel it.",
+    "question_sha256": "752ac7c706fbcebc369c72ec9bad375d764b8a02937d0840a7c341e48d3bbe95",
+    "candidate_sha256": "3d94ab2ca0843affc21d495f6db5f9db895d34214e32e26ee0fc572f99bbd644"
+  },
+  {
+    "index": 52,
+    "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "[3, 7, 131, 12049]",
+    "candidate_final": "[3, 7, 1578419]",
+    "evidence": {
+      "prime_factorization": [
+        3,
+        7,
+        131,
+        12049
+      ],
+      "candidate_product": 33146799,
+      "candidate_large_factor_factorization": [
+        131,
+        12049
+      ]
+    },
+    "reason": "Exhaustive integer trial division supplies the complete prime factorization.",
+    "question_sha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+    "candidate_sha256": "c29f7b8f6f38e3c3a64aa9c480b212da0c25c42ad587e3315a56c117a1830d4c"
+  },
+  {
+    "index": 53,
+    "id": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "s*(s-1)^2/4",
+    "candidate_final": "x^3/4+x/4+57*x^2/24",
+    "evidence": {
+      "c": "1/6",
+      "correct_coefficients_ascending": [
+        "0",
+        "1/4",
+        "-1/2",
+        "1/4"
+      ],
+      "candidate_coefficients_ascending": [
+        "0",
+        "1/4",
+        "19/8",
+        "1/4"
+      ]
+    },
+    "reason": "The candidate computes c incorrectly and gives a different polynomial.",
+    "question_sha256": "7ec853b8585b236ee916f17abd6a3aab31ca9c10cc57af40f84a1dc44ce3aca2",
+    "candidate_sha256": "1cf5c4b21d71e76497de77c10df8b3c23e3a3b44641a315a50318c38faacb42a"
+  },
+  {
+    "index": 56,
+    "id": "4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "(-7,10) for collinear position endpoints; literal parallel vectors have no solution",
+    "candidate_final": "(7,-10)",
+    "evidence": {
+      "a": [
+        1,
+        0,
+        0
+      ],
+      "b": [
+        0,
+        1,
+        0
+      ],
+      "c": [
+        0,
+        0,
+        1
+      ],
+      "u": [
+        1,
+        -2,
+        3
+      ],
+      "v": [
+        2,
+        3,
+        -4
+      ],
+      "candidate_w": [
+        0,
+        7,
+        -10
+      ],
+      "endpoint_collinearity_cross_product": [
+        -2,
+        20,
+        14
+      ],
+      "literal_vector_cross_product": [
+        -1,
+        10,
+        7
+      ]
+    },
+    "reason": "The candidate fails under either interpretation of collinear vectors on the same exact counterexample.",
+    "question_sha256": "33ce809f62eca350210733d584a27d13bf2b8f4db4b4b74a0079dc6ef372bc76",
+    "candidate_sha256": "dbfa17647c1b63b12c639b2dc0fb97a6cee34ebe6283905550042208d8a6bd74"
+  },
+  {
+    "index": 67,
+    "id": "6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "(-1/3,1)",
+    "candidate_final": "(-infinity,-1/3) union (1,infinity)",
+    "evidence": {
+      "a": -1,
+      "b": 2,
+      "c": 3,
+      "transformed_polynomial": [
+        -1,
+        -2,
+        3
+      ],
+      "x_counterexample": 0,
+      "transformed_value": -1,
+      "original_factorization": "-(x+1)*(x-3)"
+    },
+    "reason": "The legal coefficient choice makes x=0 satisfy the transformed strict inequality, but the candidate excludes it.",
+    "question_sha256": "bb28a002d1132579e9930f0c0b14d80a5e201576ec08a032f99e5633ea95c803",
+    "candidate_sha256": "fd754afeaeab3373bd4d30961e4a938f18acd075f175ffe2f711f4fb2fd15c00"
+  },
+  {
+    "index": 69,
+    "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "272/5% = 54.4%",
+    "candidate_final": "54%",
+    "evidence": {
+      "price": "816/25",
+      "percentage": "272/5"
+    },
+    "reason": "The exact percentage is 54.4; the question gives no instruction to round to an integer.",
+    "question_sha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+    "candidate_sha256": "28fd287d4eadb5f3a9acd9aa6e6111d746397a7c35d6982e8ea21e0be397e084"
+  },
+  {
+    "index": 70,
+    "id": "7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "2",
+    "candidate_final": "2",
+    "evidence": {
+      "intersection_polynomial_identity": "(b-a)^2*(2*b+a)=2*b^3-3*a*b^2+a^3",
+      "normal_tangent_equation_coefficients": [
+        "-8",
+        "0",
+        "9"
+      ],
+      "discriminant": "288",
+      "certificate": "Each nonzero root a gives b=-a/2 distinct from a. The two slopes have opposite signs, hence distinct lines. At the cusp the limiting tangent y=0 and normal x=0 each meet the curve only at the cusp, so add none."
+    },
+    "reason": "The final numerical answer is correct even though the candidate derivation is invalid. This audit scores final answers.",
+    "question_sha256": "1aabc208b737c80070872d4a606edc992c4888b9e56ff156f2e4304a89f39f7a",
+    "candidate_sha256": "20d0f88dc91edff6135a3835d78f181bb0c0ab882ef57f2ba340e25c04303ebf"
+  },
+  {
+    "index": 72,
+    "id": "8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "Underdetermined: unit price=2.5/number_of_cups",
+    "candidate_final": "0.5",
+    "evidence": {
+      "soda_total": "5/2",
+      "distinct_feasible_models": [
+        {
+          "cups": 5,
+          "unit_price": "1/2"
+        },
+        {
+          "cups": 10,
+          "unit_price": "1/4"
+        }
+      ]
+    },
+    "reason": "The stated question never specifies the soda count. Its candidate assumes one cup per friend; no label correction is justified for this underspecified item.",
+    "question_sha256": "6ce79e424349eb327dab1097a9fdd2f83b2ed60347fc457566ae94f619192012",
+    "candidate_sha256": "65db4e589c7e4f2cc1d70db0d5cdd54e2a663af41b7c05ca39aade47fbef0ee2"
+  },
+  {
+    "index": 73,
+    "id": "885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "36*x*sqrt(35*x), x>=0",
+    "candidate_final": "36*sqrt(35)",
+    "evidence": {
+      "x": 4,
+      "true_value_squared": 2903040,
+      "candidate_value_squared": 45360
+    },
+    "reason": "The candidate drops the dependence on x; an exact legal input disproves the identity.",
+    "question_sha256": "ee52499ebff80cec0e4297aec0fe3e6e5771353f3d1f1f138daa35ce96f28556",
+    "candidate_sha256": "39683da26c4e2e80418231e158ca87fd105e5e9d169951b250803b3bd2cb752a"
+  },
+  {
+    "index": 74,
+    "id": "886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "theta=pi/12+k*pi for nonzero r",
+    "candidate_final": "pi/6 (also claims 2*pi/3)",
+    "evidence": {
+      "r_counterexample": 1,
+      "derivative_at_pi_over_6": "-1",
+      "derivative_at_2pi_over_3": "1",
+      "certificate": "A/r^2=sin(2*theta+pi/3)-sqrt(3)/2. Its maximum occurs when the sine is 1. Both proposed angles have nonzero derivative."
+    },
+    "reason": "The final proposed angles are not stationary and therefore cannot maximize the unconstrained differentiable area function.",
+    "question_sha256": "c8a3b7bdb42bfc691e6d0f6756f72fa1a6ab4622149dbe2416b7ec51fcfb5282",
+    "candidate_sha256": "162c943a0e3a7cf57cd0a04f3c358df3022621e9feca8c4b0913977e8ba8a1c2"
+  }
+]

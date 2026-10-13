@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The final count is correct: the word containing G can be last only when G is paired with F, and then each of H through L must be paired with a distinct letter among A through E. This gives 5! favorable pairings out of 11!! total, so the probability is 8/693 and the requested sum is 701.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "7f06585fca855b63ab8ad048f4ac71e45fcdf544eebd73c69fe5b8c354e668bc",
+      "count": 1,
+      "usd": 0.0008802
+    },
+    {
+      "provider": "jev",
+      "key": "789962830520a73e605d7de2186c3ae4d17323101798ced8b91ef634722977e0",
+      "seconds": 0.823,
+      "usd": 0
+    }
+  ]
+}

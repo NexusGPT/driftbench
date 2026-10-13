@@ -1,0 +1,25 @@
+{
+  "pA": 0.020000000000000018,
+  "detail": {
+    "error_found": true,
+    "quote": "We are also given that $b = \\frac{5}{f}$.",
+    "explanation": "The question does not give this relation. Its second equation is $f+2q=-0f$, i.e. $f+2q=0$. Together with $0=-4f+2q+20$, this gives $f=-4$, $q=2$, and hence $b=-2$. The requested descending order is $5,1,-2$, not the candidate’s final answer.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "721f71518f66ff23cd672b1cfe11556beaffca677a00d5c80f9480ccd333977e",
+      "count": 1,
+      "usd": 0.00047470000000000005
+    },
+    {
+      "provider": "jev",
+      "key": "6a77f3c1fa5c7987f7160f5b1cf9f5bf648efdc70e7ceba2a5530dc405885f3c",
+      "seconds": 0.476,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "pA": 0.94,
+  "detail": {
+    "violation": 0.06
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "eea8d8205f2c3e42c7017aa3d90d551cc8b68938023ba7d52573b09a7f9ab3e5",
+      "seconds": 0.858,
+      "usd": 0
+    }
+  ]
+}
