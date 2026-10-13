@@ -20,6 +20,8 @@ Every output below comes from the Acme example in [`examples/acme`](../examples/
 
 ## The map of situations
 
+Every field of a map proposal and of an approved map is in the [map reference](reference/map.md).
+
 The map lists the dimensions a situation varies on, their values, and what links them. Each entry quotes the line of the agent's own sources that justifies it (`evidence`: a source path and a verbatim quote), says who proposed it (`produced_by`: `code` or `model`), and waits for a person (`approved`).
 
 | Part | What it holds |
@@ -892,6 +894,8 @@ Five fictional conversations, written to a private folder outside the repository
 The folder is created for the owner alone and holds `conversations.jsonl` (redacted, with intents), `reference-turns.jsonl` (user turns with their intent cell, the input of `fidelity`), `spot-check.yaml` (a seeded sample, `--spot-check`, default 20, with `clean: null` for a person to set) and `intake-report.json`. No raw text and no detected value is in any file or in the printed report. `intake logs` exits 0 when the set is written, 1 when the model check failed on a conversation, 2 on a usage or input error.
 
 ### From an interview
+
+Every field of the questionnaire is in the [interview reference](reference/interview.md).
 
 When no past conversation exists, `intake interview` writes a questionnaire from the approved map: personas with their shares and map values (`personas`), the share of each intent (`intents`), example messages per stage (`examples`), what users never do (`never`), tone (`tone`, and `tone` per persona), languages (`languages`) and channels (`channels`).
 

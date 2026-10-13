@@ -2,7 +2,7 @@
 
 # Task family reference
 
-A task family is one code-agent task written once with knobs, in `family.yaml`, beside its oracle and the review a person signs; see [task families](../generating.md#task-families). `driftbench family instances`, `verify` and `review` read these files. This page lists every field the family loader accepts, then the fields of the review file. It is generated from the zod schemas the CLI uses.
+A task family is one code-agent task written once with knobs, in `family.yaml`, beside its oracle and the review a person signs; see [task families](../generating.md#task-families). `driftbench family instances`, `verify` and `review` read these files. The family file comes first, then the review file. The page lists every field, generated from the zod schemas the CLI uses.
 
 * Keys are snake_case. An unknown key is an error.
 * Descriptions come from the schemas. An empty cell means the schema has no description for that field yet.
