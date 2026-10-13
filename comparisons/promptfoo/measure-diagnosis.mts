@@ -6,17 +6,30 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { budget } from '../../packages/checks/src/checks/budget';
+import { must } from '../../packages/checks/src/checks/must';
+import { mulberry32 } from '../../packages/stats/src/index';
 // @ts-expect-error the installed package ships compiled JavaScript without declarations
 import * as pf from './node_modules/promptfoo/dist/src/index.js';
-import { must } from '../../packages/checks/src/checks/must';
-import { budget } from '../../packages/checks/src/checks/budget';
-import { mulberry32 } from '../../packages/stats/src/index';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GIVEN = { prefix: [], ledger: {}, world: {}, vars: {}, target: { adapter: 'function' }, hash: 'diag' };
 const rng = mulberry32(90);
 const pick = <T,>(items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
-const WORDS = ['Fiber', 'fiber', 'Mobile', 'mobile', 'plan', 'Plan', 'order', 'ORDER', 'price', 'Price', 'Acme Care', 'Sunday'];
+const WORDS = [
+  'Fiber',
+  'fiber',
+  'Mobile',
+  'mobile',
+  'plan',
+  'Plan',
+  'order',
+  'ORDER',
+  'price',
+  'Price',
+  'Acme Care',
+  'Sunday',
+];
 const SENTENCES = [
   'Our Fiber plan starts at 25 EUR.',
   'The mobile order is confirmed.',
@@ -30,16 +43,48 @@ const SENTENCES = [
 function ourMust(source: string, text: string, ignoreCase: boolean) {
   const block = { expect: { must: [source] } };
   const spec = { id: 'diag', version: '1', title: 'diag', blocks: [block], rules: {} };
-  const observed = { segments: [{ type: 'text', text }], text, toolCalls: [], cost: { usd: 0 }, latencyMs: 0 };
+  const observed = {
+    segments: [{ type: 'text', text }],
+    text,
+    toolCalls: [],
+    cost: { usd: 0 },
+    latencyMs: 0,
+  };
   void ignoreCase;
-  return must.evaluate({ spec, mode: 'F', blockIndex: 0, block, expect: block.expect, given: GIVEN, observed, history: [], ledger: {} } as never) as Promise<Array<{ outcome: string; evidence: string }>>;
+  return must.evaluate({
+    spec,
+    mode: 'F',
+    blockIndex: 0,
+    block,
+    expect: block.expect,
+    given: GIVEN,
+    observed,
+    history: [],
+    ledger: {},
+  } as never) as Promise<Array<{ outcome: string; evidence: string }>>;
 }
 
 function ourBudget(limits: Record<string, number>, cost: number, latency: number) {
   const block = { expect: {}, budget: limits };
   const spec = { id: 'diag', version: '1', title: 'diag', blocks: [block], rules: {} };
-  const observed = { segments: [{ type: 'text', text: 'ok' }], text: 'ok', toolCalls: [], cost: { usd: cost }, latencyMs: latency };
-  return budget.evaluate({ spec, mode: 'F', blockIndex: 0, block, expect: {}, given: GIVEN, observed, history: [], ledger: {} } as never) as Promise<Array<{ outcome: string; evidence: string }>>;
+  const observed = {
+    segments: [{ type: 'text', text: 'ok' }],
+    text: 'ok',
+    toolCalls: [],
+    cost: { usd: cost },
+    latencyMs: latency,
+  };
+  return budget.evaluate({
+    spec,
+    mode: 'F',
+    blockIndex: 0,
+    block,
+    expect: {},
+    given: GIVEN,
+    observed,
+    history: [],
+    ledger: {},
+  } as never) as Promise<Array<{ outcome: string; evidence: string }>>;
 }
 
 const containsRows: Array<{ word: string; text: string; ours: string[]; theirs: string[] }> = [];
@@ -56,8 +101,19 @@ for (let i = 0; i < 120; i++) {
     if (/closest/.test(v.evidence)) oursNamingSpan += 1;
   }
   if (verdicts.some((v) => v.outcome === 'fail') && containsRows.length < 3) {
-    const r = await pf.assertions.runAssertion({ assertion: { type: 'contains', value: word }, test: { vars: {}, assert: [] }, providerResponse: { output: text }, prompt: '', vars: {} });
-    containsRows.push({ word, text, ours: verdicts.filter((v) => v.outcome === 'fail').map((v) => v.evidence), theirs: [String(r.reason)] });
+    const r = await pf.assertions.runAssertion({
+      assertion: { type: 'contains', value: word },
+      test: { vars: {}, assert: [] },
+      providerResponse: { output: text },
+      prompt: '',
+      vars: {},
+    });
+    containsRows.push({
+      word,
+      text,
+      ours: verdicts.filter((v) => v.outcome === 'fail').map((v) => v.evidence),
+      theirs: [String(r.reason)],
+    });
   }
 }
 
@@ -66,7 +122,13 @@ let theirsNamingSpan = 0;
 for (let i = 0; i < 120; i++) {
   const word = pick(WORDS);
   const text = pick(SENTENCES);
-  const r = await pf.assertions.runAssertion({ assertion: { type: 'icontains', value: word }, test: { vars: {}, assert: [] }, providerResponse: { output: text }, prompt: '', vars: {} });
+  const r = await pf.assertions.runAssertion({
+    assertion: { type: 'icontains', value: word },
+    test: { vars: {}, assert: [] },
+    providerResponse: { output: text },
+    prompt: '',
+    vars: {},
+  });
   if (r.pass === true) continue;
   theirsFailTotal += 1;
   if (/closest/.test(String(r.reason))) theirsNamingSpan += 1;
@@ -85,14 +147,31 @@ for (let i = 0; i < 120; i++) {
     if (budgetExamples.length < 2) budgetExamples.push(v.evidence);
   }
 }
-const theirsBudgetExample = await pf.assertions.runAssertion({ assertion: { type: 'latency', threshold: 2000 }, test: { vars: {}, assert: [] }, providerResponse: { output: 'ok' }, latencyMs: 3000, prompt: '', vars: {} }).then((r: { reason: string }) => r.reason).catch((e: Error) => `(${e.message})`);
+const theirsBudgetExample = await pf.assertions
+  .runAssertion({
+    assertion: { type: 'latency', threshold: 2000 },
+    test: { vars: {}, assert: [] },
+    providerResponse: { output: 'ok' },
+    latencyMs: 3000,
+    prompt: '',
+    vars: {},
+  })
+  .then((r: { reason: string }) => r.reason)
+  .catch((e: Error) => `(${e.message})`);
 
 const out = {
   rows: '9 and 10 (contains family, must)',
   ours: { failingVerdicts: oursFailTotal, namingClosestSpan: oursNamingSpan },
   theirsIcontains: { failingAssertions: theirsFailTotal, namingClosestSpan: theirsNamingSpan },
-  row16: { ours: { failingVerdicts: oursBudgetFail, sayingHowFarOver: oursBudgetSpan }, theirsLatencyExample: theirsBudgetExample },
-  examples: { containsFailures: containsRows, mustEvidence: ourFailures.slice(0, 2), budgetEvidence: budgetExamples },
+  row16: {
+    ours: { failingVerdicts: oursBudgetFail, sayingHowFarOver: oursBudgetSpan },
+    theirsLatencyExample: theirsBudgetExample,
+  },
+  examples: {
+    containsFailures: containsRows,
+    mustEvidence: ourFailures.slice(0, 2),
+    budgetEvidence: budgetExamples,
+  },
 };
 await mkdir(join(HERE, 'out'), { recursive: true });
 await writeFile(join(HERE, 'out', 'diagnosis.json'), `${JSON.stringify(out, null, 2)}\n`);

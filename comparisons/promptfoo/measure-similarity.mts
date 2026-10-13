@@ -8,11 +8,11 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-// @ts-expect-error the installed package ships compiled JavaScript without declarations
-import * as pf from './node_modules/promptfoo/dist/src/index.js';
 import { localEmbedder } from '../../packages/core/src/text/embedder';
 import { mulberry32 } from '../../packages/stats/src/index';
-import { summarise, type Row } from './summary.mts';
+// @ts-expect-error the installed package ships compiled JavaScript without declarations
+import * as pf from './node_modules/promptfoo/dist/src/index.js';
+import { type Row, summarise } from './summary.mts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const rng = mulberry32(13);
@@ -44,7 +44,9 @@ function same(p: (typeof PLANS)[number], kind: number): string {
     case 1:
       return reference(p).toLowerCase();
     case 2:
-      return reference(p).replace(/\./g, '').replace(/ costs /, ' costs  ');
+      return reference(p)
+        .replace(/\./g, '')
+        .replace(/ costs /, ' costs  ');
     case 3:
       return `For ${p.price} USD a month you get ${p.name}${p.data > 0 ? ` with ${data}` : ` with ${data}`}.`;
     case 4:
@@ -135,12 +137,25 @@ for (const m of oursGrid) {
 
 const heldRows: Row[] = [];
 for (const pair of held) {
-  heldRows.push({ truth: pair.same, a: await theirsPass(pair, bestT), b: await oursPass(pair, bestM, scores) });
+  heldRows.push({
+    truth: pair.same,
+    a: await theirsPass(pair, bestT),
+    b: await oursPass(pair, bestM, scores),
+  });
 }
-const summary = summarise('13 levenshtein (promptfoo) against similarity (ours, local embedder), held-out half', heldRows, ['theirs', 'ours']);
+const summary = summarise(
+  '13 levenshtein (promptfoo) against similarity (ours, local embedder), held-out half',
+  heldRows,
+  ['theirs', 'ours'],
+);
 const out = {
   ...summary,
-  chosenOnDev: { levenshteinThresholdChars: bestT, devAccuracy: bestTAcc, oursMinimum: bestM, oursDevAccuracy: bestMAcc },
+  chosenOnDev: {
+    levenshteinThresholdChars: bestT,
+    devAccuracy: bestTAcc,
+    oursMinimum: bestM,
+    oursDevAccuracy: bestMAcc,
+  },
   pairs: pairs.length,
   same: pairs.filter((p) => p.same).length,
   note: 'promptfoo similar (embedding cosine) is not measured: it needs an embedding API.',

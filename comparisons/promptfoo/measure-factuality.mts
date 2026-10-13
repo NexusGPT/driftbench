@@ -7,12 +7,12 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-// @ts-expect-error the installed package ships compiled JavaScript without declarations
-import * as pf from './node_modules/promptfoo/dist/src/index.js';
 import { parseAnswerText } from '../../packages/judges/src/contract';
 import { fixtureRequest, loadCriteria } from '../../packages/judges/src/criteria';
 import { buildPrompt } from '../../packages/judges/src/prompt';
-import { summarise, type Row } from './summary.mts';
+// @ts-expect-error the installed package ships compiled JavaScript without declarations
+import * as pf from './node_modules/promptfoo/dist/src/index.js';
+import { type Row, summarise } from './summary.mts';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CLAUDE = process.env.CLAUDE_BIN ?? 'claude';
@@ -27,7 +27,25 @@ let calls = 0;
 
 function claude(system: string, user: string): Promise<{ result: string; cost: number; error: boolean }> {
   if (spent >= HARD_CAP_USD) return Promise.reject(new Error(`hard cap ${HARD_CAP_USD} USD reached`));
-  const args = ['-p', '--output-format', 'json', '--model', MODEL, '--system-prompt', system, '--tools', '', '--setting-sources', '', '--strict-mcp-config', '--no-session-persistence', '--max-turns', '1', '--max-budget-usd', PER_CALL_USD];
+  const args = [
+    '-p',
+    '--output-format',
+    'json',
+    '--model',
+    MODEL,
+    '--system-prompt',
+    system,
+    '--tools',
+    '',
+    '--setting-sources',
+    '',
+    '--strict-mcp-config',
+    '--no-session-persistence',
+    '--max-turns',
+    '1',
+    '--max-budget-usd',
+    PER_CALL_USD,
+  ];
   return new Promise((resolve) => {
     const child = spawn(CLAUDE, args, { cwd: tmpdir(), stdio: ['pipe', 'pipe', 'pipe'] });
     let stdout = '';
@@ -105,7 +123,9 @@ async function pool<T, R>(items: T[], size: number, work: (item: T) => Promise<R
 }
 
 const loaded = await loadCriteria(CRITERIA);
-const criterion = loaded.criteria.find((c: { def: { name: string } }) => c.def.name === 'factual_against_reference');
+const criterion = loaded.criteria.find(
+  (c: { def: { name: string } }) => c.def.name === 'factual_against_reference',
+);
 if (!criterion) throw new Error('factual_against_reference not found');
 
 const theirsProvider = {
@@ -121,16 +141,19 @@ const list = cases();
 let done = 0;
 const rows = await pool(list, CONCURRENCY, async (c) => {
   // The grader is ours (haiku through the claude command). Without a grader in test.options promptfoo probes for a default one.
-  const theirs = await withTimeout(pf.assertions
-    .runAssertion({
-      assertion: { type: 'factuality', value: c.reference },
-      test: { vars: { input: c.question }, assert: [], options: { provider: theirsProvider } },
-      providerResponse: { output: c.reply },
-      prompt: c.question,
-      vars: { input: c.question },
-    })
-    .then((r: { pass: boolean }) => r.pass === true), 180_000, 'promptfoo factuality')
-    .catch(() => false);
+  const theirs = await withTimeout(
+    pf.assertions
+      .runAssertion({
+        assertion: { type: 'factuality', value: c.reference },
+        test: { vars: { input: c.question }, assert: [], options: { provider: theirsProvider } },
+        providerResponse: { output: c.reply },
+        prompt: c.question,
+        vars: { input: c.question },
+      })
+      .then((r: { pass: boolean }) => r.pass === true),
+    180_000,
+    'promptfoo factuality',
+  ).catch(() => false);
   const req = {
     ...fixtureRequest(criterion, 'pass'),
     transcript: [
@@ -143,12 +166,23 @@ const rows = await pool(list, CONCURRENCY, async (c) => {
   const r = await claude(prompt.system, prompt.user);
   const ours = r.error ? false : parseAnswerText(r.result).answer.outcome === 'pass';
   done += 1;
-  if (done % 10 === 0) console.error(`progress ${done}/${list.length} calls ${calls} spent ${spent.toFixed(4)}`);
+  if (done % 10 === 0)
+    console.error(`progress ${done}/${list.length} calls ${calls} spent ${spent.toFixed(4)}`);
   return { truth: c.truth, a: theirs, b: ours } as Row;
 });
 
-const summary = summarise('19 factuality against a reference (haiku on both sides)', rows, ['theirs', 'ours']);
-const out = { ...summary, calls, spentUsd: Number(spent.toFixed(4)), hardCapUsd: HARD_CAP_USD, model: MODEL, cases: list.length };
+const summary = summarise('19 factuality against a reference (haiku on both sides)', rows, [
+  'theirs',
+  'ours',
+]);
+const out = {
+  ...summary,
+  calls,
+  spentUsd: Number(spent.toFixed(4)),
+  hardCapUsd: HARD_CAP_USD,
+  model: MODEL,
+  cases: list.length,
+};
 await mkdir(join(HERE, 'out'), { recursive: true });
 const dir = await mkdtemp(join(tmpdir(), 'pf-fact-'));
 await writeFile(join(HERE, 'out', 'factuality.json'), `${JSON.stringify(out, null, 2)}\n`);

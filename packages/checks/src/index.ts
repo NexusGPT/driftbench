@@ -48,10 +48,10 @@ export { length } from './checks/length';
 export { markup } from './checks/markup';
 export { must, mustNot } from './checks/must';
 export { bleu, bleuScore, rougeL, rougeLScore } from './checks/overlap';
-export { regex } from './checks/regex';
 export { createPiiCheck, ownerKey, type PiiCheckOptions, pii } from './checks/pii';
 export { references } from './checks/references';
 export { refusal } from './checks/refusal';
+export { regex } from './checks/regex';
 export { relevancy } from './checks/relevancy';
 export { replyJson } from './checks/reply_json';
 export { safety } from './checks/safety';
@@ -60,6 +60,7 @@ export { createSimilarityCheck, similarity } from './checks/similarity';
 export { skills } from './checks/skills';
 export { singleReadStatement, sqlEquivalence } from './checks/sql';
 export { stage } from './checks/stage';
+export { startsWith } from './checks/starts_with';
 export {
   countLengthUnits,
   type LengthUnit,
@@ -72,7 +73,6 @@ export {
   statedLength,
   statedLengthVerdict,
 } from './checks/stated_length';
-export { startsWith } from './checks/starts_with';
 export { subagents } from './checks/subagents';
 export { toolF1 } from './checks/tool_f1';
 export { tools } from './checks/tools';

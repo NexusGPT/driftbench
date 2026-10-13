@@ -42,7 +42,10 @@ export function around(text: string, offset: number, length: number, width = 30)
  * replace) from the needle. Returns its offsets and the edit count. Used on a failing literal, so the evidence can
  * name what the reply has where the needle was looked for.
  */
-export function closestSpan(text: string, needle: string): { start: number; end: number; distance: number } | undefined {
+export function closestSpan(
+  text: string,
+  needle: string,
+): { start: number; end: number; distance: number } | undefined {
   const m = needle.length;
   const n = text.length;
   if (m === 0 || n === 0) return undefined;

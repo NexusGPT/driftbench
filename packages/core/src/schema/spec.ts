@@ -367,7 +367,9 @@ export const Expect = z
     regex: z
       .array(Pattern)
       .optional()
-      .describe('Regular expressions the visible text must match, case-sensitive; must ignores case instead.'),
+      .describe(
+        'Regular expressions the visible text must match, case-sensitive; must ignores case instead.',
+      ),
     injection: z
       .boolean()
       .optional()
@@ -384,7 +386,9 @@ export const Expect = z
     exact_strict: z
       .boolean()
       .optional()
-      .describe('Compare exact byte for byte after trimming the ends, instead of ignoring case, punctuation and spacing.'),
+      .describe(
+        'Compare exact byte for byte after trimming the ends, instead of ignoring case, punctuation and spacing.',
+      ),
     json: JsonExpect.optional().describe('The reply is valid JSON, optionally with a schema and paths.'),
     tool_f1: z
       .strictObject({

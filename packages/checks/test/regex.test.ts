@@ -24,12 +24,14 @@ describe('regex', () => {
   });
 
   it('fails a pattern that does not compile, and says why', async () => {
-    const verdicts = await run(regex, block('anything', { regex: ['(' ] }));
+    const verdicts = await run(regex, block('anything', { regex: ['('] }));
     expect(outcomes(verdicts)).toEqual({ 'regex.0': 'fail' });
   });
 
   it('leaves must and must_not case-insensitive', async () => {
-    expect(outcomes(await run(must, block('Fiber here.', { must: ['fiber'] })))).toEqual({ 'must.0': 'pass' });
+    expect(outcomes(await run(must, block('Fiber here.', { must: ['fiber'] })))).toEqual({
+      'must.0': 'pass',
+    });
     expect(outcomes(await run(mustNot, block('FIBER here.', { must_not: ['fiber'] })))).toEqual({
       'must_not.0': 'fail',
     });
