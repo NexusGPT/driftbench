@@ -1,5 +1,5 @@
 {
-  "stage": "test-v5",
+  "stage": "test-v6",
   "core": {
     "pr": "https://github.com/achammah/driftbench/pull/168",
     "commit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
@@ -90,12 +90,12 @@
     "research/ledger-mm/artifacts/pool.json": "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb",
     "research/ledger-mm/artifacts/pilot.json": "1fa01e034f8fb2fe782bcf1fa6f6bc11c5856f5b69a9702fb4c2177169f5733a",
     "research/ledger-mm/artifacts/harm-fixtures.json": "cb26c07022016c8c0ecff5f1c7663991d673ed7d01c2cf50c9b82842a773467d",
-    "research/ledger-mm/run-test.mts": "a399be7299b009f6db0b631f7dd857cf63451a6bd6bfb59e1292b7305f7f21f3",
+    "research/ledger-mm/run-test.mts": "75d1126560d3be11d14c5a0d6db6f90909990d911af7044681466c302dc853ac",
     "research/ledger-mm/exec.mjs": "d99ce2c99c076f749c3c9db71cbae3239646c26592247b95998a75e7ede35119",
     "research/ledger-mm/test_exec.mjs": "77928d78a8d17c02be6c35fff0ee7dfc6eaaa49a4f1bb2beee90b6c3dd89d9e5",
     "research/ledger-mm/eligibility.json": "84b05992165f14a4bc4e130a793f52ac2204fec691d0f43ce33916579c82bdeb",
     "research/ledger-mm/test_eligibility.py": "a84b5aeef9b7c796310442328d9529705a5faf32d720c21bdbb36a70b1009e60",
-    "research/ledger-mm/test_report.py": "c269a8574683f18e521e4bdf84a46e4063961cfd7cbf008d18c6e96f150e065d"
+    "research/ledger-mm/test_report.py": "2d5c99b3d9a09a55bd8a0c8c3c76c0005df7667c3ed3845203f76ec690142f73"
   },
   "executionRules": {
     "driver": "research/ledger-mm/run-test.mts, derived from frozen run.mts by execution changes only",
@@ -147,5 +147,55 @@
     "text": "New model cell gemini-3.5-flash-lite on the full 600 sealed pairs, both contestants on that model, same win rule. It is never mixed with the partial gemini-3.8-flash cell (393 of 600), which stays parked and is finished last. Reasoning: medium, same as gemini-3.8-flash, accepted. Harm seat: not earned (no fixture run for this model), so disabled by the registered rule. Pacing: 8 calls at a time; 429 waits 20, 60, 180 s (up to 4 tries); other transport failures 3 tries; 402 stops the run at once. Lane gate 25 USD. Reservation uses the gemini-3.8-flash price as a conservative upper bound; settled cost uses the flash-lite price.",
     "projectedKnownUsd": 4.3,
     "projectionBasis": "gemini-3.8-flash TEST token counts on 393 items, repriced at flash-lite and scaled to 600"
+  },
+  "cells": {
+    "claude-sonnet-5-5": {
+      "dir": "cells/claude-sonnet-5-5",
+      "capUsd": 25,
+      "reserveUsd": 0.1,
+      "maxBudgetUsd": 0.1,
+      "maxThinkingTokens": 8192,
+      "lastCallCutoff": "2026-10-14T12:00:00+00:00",
+      "stage": "HELD: projection above the 25 USD cell gate, waiting for the owner",
+      "route": "claude -p --model sonnet in an empty folder, same lean flags as Haiku; resolved model claude-sonnet-5-5",
+      "harmSeat": "not earned (no fixture run), disabled by the registered rule",
+      "pacing": "4 calls at a time, 3 transport tries, 300 s timeout",
+      "devPilotProbe": {
+        "items": 20,
+        "calls": 78,
+        "knownUsd": 1.161,
+        "projected600Usd": 34.84,
+        "maxCallUsd": 0.0345,
+        "cappedAnswers": 0
+      }
+    },
+    "gpt-6.1-sol": {
+      "dir": "cells/gpt-6.1-sol",
+      "capUsd": 25,
+      "price": {
+        "inputPer1M": 2.0,
+        "cachedInputPer1M": 0.1,
+        "outputPer1M": 10.0,
+        "source": "https://developers.openai.com/api/docs/pricing, standard tier, short context, read 2026-10-13"
+      },
+      "lastCallCutoff": "2026-10-14T12:00:00+00:00",
+      "stage": "sealed-run-authorized",
+      "reasoning": "medium",
+      "reasoningApplied": "reasoning_effort=medium on /v1/chat/completions, accepted (HTTP 200); max_completion_tokens 8192 caps reasoning plus output",
+      "harmSeat": "not earned (no fixture run), disabled by the registered rule",
+      "pacing": "4 calls at a time, 3 transport tries, 300 s timeout",
+      "devPilotProbe": {
+        "items": 20,
+        "calls": 77,
+        "knownUsd": 0.428,
+        "projected600Usd": 12.85,
+        "cappedAnswers": 0
+      }
+    }
+  },
+  "amendment6": {
+    "loggedUtc": "2026-10-13",
+    "by": "owner via coordinator",
+    "text": "Two new separate model cells on the full 600 sealed pairs: gpt-6.1-sol and claude-sonnet-5-5. Both contestants on the same model inside a cell; same win rule; nothing tuned on sealed data. Each cell has its own folder under research/ledger-mm/cells/ and its own 25 USD gate. Cost was measured on the 20 exposed DEV pilot items only. gpt-6.1-sol is authorized to run. claude-sonnet-5-5 is held because its projection (34.84 USD) exceeds the gate. gemini-3.8-flash stays parked at 393 of 600."
   }
 }

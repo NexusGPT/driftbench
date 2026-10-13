@@ -12,6 +12,7 @@ from prepare import GROUPS
 
 HERE = Path(__file__).parent
 MODELS = ['haiku', 'gpt-6-luna', 'gemini-3.8-flash', 'gemini-3.5-flash-lite']
+CELLS = ['claude-sonnet-5-5', 'gpt-6.1-sol']  # separate folders under cells/, each with its own gate
 CONTESTANTS = ['ledger', 'promptfoo']
 
 
@@ -26,22 +27,29 @@ def strip(cell):
 def report(iterations=20000):
     pool = json.loads((HERE / 'artifacts/pool.json').read_text())
     last = {}
-    for r in lines(HERE / 'recordings/decisions.jsonl'):
+    folders = [HERE / 'recordings'] + [HERE / 'cells' / c for c in CELLS]
+    every = lambda name: [r for f in folders for r in lines(f / name)]
+    for r in every('decisions.jsonl'):
         if r['phase'] == 'test':
             last[(r['model'], r['id'], r['contestant'])] = r  # a later eligibility round supersedes a no-answer row
     decisions = list(last.values())
-    calls = [r for r in lines(HERE / 'recordings/calls.jsonl') if r['phase'] == 'test']
-    attempts = [r for r in lines(HERE / 'recordings/attempts.jsonl') if r['phase'] == 'test']
+    calls = [r for r in every('calls.jsonl') if r['phase'] == 'test']
+    attempts = [r for r in every('attempts.jsonl') if r['phase'] == 'test']
+    cell_spend = {}
+    for c in CELLS:
+        for r in lines(HERE / 'cells' / c / 'spend.jsonl'):
+            cell_spend[r['key']] = r
     spend = {}
     for r in lines(HERE / 'recordings/spend.jsonl'):
         spend[r['key']] = r
-    test_spend = [r for r in spend.values() if r.get('phase') == 'test']
+    test_spend = [r for r in list(spend.values()) + list(cell_spend.values()) if r.get('phase') == 'test']
     out = {'planned': len(pool), 'models': {},
            'spend': {'knownUsd': sum(r.get('usd', 0) for r in test_spend),
                      'retainedReserveUsd': sum(r['reserve'] for r in test_spend if 'usd' not in r),
                      'laneTotalUsdIncludingDevAndReserves': sum(r.get('usd', r['reserve']) for r in spend.values()),
                      'capUsd': json.loads((HERE / 'runtime-freeze.json').read_text()).get('capUsd', 20)}}
-    for model in MODELS:
+    out['spend']['note'] = 'laneTotal covers recordings/ only; each folder under cells/ has its own 25 USD gate'
+    for model in MODELS + CELLS:
         rows = [r for r in decisions if r['model'] == model]
         if not rows:
             out['models'][model] = {'status': 'not run'}
@@ -75,6 +83,9 @@ def report(iterations=20000):
             'stage0CallsExhausted': dict(stage0_exhausted),
             'retries': {'failedTries': len(mattempts), 'callsRecoveredByRetry': len({a['key'] for a in mattempts} & ok_keys),
                         'tryErrors': dict(Counter(a['error'] for a in mattempts))},
+            'cappedAnswers': {'calls': sum(1 for c in mcalls if (c.get('response') or {}).get('truncated')),
+                              'items': len({c['id'] for c in mcalls if (c.get('response') or {}).get('truncated')}),
+                              'finishReasons': dict(Counter((c.get('response') or {}).get('finishReason') for c in mcalls if 'response' in c))},
             'lossesByGroup': {g: losses_by_group.get(g, 0) for g in GROUPS},
             'winsByGroup': {g: wins_by_group.get(g, 0) for g in GROUPS},
             'cost': cost,

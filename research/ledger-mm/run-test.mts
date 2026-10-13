@@ -16,8 +16,13 @@ if (argv.includes('--help')) {
   process.exit(0);
 }
 const phase = flag('--phase', 'test')!;
-if (phase !== 'test') throw new Error('run-test.mts runs only the sealed TEST cell; use run.mts for DEV phases');
 const model = flag('--model', 'haiku')!;
+// New model cells (amendment 6) keep their own folder, recordings and 25 USD gate. Their settings live in runtime-freeze.json.
+const cell: any = JSON.parse(readFileSync(resolve(here, 'runtime-freeze.json'), 'utf8')).cells?.[model] ?? null;
+// The exposed DEV pilot is allowed only as a cost probe for a new cell, never on sealed pairs.
+if (phase !== 'test' && !(phase === 'pilot' && cell)) throw new Error('run-test.mts runs the sealed TEST cell, or a DEV pilot cost probe for a new cell');
+const limit = Number(flag('--limit', '0'));
+if (limit && phase === 'test') throw new Error('--limit is for the DEV pilot cost probe only');
 const pacing: any = (PACING as any)[flag('--model', 'haiku')!];
 const callLimit: number = pacing?.concurrency ?? MAX_CONCURRENT_CALLS;
 const concurrency = Number(flag('--workers', String(callLimit)));
@@ -28,14 +33,17 @@ const models: Record<string, { model: string; provider: string; reasoning?: stri
   'gemini-3.8-flash': { model: 'gemini-3.8-flash', provider: 'google', reasoning: 'medium' },
   // Separate cell (amendment 5): same medium thinking level, accepted by a live probe.
   'gemini-3.5-flash-lite': { model: 'gemini-3.5-flash-lite', provider: 'google', reasoning: 'medium' },
+  // Amendment 6: two more separate cells.
+  'claude-sonnet-5-5': { model: 'sonnet', provider: 'claude-cli' },
+  'gpt-6.1-sol': { model: 'gpt-6.1-sol', provider: 'openai', reasoning: 'medium' },
 };
 if (!models[model] || !['fixture', 'pilot', 'noise', 'validity', 'test'].includes(phase)) throw new Error('invalid model or phase');
 const dry = argv.includes('--dry-run');
 const read = (name: string) => JSON.parse(readFileSync(resolve(here, name), 'utf8'));
 const write = (name: string, data: unknown) => writeFileSync(resolve(here, name), JSON.stringify(data, null, 2) + '\n');
 const poolFile = phase === 'test' ? 'pool' : phase === 'noise' ? 'noise' : phase === 'fixture' ? 'harm-fixtures' : 'pilot';
-const pool = read(`artifacts/${poolFile}.json`);
-const runDir = resolve(here, dry ? 'runtime/dry-run' : 'recordings');
+const pool = limit ? read(`artifacts/${poolFile}.json`).slice(0, limit) : read(`artifacts/${poolFile}.json`);
+const runDir = resolve(here, dry ? 'runtime/dry-run' : cell ? cell.dir : 'recordings');
 mkdirSync(runDir, { recursive: true });
 const recordsFile = resolve(runDir, 'decisions.jsonl');
 const callsFile = resolve(runDir, 'calls.jsonl');
@@ -48,7 +56,7 @@ const eligibleCalls = new Set<string>(eligible?.callKeys ?? []);
 const eligibleDecisions = new Set<string>(eligible?.decisionKeys ?? []);
 const round: number = eligible?.round ?? 0;
 // Lane gate from the runtime freeze (owner raised it to 25 USD, amendment 5).
-const budget = new Budget(resolve(runDir, 'spend.jsonl'), eligible?.capUsd ?? read('runtime-freeze.json').capUsd ?? 20);
+const budget = new Budget(resolve(runDir, 'spend.jsonl'), cell?.capUsd ?? eligible?.capUsd ?? read('runtime-freeze.json').capUsd ?? 20);
 const completed = new Map(readLines(callsFile).filter((r: any) => !(eligibleCalls.has(r.key) && r.transportExhausted === true && !('response' in r))).map((r: any) => [r.key, r]));
 const decisions = new Set(readLines(recordsFile).filter((r: any) => !(eligibleDecisions.has(r.key) && r.error && !r.games?.some((g: any) => g !== null))).map((r: any) => r.key));
 const capError = (e: any) => /BUDGET_CAP|LAST_CALL_CUTOFF|STOP_FILE|PROVIDER_PAYMENT_STOP/.test(String(e));
@@ -63,11 +71,11 @@ if (!dry) {
   if (!ready.pr?.startsWith('https://github.com/') || !ready.commit) throw new Error('CORE_PR_GATE');
   const ancestor = spawnSync('git', ['merge-base', '--is-ancestor', ready.commit, 'HEAD'], { cwd: root });
   if (ancestor.status !== 0) throw new Error('REBASE_CORE_FIRST');
-  const freeze = read(phase === 'test' ? 'runtime-freeze.json' : 'call-freeze.json');
+  const freeze = read('runtime-freeze.json');
   for (const [path, digest] of Object.entries(freeze.hashes)) {
     if (hash(readFileSync(resolve(root, path), 'utf8')) !== digest) throw new Error(`FREEZE_DRIFT ${path}`);
   }
-  cutoff = Date.parse(eligible?.lastCallCutoff ?? freeze.lastCallCutoff);
+  cutoff = Date.parse(cell?.lastCallCutoff ?? eligible?.lastCallCutoff ?? freeze.lastCallCutoff);
   if (!Number.isFinite(cutoff)) throw new Error('MISSING_CUTOFF');
   core = await import('../../packages/judges/src/pair-ledger.ts');
   promptApi = await import('../../packages/judges/src/prompt.ts');
@@ -77,14 +85,26 @@ if (!dry) {
   delete env.CLAUDECODE;
   // Prevent parent overrides from silently changing the frozen model.
   delete env.CLAUDE_JUDGE_MODEL; delete env.OPENAI_JUDGE_MODEL; delete env.GOOGLE_JUDGE_MODEL;
+  // Thinking cap for the Claude CLI route of a new cell; the HTTP routes are capped by maxTokens.
+  if (cell?.maxThinkingTokens) env.MAX_THINKING_TOKENS = String(cell.maxThinkingTokens);
   transport = createDialectTransport({ ...cfg, env, maxTokens: 8192, timeoutMs: TIMEOUT_MS,
-    maxRetries: 0, maxBudgetUsd: .10 } as any);
+    maxRetries: 0, maxBudgetUsd: cell?.maxBudgetUsd ?? .10 } as any);
 }
 
 const gate = new Semaphore(callLimit);
 // harness.mjs is frozen and prices every Google model as gemini-3.8-flash. flash-lite uses its own
 // published standard price (USD per 1M tokens): input 0.30, cached input 0.03, output with thinking 2.50.
 const priceOf = (response: any) => {
+  if (cfg.provider === 'claude-cli' && cell) {
+    if (!Number.isFinite(response.costUsd)) throw new Error('MISSING_CLAUDE_COST');
+    return response.costUsd;
+  }
+  if (cell?.price) {
+    const u = JSON.parse(response.raw).usage;
+    if (!u) throw new Error('MISSING_OPENAI_USAGE');
+    const cached = u.prompt_tokens_details?.cached_tokens ?? 0;
+    return ((u.prompt_tokens - cached) * cell.price.inputPer1M + cached * cell.price.cachedInputPer1M + u.completion_tokens * cell.price.outputPer1M) / 1e6;
+  }
   if (model !== 'gemini-3.5-flash-lite') return costOf(model, response);
   const u = JSON.parse(response.raw).usageMetadata;
   if (!u) throw new Error('MISSING_GOOGLE_USAGE');
@@ -104,7 +124,7 @@ async function ask(meta: any, request: any) {
   }
   // Byte count upper-bounds token count conservatively for these short texts.
   const bytes = Buffer.byteLength(JSON.stringify(request));
-  const reserve = model === 'haiku' ? .10 : Math.max(.01, (bytes + 2048) * (model === 'gpt-6-luna' ? .1 : .75) / 1e6 + 8192 * (model === 'gpt-6-luna' ? .5 : 3.75) / 1e6);
+  const reserve = cell?.reserveUsd ? cell.reserveUsd : cell?.price ? Math.max(.01, ((bytes + 2048) * cell.price.inputPer1M + 8192 * cell.price.outputPer1M) / 1e6) : model === 'haiku' ? .10 : Math.max(.01, (bytes + 2048) * (model === 'gpt-6-luna' ? .1 : .75) / 1e6 + 8192 * (model === 'gpt-6-luna' ? .5 : 3.75) / 1e6);
   // A new round uses fresh reservation keys; earlier rounds keep their retained reserves.
   const tag = eligibleCalls.has(key) && round > 0 ? `${key}:round${round}` : key;
   const tryKey = (n: number) => n === 1 ? tag : `${tag}:try${n}`;
