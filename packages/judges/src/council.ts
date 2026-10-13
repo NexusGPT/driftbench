@@ -51,6 +51,8 @@ export type UnassignedCriterion = { readonly criterion: string; readonly reason:
 
 export type CouncilConfig = {
   readonly mode: CouncilMode;
+  /** Judges seated per class: a whole number of at least 1. Default 3. */
+  readonly size?: number;
   readonly judges: readonly JudgeClient[];
   /** The model family of the agent under test. `none` for an agent that is not a model. */
   readonly agentFamily: string;
@@ -62,7 +64,9 @@ export type CouncilConfig = {
    * Cascade from the cheapest judge. `true` uses a threshold of 0.9. It stops early only on a pass that
    * carries a score: a judge that leaves `score` out (most chat models) always brings in the other two.
    */
-  readonly cascade?: boolean | { readonly threshold?: number };
+  readonly cascade?:
+    | boolean
+    | { readonly threshold?: number; readonly thresholds?: Readonly<Record<string, number>> };
 };
 
 export type RoundOutcome = JudgeOutcome | 'split';
@@ -89,6 +93,8 @@ export type CouncilResult = {
   readonly cascaded: boolean;
   /** Judges that gave no answer at all. */
   readonly errors: number;
+  /** The sum of the costs of every judge called, re-asks and later rounds included. Set by every council round. */
+  readonly cost?: number;
   /** The mean score of the votes that agree with the outcome, when they carry one. */
   readonly score?: number;
   /** One line per round, for the verdict's evidence. */
@@ -104,6 +110,14 @@ export class CouncilConfigError extends Error {
 }
 
 const COUNCIL_SIZE = 3;
+
+/** The judges seated per class: the configured size, or the default of three. */
+function seatsOf(config: CouncilConfig): number {
+  const size = config.size ?? COUNCIL_SIZE;
+  if (!Number.isInteger(size) || size < 1)
+    throw new CouncilConfigError(`size must be a whole number of at least 1, got ${size}`);
+  return size;
+}
 const DEFAULT_THRESHOLD = 0.9;
 
 export type Council = {
@@ -121,9 +135,10 @@ export type Council = {
 
 export function createCouncil(config: CouncilConfig): Council {
   const byId = validateJudges(config);
+  const seats = seatsOf(config);
   const explicit = new Map<string, AssignmentRow>();
   for (const row of config.assignment ?? []) {
-    validateRow(row, config.mode, byId);
+    validateRow(row, config.mode, byId, seats);
     if (explicit.has(row.criterion)) {
       throw new CouncilConfigError(`criterion ${row.criterion} has two assignment rows`);
     }
@@ -145,6 +160,9 @@ export function createCouncil(config: CouncilConfig): Council {
       : config.cascade
         ? (config.cascade.threshold ?? DEFAULT_THRESHOLD)
         : undefined;
+  if (threshold !== undefined && !(threshold > 0.5 && threshold <= 1)) {
+    throw new CouncilConfigError(`the cascade threshold must be above 0.5 and at most 1, got ${threshold}`);
+  }
 
   const assignmentFor = (criterion: string, judgeClass?: 'system1' | 'system2' | 'auto'): AssignmentRow => {
     const row = explicit.get(criterion);
@@ -162,9 +180,10 @@ export function createCouncil(config: CouncilConfig): Council {
       const row = assignmentFor(request.criterion.name, judgeClass);
       const pick = (ids: readonly string[]) => ids.map((id) => byId.get(id) as JudgeClient);
       const rounds: CouncilRound[] = [];
-      const counter = { errors: 0 };
+      const counter = { errors: 0, cost: 0 };
 
-      const first = await runRound(request, row.cls, pick(row.judges), 'normal', threshold, counter);
+      const own = typeof config.cascade === 'object' ? (config.cascade.thresholds ?? {}) : {};
+      const first = await runRound(request, row.cls, pick(row.judges), 'normal', threshold, counter, own);
       rounds.push(first);
       let decided: CouncilRound | undefined = first.outcome === 'split' ? undefined : first;
       if (!decided && row.rejudge.length > 0) {
@@ -197,6 +216,7 @@ export function createCouncil(config: CouncilConfig): Council {
         split: first.outcome === 'split',
         cascaded: first.cascaded,
         errors: counter.errors,
+        cost: counter.cost,
         ...(score === undefined ? {} : { score }),
         log: rounds.map(describeRound),
       };
@@ -216,6 +236,7 @@ function classesOf(mode: CouncilMode): JudgeClass[] {
 }
 
 function validateJudges(config: CouncilConfig): Map<string, JudgeClient> {
+  const seats = seatsOf(config);
   if (!config.agentFamily.trim()) {
     throw new CouncilConfigError('the agent family is not set: use none for an agent that is not a model');
   }
@@ -231,22 +252,27 @@ function validateJudges(config: CouncilConfig): Map<string, JudgeClient> {
   }
   for (const cls of classesOf(config.mode)) {
     const count = config.judges.filter((judge) => judge.cls === cls).length;
-    if (count < COUNCIL_SIZE) {
-      throw new CouncilConfigError(`mode ${config.mode} needs ${COUNCIL_SIZE} ${cls} judges, ${count} given`);
+    if (count < seats) {
+      throw new CouncilConfigError(`mode ${config.mode} needs ${seats} ${cls} judges, ${count} given`);
     }
   }
   return byId;
 }
 
-function validateRow(row: AssignmentRow, mode: CouncilMode, byId: Map<string, JudgeClient>): void {
+function validateRow(
+  row: AssignmentRow,
+  mode: CouncilMode,
+  byId: Map<string, JudgeClient>,
+  seats: number,
+): void {
   const where = `assignment of ${row.criterion}`;
   if (!classesOf(mode).includes(row.cls)) {
     throw new CouncilConfigError(`${where}: class ${row.cls} is not used in mode ${mode}`);
   }
   const check = (ids: readonly string[], cls: JudgeClass, what: string) => {
-    if (!(ids.length === COUNCIL_SIZE || (solo && ids.length === 1)) || new Set(ids).size !== ids.length) {
+    if (!(ids.length === seats || (solo && ids.length === 1)) || new Set(ids).size !== ids.length) {
       throw new CouncilConfigError(
-        `${where}: ${what} needs ${what === 'the assigned class' ? `1 or ${COUNCIL_SIZE}` : COUNCIL_SIZE} different judges`,
+        `${where}: ${what} needs ${what === 'the assigned class' ? `1 or ${seats}` : seats} different judges`,
       );
     }
     for (const id of ids) {
@@ -267,11 +293,11 @@ function validateRow(row: AssignmentRow, mode: CouncilMode, byId: Map<string, Ju
 }
 
 /** The cheapest judges of a class, cost first, then id for a stable order. */
-function cheapest(judges: readonly JudgeClient[], cls: JudgeClass): string[] {
+function cheapest(judges: readonly JudgeClient[], cls: JudgeClass, seats: number): string[] {
   return judges
     .filter((judge) => judge.cls === cls)
     .sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id))
-    .slice(0, COUNCIL_SIZE)
+    .slice(0, seats)
     .map((judge) => judge.id);
 }
 
@@ -296,8 +322,8 @@ function defaultRow(
   return {
     criterion,
     cls,
-    judges: cheapest(config.judges, cls),
-    rejudge: config.mode === 'hybrid' ? cheapest(config.judges, otherClass(cls)) : [],
+    judges: cheapest(config.judges, cls, seatsOf(config)),
+    rejudge: config.mode === 'hybrid' ? cheapest(config.judges, otherClass(cls), seatsOf(config)) : [],
     source,
   };
 }
@@ -308,7 +334,8 @@ async function runRound(
   judges: readonly JudgeClient[],
   budget: Budget,
   threshold: number | undefined,
-  counter: { errors: number },
+  counter: { errors: number; cost: number },
+  own: Readonly<Record<string, number>> = {},
 ): Promise<CouncilRound> {
   const ordered = [...judges].sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id));
   const votes: Vote[] = [];
@@ -317,7 +344,8 @@ async function runRound(
     const [cheap, ...rest] = ordered;
     const vote = await castVote(request, cheap as JudgeClient, budget, counter);
     votes.push(vote);
-    if (vote.outcome === 'pass' && vote.score !== undefined && vote.score >= threshold) {
+    const bar = own[cheap?.id ?? ''] ?? threshold;
+    if (vote.outcome === 'pass' && vote.score !== undefined && vote.score >= bar) {
       cascaded = true;
     } else {
       votes.push(...(await Promise.all(rest.map((judge) => castVote(request, judge, budget, counter)))));
@@ -329,16 +357,32 @@ async function runRound(
   return { cls, budget, votes, outcome, cascaded };
 }
 
-/**
- * The outcome a majority of the seated judges agree on: two of three, or the one vote of a row of one. An
- * inconclusive vote never counts.
- */
-export function majority(votes: readonly Vote[], seated: number = COUNCIL_SIZE): RoundOutcome {
-  const pass = votes.filter((vote) => vote.outcome === 'pass').length;
-  const fail = votes.filter((vote) => vote.outcome === 'fail').length;
-  const needed = Math.floor(seated / 2) + 1;
-  if (pass >= needed && pass > fail) return 'pass';
-  if (fail >= needed && fail > pass) return 'fail';
+/** The default quorum remains main's three seated judges. Explicit weights retain their opt-in behavior. */
+export function majority(votes: readonly Vote[], seated?: number): RoundOutcome;
+export function majority(votes: readonly Vote[], options: { weights?: Record<string, number> }): RoundOutcome;
+export function majority(
+  votes: readonly Vote[],
+  seatedOrOptions: number | { weights?: Record<string, number> } = COUNCIL_SIZE,
+): RoundOutcome {
+  if (typeof seatedOrOptions === 'number') {
+    const pass = votes.filter((vote) => vote.outcome === 'pass').length;
+    const fail = votes.filter((vote) => vote.outcome === 'fail').length;
+    const needed = Math.floor(seatedOrOptions / 2) + 1;
+    if (pass >= needed && pass > fail) return 'pass';
+    if (fail >= needed && fail > pass) return 'fail';
+    return 'split';
+  }
+  const options = seatedOrOptions;
+  for (const weight of Object.values(options.weights ?? {})) {
+    if (!Number.isFinite(weight) || weight < 0)
+      throw new RangeError(`a weight must be a finite number, at least 0`);
+  }
+  const weigh = (vote: Vote) => options.weights?.[vote.judge] ?? 1;
+  const total = votes.reduce((sum, vote) => sum + weigh(vote), 0);
+  const of = (outcome: RoundOutcome) =>
+    votes.filter((vote) => vote.outcome === outcome).reduce((sum, vote) => sum + weigh(vote), 0);
+  if (of('pass') * 2 > total) return 'pass';
+  if (of('fail') * 2 > total) return 'fail';
   return 'split';
 }
 
@@ -346,13 +390,16 @@ async function castVote(
   request: JudgeRequest,
   judge: JudgeClient,
   budget: Budget,
-  counter: { errors: number },
+  counter: { errors: number; cost: number },
 ): Promise<Vote> {
   const name = budget === 'large' ? `${judge.id}@large` : judge.id;
   // Every retry the judge's client takes, under the shared policy, is recorded in its vote.
   const spent: RetryEvent[] = [];
   const retries = () => (spent.length > 0 ? { retries: spent } : {});
-  const ask = (asked: Budget) => retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
+  const ask = (asked: Budget) => {
+    counter.cost += judge.cost;
+    return retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
+  };
   try {
     let result = await ask(budget);
     let note = '';
@@ -381,4 +428,23 @@ function describeRound(round: CouncilRound): string {
   const head = `${round.cls}${round.budget === 'large' ? ' (large budget)' : ''}`;
   const end = round.cascaded ? 'pass, the cheapest judge was sure' : round.outcome;
   return `${head}: ${tally}; ${end}`;
+}
+
+/** What `judgeRepeated` returns: the k outcomes in order, and whether they agree. */
+export type RepeatedJudging = { readonly outcomes: JudgeOutcome[]; readonly consistent: boolean };
+
+/**
+ * Asks one client the same request k times, one after the other. The result is consistent when all k outcomes are
+ * equal and decisive: a run of inconclusive answers is not consistent. k must be a whole number from 1.
+ */
+export async function judgeRepeated(
+  client: JudgeClient,
+  request: JudgeRequest,
+  k: number,
+): Promise<RepeatedJudging> {
+  if (!Number.isInteger(k) || k < 1) throw new RangeError(`k must be a whole number from 1, got ${k}`);
+  const outcomes: JudgeOutcome[] = [];
+  for (let i = 0; i < k; i += 1) outcomes.push((await client.judge(request)).answer.outcome);
+  const first = outcomes[0] as JudgeOutcome;
+  return { outcomes, consistent: first !== 'inconclusive' && outcomes.every((o) => o === first) };
 }

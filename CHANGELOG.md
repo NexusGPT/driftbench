@@ -4,7 +4,29 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Legacy judging freezes main `a97cb65e` rendering and parsing, including entry separators, object extraction and repair behavior. All 1,028 stored chat entries have main-matching replay outcomes.
+
 408 Request Timeout is retried like 429 and 5xx in every adapter.
+
+* Pairwise chat judges name a winner and quote a passage unique to it. Code validates the quote, maps the existing binary outcome and reconciles both candidate orders, with one retry for malformed output.
+* Reference-guided factual comparisons audit requested facts and recover ties through a structured fact ledger. Code computes the fallback winner from factual defects and unsupported additions.
+* Optional itemized rubric scoring aggregates caller weights and hard requirements in code. Candidate swaps reverse the item presentation order.
+* Optional bounded arithmetic verification, grounded final-answer extraction and strict blind-solve reference agreement are available through provider-neutral interfaces. Verification defaults to off.
+* Behaviour change: ordinary chat criterion checks now request a per-requirement evidence ledger; code computes pass, fail or inconclusive. The caller supplies exact requirement ids; an unsplit criterion is one complete requirement. Missing ids trigger a retry, then abstention; unknown ids are ignored and retained as diagnostics. Old binary model JSON is retried by council, calibration and single-judge paths, then abstains. Select `answerContract: 'legacy'` to restore the previous prompt and parser; probability judges are unchanged.
+* Winner quotes must be nonempty and identify exactly one candidate. A shared quote can use distinguishing following evidence supplied by the model; a still-ambiguous quote gets one explicit re-ask. Rendered role-prefixed evidence grounds only to its matching entry. New parser paths reject repeated decoded object keys before verdict aggregation; frozen legacy stays unchanged. Reference-guided rubric prompts retain both the reference and every supplied item. The numeric `majority(votes, seated = 3)` quorum is preserved.
+* Fresh Haiku regression cassettes retain all 28 responses on seven previous failures: 27 correct, one inconclusive, zero wrong verdicts. Quote grounding and code aggregation do not guarantee that the model's per-requirement judgment is correct.
+* Existing public binary criterion answers and pairwise verdict fields remain supported. Pairwise model JSON now uses `winner` and `winnerQuote`; custom chat clients should use the request-aware parsers. Assessment and custom system text enter cassette identity, so the new contract needs fresh recordings. Existing cassettes replay unchanged with `answerContract: 'legacy'`. See [judges](docs/concepts/judges.md#pairwise-comparison).
+* Binary text parsing utilities add narrow repairs for recased outcomes, quoted numeric scores, single or typographic quotes, trailing commas and comment lines. Additional quote and backslash repairs apply only to new paths; legacy uses its frozen extractor and repair.
+* Council size and per-judge cascade thresholds are configurable; explicit `majority(votes, { weights })` supports weighted votes. `CouncilResult.cost` reports relative call cost. The default numeric quorum remains three seats. Invalid probability values abstain, and reversed or equal probability bounds throw.
+* `combineVerdicts([], [])` returns `pass: false`; duplicate judged verdict ids are refused. Judge-check ids distinguish criterion names that sanitize to the same string. Workspace-diff paths escape line separators.
+* OpenAI, Anthropic and Google chat judge providers now send temperature zero.
+* HTTP judge error diagnostics redact echoed nonempty authentication header values, including secrets shorter than eight characters.
+* Leading reply labels are validated once against the declared winner; their stripped body is compared with both candidates, including JSON/plain equivalents. Labels cannot make shared content exclusive.
+* Winner identity also accepts strict JSON text-field decoding, rendered separators, preserved or stripped list presentation and a matching leading reply label. A repeated shared opening in supplied following evidence is removed before extension. Paraphrase, contradictory labels and nonexclusive matches still abstain.
+* New quote grounding ignores Markdown presentation syntax on both sides and requires a letter or digit from the quoted source text. Labels, renderer separators and punctuation alone abstain; frozen legacy is unchanged.
+* Calibration adds PABAK, AC1 and agreement intervals. Chat providers use request-specific structured output schemas; OpenAI chat calls use temperature zero. Invalid caller requirement sets report their own diagnostic rather than an invalid-JSON error.
+
+* New default transcripts use indexed JSON entries with explicit role fields. Literal role labels inside text cannot change an entry's role. Legacy prompt bytes remain unchanged.
 
 ## [0.1.0] - 2026-10-12
 
