@@ -20,3 +20,24 @@
 - Final target: /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-verify.md.
 - Keep running both unblocked models through all 379 units unless the cap is reached. Do not report completion while their phases are pending.
 - All writes stay in this worktree, the named report, and append-only spend-ledger rows. No other key files or worktrees may be written.
+
+## 10:05 UTC checkpoint
+
+- First TEST starts at 09:57:23.443 UTC for gpt-6-luna, 221 sealed items, runtime ee96e47757aa837860fe.
+- Scoring implementation hashes match the pre-TEST freeze; evidence/test-entry-check.json proves chronology.
+- Luna completes all three noise repeats. Noise changes: cascade 4/30, promptfoo 9/30; both have two items with a missing state.
+- Haiku noise-0 finishes with all 30 final verdicts per contestant. Noise-1 starts at 10:00:56.558 UTC.
+- Six confirmed native output-limit envelopes are all ours: one pilot, five noise-0. These affect one pilot item and three noise-0 items. Zero unmapped confirmed limits.
+- Two historical native error bodies remain unclassified. No TEST output-limit error is observed at this checkpoint.
+- Last pushed code commit acac98d2; live receipts and reports remain uncommitted until a stable checkpoint or final handoff.
+- Gemini remains stopped, awaiting the owner top-up signal. No Gemini restart is authorized before that signal.
+
+## 10:21 UTC Gemini top-up recovery
+
+- Owner confirms prepaid credit replenishment. One missing request probe returns an answer for 0.00151125 USD.
+- Probe receipt 4be8c338-3566-4b4f-8eb7-b860b6cc0050 is preserved for free same-phase recovery. It must not be called again.
+- Recovery archives original noise-0 and noise-1 reports/cassettes before removing only 5 network no-answer entries and 20 proven billing rejections. All returned answers remain cached.
+- Gemini driver exec session 64488 resumes those two phases, then supervises noise-2 and TEST at two concurrent requests.
+- Gemini uses medium and 300-second provider attempts; quota waits remain 60/120/240 seconds; HTTP 402 still stops the model.
+- No unknown-charge hold is released. Runtime and scoring hashes stay unchanged. See evidence/gemini-topup-resume.json.
+- Luna remains in sealed TEST at eight requests. Haiku is in noise-1 at two native processes.
