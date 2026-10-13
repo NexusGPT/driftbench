@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
 import { CONFORMANCE_PROMPT_FINGERPRINT } from './conformance';
-import { JudgeClass, type JudgeRequest, type JudgeResult, parseAnswerValue } from './contract';
+import { inconclusive, JudgeClass, type JudgeRequest, type JudgeResult, parseAnswerValue } from './contract';
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
 import { PROMPT_FINGERPRINT } from './prompt';
@@ -45,6 +45,8 @@ export const CassetteEntry = z.strictObject({
   answer: z.unknown().optional(),
   raw: z.string().optional(),
   error: z.string().optional(),
+  /** A provider rejection retained even when the raw text happens to be complete JSON. */
+  unparsedReason: z.string().optional(),
   /** What the recorded call cost in US dollars, when the client reported it. Replayed with the answer. */
   cost_usd: z.number().nonnegative().optional(),
   /** The answer parsed only after the strict repair of unescaped quotes. Replayed with the answer. */
@@ -144,17 +146,19 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
         result.costUsd === undefined ? {} : { cost_usd: result.costUsd };
       try {
         const result = await client.judge(request);
-        // An unparsed answer is kept as raw text only, so its replay is unparsed too and is re-judged.
+        // Relevance also retains provider rejection, which cannot be recovered from raw JSON alone.
         cassette.entries.push(
-          result.unparsed || request.assessment || result.checks
-            ? { ...base, raw: result.raw, ...cost(result) }
-            : {
-                ...base,
-                answer: result.answer,
-                raw: result.raw,
-                ...cost(result),
-                ...(result.repaired ? { repaired: true as const } : {}),
-              },
+          request.assessment?.kind === 'response-relevance' && result.unparsed
+            ? { ...base, raw: result.raw, unparsedReason: result.answer.reasoning, ...cost(result) }
+            : result.unparsed || request.assessment || result.checks
+              ? { ...base, raw: result.raw, ...cost(result) }
+              : {
+                  ...base,
+                  answer: result.answer,
+                  raw: result.raw,
+                  ...cost(result),
+                  ...(result.repaired ? { repaired: true as const } : {}),
+                },
         );
         return result;
       } catch (cause) {
@@ -224,6 +228,13 @@ function replay(entry: CassetteEntry, request: JudgeRequest): JudgeResult {
     ...(entry.cost_usd === undefined ? {} : { costUsd: entry.cost_usd }),
     ...(entry.repaired ? { repaired: true } : {}),
   };
+  if (entry.unparsedReason !== undefined)
+    return {
+      raw: entry.raw ?? '',
+      answer: inconclusive(entry.unparsedReason),
+      unparsed: true,
+      ...cost,
+    };
   if (request.assessment && entry.raw !== undefined)
     return { ...parseJudgeText(entry.raw, request), ...cost };
   if (entry.answer !== undefined)

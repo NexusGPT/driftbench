@@ -337,6 +337,30 @@ it('replays invalid response relevance recordings as unparsed inconclusive', asy
   expect(replayed.unparsed).toBe(true);
 });
 
+it('preserves provider truncation on cassette replay even when the raw checks are valid JSON', async () => {
+  const fetch = vi.fn(
+    async () =>
+      new Response(
+        JSON.stringify({
+          choices: [{ finish_reason: 'length', message: { content: JSON.stringify({ checks: [check()] }) } }],
+        }),
+        { status: 200 },
+      ),
+  );
+  const client = judges.createOpenAiJudge({
+    env: { OPENAI_API_KEY: 'test-only', OPENAI_JUDGE_MODEL: 'mock' },
+    fetch,
+  });
+  const cassette = judges.emptyCassette();
+  const recorded = await judges.judgeResponseRelevance(judges.recordingClient(client, cassette), transcript);
+  expect(recorded.unparsed).toBe(true);
+  expect(recorded.answer.outcome).toBe('inconclusive');
+  const stored = judges.Cassette.parse(JSON.parse(JSON.stringify(cassette)));
+  const replayed = await judges.judgeResponseRelevance(judges.playerClient(stored, client.id), transcript);
+  expect(replayed).toEqual(recorded);
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
 // Symbol-only replies are valid deliverables when the latest ask requests that exact form.
 describe('response relevance symbol-only deliverables', () => {
   it.each(['✅', '↑'])('accepts the exact requested %s reply', (symbol) => {

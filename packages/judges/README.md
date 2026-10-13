@@ -75,7 +75,8 @@ mode's policy. The mode rejects `answerContract: 'legacy'`, custom `system`, `re
 `factAudit`, `candidates`, `artifact`, `inputs`, `given` and `reference`. Put relevant context in the
 transcript. A missing user entry or missing subsequent agent reply is a caller error before a call.
 Default and legacy prompts and cassette keys remain unchanged. This mode uses its own prompt
-fingerprint, and recordings preserve the complete ledger.
+fingerprint, and recordings preserve the complete ledger. Relevance recordings also retain provider
+rejections such as token-limit truncation, even when the raw text happens to contain complete JSON.
 
 ## Opt-in conformance judging
 
