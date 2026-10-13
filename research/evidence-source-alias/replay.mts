@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -47,60 +47,85 @@ hashes['decoder-pr/criterion-decoder-recordings.json.gz'] = sha(donorBytes);
 const donorData = JSON.parse(gunzipSync(donorBytes).toString());
 const inputs: any[] = donorData.rows.filter((row: any) => !row.set.startsWith('bench-current/'));
 const summaries: any[] = donorData.summaries.filter((s: any) => !s.set.startsWith('bench-current/'));
-const bench = resolve(root, '../bench-frame');
+// Pin a committed recording set, never a concurrently changing benchmark worktree.
+const recordingCommit = execFileSync('git', ['rev-parse', process.argv[2] ?? 'origin/feat/bench-frame'], {
+  cwd: root,
+  encoding: 'utf8',
+}).trim();
+const recordedFiles = new Set(
+  execFileSync('git', ['ls-tree', '-r', '--name-only', recordingCommit, 'benchmarks'], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+    .trim()
+    .split('\n'),
+);
 function read(path: string) {
-  const bytes = readFileSync(path);
-  hashes[path.replace(`${bench}/`, 'bench-frame/')] = sha(bytes);
+  const bytes = execFileSync('git', ['show', `${recordingCommit}:${path}`], {
+    cwd: root,
+    maxBuffer: 32 * 1024 * 1024,
+  });
+  hashes[`bench-frame/${path}`] = sha(bytes);
   return JSON.parse(bytes.toString());
 }
-const registry = read(resolve(bench, 'benchmarks/manifest.json'));
+const registry = read('benchmarks/manifest.json');
+assert.equal(registry.slices.length, 14);
+assert.equal(
+  registry.slices.reduce((sum: number, slice: any) => sum + slice.n, 0),
+  1798,
+);
 for (const slice of registry.slices) {
-  const cases = read(resolve(bench, slice.path, 'cases.spec.json')).metadata.bench;
+  const cases = read(`${slice.path}/cases.spec.json`).metadata.bench;
+  assert.equal(cases.length, slice.n);
   for (const model of registry.models) {
     const set = `bench-current/${slice.name}/${model.id}`;
-    const path = resolve(bench, 'benchmarks/cassettes', `${slice.name}@${slice.version}`, `${model.id}.json`);
-    const partial = !existsSync(path);
-    const selected = partial ? `${path}.partial.json` : path;
-    if (!existsSync(selected)) {
+    const path = `benchmarks/cassettes/${slice.name}@${slice.version}/${model.id}.json`;
+    if (!recordedFiles.has(path)) {
+      assert.equal(model.id, 'gemini-3.8-flash', `Missing required recording ${set}`);
       summaries.push({ set, total: 0, planned: slice.n, status: 'not recorded', fixes: null, breaks: null });
       continue;
     }
-    const cassette = read(selected);
-    const evidence = read(
-      resolve(
-        bench,
-        'benchmarks/evidence',
-        `${slice.name}@${slice.version}`,
-        `${model.id}.json${partial ? '.partial.json' : ''}`,
-      ),
-    );
+    const cassette = read(path);
+    const evidence = read(`benchmarks/evidence/${slice.name}@${slice.version}/${model.id}.json`);
     const stamp = evidence.report ?? evidence;
     assert.equal(stamp.datasetHash, slice.hash);
-    if (!partial) assert.equal(evidence.cassetteSha256, sha(readFileSync(selected)));
+    assert.equal(stamp.fingerprint, '398673b792c1');
+    assert.equal(stamp.n, slice.n);
+    assert.equal(cassette.entries.length, slice.n);
+    assert.equal(stamp.results.length, slice.n);
+    assert.equal(evidence.cassetteSha256, hashes[`bench-frame/${path}`]);
+    const outcomes = new Map<string, any>(stamp.results.map((result: any) => [result.id, result]));
+    assert.equal(outcomes.size, slice.n);
     const judge = cassette.judges.find((r: any) => r.id === model.id);
+    assert(judge, `Missing judge ${set}`);
     const byKey = new Map<string, any[]>();
     for (const item of cases) {
-      const key = requestKey(item.request, judge, stamp.fingerprint);
+      // These recordings predate decoder version 2; the key uses strict version 1.
+      const key = requestKey({ ...item.request, criterionDecoderVersion: 1 }, judge, stamp.fingerprint);
       byKey.set(key, [...(byKey.get(key) ?? []), item]);
     }
     for (const entry of cassette.entries) {
       const item = byKey.get(entry.key)?.shift();
       assert(item, `Missing request ${set}/${entry.key}`);
+      assert.equal(outcomes.get(item.id)?.expected, item.expected);
       inputs.push({
         set,
         id: item.id,
         truth: item.expected,
         request: item.request,
         raw: entry.raw,
+        recordedOutcome: outcomes.get(item.id).outcome,
         transportError: entry.error !== undefined || entry.note === 'bench:transport-unparsed',
       });
     }
+    assert([...byKey.values()].every((items) => items.length === 0));
     summaries.push({
       set,
       total: cassette.entries.length,
       planned: slice.n,
-      status: partial ? 'partial recording' : 'recorded',
+      status: 'recorded',
       recordedFingerprint: stamp.fingerprint,
+      recordedCorrect: stamp.correct,
     });
   }
 }
@@ -108,15 +133,20 @@ function verdict(result: any, set: string) {
   return result.unparsed ? (set.startsWith('bench-') ? 'inconclusive' : null) : result.answer.outcome;
 }
 const rows = inputs.map((row) => {
-  const before = row.transportError ? 'inconclusive' : verdict(baseline(row.raw, row.request), row.set);
-  const after = row.transportError ? 'inconclusive' : verdict(parseJudgeText(row.raw, row.request), row.set);
+  // Isolate aliasing even if the independent decoder PR later merges into main.
+  const request = { ...row.request, criterionDecoderVersion: 1 as const };
+  const before = row.transportError ? 'inconclusive' : verdict(baseline(row.raw, request), row.set);
+  const after = row.transportError ? 'inconclusive' : verdict(parseJudgeText(row.raw, request), row.set);
   if (row.baseline !== undefined) assert.equal(before, row.baseline, `${row.set}/${row.id}`);
+  if (row.recordedOutcome !== undefined) assert.equal(before, row.recordedOutcome, `${row.set}/${row.id}`);
   return { ...row, baseline: before, candidate: after };
 });
 const measured = summaries.map((summary) => {
   if (!summary.total) return summary;
   const setRows = rows.filter((row) => row.set === summary.set);
   assert.equal(setRows.length, summary.total);
+  if (summary.recordedCorrect !== undefined)
+    assert.equal(setRows.filter((row) => row.baseline === row.truth).length, summary.recordedCorrect);
   return {
     set: summary.set,
     total: setRows.length,
@@ -131,10 +161,10 @@ const measured = summaries.map((summary) => {
     transportErrors: setRows.filter((row) => row.transportError).length,
   };
 });
-assert(measured.every((s) => s.breaks === 0 || s.breaks === null));
 const report = {
   measuredAt: new Date().toISOString(),
   base,
+  recordingCommit,
   modelCalls: 0,
   costUsd: 0,
   hashes,
@@ -147,12 +177,15 @@ writeFileSync(
   gzipSync(
     JSON.stringify({
       base,
+      recordingCommit,
       hashes,
       summaries: measured,
       rows,
     }),
   ),
 );
+// Persist break items for investigation before failing the gate.
+assert(measured.every((s) => s.breaks === 0 || s.breaks === null));
 console.log(
   JSON.stringify(
     measured.filter((s) => s.total),
