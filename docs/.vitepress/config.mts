@@ -142,6 +142,12 @@ export default defineConfig({
         items: [
           { text: 'Spec reference', link: '/reference/spec' },
           { text: 'Task family reference', link: '/reference/family' },
+          { text: 'Map reference', link: '/reference/map' },
+          { text: 'Interview reference', link: '/reference/interview' },
+          { text: 'Criteria and labels', link: '/reference/criteria' },
+          { text: 'Personas and red-team', link: '/reference/users' },
+          { text: 'Change manifest', link: '/reference/change' },
+          { text: 'Estate files', link: '/reference/estate-files' },
           { text: 'CLI', link: '/reference/cli' },
           { text: 'Checks', link: '/reference/checks' },
         ],

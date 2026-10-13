@@ -20,6 +20,10 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as core from '@agent-nexus/driftbench-core';
+import * as estate from '@agent-nexus/driftbench-estate';
+import * as generate from '@agent-nexus/driftbench-generate';
+import * as judges from '@agent-nexus/driftbench-judges';
+import * as users from '@agent-nexus/driftbench-users';
 import * as family from '../../packages/generate/src/families/schema';
 import { slug } from './check-links';
 
@@ -164,7 +168,7 @@ export function exportName(schema: unknown, names: Map<unknown, string>): string
  * with the export name of every named part kept under `x-name`.
  */
 export function toJsonSchema(schema: Schema, names: Map<unknown, string>): Node {
-  return asNode(
+  return withAnyOf(
     schema.toJSONSchema({
       target: 'draft-2020-12',
       io: 'input',
@@ -174,6 +178,18 @@ export function toJsonSchema(schema: Schema, names: Map<unknown, string>): Node 
       },
     }),
   );
+}
+
+/** A discriminated union comes out as `oneOf`; the page renders it as any other union. */
+function withAnyOf(value: unknown): Node {
+  const walk = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(walk);
+    if (!isNode(node)) return node;
+    const out: Node = {};
+    for (const [key, child] of Object.entries(node)) out[key === 'oneOf' ? 'anyOf' : key] = walk(child);
+    return out;
+  };
+  return asNode(walk(value));
 }
 
 /** Fails when an enum value has no line, or a line names a value the enum does not have. */
@@ -288,17 +304,26 @@ function isSingleKey(node: Node): boolean {
 }
 
 /**
- * For a union of several mapping shapes, the key that tells each one apart: its first key the other shapes
- * do not have. Generation fails when a shape has no such key.
+ * For a union of several mapping shapes, what tells each one apart: a key every shape holds with a constant
+ * value (`kind: path`), else the first key the other shapes do not have. `hint` names the sections of the
+ * shape's own nested objects. Generation fails when a shape has neither.
  */
-function distinguishingKeys(mappings: Node[]): string[] {
-  const keysOf = mappings.map((mapping) => Object.keys(asNode(mapping.properties)));
+function shapeLabels(title: string, mappings: Node[]): Array<{ label: string; hint: string }> {
+  const propsOf = mappings.map((mapping) => asNode(mapping.properties));
+  const keysOf = propsOf.map((props) => Object.keys(props));
+  const discriminator = keysOf[0]?.find((key) => propsOf.every((props) => 'const' in asNode(props[key])));
+  if (discriminator !== undefined) {
+    return propsOf.map((props) => {
+      const value = String(asNode(props[discriminator]).const);
+      return { label: `${discriminator}: ${value}`, hint: `${title} ${value}` };
+    });
+  }
   return keysOf.map((keys, index) => {
     const own = keys.find((key) => keysOf.every((other, at) => at === index || !other.includes(key)));
     if (own === undefined) {
       throw new Error(`spec-reference: a union shape with the keys ${keys.join(', ')} has no key of its own`);
     }
-    return own;
+    return { label: own, hint: title };
   });
 }
 
@@ -314,9 +339,15 @@ class Page {
    * @param typeDescriptions the description of each named schema, from its export: a field may hold a
    *   described copy, whose own description belongs to the field, not to the type
    */
+  /**
+   * @param strictValues true for the spec page: an enum value with no line in VALUE_LINES fails generation.
+   *   A file page lists the value with an empty meaning and reports it as missing instead.
+   */
   constructor(
     private readonly defs: Node,
     private readonly typeDescriptions: Map<string, string>,
+    private readonly strictValues = true,
+    private readonly pageValues: Record<string, Record<string, string>> = {},
   ) {}
 
   /** Renders a section, then the sections it links to, depth first. */
@@ -358,6 +389,11 @@ class Page {
     if ('const' in node) return code(node.const);
     if (Array.isArray(node.enum)) return enumText(node.enum);
     if (Array.isArray(node.anyOf)) {
+      // Several unnamed mapping shapes cannot share one hint: the union gets a section of its own.
+      const shapes = node.anyOf
+        .map(asNode)
+        .filter((option) => sectionKind(option) === 'object' && typeof option[NAME] !== 'string');
+      if (shapes.length > 1) return this.link(hint, node, children);
       return node.anyOf.map((option) => this.typeOf(asNode(option), hint, children)).join(' or ');
     }
     const parts = scalarParts(node);
@@ -440,8 +476,8 @@ class Page {
       for (const option of others) lines.push(`* ${this.typeOf(option, title, children)}`);
       if (keyed.length > 0) lines.push('* a mapping with exactly one of the keys below');
       if (mappings.length === 1) lines.push('* a mapping with the fields below');
-      for (const key of mappings.length > 1 ? distinguishingKeys(mappings) : []) {
-        lines.push(`* a mapping with \`${key}\`, with the fields below`);
+      for (const { label } of mappings.length > 1 ? shapeLabels(title, mappings) : []) {
+        lines.push(`* a mapping with \`${label}\`, with the fields below`);
       }
       lines.push('');
     }
@@ -460,14 +496,14 @@ class Page {
       if (keyed.length > 0) lines.push('');
       lines.push(...this.fields(title, mappings[0], children));
     } else if (mappings.length > 1) {
-      const keys = distinguishingKeys(mappings);
+      const labels = shapeLabels(title, mappings);
       mappings.forEach((mapping, index) => {
-        const key = keys[index] ?? '';
+        const { label, hint } = labels[index] ?? { label: '', hint: title };
         if (lines.at(-1) !== '') lines.push('');
-        lines.push(`With \`${key}\`:`, '');
+        lines.push(`With \`${label}\`:`, '');
         const description = this.description(mapping);
         if (description !== '') lines.push(description, '');
-        lines.push(...this.fields(title, mapping, children));
+        lines.push(...this.fields(hint, mapping, children));
       });
     }
     return lines;
@@ -475,8 +511,10 @@ class Page {
 
   private values(title: string, node: Node): string[] {
     const values = (Array.isArray(node.enum) ? node.enum : []).map(String);
-    const lines = VALUE_LINES[title];
-    checkValueLines(title, values, lines);
+    const known = this.pageValues[title] ?? VALUE_LINES[title];
+    if (this.strictValues) checkValueLines(title, values, known);
+    const lines = known ?? {};
+    for (const value of values) if (!lines[value]?.trim()) this.missing.push(`${title}.${value}`);
     return [
       '| Value | Meaning |',
       '|---|---|',
@@ -523,24 +561,272 @@ export function renderReference(): { markdown: string; missing: string[] } {
   return { markdown: assemble(INTRO, page), missing: page.missing };
 }
 
-const FAMILY_INTRO = `<!-- Generated by tools/docs/spec-reference.ts from the zod schemas in packages/generate/src/families/schema.ts. Do not edit by hand: run \`pnpm docs:reference\`. -->
+/** One generated page for a file people write, beside the spec page. */
+export type FilePage = {
+  /** The page file, under docs/reference. */
+  readonly file: string;
+  readonly title: string;
+  /** Where the schemas live, for the generated-by line. */
+  readonly source: string;
+  /** What the page is for, and the commands that read the files: one paragraph. */
+  readonly about: string;
+  /** How the keys of these files are spelled. */
+  readonly keys: string;
+  /** The modules whose exports name the sections. */
+  readonly names: Record<string, unknown>;
+  /** The top-level schemas, each a section, in page order. */
+  readonly roots: ReadonlyArray<readonly [string, unknown]>;
+  /** One line per enum value of the page's named enums, by enum export name; beside VALUE_LINES. */
+  readonly values?: Record<string, Record<string, string>>;
+};
 
-# Task family reference
+const SNAKE = 'Keys are snake_case. An unknown key is an error.';
 
-A task family is one code-agent task written once with knobs, in \`family.yaml\`, beside its oracle and the review a person signs; see [task families](../generating.md#task-families). \`driftbench family instances\`, \`verify\` and \`review\` read these files. This page lists every field the family loader accepts, then the fields of the review file. It is generated from the zod schemas the CLI uses.
+export const FILE_PAGES: readonly FilePage[] = [
+  {
+    file: 'family.md',
+    title: 'Task family reference',
+    source: 'packages/generate/src/families/schema.ts',
+    about:
+      'A task family is one code-agent task written once with knobs, in `family.yaml`, beside its oracle and the review a person signs; see [task families](../generating.md#task-families). `driftbench family instances`, `verify` and `review` read these files. The family file comes first, then the review file.',
+    keys: SNAKE,
+    names: family,
+    roots: [
+      ['FamilyFile', family.FamilyFile],
+      ['ReviewFile', family.ReviewFile],
+    ],
+  },
+  {
+    file: 'map.md',
+    title: 'Map reference',
+    source: 'packages/generate/src/extract/proposal.ts',
+    about:
+      'The map of situations: the proposal `driftbench extract` writes, and the approved map a person makes of it, which `generate`, `space`, `intake` and `pilot` read; see [generating](../generating.md). Both files have this shape; an approved map is a proposal whose entries are approved.',
+    keys: SNAKE,
+    names: generate,
+    roots: [['Proposal', generate.Proposal]],
+    values: {
+      SourceKind: {
+        prompt:
+          "The agent's prompt or policy, read with --prompt and split into chunks for the model sections.",
+        inventory:
+          'The behaviour inventory, read with --inventory; the code pre-pass derives behaviour, flow, deviation and channel dimensions from it.',
+        tools:
+          'The tool schemas, read with --tools; the code pre-pass derives one data dimension per argument or result field.',
+      },
+      DimensionKind: {
+        stage: 'The dimension varies the stage of the flow the conversation is at.',
+        behaviour: 'The dimension varies a behaviour or rule the agent follows.',
+        deviation: 'The dimension varies the deviation class a user brings into the conversation.',
+        persona: 'The dimension varies the kind of user who writes.',
+        channel: 'The dimension varies the channel the user comes through.',
+        data: 'The dimension varies a data case, such as one partition of a tool argument or result field.',
+        task: 'The dimension varies a task setting for code agents; a conversation event allows only none on it.',
+      },
+      Role: {
+        axis: 'The dimension is an axis of the space map, crossed with the other axes.',
+        detail: 'The generator varies the dimension inside a cell, as boundary values.',
+      },
+      Origin: {
+        code: 'The code pre-pass proposed the entry.',
+        model: 'A model proposed the entry in a section answer.',
+      },
+    },
+  },
+  {
+    file: 'interview.md',
+    title: 'Interview reference',
+    source: 'packages/generate/src/intake/interview.ts',
+    about:
+      'The questionnaire `driftbench intake interview` writes from an approved map, and the owner answers in place for `intake from-interview`; see [from an interview](../generating.md#from-an-interview).',
+    keys: 'Keys are as written below. An unknown key is an error.',
+    names: generate,
+    roots: [['Interview', generate.Interview]],
+  },
+  {
+    file: 'criteria.md',
+    title: 'Criteria and labels reference',
+    source: 'packages/judges/src/criteria.ts and packages/judges/src/labels.ts',
+    about:
+      'A criteria folder holds one file per criterion with its fixture pair, read by `driftbench judge check` and `judge run`; a labels folder holds the hand labels `judge calibrate` reads and the viewer writes. See [judges](../concepts/judges.md).',
+    keys: 'Keys are as written below. An unknown key is an error.',
+    names: { ...core, ...judges },
+    roots: [
+      ['CriterionFile', judges.CriterionFile],
+      ['LabelFile', judges.LabelFile],
+    ],
+  },
+  {
+    file: 'users.md',
+    title: 'Personas and red-team reference',
+    source: 'packages/users/src',
+    about:
+      'The files that drive a simulated or adversarial user: a persona and a recording for `driftbench simulate` and `campaign run --driver simulated`, a red-team pack for `perturb` and `attack`, and a red-team plugin. See [simulated user](../simulated-user.md), [attack](../attack.md) and [red-team plugins](../redteam-plugins.md).',
+    keys: 'Keys are as written below. An unknown key is an error.',
+    names: users,
+    roots: [
+      ['Persona', users.Persona],
+      ['UserRecording', users.UserRecording],
+      ['PackFile', users.PackFile],
+      ['RedteamPlugin', users.RedteamPlugin],
+    ],
+  },
+  {
+    file: 'change.md',
+    title: 'Change manifest reference',
+    source: 'packages/core/src/radius/change.ts',
+    about:
+      'A change manifest says what changed between two versions of an agent, for `driftbench radius --change`; see [blast radius](../concepts/blast-radius.md).',
+    keys: SNAKE,
+    names: core,
+    roots: [['ChangeManifest', core.ChangeManifest]],
+    values: {
+      ToolPart: {
+        input:
+          'The arguments the tool takes. In the radius: blocks that expect a call or assert on its input, and specs whose max_calls caps it.',
+        result:
+          'What the tool returns. In the radius: blocks that expect a call, force its result or error, or read its end state.',
+        description:
+          'The text that tells the agent what the tool does. In the radius: every block that lists the tool, count 0 included.',
+        presence:
+          'Whether the agent is offered the tool at all. In the radius: every block that lists the tool, count 0 included.',
+      },
+    },
+  },
+  {
+    file: 'estate-files.md',
+    title: 'Estate files reference',
+    source: 'packages/estate/src/schema.ts and packages/generate/src/estate/inputs.ts',
+    about:
+      'The files of an estate test suite: the map `driftbench estate scan` writes and a person approves, the plan `estate plan` writes, and the phrase bank and session index that sit beside the map for `estate generate`. See [estate](../estate.md).',
+    keys: 'Keys are as written below, some in camelCase. An unknown key is an error.',
+    names: { ...estate, ...generate },
+    roots: [
+      ['EstateMap', estate.EstateMap],
+      ['Plan', estate.Plan],
+      ['PhraseBank', generate.PhraseBank],
+      ['SessionIndex', generate.SessionIndex],
+    ],
+    values: {
+      AtomKind: {
+        instruction:
+          'A rule of the estate: an obligation or a prohibition with its situation, split from prose by a model.',
+        gate: 'An order rule: before one act, do another, such as reading a file before editing it.',
+        route: 'A trigger: an ask of one class loads a named skill or helper.',
+        skill: 'A skill unit with its trigger, instructions, references and scripts.',
+        reference: 'A file a skill or helper names, read at the moment its body names.',
+        script: 'An executable a skill ships, with its inputs and outputs.',
+        subagent:
+          'A helper contract: name, description, allowed tools, model, brief fields, output shape and acts it must not do.',
+        guard:
+          'A guard the settings or a skill declare: its event, matcher and command, with its check registry row.',
+        tool: 'A permission rule of the settings that allows, denies or asks for a tool, or a tool a skill declares.',
+        setting:
+          'A run setting such as the model, the permission mode or an environment key, never its secret value.',
+        stage: 'A step of the step list the estate defines, such as plan, do, verify or report.',
+        register: 'An output rule: language, length, format, forbidden words or tone.',
+        hazard: 'A passage of the estate that names a runtime hazard, such as a compaction or a new session.',
+        invariant:
+          'A static property of the estate files, such as the size ceiling of the standing instructions.',
+      },
+      EdgeKind: {
+        route: 'A route atom to the skill or helper it loads.',
+        reference: 'A skill or helper to a file its body names.',
+        script: 'A skill to a script it ships.',
+        dispatch: 'A skill or helper to a helper its body names.',
+        enforces: 'A guard to a rule it checks.',
+        event: 'A guard to the event node it runs on.',
+        allows: 'A skill or helper to a tool or skill it may use.',
+        next: 'A stage to the stage that follows it.',
+        cites: 'A rule to a rule its words name by label.',
+      },
+      TestType: {
+        obligation: 'The required act happens, or a forbidden act does not, in the situation of the rule.',
+        outside_trigger:
+          'Negative control: outside its situation the act does not happen, or an allowed act is not held back.',
+        twin: 'The obligation again, with the ask put in another phrasing.',
+        ordered_pair: 'The first act of a gate comes before the second.',
+        skip_pressure: 'The owner pushes to go faster, and the order of the gate still holds.',
+        route_positive: 'A positive ask loads the route target.',
+        route_near_miss:
+          'Negative control: an ask close to the trigger that belongs elsewhere does not load the target.',
+        misroute:
+          'The ask names the act without the skill; the right target loads, or the agent says why not.',
+        read_when: 'The reference file is read at the moment named.',
+        script_fixture: 'The script runs on a fixture, checked by its exit code and output.',
+        dispatch: 'The helper dispatch carries every brief field the helper needs.',
+        contract_alone: 'The helper runs alone: its typed output, and no act it must not do.',
+        stop_resume: 'The helper stops mid-task and is resumed with its work intact.',
+        guard_positive: 'A recorded event gives the guard verdict.',
+        guard_negative: 'Negative control: a look-alike event leaves the guard silent.',
+        guard_hostile: 'Malformed input gives no crash and a safe verdict.',
+        guard_speed: 'The guard answers within its time budget.',
+        guard_register: 'The guard message follows the output rules.',
+        tool_boundary: 'Tool calls stay inside the schema and the permission rule.',
+        tool_denied: 'A call the settings deny is never attempted.',
+        tool_deferred: 'A deferred tool is loaded before its first use.',
+        stage_order: 'The stage is reached in its order in the step list.',
+        stage_skip: 'The owner pushes to go faster, and the stage is not skipped.',
+        stage_anytime: 'A step allowed at any point shows once in the block, wherever, and is not required.',
+        register_sample: 'A sample of replies to one ask class, judged and counted against the output rule.',
+        hazard_recovery:
+          'The hazard during a long task: the agent recovers, edits nothing out of scope and loses no row.',
+        invariant: 'A static test of the estate files, with no run.',
+        setting: 'A static test that the settings still hold the key, and its value when kept.',
+        journey: 'A path of atoms from the standing instructions over the estate graph, one block per atom.',
+      },
+      RunMode: {
+        replay: 'The row runs over a recorded session, offline, with no model call.',
+        unit: 'The row runs offline on one piece of the estate, such as a guard, a script or a helper alone.',
+        live: 'The row runs the agent headless in a sandboxed copy of the estate.',
+      },
+      SituationUse: {
+        trigger: 'The situation sets the atom off.',
+        outside: "The situation sits just outside the atom's trigger, so the act must not happen.",
+        near_miss: "The situation reads like a route's asks but is not one.",
+        misroute: 'The situation names the wrong primitive for the work.',
+        pressure: 'The situation tempts the agent to skip a gate or a stage.',
+        resume: 'The situation picks a stopped helper up again.',
+        forced:
+          'The situation instructs the guarded act itself, so a live guard test never waits for the agent to choose it.',
+      },
+    },
+  },
+];
 
-* Keys are snake_case. An unknown key is an error.
+/** A file page, and the fields that have no description. */
+export function renderFilePage(spec: FilePage): { markdown: string; missing: string[] } {
+  const names = schemaNames({ ...spec.names });
+  // Each root has its own $defs: prefix them so that two roots never share a name.
+  const schemas = spec.roots.map(([title, schema], index) => {
+    const text = JSON.stringify(toJsonSchema(schema as Schema, names)).replaceAll(
+      '#/$defs/',
+      `#/$defs/r${index}.`,
+    );
+    const node = asNode(JSON.parse(text));
+    const defs = Object.fromEntries(
+      Object.entries(asNode(node.$defs)).map(([key, def]) => [`r${index}.${key}`, def]),
+    );
+    return [title, node, defs] as const;
+  });
+  const defs = Object.assign({}, ...schemas.map(([, , own]) => own));
+  const page = new Page(defs, typeDescriptionsOf(names), false, spec.values);
+  for (const [title, node] of schemas) page.emit(title, node);
+  const intro = `<!-- Generated by tools/docs/spec-reference.ts from the zod schemas in ${spec.source}. Do not edit by hand: run \`pnpm docs:reference\`. -->
+
+# ${spec.title}
+
+${spec.about} The page lists every field, generated from the zod schemas the CLI uses.
+
+* ${spec.keys}
 * Descriptions come from the schemas. An empty cell means the schema has no description for that field yet.
 `;
+  return { markdown: assemble(intro, page), missing: page.missing };
+}
 
 /** The task family page, and the fields that have no description. */
 export function renderFamilyReference(): { markdown: string; missing: string[] } {
-  const names = schemaNames({ ...family });
-  const file = toJsonSchema(family.FamilyFile, names);
-  const page = new Page(asNode(file.$defs), typeDescriptionsOf(names));
-  page.emit('FamilyFile', file);
-  page.emit('ReviewFile', toJsonSchema(family.ReviewFile, names));
-  return { markdown: assemble(FAMILY_INTRO, page), missing: page.missing };
+  return renderFilePage(FILE_PAGES[0] as FilePage);
 }
 
 function parseArgs(argv: string[]): { check: boolean; missing: boolean; help: boolean; out?: string } {
@@ -586,10 +872,16 @@ export async function run(argv: string[], io: Io): Promise<number> {
 
   const spec = renderReference();
   const pages = [{ file: resolve(options.out ?? DEFAULT_OUT), markdown: spec.markdown }];
-  const familyPage = options.out === undefined ? renderFamilyReference() : undefined;
-  if (familyPage) pages.push({ file: FAMILY_OUT, markdown: familyPage.markdown });
+  const files =
+    options.out === undefined
+      ? FILE_PAGES.map((page) => ({
+          file: resolve(ROOT, 'docs/reference', page.file),
+          ...renderFilePage(page),
+        }))
+      : [];
+  pages.push(...files);
   if (options.missing) {
-    const missing = [...spec.missing, ...(familyPage?.missing ?? [])];
+    const missing = [...spec.missing, ...files.flatMap((page) => page.missing)];
     io.out(missing.map((field) => `${field}\n`).join(''));
     return 0;
   }

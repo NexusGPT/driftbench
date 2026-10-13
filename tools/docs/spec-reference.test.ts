@@ -20,7 +20,10 @@ import {
   DEFAULT_OUT,
   exportName,
   FAMILY_OUT,
+  FILE_PAGES,
+  type FilePage,
   renderFamilyReference,
+  renderFilePage,
   renderReference,
   run,
   schemaNames,
@@ -241,6 +244,32 @@ describe('task family reference', () => {
     for (const key of ['csv', 'json', 'text', 'copy']) {
       expect(files).toContain(`* a mapping with \`${key}\`, with the fields below`);
       expect(files).toContain(`With \`${key}\`:`);
+    }
+  });
+});
+
+describe('the reference pages of the files people write', () => {
+  for (const page of FILE_PAGES) {
+    it(`writes docs/reference/${page.file} equal to the committed file, every field at any depth described`, async () => {
+      const { markdown, missing } = renderFilePage(page as FilePage);
+      expect(markdown).toBe(await readFile(join(ROOT, 'docs/reference', page.file), 'utf8'));
+      const names = schemaNames({ ...page.names });
+      for (const [, schema] of page.roots) {
+        const keys = propertyKeys(toJsonSchema(schema as never, names));
+        expect(keys.size).toBeGreaterThan(0);
+        expect([...keys].filter((key) => !markdown.includes(`| \`${key}\` |`))).toEqual([]);
+      }
+      expect(missing).toEqual([]);
+    });
+  }
+
+  it('renders a discriminated union as one table per shape, named by its constant', () => {
+    const page = FILE_PAGES.find((entry) => entry.file === 'criteria.md') as FilePage;
+    const { markdown } = renderFilePage(page);
+    const anchors = markdown.slice(markdown.indexOf('## AnnotationAnchor'));
+    for (const kind of ['message', 'tool_call', 'field', 'span']) {
+      expect(anchors).toContain(`* a mapping with \`kind: ${kind}\`, with the fields below`);
+      expect(anchors).toContain(`With \`kind: ${kind}\`:`);
     }
   });
 });

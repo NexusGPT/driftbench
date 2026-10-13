@@ -60,7 +60,7 @@ export type Phrasing = z.infer<typeof Phrasing>;
 export const PackFile = z
   .strictObject({
     class: DeviationClass.describe('The class every phrasing of the file belongs to.'),
-    title: z.string().min(1).optional(),
+    title: z.string().min(1).optional().describe('A title for a reader; no command reads it.'),
     conversation: z.array(Phrasing).min(1).describe('Phrasings for conversation specs.'),
     task: z.array(Phrasing).min(1).optional().describe('Phrasings for task specs.'),
   })
