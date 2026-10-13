@@ -10,11 +10,12 @@
   "priorCachingAmendmentSha256": "fecddc86f5aac489f5cd5bf09975977042ac45ad400dc2f6a6118b79de4f7178",
   "supersededOwnerBudgetDecisionSha256": "2935437bdf708cba2664016b0e14038808e90067b3040773e8bdeb6d1cc5f043",
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-sonnet-network.ts": "c0874df2166130de5c57af597fb69c11104d3c149094692549577af721ecc6ac",
+    "examples/judge-benchmarks/src/rubric-ledger-sonnet-network.ts": "873525952522dee7a7197821985c5d9b86656474cedc6b73a67c5b7cd344ab0c",
     "examples/judge-benchmarks/src/rubric-ledger-network-calls.ts": "727dd29732889790f9db9908c432e8bd127e63e8540873ac362bfcfad0bc143c",
     "examples/judge-benchmarks/src/rubric-ledger-network-health.py": "f6245b6e5089347857fee723fdfdc67d693bff5d68178bcb6aad6ea734d948dc",
     "examples/judge-benchmarks/src/rubric-ledger-native-blocks.ts": "f93a3efa1e5b0e8de552e762933e6491f6fb824797cc697f080db365a9bcef9f",
-    "examples/judge-benchmarks/src/rubric-ledger-reconcile.ts": "698a9a98e81cd4c25b69459f61b3e7ba9c21d0eb72784bcc1a8dec48779f7a5d"
+    "examples/judge-benchmarks/src/rubric-ledger-reconcile.ts": "698a9a98e81cd4c25b69459f61b3e7ba9c21d0eb72784bcc1a8dec48779f7a5d",
+    "examples/judge-benchmarks/src/rubric-ledger-sonnet-network-completion.ts": "aa0f3574e5a8b1765d233e2b286db04af5be41850db62987832b0824d7d9e2c4"
   },
   "environment": {
     "DISABLE_PROMPT_CACHING": "1"
@@ -35,5 +36,8 @@
     "validity thresholds",
     "selected TEST ids",
     "outcome-blind record order"
-  ]
+  ],
+  "priorRuntimeAmendmentSha256": "c4f2c4feded30b02fc6ce3406296f539c09a1824349222d476833aec9bbc70fe",
+  "updatedAt": "2026-10-13T16:35:25.672068+00:00",
+  "responseClassificationClarification": "An explicit native CLI API Error banner with zero output tokens and connection/quota/server failure is no-answer transport. Its raw receipt and known cost remain saved. Content blocks and any generated output remain terminal judge results. No prompt, setting or request changes."
 }

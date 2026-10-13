@@ -9,6 +9,7 @@ import { appendRecording, readRecordingRows } from './recording-files';
 import { LedgerCalls, LedgerProbeStop } from './rubric-ledger-calls';
 import { NetworkLedgerCalls } from './rubric-ledger-network-calls';
 import { classifyAllProviderBlocks } from './rubric-ledger-native-blocks';
+import { withNativeNoAnswerClassification } from './rubric-ledger-sonnet-network-completion';
 import { classifyProviderBlock, decisionKey, latestDecisions, scheduleModels, sha, type DecisionRow } from './rubric-ledger-live';
 import { liteJobs } from './rubric-ledger-flash-lite';
 import { report } from './rubric-ledger-report';
@@ -85,7 +86,7 @@ async function main() {
   process.env.DRIFTBENCH_BENCH_CACHE = resolve('.cache/ledger-rb/data');
   process.env.RB_EXECUTION_ROOT = resolve('.cache/ledger-rb/execution');
   process.env.TMPDIR = resolve('.cache/ledger-rb/tmp'); await mkdir(process.env.TMPDIR, { recursive: true });
-  const raw = sonnetTransport({ ...sonnetEnvironment(process.env), DISABLE_PROMPT_CACHING: '1' });
+  const raw = withNativeNoAnswerClassification(sonnetTransport({ ...sonnetEnvironment(process.env), DISABLE_PROMPT_CACHING: '1' }));
   const pool = new Map(((await loadBenchmark('rubricbench')).items as PairItem[]).map((item) => [item.id, item]));
   const plan = JSON.parse(await readFile(`${directory}/development-plan.json`, 'utf8'));
   const ids = JSON.parse(await readFile(`${directory}/test-ids.json`, 'utf8'));
