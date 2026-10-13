@@ -128,46 +128,48 @@ export function seen(line: string): string {
   return line.normalize('NFKC').replace(INVISIBLE, '');
 }
 
-const ROLE_LINE = /^\[(user|agent|tool_call|tool_result|card|context)(?: ([^\]]+))?\] ?(.*)$/s;
-
 const OPEN = /<\s*transcript_data\s*>/i;
 const CLOSE = /<\s*\/\s*transcript_data\s*>/i;
+const ROLES = new Set(['user', 'agent', 'tool_call', 'tool_result', 'card', 'context']);
 
 /**
- * Reads the transcript section of a rendered user prompt the way a careful model would. Lines are split on
- * every character a reader may take as a line end, and each line is read as seen (compatibility forms folded,
- * invisible characters dropped). The section opens at the first line holding `<transcript_data>` and ends at
- * the first `</transcript_data>` after it, wherever it stands on its line. Inside, a line that reads `[role]` or
- * `[role tool]` starts an entry and any other line continues the one before. Undefined when there is no
- * section.
+ * Reads PR 115's indexed JSON frame independently of the product renderer. Only the outer role field
+ * supplies authority. JSON string decoding preserves separators, quoted JSON and bracket labels as text.
+ * A raw or compatibility-form data closer inside the section is a guard failure, never an entry boundary.
+ * docs/concepts/judges.md: "The request and the answer", indexed JSON entries with role and text fields.
  */
 export function parseRendered(user: string): TranscriptEntry[] | undefined {
-  const lines = user.split(LINE_BREAK);
-  const open = lines.findIndex((line) => OPEN.test(seen(line)));
-  if (open < 0) return undefined;
+  const open = OPEN.exec(user);
+  if (!open) return undefined;
+  const after = user.slice(open.index + open[0].length);
+  const close = CLOSE.exec(after);
+  if (!close) return undefined;
+  const body = after.slice(0, close.index);
+  if (CLOSE.test(seen(body))) return undefined;
+  let frame: unknown;
+  try {
+    frame = JSON.parse(body);
+  } catch {
+    return undefined;
+  }
+  if (!Array.isArray(frame)) return undefined;
   const entries: TranscriptEntry[] = [];
-  const add = (line: string) => {
-    const match = ROLE_LINE.exec(line);
-    if (match) {
-      entries.push({
-        role: match[1] as TranscriptEntry['role'],
-        ...(match[2] === undefined ? {} : { tool: match[2] }),
-        text: match[3] ?? '',
-      });
-    } else if (entries.length > 0) {
-      const last = entries[entries.length - 1] as TranscriptEntry;
-      entries[entries.length - 1] = { ...last, text: `${last.text}\n${line}` };
-    }
-  };
-  for (let i = open + 1; i < lines.length; i += 1) {
-    const line = seen(lines[i] as string);
-    const close = CLOSE.exec(line);
-    if (close) {
-      const before = line.slice(0, close.index);
-      if (before.trim() !== '') add(before);
-      return entries;
-    }
-    add(line);
+  for (const [index, value] of frame.entries()) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+    const entry = value as Record<string, unknown>;
+    if (
+      entry.entry !== index ||
+      typeof entry.role !== 'string' ||
+      !ROLES.has(entry.role) ||
+      typeof entry.text !== 'string' ||
+      (entry.tool !== undefined && typeof entry.tool !== 'string')
+    )
+      return undefined;
+    entries.push({
+      role: entry.role as TranscriptEntry['role'],
+      text: entry.text,
+      ...(entry.tool === undefined ? {} : { tool: entry.tool as string }),
+    });
   }
   return entries;
 }

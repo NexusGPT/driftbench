@@ -251,6 +251,18 @@ export type LabelAgreement = {
   readonly pabak?: number;
   /** Gwet's AC1 for two categories, pass and not pass. Undefined with no blocks, or when chance agreement is 1. */
   readonly ac1?: number;
+  /** The confusion counts and the rates drawn from them; fail is the positive class and inconclusive counts as wrong. A rate with an empty denominator is left out. */
+  readonly metrics: {
+    readonly tp: number;
+    readonly fp: number;
+    readonly tn: number;
+    readonly fn: number;
+    readonly sensitivity?: number;
+    readonly specificity?: number;
+    readonly balancedAccuracy?: number;
+    readonly falsePositiveRate?: number;
+    readonly falseNegativeRate?: number;
+  };
   /** Per block: the human label and the judge's answer. */
   readonly blocks: readonly {
     readonly id: string;
@@ -298,6 +310,12 @@ export type CriterionCalibration = {
   readonly judges: readonly JudgeCalibration[];
   /** Krippendorff's alpha across every judge, over the fixtures and the labelled blocks. */
   readonly alpha?: number;
+  /** Groups of labelled blocks that hold the same slice under both labels; absent when there are none. */
+  readonly labelConflicts?: readonly (readonly string[])[];
+  /** Ids of labelled blocks equal to a fixture of the criterion, which inflates agreement; absent when none. */
+  readonly fixtureLeaks?: readonly string[];
+  /** `few-labels` when a class has fewer than 5 labelled blocks; absent when there is nothing to warn of. */
+  readonly warnings?: readonly string[];
   readonly assignment: CriterionAssignment;
 };
 
@@ -366,7 +384,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       );
       const misses: string[] = [];
       if (separated < repeats) misses.push(`separates the fixture pair ${separated} of ${repeats} times`);
-      if (labels.kappa === undefined) misses.push('has no kappa: the criterion has no labelled blocks');
+      if (labels.kappa === undefined) misses.push('has no kappa: the labels hold fewer than two classes');
       else if (labels.kappa < kappaMin) misses.push(`kappa ${fixed(labels.kappa)} is under ${kappaMin}`);
       if (counter.errors > 0) misses.push(`${counter.errors} call(s) gave no answer`);
       rows.push({
@@ -389,11 +407,16 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       pooled.set(judge.id, own);
     }
     const alpha = alphaOf(matrix);
+    const conflicts = labelConflicts(blocks);
+    const leaks = fixtureLeaks(criterion, blocks);
     criteria.push({
       criterion: criterion.def.name,
       gating: criterion.def.gating === true,
       judges: rows,
       ...(alpha === undefined ? {} : { alpha }),
+      ...(conflicts.length === 0 ? {} : { labelConflicts: conflicts }),
+      ...(leaks.length === 0 ? {} : { fixtureLeaks: leaks }),
+      ...(labelWarnings(blocks).length === 0 ? {} : { warnings: labelWarnings(blocks) }),
       assignment:
         config.rule === 'cheapest' ? assignCheapest(rows, judges, mode) : assign(rows, judges, mode),
     });
@@ -414,6 +437,33 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     errors,
     spentUsd,
   };
+}
+
+/** The blocks that hold one slice (transcript, artifact, given) under both labels, one group of ids per slice. */
+export function labelConflicts(blocks: readonly LabelledBlock[]): string[][] {
+  const bySlice = new Map<string, LabelledBlock[]>();
+  for (const block of blocks) {
+    const key = JSON.stringify([block.transcript, block.artifact ?? null, block.given ?? null]);
+    bySlice.set(key, [...(bySlice.get(key) ?? []), block]);
+  }
+  return [...bySlice.values()]
+    .filter((group) => new Set(group.map((block) => block.label)).size > 1)
+    .map((group) => group.map((block) => block.id));
+}
+
+/** The warnings a labels set earns: `few-labels` when a class holds fewer than 5 labelled blocks (any labels given). */
+export function labelWarnings(blocks: readonly LabelledBlock[]): string[] {
+  if (blocks.length === 0) return [];
+  const few = (['pass', 'fail'] as const).some((label) => blocks.filter((b) => b.label === label).length < 5);
+  return few ? ['few-labels'] : [];
+}
+
+/** The ids of the labelled blocks whose transcript, artifact and given equal those of a fixture of the criterion. */
+export function fixtureLeaks(criterion: LoadedCriterion, blocks: readonly LabelledBlock[]): string[] {
+  const slice = (x: { transcript: unknown; artifact?: unknown; given?: unknown }) =>
+    JSON.stringify([x.transcript, x.artifact ?? null, x.given ?? null]);
+  const fixtures = new Set([slice(criterion.fixtures.pass), slice(criterion.fixtures.fail)]);
+  return blocks.filter((block) => fixtures.has(slice(block))).map((block) => block.id);
 }
 
 /** One answer as a council vote would get it: an unparsed answer is asked again with the large budget. */
@@ -458,12 +508,37 @@ export function agreement(
   const agree = human.filter((label, i) => judged[i] === label).length;
   const interval = n === 0 ? { estimate: 0, lower: 0, upper: 1 } : wilson(agree, n);
   let kappa: number | undefined;
-  if (n > 0) {
+  if (n > 0 && new Set(human).size > 1) {
     kappa = cohenKappa([...judged], [...human], { categories: ['pass', 'fail', 'inconclusive'] }).kappa;
   }
+  let tp = 0;
+  let fp = 0;
+  let tn = 0;
+  let fn = 0;
+  human.forEach((label, i) => {
+    const hit = judged[i] === (label === 'fail' ? 'fail' : 'pass');
+    if (label === 'fail') {
+      if (hit) tp += 1;
+      else fn += 1;
+    } else if (hit) tn += 1;
+    else fp += 1;
+  });
+  const sensitivity = tp + fn === 0 ? undefined : tp / (tp + fn);
+  const specificity = tn + fp === 0 ? undefined : tn / (tn + fp);
   return {
     n,
     agree,
+    metrics: {
+      tp,
+      fp,
+      tn,
+      fn,
+      ...(sensitivity === undefined ? {} : { sensitivity, falseNegativeRate: 1 - sensitivity }),
+      ...(specificity === undefined ? {} : { specificity, falsePositiveRate: 1 - specificity }),
+      ...(sensitivity === undefined || specificity === undefined
+        ? {}
+        : { balancedAccuracy: (sensitivity + specificity) / 2 }),
+    },
     ...(kappa === undefined ? {} : { kappa }),
     ...(n === 0 ? {} : { pabak: (2 * agree) / n - 1 }),
     ...(ac1Of(human, judged) === undefined ? {} : { ac1: ac1Of(human, judged) }),

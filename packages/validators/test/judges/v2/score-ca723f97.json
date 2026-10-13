@@ -1,0 +1,180 @@
+{
+  "executorHead": "ca723f977540b4d58ca6e941141a0622e538c774",
+  "bankHead": "ec4d7006483b709f7d076be1e6c51e5fe5892740",
+  "measuredAt": "2026-10-13T02:52:43.621Z",
+  "hidden": {
+    "seed": 397485015,
+    "source": "head",
+    "head": "ca723f977540b4d58ca6e941141a0622e538c774"
+  },
+  "rows": [
+    {
+      "seed": 1,
+      "numericSeed": 1,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 2,
+      "numericSeed": 2,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 3,
+      "numericSeed": 3,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 4,
+      "numericSeed": 4,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 5,
+      "numericSeed": 5,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 6,
+      "numericSeed": 6,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 7,
+      "numericSeed": 7,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 8,
+      "numericSeed": 8,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 9,
+      "numericSeed": 9,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 10,
+      "numericSeed": 10,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 11,
+      "numericSeed": 11,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 12,
+      "numericSeed": 12,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 13,
+      "numericSeed": 13,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 14,
+      "numericSeed": 14,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 15,
+      "numericSeed": 15,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 16,
+      "numericSeed": 16,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 17,
+      "numericSeed": 17,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 18,
+      "numericSeed": 18,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 19,
+      "numericSeed": 19,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": 20,
+      "numericSeed": 20,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    },
+    {
+      "seed": "hidden",
+      "numericSeed": 397485015,
+      "passing": 638,
+      "size": 638,
+      "level": 20,
+      "failures": []
+    }
+  ]
+}

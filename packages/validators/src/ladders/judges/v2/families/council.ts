@@ -11,7 +11,9 @@ import { type BankItem, between, fn, item, type JudgesApi, pick, shuffled, type 
 /**
  * The council and its cascade (packages/judges/src/council.ts).
  *
- * Majority, as the bank states it: every vote cast counts toward the total, an inconclusive vote counts for
+ * Default numeric majority needs two agreeing votes among three seated judges, and strictly more support
+ * than the opposing side. Explicit numeric sizes use their seated quorum. With options, every vote cast
+ * counts toward the total, an inconclusive vote counts for
  * no side, and an outcome wins only with more than half of the total weight; otherwise the round splits. A
  * vote weighs 1 unless `weights` gives the judge another weight; a negative or non-finite weight is refused
  * with a RangeError. With `families`, judges of one family are correlated: their votes first collapse into one
@@ -26,7 +28,7 @@ const COMPONENT = 'packages/judges/src/council.ts';
 type Outcome = 'pass' | 'fail' | 'inconclusive';
 type Majority = (
   votes: readonly Vote[],
-  options?: { weights?: Record<string, number>; families?: Record<string, string> },
+  options?: number | { weights?: Record<string, number>; families?: Record<string, string> },
 ) => string;
 
 function votesOf(outcomes: readonly Outcome[]): Vote[] {
@@ -36,8 +38,16 @@ function votesOf(outcomes: readonly Outcome[]): Vote[] {
 /** The bank's majority, written out: the oracle of every majority item. */
 export function bankMajority(
   votes: readonly Vote[],
-  options: { weights?: Record<string, number>; families?: Record<string, string> } = {},
+  options: number | { weights?: Record<string, number>; families?: Record<string, string> } = 3,
 ): string {
+  if (typeof options === 'number') {
+    // Derive from seated quorum, independently of majority(): abstentions supply no support.
+    const support = ['pass', 'fail'].map((side) => votes.filter((vote) => vote.outcome === side).length);
+    const quorum = Math.floor(options / 2) + 1;
+    if ((support[0] ?? 0) >= quorum && (support[0] ?? 0) > (support[1] ?? 0)) return 'pass';
+    if ((support[1] ?? 0) >= quorum && (support[1] ?? 0) > (support[0] ?? 0)) return 'fail';
+    return 'split';
+  }
   for (const weight of Object.values(options.weights ?? {})) {
     if (!Number.isFinite(weight) || weight < 0) return 'refused';
   }
@@ -52,7 +62,7 @@ export function bankMajority(
       groups.set(family, [...(groups.get(family) ?? []), vote]);
     }
     cast = [...groups.values()].map((group) => {
-      const inner = bankMajority(group);
+      const inner = bankMajority(group, {});
       return { outcome: inner === 'split' ? 'inconclusive' : inner, weight: 1 };
     });
   }
@@ -88,7 +98,18 @@ function sizeItem(n: number, tier: Tier): BankItem {
     tier,
     level: 'council',
     component: COMPONENT,
-    generate: (random) => Array.from({ length: 12 }, () => votesOf(composition(random, n))),
+    generate: (random) =>
+      n === 2 || n === 3
+        ? Array.from({ length: 12 }, () => votesOf(composition(random, n)))
+        : [
+            // Force the discriminating boundary and a tie on every seed, then retain seeded compositions.
+            votesOf(Array.from({ length: n }, (_, i) => (i < Math.min(n, 2) ? 'pass' : 'inconclusive'))),
+            votesOf(Array.from({ length: n }, (_, i) => (i < Math.min(n, 2) ? 'fail' : 'inconclusive'))),
+            votesOf(
+              Array.from({ length: n }, (_, i) => (i === 0 ? 'pass' : i === 1 ? 'fail' : 'inconclusive')),
+            ),
+            ...Array.from({ length: 12 }, () => votesOf(composition(random, n))),
+          ],
     oracle: (cases) => cases.map((votes) => bankMajority(votes)),
     observe: (api, cases) => cases.map((votes) => callMajority(api, votes)),
   });
