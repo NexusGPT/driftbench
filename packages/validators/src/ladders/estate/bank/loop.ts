@@ -6,9 +6,17 @@ import {
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
 import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
+import { completionCounterexample } from '../completion';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
 import { type EstateMutant, estateMutants } from '../mutants';
-import { type EstateRun, estateRun, scanRendered } from '../pipeline';
+import {
+  type EstateRun,
+  estateRun,
+  generationRun,
+  replayChecks,
+  replayOnFollower,
+  scanRendered,
+} from '../pipeline';
 import { renderEstate } from '../render';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -197,7 +205,7 @@ export function genCompleteFamily(): Family {
     component: THEN,
     items,
     async evaluate(seed) {
-      const run = await estateRun(seed);
+      const run = await generationRun(seed);
       const all = await specVerdicts(run);
       const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
       const byClass = new Map<string, SpecVerdict[]>();
@@ -214,6 +222,24 @@ export function genCompleteFamily(): Family {
           const reason = verdictOf(verdict);
           return reason ? [`${verdict.spec.record.id}: ${reason}`] : [];
         });
+        if (bad.length === 0)
+          for (const verdict of list) {
+            const head = atoms.get(estateMeta(verdict.spec).atoms?.[0] ?? '');
+            const counter =
+              head &&
+              completionCounterexample(run, verdict.spec.record.testType, head, verdict.spec.record.row);
+            if (counter && verdict.spec.loaded) {
+              const result = await replayOnFollower(
+                run,
+                verdict.spec.loaded,
+                replayChecks(),
+                undefined,
+                counter,
+              );
+              if (result.pass)
+                bad.push(`${verdict.spec.record.id}: accepts a trace without the target capability`);
+            }
+          }
         out.set(`${family}.${keyOf(cls)}`, {
           pass: bad.length === 0,
           detail:

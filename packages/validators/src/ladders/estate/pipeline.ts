@@ -6,6 +6,7 @@ import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@a
 import {
   type CheckSet,
   type LoadedSpec,
+  type Observed,
   parseSpecText,
   type RunResult,
   runSpec,
@@ -251,6 +252,21 @@ export function estateRun(seed: number, profile: Profile = 'visible'): Promise<E
   return run;
 }
 
+/** A generation test needs an executable estate. Keep the broken reference in scan/lint inputs,
+ * and supply its file in this twin without deleting the reference atom or its read requirement. */
+const generationCache = new Map<number, Promise<EstateRun>>();
+export function generationRun(seed: number): Promise<EstateRun> {
+  let run = generationCache.get(seed);
+  if (!run) {
+    const estate = drawEstate(seed);
+    for (const skill of estate.skills) if (skill.missing) skill.referenceSupplied = true;
+    run = runEstate(estate);
+    generationCache.set(seed, run);
+    run.catch(() => generationCache.delete(seed));
+  }
+  return run;
+}
+
 /** The checks of a replay: the configured defaults, ordered pairs and the production estate checks. */
 export function replayChecks(): CheckSet {
   const registry = new CheckRegistry();
@@ -281,13 +297,22 @@ export async function replayOnFollower(
   spec: LoadedSpec,
   checks: CheckSet,
   mutant?: string,
+  counterexample?: (observed: Observed) => void,
 ): Promise<ReplayOutcome> {
-  const session = follow(run.estate, run.situations, asksOf(spec), mutant ? { mutant } : {});
+  const session = follow(run.estate, run.situations, asksOf(spec), {
+    ...(mutant ? { mutant } : {}),
+    events: spec.spec.blocks.map((block) => {
+      const event = block.given?.vars?.event ?? spec.spec.given?.vars?.event;
+      return typeof event === 'string' ? event : undefined;
+    }),
+  });
   const mapped = mapSession({
     transcript: parseJsonl(session.transcript),
     decisions: parseJsonl(session.decisions),
     steps: parseJsonl(session.steps),
+    references: Object.keys(run.rendered.files).map((path) => `**/${path}`),
   });
+  if (counterexample) for (const block of mapped.blocks) counterexample(block.observed);
   const result = await runSpec(spec.spec, {
     adapter: replayAdapter({ session: mapped }),
     driver: createScriptedDriver(),

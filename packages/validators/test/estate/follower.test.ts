@@ -50,7 +50,13 @@ describe('the estate rule follower', { timeout: 120_000 }, () => {
     expect(observed.workspaceDiff).toEqual({ created: [], changed: [skill.topic.target], deleted: [] });
     expect((observed.executions ?? []).map((run) => run.exitCode)).toEqual([0]);
     expect(observed.executions?.[0]?.command).toContain(skill.topic.script.file);
-    expect(observed.runtime?.stages?.map((stage) => stage.name)).toEqual(['plan', 'do', 'verify', 'report']);
+    expect(observed.runtime?.stages?.map((stage) => stage.name)).toEqual([
+      'plan',
+      'do',
+      'note',
+      'verify',
+      'report',
+    ]);
     expect(observed.text).toContain('Next:');
     expect(observed.text).toContain(skill.topic.register.word);
     expect(observed.text).not.toMatch(/obviously|simply/);
@@ -111,11 +117,13 @@ describe('the estate rule follower', { timeout: 120_000 }, () => {
     expect(without('stage:verify')?.runtime?.stages?.map((stage) => stage.name)).toEqual([
       'plan',
       'do',
+      'note',
       'report',
     ]);
     expect(without('rule:verify-before-report')?.runtime?.stages?.map((stage) => stage.name)).toEqual([
       'plan',
       'do',
+      'note',
       'report',
       'verify',
     ]);
