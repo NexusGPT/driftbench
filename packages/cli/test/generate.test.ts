@@ -113,7 +113,7 @@ describe('driftbench generate', () => {
     const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'], dir);
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
-    expect(first.out.split('\n')[0]).toMatch(/^Actual axis-map coverage .*pairs 688 of 701 \(98\.1%\)/);
+    expect(first.out.split('\n')[0]).toMatch(/^Actual axis-map coverage .*pairs 701 of 701 \(100\.0%\)/);
     expect(first.out.split('\n')[1]).toContain('Candidate t-wise array');
     expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
     expect(first.out).toContain(
@@ -125,7 +125,7 @@ describe('driftbench generate', () => {
     );
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(291);
+    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(303);
 
     const refused = await run(
       ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'],
