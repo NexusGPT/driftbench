@@ -65,7 +65,7 @@ def main():
     c=cells['cheaters'];fees=cells['fees']
     lines += ['',f"Constant pass / fail: official {pct(c['alwaysPassOfficial'])} / {pct(c['alwaysFailOfficial'])}; audited {pct(c['alwaysPassAudited'])} / {pct(c['alwaysFailAudited'])}.",
       'Mutation checks cover planted arithmetic truth only. Thresholds: preserve at least 95%, flip at least 90%, no injection changes or missing verdicts.',
-      'Noise uses 30 DEV items in three separate recording namespaces. Missing answers are reported separately in evidence/cells.json.',
+      'Noise uses 30 DEV items in three separate recording namespaces. A transition to or from a missing verdict counts as a change; missing counts are also reported in evidence/cells.json.',
       'Cost per 100 uses unique prompt keys; actual provider fees include any duplicate paid calls. Replayed logical-call costs are separate.',
       f"Settled fees: {money(fees['settledUsd'])} USD. Unresolved-charge maximum: {money(fees['unresolvedMaximumUsd'])} USD. Total accounted maximum: {money(fees['maximumAccountedUsd'])} USD, cap {fees['capUsd']:g} USD.",
       'Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay cost is excluded from new spend.','',
