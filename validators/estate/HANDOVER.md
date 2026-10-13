@@ -268,3 +268,56 @@ Sources: packages/validators/src/ladders/estate/{pipeline.ts,follower.ts,situati
 
 - f263fd3ef: match skill folder moves through a unique declared name. Rename regression red first, then 4/4; existing diff 10/10; maintain.impact 33/33. The validator planted-rename regression also passes.
 - Gate ordering now binds a named Read to its file and an unqualified read-before-edit gate to the edited file. Saved regression red first, then 3/3; then 34/34; generate 32/32. mutant.agent 38/44, up from 37/44. Full sweep pending.
+
+### v4 remaining generation quality rulings
+
+Measured by focused runs at 778b3a04d. Guard task wording was a product gap: the positive and hostile asks now request concrete violations, derived from rule content. gen.task is 19/23; gen.asks is 23/24; gen.coverage is 20/25.
+
+| Item | Evidence | Ruling needed |
+|---|---|---|
+| gen.asks.asks-approved | loop.ts compares every first ask with the approved phrase set, including 23 specs tagged ask:code. Five are neutral outside controls; eighteen are forced guard tasks. Section 5 explicitly allows tagged code fallback by default. | Respect fallback provenance, or run this item with --no-fallback. |
+| gen.task.obligation | Four asks use the documented asked-about conversion: Please help me with a delivery, a tracking number or a late shipment. TASK_VERBS excludes help. | Judge the task semantically or include the documented construction. |
+| gen.task.twin | The selected approved phrase is the literal stop. Section 5 expressly permits the user's stop trigger for a prompt guard, and approved phrases win. | Accept the prompt-guard exception; do not rewrite an approved phrase in product code. |
+| gen.task.tool_boundary | The two asks say use the Glob/Read tool on the files here. The tool and target are present; TASK_VERBS excludes use. | Decide whether a tool-use task is valid; the verb list alone is no task-semantics test. |
+| gen.task.hazard_recovery | Both asks request recovery from the declared compaction/new-session event. TASK_VERBS excludes recover. | Define whether the documented recovery test needs a separate work task and, if so, provide its situation. |
+| gen.coverage.one-per-gate | Two gates lack complete specs: git status before commit has no approved work task; matching any line has no observable ending act. Rule-title fallback is forbidden by section 5. | Supply a task and an observable ending act. |
+| gen.coverage.one-per-reference | Six references have no suitable task/situation, including the currency table conditional on non-EUR invoices and the deliberately missing KPI definitions document. | Supply legitimate conditions and existing files; do not turn a EUR task into a non-EUR read. |
+| gen.coverage.one-per-tool | The only uncovered tool is ask Bash(git commit). Section 5 keeps ask permission as a gap. | Define the permission-prompt trace/check contract, also needed by gen.complete. |
+| gen.coverage.needs-ordered-anchor | Nine specs need an anchor for matching any line. then.test.ts explicitly preserves this gap for prose with no observable act. | Name the observable act, or accept the documented gap. |
+| gen.coverage.needs-recorded-session | Six guard replay rows have no recorded session in the supplied index. | Supply real recordings of those situations, or accept the explicit missing-session result. |
+
+### v4 remaining agent mutant rulings
+
+Focused mutant.agent is 38/44 after the gate fix. Each row below is one failing bank item, even where the item groups several atoms.
+
+| Item suffix under mutant.agent | Evidence | Ruling needed |
+|---|---|---|
+| gate | The menu gate now dies. The repair-ticket skill gate lives because the standing gate independently reads the same closing-rules file before Edit. | Classify the deletion's equivalence in this follower, or plant independent prerequisites. |
+| gate-fixed-gate | Removing the standing repair-ticket gate leaves the skill gate's identical prerequisite read intact. | Same duplicate-prerequisite issue. |
+| instruction-no-force-push | All 15 selected tests use generic menu tasks. situations.ts includes the standing instruction on those tasks; first matching picks them ahead of push-branch. None requests a push. | Give the instruction a discriminating task; retain documented situation selection. |
+| reference-skill | One reference is deliberately absent; the closing-rules reference is also supplied by the standing gate. | Resolve the absent-file and duplicate-prerequisite cases. |
+| reference-standing | The skill gate still reads the same closing-rules path after deletion of the standing reference. | Classify the equivalent read behavior or separate the planted prerequisites. |
+| tool-deny-bare | No offered-tools metadata reaches replayOnFollower, so the original cannot prove the WebFetch exclusion. | Supply offered-tool metadata; absence of calls is weaker evidence. |
+
+### v4 remaining fake-runtime rulings
+
+The isolated baseline at 59f4b083b reports the following 21 failures. The fake-runtime source was read again at 778b3a04d. The earlier reproduction details above still apply. No recorded stream or per-mutant case was added. All item names in this table have the prefix kill.fake.
+
+| Items | Evidence and requested ruling |
+|---|---|
+| delete-instruction-1, delete-instruction-2, invert-instruction-1 | No spec is green on the original: runOnFake supplies no judge for judged criteria. Supplying the generic fake judge makes both original and mutant pass. Provide a meaningful judge contract and wire it, or exclude unsupported judged kills. |
+| delete-guard-1, delete-register-2, delete-hazard-1, delete-hazard-2 | The original requires session/hazard state; runOnFake supplies no --states. Provide the declared states to the runner. |
+| delete-gate-1, invert-gate-1 | No complete live spec: matching any line is a prose endpoint. Resolve the ordered-anchor ruling above. |
+| delete-reference-1 | No complete live spec: the currency-table condition lacks an approved non-EUR situation. Provide that condition in the bank. |
+| delete-script-1, delete-script-2 | The selected recorded streams omit the scripts, so the original fails its correctly generated script journey. Decide whether these tasks should use the estate-derived fake instead of those recordings. |
+| delete-reference-2 | The selected invoice-match recording reads matching-rules on both copies. The fake chooses recordings by ask before consulting its estate-derived agent. Decide how recorded tasks participate in mutation measurement. |
+| delete-gate-2 | The fake walks its declared step list, including verify then report, independently of the deleted prose gate. This behavior is equivalent for the tested trace. Decide whether to count that deletion as killable. |
+| delete-route-2 | The standing routing table and the skill's trigger description still route the same task after the duplicate skill route is removed. Decide whether this deletion is equivalent. |
+| delete-subagent-1, delete-subagent-2 | The recorded/derived dispatch is still allowed to name the helper; the trace remains green after its file is removed. Decide whether the fake should execute helper bodies or the item should cover only observable dispatch changes. |
+| delete-tool-1 | The setting still allows Bash(python3 *) after the skill's declared Bash tool is removed. The trace is honestly green on both copies. Decide whether this permission deletion is equivalent. |
+| delete-tool-2 | The invoice skill never edits amounts or other files, so declared Edit has no observed call on the original. Provide a task that actually exercises the declared tool. |
+| delete-register-1, invert-register-1 | The recorded invoice answer retains its closing line on both copies. Decide how recorded replies can demonstrate a changed output rule without hand-authored mutant responses. |
+
+### v4 scale measurement needing a ruling
+
+The baseline passes 15/20 scale items. plan-1000 takes 46064 ms against a 6000 ms budget; plan-2500 and plan-5000 are not run after that failure. generate-2500 is killed at 75015 ms against a 15000 ms budget; generate-5000 is not run after it. These are wall-clock results on the owner's heavily loaded host, not proof of an algorithmic cause. Repeat the five items on an uncongested runner before deciding a product performance fix or changing any timing contract. The executor does not change budgets or validator tests.
