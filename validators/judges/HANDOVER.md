@@ -7,27 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 4 |
-| 2 | 4 |
-| 3 | 4 |
-| 4 | 4 |
-| 5 | 4 |
-| 6 | 4 |
-| 7 | 4 |
-| 8 | 4 |
-| 9 | 4 |
-| 10 | 4 |
-| 11 | 4 |
-| 12 | 4 |
-| 13 | 4 |
-| 14 | 4 |
-| 15 | 4 |
-| 16 | 4 |
-| 17 | 4 |
-| 18 | 4 |
-| 19 | 4 |
-| 20 | 4 |
-| hidden | 4 |
+| 1 | 20 |
+| 2 | 20 |
+| 3 | 20 |
+| 4 | 20 |
+| 5 | 20 |
+| 6 | 20 |
+| 7 | 20 |
+| 8 | 20 |
+| 9 | 20 |
+| 10 | 20 |
+| 11 | 20 |
+| 12 | 20 |
+| 13 | 20 |
+| 14 | 20 |
+| 15 | 20 |
+| 16 | 20 |
+| 17 | 20 |
+| 18 | 20 |
+| 19 | 20 |
+| 20 | 20 |
+| hidden | 20 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
@@ -152,6 +152,7 @@ The `coverage_before_offer` criterion was ambiguous: its rubric said "a coverage
 
 Iteration 135 (cause: ambiguous x5 rubric, see HANDOVER)
 Iteration 136 (main merged PR 167 without its race fix and without my Gemini schema; both reapplied. googleSchema now also turns a null member of a multi-member anyOf (146's evidence spans) into nullable.)
+Iteration 137 (the evidence field is now anyOf string or spans (PR 146); the item expects nullable true with a string member)
 
 ## Next actions
 
