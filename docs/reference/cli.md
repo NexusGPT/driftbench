@@ -1586,3 +1586,13 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 ## `driftbench campaign run --cache-suite`
 
 `--cache-suite <name>` names the cache suite of a campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without the flag, the keys are the ones earlier caches used.
+
+### `campaign rejudge`
+
+```sh
+driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --store <file> --change <criterion-manifest> --judge claude:<model> [--judge-command <path>] [--judge-budget <usd>] [--max-carry <n>] [--max-age <days>] [--json]
+```
+
+Re-judge selected criteria using compatible stored observations, without calling an agent.
+The manifest's agent versions must be identical. Full compatibility requirements, refusal
+cases and an executed Acme example are in [blast radius](../concepts/blast-radius.md#re-judge-a-criterion).

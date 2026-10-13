@@ -4,6 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+- Add opt-in `campaign rejudge` with observation compatibility proofs, selected criterion verdicts, judge cost accounting and scorecard provenance.
 - Record optional execution provenance for new campaigns, retaining legacy store compatibility and rerunning unstamped blast-radius baselines in full.
 
 * Opt-in answer audit in the judges package: `judgeAnswerAudit`, or `assessment: { kind: 'answer-audit' }`, grades a submission against a criterion and an optional trusted reference. The request is role-separated JSON; the model settles each condition with a quote before its status and code computes the outcome. It has its own prompt fingerprint; default and legacy prompts and cassette keys are unchanged.

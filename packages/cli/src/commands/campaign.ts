@@ -77,6 +77,7 @@ import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { noStoreAt } from '../store-path';
 import { campaignProvenance } from './campaign-provenance';
+import { registerCampaignRejudge } from './campaign-rejudge';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
@@ -311,6 +312,7 @@ export function registerCampaignCommands(
   const campaign = program
     .command('campaign')
     .description('Plan and run campaigns: specs x targets x modes x repeats.');
+  registerCampaignRejudge(campaign, io, setExit);
 
   campaign
     .command('plan')
