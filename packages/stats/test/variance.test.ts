@@ -201,3 +201,40 @@ describe('neymanAllocation at scale', () => {
     expect(r.allocated.reduce((a, b) => a + b, 0)).toBe(1_000_000);
   });
 });
+
+describe('varianceComponents on constant and binary data', () => {
+  const rowsOf = (values: boolean[]) =>
+    values.map((value, i) => ({ value, path: [String(i % 2), String(i % 4), String(i % 8)] }));
+  it('gives exactly 0 for every component when all values are equal', () => {
+    for (const v of [true, false]) {
+      const r = varianceComponents(rowsOf(Array.from({ length: 24 }, () => v)));
+      for (const c of r.components) expect(c.estimate).toBe(0);
+    }
+  });
+  it('gives exactly 0 for the repeat component when the repeats of each wording agree', () => {
+    const grid = [
+      [
+        [true, true, true],
+        [true, true, true],
+        [true, true, true],
+      ],
+      [
+        [false, false, false],
+        [true, false, true],
+        [true, true, true],
+      ],
+    ];
+    const obs = grid.flatMap((cell, c) =>
+      cell.flatMap((conv, v) =>
+        conv.flatMap((pass, w) =>
+          [0, 1, 2, 3, 4].map(() => ({ value: pass, path: [`cell-${c}`, `conv-${c}-${v}`, String(w)] })),
+        ),
+      ),
+    );
+    const r = varianceComponents(obs);
+    for (const c of r.components.slice(-1)) {
+      expect(c.estimate).toBe(0);
+      expect(c.variance).toBe(0);
+    }
+  });
+});

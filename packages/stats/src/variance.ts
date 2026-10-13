@@ -88,8 +88,9 @@ export function varianceComponents(
       throw new RangeError(`varianceComponents: observations[${i}].value must be finite, got ${raw[i]}`);
   });
 
-  // Center on the grand mean first: the sums of squares below lose their digits on values with a large offset.
-  const center = raw.reduce((t, y) => t + y, 0) / N;
+  // Shift by the first value: the variances do not depend on the shift, the differences of nearby values are exact,
+  // so a large common offset costs no digits and equal values give exact zeros (a grand mean would not).
+  const center = raw[0] as number;
   const ys = raw.map((y) => y - center);
 
   // Group sizes and sums per level; level 0 is the grand group.
