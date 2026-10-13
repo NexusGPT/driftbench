@@ -71,10 +71,12 @@ function readEstate(cwd) {
     for (const file of readdirSync(agentsDir).sort()) {
       if (!file.endsWith('.md')) continue;
       const { fields, body } = frontmatter(read(join(agentsDir, file)) ?? '');
+      // Project helper files require both fields; unnamed files are adjacent documentation.
+      if (!fields.name || !fields.description) continue;
       helpers.push({
         kind: 'helper',
-        name: fields.name || file.replace(/\.md$/, ''),
-        description: fields.description ?? '',
+        name: fields.name,
+        description: fields.description,
         body,
       });
     }
