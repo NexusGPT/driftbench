@@ -1,12 +1,12 @@
 {
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
   "poolSha256": "489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236",
-  "coreFreeze": "824ef6880bee16f7f9a6025ccb63bc828e6ea7e0ffcc705a3b46ab4b0ae8e29a",
-  "totalCalls": 1931,
-  "receivedCalls": 1921,
+  "coreFreeze": "de1533e9d906b8a617798142863a2a2784ca454e1502c79160bec2387346abd6",
+  "totalCalls": 2282,
+  "receivedCalls": 2272,
   "interruptedCalls": 10,
   "interruptionReserveUsd": 0.45450825,
-  "measuredUsd": 1.5098832600000005,
+  "measuredUsd": 1.5989382700000003,
   "unresolvedCalls": 0,
   "reservedUsd": 0,
   "cells": [
@@ -76,8 +76,8 @@
       "fixtureEarning": {
         "livebench": {
           "expected": 18,
-          "measured": 0,
-          "correct": 0,
+          "measured": 8,
+          "correct": 5,
           "kappa": null,
           "earned": false,
           "status": "PENDING"
@@ -6131,8 +6131,8 @@
       "fixtureEarning": {
         "livebench": {
           "expected": 18,
-          "measured": 0,
-          "correct": 0,
+          "measured": 5,
+          "correct": 2,
           "kappa": null,
           "earned": false,
           "status": "PENDING"

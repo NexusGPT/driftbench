@@ -100,3 +100,11 @@ side by side. `parallel-remaining.mjs` uses one shared budget journal, preserves
 sealed order within each model, and gates TEST on that model's preparation.
 One process owns paid calls; the maximum across all three models is twelve.
 Prior operational freezes and crash receipts remain in `freezes/` and `results/`.
+
+HTTP 402 pauses the provider immediately, with no retry and no judge decision.
+Only a proven prepayment rejection releases its cost hold. Other unknown costs
+remain reserved. Gemini is paused until the owner confirms a top-up. The saved
+successful responses stay authoritative; any resumed work fills missing requests
+only. `results/billing-reconciliation/` preserves original receipts and decisions
+from the pre-amendment 402 wave, plus every corrected receipt and quarantined key.
+These billing failures are excluded from judge errors and measured decisions.

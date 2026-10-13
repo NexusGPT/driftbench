@@ -1,6 +1,6 @@
 {
-  "version": 5,
-  "createdAt": "2026-10-13T09:28:00.686321+00:00",
+  "version": 6,
+  "createdAt": "2026-10-13T09:41:37.610180+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
@@ -55,13 +55,13 @@
   "hashes": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
     "examples/ledger-jb/src/core-adapter.mjs": "ca4bb42eba778c3489fd4ef337d6482d570cf7d4acc552158159cad7add7381d",
-    "examples/ledger-jb/src/harness.mjs": "2436d4b2135d1917f19ab45a1c33d77124e8175104a306ac94600390e7b9fd8f",
+    "examples/ledger-jb/src/harness.mjs": "9105b96f6240035500bd961e4e3987261957b109fdb19c8fef92dc95d7a17693",
     "examples/ledger-jb/src/report.mjs": "ec0190720961f830863036c8fb5f9d5f6ff5e3c8abc63450ca4f75d51deac368",
     "examples/ledger-jb/src/run.mjs": "0db131e49fa0b1f1bdc8bad88665c52708d3eabe2b77f0fb83a0f3cf88867070",
     "examples/ledger-jb/src/seal.py": "67996a4242a2856364eb193f3912708848c41a29972979941f0fcbe0a05ec706",
     "examples/ledger-jb/src/statistics.mjs": "898081d2408c2045ac9efe3d3b550ff6b45cacb2493f192d96b2328175e9db6f",
     "examples/ledger-jb/test/core-adapter.test.mjs": "8397d704df9a49e8e902a6adfe48b220983a0c4a523b63523ab3656ef07a1181",
-    "examples/ledger-jb/test/harness.test.mjs": "517e406d636210cadc72a5eb3fe4610419754a672cac3430a1ef8daa93645074",
+    "examples/ledger-jb/test/harness.test.mjs": "dfa18d4b8ef9530af004f740d2df4f393d4565f687d12875e7e1412cf80d8836",
     "examples/ledger-jb/test/statistics.test.mjs": "5e150346ca3a38310b2f7f59b267fee4c52cccab239fbdc15f746cb0bd6d1e53",
     "packages/checks/src/checks/artifacts.ts": "92958e17bd8b47cca97eebe1641c56241d59a73f7b7f39feaa84e9584d00fad1",
     "packages/checks/src/checks/budget.ts": "b63238ecb106d9c9e68a4116c9f3a04dda9c5f7f2ab41a6e7710c0a714b6ceef",
@@ -157,20 +157,21 @@
     "examples/ledger-jb/data/validity-seal.json": "045f7282e15a35d2fee0384b79c7db78d76fc90c5ab52336fba2e70fe36b3f14",
     "examples/ledger-jb/data/validity.json": "1b1412dfbecdc614529a3381027c7df7987e4320da2db8da56b6e7c9743dea13",
     "examples/ledger-jb/data/promptfoo-select-best.txt": "f5d991e93bb0f5fefba9eb241f0feddae57276f8196f3c4e53137b5f4177562c",
-    "examples/ledger-jb/README.md": "67a558f10b8796ea1463c109a39db477af8eeca3545f1c79739c5156050fe535",
+    "examples/ledger-jb/README.md": "927bb8131ed2ea07ecaf4618208cc2ffe47b468f1fb75e09008c644e3c127a3e",
     "pnpm-lock.yaml": "f7178145e417f8f11e28bc7cf1943db901077492226de4d172bd49994e213e04",
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
     "examples/ledger-jb/run-driver.py": "162639c760a66ee0483b0ccd2bf0ea30154bb53f073530c2917bce9c1e97060c",
     "examples/ledger-jb/summarize-reasks.mjs": "e1b1378d21912b6899bc181904442cb74a2b568493f67d3ecadd98f61998c482",
-    "examples/ledger-jb/parallel-remaining.mjs": "78bb3f5ffa7a669044df25e5ae487478e82ae0f76ec33c5381973398f7b94b62",
+    "examples/ledger-jb/parallel-remaining.mjs": "7960b852980ed692f09e16dec0b17b6eacc8bc4e3d91db7335729a81e5dbfbf9",
     "examples/ledger-jb/test/parallel.test.mjs": "6a9d8bde15c3ee26f13a92f5eced537d64dd059a94500ec96d5eee34680ed4e8",
-    "examples/ledger-jb/audit-results.py": "ed82274f2007400c14e7027d22f89d40327946afd81912a0baba8f8ca3e02c4b",
-    "examples/ledger-jb/write-dossier.py": "12bdc10f5887b25625127d35ab102b5a08c98da22ec0dd066d25ddd82240ab33"
+    "examples/ledger-jb/audit-results.py": "70de98e4d8b33722acad0583bac785934f1cf5260cac092ed104a3fbb0c55cf9",
+    "examples/ledger-jb/write-dossier.py": "9f5b1b29d34537911e1f6e8f4a0dc97a7128870dc0fc9970afaf3b3767a333f2",
+    "examples/ledger-jb/reconcile-billing.py": "c199ac726b15bac0980cc37d4980fb54c2c51f43c3ba8b220c11a009787a839b"
   },
   "amendment": {
-    "previousFreezeSha256": "8155e7ad58a9aa795ede81389e104177f181c2a9016b6ffba71ae59815e035d8",
-    "reason": "Owner pacing amendment: per-model limits, all three side by side; Luna 8 plain HTTP, Gemini 2 with 429 waits, Haiku 2. Sealed order, cap and contract unchanged.",
-    "boundary": "The already active Luna phase finishes all 270 matched pairs with zero unresolved calls before the scheduler handoff. No returned answer is repeated.",
+    "previousFreezeSha256": "824ef6880bee16f7f9a6025ccb63bc828e6ea7e0ffcc705a3b46ab4b0ae8e29a",
+    "reason": "Owner HTTP 402 policy: stop Gemini, no retry, no judge error; release only proven rejection holds. Finish Haiku fully. Gemini resumes missing-only after owner top-up.",
+    "boundary": "Zero unresolved calls after PID 11653 budget stop. Original receipts and 159 contaminated decisions archived; 318 proven 402 holds released.",
     "core": "Unchanged 35f07309; model, reasoning, request, schema, score and sealed inputs unchanged."
   },
   "cacheIdentityModels": {
@@ -213,12 +214,16 @@
     "quotaExhaustion": "Pause the cell without a judge failure after three 429 waits. Quota attempts are separate from non-quota transport attempts.",
     "retryOnly": "No-answer network and retryable HTTP failures. Never retry returned content in the transport wrapper.",
     "schemaReask": "PR 168 single schema re-ask retained after malformed JSON. Exhausted no-answer transport failures cannot trigger additional core re-ask calls.",
-    "costPolicy": "Every attempt retains measured cost or its conservative reservation."
+    "costPolicy": "Measured usage or conservative reservation per attempt, except proven rejected prepayment requests release the hold.",
+    "billingExhaustion": "HTTP 402 immediately pauses the model, with no retry or judge decision. Proven prepayment rejection costs zero; other unknown holds remain reserved."
   },
   "modelConcurrency": {
     "gpt-6-luna": 8,
     "claude-haiku-5-5": 2,
     "gemini-3.8-flash": 2
   },
-  "runtimeEntrypoint": "examples/ledger-jb/parallel-remaining.mjs"
+  "runtimeEntrypoint": "examples/ledger-jb/parallel-remaining.mjs",
+  "pausedModels": {
+    "gemini-3.8-flash": "Owner reports depleted prepayment credits. No calls until explicit top-up; resume missing-only."
+  }
 }

@@ -46,6 +46,10 @@ for row in calls:
         liability += row['costUsd'] - starts[key]['reserveUsd']
         if row.get('status') == 429:
             assert row.get('quotaResponse') and not row.get('graderError'), ('quota_as_judge_failure', key)
+        if row.get('status') == 402:
+            assert row.get('billingResponse') and not row.get('graderError'), ('billing_as_judge_failure', key)
+            if row.get('billingRejected'):
+                assert row['costUsd'] == 0 and not row.get('costEstimated'), ('rejected_call_hold', key)
     max_liability = max(max_liability, liability)
 assert max_current_active <= sum(freeze['modelConcurrency'].values())
 for model, limit in freeze['modelConcurrency'].items():
@@ -65,6 +69,7 @@ for model in MODELS:
         assert set(keys) <= expected, ('unexpected_decision', phase, model)
         by_id = {item['id']: item for item in inputs[phase]}
         for row in rows:
+            assert not any(x.get('status') == 402 and x['key'].startswith(row['key'] + ':') for x in finishes.values()), ('billing_rejection_in_decision', row['key'])
             assert row['label'] == by_id[row['itemId']]['label'], ('label_mismatch', row['key'])
             assert len(row['games']) == 2 and all(game in ['A', 'B', 'tie', None] for game in row['games'])
         receipts = [x for x in finishes.values() if x['model'] == model and x['phase'] == phase]
@@ -97,6 +102,7 @@ for model in MODELS:
                          'schemaReaskPreviousResponse': dict(reask_reasons),
                          'transportRetryAttempts': sum(x.get('transportAttempt', 1) > 1 for x in initiated),
                          'quotaResponses': sum(x.get('status') == 429 for x in receipts),
+                         'billingRejections': sum(x.get('status') == 402 for x in receipts),
                          'decisionGraderErrors': sum(x.get('graderErrors', 0) for x in rows),
                          'transportSuppressedCoreReasks': sum(x.get('transportExhaustedReasksSuppressed', 0) for x in ledger),
                          'schemaReasksSuppressed': sum(x.get('suppressedReasks', 0) for x in ledger),

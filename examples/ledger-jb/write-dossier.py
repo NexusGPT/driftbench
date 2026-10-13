@@ -27,6 +27,9 @@ reasks = read('reask-counts.json')
 driver = read('driver-state.json')
 head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
 status = 'All sealed measurements complete' if audit['allExpectedDecisionsComplete'] else f"Measurements in progress; driver status {driver['status']}"
+if driver.get('pausedModels') or driver.get('models', {}).get('gemini-3.8-flash', {}).get('status') == 'paused-billing':
+    finished = all(audit['models'][model]['test']['complete'] for model in ['gpt-6-luna', 'claude-haiku-5-5'])
+    status = ('Luna and Haiku complete; ' if finished else 'Haiku in progress; Luna complete; ') + 'Gemini paused pending owner top-up'
 text = TARGET.read_text()
 lines = text.splitlines()
 lines[2] = f"Status: {status}. Receipt audit: {audit['asOf']}. Source checkpoint: {head}."
@@ -73,7 +76,8 @@ for model, phases in audit['models'].items():
     out.append(f"| {model} | {test['schemaReasks']} / {test['ledgerPhysicalReads']} | {total('schemaReasks')} | {nonempty} / {empty} | {total('transportRetryAttempts')} | {total('quotaResponses')} | {test['decisionGraderErrors']} |")
 out += ['', 'Re-asks are one extra core read after parser failure. Their denominator includes canonical reads and re-asks.',
         'The empty-response pilot re-asks include crash recovery; they are separated from malformed nonempty model content.',
-        'Transport retries have separate attempt keys and apply only to no-answer failures. HTTP 429 never becomes a saved judge failure.',
+        'Transport retries have separate attempt keys and apply only to no-answer failures. HTTP 429 and 402 never become saved judge failures.',
+        f"HTTP 402 receipts retained as billing rejections: {sum(x['billingRejections'] for m in audit['models'].values() for x in m.values())}. Their affected decisions are missing until top-up.",
         f"Suppressed malformed-content schema re-asks across saved decisions: {sum(x['schemaReasksSuppressed'] for m in audit['models'].values() for x in m.values())}.", '',
         '## Cheaters', '', '| Strategy | GPT dev | Claude test pool |', '|---|---|---|']
 cheaters = cells['cells'][0]['cheaters']

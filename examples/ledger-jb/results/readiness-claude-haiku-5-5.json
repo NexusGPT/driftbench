@@ -1,6 +1,6 @@
 {
   "model": "claude-haiku-5-5",
-  "freezeSha256": "824ef6880bee16f7f9a6025ccb63bc828e6ea7e0ffcc705a3b46ab4b0ae8e29a",
+  "freezeSha256": "de1533e9d906b8a617798142863a2a2784ca454e1502c79160bec2387346abd6",
   "pilotComplete": true,
   "noiseComplete": false,
   "fixturesComplete": false,
@@ -87,8 +87,8 @@
   "fixtureEarning": {
     "livebench": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
+      "measured": 8,
+      "correct": 5,
       "kappa": null,
       "earned": false,
       "status": "PENDING"

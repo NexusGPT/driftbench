@@ -92,3 +92,30 @@ test('a successful quota retry returns exactly one answer and preserves accounti
   assert.equal(response.text,'0');assert.equal(calls,2);assert.deepEqual(waits,[60000]);
   assert.ok(Math.abs(journal.liability()-.101)<1e-9);
 });
+
+test('402 stops that model immediately, releases proven rejection, and persists across restart',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-billing-')),'calls.jsonl');
+  const journal=new Journal(path);let calls=0;const waits=[];
+  const reject=async()=>{calls++;throw Object.assign(new Error('Your prepayment credits are depleted.'),{code:'http',status:402,retryable:true});};
+  await assert.rejects(journal.transportCall('first',.1,reject,{model:'gemini'},{sleep:async ms=>waits.push(ms)}),/BILLING_STOP/);
+  await assert.rejects(journal.transportCall('next',.1,reject,{model:'gemini'}),/BILLING_STOP/);
+  await assert.rejects(new Journal(path).transportCall('restart',.1,reject,{model:'gemini'}),/BILLING_STOP/);
+  assert.equal(calls,1);assert.deepEqual(waits,[]);assert.equal(journal.liability(),0);
+  assert.equal(journal.finishes.get('first').graderError,false);
+  assert.equal(journal.finishes.get('first').billingRejected,true);
+  assert.equal((await journal.transportCall('haiku',.1,async()=>({text:'0',costUsd:.01}),{model:'haiku'})).text,'0');
+});
+
+test('unexplained 402 stops without releasing an unproven cost hold',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-billing-')),'calls.jsonl');const journal=new Journal(path);
+  await assert.rejects(journal.transportCall('first',.1,async()=>{throw Object.assign(new Error('Payment required'),{code:'http',status:402});},{model:'gemini'}),/BILLING_STOP/);
+  assert.equal(journal.liability(),.1);assert.equal(journal.finishes.get('first').graderError,false);
+});
+
+test('402 in a sibling call prevents a waiting 429 call from retrying',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-billing-')),'calls.jsonl');const journal=new Journal(path);let calls=0;
+  await assert.rejects(journal.transportCall('quota',.1,async()=>{calls++;throw Object.assign(new Error('quota'),{code:'http',status:429,retryable:true});},{model:'gemini'},{sleep:async()=>{
+    await assert.rejects(journal.transportCall('billing',.1,async()=>{throw Object.assign(new Error('prepayment credits are depleted'),{code:'http',status:402});},{model:'gemini'}),/BILLING_STOP/);
+  }}),/BILLING_STOP/);
+  assert.equal(calls,1);assert.equal(journal.liability(),.1);
+});

@@ -1,7 +1,12 @@
 {
-  "pid": 47292,
-  "at": "2026-10-13T08:39:01.324574+00:00",
+  "pid": 11653,
+  "at": "2026-10-13T09:28:56.406264+00:00",
   "detached": true,
-  "target": "sealed JudgeBench preparation and all three 270-pair test cells",
-  "stop": "completion, registered gate failure, cap or frozen last-call cutoff"
+  "target": "remaining sealed JudgeBench phases on all models, side by side",
+  "limits": {
+    "gpt-6-luna": 8,
+    "claude-haiku-5-5": 2,
+    "gemini-3.8-flash": 2
+  },
+  "stop": "completion, gate, error, cap or cutoff"
 }

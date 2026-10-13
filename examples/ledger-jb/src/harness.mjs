@@ -81,6 +81,7 @@ export class Journal {
       target.set(row.key, row);
     }
     for (const key of this.finishes.keys()) if (!this.starts.has(key)) throw new Error(`Finish without start: ${key}`);
+    this.billingPausedModels = new Set([...this.finishes.values()].filter(row => row.status === 402).map(row => row.model));
   }
   liability() {
     return [...this.starts.values()].reduce((sum, row) => sum + (this.finishes.get(row.key)?.costUsd ?? row.reserveUsd), 0);
@@ -90,6 +91,7 @@ export class Journal {
     if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 3) throw new Error('At most three transport attempts');
     let nonQuotaAttempts=0, quotaRetries=0;
     for (let transportAttempt = 1; transportAttempt <= maxAttempts + quotaBackoffMs.length; transportAttempt++) {
+      if (this.billingPausedModels.has(metadata?.model)) throw new Error('BILLING_STOP: model paused after HTTP 402; owner top-up required');
       const attemptKey = transportAttempt === 1 ? key : `${key}:transport:${transportAttempt}`;
       const response = await this.call(attemptKey, reserveUsd, async () => {
         try {
@@ -99,14 +101,22 @@ export class Journal {
             { ...value, costUsd: reserveUsd, costEstimated: true, costNote: 'Returned answer lacks usage; full reservation retained.' };
         } catch (error) {
           if (!['network', 'http', 'bad_response'].includes(error.code)) throw error;
+          const billingResponse = error.code === 'http' && error.status === 402;
+          const provenBillingRejection = billingResponse && /prepayment credits are depleted/i.test(error.message);
+          if (billingResponse) this.billingPausedModels.add(metadata?.model);
           const retryable = error.code === 'network' || (error.code === 'http' && error.retryable === true);
-          return { text: '', rawProvider: error.raw ?? null, graderError: error.status !== 429, transportFailure: true, quotaResponse: error.status === 429,
-            retryable, returnedAnswer: error.code === 'bad_response', errorCode: error.code, status: error.status ?? null,
+          return { text: '', rawProvider: error.raw ?? null, graderError: error.status !== 429 && !billingResponse, transportFailure: true, quotaResponse: error.status === 429,
+            billingResponse, billingRejected: provenBillingRejection,
+            retryable: retryable && !billingResponse, returnedAnswer: error.code === 'bad_response', errorCode: error.code, status: error.status ?? null,
             error: error.message, retryAfterMs: error.retryAfterMs ?? null,
-            costUsd: Number.isFinite(error.costUsd) ? error.costUsd : reserveUsd,
-            costEstimated: !Number.isFinite(error.costUsd), usage: error.usage ?? null };
+            costUsd: provenBillingRejection ? 0 : Number.isFinite(error.costUsd) ? error.costUsd : reserveUsd,
+            costEstimated: !provenBillingRejection && !Number.isFinite(error.costUsd), usage: error.usage ?? null };
         }
       }, { ...metadata, transportAttempt });
+      if (response.status === 402) {
+        this.billingPausedModels.add(metadata?.model);
+        throw new Error('BILLING_STOP: HTTP 402; no retry or judge decision, owner top-up required');
+      }
       if (response.status === 429) {
         if (quotaRetries >= quotaBackoffMs.length) throw new Error('QUOTA_STOP: three quota waits exhausted; no judge decision is recorded');
         await sleep(quotaBackoffMs[quotaRetries++]);

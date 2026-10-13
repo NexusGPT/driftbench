@@ -43,9 +43,10 @@ async function main(){
   if(!freeze.hashes['examples/ledger-jb/parallel-remaining.mjs'])throw new Error('Parallel scheduler is not frozen');
   const lock=join(r,'.paid-run.lock'),fd=openSync(lock,'wx');
   process.on('exit',()=>{closeSync(fd);unlinkSync(lock);});
-  const models=['gpt-6-luna','claude-haiku-5-5','gemini-3.8-flash'];
+  const allModels=['gpt-6-luna','claude-haiku-5-5','gemini-3.8-flash'];
+  const models=allModels.filter(model=>!freeze.pausedModels?.[model]);
   const limits={'gpt-6-luna':8,'claude-haiku-5-5':2,'gemini-3.8-flash':2};
-  if(models.some(model=>freeze.modelConcurrency[model]!==limits[model]))throw new Error('Frozen concurrency does not match the owner pacing amendment');
+  if(allModels.some(model=>freeze.modelConcurrency[model]!==limits[model]))throw new Error('Frozen concurrency does not match the owner pacing amendment');
   const data=Object.fromEntries(['fixtures','pilot','noise','pool','validity'].map(name=>[name,readJson(join(root,`data/${name}.json`))]));
   const adapter=await import(pathToFileURL(resolve(repo,freeze.adapter)).href);
   const transports=Object.fromEntries(await Promise.all(models.map(async model=>[model,await adapter.createTransport({model,settings:freeze.models[model],root})])));
@@ -53,7 +54,7 @@ async function main(){
     appendFileSync(flag('--spend-ledger'),`| ${row.at} | ledger-jb ${row.phase} ${row.contestant} ${row.itemId} ${row.order} | ${row.model} | 1 call | ${row.costUsd.toFixed(8)} USD${row.costEstimated?' reserved, actual unknown':''} | lane liability ${journal.liability().toFixed(8)} USD |\n`);
   }});
   const template=readFileSync(join(root,'data/promptfoo-select-best.txt'),'utf8'),stop={};
-  const state={status:'running',pid:process.pid,core:freeze.coreCommit,concurrency:12,models:{}};
+  const state={status:'running',pid:process.pid,core:freeze.coreCommit,concurrency:models.reduce((sum,m)=>sum+limits[m],0),models:Object.fromEntries(allModels.filter(m=>freeze.pausedModels?.[m]).map(m=>[m,{status:'paused-billing',reason:freeze.pausedModels[m],concurrency:0}]))};
   function event(value){
     if(value.model)state.models[value.model]={phase:value.phase??state.models[value.model]?.phase,status:value.status,concurrency:limits[value.model]};
     else Object.assign(state,value);
@@ -110,7 +111,7 @@ async function main(){
   reports();
   const errors=result.filter(x=>x.status==='rejected');
   if(errors.length){event({status:'stopped-on-error',error:errors[0].reason.message});throw errors[0].reason;}
-  event({status:'finished',blocked:result.flatMap(x=>x.value)});
+  event({status:Object.keys(freeze.pausedModels??{}).length?'finished-available-models':'finished',pausedModels:freeze.pausedModels??{},blocked:result.flatMap(x=>x.value)});
 }
 
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))await main();

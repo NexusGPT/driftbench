@@ -15,7 +15,7 @@ Pool: 270 Claude-response pairs. 159 source-question IDs overlap earlier GPT eva
 | longer-wins | 55/121 (45.45%) | 118/270 (43.70%) |
 | refusal-wins | 0/121 (0.00%) | 0/270 (0.00%) |
 
-Measured spend: 1.50988326 USD. Received calls: 1921. Unpriced or interrupted attempts: 10, reserved liability 0.45450825 USD. Unresolved calls: 0.
+Measured spend: 1.59893827 USD. Received calls: 2272. Unpriced or interrupted attempts: 10, reserved liability 0.45450825 USD. Unresolved calls: 0.
 
 TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected.
 
