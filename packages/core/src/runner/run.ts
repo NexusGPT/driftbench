@@ -276,7 +276,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   /** In mode T, the end state composed before the open session opened. */
   let sessionBase: unknown[] | undefined;
   let status: RunResult['status'] = 'completed';
-  let endVerdict: 'success' | 'failure' | undefined;
+  let endVerdict: RunResult['endVerdict'];
   let error: string | undefined;
 
   try {
@@ -289,6 +289,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const step = await nextStep(run, nextBlock, blocks);
       if (step.kind === 'stop') {
         endVerdict = step.verdict;
+        if (step.verdict === 'inconclusive') {
+          status = 'stopped';
+          error = step.reason;
+        }
         break;
       }
       const planned = planStep(spec, step);

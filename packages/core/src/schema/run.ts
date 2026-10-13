@@ -324,8 +324,8 @@ export const RunResult = z.strictObject({
   repeat: z.number().int().min(0),
   perturbationId: z.string().optional(),
   status: z.enum(['completed', 'failed', 'stopped']),
-  /** The verdict the spec's end gave the run, when the script ended with one. */
-  endVerdict: z.enum(['success', 'failure']).optional(),
+  /** The driver or spec's end verdict. Inconclusive means the run could not be judged. */
+  endVerdict: z.enum(['success', 'failure', 'inconclusive']).optional(),
   error: z.string().optional(),
   blocks: z.array(BlockResult),
   succession: Succession,
