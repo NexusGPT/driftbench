@@ -6,7 +6,8 @@ import {loadavg} from 'node:os';
 import {setTimeout as sleep} from 'node:timers/promises';
 import {Journal,hash,readJson,readJsonl,verifySeal,promptfooPrompt,parsePromptfoo,REQUIREMENTS} from '../src/harness.mjs';
 import {drainQueue} from '../parallel-remaining.mjs';
-import {createTransport,judgePair} from './adapter.mjs';
+import {judgePair} from './adapter.mjs';
+import {createTransport} from './sonnet-transport.mjs';
 import {PHASES,cellJobs,project,report as baseReport} from './report.mjs';
 function report(root,cell,model){const value=baseReport(root,cell,model);value.budget.capUsd=readJson(join(cell,'freeze.json')).capUsd;writeFileSync(join(cell,'report.json'),JSON.stringify(value,null,2)+'\n');return value;}
 
@@ -36,7 +37,7 @@ if(freeze.nativeEnv?.DISABLE_PROMPT_CACHING==='1')process.env.DISABLE_PROMPT_CAC
 if(hash(readFileSync(join(root,'data/seal.json')))!==freeze.sealSha256||hash(readFileSync(join(root,'data/pool.json')))!==freeze.poolSha256)throw new Error('Sealed hashes differ');
 const template=readFileSync(join(root,'data/promptfoo-select-best.txt'),'utf8'),transport=createTransport(model,freeze.settings);
 const guard=()=>{if(stop.error)throw stop.error;if(Date.now()>=Date.parse(freeze.lastCallCutoff))throw new Error('CUTOFF_STOP');
-  if(probe&&journal.starts.size>=freeze.cacheProbe.stopAfterRequests)throw new Error('PROBE_FIVE_COMPLETE');};
+  if(probe&&[...journal.finishes.values()].filter(x=>x.billingRoute==='cache-disabled'&&!x.transportFailure&&x.modelActual===model).length>=5)throw new Error('PROBE_FIVE_COMPLETE');};
 let fallback=false;
 const workers=()=>{
   if(probe)return 1;if(model==='gpt-6.1-sol')return 8;
@@ -85,7 +86,7 @@ try{
   event({status:'finished'});
 }catch(error){
   if(error.message==='PROBE_FIVE_COMPLETE'){
-    const projection={...project(data,model,[...journal.finishes.values()].slice(freeze.cacheProbe.startAfterRequests,freeze.cacheProbe.stopAfterRequests)),capUsd:freeze.capUsd};
+    const projection={...project(data,model,[...journal.finishes.values()].filter(x=>x.billingRoute==='cache-disabled'&&!x.transportFailure&&x.modelActual===model).slice(0,5)),capUsd:freeze.capUsd};
     writeFileSync(join(cell,'projection-cache-disabled.json'),JSON.stringify(projection,null,2)+'\n');
     event({status:'probe-complete',projectionUsd:projection.projectedUsd,requests:journal.finishes.size,liabilityUsd:journal.liability()});
   }else{event({status:'stopped',error:error.message});process.exitCode=1;}

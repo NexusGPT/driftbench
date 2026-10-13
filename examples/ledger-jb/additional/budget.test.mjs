@@ -5,6 +5,14 @@ import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {Journal} from '../src/harness.mjs';
 import {claudeEnvironment} from './adapter.mjs';
+import {readSonnet} from './sonnet-transport.mjs';
+
+test('observed zero-token terminal API error is transport, never a returned answer',()=>{
+  const raw={type:'result',subtype:'success',terminal_reason:'api_error',is_error:true,result:'API Error: Connection dropped (ECONNRESET)',usage:{input_tokens:0,output_tokens:0},modelUsage:{},total_cost_usd:0};
+  assert.throws(()=>readSonnet({code:0,stdout:JSON.stringify(raw),stderr:''}),e=>e.code==='network'&&e.retryable&&e.costUsd===0&&JSON.parse(e.raw).terminal_reason==='api_error');
+  const answer=readSonnet({code:0,stdout:JSON.stringify({...raw,terminal_reason:'end_turn',result:'A model answer',usage:{output_tokens:1}}),stderr:''});
+  assert.equal(answer.returnedAnswer,true);assert.equal(answer.text,'A model answer');
+});
 
 test('expanded Sonnet cap counts unknown holds and blocks before crossing 45',async()=>{
   const j=new Journal(join(mkdtempSync(join(tmpdir(),'jb-cap-test-')),'calls.jsonl'),{capUsd:45});

@@ -1,0 +1,42 @@
+{
+  "beforeSha256": "286a84ab572143c2114d57ca8c90eaee7487f6bb7ec1cc8e7ec5ba38de82606c",
+  "afterSha256": "6ab4dc005f3477702e86286b90e4c607d440a1a63f88cf89594d97aabb9cc549",
+  "corrections": [
+    {
+      "original": {
+        "text": "API Error: Connection dropped (ECONNRESET)",
+        "rawProvider": "{\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"e54cd6c6-d527-47e7-8685-079e2bbd0607\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":0,\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":0,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"\",\"iterations\":[],\"speed\":\"standard\",\"fallback_credit\":null},\"modelUsage\":{},\"permission_denials\":[],\"terminal_reason\":\"api_error\",\"fast_mode_state\":\"off\",\"fast_mode_disabled_reason\":\"sdk_opt_in_required\",\"subagent_stats\":{\"spawned\":0,\"requested\":{\"background\":0,\"foreground\":0,\"unset\":0},\"started_in_background\":0,\"max_depth\":0,\"spawned_by_subagents\":0,\"completed\":0,\"failed\":0,\"killed\":{\"parent\":0,\"user\":0,\"system\":0},\"refused\":{\"depth_limit\":0,\"concurrency_limit\":0,\"budget\":0},\"by_type\":{}},\"safety_stops\":0,\"is_error\":true,\"num_turns\":1,\"subtype\":\"success\",\"api_error_status\":null,\"result\":\"API Error: Connection dropped (ECONNRESET)\",\"type\":\"result\",\"duration_ms\":74768,\"uuid\":\"a3653476-8fe3-4d0c-91c5-30a4195c5f9b\",\"queued_turn_count\":0,\"result_index\":0}\n",
+        "returnedAnswer": true,
+        "costUsd": 0,
+        "usage": {
+          "input": 0,
+          "output": 0,
+          "cached": 0,
+          "cacheWrite": 0
+        },
+        "modelActual": "",
+        "finishReason": "success",
+        "tokenCapHit": false,
+        "truncated": false,
+        "graderError": true,
+        "providerErrors": null,
+        "elapsedMs": 74992,
+        "phase": "pilot",
+        "model": "claude-sonnet-5-5",
+        "contestant": "ledger",
+        "itemId": "97e2c15b-92c8-5934-bf37-c46fbf095930",
+        "repeat": 0,
+        "order": "BA",
+        "attempt": 0,
+        "billingRoute": "cache-disabled",
+        "transportAttempt": 1,
+        "type": "finish",
+        "key": "pilot:claude-sonnet-5-5:97e2c15b-92c8-5934-bf37-c46fbf095930:0:ledger:BA:0:5a71da90fd59d92055bf47415e55c1416dc8b531ac74071ca06fa4c8c52d2f7d",
+        "at": "2026-10-13T13:56:39.340Z"
+      },
+      "evidence": "terminal_reason api_error, is_error true, zero API duration/tokens/cost and no modelUsage"
+    }
+  ],
+  "costChangeUsd": 0,
+  "authorization": "Existing policy permits at most three transport attempts for no-answer network errors. No returned model answer is retried."
+}

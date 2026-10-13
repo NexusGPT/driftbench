@@ -1,7 +1,7 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T13:41:10.374Z",
-  "freezeSha256": "89dc323dd3d3ad8fa8b5a46d8768b701ec2c61c4230385ef4ece4f3f2d8a4972",
+  "at": "2026-10-13T13:56:39.359Z",
+  "freezeSha256": "58fab4121a457ead02d79cc9891324d27b190ecdb1ccc7573d474e31c2e2d79c",
   "status": "NOT_RUN",
   "n": 0,
   "planned": 270,
@@ -164,13 +164,13 @@
   "cost": {
     "ledger": {
       "testUsd": 0,
-      "allPhasesUsd": 0.0687844,
+      "allPhasesUsd": 0.09921239999999999,
       "testRequests": 0,
-      "allRequests": 3,
+      "allRequests": 6,
       "unknownCostHoldsUsd": 0,
       "tokens": {
-        "input": 11400,
-        "output": 3031,
+        "input": 16924,
+        "output": 4969,
         "cached": 1824,
         "cacheWrite": 9570,
         "reasoning": 0
@@ -178,13 +178,13 @@
     },
     "promptfoo": {
       "testUsd": 0,
-      "allPhasesUsd": 0.031666,
+      "allPhasesUsd": 0.038914,
       "testRequests": 0,
-      "allRequests": 2,
+      "allRequests": 4,
       "unknownCostHoldsUsd": 0,
       "tokens": {
-        "input": 6816,
-        "output": 441,
+        "input": 10110,
+        "output": 507,
         "cached": 0,
         "cacheWrite": 6812,
         "reasoning": 0
@@ -212,14 +212,14 @@
     "test": 0
   },
   "budget": {
-    "capUsd": 25,
-    "measuredUsd": 0.1004504,
+    "capUsd": 45,
+    "measuredUsd": 0.13812639999999998,
     "holdsUsd": 0,
     "pending": 0,
     "pendingReserveUsd": 0,
-    "liabilityUsd": 0.1004504
+    "liabilityUsd": 0.13812639999999998
   },
-  "requests": 5,
+  "requests": 10,
   "modelActual": [
     "claude-sonnet-5-5"
   ],

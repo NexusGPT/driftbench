@@ -1,15 +1,15 @@
 {
   "model": "claude-sonnet-5-5",
-  "pid": 45818,
-  "mode": "first-five",
-  "freezeSha256": "89dc323dd3d3ad8fa8b5a46d8768b701ec2c61c4230385ef4ece4f3f2d8a4972",
-  "status": "projection-stopped",
+  "pid": 27888,
+  "mode": "cache-route-five",
+  "freezeSha256": "58fab4121a457ead02d79cc9891324d27b190ecdb1ccc7573d474e31c2e2d79c",
+  "status": "probe-complete",
   "phase": "pilot",
-  "completed": 2,
+  "completed": 4,
   "planned": 40,
-  "at": "2026-10-13T13:41:10.362Z",
-  "liabilityUsd": 0.1004504,
-  "requests": 5,
+  "at": "2026-10-13T13:56:39.343Z",
+  "liabilityUsd": 0.13812639999999998,
+  "requests": 10,
   "workers": 1,
-  "projectionUsd": 36.9352339008
+  "projectionUsd": 13.770149696
 }

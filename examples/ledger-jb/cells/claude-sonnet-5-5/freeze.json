@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "createdAt": "2026-10-13T13:54:34.498514+00:00",
+  "version": 3,
+  "createdAt": "2026-10-13T14:01:17.046603+00:00",
   "model": "claude-sonnet-5-5",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
@@ -195,19 +195,23 @@
     "pnpm-lock.yaml": "f7178145e417f8f11e28bc7cf1943db901077492226de4d172bd49994e213e04",
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
     "examples/ledger-jb/cells/claude-sonnet-5-5/price.json": "d52af7ab2841b7397b0fba167c1e371b89ed22f594acd40deab25e44954ded62",
-    "examples/ledger-jb/additional/run-sonnet.mjs": "b44ce42fcf3753e2645c497b59e3e88111c7c72b3fa8db019517ab8b67043507",
-    "examples/ledger-jb/additional/budget.test.mjs": "4bc463412da98f5843ccd0da037d05e86ccc61ebd968b99f2694d8a5cdfe930c"
+    "examples/ledger-jb/additional/run-sonnet.mjs": "c0f02d7538586dd6e3df47c7f320cc56b0edeaa6e56f79c814e9c71c95aee737",
+    "examples/ledger-jb/additional/budget.test.mjs": "1bfbe1a8fbeea61f95b3a9da9f806af8177ef0d68faa3ede63f1a107d201e077",
+    "examples/ledger-jb/additional/sonnet-transport.mjs": "b059d9a508a3b7a19170f135161487794b712db61231224ff18fb0926219a70c"
   },
-  "priorCellFreezeSha256": "89dc323dd3d3ad8fa8b5a46d8768b701ec2c61c4230385ef4ece4f3f2d8a4972",
+  "priorCellFreezeSha256": "58fab4121a457ead02d79cc9891324d27b190ecdb1ccc7573d474e31c2e2d79c",
   "nativeEnv": {
     "DISABLE_PROMPT_CACHING": "1"
   },
   "cacheProbe": {
     "startAfterRequests": 5,
-    "stopAfterRequests": 10,
-    "basis": "Next five unanswered practice requests in sealed queue order. No returned answer is reissued. Different practice inputs make raw cost comparison descriptive, not a matched estimate."
+    "stopAfterRequests": null,
+    "basis": "Next five unanswered practice requests in sealed queue order. No returned answer is reissued. Different practice inputs make raw cost comparison descriptive, not a matched estimate.",
+    "stopCondition": "Five cache-disabled returned model answers; no-answer transport attempts retain their normal limit and receipts."
   },
   "runtimeAmendment": "Owner approves Sonnet JudgeBench 45 USD including holds. Try DISABLE_PROMPT_CACHING=1 on five practice requests before full run, then use the cheaper route. TEST runs once.",
   "cacheSource": "https://code.claude.com/docs/en/env-vars",
-  "runner": "examples/ledger-jb/additional/run-sonnet.mjs"
+  "runner": "examples/ledger-jb/additional/run-sonnet.mjs",
+  "transportReceiptAmendment": "The observed CLI terminal_reason=api_error envelope contains a provider error string, not a model answer. One zero-token zero-cost ECONNRESET receipt is reclassified from returnedAnswer to no-answer transport, with immutable before receipt and manifest. Retry within the existing three-try policy.",
+  "reconciliationManifest": "examples/ledger-jb/cells/claude-sonnet-5-5/transport-reconciliation/manifest.json"
 }
