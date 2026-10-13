@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { inconclusive, type JudgeRequest, type JudgeResult } from './contract';
-import { groundEvidence } from './evidence';
+import { groundEvidence, groundEvidenceSpan } from './evidence';
 
 export type CriterionRequirement = { readonly id: string; readonly requirement: string };
 
@@ -24,13 +24,18 @@ export function requirementsFor(request: JudgeRequest): readonly CriterionRequir
   return normalized;
 }
 
+const evidenceSpan = z.strictObject({
+  source: z.string().trim().min(1),
+  quote: z.string().trim().min(1),
+});
+
 export const CriterionLedger = z.strictObject({
   checks: z
     .array(
       z.strictObject({
         id: z.string().trim().min(1),
         reasoning: z.string(),
-        evidence: z.string().trim().min(1).nullable(),
+        evidence: z.union([z.string().trim().min(1), z.array(evidenceSpan).min(1), z.null()]),
         met: z.boolean().nullable(),
       }),
     )
@@ -79,10 +84,20 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
       return invalid('a met requirement needs grounded evidence');
     if (
       check.evidence !== null &&
-      !groundEvidence(request, { outcome: 'inconclusive', reasoning: '', evidence: check.evidence }).grounded
+      !(typeof check.evidence === 'string'
+        ? groundEvidence(request, { outcome: 'inconclusive', reasoning: '', evidence: check.evidence })
+            .grounded
+        : check.evidence.every((span) => groundEvidenceSpan(request, span).grounded))
     )
       return invalid('the evidence quote is not in the supplied data');
   }
+  const evidence = checks.flatMap((check) =>
+    check.evidence === null
+      ? []
+      : typeof check.evidence === 'string'
+        ? [check.evidence]
+        : check.evidence.map((span) => span.quote),
+  )[0];
   const outcome = checks.some((check) => check.met === false)
     ? 'fail'
     : checks.some((check) => check.met === null)
@@ -97,9 +112,7 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
       reasoning: expected
         .map((r) => `${r.requirement}: ${checks.find((check) => check.id === r.id)?.reasoning}`)
         .join('\n'),
-      ...(checks.find((check) => check.evidence !== null)?.evidence
-        ? { evidence: checks.find((check) => check.evidence !== null)?.evidence as string }
-        : {}),
+      ...(evidence === undefined ? {} : { evidence }),
     },
   };
 }
