@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-13T04:09:37.199197+02:00",
+  "id": "driftbench-verify-assumption-cascade",
+  "basis": "Measured DEV soda-price acceptance explicitly admits an unstated cup count. No TEST prediction or TEST outcome selects this route.",
+  "strategy": "Reuse the two-path pipeline; full-answer agreement; review only accepted judgments mentioning unstated, assumed, not-given/specifed/stated or intended premises. Reuse the already preregistered strict comparison prompt verbatim.",
+  "population": 95,
+  "deadline": "2026-10-13T04:23:00+02:00",
+  "modelConcurrency": 1,
+  "selection": "Complete 95-item DEV only. Highest audited score, fewer proved-conflict errors, lower recorded cost."
+}

@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-13T04:09:37.197624+02:00",
+  "reason": "Restart after complete five-path DEV result to load preregistered assumption cascade and full-answer comparison variants.",
+  "recordedTaskSpendUsd": 2.73742331,
+  "interruptedStage": "counterexample program after 14 completed DEV judgments",
+  "newSuccessfulCounterCalls": 28,
+  "inFlightFee": "Unknown: terminated CLI returned no usage.",
+  "oldModelDriverStopped": true,
+  "knownCounterSpendUsd": 0.04755672,
+  "counterOrders": {
+    "program": 14,
+    "single": 14
+  },
+  "completedCounterJudgments": 14,
+  "qualifier": "Ordered partial run, not a full 95-item score. No partial score is ranked."
+}

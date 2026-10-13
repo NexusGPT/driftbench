@@ -124,13 +124,31 @@ export function dossierContestants(
       };
     },
   });
+  const context = withBoardgameConvention(recovered, 'driftbench-verify-program-backward-step-context');
+  const strictPoint = literal(context, 'cascade-review').point;
+  if (!strictPoint) throw new Error('The assumption cascade needs its strict comparison prompt.');
+  const cascade: Contestant = {
+    ...context,
+    id: 'driftbench-verify-assumption-cascade',
+    source: 'two blind paths, backward and final-step checks; recheck acceptances admitting missing premises',
+    fullReferenceAnswers: true,
+    postPoint: {
+      when: (decision, texts) =>
+        decision.pass === true &&
+        texts.some((t) =>
+          /unstated|not (?:given|specified|stated)|\bassum(?:e|ed|ing|ption)\b|\bintended\b/i.test(t),
+        ),
+      prompt: strictPoint,
+    },
+  };
   return [
     quoted,
     aided,
     diverse,
     recovered,
     recoveredFive,
-    withBoardgameConvention(recovered, 'driftbench-verify-program-backward-step-context'),
+    context,
+    cascade,
     withBoardgameConvention(
       literal(recovered, 'driftbench-verify-program-backward-step-literal'),
       'driftbench-verify-program-backward-step-literal',

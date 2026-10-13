@@ -17,6 +17,23 @@
     "file": "driftbench-verify-program-backward-step-context.json"
   },
   {
+    "contestant": "driftbench-verify-diverse5-all-step-context",
+    "officialAccuracy": 81.05263157894737,
+    "officialBalancedAccuracy": 79.26093514328808,
+    "auditedAccuracy": 91.57894736842105,
+    "auditedBalancedAccuracy": 92.8893178893179,
+    "auditedCorrect": 87,
+    "auditedConflictErrors": 0,
+    "items": 95,
+    "costPer100Usd": 2.1645809684210517,
+    "calls": 726,
+    "auditedLongAccuracy": 91.17647058823529,
+    "newSpendUsd": 0.9575497400000007,
+    "missing": 0,
+    "invalidVerdicts": 0,
+    "file": "driftbench-verify-diverse5-all-step-context.json"
+  },
+  {
     "contestant": "driftbench-adaptive",
     "officialAccuracy": 76.84210526315789,
     "officialBalancedAccuracy": 72.09653092006033,

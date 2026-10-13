@@ -59,6 +59,11 @@ export type Contestant = {
   readonly referenceAgreementThreshold?: number;
   /** Compare complete blind answers, including long lists and multiline program values. */
   readonly fullReferenceAnswers?: boolean;
+  /** Recheck accepted answers whose own judgment admits an unstated assumption. */
+  readonly postPoint?: {
+    readonly when: (decision: PointDecision, texts: readonly string[]) => boolean;
+    readonly prompt: NonNullable<Contestant['point']>;
+  };
   /** A deterministic, label-blind local solver. No model call or submission is supplied. */
   readonly toolEvidence?: (question: string) => Promise<string | undefined>;
   /** Extract the submitted answers before judging. This step must not solve or correct them. */

@@ -16,6 +16,64 @@ import {
 import { testMetrics, testSample } from '../src/verify-test-metrics';
 import { deterministicEvidence } from '../src/verify-tools';
 
+it('reviews only accepted answers with admitted assumptions and preserves strict replay', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'verify-cascade-test-'));
+  try {
+    const command = join(folder, 'fake.mjs');
+    await writeFile(
+      command,
+      `#!/usr/bin/env node
+let input = '';
+process.stdin.on('data', c => input += c);
+process.stdin.on('end', () => {
+  const pass = input.startsWith('REVIEW') || input.includes('failed') ? false : true;
+  const reason = input.includes('plain') ? 'Exact multiplication verified.' : 'Assuming an unstated quantity.';
+  process.stdout.write(JSON.stringify({result:JSON.stringify({pass,reason}),total_cost_usd:.001}));
+});
+`,
+    );
+    await chmod(command, 0o755);
+    const source = contestantById('driftbench-verify-assumption-cascade');
+    if (!source.postPoint) throw new Error('Cascade absent.');
+    const c: Contestant = {
+      ...source,
+      responseExtractor: undefined,
+      referencePaths: undefined,
+      codeCheck: undefined,
+      finalStepCheck: undefined,
+      toolEvidence: undefined,
+      point: (i) => ({ system: '', user: `BASE ${i.response}` }),
+      postPoint: { ...source.postPoint, prompt: (i) => ({ system: '', user: `REVIEW ${i.response}` }) },
+    };
+    const options = {
+      bench: 'longjudge-verify' as const,
+      model: 'fake',
+      contestants: [c],
+      command,
+      recordingsDir: folder,
+      concurrency: 1,
+      includeDecisions: true,
+      items: ['uncertain', 'plain', 'failed'].map((response) => ({
+        kind: 'point' as const,
+        id: response,
+        question: 'q',
+        response,
+        correct: response === 'plain',
+        group: 'g',
+      })),
+    };
+    const report = await runBenchmark(options);
+    expect(report.newCalls).toBe(4);
+    expect(report.contestants[0]?.decisions?.map((d) => d.pass)).toEqual([false, true, false]);
+    expect(report.contestants[0]?.summary.value.estimate).toBe(1);
+    const replay = await runBenchmark({ ...options, replayOnly: true });
+    expect(replay.newCalls).toBe(0);
+    expect(replay.contestants).toEqual(report.contestants);
+  } finally {
+    await rm(folder, { recursive: true, force: true });
+  }
+});
+
 it.skipIf(process.platform !== 'darwin').each([
   ['long list', 'x'.repeat(220) + 'A', 'x'.repeat(220) + 'B'],
   ['multiline program answer', 'A', 'A\nB'],

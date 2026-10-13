@@ -459,18 +459,25 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
       const criterion = await criterionFor(item);
       const setup = await setupFor(criterion);
       const reference = await referenceFor(item, response, originalResponse);
-      const prompt = contestant.point?.({
+      const pointInput = {
         question: item.question,
         response,
         criterion,
         ...(setup === undefined ? {} : { setup }),
         ...(reference === undefined ? {} : { reference }),
-      });
+      };
+      const prompt = contestant.point?.(pointInput);
       const id = item.id;
       if (!prompt || !contestant.parsePoint) return { d: {}, missing: 1 };
       const parse = contestant.parsePoint;
       const texts = await sampled(prompt, id, order);
-      return texts.length === 0 ? { d: {}, missing: 1 } : { d: majorityPoint(texts.map(parse)), missing: 0 };
+      if (texts.length === 0) return { d: {}, missing: 1 };
+      const decision = majorityPoint(texts.map(parse));
+      if (contestant.postPoint?.when(decision, texts)) {
+        const review = await ask(contestant, contestant.postPoint.prompt(pointInput), id, `${order}-review`);
+        return review ? { d: parse(review.text), missing: 0 } : { d: {}, missing: 1 };
+      }
+      return { d: decision, missing: 0 };
     };
     let summary: Summary;
     let mode: ContestantReport['mode'];
