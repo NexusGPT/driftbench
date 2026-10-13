@@ -5,7 +5,7 @@
 ```
 driftbench ci --specs <path> --target <adapter[:agent]> --baseline <store file | campaign id> \
   --store <file> [--margin <points|auto>] [--min-goldens 30] [--strict] [--mode F] [--repeats n] [--budget-usd usd] [--faults <path>] \
-  [--flag <family>]... [--out driftbench-ci.json] [--cache] [--json]
+  [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--out driftbench-ci.json] [--cache] [--json]
 ```
 
 ## What it decides

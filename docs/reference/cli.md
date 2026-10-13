@@ -1284,10 +1284,12 @@ New flags always gate, and so does an underpowered criterion whose regression Be
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
 ```
 
 `--route` sends the specs carrying a tag to another target, as in `campaign run`: with a fault candidate on a mixed suite, `--target fault:<id>` runs the conversations and `--route flow:price-sheet=process:acme-ops` keeps the task specs on the code agent.
+
+`--process-command` runs the candidate of any `process:<name>` target other than `process:acme-ops` with your own command, as in [`campaign run`](../running.md): a JSON list of strings or words split on spaces. Run the baseline campaign with the same option, then gate: `driftbench ci --specs specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]" --baseline baseline --store runs.db`. Without it, `ci` reaches the bundled Acme targets only.
 
 A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
 
