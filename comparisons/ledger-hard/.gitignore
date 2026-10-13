@@ -1,3 +1,7 @@
 __pycache__/
 *.lock
 *.log
+recovery-process.json
+finish-process.json
+finish-state.json
+recovery-drain
