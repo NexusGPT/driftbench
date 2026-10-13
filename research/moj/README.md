@@ -117,3 +117,19 @@ probabilities) and `chars`, `length_gap`, `non_latin` (code). A route reads cont
 | `recordings/jev.jsonl`, `recordings/luna.jsonl` | complete for the above; `python3 -m moj.collect --offline` replays them |
 
 Each signal file maps a pair id to `{<expert>: {pA, detail, calls, usd, seconds}, _meta: {label, half, split, group, language, baselines}}`.
+
+## Pointwise benchmarks (appended)
+
+`moj/pointwise.py` is the pointwise adapter: `python3 -m moj.pointwise collect|tune|score|board`. Its experts are in
+`POINT_CATALOGUE` (end of `moj/experts.py`), its benchmarks in `POINT_BENCHES` (end of `moj/benches.py`), its clients in
+`moj/clients_s2.py` (System 1, gpt-6-luna, gemini-3.8-flash, Haiku through the local CLI), its noise floor in `moj/noise.py`.
+Recordings are `recordings/pw-*.jsonl`, results are under `results/pointwise/`. `prepare_pointwise.py` builds the data.
+
+| File | Items | What an item carries | `reference` field |
+|---|---|---|---|
+| `data/rubricbench.json` | 100 DEV pairs | `rows`: the expert rubric questions of the item | none: the rubric rows are the evidence |
+| `data/verify.json` | 95 DEV answers | only `question` and the answer in `a` | none. The benchmark gives the judge no reference, source passage or claim: the label says whether the final answer is correct. Upstream publishes a separate `verify_bench_hard_reference.jsonl`; no local harness fetches it and it is not used here |
+| `data/hardrows.json` | 96 tuning cases | factuality rows: `reference`. Rubric rows: `rubric` | the expert answer the reply must not contradict (factuality rows only) |
+
+Every item has `split_group`, a hash of the shared reference, criterion or question. The tuning and validation halves are
+cut on it, so items that share a prompt, a source or a reference stay in the same half.

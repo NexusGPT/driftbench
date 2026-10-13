@@ -1,0 +1,111 @@
+{
+ "name": "pw-s1-rows",
+ "note": "Pointwise stage 1 alone. One System-1 decision per requirement or statement, verdict computed in code, no escalation.",
+ "stage1": [
+  "pw_rows"
+ ],
+ "hi": 0.0,
+ "lo": 0.0,
+ "tune_calibrate": [
+  "pw_rows"
+ ],
+ "tuned": {
+  "on": "tuning half only",
+  "trail": [
+   {
+    "calibrate": "pw_rows",
+    "class": "criterion",
+    "boundary": 0.9,
+    "tune_balanced": 81.0764,
+    "options": [
+     [
+      0.2,
+      69.4196
+     ],
+     [
+      0.3,
+      74.9752
+     ],
+     [
+      0.4,
+      78.9435
+     ],
+     [
+      0.5,
+      78.9435
+     ],
+     [
+      0.6,
+      78.9435
+     ],
+     [
+      0.7,
+      78.9435
+     ],
+     [
+      0.8,
+      78.9435
+     ],
+     [
+      0.9,
+      81.0764
+     ],
+     [
+      0.95,
+      78.6458
+     ]
+    ]
+   },
+   {
+    "calibrate": "pw_rows",
+    "class": "question",
+    "boundary": 0.4,
+    "tune_balanced": 82.9282,
+    "options": [
+     [
+      0.2,
+      80.6134
+     ],
+     [
+      0.3,
+      81.0764
+     ],
+     [
+      0.4,
+      82.9282
+     ],
+     [
+      0.5,
+      81.0764
+     ],
+     [
+      0.6,
+      75.9838
+     ],
+     [
+      0.7,
+      75.0579
+     ],
+     [
+      0.8,
+      77.8356
+     ],
+     [
+      0.9,
+      79.2245
+     ],
+     [
+      0.95,
+      79.6875
+     ]
+    ]
+   }
+  ]
+ },
+ "calibrate": {
+  "pw_rows": {
+   "criterion": 0.9,
+   "question": 0.4
+  }
+ }
+}

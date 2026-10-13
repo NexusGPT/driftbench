@@ -7,7 +7,9 @@ Reads other worktrees only (never writes there). Practice material only:
   hardrows     the reported tuning sets of the rubric and factuality hard rows (comparisons/promptfoo/hard).
                The held-out sets and the fresh sealed cohort are never opened.
 Shape: the pair shape of the README. A point item is "the output" (a) against "an empty reference" (b = ""),
-label "A" for pass and "B" for fail, kind "point". A baseline game is "A" (pass), "B" (fail) or a word that
+label "A" for pass and "B" for fail, kind "point". `reference` is present only where the source gives one (the
+factuality hard rows); the verify rows carry none. `split_group` is a hash of the shared reference, criterion or
+question: the tuning and validation halves are cut on it. A baseline game is "A" (pass), "B" (fail) or a word that
 scores zero ("inconclusive", "missing"), as the source study scores it.
 """
 import collections
@@ -30,6 +32,10 @@ def rank(seed, value):
 
 
 def dump(name, rows):
+    # split_group: items that share a prompt, a source or a reference carry the same value and land in the same half.
+    for row in rows:
+        shared = row.get('reference') or row.get('rubric') or row['question']
+        row['split_group'] = name + ':' + hashlib.sha256(shared.encode()).hexdigest()[:16]
     json.dump(rows, open(os.path.join(HERE, 'data', name + '.json'), 'w'), ensure_ascii=False)
     print(name, len(rows), dict(collections.Counter((r['split'], r['label'], tuple(sorted(r['baselines']))) for r in rows)))
 
@@ -48,6 +54,13 @@ def rubricbench(limit=100):
             base.setdefault(row['id'], {}).setdefault(name, {'games': row['decisions'], 'calls': len(row.get('callKeys') or []),
                                                              'status': row['status'], 'model': 'gpt-6-luna', 'phase': phase})
     assert set(plan['pilotIds']) <= set(phase_of) and set(plan['noiseIds']) <= set(phase_of)
+    repeats = collections.defaultdict(dict)  # the three recorded repeats of our judge on the noise items
+    for row in lines(f'{rb}/decisions-noise-000.jsonl'):
+        if row['model'] == 'gpt-6-luna' and row['contestant'] == 'pair-ledger' and row['id'] in base:
+            repeats[row['id']][row.get('sample', 0)] = row['decisions']
+    for item_id, by_sample in repeats.items():
+        if 'ledger' in base[item_id] and len(by_sample) == 3:
+            base[item_id]['ledger']['repeats'] = [by_sample[k] for k in sorted(by_sample)]
     order = {'pilot': 0, 'noise': 1, 'fixtures': 2}
     chosen = sorted(phase_of, key=lambda i: (order[phase_of[i]], rank('moj-rb-v1', i)))[:limit]
     wanted, out = set(chosen), {}
@@ -87,6 +100,18 @@ def verify():
                 base.setdefault(row['id'], {}).setdefault(names[contestant['contestant']], {
                     'games': [game], 'calls': round(contestant['calls'] / n, 2), 'costUsd': round(contestant['costUsd'] / n, 6),
                     'model': 'gpt-6-luna', 'phase': phase, 'cost_note': 'phase mean per item'})
+    repeats = collections.defaultdict(lambda: collections.defaultdict(list))  # the recorded noise repeats, where all three exist
+    for phase in ('noise-0', 'noise-1', 'noise-2'):
+        path = f'{root}/{phase}/gpt-6-luna.json'
+        if not os.path.exists(path):
+            continue
+        for contestant in json.load(open(path))['contestants']:
+            for row in contestant['decisions']:
+                repeats[row['id']][names[contestant['contestant']]].append(['missing' if row.get('pass') is None else 'A' if row['pass'] else 'B'])
+    for item_id, by_name in repeats.items():
+        for name, games in by_name.items():
+            if name in base.get(item_id, {}) and len(games) == 3:
+                base[item_id][name]['repeats'] = games
     out = []
     for index, item in enumerate(dev):
         out.append({'id': item['id'], 'split': 'pilot' if index < 20 else 'noise' if index < 30 else 'dev', 'group': item['group'],

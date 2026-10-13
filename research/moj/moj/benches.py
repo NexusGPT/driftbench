@@ -47,9 +47,10 @@ SPLIT_VERSION = 'moj-split-v2'
 def group_key(item):
     """The group a practice item belongs to: every pair that shares a prompt, a source item or a reference.
 
-    An explicit `groupId` wins; else the hash of the prompt text (whitespace folded)."""
-    if item.get('groupId'):
-        return str(item['groupId'])
+    An explicit `groupId` or `split_group` wins; else the hash of the prompt text (whitespace folded)."""
+    for field in ('groupId', 'split_group'):
+        if item.get(field):
+            return str(item[field])
     return hashlib.sha256(' '.join(str(item.get('question', item.get('id'))).split()).encode()).hexdigest()
 
 
@@ -127,4 +128,6 @@ def load_point(bench):
             item['label'] = flip[item['label']]
             for base in item.get('baselines', {}).values():
                 base['games'] = [flip.get(game, game) for game in base['games']]
+                if 'repeats' in base:
+                    base['repeats'] = [[flip.get(game, game) for game in games] for games in base['repeats']]
     return items

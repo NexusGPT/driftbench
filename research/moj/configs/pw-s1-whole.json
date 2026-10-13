@@ -1,0 +1,111 @@
+{
+ "name": "pw-s1-whole",
+ "note": "Pointwise, cheap variant. One System-1 yes or no on the whole item, no escalation.",
+ "stage1": [
+  "pw_whole"
+ ],
+ "hi": 0.0,
+ "lo": 0.0,
+ "tune_calibrate": [
+  "pw_whole"
+ ],
+ "tuned": {
+  "on": "tuning half only",
+  "trail": [
+   {
+    "calibrate": "pw_whole",
+    "class": "criterion",
+    "boundary": 0.9,
+    "tune_balanced": 80.0525,
+    "options": [
+     [
+      0.2,
+      78.2668
+     ],
+     [
+      0.3,
+      78.2668
+     ],
+     [
+      0.4,
+      78.2668
+     ],
+     [
+      0.5,
+      78.2668
+     ],
+     [
+      0.6,
+      78.2668
+     ],
+     [
+      0.7,
+      78.2668
+     ],
+     [
+      0.8,
+      79.1597
+     ],
+     [
+      0.9,
+      80.0525
+     ],
+     [
+      0.95,
+      78.3164
+     ]
+    ]
+   },
+   {
+    "calibrate": "pw_whole",
+    "class": "question",
+    "boundary": 0.7,
+    "tune_balanced": 82.3673,
+    "options": [
+     [
+      0.2,
+      80.9785
+     ],
+     [
+      0.3,
+      79.5896
+     ],
+     [
+      0.4,
+      76.8118
+     ],
+     [
+      0.5,
+      80.0525
+     ],
+     [
+      0.6,
+      81.2099
+     ],
+     [
+      0.7,
+      82.3673
+     ],
+     [
+      0.8,
+      81.2099
+     ],
+     [
+      0.9,
+      77.2748
+     ],
+     [
+      0.95,
+      77.2748
+     ]
+    ]
+   }
+  ]
+ },
+ "calibrate": {
+  "pw_whole": {
+   "criterion": 0.9,
+   "question": 0.7
+  }
+ }
+}

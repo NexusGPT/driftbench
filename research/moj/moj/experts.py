@@ -501,12 +501,13 @@ POINT_ROUTES = {
 
 @point_expert('route', kind='router', cost='1 S1 (5 questions)',
               job='Terrain map of a pointwise item: content decisions (reasoning, checkable answer, injection, compound criterion, subjective) '
-                  'plus code features: evidence_given (the item carries a criterion, rows or a reference), chars, non_latin.')
+                  'plus code features: evidence_given (the item carries a criterion, rows or a reference), no_evidence, splittable, chars, non_latin.')
 def pw_route(ctx):
     item = ctx.item
     probs = ctx.jev(reply_state(item, 'a'), POINT_ROUTES)
     probs['evidence_given'] = 0.0 if carried(item) == 'question' else 1.0
     probs['no_evidence'] = 1.0 - probs['evidence_given']
+    probs['splittable'] = 1.0 if carried(item) in ('rubric', 'reference') else 0.0  # one criterion text or one reference, not yet in rows
     probs['chars'] = len(item['question']) + len(item['a']) + len(item['b'])
     probs['non_latin'] = sum(1 for ch in item['a'] if ord(ch) > 0x2FF) / max(1, len(item['a']))
     return {'pA': None, 'detail': probs}
