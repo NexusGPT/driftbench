@@ -2,8 +2,8 @@
   {
     "scope": "all phases",
     "model": "haiku",
-    "completedPairs": 56,
-    "orderedReadings": 117,
+    "completedPairs": 145,
+    "orderedReadings": 328,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0
@@ -11,8 +11,8 @@
   {
     "scope": "all phases",
     "model": "gpt-6-luna",
-    "completedPairs": 56,
-    "orderedReadings": 118,
+    "completedPairs": 143,
+    "orderedReadings": 318,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0

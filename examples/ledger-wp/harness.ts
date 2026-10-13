@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readerFeatures } from './vendor/reader-c50/packages/judges/src/reader-first-features';
 import { createReaderFirstJudge } from './vendor/reader-c50/packages/judges/src/reader-first';
@@ -46,6 +46,19 @@ export function isTransportFailure(text:string) {
   return /fetch failed|timed? ?out|timeout|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|network error|Provider (?:429|5\d\d)\b/iu.test(text);
 }
 
+// Each queue starts jobs in sealed order. A stopped provider drains only its own queue.
+export async function runLimitedJobs<T>(jobs:T[], limit:number, run:(job:T)=>Promise<boolean>) {
+  if(!Number.isInteger(limit)||limit<1)throw Error('Invalid worker limit');
+  let cursor=0,stopped=false;
+  await Promise.all(Array.from({length:limit},async()=>{
+    while(!stopped&&cursor<jobs.length) {
+      const job=jobs[cursor++];
+      if(!await run(job))stopped=true;
+    }
+  }));
+  return !stopped;
+}
+
 export class Budget {
   readonly file: string;
   readonly cap: number;
@@ -69,6 +82,11 @@ export class Budget {
   settle(key:string,usd:number) {
     if(!Number.isFinite(usd)||usd<0)throw Error('Invalid provider cost');
     const event={kind:'settle',key,usd,at:new Date().toISOString()};append(this.file,event);this.events.push(event);
+  }
+  releaseRejected(key:string,httpStatus:number) {
+    if(httpStatus!==402||!this.totals().pending.includes(key))throw Error('Release requires a proven HTTP 402 rejection');
+    const event={kind:'release',key,usd:0,reason:'Provider HTTP 402 rejection; no model answer',at:new Date().toISOString()};
+    append(this.file,event);this.events.push(event);
   }
 }
 
@@ -100,7 +118,7 @@ async function runClaude(prompt: {system:string;user:string}, cwd:string): Promi
 async function main() {
   const arg=(name:string)=>{const i=process.argv.indexOf('--'+name);return i<0?undefined:process.argv[i+1];};
   if(process.argv.includes('--help')) {
-    console.log('harness.ts --cheaters | --phase pilot|dev|fixtures|validity|test [--model comma-separated frozen model IDs] [--concurrency N] [--replay-only]');return;
+    console.log('harness.ts --cheaters | --phase pilot|dev|fixtures|validity|test|remaining [--model comma-separated frozen model IDs] [--model-concurrency JSON] [--replay-only]');return;
   }
   mkdirSync(resolve(HERE,'results'),{recursive:true});mkdirSync(resolve(HERE,'runtime/empty'),{recursive:true});
   if(process.argv.includes('--cheaters')) {
@@ -111,16 +129,24 @@ async function main() {
     }
     console.log('Machine controls recorded. No model calls.');return;
   }
-  const phase=arg('phase');if(!['pilot','dev','fixtures','validity','test'].includes(phase??''))throw Error('Explicit phase required');
+  const phase=arg('phase');if(!['pilot','dev','fixtures','validity','test','remaining'].includes(phase??''))throw Error('Explicit phase required');
   const freeze=load('freeze.json');verifyFreeze(freeze);
   const core:any=await import(pathToFileURL(resolve(ROOT,'packages/judges/src/pair-ledger.ts')).href);
   const promptModule:any=await import(pathToFileURL(resolve(ROOT,'packages/judges/src/prompt.ts')).href);
   const schemaModule:any=await import(pathToFileURL(resolve(ROOT,'packages/judges/src/assessment.ts')).href);
   const shim:any=await import(pathToFileURL(resolve(ROOT,'examples/judge-benchmarks/src/llm-shim.mjs')).href);
-  const modelArg=arg('model');const models=modelArg?modelArg.split(','):freeze.models;
+  const modelArg=arg('model');const models=modelArg?modelArg.split(','):freeze.models.filter((m:string)=>m!=='gemini-3.8-flash'||!freeze.geminiCreditHold?.active);
   if(models.some((x:string)=>!freeze.models.includes(x)))throw Error('Model not frozen');
-  const concurrency=Number(arg('concurrency')??4);if(!Number.isInteger(concurrency)||concurrency<1||concurrency>4)throw Error('Concurrency outside 1..4');
-  if(models.includes('gemini-3.8-flash')&&concurrency>2)throw Error('Gemini concurrency exceeds two');
+  if(models.includes('gemini-3.8-flash')&&freeze.geminiCreditHold?.active)throw Error('Gemini is parked pending owner-confirmed credit top-up');
+  const authorizedLimits=freeze.pacingAmendment?.maxConcurrentCalls;
+  if(!authorizedLimits)throw Error('Per-model pacing amendment required');
+  const requestedLimits=arg('model-concurrency')?JSON.parse(arg('model-concurrency')!):{};
+  const limits:Record<string,number>={};
+  for(const model of models) {
+    const limit=Number(requestedLimits[model]??arg('concurrency')??authorizedLimits[model]);
+    if(!Number.isInteger(limit)||limit<1||limit>authorizedLimits[model])throw Error('Unauthorized concurrency: '+model);
+    limits[model]=limit;
+  }
   const budget=new Budget();
   const history=rows('results/calls.jsonl');
   const recorded=new Map(history.map(r=>[r.logicalKey??r.key,r]));
@@ -129,13 +155,36 @@ async function main() {
   const decisionKey=(x:any)=>JSON.stringify([x.split,x.model,x.contestant,x.id,x.sample??0]);
   const done=new Set(decisions.map(decisionKey));
   let stop=false,completed=0;
+  const stoppedModels=new Set<string>();
+  const geminiAbort=new AbortController();
+  const modelProgress:Record<string,any>={};
+  const phases=phase==='remaining'?['fixtures','validity','dev','test']:[phase!];
+  const queues=new Map<string,any[]>();
+  for(const model of models)for(const split of phases) {
+    const jobs:any[]=[];
+    for(let sample=0;sample<(['dev','fixtures'].includes(split)?3:1);sample++)for(const item of load('seals/'+split+'.json'))for(const contestant of ['pair-ledger','reader-first-c50b2dc3','promptfoo']) {
+      const job={split,model,contestant,id:item.id,requestId:item.requestId,sample};
+      if(!done.has(decisionKey(job)))jobs.push({job,item});
+    }
+    queues.set(model+':'+split,jobs);
+  }
+  const planned=[...queues.values()].reduce((n,jobs)=>n+jobs.length,0);
+  const progress=()=>writeFileSync(resolve(HERE,'results/progress.json'),JSON.stringify({phase,completedThisInvocation:completed,remaining:planned-completed,models:modelProgress,limits,spend:budget.totals(),at:new Date().toISOString()})+'\n');
+  const reportPhase=()=>{
+    for(const name of ['stats.py','phase_report.py','validity_report.py','report.py','verify_results.py']) {
+      const out=spawnSync('python3',[resolve(HERE,name)],{cwd:ROOT,encoding:'utf8'});
+      if(out.status!==0)throw Error('Offline report failed: '+name+' '+out.stderr+' '+out.stdout);
+    }
+  };
+  process.on('SIGTERM',()=>{stop=true;progress();});
   const calls=async(prompt:any,meta:any,schema?:any)=> {
     const key=sha(JSON.stringify([meta,prompt,schema,freeze.reasoning]));
     if(recorded.has(key) && !recorded.get(key).providerError) return recorded.get(key);
     if(process.argv.includes('--replay-only'))throw Error('REPLAY_MISS '+key);
+    const recovery=freeze.lunaRecoveryAmendment?.logicalCallKeys.includes(key)&&freeze.lunaRecoveryAmendment?.connectivityProbe.passed===true;
     let lastError="";
-    for(let attempt=1;attempt<=4;attempt++) {
-      if(attempt===4&&!isRateLimit(lastError))break;
+    for(let attempt=1;attempt<=(recovery?6:4);attempt++) {
+      if(attempt===4&&!recovery&&!isRateLimit(lastError))break;
       const attemptKey=attempt===1?key:sha(key+':transport:'+attempt);
       const prior=attempts.get(attemptKey);
       if(prior) {
@@ -146,6 +195,7 @@ async function main() {
       // A crashed submission may still have incurred cost. Keep its reservation and count its try.
       if(budget.totals().pending.includes(attemptKey)){lastError="Interrupted transport";continue;}
       if(attempt>1)await new Promise(resolve=>setTimeout(resolve,transportBackoffMs(lastError,attempt)));
+      if(meta.model==='gemini-3.8-flash'&&geminiAbort.signal.aborted)throw Error('Gemini credit hold; no new submission');
       if(Date.now()>Date.parse(freeze.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
       budget.reserve(attemptKey,meta.model==='haiku'?0.25:0.10);
       const started=Date.now();let payload:any;let providerMeta:any={};
@@ -159,8 +209,13 @@ async function main() {
             const body=JSON.parse(options.body);
             if(meta.model.startsWith('gemini'))body.generationConfig={...body.generationConfig,maxOutputTokens:4096};
             else body.max_completion_tokens=4096;
-            const response=await fetch(url,{...options,body:JSON.stringify(body),signal:AbortSignal.timeout(300_000)});
-            if(!response.ok) {const data=await response.text();throw Error('Provider '+response.status+': '+data.slice(0,300));}
+            const timeout=AbortSignal.timeout(300_000);
+            const response=await fetch(url,{...options,body:JSON.stringify(body),signal:meta.model==='gemini-3.8-flash'?AbortSignal.any([timeout,geminiAbort.signal]):timeout});
+            if(!response.ok) {
+              providerMeta.httpStatus=response.status;
+              if(meta.model==='gemini-3.8-flash'&&response.status===402){geminiAbort.abort();stoppedModels.add(meta.model);}
+              const data=await response.text();throw Error('Provider '+response.status+': '+data.slice(0,300));
+            }
             const observed=await response.clone().json();
             providerMeta={usage:observed.usage??observed.usageMetadata,model:observed.model??observed.modelVersion,finishReason:observed.choices?.[0]?.finish_reason??observed.candidates?.[0]?.finishReason};
             return response;
@@ -179,21 +234,33 @@ async function main() {
         return entry;
       }
       append('results/transport-errors.jsonl',{key:attemptKey,logicalKey:key,attempt,...meta,error:entry.text,at:new Date().toISOString()});
+      if(meta.model==='gemini-3.8-flash'&&providerMeta.httpStatus===402) {
+        budget.releaseRejected(attemptKey,402);
+        throw Error('Gemini HTTP 402 credit rejection; all Gemini submissions stopped');
+      }
       if(!isTransportFailure(entry.text))throw Error('Non-transport provider error; no retry');
       lastError=entry.text;
     }
-    throw Error('Transport attempts exhausted; uncertain reservations retained');
+    throw Error((recovery?'AUTHORIZED_RECOVERY_EXHAUSTED '+key:'Transport attempts exhausted')+'; uncertain reservations retained');
   };
-  const items=load('seals/'+phase+'.json');
-  const jobs:any[]=[];
-  for(let sample=0;sample<(['dev','fixtures'].includes(phase!)?3:1);sample++)for(const item of items)for(const model of models)for(const contestant of ['pair-ledger','reader-first-c50b2dc3','promptfoo']) {
-    const job={split:phase,model,contestant,id:item.id,requestId:item.requestId,sample};
-    if(!done.has(decisionKey(job)))jobs.push({job,item});
-  }
-  let cursor=0;
-  async function worker() {
-    while(!stop&&cursor<jobs.length) {
-      const {job,item}=jobs[cursor++];let costUsd=0,callCount=0;
+  async function runModel(model:string) {
+    for(const split of phases) {
+      if(stop||stoppedModels.has(model))break;
+      const jobs=queues.get(model+':'+split)!;
+      modelProgress[model]={phase:split,status:'running',completedThisPhase:0,remainingThisPhase:jobs.length};progress();
+      if(split==='test') {
+        reportPhase();
+        const disposition={at:new Date().toISOString(),modelScope:model,
+          authorization:'Resume the writing cell: run the full 173-pair TEST on the sealed pool. Your cap is 35 USD.',
+          pacing:'Owner authorizes all models side by side at per-model limits; phase order remains fixtures, validity, dev, test.',
+          policy:'Run without tuning; report failed validity checks and withhold unsupported validation claims.',
+          fixtureAndCheaterChecks:load('results/phase-report.json').dev.filter((r:any)=>r.model===model),
+          editChecks:load('results/validity-checks.json').cells.filter((r:any)=>r.model===model)};
+        writeFileSync(resolve(HERE,'results/pretest-disposition-'+model+'.json'),JSON.stringify(disposition,null,2)+'\n');
+      }
+      const complete=await runLimitedJobs(jobs,limits[model],async({job,item}:any)=>{
+      if(stop)return false;
+      let costUsd=0,callCount=0;
       try {
         const ask=async(prompt:any,schema?:any)=>{const out=await calls(prompt,{...job,callIndex:callCount++},schema);costUsd+=out.costUsd;return out;};
         let games:string[],details:any,graderErrors=0;
@@ -217,16 +284,30 @@ async function main() {
           graderErrors=details.reads.filter((r:any)=>r.result.unparsed).length;
         }
         const result={...job,games,costUsd,callCount,graderErrors,details};append('results/decisions.jsonl',result);done.add(decisionKey(job));completed++;
-        writeFileSync(resolve(HERE,'results/progress.json'),JSON.stringify({phase,completedThisInvocation:completed,remaining:jobs.length-completed,spend:budget.totals(),at:new Date().toISOString()})+'\n');
-        if(completed%10===0)console.log(JSON.stringify({phase,completed,remaining:jobs.length-completed,spend:budget.totals()}));
+        modelProgress[model].completedThisPhase++;
+        modelProgress[model].remainingThisPhase--;progress();
+        if(completed%10===0)console.log(JSON.stringify({phase,completed,remaining:planned-completed,models:modelProgress,spend:budget.totals()}));
+        return true;
       } catch(error) {
-        stop=true;append('results/errors.jsonl',{...job,error:String(error),at:new Date().toISOString()});console.error(String(error));
+        if(String(error).includes('AUTHORIZED_RECOVERY_EXHAUSTED')) {
+          append('results/missing.jsonl',{...job,error:String(error),reason:'Owner-authorized recovery exhausted with no model answer',at:new Date().toISOString()});
+          modelProgress[model].missingThisPhase=(modelProgress[model].missingThisPhase??0)+1;
+          modelProgress[model].remainingThisPhase--;progress();
+          return true;
+        }
+        stoppedModels.add(model);
+        if(/LANE_CAP_REACHED|LAST_CALL_CUTOFF/.test(String(error)))stop=true;
+        append('results/errors.jsonl',{...job,error:String(error),at:new Date().toISOString()});console.error(String(error));
+        return false;
       }
+      });
+      modelProgress[model].status=complete?'complete':'stopped';progress();reportPhase();
+      if(!complete)break;
     }
   }
-  await Promise.all(Array.from({length:concurrency},()=>worker()));
-  console.log(JSON.stringify({phase,completed,stop,spend:budget.totals()}));
-  if(stop)process.exitCode=1;
+  await Promise.all(models.map(runModel));
+  console.log(JSON.stringify({phase,completed,stop,stoppedModels:[...stoppedModels],spend:budget.totals()}));
+  if(stop||stoppedModels.size)process.exitCode=1;
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href)await main();

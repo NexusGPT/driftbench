@@ -45,7 +45,7 @@
   },
   "files": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-wp/harness.ts": "acbc21ede442813b87fb7d83c7c03699cb8b3a9ada55b9aa705d4a600f9a826c",
+    "examples/ledger-wp/harness.ts": "5ee1d318c92d54a77213eb80170065c7e99ca77b5a80b229789a291b42a236bc",
     "examples/ledger-wp/phase_report.py": "adabe9c88210b02720345d6e7ae2ca74908fb9aac7357bce405c5bf9dd9f2e1a",
     "examples/ledger-wp/prepare.py": "12e81d34a14a2f00f2ab821d41a1911b29d2de91466fd71a998c7c3a33d76d2d",
     "examples/ledger-wp/seal_validity.py": "527d73e3b1ffdd0f5943d854c1e468b26b318703ae8eeb4d4369accbff5d66b2",
@@ -269,5 +269,50 @@
     "parentFreezeSha256": "655ce818fd7aea90c0a60303a2c36bd1136cf15846b6f82fbf941c5ebf78acc5",
     "reason": "Shared Gemini quota requires Haiku and Luna first, Gemini last with concurrency two. Pilot-duration projection exceeds the original cutoff.",
     "authorization": "Yes. Extend the last-call cutoff to 16:00 UTC as a runtime-only amendment and log it in the freeze record with the reason (shared Gemini quota, model reordering). Cap, sealed order and judge contract stay fixed."
+  },
+  "pacingAmendment": {
+    "at": "2026-10-13T09:31:12.742651+00:00",
+    "parentFreezeSha256": "576565e9a31d98f2efce3b29f443d9a2ecdc58fb4e6c3c1c0fd64ccd364d71f9",
+    "authorization": "Pacing amendment, runtime only, log it in the freeze record: per-model limits, all three models side by side. gpt-6-luna 8 calls at a time (plain HTTP), Gemini 2 with the 429 waits, Haiku 2. Sealed order, cap and contract unchanged.",
+    "maxConcurrentCalls": {
+      "haiku": 2,
+      "gpt-6-luna": 8,
+      "gemini-3.8-flash": 2
+    },
+    "modelSchedule": "side by side, independent per-model phase barriers",
+    "changedFrozenFiles": [
+      "examples/ledger-wp/harness.ts"
+    ],
+    "judgeContractChanged": false,
+    "reason": "Owner pacing amendment replaces serial provider groups while retaining shared quota backoff and the fixed cap.",
+    "supersedes": "Earlier four-call overall limit and Haiku/Luna-first, Gemini-last schedule",
+    "transition": "Existing Haiku/Luna development phase drains before this scheduler starts; no returned answer is resubmitted."
+  },
+  "geminiCreditHold": {
+    "active": true,
+    "at": "2026-10-13T09:37:46.580113+00:00",
+    "authorization": "Gemini prepaid credits are depleted (HTTP 402 \"prepayment credits are depleted\" seen by another cell). On 402: stop all Gemini calls at once, no retries, release holds only for proven rejections, never count it as a judge error. Finish Haiku and gpt-6-luna fully. Gemini resumes missing-only after the owner tops up.",
+    "source": "Owner reports HTTP 402 from another cell; no new Gemini call made to reproduce it.",
+    "resume": "Owner confirms top-up; resume only missing calls",
+    "http402Policy": "Stop all Gemini submissions immediately, abort in-flight HTTP requests, release only reservations with an observed HTTP 402 response; retain uncertain interrupted holds."
+  },
+  "lunaRecoveryAmendment": {
+    "at": "2026-10-13T09:37:46.580113+00:00",
+    "authorization": "Authorized: one fresh transport recovery cycle (up to three submissions each) for those two Luna calls, after a simple connectivity probe passes. No model answer was returned, so this stays inside the rule. Log it as a runtime amendment. If they fail again, record them as missing and move on.",
+    "logicalCallKeys": [
+      "c3c59fd2e8069748ff189a989867d4b49721e45de41653c5a7a46e5f9efa44d4",
+      "11c218ebddcff10a500d6f6d969dfe7bfd4870b547c2dcfd76bff9c7e3a877be"
+    ],
+    "extraSubmissionsPerCall": 3,
+    "maximumTotalSubmissionsPerCall": 6,
+    "connectivityProbe": {
+      "at": "2026-10-13T09:35:34.038690+00:00",
+      "url": "https://api.openai.com/v1/models",
+      "authentication": "none; no key loaded",
+      "httpStatus": 401,
+      "passed": true,
+      "meaning": "Expected unauthenticated response proves DNS, TLS and HTTP connectivity; no model call."
+    },
+    "onExhaustion": "Record those development calls as missing and continue remaining work, including full test."
   }
 }

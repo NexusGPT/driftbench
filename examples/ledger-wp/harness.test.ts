@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Budget, cheater, HERE, isTransportFailure, parsePromptfoo, promptfoo, sha, transportBackoffMs, verifyFreeze } from './harness';
+import { Budget, cheater, HERE, isTransportFailure, parsePromptfoo, promptfoo, runLimitedJobs, sha, transportBackoffMs, verifyFreeze } from './harness';
 import { judgePairLedger, pairLedgerRequest } from '../../packages/judges/src/pair-ledger';
 import { responseSchema } from '../../packages/judges/src/assessment';
 import { buildPrompt } from '../../packages/judges/src/prompt';
@@ -26,6 +26,29 @@ test('HTTP 429 uses the owner-authorized 60, 120 and 240 second waits',()=>{
   assert.deepEqual([2,3,4].map(n=>transportBackoffMs('shim error: Provider 429: shared quota',n)),[60000,120000,240000]);
   assert.equal(transportBackoffMs('shim error: fetch failed',2),1500);
 });
+test('per-model queues preserve sealed start order and independent concurrency bounds',async()=>{
+  const maxima:Record<string,number>={};
+  const limits:Record<string,number>={haiku:2,'gpt-6-luna':8,'gemini-3.8-flash':2};
+  await Promise.all(Object.entries(limits).map(async([model,limit])=>{
+    let active=0;const starts:number[]=[];maxima[model]=0;
+    const jobs=Array.from({length:17},(_,i)=>i);
+    await runLimitedJobs(jobs,limit,async job=>{
+      starts.push(job);active++;maxima[model]=Math.max(maxima[model],active);
+      await new Promise(resolve=>setTimeout(resolve,job%2));active--;return true;
+    });
+    assert.deepEqual(starts,jobs);
+    assert.equal(maxima[model],limit);
+  }));
+});
+test('an exhausted provider stops its queue without stopping another provider',async()=>{
+  const failed:number[]=[];const healthy:number[]=[];
+  const jobs=[0,1,2,3,4];
+  const results=await Promise.all([
+    runLimitedJobs(jobs,1,async job=>{failed.push(job);return false;}),
+    runLimitedJobs(jobs,2,async job=>{healthy.push(job);return true;}),
+  ]);
+  assert.deepEqual(results,[false,true]);assert.deepEqual(failed,[0]);assert.deepEqual(healthy,jobs);
+});
 test('upstream rendering has byte-identical two-output format and opaque input',()=>{
   const out=promptfoo('Brief','first','second');
   assert.equal(out.user,'Output the index now.');
@@ -41,6 +64,13 @@ test('concurrent reservations count before settlement and survive a restart',()=
   b.settle('one',.2);b.reserve('two',.5);
   const resumed=new Budget(file,1);assert.equal(resumed.totals().actual,.2);assert.equal(resumed.totals().reserved,.5);
   assert.throws(()=>resumed.reserve('three',.4),/CAP/);
+});
+test('only a proven HTTP 402 rejection releases a provider reservation',()=>{
+  const dir=mkdtempSync(resolve(HERE,'runtime/rejection-test-'));
+  const b=new Budget(resolve(dir,'spend.jsonl'),1);b.reserve('rejected',.1);b.reserve('unknown',.1);
+  assert.throws(()=>b.releaseRejected('unknown',429),/proven HTTP 402/);
+  b.releaseRejected('rejected',402);
+  assert.deepEqual(b.totals().pending,['unknown']);assert.equal(b.totals().actual,0);
 });
 test('freeze gate blocks pending core and corrupted files before calls',()=>{
   assert.throws(()=>verifyFreeze({core:{}}),/CORE_PR/);

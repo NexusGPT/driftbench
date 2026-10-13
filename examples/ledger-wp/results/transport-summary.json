@@ -1,0 +1,67 @@
+[
+  {
+    "model": "haiku",
+    "contestant": "pair-ledger",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
+  },
+  {
+    "model": "haiku",
+    "contestant": "reader-first-c50b2dc3",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
+  },
+  {
+    "model": "haiku",
+    "contestant": "promptfoo",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
+  },
+  {
+    "model": "gpt-6-luna",
+    "contestant": "pair-ledger",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
+  },
+  {
+    "model": "gpt-6-luna",
+    "contestant": "reader-first-c50b2dc3",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
+  },
+  {
+    "model": "gpt-6-luna",
+    "contestant": "promptfoo",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "contestant": "pair-ledger",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "contestant": "reader-first-c50b2dc3",
+    "http429All": 1,
+    "http429Test": 0,
+    "byPhase": {
+      "validity": 1
+    }
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "contestant": "promptfoo",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
+  }
+]

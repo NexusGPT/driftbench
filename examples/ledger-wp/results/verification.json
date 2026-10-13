@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-13T08:33:30.914348+00:00",
+  "at": "2026-10-13T09:39:12.028417+00:00",
   "failures": [],
   "complete": false,
   "modelsChecked": [
@@ -9,11 +9,11 @@
   ],
   "sourceHashes": 191,
   "sealHashes": 5,
-  "actualUsd": 2.98045945,
-  "uncertainOrInflightUsd": 1.85,
+  "actualUsd": 4.41376539,
+  "uncertainOrInflightUsd": 2.45,
   "capUsd": 35,
-  "returnedCalls": 1022,
-  "completedDecisions": 502,
+  "returnedCalls": 2143,
+  "completedDecisions": 1029,
   "coverage": [
     {
       "split": "test",
@@ -82,42 +82,42 @@
       "split": "dev",
       "model": "haiku",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 87,
       "expected": 90
     },
     {
       "split": "dev",
       "model": "haiku",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 0,
+      "recorded": 86,
       "expected": 90
     },
     {
       "split": "dev",
       "model": "haiku",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 86,
       "expected": 90
     },
     {
       "split": "dev",
       "model": "gpt-6-luna",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 85,
       "expected": 90
     },
     {
       "split": "dev",
       "model": "gpt-6-luna",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 0,
+      "recorded": 85,
       "expected": 90
     },
     {
       "split": "dev",
       "model": "gpt-6-luna",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 86,
       "expected": 90
     },
     {
@@ -145,42 +145,42 @@
       "split": "validity",
       "model": "haiku",
       "contestant": "pair-ledger",
-      "recorded": 18,
+      "recorded": 20,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "haiku",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 18,
+      "recorded": 20,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "haiku",
       "contestant": "promptfoo",
-      "recorded": 18,
+      "recorded": 20,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gpt-6-luna",
       "contestant": "pair-ledger",
-      "recorded": 18,
+      "recorded": 20,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gpt-6-luna",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 18,
+      "recorded": 20,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gpt-6-luna",
       "contestant": "promptfoo",
-      "recorded": 18,
+      "recorded": 20,
       "expected": 20
     },
     {
