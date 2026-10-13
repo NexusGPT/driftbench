@@ -18,11 +18,11 @@ class BudgetChecks(unittest.TestCase):
                     transact(p,'reserve',str(i),0.5,'fake')
                 except RuntimeError:
                     failures.append(i)
-            threads=[threading.Thread(target=reserve,args=(i,)) for i in range(60)]
+            threads=[threading.Thread(target=reserve,args=(i,)) for i in range(90)]
             for thread in threads: thread.start()
             for thread in threads: thread.join()
             state=transact(p,'status','')
-            self.assertEqual(state['reservedUsd'],25)
+            self.assertEqual(state['reservedUsd'],40)
             self.assertEqual(len(failures),10)
 
     def test_four_active_calls_globally(self):
@@ -36,6 +36,14 @@ class BudgetChecks(unittest.TestCase):
             import json
             state=json.loads(p.read_text());self.assertEqual(state['peakActiveCalls'],4)
             self.assertEqual(len(state['activeCalls']),4)
+
+    def test_gemini_two_call_limit_and_nonblocking_wait(self):
+        cache=Path(__file__).parent/'cache';cache.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=cache) as folder:
+            p=Path(folder)/'state.json'
+            for i in range(2):transact(p,'acquire',str(i),model='gemini-3.8-flash',pid=os.getpid())
+            self.assertFalse(transact(p,'try-acquire','third',model='gemini-3.8-flash',pid=os.getpid())['acquired'])
+            self.assertTrue(transact(p,'try-acquire','luna',model='gpt-6-luna',pid=os.getpid())['acquired'])
 
     def test_receipt_releases_only_unused_reservation(self):
         cache=Path(__file__).parent/'cache'

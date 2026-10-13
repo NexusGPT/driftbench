@@ -27,6 +27,7 @@ for (const [path, hash] of Object.entries(seal.evidenceHashes)) {
   assert.equal(createHash('sha256').update(await readFile(`${base}/evidence/${path}`)).digest('hex'), hash, path);
 }
 const runtime = JSON.parse(await readFile(`${base}/evidence/runtime-freeze.json`, 'utf8'));
+const deadlineAt=runtime.deadlineAt ?? Infinity;
 for (const [path, hash] of Object.entries(runtime.hashes)) {
   assert.equal(createHash('sha256').update(await readFile(path)).digest('hex'), hash, path);
 }
@@ -42,7 +43,7 @@ if (!replayOnly) {
   const remoteSha=remote.trim().split(/\s+/)[0]!;
   assert.match(remoteSha,/^[0-9a-f]{40}$/);
   execFileSync('git', ['merge-base','--is-ancestor',runtime.coreSha,remoteSha]);
-  assert(Date.now() < runtime.deadlineAt, 'Last-call cutoff reached');
+  assert(Date.now() < deadlineAt, 'Last-call cutoff reached');
 }
 const pool: PointItem[] = JSON.parse(await readFile(`${base}/evidence/${validity?'validity-items':pilot||noise!==undefined ? 'dev' : 'pool'}.json`, 'utf8'));
 const items = pilot||noise!==undefined ? [...pool].sort((a,b) => a.id.localeCompare(b.id)).slice(0,pilot?20:30) : pool;
@@ -63,7 +64,7 @@ if (!replayOnly) {
     assert.equal(prior.items,items.length);
     let finished=false; try { await access(`${resultDir}/${model}.json`); finished=true; } catch(e:any) { if(e.code!=='ENOENT') throw e; }
     assert(!finished,'Completed result cannot be resumed');
-    await writeFile(`${resultDir}/${model}.resumed-${runtime.id}.json`,JSON.stringify({prior,at:new Date().toISOString(),runtime:runtime.id},null,2)+'\n',{flag:'wx'});
+    await writeFile(`${resultDir}/${model}.resumed-${runtime.id}-${Date.now()}.json`,JSON.stringify({prior,at:new Date().toISOString(),runtime:runtime.id},null,2)+'\n',{flag:'wx'});
   } else await writeFile(`${resultDir}/${model}.started.json`, JSON.stringify({ at:new Date().toISOString(),
     items:items.length, coreSha:runtime.coreSha, runtime:runtime.id }, null,2)+'\n', { flag:'wx' });
 }
@@ -74,7 +75,7 @@ const report = await runBenchmark({
   bench:'longjudge-verify', model,
   contestants:['driftbench-verify-uncertainty-cascade','promptfoo'].map(contestantById),
   items, criterion:CRITERIA['longjudge-verify'], split:'all', concurrency:runtime.modelConcurrency[model],
-  capUsd:25, deadlineAt:runtime.deadlineAt, includeDecisions:true, replayOnly,
+  capUsd:runtime.capUsd, deadlineAt, includeDecisions:true, replayOnly,
   recordingsDir:resolve(`${base}/recordings/${pilot?runtime.pilotRecordingsId:runtime.id}/${phase}`),
   command:resolve(runtime.command),
 });

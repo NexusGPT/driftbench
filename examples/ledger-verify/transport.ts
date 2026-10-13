@@ -5,6 +5,7 @@ import { appendFile, mkdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { schemaFor } from './schemas';
+import { QuotaPending, withQuotaBackoff } from './quota';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const base = resolve(root,'examples/ledger-verify');
@@ -18,12 +19,15 @@ const user=Buffer.concat(chunks).toString('utf8');
 const id=randomUUID();
 let reservation=false;
 let slot=false;
+let started=false;
+let callFingerprint:string|undefined;
+let nativeReceipt:string|undefined;
 const budget = (action:string,amount=0.5) => JSON.parse(execFileSync('python3',[
   resolve(base,'budget.py'),resolve(base,'receipts/budget.json'),action,id,String(amount),model,String(process.pid),
 ],{encoding:'utf8'}));
 try {
   const freeze=JSON.parse(await readFile(resolve(base,'evidence/runtime-freeze.json'),'utf8'));
-  if (Date.now() >= freeze.deadlineAt) throw new Error('Last-call cutoff reached');
+  if (freeze.deadlineAt!==null && Date.now() >= freeze.deadlineAt) throw new Error('Last-call cutoff reached');
   if (!['haiku','gpt-6-luna','gemini-3.8-flash'].includes(model)) throw new Error('Unauthorized model');
   if (Buffer.byteLength(system+user)>500_000) throw new Error('Prompt exceeds frozen transport input bound');
   for (const [path,hash] of Object.entries(freeze.hashes)) {
@@ -32,19 +36,29 @@ try {
   }
   const schema=schemaFor(system);
   const fingerprint=(core:string)=>createHash('sha256').update(JSON.stringify({core,model,system,user,schema,reasoning:model==='haiku'?null:'medium'})).digest('hex');
-  // Crash recovery consumes a completed receipt that had not reached the pilot cassette.
-  if(process.env.VERIFY_PHASE==='pilot') {
+  callFingerprint=fingerprint(freeze.coreSha);
+  // Crash recovery uses same-phase receipts, including returned errors, before any provider call.
+  {
     const prior=JSON.parse(await readFile(resolve(base,'evidence/pilot-runtime-freeze.json'),'utf8'));
     const lines=(await readFile(resolve(base,'receipts/calls.jsonl'),'utf8')).trim().split('\n');
-    const hit=lines.map(line=>JSON.parse(line)).find(r=>r.fingerprint===fingerprint(prior.coreSha));
+    const allowed=[callFingerprint,...(process.env.VERIFY_PHASE==='pilot'?[fingerprint(prior.coreSha)]:[])];
+    const hit=lines.filter(Boolean).map(line=>JSON.parse(line)).find(r=>r.status!=='quota-pending'&&r.phase===process.env.VERIFY_PHASE&&allowed.includes(r.fingerprint));
     if(hit) {
       await appendFile(resolve(base,'receipts/recovered.jsonl'),JSON.stringify({originalReceipt:hit.id,at:new Date().toISOString(),model})+'\n');
-      process.stdout.write(JSON.stringify({result:hit.text,total_cost_usd:hit.costUsd,is_error:false}));
+      process.stdout.write(JSON.stringify(hit.status==='transport-failure'
+        ?{result:`Transport missing: ${hit.error}`,total_cost_usd:0,is_error:true}
+        :{result:hit.text,total_cost_usd:hit.costUsd,is_error:false}));
       process.exit(0);
     }
   }
   await mkdir(resolve(base,'receipts'),{recursive:true});
-  budget('acquire'); slot=true;
+  const acquire=async()=>{
+    while(!slot){
+      slot=budget('try-acquire').acquired;
+      if(!slot)await new Promise(resolve=>setTimeout(resolve,250));
+    }
+  };
+  await acquire();
   budget('reserve',model.startsWith('gemini-')?1:0.5);
   reservation=true;
   let result:any;
@@ -56,8 +70,14 @@ try {
     delete env.OPENAI_API_KEY;
     delete env.ANTHROPIC_API_KEY;
     delete env.GEMINI_API_KEY;
+    nativeReceipt=resolve(base,'receipts/native',`${id}.json`);
+    await mkdir(resolve(base,'receipts/native'),{recursive:true});
+    env.VERIFY_NATIVE_RECEIPT=nativeReceipt;
+    env.VERIFY_NATIVE_EXECUTABLE='/Users/assem/.local/bin/claude';
     const transport=createDialectTransport({provider:'claude-cli',model:'claude-haiku-5-5',env,
+      command:resolve(base,'capture-claude.sh'),
       timeoutMs:freeze.models[model].timeoutMs,maxBudgetUsd:0.5});
+    started=true;
     const response=await transport.complete({system,user});
     if (response.costUsd===undefined) throw new Error('Provider omitted fee; reservation retained');
     result={result:response.text,total_cost_usd:response.costUsd,is_error:false};
@@ -73,7 +93,14 @@ try {
     const transport=createDialectTransport({provider:isGoogle?'google':'openai',model,
       env:isGoogle?{GEMINI_API_KEY:key}:{OPENAI_API_KEY:key}, reasoning:'medium',
       timeoutMs:freeze.models[model].timeoutMs,maxTokens:32768,maxRetries:0});
-    const response=await transport.complete({system,user,...(schema?{schema}:{})});
+    const response=await withQuotaBackoff(async()=>{
+      await acquire();started=true;
+      return transport.complete({system,user,...(schema?{schema}:{})});
+    },async event=>{
+      await appendFile(resolve(base,'receipts/quota.jsonl'),JSON.stringify({id,at:new Date().toISOString(),model,phase:process.env.VERIFY_PHASE,fingerprint:callFingerprint,...event})+'\n');
+      // A rejected quota request has no judge answer. Let another model use the slot during its wait.
+      if(slot){budget('release');slot=false;}
+    });
     const raw=JSON.parse(response.raw);
     const usage=isGoogle?raw.usageMetadata:raw.usage;
     if(!usage) throw new Error('Provider omitted token usage; reservation retained');
@@ -98,10 +125,25 @@ try {
 } catch (error) {
   const message=error instanceof Error ? error.message : String(error);
   await mkdir(resolve(base,'receipts'),{recursive:true});
+  let knownCost:number|undefined;
+  let native:any;
+  if(nativeReceipt){
+    try{native=JSON.parse(await readFile(nativeReceipt,'utf8'));}
+    catch(e:any){if(e.code!=='ENOENT'&&!(e instanceof SyntaxError))throw e;}
+    if(typeof native?.total_cost_usd==='number'&&Number.isFinite(native.total_cost_usd)&&native.total_cost_usd>=0)knownCost=native.total_cost_usd;
+  }
+  if(error instanceof QuotaPending)knownCost=0;
+  if(reservation&&knownCost!==undefined){
+    const state=budget('settle',knownCost);reservation=false;
+    await appendFile(resolve(base,'receipts/calls.jsonl'),JSON.stringify({id,at:new Date().toISOString(),model,
+      fingerprint:callFingerprint,phase:process.env.VERIFY_PHASE,costUsd:knownCost,state,
+      status:error instanceof QuotaPending?'quota-pending':'transport-failure',error:message,
+      text:typeof native?.result==='string'?native.result:'',nativeReceipt})+'\n');
+  }
   await appendFile(resolve(base,'receipts/errors.jsonl'),JSON.stringify({id,model,at:new Date().toISOString(),
-    message,reservationRetained:reservation})+'\n');
-  // "limit" makes the frozen caller stop without retrying an unknown-cost or content failure.
-  process.stdout.write(JSON.stringify({is_error:true,total_cost_usd:0,result:`Transport limit: ${message}`}));
+    message,fingerprint:callFingerprint,phase:process.env.VERIFY_PHASE,reservationRetained:reservation,nativeReceipt})+'\n');
+  const category=error instanceof QuotaPending?'quota':started?'missing':'limit';
+  process.stdout.write(JSON.stringify({is_error:true,total_cost_usd:0,result:`Transport ${category}: ${message}`}));
 }
 
 finally { if(slot) budget('release'); }

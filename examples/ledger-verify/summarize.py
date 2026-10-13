@@ -49,6 +49,7 @@ def main():
             phases[model][phase]=dict(items=report['items'],stopped=report.get('stopped'),
                 missing={c['contestant']:sum(d.get('missing',0)>0 or type(d.get('pass')) is not bool for d in c['decisions']) for c in report['contestants']},
                 cassetteRows=len(recordings),uniquePromptKeys=len(unique),
+                terminalNoAnswerRecords=sum('failure' in r for r in recordings),
                 recordedExecutionUsd=sum(r['costUsd'] for r in recordings),
                 costPer100UniqueKeys={c:sum(r['costUsd'] for r in unique.values() if r['contestant']==c)*100/report['items'] for c in ['driftbench-verify-uncertainty-cascade','promptfoo']},
                 report=str(path.relative_to(ROOT)),recording=str(recording.relative_to(ROOT)))
@@ -64,7 +65,7 @@ def main():
     cells['noiseFloor']={m:v['noise'] for m,v in validation.items()}
     cells['cheaters']['alwaysFailAudited']=1-cells['cheaters']['alwaysPassAudited']
     cells['fees']=dict(settledUsd=budget['spentUsd'],unresolvedMaximumUsd=reserved,
-        maximumAccountedUsd=budget['spentUsd']+reserved,capUsd=25,providerReceipts=len(calls),
+        maximumAccountedUsd=budget['spentUsd']+reserved,capUsd=budget['capUsd'],providerReceipts=len(calls),
         byModel={m:sum(r['costUsd'] for r in calls if r['model']==m) for m in MODELS},
         unknownCharges=budget['reservations'],source='receipts/budget.json and receipts/calls.jsonl')
     cells['freeze']={'runtime':runtime['id'],'core':runtime['coreSha'],

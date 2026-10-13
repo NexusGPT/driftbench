@@ -15,14 +15,17 @@ def transact(path, action, token, amount=0.5, model='', pid=None):
         fcntl.flock(stream, fcntl.LOCK_EX)
         stream.seek(0)
         raw=stream.read()
-        state=json.loads(raw) if raw else dict(capUsd=25.0, spentUsd=0.0, reservations={}, receipts=[])
+        state=json.loads(raw) if raw else dict(capUsd=40.0, spentUsd=0.0, reservations={}, receipts=[])
         assert math.isfinite(amount) and amount >= 0
-        if action=='acquire':
+        if action in ('acquire','try-acquire'):
             active=state.setdefault('activeCalls',{})
             for key,entry in list(active.items()):
                 try: os.kill(entry['pid'],0)
                 except ProcessLookupError: del active[key]
-            if len(active)>=4: raise RuntimeError('Concurrency limit: four provider calls are active')
+            busy=len(active)>=4 or (model in ('haiku','gpt-6-luna','gemini-3.8-flash') and sum(r['model']==model for r in active.values())>=2)
+            if busy:
+                if action=='try-acquire':return dict(acquired=False)
+                raise RuntimeError('Concurrency limit: four total or two model calls are active')
             assert token not in active and isinstance(pid,int) and pid>0
             active[token]=dict(pid=pid,model=model,at=datetime.now(timezone.utc).isoformat())
             state['peakActiveCalls']=max(state.get('peakActiveCalls',0),len(active))
@@ -51,7 +54,7 @@ def transact(path, action, token, amount=0.5, model='', pid=None):
         json.dump(state,stream,indent=2)
         stream.write('\n')
         stream.flush()
-        return dict(spentUsd=state['spentUsd'], reservedUsd=sum(r['usd'] for r in state['reservations'].values()),
+        return dict(acquired=action in ('acquire','try-acquire'),spentUsd=state['spentUsd'], reservedUsd=sum(r['usd'] for r in state['reservations'].values()),
                     capUsd=state['capUsd'], receipts=len(state['receipts']))
 
 

@@ -16,6 +16,8 @@ export type Recorded = {
   readonly model: string;
   readonly text: string;
   readonly costUsd: number;
+  /** A terminal no-answer transport event, never a model answer. Replays without retry. */
+  readonly failure?: string;
   /** Labels for a reader of the file; the key alone decides the match. */
   readonly bench?: string;
   readonly contestant?: string;
@@ -103,6 +105,7 @@ export function createCaller(
       const hit = recordings.get(key);
       if (hit) {
         replayed += 1;
+        if (hit.failure !== undefined) throw new CallFailed(hit.failure);
         return hit;
       }
       if (limits.replayOnly) {
@@ -123,7 +126,14 @@ export function createCaller(
               ...options,
               maxCallUsd: Math.min(options.maxCallUsd ?? remaining, remaining),
             };
-      const result = await runClaude(prompt, callOptions, folder, limits.deadlineAt);
+      let result: { text: string; costUsd: number };
+      try {
+        result = await runClaude(prompt, callOptions, folder, limits.deadlineAt);
+      } catch (cause) {
+        if (cause instanceof CallFailed)
+          await recordings.add({key, model: options.model, text: '', costUsd: 0, ...labels, failure: cause.message});
+        throw cause;
+      }
       spent += result.costUsd;
       calls += 1;
       const entry: Recorded = {
@@ -182,7 +192,7 @@ async function runClaude(
       if (deadlineAt !== undefined && Date.now() >= deadlineAt)
         throw new SpendCapReached('run deadline reached during a call');
       // A call past its timeout is tried once more, then its answer is missing and the run goes on.
-      if (attempt >= 2) throw new CallFailed(cause instanceof Error ? cause.message : String(cause));
+      if (process.env.VERIFY_OUTER_TIMEOUT_MS || attempt >= 2) throw new CallFailed(cause instanceof Error ? cause.message : String(cause));
       continue;
     }
     let payload:
@@ -198,6 +208,9 @@ async function runClaude(
       return { text: typeof payload.result === 'string' ? payload.result : '', costUsd: cost };
     }
     const why = payload ? String(payload.result) : (ran.stderr || ran.stdout).slice(0, 300);
+    if (/^Transport missing:/.test(why)) throw new CallFailed(why);
+    // Quota exhaustion is pending transport, never a failed judge answer or a retryable content result.
+    if (/^Transport quota:/.test(why)) throw new Error(why);
     // A session or rate limit is not retried: the run stops and reports it.
     if (/limit/i.test(why)) throw new Error(`claude stopped: ${why}`);
     if (attempt >= 3) throw new CallFailed(`claude failed ${attempt} times: ${why}`);

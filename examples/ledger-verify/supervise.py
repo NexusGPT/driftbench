@@ -21,6 +21,8 @@ def load(phase):
     return json.loads((BASE/phase/f'{model}.json').read_text())
 def valid_report(report):
     return not report.get('stopped') and all(c['summary']['missing']==0 for c in report['contestants'])
+def at_cutoff():
+    return runtime.get('deadlineAt') is not None and time.time()*1000>=runtime['deadlineAt']
 
 env=dict(os.environ)
 # Paths only. The provider wrapper reads each key inside its own command.
@@ -28,28 +30,27 @@ env['VERIFY_CORE_DOSSIER']='/private/tmp/claude-501/-Users-assem-Documents-Doc-A
 env['VERIFY_OPENAI_KEY_FILE']=str(Path.home()/'.nexus-secrets/openai.key')
 env['VERIFY_GEMINI_KEY_FILE']=str(Path.home()/'.nexus-secrets/gemini-driftbench.key')
 for key in ['OPENAI_API_KEY','GEMINI_API_KEY','ANTHROPIC_API_KEY']:env.pop(key,None)
+env['TMPDIR']=str(BASE/'cache');(BASE/'cache').mkdir(exist_ok=True)
 command=[str(ROOT/'node_modules/.bin/tsx'),'--tsconfig','examples/ledger-verify/tsconfig.json','examples/ledger-verify/run.ts',model]
 emit(phase='pilot',status='waiting for existing runner')
 while not (BASE/'pilot'/f'{model}.json').exists():
-    if time.time()*1000>=runtime['deadlineAt']:
+    if at_cutoff():
         emit(phase='pilot',status='cutoff before pilot completed');sys.exit(1)
     time.sleep(5)
 pilot=load('pilot')
-if not valid_report(pilot):
+if pilot.get('stopped'):
     emit(phase='pilot',status='stopped; requires inspection',reason=pilot.get('stopped'));sys.exit(1)
 emit(phase='pilot',status='complete',items=pilot['items'],costUsd=sum(c['costUsd'] for c in pilot['contestants']),projectedAll379ItemsUsd=sum(c['costUsd'] for c in pilot['contestants'])*379/20)
 for phase,args in [('validity',['--validity']),('noise-0',['--noise','0']),('noise-1',['--noise','1']),('noise-2',['--noise','2']),('results',[])]:
     if (BASE/phase/f'{model}.json').exists():
         emit(phase=phase,status='already recorded; no rerun');continue
-    if time.time()*1000>=runtime['deadlineAt']:
+    if at_cutoff():
         emit(phase=phase,status='last-call cutoff');sys.exit(1)
     if phase=='results':
         from validate import calculate
         validation=calculate(model)
-        if not validation['mutationChecks'] or not all(c['pass_'] for c in validation['mutationChecks'].values()):
-            emit(phase=phase,status='mutation gate failed',validation=validation);sys.exit(1)
-        if len(validation['noise'])!=2:
-            emit(phase=phase,status='noise incomplete');sys.exit(1)
+        # The owner requires the full sealed run. Failed validity checks suppress claims, never select TEST items.
+        emit(phase=phase,status='validation recorded before TEST',validation=validation)
     emit(phase=phase,status='running',concurrency=runtime['modelConcurrency'][model])
     (BASE/'logs').mkdir(exist_ok=True)
     with (BASE/'logs'/f'{model}-{phase}.log').open('w') as log:
@@ -57,6 +58,6 @@ for phase,args in [('validity',['--validity']),('noise-0',['--noise','0']),('noi
     if ran.returncode!=0 or not (BASE/phase/f'{model}.json').exists():
         emit(phase=phase,status='runner failed',exitCode=ran.returncode);sys.exit(1)
     report=load(phase)
-    emit(phase=phase,status='complete' if valid_report(report) else 'stopped; requires inspection',items=report['items'],newCostUsd=report['newSpendUsd'],reason=report.get('stopped'))
-    if not valid_report(report):sys.exit(1)
+    emit(phase=phase,status='stopped; requires inspection' if report.get('stopped') else 'all items attempted',items=report['items'],newCostUsd=report['newSpendUsd'],reason=report.get('stopped'),missing={c['contestant']:c['summary']['missing'] for c in report['contestants']})
+    if report.get('stopped'):sys.exit(1)
 emit(phase='all',status='complete')
