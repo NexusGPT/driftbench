@@ -369,7 +369,7 @@ function scriptAtoms(
   }
 }
 
-/** Paths a line names: literal quoted file names and markdown link destinations. */
+/** Paths a line names: relative file names, literal quotes and markdown link destinations. */
 export function namedPaths(line: string): string[] {
   const found: string[] = [];
   const claimed: Array<[number, number]> = [];
@@ -392,12 +392,27 @@ export function namedPaths(line: string): string[] {
       found.push(bare(token));
   }
   for (const match of line.matchAll(/\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g)) {
-    claimed.push([match.index, match.index + match[0].length]);
+    let start = match.index;
+    let depth = 0;
+    for (let index = match.index; index >= 0; index -= 1) {
+      const char = line[index];
+      if (char !== '[' && char !== ']') continue;
+      let slashes = 0;
+      for (let before = index - 1; before >= 0 && line[before] === '\\'; before -= 1) slashes += 1;
+      if (slashes % 2 !== 0) continue;
+      depth += char === ']' ? 1 : -1;
+      if (depth === 0) {
+        start = index;
+        break;
+      }
+    }
+    claimed.push([start, match.index + match[0].length]);
     const target = match[1] ?? match[2];
     if (target && !/^[a-z]+:/i.test(target)) found.push(bare(target));
   }
   for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g)) {
     if (claimed.some(([start, end]) => match.index >= start && match.index < end)) continue;
+    claimed.push([match.index, match.index + match[0].length]);
     const token = (match[1] ?? match[2])?.trim();
     const execution = /\b(?:run|execute)(?: the command)?\s*$|\bexample:\s*$/i.test(
       line.slice(0, match.index),
@@ -410,6 +425,13 @@ export function namedPaths(line: string): string[] {
       !(execution && /\s/.test(token))
     )
       found.push(bare(token));
+  }
+  for (const match of line.matchAll(/(?<![\w./\\:])((?:[\w.-]+\/)+[\w.-]+\.[A-Za-z][A-Za-z0-9]*)/g)) {
+    if (claimed.some(([start, end]) => match.index >= start && match.index < end)) continue;
+    const prefix = line.slice(0, match.index);
+    if (/\b(?:run|execute)(?: the command)?\s+\S+\s+[^.;!?]*$|\bexample:\s*[^.;!?]*$/i.test(prefix)) continue;
+    const token = match[1];
+    if (token && !found.includes(token)) found.push(token);
   }
   return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
 }

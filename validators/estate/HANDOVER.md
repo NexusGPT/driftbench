@@ -10,7 +10,15 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 0 |
 <!-- level-table:end -->
 
-### Current executor measurement, iteration 24
+### Current executor measurement, iteration 25, owner pause
+
+Seed 1 passes 952 of 1170 items, level 0, from row 24's 949. Four items improve: scan.paths.bold-path, scan.paths.import-syntax, scan.paths.bare-path and scan.paths.angle-autolink. The wide-folder timing item fails again; retain that loss without component attribution. The three generation-scale failures remain. Capture: .cache/estate-executor/iteration-25.json, immutable base 857f8a52 plus packages/estate/src/scan/code.ts and packages/estate/test/scan/unquoted-paths.test.ts. Its state records successful completion at 06:52:14 Europe/Brussels on 2026-10-13, before the owner pause.
+
+The shared namedPaths collector reads unquoted relative file tokens outside claimed code, quotes and complete markdown links. URL, explicit command, nested-caption and escaped-caption exclusions remain. Four canonical path cases fail first; six controls pass. The final scan, graph and fixture run passes 181 assertions. Fresh pause-time typecheck and lint pass, with existing lint warnings retained. Thirteen owned causes are complete, iterations 13 through 25; net new owned gains total 73, plus one restored baseline portability item. Eighteen imported maintainer gains stay excluded.
+
+The owner says, verbatim, "alright man, let's pause it all for now." No measurement remains running. The executor stops only its own CI watcher, writes journal row 25, commits this completed cause and pushes to draft PR 154 as explicitly requested. No iteration 26 starts. Resume requires a new owner instruction; the suggested four-hour interval does not arm an automatic restart. The earlier 06:40 cutoff push remains recorded at ad9606c1; this later push follows the explicit pause instruction. Keep PR 154 in draft.
+
+### Previous executor measurement, iteration 24
 
 Seed 1 passes 949 of 1170 items, level 0, from row 23's 946. Two scalar-registry items improve: scan.registry.json-enforces-string and scan.catalogue.rules-string. The wide-folder timing item recovers and receives no executor credit. The three generation-scale failures remain. Capture: .cache/estate-executor/iteration-24.json, immutable base 3f10b337 plus packages/estate/src/scan/claude-code.ts and packages/estate/test/scan/scalar-rules.test.ts.
 
@@ -163,17 +171,17 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The e
 
 Canonical executor worktree: /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2. Files under .cache are local, not pushed. They exist only in the canonical executor worktree; they are absent from Git clones and frozen handover archives unless copied explicitly. The current frozen archive under .cache/handover-24 reaches the canonical root through ../.. Source and capture paths below are relative to that canonical root.
 
-The routing and compaction tests are committed in iterations 19 and 20; packages/estate/test/scan/registry-shapes.test.ts joins iteration 21. They are absent only from older frozen archives. Their .cache candidates remain local, not pushed. The negation test is committed in iteration 22 and the quoted-path test in iteration 23. Their candidates remain local, not pushed. The next scalar test is local at /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s24rules/packages/estate/test/scan/scalar-rules.test.ts and is not pushed until its separate fix is measured and committed.
+The routing and compaction tests are committed in iterations 19 and 20; packages/estate/test/scan/registry-shapes.test.ts joins iteration 21. They are absent only from older frozen archives. Their .cache candidates remain local, not pushed. The negation test is committed in iteration 22 and the quoted-path test in iteration 23. Their candidates remain local, not pushed. The scalar test is committed in iteration 24 and the unquoted-path test in iteration 25. Their candidates remain local, not pushed.
 
 The sweep source .cache/full-17 is local, not pushed and is absent from the handover-24 source snapshot; its full-17 measurement and stamps are copied under that snapshot's .cache/estate-executor/. Read the canonical .cache/estate-executor/full-17.state.json, full-17.source.json, full-17.json and full-17.stderr for it. The directory is immutable source c415e845. A missing directory in a frozen archive is not proof that the named canonical sweep stopped.
 
 ## Open items
 
-The published row 24 capture is iteration-24.json, immutable base 3f10b337 plus its scalar-rule source and test. It passes 949 of 1170, with 221 failures; reader has 65 failures of 641. All values here use seed 1 unless an explicit sweep source is named.
+The current row 25 capture is iteration-25.json, immutable base 857f8a52 plus its unquoted-path source and test. It passes 952 of 1170, with 218 failures; reader has 62 failures of 641. All values here use seed 1 unless an explicit sweep source is named.
 
 | Level | Passing | Failing |
 |---|---|---|
-| reader | 576/641 | 65 |
+| reader | 579/641 | 62 |
 | lint | 45/46 | 1 |
 | plan | 44/65 | 21 |
 | generation | 196/270 | 74 |
@@ -201,9 +209,9 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
-1. Iteration 25 reads unquoted relative paths in packages/estate/src/scan/code.ts. Copy packages/estate/test/scan/unquoted-paths.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s31unquoted, local and not pushed. Run it red, then apply only namedPaths. Four missing forms share the unquoted token collector; code, quotes and whole markdown links stay claimed first. Preserve URL, command, nested-caption and escaped-caption exclusions. Ten new cases and 27 related candidate assertions pass after their red-first refinements. The four prospective bank gains outrank the next two-item group.
-2. Measure against iteration-24.json, journal, commit and push on exec/estate-v3 after fresh typecheck and lint. Iteration 26 then accepts object-valued rules in packages/estate/src/scan/claude-code.ts, with packages/estate/test/scan/object-rules.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s25objects, local and not pushed. Apply only object-valued enforces normalization, preserving scalar support, keys and events. Iteration 27 maps update and rename gate acts in code.ts with packages/estate/test/scan/gate-act-names.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s26gateacts, local and not pushed; it is the fifteenth owned cause and triggers another committed-source full sweep if reached.
-3. Read .cache/estate-executor/full-22.state.json, full-22.source.json, full-22.json and full-22.stderr for the tenth-fix sweep's actual source and result. They are local, not pushed. The completed older full-17 is 911 of 1170 on c415e845. PR 110 is merged with green CI; watch draft PR 154 from exec/estate-v3. The lead requires the latest completed iteration and journal pushed by 06:40, before an expected network outage around 06:45. Keep PR 154 in draft. Save the quiet handover-24 brief and exact failed IDs before source advances, then freeze that committed version and request the scheduled fresh review. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
+1. Remain paused until the owner resumes work. Read journal row 25 and .cache/estate-executor/iteration-25.json and its state and source stamps first. Keep draft PR 154 on exec/estate-v3; PR 110 is merged. Do not push to exec/estate-v2.
+2. After resumption, iteration 26 addresses object-valued rules in packages/estate/src/scan/claude-code.ts with packages/estate/test/scan/object-rules.test.ts. The prepared test and candidate are local, not pushed, under /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s25objects. Run the canonical test red first, apply only enforces normalization while preserving scalar rules, keys and events, then test, measure, journal and commit this separate cause.
+3. Iteration 27 addresses update and rename gate acts in packages/estate/src/scan/code.ts with packages/estate/test/scan/gate-act-names.test.ts. Its candidate is local, not pushed, under /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s26gateacts. If completed, it is the fifteenth owned cause and starts another committed-source full sweep. Read the completed full-22 captures separately: 924 of 1170 on b32e618f, before iterations 23 through 25. The scheduled handover-24 review uses the frozen archive; its quiet brief already matches row 24's 65 reader failures.
 
 ### Historical next actions before takeover
 
@@ -216,7 +224,7 @@ Then the owner-flagged output items: lint codes, scan order, approve counts (122
 
 ## Pitfalls
 
-Current row 24 measures the full bank afresh on its explicitly stamped post-import snapshot. All 25 determinism items pass, including all five Node 22 comparisons. All 37 stats items and all 25 bench.defects items pass. The 41 unit.runner items still await the input-contract review. gen.task is reinstated, not quarantined. The bank has 1170 items. Rows 17 and 18 record fresh scale measurements and retain their different timing outcomes.
+Current row 25 measures the full bank afresh on its explicitly stamped snapshot. All 25 determinism items pass, including all five Node 22 comparisons. All 37 stats items and all 25 bench.defects items pass. The 41 unit.runner items still await the input-contract review. gen.task is reinstated, not quarantined. The bank has 1170 items. Rows 17 and 18 record fresh scale measurements and retain their different timing outcomes.
 
 ### Historical pilot notes
 
