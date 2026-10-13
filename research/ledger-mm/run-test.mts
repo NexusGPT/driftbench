@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { append, Budget, costOf, hash, readLines, redact, workers } from './harness.mjs';
-import { classifyHttp, isRecoverable, isZeroCost, LinkMonitor, MAX_CONCURRENT_CALLS, PACING, Semaphore, TIMEOUT_MS, TRIES, withTransportRetry } from './exec.mjs';
+import { classifyHttp, readClaudeEnvelope, isRecoverable, isZeroCost, LinkMonitor, MAX_CONCURRENT_CALLS, PACING, Semaphore, TIMEOUT_MS, TRIES, withTransportRetry } from './exec.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '../..');
@@ -94,6 +94,28 @@ if (!dry) {
   if (cell?.maxThinkingTokens) env.MAX_THINKING_TOKENS = String(cell.maxThinkingTokens);
   transport = createDialectTransport({ ...cfg, env, maxTokens: 8192, timeoutMs: TIMEOUT_MS,
     maxRetries: 0, maxBudgetUsd: cell?.maxBudgetUsd ?? .10 } as any);
+  if (cell && cfg.provider === 'claude-cli') {
+    // Amendment 9: same command, flags, folder rule and prompt as the frozen transport, but the whole
+    // JSON envelope is kept on every call so an error with zero output tokens can be told from an answer.
+    const { buildDialectRequest } = await import('../../packages/judges/src/clients/transport.ts');
+    const { runClaudeCommand, CLAUDE_JUDGE_FLAGS } = await import('../../packages/judges/src/clients/claude-cli.ts');
+    const { mkdtempSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const frozen = transport;
+    let folder: string | undefined;
+    transport = { dialect: frozen.dialect, fingerprint: frozen.fingerprint, async complete(request: any) {
+      const built = buildDialectRequest('claude-cli', request);
+      folder ??= mkdtempSync(resolve(tmpdir(), 'driftbench-claude-transport-'));
+      const ran = await runClaudeCommand('claude', ['-p', '--output-format', 'json', '--model', cfg.model, '--system-prompt', request.system,
+        ...CLAUDE_JUDGE_FLAGS, '--max-budget-usd', String(cell.maxBudgetUsd)], built.payload.user as string, { cwd: folder, env, timeoutMs: TIMEOUT_MS });
+      const read = readClaudeEnvelope(ran.stdout, ran.code);
+      const identity = { dialect: frozen.dialect, fingerprint: `${frozen.fingerprint}:${built.fingerprint}` };
+      if (read.kind === 'no-envelope') throw Object.assign(new Error(`claude exited ${ran.code} without a JSON result`), { envelope: ran.stdout.slice(0, 4000) });
+      if (read.kind === 'no-answer') throw Object.assign(new Error(`claude envelope no-answer (terminal_reason=${read.reason})`), { envelope: ran.stdout, costUsd: read.cost });
+      if (read.kind === 'model-failure') return { ...identity, raw: ran.stdout, text: '', costUsd: read.cost, finishReason: `error:${read.reason}`, truncated: true };
+      return { ...identity, raw: ran.stdout, text: read.text, costUsd: read.cost, ...(read.finishReason ? { finishReason: read.finishReason } : {}), ...(read.truncated ? { truncated: true } : {}) };
+    } };
+  }
 }
 
 const gate = new Semaphore(callLimit);
@@ -164,9 +186,12 @@ async function ask(meta: any, request: any) {
           const text = redact(error);
           // The provider processed nothing on an unreachable host or a 5xx, so that try costs zero.
           const free = Boolean(cell) && cfg.provider !== 'claude-cli' && isZeroCost(text);
+          // A Claude envelope reports the real cost of a no-answer try; it is settled at that cost.
+          const known = Boolean(cell) && Number.isFinite((error as any)?.costUsd) ? Math.min((error as any).costUsd, reserve) : undefined;
           if (free) budget.settle(tryKey(n), 0);
+          else if (known !== undefined) budget.settle(tryKey(n), known);
           if (cell) link.failed(text);
-          append(attemptsFile, { key, tryKey: tryKey(n), attempt: n, ...meta, model, seconds: (Date.now() - started) / 1000, error: text, ...(free ? { usd: 0 } : { reserveRetained: reserve }), ...(cycle ? { cycle } : tag === key ? {} : { round }) });
+          append(attemptsFile, { key, tryKey: tryKey(n), attempt: n, ...meta, model, seconds: (Date.now() - started) / 1000, error: text, ...((error as any)?.envelope ? { envelope: (error as any).envelope } : {}), ...(free ? { usd: 0 } : known !== undefined ? { usd: known } : { reserveRetained: reserve }), ...(cycle ? { cycle } : tag === key ? {} : { round }) });
           throw error;
         } finally { release(); }
       },

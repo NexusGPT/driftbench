@@ -82,11 +82,11 @@ export function classifyHttp(error, pacing) {
 
 // Network-pause rules (amendment 8). A transport no-answer is not a spent item: it is recovered later.
 /** No model output arrived and the item may be asked again: unreachable host, timeout, or HTTP 5xx. */
-export const isRecoverable = (text) => /could not be reached|answered 5\d\d\b/.test(String(text));
+export const isRecoverable = (text) => /could not be reached|answered 5\d\d\b|claude envelope no-answer|without a JSON result|claude ran past/.test(String(text));
 /** The provider processed nothing, so the try costs zero. A timeout is excluded: its cost is unknown. */
 export const isZeroCost = (text) => /could not be reached \(TypeError\)|answered 5\d\d\b/.test(String(text));
 /** Connection-class failure, for the pause rule. */
-export const isConnectionFailure = (text) => /could not be reached/.test(String(text));
+export const isConnectionFailure = (text) => /could not be reached|claude envelope no-answer|without a JSON result|claude ran past/.test(String(text));
 
 /** Pauses the run after `limit` consecutive connection-class failures. Any answer resets the count. */
 export class LinkMonitor {
@@ -96,4 +96,21 @@ export class LinkMonitor {
     if (!isConnectionFailure(text)) { this.run = 0; return; }
     if (++this.run >= this.limit) this.paused = true;
   }
+}
+
+/**
+ * Reads a Claude CLI JSON envelope (amendment 9). Zero output tokens on an error envelope means no
+ * model output arrived: a transport no-answer at its reported cost. Any output tokens on an error
+ * envelope is an answer or a model-side failure, which is final and never re-sent.
+ */
+export function readClaudeEnvelope(stdout, code) {
+  let value;
+  try { value = JSON.parse(stdout); } catch { return { kind: 'no-envelope' }; }
+  if (!value || typeof value !== 'object' || value.type !== 'result') return { kind: 'no-envelope' };
+  const cost = typeof value.total_cost_usd === 'number' && Number.isFinite(value.total_cost_usd) && value.total_cost_usd >= 0 ? value.total_cost_usd : undefined;
+  const reason = String(value.terminal_reason ?? value.subtype ?? 'unknown');
+  if (value.is_error !== true && code === 0)
+    return { kind: 'answer', cost, text: typeof value.result === 'string' ? value.result : '', finishReason: typeof value.subtype === 'string' ? value.subtype : undefined, truncated: value.subtype !== 'success' };
+  const output = Number(value.usage?.output_tokens ?? 0);
+  return output > 0 ? { kind: 'model-failure', cost, reason } : { kind: 'no-answer', cost, reason };
 }

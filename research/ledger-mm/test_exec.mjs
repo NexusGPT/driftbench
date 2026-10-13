@@ -118,3 +118,24 @@ test('the link monitor pauses on 3 consecutive connection failures and resets on
   m.failed(timeout);
   assert.equal(m.paused, true);
 });
+
+import { readClaudeEnvelope } from './exec.mjs';
+const env = (o) => JSON.stringify({ type: 'result', ...o });
+
+test('claude envelope: zero output tokens on an error is a recoverable no-answer at its reported cost', () => {
+  const r = readClaudeEnvelope(env({ is_error: true, terminal_reason: 'api_error', total_cost_usd: 0.0012, usage: { output_tokens: 0 }, result: 'claude returned an error result' }), 1);
+  assert.deepEqual(r, { kind: 'no-answer', cost: 0.0012, reason: 'api_error' });
+  assert.equal(isRecoverable(`claude envelope no-answer (terminal_reason=${r.reason})`), true);
+});
+
+test('claude envelope: any output tokens on an error is a final model-side failure, never re-sent', () => {
+  const r = readClaudeEnvelope(env({ is_error: true, subtype: 'error_max_budget_usd', total_cost_usd: 0.1, usage: { output_tokens: 412 } }), 1);
+  assert.equal(r.kind, 'model-failure');
+});
+
+test('claude envelope: a success is an answer; a crash without JSON is a no-envelope', () => {
+  const ok = readClaudeEnvelope(env({ is_error: false, subtype: 'success', total_cost_usd: 0.02, result: '{"a":1}', usage: { output_tokens: 9 } }), 0);
+  assert.deepEqual([ok.kind, ok.text, ok.truncated, ok.cost], ['answer', '{"a":1}', false, 0.02]);
+  assert.equal(readClaudeEnvelope('Killed', 137).kind, 'no-envelope');
+  assert.equal(isRecoverable('claude exited 137 without a JSON result'), true);
+});
