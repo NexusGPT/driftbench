@@ -683,3 +683,32 @@ def pw_length(ctx):
 @point_expert('first', kind='cheap-rule', cost='0', job='The reply presented first wins: half by construction on a pair. No signal on a point item.')
 def pw_first(ctx):
     return {'pA': 0.5 if ctx.item['kind'] == 'pair' else None, 'detail': {}}
+
+
+# Cross-family and dataset-reference experts use isolated recorders in moj.panel.
+@expert('panel', kind='cross-family-panel', cost='6 S2',
+        job='Three independent model families, both orders; only explicit low-confidence items are eligible.')
+def panel_expert(ctx):
+    from .panel import cross_family_panel
+    return cross_family_panel(ctx)
+
+
+@expert('panel_cascade', kind='cross-family-panel', cost='4 or 6 S2',
+        job='Two families in both orders; a third family resolves disagreement or order instability.')
+def panel_cascade_expert(ctx):
+    from .panel import cross_family_panel
+    return cross_family_panel(ctx, cascade=True)
+
+
+@expert('reference_first', kind='dataset-reference', cost='1 S1 pointwise or 2 S1 pairwise',
+        job='Compare candidates with an explicit dataset reference before other experts.')
+def dataset_reference_expert(ctx):
+    from .reference_first import reference_first
+    return reference_first(ctx)
+
+
+@expert('reference_blind', kind='dataset-reference-ablation', cost='1 S1 pointwise or 2 S1 pairwise',
+        job='The same reference-eligible population and judge, with the reference withheld.')
+def dataset_reference_blind_expert(ctx):
+    from .reference_first import reference_blind
+    return reference_blind(ctx)
