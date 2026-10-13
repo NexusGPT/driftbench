@@ -384,11 +384,14 @@ async function withViewer(
 async function http(
   base: string,
   path: string,
-  init?: { method?: string; form?: Record<string, string> },
+  init?: { method?: string; form?: Record<string, string>; headers?: Record<string, string> },
 ): Promise<{ status: number; text: string; loc: string | null; csp: string | null }> {
   const r = await fetch(base + path, {
     method: init?.method ?? (init?.form ? 'POST' : 'GET'),
-    headers: init?.form ? { 'content-type': 'application/x-www-form-urlencoded' } : undefined,
+    headers: {
+      ...(init?.form ? { 'content-type': 'application/x-www-form-urlencoded' } : {}),
+      ...init?.headers,
+    },
     body: init?.form ? new URLSearchParams(init.form).toString() : undefined,
     redirect: 'manual',
   });
@@ -2748,6 +2751,31 @@ function readLabels(
 
 const post = (base: string, path: string, form: Record<string, string>) => http(base, path, { form });
 
+/** Read the current page, as a reviewer does. Older viewers have no hidden token. */
+async function labelForm(base: string, form: Record<string, string>): Promise<Record<string, string>> {
+  const page = await http(
+    base,
+    `/campaign/${encodeURIComponent(form.campaign as string)}/run/${encodeURIComponent(form.run as string)}`,
+  );
+  if (page.status !== 200) throw new Error(`expected the label page, got ${page.status}`);
+  const label = /<form\b[^>]*action=["']\/labels["'][^>]*>[\s\S]*?<\/form>/i.exec(page.text)?.[0];
+  if (!label) throw new Error('the page has no label form');
+  const tokenInput = [...label.matchAll(/<input\b[^>]*>/gi)].find((match) =>
+    /\bname=["']csrf["']/i.test(match[0]),
+  )?.[0];
+  if (!tokenInput) return { ...form };
+  const csrf = /\bvalue=["']([^"']*)["']/i.exec(tokenInput)?.[1];
+  if (csrf === undefined) throw new Error('the csrf input has no value');
+  return { ...form, csrf };
+}
+
+async function postLabelForm(base: string, form: Record<string, string>) {
+  return http(base, '/labels', {
+    form: await labelForm(base, form),
+    headers: { Origin: new URL(base).origin },
+  });
+}
+
 add(
   FV,
   'localhost-only',
@@ -3094,7 +3122,7 @@ add(
     let saved = 0;
     await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (base) => {
       saved = (
-        await post(base, '/labels', {
+        await postLabelForm(base, {
           campaign: 'q1',
           run: f.runIds[0] as string,
           block: '1',
@@ -3145,12 +3173,12 @@ add(
     await withViewer(
       ['--store', f.store, '--port', '0', '--labels', l1],
       f.dir,
-      async (b) => void (await post(b, '/labels', form)),
+      async (b) => void (await postLabelForm(b, form)),
     );
     await withViewer(
       ['--store', f.store, '--port', '0', '--labels', l2, '--labelled-by', 'Rae Example'],
       f.dir,
-      async (b) => void (await post(b, '/labels', form)),
+      async (b) => void (await postLabelForm(b, form)),
     );
     return expectAll([
       [
@@ -3183,7 +3211,7 @@ add(
       ['--store', f.store, '--port', '0', '--labels', labels, '--labelled-by', 'First Reviewer'],
       f.dir,
       async (b) => {
-        await post(b, '/labels', {
+        await postLabelForm(b, {
           campaign: 'q1',
           run,
           block: '0',
@@ -3191,7 +3219,7 @@ add(
           label: 'pass',
           note: 'a',
         });
-        await post(b, '/labels', {
+        await postLabelForm(b, {
           campaign: 'q1',
           run,
           block: '1',
@@ -3205,7 +3233,7 @@ add(
       ['--store', f.store, '--port', '0', '--labels', labels, '--labelled-by', 'Second Reviewer'],
       f.dir,
       async (b) => {
-        await post(b, '/labels', {
+        await postLabelForm(b, {
           campaign: 'q1',
           run,
           block: '0',
@@ -3226,6 +3254,50 @@ add(
       [b1?.label === 'fail' && b1?.note === 'b', `block 1 should stay fail/b, got ${JSON.stringify(b1)}`],
       [l?.labelled_by === 'First Reviewer', `labelled_by should stay First Reviewer, got ${l?.labelled_by}`],
     ]);
+  },
+);
+
+add(
+  FV,
+  'label-write-requires-token-and-origin',
+  3,
+  1,
+  'adversarial',
+  'driftbench view',
+  `${QVW} (writes require the viewer's own Origin and a hidden form token; rejected requests return 403 and write nothing)`,
+  'label writes without a token or with a foreign Origin return 403 and write nothing',
+  async (ctx) => {
+    const f = await judged(ctx.scratch);
+    const checks: [boolean, string][] = [];
+    for (const attack of ['missing-token', 'foreign-origin'] as const) {
+      const labels = freshLabels(f);
+      let status = 0;
+      await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (base) => {
+        const form = await labelForm(base, {
+          campaign: 'q1',
+          run: f.runIds[0] as string,
+          block: String(ctx.seed % f.blocks),
+          criterion: 'polite',
+          label: 'fail',
+          note: 'Fictional cross-site label.',
+        });
+        // Isolate each guard: own Origin without a token, or a real token with a foreign Origin.
+        if (attack === 'missing-token') delete form.csrf;
+        status = (
+          await http(base, '/labels', {
+            form,
+            headers: { Origin: attack === 'foreign-origin' ? 'https://foreign.example' : base },
+          })
+        ).status;
+      });
+      const files = existsSync(labels) ? readdirSync(labels) : [];
+      checks.push(
+        [status === 403, `${attack}: expected 403, got ${status}`],
+        [files.length === 0, `${attack}: expected no writes, found ${files.join(', ')}`],
+      );
+    }
+    const failures = checks.filter(([pass]) => !pass).map(([, detail]) => detail);
+    return expectAll([[failures.length === 0, failures.join('; ')]]);
   },
 );
 
