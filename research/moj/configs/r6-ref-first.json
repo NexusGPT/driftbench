@@ -1,0 +1,4 @@
+{"name": "r6-ref-first", "note": "Round 6. Reference first on reasoning terrain: the reference check joins stage 1 there; the System-2 verdict is added only when the mix is still under the boundary.",
+ "stage1": ["s1p"], "hi": 0.8, "lo": 0.8, "low": ["s2v"],
+ "always": [{"expert": "ref", "terrain": {"needs_reasoning": 0.6}}],
+ "no_escalate": [{"terrain": {"subjective_writing": 0.6}}]}

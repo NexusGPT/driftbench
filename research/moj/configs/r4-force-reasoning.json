@@ -1,0 +1,4 @@
+{"name": "r4-force-reasoning", "note": "Round 4. r2 plus: on reasoning terrain the item always goes to the low level (System 1 never decides alone there).",
+ "stage1": ["s1p"], "hi": 0.8, "lo": 0.8, "low": ["s2v"],
+ "no_escalate": [{"terrain": {"subjective_writing": 0.6}}],
+ "force_low": [{"terrain": {"needs_reasoning": 0.6}}]}

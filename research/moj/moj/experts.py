@@ -297,6 +297,32 @@ def s2v(ctx):
     return {'pA': games_to_p(games), 'detail': {'games': games, 'source': 'fresh'}}
 
 
+def _select_best(ctx, effort, tag):
+    games = []
+    for order in ('AB', 'BA'):
+        state = ctx.pair(order)
+        system = PF_TEMPLATE.format(criteria=f"{ctx.bench['criterion']} The question: {ctx.item['question']}", a=state['FIRST'], b=state['SECOND'])
+        text = ctx.luna([{'role': 'system', 'content': system}, {'role': 'user', 'content': 'Output the index now.'}], tag=tag, effort=effort)
+        pick = re.search(r'-?\d+', (text or '').strip())
+        pick = pick.group(0) if pick else None
+        games.append(('A' if order == 'AB' else 'B') if pick == '0' else ('B' if order == 'AB' else 'A') if pick == '1' else None)
+    return games
+
+
+@expert('s2vh', kind='system2-single-verdict-high-effort', cost='2 S2 (high effort)',
+        job='The System-2 single verdict at high reasoning effort, both orders. For reasoning terrain only: effort decides the result on hard correctness pairs.')
+def s2vh(ctx):
+    games = _select_best(ctx, 'high', 'select-best-high')
+    return {'pA': games_to_p(games), 'detail': {'games': games, 'source': 'fresh'}}
+
+
+@expert('s2vl', kind='system2-single-verdict-low-effort', cost='2 S2 (low effort)',
+        job='The System-2 single verdict at low reasoning effort, both orders. A cheaper System-2 vote for read-off terrain.')
+def s2vl(ctx):
+    games = _select_best(ctx, 'low', 'select-best-low')
+    return {'pA': games_to_p(games), 'detail': {'games': games, 'source': 'fresh'}}
+
+
 @expert('s2h', kind='system2-pointwise-rows', cost='2 S2',
         job='System 2 scores the requirement rows of one reply at a time with a tiny answer (true or false per row). Used for the hard rows.')
 def s2h(ctx):

@@ -1,0 +1,4 @@
+{"name": "r5-ref-panel", "note": "Round 5. r4 plus the reference check in the low-level mix: System-1 pairwise, reference check and System-2 verdict combined by fitted weights.",
+ "stage1": ["s1p"], "hi": 0.8, "lo": 0.8, "low": ["ref", "s2v"],
+ "no_escalate": [{"terrain": {"subjective_writing": 0.6}}],
+ "force_low": [{"terrain": {"needs_reasoning": 0.6}}]}

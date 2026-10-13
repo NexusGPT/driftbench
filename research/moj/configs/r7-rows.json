@@ -1,0 +1,4 @@
+{"name": "r7-rows", "note": "Round 7. r6 plus pointwise System-1 rows in stage 1 on every item.",
+ "stage1": ["s1p", "s1r"], "hi": 0.8, "lo": 0.8, "low": ["s2v"],
+ "always": [{"expert": "ref", "terrain": {"needs_reasoning": 0.6}}],
+ "no_escalate": [{"terrain": {"subjective_writing": 0.6}}]}
