@@ -12,6 +12,7 @@ import {
   parseJudgeText,
 } from '../../packages/judges/src/index';
 import { type Item, type Mode, requestFor } from './request';
+import { oldItems, oldRequestFor } from './request-old';
 
 // Scores the judge this checkout ships, and the competitor's own default prompt, on frozen held-out rows.
 // Usage: run.mts <promptfoo|langfuse|deepeval> <row>:<default|audit|theirs>[,...] [--replay] [--limit N] [--max-fresh N]
@@ -28,11 +29,16 @@ const option = (name: string) => {
 };
 const limit = option('--limit');
 const maxFresh = option('--max-fresh');
+// --old: the EXISTING held-out sets the README charts show, today's judge only (request-old.ts), capped at 3 USD.
+const old = process.argv.includes('--old');
+const OLD_CAP_USD = 3;
 if (
   !['promptfoo', 'langfuse', 'deepeval'].includes(competitor) ||
   jobs.some(
     ([r, c]) =>
-      !r || !['default', 'audit', 'theirs'].includes(c) || (competitor === 'deepeval' && c === 'theirs'),
+      !r ||
+      !['default', 'audit', 'theirs'].includes(c) ||
+      ((competitor === 'deepeval' || old) && c === 'theirs'),
   )
 )
   throw new Error(
@@ -57,7 +63,7 @@ const CONCURRENCY = 2;
 mkdirSync(`${here}calls`, { recursive: true });
 mkdirSync(`${here}results`, { recursive: true });
 mkdirSync(`${here}.cache/runtime`, { recursive: true });
-const recording = `${here}calls/${competitor}.jsonl`;
+const recording = `${here}calls/${old ? 'old-' : ''}${competitor}.jsonl`;
 
 type Call = {
   key: string;
@@ -94,6 +100,12 @@ function spentUsd(): number {
   return total;
 }
 let spent = spentUsd();
+let oldSpent = readdirSync(`${here}calls`)
+  .filter((n) => n.startsWith('old-'))
+  .reduce(
+    (s, n) => s + lines(`${here}calls/${n}`).reduce((t, l) => t + Number(JSON.parse(l).costUsd ?? 0), 0),
+    0,
+  );
 let reserved = 0;
 let fresh = 0;
 let consecutiveFailures = 0;
@@ -184,6 +196,8 @@ async function ask(id: string, prompt: { system: string; user: string }, attempt
   if (replay || (maxFresh !== undefined && fresh + reserved / PER_CALL_USD >= maxFresh)) return undefined;
   await waitForGate();
   if (spent + reserved + PER_CALL_USD > CAP_USD) throw new Error(`Budget cap ${CAP_USD} USD reached`);
+  if (old && oldSpent + reserved + PER_CALL_USD > OLD_CAP_USD)
+    throw new Error(`Old-set cap ${OLD_CAP_USD} USD reached`);
   reserved += PER_CALL_USD;
   const ran = await lean(prompt);
   reserved -= PER_CALL_USD;
@@ -242,6 +256,7 @@ async function ask(id: string, prompt: { system: string; user: string }, attempt
   appendFileSync(recording, `${JSON.stringify(call)}\n`);
   cache.set(key, call);
   spent += call.costUsd;
+  if (old) oldSpent += call.costUsd;
   fresh++;
   return call;
 }
@@ -267,7 +282,7 @@ function client(id: string): JudgeClient & { calls: Call[] } {
 }
 /** Default: one call and one more after an invalid ledger (packages/judges/src/single.ts). Audit: judgeAnswerAudit. */
 async function ours(item: Item, mode: Mode) {
-  const request = requestFor(competitor, row, item, mode);
+  const request = (old ? oldRequestFor : requestFor)(competitor, row, item, mode);
   const judge = client(item.id);
   let result: JudgeResult;
   if (mode === 'audit') result = await judgeAnswerAudit(judge, request);
@@ -290,10 +305,11 @@ async function ours(item: Item, mode: Mode) {
 
 if (!replay) await probeGate('start');
 for ([row, contestant] of jobs) {
-  const items = (JSON.parse(readFileSync(`${here}sets/${competitor}-${row}.json`, 'utf8')) as Item[]).slice(
-    0,
-    limit,
-  );
+  const items = (
+    old
+      ? oldItems(competitor, row)
+      : (JSON.parse(readFileSync(`${here}sets/${competitor}-${row}.json`, 'utf8')) as Item[])
+  ).slice(0, limit);
   const theirs =
     contestant === 'theirs'
       ? (JSON.parse(readFileSync(`${here}prompts/${competitor}-${row}-theirs.json`, 'utf8')) as Record<
@@ -336,7 +352,7 @@ for ([row, contestant] of jobs) {
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   const complete = results.filter((r) => r.complete).length;
   writeFileSync(
-    `${here}results/${competitor}-${row}-${contestant}.json`,
+    `${here}results/${old ? 'old-' : ''}${competitor}-${row}-${contestant}.json`,
     `${JSON.stringify({ competitor, row, contestant, model: 'haiku', items: items.length, complete, results }, null, 2)}\n`,
   );
   console.log(

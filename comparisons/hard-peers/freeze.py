@@ -48,7 +48,7 @@ PREREGISTRATION = {
 
 
 def files():
-    paths = [HERE / name for name in ['generate.py', 'render_peers.py', 'request.ts', 'run.mts', 'deepeval_run.py', 'score.py', 'freeze.py']]
+    paths = [HERE / name for name in ['generate.py', 'render_peers.py', 'request.ts', 'request-old.ts', 'run.mts', 'deepeval_run.py', 'score.py', 'freeze.py']]
     paths += sorted((HERE / 'sets').glob('*.json')) + sorted((HERE / 'prompts').glob('*.json'))
     paths += [REPO / p for p in [
         'comparisons/promptfoo/hard/run.py', 'comparisons/promptfoo/hard/vendor/defaults.json',
