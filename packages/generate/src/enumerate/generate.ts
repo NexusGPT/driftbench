@@ -475,26 +475,22 @@ function cellKey(values: Readonly<Record<string, string>>): string {
 }
 
 function measured(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCoverage {
-  const results: LoadResult[] = specs.map((spec) => ({
-    ok: true,
-    path: spec.id,
-    spec,
-    hash: '',
-    warnings: [],
-  }));
+  return measuredCoverage(prepared, specs, t);
+}
+
+/** t-wise coverage of the specs, read from the cached grid: the counts `coverage` states for the same specs. */
+export function measuredCoverage(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCoverage {
   const strength = Math.min(t, prepared.axisMap.dimensions.length);
-  const grid = coverage(prepared.axisMap, results, {
-    maxCells: MAX_GRID_CELLS,
-    t: strength,
-    ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
-  }).grid;
-  return {
-    t: strength,
-    specs: specs.length,
-    allowed: grid.allowed,
-    covered: grid.covered,
-    share: grid.share,
-  };
+  const grid = gridAt(prepared, strength);
+  const placements = specs.map((spec) => placeSpec(grid.space, spec));
+  let allowed = 0;
+  let covered = 0;
+  for (const projection of grid.projections) {
+    for (const flag of projection.allowed) allowed += flag;
+    for (const code of cover(projection, placements).byCode.keys())
+      if (projection.allowed[code] === 1) covered += 1;
+  }
+  return { t: strength, specs: specs.length, allowed, covered, share: allowed > 0 ? covered / allowed : 0 };
 }
 
 /**

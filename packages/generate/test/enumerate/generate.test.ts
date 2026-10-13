@@ -378,3 +378,33 @@ describe('iteration 22: a spec is validated as built, not parsed back from its t
     expect(compared).toBe(all.length);
   });
 });
+
+describe('iteration 23: the coverage share is read from the cached grid', () => {
+  it('states the allowed, covered and share the space package counts', async () => {
+    const { coverage } = await import('@agent-nexus/driftbench-space');
+    const { measuredCoverage } = await import('../../src/enumerate/generate');
+    const prepared = zedPrepared();
+    const { complete } = generateSuite(prepared, { mapPath: '../map.yaml', t: 2 });
+    for (const t of [2, 3]) {
+      for (const specs of [[], complete, complete.slice(0, 2)]) {
+        const results = specs.map((spec) => ({
+          ok: true as const,
+          path: spec.id,
+          spec,
+          hash: '',
+          warnings: [],
+        }));
+        const grid = coverage(prepared.axisMap, results, {
+          t: Math.min(t, prepared.axisMap.dimensions.length),
+        }).grid;
+        expect(measuredCoverage(prepared, [...specs], t)).toEqual({
+          t: grid.t,
+          specs: specs.length,
+          allowed: grid.allowed,
+          covered: grid.covered,
+          share: grid.share,
+        });
+      }
+    }
+  });
+});
