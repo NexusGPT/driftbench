@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-13T08:51:00.083890+00:00",
+  "phases": [
+    {
+      "model": "gpt-6-luna",
+      "phase": "pilot",
+      "items": 20,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "validity",
+      "items": 48,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "phase": "pilot",
+      "items": 20,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    }
+  ]
+}

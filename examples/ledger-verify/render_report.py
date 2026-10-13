@@ -16,23 +16,39 @@ def main():
       '- Official labels are primary. The unchanged 23-correction audit is a sensitivity analysis.',
       '- Contestants: frozen uncertainty cascade 558d75de and promptfoo llm-rubric at 8014282.',
       '- Every returned model answer stays cached. Transport failures and partial reports remain visible.','',
-      '## Official and audited cells','',
+      '## Strict headline and product-final scores','',
       'Accuracy intervals are Wilson 95%. Paired intervals use the frozen request-cluster bootstrap.',
-      'Missing and unparsed decisions count as wrong on all sealed items; incomplete cells carry no confirmatory claim.','']
-    for label in ['official','audited']:
-        lines += [f'### {label.capitalize()} labels','',
-          '| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Matched / 221 | Wins / losses | Exact p | Holm p | Status |',
-          '|---|---|---|---|---|---|---|---|']
-        for cell in cells['cells']:
-            d=cell.get(label)
-            if d is None:
-                lines.append(f"| {cell['model']} | pending | pending | 0 / 221 | pending | pending | pending | TEST pending |");continue
-            values=[f"{d['correct'][i]}/221, {pct(d['accuracy'][i])} [{pct(d['wilson95'][i][0])}, {pct(d['wilson95'][i][1])}]" for i in [0,1]]
-            status='INCOMPLETE' if d['provisional'] else d['verdict']
-            lines.append(f"| {cell['model']} | {values[0]} | {values[1]} | {d['matchedItems']} / 221 | {d['wins']} / {d['losses']} | {d['twoSidedExactMcNemarP']:.8g} | pending | {status} |")
-        lines+=['']
+      'Strict is the headline: any output-limit hit makes the affected contestant/item an error, even if a later fallback returns a verdict.',
+      'Product-final uses the verdict the frozen product returns, including its own fallback. Both rules apply equally to both contestants.',
+      'Missing and unparsed final decisions count as wrong. An observed error is a measured outcome; a stopped run is provisional.',
+      'The output-limit column counts observed TEST completion envelopes, cascade / promptfoo. Cached reuse can affect more items than envelopes.','']
+    for variant in ['strict','productFinal']:
+        for label in ['official','audited']:
+            lines += [f"### {'Strict headline' if variant=='strict' else 'Product-final sensitivity'}, {label} labels",'',
+              '| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Wins / losses | Exact p | Holm p | Status |',
+              '|---|---|---|---|---|---|---|---|']
+            for cell in cells['cells']:
+                d=(cell if variant=='strict' else cell.get('productFinal',{})).get(label)
+                if d is None:
+                    lines.append(f"| {cell['model']} | pending | pending | pending | pending | pending | pending | TEST pending |");continue
+                values=[f"{d['correct'][i]}/221, {pct(d['accuracy'][i])} [{pct(d['wilson95'][i][0])}, {pct(d['wilson95'][i][1])}]" for i in [0,1]]
+                status='INCOMPLETE' if d['provisional'] else d['verdict']
+                limits=' / '.join(str(cell['outputLimitErrors'][c]['test']['answerEnvelopes']) for c in ['driftbench-verify-uncertainty-cascade','promptfoo'])
+                lines.append(f"| {cell['model']} | {values[0]} | {values[1]} | {limits} | {d['wins']} / {d['losses']} | {d['twoSidedExactMcNemarP']:.8g} | pending | {status} |")
+            lines+=['']
     lines += ['Holm correction belongs to the prespecified 18-cell family and remains pending at this handoff. No local WIN or overall superiority claim is made.',
-      'Per-item decisions: results/<model>.json. Exact intervals, balanced accuracy and paired differences: evidence/cells.json.','',
+      'Per-item strict decisions: results/<model>.strict.json. Original product-final decisions: results/<model>.json.',
+      'Exact intervals, balanced accuracy, valid-verdict coverage and paired differences: evidence/cells.json.','',
+      '## Output-limit error attribution','',
+      '| Model | Contestant | TEST limit answers | TEST affected items | All-phase limit answers | All-phase affected items |',
+      '|---|---|---|---|---|---|']
+    for cell in cells['cells']:
+        for c,counts in cell['outputLimitErrors'].items():
+            lines.append(f"| {cell['model']} | {c} | {counts['test']['answerEnvelopes']} | {counts['test']['affectedItems']} | {counts['all']['answerEnvelopes']} | {counts['all']['affectedItems']} |")
+    errors=cells['outputLimitErrors']
+    lines += ['',f"Unclassified historical native errors: {len(errors['unclassifiedHistoricalNativeErrors'])}. Unmapped confirmed limits: {len(errors['unmappedLimits'])}.",
+      'Counts refer to observed completion envelopes. Native internal attempts are not inferred from aggregate turn counts.',
+      'Receipt ids, exact reasons and request-to-item attribution: evidence/output-limit-errors.json. The strict rule is frozen in evidence/scoring-freeze.json.','',
       '## Cost, cheaters and validation','',
       '| Model | TEST cost per 100: cascade / promptfoo | Mutation preserve / flip / injection changes | Noise items with any change: cascade / promptfoo |',
       '|---|---|---|---|']
@@ -79,7 +95,7 @@ def main():
     for name,h in cells['freeze']['hashes'].items():lines.append(f'| {name} | {h} |')
     lines += ['',f"Active runtime id: {rt['id']}. Frozen core: {rt['coreSha']}.",
       'Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.',
-      'Nine Python unit tests plus transport failure and quota checks cover statistics, missing outcomes, cap reservations and the four-call limit. Historical replay reproduces 102 verdicts with zero new model calls.',
+      'Unit checks cover statistics, strict output-limit scoring, missing outcomes, fee capture, budget reservations, concurrency and quota backoff. Historical replay reproduces 102 verdicts with zero new model calls.',
       'Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.py, test_budget.py.','']
     text='\n'.join(lines)
     assert '\u2014' not in text and '\u2013' not in text

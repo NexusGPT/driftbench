@@ -16,11 +16,14 @@ PHASES=['pilot','validity','noise-0','noise-1','noise-2','results']
 def rows(path):
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()] if path.exists() else []
 def main():
-    from stats import main as score
+    from stats import main as score, compare
     from validate import calculate
     score()
     validation={m:calculate(m) for m in MODELS}
     cells=json.loads((BASE/'evidence/cells.json').read_text())
+    limit_report=json.loads((BASE/'evidence/output-limit-errors.json').read_text())
+    pool=json.loads((BASE/'evidence/pool.json').read_text())
+    audit=json.loads((BASE/'evidence/audit-map.json').read_text())
     runtime=json.loads((BASE/'evidence/runtime-freeze.json').read_text())
     with (BASE/'receipts/budget.json').open() as f:
         fcntl.flock(f,fcntl.LOCK_SH);budget=json.load(f)
@@ -54,22 +57,38 @@ def main():
                 costPer100UniqueKeys={c:sum(r['costUsd'] for r in unique.values() if r['contestant']==c)*100/report['items'] for c in ['driftbench-verify-uncertainty-cascade','promptfoo']},
                 report=str(path.relative_to(ROOT)),recording=str(recording.relative_to(ROOT)))
     for cell in cells['cells']:
+        cell['outputLimitErrors']=limit_report['counts'][cell['model']]
         cell['validation']=validation[cell['model']]
         cell['phaseCoverage']=phases[cell['model']]
         if cell['status']=='measured':
+            original=json.loads((BASE/'results'/f"{cell['model']}.json").read_text())
+            strict=json.loads((BASE/'results'/f"{cell['model']}.strict.json").read_text())
+            cell['productFinal']={label:cell[label] for label in ['official','audited']}
+            a,b=[c['decisions'] for c in strict['contestants']]
+            cell['official']=compare(pool,a,b,{})
+            cell['audited']=compare(pool,a,b,audit)
+            for variant in [cell,cell['productFinal']]:
+                for label in ['official','audited']:
+                    variant[label]['validVerdictCoverageComplete']=not variant[label]['provisional']
+                    # A measured output-limit error is an endpoint outcome, not an unattempted item.
+                    variant[label]['provisional']=bool(original.get('stopped'))
+            cell['headline']='strict'
+            cell['strictDecisions']=f"results/{cell['model']}.strict.json"
+            cell['productFinalDecisions']=f"results/{cell['model']}.json"
             cell['costPer100UniqueKeys']=phases[cell['model']]['results']['costPer100UniqueKeys']
             cell['validityPassed']=bool(cell['validation']['mutationChecks']) and all(c['pass_'] for c in cell['validation']['mutationChecks'].values())
             if cell['official']['provisional'] or not cell['validityPassed']:
                 cell['claimStatus']='INCOMPLETE_OR_INVALID; no confirmatory win claim'
             else:cell['claimStatus']='Pending prespecified 18-cell Holm correction'
     cells['noiseFloor']={m:v['noise'] for m,v in validation.items()}
+    cells['outputLimitErrors']=limit_report
     cells['cheaters']['alwaysFailAudited']=1-cells['cheaters']['alwaysPassAudited']
     cells['fees']=dict(settledUsd=budget['spentUsd'],unresolvedMaximumUsd=reserved,
         maximumAccountedUsd=budget['spentUsd']+reserved,capUsd=budget['capUsd'],providerReceipts=len(calls),
         byModel={m:sum(r['costUsd'] for r in calls if r['model']==m) for m in MODELS},
         unknownCharges=budget['reservations'],source='receipts/budget.json and receipts/calls.jsonl')
     cells['freeze']={'runtime':runtime['id'],'core':runtime['coreSha'],
-        'hashes':{name:hashlib.sha256((BASE/name).read_bytes()).hexdigest() for name in ['evidence/seal.json','evidence/runtime-freeze.json','evidence/pilot-runtime-freeze.json','evidence/pool.json','evidence/audit-map.json','stats.py','validate.py','run.ts','transport.ts','summarize.py']}}
+        'hashes':{name:hashlib.sha256((BASE/name).read_bytes()).hexdigest() for name in ['evidence/seal.json','evidence/runtime-freeze.json','evidence/pilot-runtime-freeze.json','evidence/scoring-freeze.json','evidence/pool.json','evidence/audit-map.json','stats.py','validate.py','run.ts','transport.ts','summarize.py','output_limits.py','trace-requests.ts']}}
     cells['at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
     (BASE/'evidence/cells.json').write_text(json.dumps(cells,indent=2)+'\n')
     print(json.dumps({'fees':cells['fees'],'states':{m:phases[m] for m in MODELS}},indent=2))

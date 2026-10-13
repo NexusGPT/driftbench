@@ -1,0 +1,123 @@
+{
+  "counts": {
+    "haiku": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 1,
+          "affectedItems": 1,
+          "items": [
+            {
+              "phase": "pilot",
+              "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
+            }
+          ]
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      }
+    },
+    "gpt-6-luna": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      }
+    },
+    "gemini-3.8-flash": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      }
+    }
+  },
+  "limits": [
+    {
+      "receipt": "81b2aa72-eb26-4bf4-8fad-8226342cc521",
+      "model": "haiku",
+      "phase": "pilot",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T08:50:24.851Z",
+      "consumers": [
+        {
+          "phase": "pilot",
+          "model": "haiku",
+          "key": "c1fe1cecf23d005dd6a9",
+          "fingerprint": "e2ec83f4c83e0392f953a03e728ffc77f2e5659d61a56272be233462871057da",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+          "order": "program"
+        }
+      ]
+    }
+  ],
+  "unmappedLimits": [],
+  "unclassifiedHistoricalNativeErrors": [
+    {
+      "receipt": "6ab5b67b-9b3f-4827-aa2d-fbe47b370693",
+      "model": "haiku",
+      "reason": "Historical native error body unavailable; output-limit cause is not inferred"
+    },
+    {
+      "receipt": "54a2039c-e91b-4fd8-95c4-d77da5e16bb1",
+      "model": "haiku",
+      "reason": "Historical native error body unavailable; output-limit cause is not inferred"
+    }
+  ],
+  "rule": "Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.",
+  "source": "evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json"
+}
