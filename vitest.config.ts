@@ -27,6 +27,10 @@ export default defineConfig({
       '@agent-nexus/driftbench-example-acme': fileURLToPath(
         new URL('./examples/acme/src/package.ts', import.meta.url),
       ),
+      // The adapter contract suite, a second entry of the adapters package; listed before the package itself.
+      '@agent-nexus/driftbench-adapters/contract': fileURLToPath(
+        new URL('./packages/adapters/src/contract.ts', import.meta.url),
+      ),
       ...Object.fromEntries(
         packages.map((name) => [
           name === 'cli' ? '@agent-nexus/driftbench' : `@agent-nexus/driftbench-${name}`,
