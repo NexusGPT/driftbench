@@ -651,14 +651,14 @@ export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]):
       counts.length +
       (n === 0 ? 0 : f2 > 0 ? ((n - 1) / n) * ((f1 * f1) / (2 * f2)) : ((n - 1) / n) * ((f1 * (f1 - 1)) / 2)),
     hill_q0: counts.length,
-    hill_q1: Math.exp(entropy),
+    hill_q1: stable(Math.exp(entropy)),
     hill_q2:
       1 /
       Math.max(
         Number.EPSILON,
         shares.reduce((sum, share) => sum + share * share, 0),
       ),
-    pielou: counts.length > 1 ? entropy / Math.log(counts.length) : 1,
+    pielou: counts.length > 1 ? stable(entropy / Math.log(counts.length)) : 1,
     t3_share: three?.share ?? 0,
     t3_allowed: three?.allowed ?? 0,
     weighted_share: two.grid.weighted ?? 0,
@@ -669,6 +669,14 @@ export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]):
   for (const dimension of two.dimensions) out[`axis_${dimension.id}`] = dimension.covered;
   Object.assign(out, machineShare(specs));
   return out;
+}
+
+/**
+ * A measure that goes through a logarithm or an exponential, kept to twelve decimals: the last bit of those
+ * functions differs between processors, and the report must be the same bytes on every machine.
+ */
+function stable(value: number): number {
+  return Math.round(value * 1e12) / 1e12;
 }
 
 /** The share of blocks with a machine Then, and the blocks left to a judge. */
@@ -699,7 +707,7 @@ function seederMeasures(prepared: PreparedMap, specs: readonly Spec[]): Record<s
   const entropy = -shares.reduce((sum, share) => sum + (share > 0 ? share * Math.log(share) : 0), 0);
   return {
     hill_q0: counts.length,
-    pielou: counts.length > 1 ? entropy / Math.log(counts.length) : 1,
+    pielou: counts.length > 1 ? stable(entropy / Math.log(counts.length)) : 1,
     ...machineShare(specs),
   };
 }

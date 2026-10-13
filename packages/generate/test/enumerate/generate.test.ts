@@ -408,3 +408,20 @@ describe('iteration 23: the coverage share is read from the cached grid', () => 
     }
   });
 });
+
+describe('the measures of the report are the same bytes on every machine', () => {
+  it('keeps a measure that goes through a logarithm or an exponential to twelve decimals', () => {
+    const { report } = run();
+    const coverage = (report.coverage as unknown as { measures: Record<string, number> }).measures;
+    const seeders = Object.values(report.seeders).map(
+      (seeder) => (seeder as unknown as { measures?: Record<string, number> }).measures ?? {},
+    );
+    const values = [coverage.hill_q1, coverage.pielou, ...seeders.map((measures) => measures.pielou)].filter(
+      (value): value is number => typeof value === 'number',
+    );
+    expect(values.length).toBeGreaterThan(2);
+    for (const value of values) expect(Math.round(value * 1e12) / 1e12).toBe(value);
+    // Not every value is a whole number or a short fraction: the rounding is what holds them.
+    expect(values.some((value) => !Number.isInteger(value))).toBe(true);
+  });
+});
