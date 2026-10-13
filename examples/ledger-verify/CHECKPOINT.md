@@ -228,3 +228,10 @@
 - Completed models: haiku, gpt-6-luna. Offline replay covers 16 finished phases, with zero new provider calls.
 - Gemini pending status, if present, is an authorized daily-quota pause. See evidence/gemini-daily-quota-amendment.json and evidence/gemini-reset-watcher.json.
 - Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.
+
+## 2026-10-13T17:54:22.075185+00:00 active model continuation
+
+- Symmetric closed-cell output-limit correction is pushed at 56f47cd30897dd919a1b94393352b7e4c9d87823. Closed result files remain unchanged.
+- Sonnet TEST starts once at 17:47:11 UTC, after the detector amendment at 17:42:49 UTC. Its noise and mutation phases finish first.
+- Sol waits for Sonnet complete, then requires its fresh ten-probe gate under cap 40 USD. Sonnet cap is 45 USD.
+- Named publication driver waits for both finalizers, then publishes the complete reports and stops the health gate. Live process identities and exit predicates: evidence/new-model-active-drivers.json.

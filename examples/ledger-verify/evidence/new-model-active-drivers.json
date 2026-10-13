@@ -1,15 +1,20 @@
 {
-  "at": "2026-10-13T16:57:13.978696+00:00",
+  "at": "2026-10-13T17:54:22.075185+00:00",
   "processes": [
-    "21905 12375 python3 examples/ledger-verify/recover-native-quota.py",
-    "40158 12375 python3 examples/ledger-verify/sonnet-recovery-sequence.py",
+    "18315 12375 python3 examples/ledger-verify/publish-new-cells-when-complete.py",
     "52934 12375 python3 examples/ledger-verify/network-gate.py",
-    "61198 12375 python3 examples/ledger-verify/sol-after-sonnet.py"
+    "61198 12375 python3 examples/ledger-verify/sol-after-sonnet.py",
+    "75444 12375 python3 examples/ledger-verify/sonnet-recovery-sequence.py",
+    "86181 75444 python3 /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/new-cell-supervise.py claude-sonnet-5-5"
   ],
+  "retired": {
+    "21905": "159 native quota requests recovered",
+    "40158": "dependency guard stopped; replaced by 75444"
+  },
   "stopRules": [
-    "network gate stops when network-control.stop is true",
-    "quota recovery stops on an unanswered probe or quota/budget failure; otherwise after 159 terminal requests",
-    "Sonnet sequence stops after finalizer or first continuation error; 12 hour recovery wait bound",
-    "Sol sequence starts only after Sonnet finalizer complete; 12 hour wait bound"
+    "network gate exits when network-control.stop is true",
+    "Sonnet sequence exits after its offline finalizer or an error",
+    "Sol starts only after Sonnet offline finalizer passes; 12 hour wait bound",
+    "publisher waits for both offline finalizers, checks no transport-missing and caps, stops health gate, merges reports and pushes; 12 hour wait bound"
   ]
 }
