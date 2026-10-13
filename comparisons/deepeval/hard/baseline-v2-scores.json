@@ -1,0 +1,218 @@
+[
+  {
+    "row": "turn relevancy",
+    "n": 120,
+    "ours": 99,
+    "theirs": 62,
+    "ours_ci": [
+      74.72,
+      88.26
+    ],
+    "theirs_ci": [
+      42.81,
+      60.42
+    ],
+    "ours_distinct_inputs": 84,
+    "theirs_distinct_inputs": 84,
+    "ours_only_right": 41,
+    "theirs_only_right": 4,
+    "paired_p": 9.334883088740753e-09,
+    "outcome": "ahead",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.0904945,
+    "strict_theirs": 62
+  },
+  {
+    "row": "G-Eval strict",
+    "n": 120,
+    "ours": 99,
+    "theirs": 119,
+    "ours_ci": [
+      74.72,
+      88.26
+    ],
+    "theirs_ci": [
+      95.43,
+      99.85
+    ],
+    "ours_distinct_inputs": 84,
+    "theirs_distinct_inputs": 84,
+    "ours_only_right": 0,
+    "theirs_only_right": 20,
+    "paired_p": 1.9073486328125e-06,
+    "outcome": "behind",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.08451,
+    "strict_theirs": 119
+  },
+  {
+    "row": "DAG",
+    "n": 120,
+    "ours": 99,
+    "theirs": 114,
+    "ours_ci": [
+      74.72,
+      88.26
+    ],
+    "theirs_ci": [
+      89.52,
+      97.69
+    ],
+    "ours_distinct_inputs": 84,
+    "theirs_distinct_inputs": 84,
+    "ours_only_right": 6,
+    "theirs_only_right": 21,
+    "paired_p": 0.005924612283706665,
+    "outcome": "behind",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.0887005,
+    "strict_theirs": 114
+  },
+  {
+    "row": "role adherence",
+    "n": 120,
+    "ours": 118,
+    "theirs": 98,
+    "ours_ci": [
+      94.13,
+      99.54
+    ],
+    "theirs_ci": [
+      73.8,
+      87.57
+    ],
+    "ours_distinct_inputs": 40,
+    "theirs_distinct_inputs": 40,
+    "ours_only_right": 21,
+    "theirs_only_right": 1,
+    "paired_p": 1.0967254638671875e-05,
+    "outcome": "ahead",
+    "ours_unparsed": 1,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.11770050000000001,
+    "strict_theirs": 98
+  },
+  {
+    "row": "conversation completeness",
+    "n": 120,
+    "ours": 115,
+    "theirs": 76,
+    "ours_ci": [
+      90.62,
+      98.21
+    ],
+    "theirs_ci": [
+      54.42,
+      71.42
+    ],
+    "ours_distinct_inputs": 84,
+    "theirs_distinct_inputs": 84,
+    "ours_only_right": 39,
+    "theirs_only_right": 0,
+    "paired_p": 3.637978807091713e-12,
+    "outcome": "ahead",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.21064190000000002,
+    "strict_theirs": 115
+  },
+  {
+    "row": "task completion",
+    "n": 120,
+    "ours": 118,
+    "theirs": 91,
+    "ours_ci": [
+      94.13,
+      99.54
+    ],
+    "theirs_ci": [
+      67.45,
+      82.61
+    ],
+    "ours_distinct_inputs": 90,
+    "theirs_distinct_inputs": 90,
+    "ours_only_right": 28,
+    "theirs_only_right": 1,
+    "paired_p": 1.1175870895385742e-07,
+    "outcome": "ahead",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.1416413,
+    "strict_theirs": 68
+  },
+  {
+    "row": "hallucination",
+    "n": 120,
+    "ours": 120,
+    "theirs": 60,
+    "ours_ci": [
+      96.9,
+      100
+    ],
+    "theirs_ci": [
+      41.19,
+      58.81
+    ],
+    "ours_distinct_inputs": 75,
+    "theirs_distinct_inputs": 75,
+    "ours_only_right": 60,
+    "theirs_only_right": 0,
+    "paired_p": 1.734723475976807e-18,
+    "outcome": "ahead",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.14213900000000002,
+    "strict_theirs": 105
+  },
+  {
+    "row": "faithfulness",
+    "n": 120,
+    "ours": 120,
+    "theirs": 60,
+    "ours_ci": [
+      96.9,
+      100
+    ],
+    "theirs_ci": [
+      41.19,
+      58.81
+    ],
+    "ours_distinct_inputs": 75,
+    "theirs_distinct_inputs": 75,
+    "ours_only_right": 60,
+    "theirs_only_right": 0,
+    "paired_p": 1.734723475976807e-18,
+    "outcome": "ahead",
+    "ours_unparsed": 0,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.20696050000000002,
+    "strict_theirs": 105
+  },
+  {
+    "row": "knowledge retention",
+    "n": 120,
+    "ours": 110,
+    "theirs": 115,
+    "ours_ci": [
+      85.34,
+      95.41
+    ],
+    "theirs_ci": [
+      90.62,
+      98.21
+    ],
+    "ours_distinct_inputs": 120,
+    "theirs_distinct_inputs": 120,
+    "ours_only_right": 5,
+    "theirs_only_right": 10,
+    "paired_p": 0.3017578125,
+    "outcome": "behind",
+    "ours_unparsed": 3,
+    "theirs_unparsed": 0,
+    "cost_usd": 0.15106730000000002,
+    "strict_theirs": 115
+  }
+]

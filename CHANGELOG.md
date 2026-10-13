@@ -7,6 +7,12 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 * Teacher-forced runs keep private canonical prefix buffers and take one resolved snapshot per block. Immutable message templates share their lazy field descriptors without registering every old message again on each send. Mutable callback arrays, isolated writes and `structuredClone` remain supported.
 
 Adapters can borrow a read-only history view with copy-on-write. The function adapter captures primitive message fields and copies nested JSON on first access, using plain array slots for ordinary messages. Existing mutable agent callbacks keep isolated writes, `structuredClone` support and their `Message[]` signature.
+* Opt-in `stated_length` check in the checks package: it reads a total length stated in the request (English words, or Chinese characters for 字) and fails a draft under half of it. Over-length never fails unless `over_ceiling` is set. The earlier 10 percent rule failed long drafts that human labels preferred. See [checks](docs/reference/checks.md#stated-length).
+
+* Winner quote grounding maps decoded JSON value characters back to their literal source spans. Escaped role tokens, JSON text-wrapper keys and escape digits alone cannot supply substantive evidence; legacy is unchanged.
+
+* Pairwise winner matching preserves substantive literal substrings, including partial code fences, before adding normalized views. Exactly one candidate must match; labels and decoration alone remain insufficient.
+* Ordinary criterion evidence accepts source-bound lists of `{ source, quote }` spans, each grounded independently in its named entry or data source. The default prompt requests lists; existing string evidence still parses. Public binary answers retain string evidence, and returned checks preserve all spans. This changes new-default prompt fingerprints; legacy rendering and parsing are unchanged.
 
 * Legacy judging freezes main `a97cb65e` rendering and parsing, including entry separators, object extraction and repair behavior. All 1,028 stored chat entries have main-matching replay outcomes.
 
