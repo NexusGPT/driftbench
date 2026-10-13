@@ -3271,52 +3271,119 @@ add(
   1,
   'adversarial',
   'driftbench view',
-  `${QVW} (writes require the viewer's own Host and Origin and a hidden form token; rejected requests return 403 and write nothing)`,
-  'label writes without a token or with a foreign Origin or Host return 403 and write nothing',
+  `${QVW} (exact Host, own Origin or same-origin Referer fallback, and a hidden form token; rejected requests return 403 and write nothing)`,
+  'the full Host, Origin, Referer and token-location matrix follows the documented write rule',
   async (ctx) => {
     const { request } = await import('node:http');
     const f = await judged(ctx.scratch);
     const checks: [boolean, string][] = [];
-    for (const attack of ['missing-token', 'foreign-origin', 'foreign-host'] as const) {
+    const cases = (['own', 'foreign', 'different-port'] as const).flatMap((host) =>
+      (['own', 'foreign', 'absent'] as const).flatMap((origin) =>
+        (['own', 'foreign', 'absent', 'malformed'] as const).flatMap((referer) =>
+          (['body', 'missing', 'wrong', 'query-only', 'header-only'] as const).map((token) => ({
+            host,
+            origin,
+            referer,
+            token,
+          })),
+        ),
+      ),
+    );
+    for (const { host, origin, referer, token } of cases) {
+      // docs/viewer.md: "Requests must use the exact `127.0.0.1:<port>` address printed at startup."
+      // "Other Host headers are refused to block DNS rebinding."
+      // "Writes also require the viewer's own Origin, or a same-origin Referer when Origin is absent,
+      // and a hidden form token generated at each start."
+      // "Rejected requests return HTTP 403 with a plain message and write nothing."
+      // The form token belongs in the form body. Origin takes precedence over Referer.
+      const allowed =
+        host === 'own' &&
+        (origin === 'own' || (origin === 'absent' && referer === 'own')) &&
+        token === 'body';
+      const context = `Host=${host}, Origin=${origin}, Referer=${referer}, token=${token}`;
       const labels = freshLabels(f);
+      const run = f.runIds[0] as string;
+      const block = String(ctx.seed % f.blocks);
+      const note = 'Fictional matrix label.';
       let status = 0;
-      await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (base) => {
-        const form = await labelForm(base, {
-          campaign: 'q1',
-          run: f.runIds[0] as string,
-          block: String(ctx.seed % f.blocks),
-          criterion: 'polite',
-          label: 'fail',
-          note: 'Fictional cross-site label.',
-        });
-        // Vary only one guard. node:http preserves an explicit Host; fetch may replace it.
-        if (attack === 'missing-token') delete form.csrf;
-        status = await new Promise<number>((resolve, reject) => {
-          const req = request(
-            `${base}/labels`,
-            {
-              method: 'POST',
-              headers: {
-                'content-type': 'application/x-www-form-urlencoded',
-                Host: attack === 'foreign-host' ? 'foreign.example' : new URL(base).host,
-                Origin: attack === 'foreign-origin' ? 'https://foreign.example' : base,
-              },
-            },
-            (res) => {
+      const signals = ['SIGINT', 'SIGTERM'] as const;
+      const listeners = new Map(signals.map((signal) => [signal, new Set(process.listeners(signal))]));
+      try {
+        await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (base) => {
+          const form = await labelForm(base, {
+            campaign: 'q1',
+            run,
+            block,
+            criterion: 'polite',
+            label: 'fail',
+            note,
+          });
+          const csrf = form.csrf ?? '';
+          checks.push([csrf.length > 0, `${context}: page form must supply a csrf token`]);
+          if (token !== 'body') delete form.csrf;
+          if (token === 'wrong') form.csrf = `${csrf}-wrong`;
+          const url = new URL(`${base}/labels`);
+          if (token === 'query-only') url.searchParams.set('csrf', csrf);
+          const address = new URL(base);
+          const otherPort = Number(address.port) === 65535 ? 1 : Number(address.port) + 1;
+          const headers: Record<string, string> = {
+            'content-type': 'application/x-www-form-urlencoded',
+            Host:
+              host === 'own'
+                ? address.host
+                : host === 'foreign'
+                  ? 'foreign.example'
+                  : `${address.hostname}:${otherPort}`,
+          };
+          if (origin !== 'absent') headers.Origin = origin === 'own' ? base : 'https://foreign.example';
+          if (referer !== 'absent') {
+            headers.Referer =
+              referer === 'own'
+                ? `${base}/campaign/q1/run/${run}`
+                : referer === 'foreign'
+                  ? 'https://foreign.example/review'
+                  : 'not a URL';
+          }
+          if (token === 'header-only') headers['X-CSRF-Token'] = csrf;
+          // node:http preserves an explicit Host; fetch may replace it.
+          status = await new Promise<number>((resolve, reject) => {
+            const req = request(url, { method: 'POST', headers }, (res) => {
               res.on('error', reject);
               res.on('end', () => resolve(res.statusCode ?? 0));
               res.resume();
-            },
-          );
-          req.on('error', reject);
-          req.end(new URLSearchParams(form).toString());
+            });
+            req.on('error', reject);
+            req.end(new URLSearchParams(form).toString());
+          });
         });
-      });
+      } finally {
+        // Each combination owns a fresh viewer and labels directory, including its stop handlers.
+        for (const signal of signals) {
+          for (const listener of process.listeners(signal)) {
+            if (!listeners.get(signal)?.has(listener)) process.removeListener(signal, listener);
+          }
+        }
+      }
       const files = existsSync(labels) ? readdirSync(labels) : [];
-      checks.push(
-        [status === 403, `${attack}: expected 403, got ${status}`],
-        [files.length === 0, `${attack}: expected no writes, found ${files.join(', ')}`],
-      );
+      checks.push([
+        status === (allowed ? 303 : 403),
+        `${context}: expected ${allowed ? 303 : 403}, got ${status}`,
+      ]);
+      if (allowed) {
+        const saved = readLabels(labels, 'polite');
+        checks.push([
+          files.length === 1 &&
+            files[0] === 'polite.yaml' &&
+            saved?.criterion === 'polite' &&
+            saved.blocks.length === 1 &&
+            saved.blocks[0]?.id === `${run}.b${block}` &&
+            saved.blocks[0]?.label === 'fail' &&
+            saved.blocks[0]?.note === note,
+          `${context}: expected the submitted label in polite.yaml`,
+        ]);
+      } else {
+        checks.push([files.length === 0, `${context}: expected no writes, found ${files.join(', ')}`]);
+      }
     }
     const failures = checks.filter(([pass]) => !pass).map(([, detail]) => detail);
     return expectAll([[failures.length === 0, failures.join('; ')]]);
