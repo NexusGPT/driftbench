@@ -20,6 +20,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const RESULTS = join(HERE, 'results');
 const RECORDINGS = join(HERE, 'recordings');
 const SHIM = join(HERE, 'llm-shim.mjs');
+const TWIN = process.argv.includes('--twin') ? '-twin' : '';
 const GEMINI = arg('gemini') ?? 'gemini-3.8-flash';
 const STOP_AT = Date.parse('2026-10-13T06:30:00+02:00');
 
@@ -38,7 +39,62 @@ type Pair = {
   group: string;
 };
 
+const SCRATCH =
+  '/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/opus';
+
+export function stripMarkdown(text: string): string {
+  return text
+    .split('\n')
+    .filter((line) => !/^\s*```/.test(line))
+    .map((line) =>
+      line
+        .replace(/^\s{0,3}#{1,6}\s+/, '')
+        .replace(/^(\s*)[-*+]\s+/, '$1')
+        .replace(/\*\*|__/g, '')
+        .replace(/`/g, ''),
+    )
+    .join('\n');
+}
+
+/** RubricBench dev rows, read from the scratchpad at run time and never committed (the dataset names no licence). */
+async function rubricItems(): Promise<Pair[]> {
+  const rows = JSON.parse(await readFile(join(SCRATCH, 'rb-dev.json'), 'utf8')) as Record<string, unknown>[];
+  return rows.map((r) => ({
+    kind: 'pair',
+    id: String(r.case_id),
+    question: String(r.instruction),
+    a: String(r.response_a),
+    b: String(r.response_b),
+    label: Number(r.label) === 0 ? 'A' : 'B',
+    group: String(r.domain),
+    criterion: `${CRITERIA.rubricbench}\n${String(r.rubrics)}`,
+  })) as Pair[];
+}
+
+/** RubricBench fixtures, fixed before any tie is scored: six clear dev pairs (binary margin 3 or more, base right). */
+export async function rubricFixtures(): Promise<Pair[]> {
+  const margins = JSON.parse(await readFile(join(SCRATCH, 'rb-margins.json'), 'utf8')) as [
+    string,
+    number,
+    number,
+    boolean,
+    string,
+  ][];
+  const clear = new Set(margins.filter((m) => Math.abs(m[1]) >= 3 && m[3]).map((m) => m[0]));
+  const items = (await rubricItems()).filter((i) => clear.has(i.id));
+  const key = (id: string) => createHash('sha256').update(`fixture:rubricbench:${id}`).digest('hex');
+  return items.sort((x, y) => key(x.id).localeCompare(key(y.id))).slice(0, 6);
+}
+
 export async function devItems(bench: string): Promise<Pair[]> {
+  if (bench === 'rubricbench') {
+    const ties = new Set(JSON.parse(await readFile(join(SCRATCH, 'rb-m0.json'), 'utf8')) as string[]);
+    const tied = (await rubricItems()).filter((i) => ties.has(i.id));
+    if (!process.argv.includes('--twin')) return tied;
+    // The markdown-stripped twin: same words, no headings, emphasis, bullets or code fences.
+    return tied.map((i) => ({ ...i, id: `${i.id}#plain`, a: stripMarkdown(i.a), b: stripMarkdown(i.b) }));
+  }
+  if (bench === 'rbfixtures') return rubricFixtures();
   const all = (await loadBenchmark(bench)).items as Pair[];
   const byId = new Map(all.map((item) => [item.id, item]));
   let ids: string[];
@@ -87,7 +143,7 @@ if (mode === 'run') {
   });
   const out = join(
     RESULTS,
-    `${bench}-${model}${process.argv.includes('--replay-only') ? '-replay' : ''}-${contestants.map((c: { id: string }) => c.id).join('+')}.json`,
+    `${bench}${TWIN}-${model}${process.argv.includes('--replay-only') ? '-replay' : ''}-${contestants.map((c: { id: string }) => c.id).join('+')}.json`,
   );
   await writeFile(out, `${JSON.stringify(report, null, 2)}\n`);
   const provider = model.startsWith('gpt-') ? 'OpenAI' : model.startsWith('gemini-') ? 'Google' : 'Anthropic';
@@ -125,7 +181,7 @@ if (mode === 'run') {
       items: [item],
       criterion: CRITERIA[bench],
       command: SHIM,
-      recordingsDir: RECORDINGS,
+      recordingsDir: arg('recordings-dir') ?? RECORDINGS,
       replayOnly: 'lenient',
       concurrency: 1,
     });
@@ -135,7 +191,7 @@ if (mode === 'run') {
     const vote = score === null ? 'missing' : score > 0.5 ? item.label : score < 0.5 ? other : 'tie';
     rows.push({ id: item.id, group: item.group, label: item.label, score, vote });
   }
-  const out = join(RESULTS, `items-${bench}-${model}-${contestant.id}.json`);
+  const out = join(RESULTS, `items-${bench}${TWIN}-${model}-${contestant.id}.json`);
   await writeFile(out, `${JSON.stringify(rows)}\n`);
   console.log(
     JSON.stringify({ out, n: rows.length, missing: rows.filter((r) => r.vote === 'missing').length }),
@@ -170,7 +226,9 @@ async function pool<T>(tasks: (() => Promise<T>)[], n: number): Promise<T[]> {
 function score(items: Pair[], sides: ReadonlyMap<string, Side>) {
   const results = items.map((item) => {
     const side = sides.get(item.id) ?? 'missing';
-    return side === 'missing' ? { item, games: [], missing: 2 } : { item, games: [side, side], missing: 0 };
+    return side === 'missing'
+      ? { item, games: [], missing: 2, providerRefused: true }
+      : { item, games: [side, side], missing: 0 };
   });
   return scorePairs(bench, results);
 }
@@ -186,7 +244,7 @@ async function haikuSides(): Promise<Map<string, Side>> {
 
 async function chatSides(model: string, contestant: string): Promise<Map<string, Side>> {
   const rows = JSON.parse(
-    await readFile(join(RESULTS, `items-${bench}-${model}-${contestant}.json`), 'utf8'),
+    await readFile(join(RESULTS, `items-${bench}${TWIN}-${model}-${contestant}.json`), 'utf8'),
   ) as { id: string; vote: Side }[];
   return new Map(rows.map((r) => [r.id, r.vote]));
 }
@@ -200,7 +258,9 @@ if (mode === 'jev' || mode === 'council') {
     JEV_API_KEY: process.env.JEV_API_KEY ?? 'replay',
   };
   const jev = pairs.makeJev(recorder.fetch, env);
-  const inputs = new Map(items.map((item) => [item.id, { ...item, criterion: CRITERIA[bench] as string }]));
+  const inputs = new Map(
+    items.map((item) => [item.id, { ...item, criterion: item.criterion ?? (CRITERIA[bench] as string) }]),
+  );
   const seats = pairs.jevSeats(inputs, jev);
   const ask = (seat: (typeof seats)[number], id: string) =>
     seat
@@ -232,7 +292,7 @@ if (mode === 'jev' || mode === 'council') {
       sides: Object.fromEntries(sides),
       seatSides: seats.map((seat, k) => ({ seat: seat.id, sides: Object.fromEntries(perSeat[k]!) })),
     };
-    await writeFile(join(RESULTS, `jev-${bench}.json`), `${JSON.stringify(report, null, 2)}\n`);
+    await writeFile(join(RESULTS, `jev-${bench}${TWIN}.json`), `${JSON.stringify(report, null, 2)}\n`);
     await ledger(
       `| ${new Date().toISOString()} | opus-council | Jev (TypeSafe direct) | jev-latest | ${bench} dev ${items.length} pairs, 3 framings | ${recorder.stats.calls} calls | tokens in ${recorder.stats.inputTokens} out ${recorder.stats.outputTokens}, price not published |`,
     );
@@ -275,10 +335,52 @@ if (mode === 'jev' || mode === 'council') {
       const b = votes.filter((v) => v === 'B').length;
       s2only.set(item.id, a >= 2 ? 'A' : b >= 2 ? 'B' : 'tie');
     }
+    // Cascade on the strongest seat: keep Haiku when its two orders agree; otherwise ask the other two chat
+    // seats and Jev's three-framing majority, and keep Haiku's own net answer when they split too.
+    const haikuGames = new Map(
+      (
+        JSON.parse(
+          await readFile(
+            join(
+              HERE,
+              'inputs',
+              bench === 'judgebench' ? 'jb-dev-haiku-reference3.json' : 'mm-dev400-haiku-native.json',
+            ),
+            'utf8',
+          ),
+        ) as { id: string; games: string[] }[]
+      ).map((r) => [r.id, r.games]),
+    );
+    const jevSides = new Map(
+      Object.entries(
+        (
+          JSON.parse(await readFile(join(RESULTS, `jev-${bench}.json`), 'utf8')) as {
+            sides: Record<string, Side>;
+          }
+        ).sides,
+      ),
+    );
+    const cascade = new Map<string, Side>();
+    let escalated = 0;
+    for (const item of items) {
+      const games = haikuGames.get(item.id) ?? [];
+      const sure = games.length === 2 && games[0] === games[1] && games[0] !== 'tie';
+      if (sure) {
+        cascade.set(item.id, games[0] as Side);
+        continue;
+      }
+      escalated += 1;
+      const votes = [gpt.get(item.id), gemini.get(item.id), jevSides.get(item.id)];
+      const a = votes.filter((v) => v === 'A').length;
+      const b = votes.filter((v) => v === 'B').length;
+      cascade.set(item.id, a >= 2 ? 'A' : b >= 2 ? 'B' : (haiku.get(item.id) ?? 'missing'));
+    }
     const report = {
       bench,
       items: items.length,
       council: score(items, sides),
+      haikuFirstCascade: { summary: score(items, cascade), escalated },
+      cascadeSides: Object.fromEntries(cascade),
       system2MajorityOnly: score(items, s2only),
       haikuFrozen: score(items, haiku),
       gpt: score(items, gpt),
@@ -293,6 +395,8 @@ if (mode === 'jev' || mode === 'council') {
       JSON.stringify({
         bench,
         council: report.council.value.estimate,
+        cascade: report.haikuFirstCascade.summary.value.estimate,
+        escalated,
         s2only: report.system2MajorityOnly.value.estimate,
         haiku: report.haikuFrozen.value.estimate,
         gpt: report.gpt.value.estimate,
@@ -332,11 +436,35 @@ if (mode === 'route') {
     { name: 'gpt-5.4-mini', sides: await chatSides('gpt-5.4-mini', 'driftbench'), per100: gptPer100 },
     { name: 'haiku-frozen', sides: await haikuSides(), per100: haikuPer100 },
     {
+      name: 'haiku-first-cascade',
+      sides: new Map(Object.entries(councilReport.cascadeSides)) as Map<string, Side>,
+      per100:
+        haikuPer100 + (councilReport.haikuFirstCascade.escalated / items.length) * (gptPer100 + geminiPer100),
+    },
+    {
       name: 'council',
       sides: new Map(Object.entries(councilReport.sides)) as Map<string, Side>,
       per100: haikuPer100 + gptPer100 + geminiPer100,
     },
   ];
+  // JudgeBench's paper categories: knowledge (MMLU-Pro), reasoning, math (LiveBench), coding (LiveCodeBench).
+  const category = new Map<string, string>();
+  if (bench === 'judgebench') {
+    const raw = await readFile(join(process.env.DRIFTBENCH_BENCH_CACHE ?? '', '10153fe639a1e701'), 'utf8');
+    for (const line of raw.split('\n')) {
+      if (!line.trim()) continue;
+      const row = JSON.parse(line) as { pair_id: string; source: string };
+      const c = row.source.startsWith('mmlu-pro')
+        ? 'knowledge'
+        : row.source === 'livebench-reasoning'
+          ? 'reasoning'
+          : row.source === 'livebench-math'
+            ? 'math'
+            : 'coding';
+      category.set(row.pair_id, c);
+    }
+    for (const item of items) item.group = category.get(item.id) ?? item.group;
+  }
   const groups = [...new Set(items.map((i) => i.group))].sort();
   const assignment: Record<
     string,
@@ -388,4 +516,280 @@ if (mode === 'route') {
 
 function createHashSync(text: string): number {
   return createHash('sha256').update(text).digest()[0]!;
+}
+
+// ---- JudgeBench design JB-1: reference3 base, the council only on escalated and contested pairs ----
+// No OpenAI seat: the judged responses come from GPT-4o, and a judge never shares the agent's family.
+if (mode === 'jbcouncil') {
+  const items = await devItems('judgebench');
+  const recorder = pairs.recordingFetch(join(RECORDINGS, 'jev-judgebench.jsonl'), false);
+  const jev = pairs.makeJev(recorder.fetch, {
+    JEV_URL: 'https://api.typesafe.ai/v1/systemone',
+    JEV_API_KEY: 'replay',
+  });
+  const inputs = new Map(
+    items.map((item) => [item.id, { ...item, criterion: CRITERIA.judgebench as string }]),
+  );
+  const finalLetters = (text: string): string | undefined => {
+    const all = [...text.matchAll(/\b([A-J])\1{4}\b/g)];
+    return all.length ? all[all.length - 1]![1] : undefined;
+  };
+  const haikuGames = new Map(
+    (
+      JSON.parse(await readFile(join(HERE, 'inputs', 'jb-dev-haiku-reference3.json'), 'utf8')) as {
+        id: string;
+        games: string[];
+      }[]
+    ).map((r) => [r.id, r.games]),
+  );
+  const ref3 = await haikuSides();
+  const adaptive = await chatSides('haiku', 'driftbench-adaptive');
+  const gemini = await chatSides(GEMINI, 'driftbench');
+  const system2 = [
+    pairs.recordedSeat('haiku-reference3', 'anthropic', ref3),
+    pairs.recordedSeat('haiku-adaptive', 'anthropic', adaptive),
+    pairs.recordedSeat(GEMINI, 'google', gemini),
+  ];
+  const council = pairs.pairCouncil(system2, pairs.jevSeats(inputs, jev));
+  const inconsistent = new Set(
+    items
+      .filter((i) => {
+        const g = haikuGames.get(i.id) ?? [];
+        return !(g.length === 2 && g[0] === g[1] && g[0] !== 'tie');
+      })
+      .map((i) => i.id),
+  );
+  const contested = new Set(
+    items
+      .filter((i) => /\(([A-J])\)/.test(i.question))
+      .filter((i) => {
+        const a = finalLetters(i.a);
+        const b = finalLetters(i.b);
+        return a !== undefined && b !== undefined && a !== b;
+      })
+      .map((i) => i.id),
+  );
+  const variants: Record<string, Set<string>> = {
+    inconsistentOnly: inconsistent,
+    contestedOnly: contested,
+    inconsistentOrContested: new Set([...inconsistent, ...contested]),
+  };
+  const out: Record<string, unknown> = { inconsistent: inconsistent.size, contested: contested.size };
+  for (const [name, routed] of Object.entries(variants)) {
+    const sides = new Map<string, Side>();
+    const changes: { id: string; from: Side; to: Side; label: string }[] = [];
+    let s1 = 0;
+    for (const item of items) {
+      const base = ref3.get(item.id) ?? 'missing';
+      if (!routed.has(item.id)) {
+        sides.set(item.id, base);
+        continue;
+      }
+      const result = await council.judge({
+        ...pairs.pairRequest(inputs.get(item.id)!),
+        given: { ledger: { item: item.id } },
+      });
+      if (result.split && result.cls === 'system1') s1 += 1;
+      // Inconclusive after both classes: reference3 stands (JudgeBench scores a tie as wrong).
+      const side = result.outcome === 'inconclusive' ? base : pairs.sideOf(result);
+      sides.set(item.id, side);
+      if (side !== base) changes.push({ id: item.id, from: base, to: side, label: item.label });
+    }
+    const summary = score(items, sides);
+    out[name] = {
+      routed: routed.size,
+      correct: Math.round(summary.value.estimate * items.length),
+      summary: summary.value,
+      decidedOrTriedBySystem1: s1,
+      fixes: changes.filter((c) => c.to === c.label).length,
+      breaks: changes.filter((c) => c.from === c.label).length,
+      changes,
+    };
+  }
+  await writeFile(join(RESULTS, `jbcouncil-${GEMINI}.json`), `${JSON.stringify(out, null, 2)}\n`);
+  console.log(
+    JSON.stringify(
+      Object.fromEntries(
+        Object.entries(out).map(([k, v]) => [
+          k,
+          typeof v === 'object' && v ? { ...(v as object), changes: undefined, summary: undefined } : v,
+        ]),
+      ),
+    ),
+  );
+}
+
+// ---- Earn the criterion: each judge separates six clear RubricBench fixtures, 3 runs of 3 ----
+if (mode === 'fixtures') {
+  const { spawn } = await import('node:child_process');
+  const fixtures = await rubricFixtures();
+  const contestant = contestantById('driftbench');
+  const callShim = (model: string, prompt: { system: string; user: string }) =>
+    new Promise<{ text: string; cost: number }>((resolve) => {
+      const child = spawn(SHIM, ['-p', '--model', model, '--system-prompt', prompt.system], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      let out = '';
+      child.stdout.on('data', (c: Buffer) => {
+        out += c.toString('utf8');
+      });
+      child.once('close', () => {
+        try {
+          const j = JSON.parse(out) as { result: string; total_cost_usd: number };
+          resolve({ text: j.result, cost: j.total_cost_usd });
+        } catch {
+          resolve({ text: '', cost: 0 });
+        }
+      });
+      child.stdin.end(prompt.user);
+    });
+  const report: Record<string, unknown> = {
+    fixtures: fixtures.map((f) => ({ id: f.id, label: f.label, group: f.group })),
+  };
+  let spent = 0;
+  for (const model of ['gpt-5.4-mini', GEMINI]) {
+    const rows: { id: string; runs: Side[] }[] = [];
+    for (const fx of fixtures) {
+      const runs = await Promise.all(
+        [0, 1, 2].map(async () => {
+          const ab = await callShim(
+            model,
+            contestant.pair({ question: fx.question, a: fx.a, b: fx.b, criterion: fx.criterion! }),
+          );
+          const ba = await callShim(
+            model,
+            contestant.pair({ question: fx.question, a: fx.b, b: fx.a, criterion: fx.criterion! }),
+          );
+          spent += ab.cost + ba.cost;
+          const first = contestant.parsePair(ab.text) as string;
+          const swapped = contestant.parsePair(ba.text) as string;
+          const back = swapped === 'A' ? 'B' : swapped === 'B' ? 'A' : 'tie';
+          return netSide([first, back]);
+        }),
+      );
+      rows.push({ id: fx.id, runs });
+    }
+    const passed = rows.filter((r, k) => r.runs.every((side) => side === fixtures[k]!.label)).length;
+    report[model] = { rows, separated3of3: passed, earns: passed === fixtures.length };
+  }
+  // Jev: three repeats of its three-framing majority, live (no recording), per fixture.
+  const jev = pairs.makeJev(fetch, {
+    JEV_URL: 'https://api.typesafe.ai/v1/systemone',
+    JEV_API_KEY: process.env.JEV_API_KEY,
+  });
+  const inputs = new Map(fixtures.map((f) => [f.id, { ...f, criterion: f.criterion! }]));
+  const seats = pairs.jevSeats(inputs, jev);
+  const jevRows: { id: string; runs: Side[] }[] = [];
+  for (const fx of fixtures) {
+    const runs: Side[] = [];
+    for (let r = 0; r < 3; r += 1) {
+      const outcomes = await Promise.all(
+        seats.map((seat) =>
+          seat
+            .judge({ ...pairs.pairRequest(inputs.get(fx.id)!), given: { ledger: { item: fx.id } } })
+            .then((x) => x.answer.outcome)
+            .catch(() => 'inconclusive'),
+        ),
+      );
+      const pass = outcomes.filter((o) => o === 'pass').length;
+      const fail = outcomes.filter((o) => o === 'fail').length;
+      runs.push(pass >= 2 ? 'A' : fail >= 2 ? 'B' : 'tie');
+    }
+    jevRows.push({ id: fx.id, runs });
+  }
+  const jevPassed = jevRows.filter((r, k) => r.runs.every((side) => side === fixtures[k]!.label)).length;
+  report.jev = { rows: jevRows, separated3of3: jevPassed, earns: jevPassed === fixtures.length };
+  report.spentUsd = spent;
+  await writeFile(
+    join(RESULTS, `fixtures-rubricbench-${GEMINI}.json`),
+    `${JSON.stringify(report, null, 2)}\n`,
+  );
+  await ledger(
+    `| ${new Date().toISOString()} | opus-council | OpenAI + Google + Jev | gpt-5.4-mini, ${GEMINI}, jev-latest | rubricbench 6 fixtures x 3 runs x 2 orders | 72 chat calls + 54 Jev calls | ${spent.toFixed(4)} USD |`,
+  );
+  console.log(
+    JSON.stringify({
+      gpt: (report['gpt-5.4-mini'] as { separated3of3: number }).separated3of3,
+      gemini: (report[GEMINI] as { separated3of3: number }).separated3of3,
+      jev: jevPassed,
+      spent,
+    }),
+  );
+}
+
+// ---- RubricBench: a rubric tie is a split; it goes to gpt, Gemini and Jev, two of three decide ----
+if (mode === 'rbcouncil') {
+  const ties = await devItems('rubricbench');
+  const lite = arg('gemini') ?? 'gemini-3.5-flash-lite';
+  const margins = JSON.parse(await readFile(join(SCRATCH, 'rb-margins.json'), 'utf8')) as [
+    string,
+    number,
+    number,
+    boolean,
+    string,
+  ][];
+  const baseCorrect = new Map(margins.map((m) => [m[0], m[3]]));
+  const base = new Map<string, Side>(
+    ties.map((i) => [i.id, baseCorrect.get(i.id) ? i.label : i.label === 'A' ? 'B' : 'A']),
+  );
+  const load = async (file: string, plain = false) => {
+    const rows = JSON.parse(await readFile(join(RESULTS, file), 'utf8')) as { id: string; vote: Side }[];
+    return new Map(rows.map((r) => [plain ? r.id.replace('#plain', '') : r.id, r.vote]));
+  };
+  const jevOf = async (file: string) =>
+    new Map(
+      Object.entries(
+        (JSON.parse(await readFile(join(RESULTS, file), 'utf8')) as { sides: Record<string, Side> }).sides,
+      ).map(([k, v]) => [k.replace('#plain', ''), v]),
+    );
+  const judges = {
+    gpt: {
+      orig: await load('items-rubricbench-gpt-5.4-mini-driftbench.json'),
+      twin: await load('items-rubricbench-twin-gpt-5.4-mini-driftbench.json', true).catch(
+        () => new Map<string, Side>(),
+      ),
+    },
+    gemini: {
+      orig: await load(`items-rubricbench-${lite}-driftbench.json`),
+      twin: await load(`items-rubricbench-twin-${lite}-driftbench.json`, true).catch(
+        () => new Map<string, Side>(),
+      ),
+    },
+    jev: {
+      orig: await jevOf('jev-rubricbench.json'),
+      twin: await jevOf('jev-rubricbench-twin.json').catch(() => new Map<string, Side>()),
+    },
+  };
+  const decide = (votes: Side[], fallback: Side): Side => {
+    const a = votes.filter((v) => v === 'A').length;
+    const b = votes.filter((v) => v === 'B').length;
+    return a >= 2 ? 'A' : b >= 2 ? 'B' : fallback;
+  };
+  const variants: Record<string, (id: string) => Side> = {
+    base: (id) => base.get(id)!,
+    majorityOriginal: (id) =>
+      decide(
+        Object.values(judges).map((j) => j.orig.get(id) ?? 'missing'),
+        base.get(id)!,
+      ),
+    // A vote counts only when the judge gives the same side on the original and its markdown-stripped twin.
+    majorityStableUnderTwin: (id) =>
+      decide(
+        Object.values(judges).map((j) => {
+          const o = j.orig.get(id);
+          return o !== undefined && o === j.twin.get(id) ? o : 'missing';
+        }),
+        base.get(id)!,
+      ),
+    gptAlone: (id) => judges.gpt.orig.get(id) ?? 'missing',
+    geminiAlone: (id) => judges.gemini.orig.get(id) ?? 'missing',
+    jevAlone: (id) => judges.jev.orig.get(id) ?? 'missing',
+  };
+  const out: Record<string, unknown> = {};
+  for (const [name, f] of Object.entries(variants)) {
+    const right = ties.filter((i) => f(i.id) === i.label).length;
+    out[name] = { right, of: ties.length, fullDev: (294 - 29 + right) / 357 };
+  }
+  await writeFile(join(RESULTS, `rbcouncil-${lite}.json`), `${JSON.stringify(out, null, 2)}\n`);
+  console.log(JSON.stringify(out));
 }
