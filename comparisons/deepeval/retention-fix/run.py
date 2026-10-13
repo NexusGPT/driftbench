@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 import uuid
 
@@ -48,15 +49,29 @@ def read_rows(path):
 
 
 def bridge(action, **data):
-    proc = subprocess.run(['pnpm', 'exec', 'tsx', str(HERE / 'bridge.mts')],
+    proc = subprocess.run(['pnpm', 'exec', 'tsx', '--tsconfig', str(REPO / 'tsconfig.json'), str(HERE / 'bridge.mts')],
                           input=json.dumps({'action': action, **data}), text=True,
-                          capture_output=True, cwd=REPO, check=True)
+                          capture_output=True, cwd=REPO, env=clean_env(), check=True)
     return json.loads(proc.stdout)
+
+
+def clean_env():
+    allowed = {'PATH', 'HOME', 'USER', 'LOGNAME', 'SHELL', 'TMPDIR', 'LANG', 'LC_ALL', 'LC_CTYPE',
+               'TERM', 'CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY'}
+    return {k: v for k, v in os.environ.items() if k in allowed}
+
+
+def runtime_versions():
+    versions = {'python': sys.version.split()[0]}
+    for name in ('claude', 'node', 'pnpm'):
+        versions[name] = subprocess.check_output([name, '--version'], text=True, env=clean_env()).strip()
+    return versions
 
 
 def source_hashes():
     paths = [REPO / 'examples/criteria/knowledge_retention.yaml', REPO / 'pnpm-lock.yaml',
-             REPO / 'tsconfig.json', HERE / 'bridge.mts', HERE / 'run.py']
+             REPO / 'tsconfig.json', REPO / 'tsconfig.base.json', REPO / 'package.json',
+             REPO / 'pnpm-workspace.yaml', HERE / 'bridge.mts', HERE / 'run.py']
     for package in ('judges', 'core'):
         paths.extend((REPO / 'packages' / package / 'src').rglob('*.ts'))
         paths.append(REPO / 'packages' / package / 'package.json')
@@ -72,18 +87,35 @@ def ensure_phase(phase, state):
 
 def freeze(state, selected):
     ensure_phase('tuning', state)
+    if selected.resolve().parent != state.resolve():
+        raise ValueError('Selected tuning report must be in the evidence directory')
     report = json.loads(selected.read_text())
     if report['phase'] != 'tuning' or not report.get('complete') or report.get('criterion_override'):
         raise ValueError('Freeze requires a complete tuning report')
     current = source_hashes()
     if report['source_sha256'] != current:
         raise ValueError('Selected tuning report does not measure current production inputs')
+    if report['sets_sha256'] != digest((HARD / 'sets.json').read_bytes()):
+        raise ValueError('Selected tuning corpus changed')
     frozen = {'timestamp': now(), 'source_sha256': current,
               'selection_report': selected.name, 'selection_sha256': digest(selected.read_bytes()),
               'corpus_sha256': {name: digest((HARD / name).read_bytes())
                                 for name in ('sets.json', 'sets-heldout.json')},
               'rule': 'One heldout evaluation, no subsequent tuning; failures consume the attempt.'}
     write(state / 'freeze.json', frozen)
+    return frozen
+
+
+def verify_frozen(state):
+    frozen = json.loads((state / 'freeze.json').read_text())
+    if frozen['source_sha256'] != source_hashes():
+        raise ValueError('Production or harness inputs changed after freeze')
+    selected = state / frozen['selection_report']
+    if selected.resolve().parent != state.resolve() or digest(selected.read_bytes()) != frozen['selection_sha256']:
+        raise ValueError('Selected tuning report changed after freeze')
+    for name, sha in frozen['corpus_sha256'].items():
+        if digest((HARD / name).read_bytes()) != sha:
+            raise ValueError('Corpus changed after freeze')
     return frozen
 
 
@@ -142,12 +174,7 @@ def invoke(prompt, key, budget, cap, spent, ledger, tag):
             '--system-prompt', prompt['system'], *FLAGS, '--max-budget-usd', str(RESERVE)]
     # Empty directory outside the repo and HOME. Safe mode also disables CLAUDE.md discovery.
     with tempfile.TemporaryDirectory(prefix='driftbench-retention-', dir='/tmp') as cwd:
-        env = {k: v for k, v in os.environ.items()
-               if not k.startswith(('CLAUDE', 'CODEX', 'NEXUS', 'CUE'))}
-        # Keep CLI authentication but no caller session, prompt, project, or hook variables.
-        for key_name in ('CLAUDE_CODE_OAUTH_TOKEN',):
-            if key_name in os.environ:
-                env[key_name] = os.environ[key_name]
+        env = clean_env()
         try:
             proc = subprocess.run(args, input=prompt['user'], text=True, capture_output=True,
                                   cwd=cwd, env=env, timeout=180)
@@ -210,12 +237,7 @@ def evaluate(args):
     if target.exists():
         raise ValueError('Report exists; choose a unique tuning tag')
     if args.phase == 'heldout':
-        frozen = json.loads((HERE / 'freeze.json').read_text())
-        if frozen['source_sha256'] != source_hashes():
-            raise ValueError('Production or harness inputs changed after freeze')
-        for name, sha in frozen['corpus_sha256'].items():
-            if digest((HARD / name).read_bytes()) != sha:
-                raise ValueError('Corpus changed after freeze')
+        verify_frozen(HERE)
         # Exclusive persistent marker is written before any heldout content is parsed.
         with (HERE / 'heldout-started.json').open('x') as stream:
             json.dump({'timestamp': now(), 'tag': args.tag}, stream)
@@ -224,10 +246,11 @@ def evaluate(args):
     if len({r['id'] for r in cases}) != len(cases) or any(type(r['truth']) is not bool for r in cases):
         raise ValueError('Invalid corpus IDs or labels')
     current = source_hashes()
+    versions = runtime_versions()
     prompts = bridge('render', criterion=str(args.criterion) if args.criterion else None, cases=[{'id': r['id'], 'turns': r['turns']} for r in cases])
     output = {'phase': args.phase, 'tag': args.tag, 'timestamp': now(), 'source_sha256': current,
               'sets_sha256': digest(corpus.read_bytes()), 'expected_cases': len(cases),
-              'model': 'haiku', 'flags': FLAGS, 'criterion_override': bool(args.criterion),
+              'model': 'haiku', 'flags': FLAGS, 'runtime': versions, 'criterion_override': bool(args.criterion),
               'criterion_sha256': digest(args.criterion.read_bytes()) if args.criterion else None, 'rows': [], 'fresh_usd': 0, 'complete': False}
     target = HERE / (args.tag + '.json')
     if target.exists():
@@ -238,7 +261,7 @@ def evaluate(args):
         for case, prompt in zip(cases, prompts, strict=True):
             if source_hashes() != current:
                 raise ValueError('Production inputs changed during evaluation')
-            key = digest(json.dumps(['haiku', FLAGS, prompt['system'], prompt['user']], ensure_ascii=False).encode())
+            key = digest(json.dumps(['haiku', versions['claude'], FLAGS, prompt['system'], prompt['user']], ensure_ascii=False).encode())
             if key in cache and args.phase == 'tuning':
                 record = cache[key]
             elif not args.record:
@@ -246,7 +269,7 @@ def evaluate(args):
             else:
                 record = invoke(prompt, key, HERE / 'budget.jsonl', args.cap_usd,
                                 output['fresh_usd'], args.ledger, args.tag)
-                record.update(run=args.tag, case=case['id'], phase=args.phase)
+                record.update(run=args.tag, case=case['id'], phase=args.phase, runtime=versions)
                 append(HERE / 'calls.jsonl', record)
                 output['fresh_usd'] += record['charged_usd']
                 cache[key] = record
@@ -259,6 +282,8 @@ def evaluate(args):
             print(f"{args.tag}: {len(output['rows'])}/{len(cases)}; fresh USD {output['fresh_usd']:.6f}", flush=True)
             if record.get('cost_is_reservation') or record['charged_usd'] > RESERVE:
                 raise ValueError('Unknown cost or exceeded per-call reservation; stopped')
+        if source_hashes() != current:
+            raise ValueError('Production inputs changed during final invocation')
         output['correct'] = sum(r['prediction'] is r['truth'] for r in output['rows'])
         output['inconclusive'] = sum(r['prediction'] is None for r in output['rows'])
         output['historical'] = historical_comparison(output['rows'], args.phase, output['sets_sha256'])

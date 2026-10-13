@@ -11,18 +11,18 @@ absolute external spend ledger path. All commands run from the repository root.
 ```sh
 python3 -m unittest discover -s comparisons/deepeval/retention-fix -p 'test_harness.py' -v
 
-# Optional pre-change tuning, using an operator-created historical YAML snapshot:
+# Optional pre-change tuning, using the archived starting criterion:
 python3 comparisons/deepeval/retention-fix/run.py tuning \
-  --tag tuning-before --criterion .cache/retention-fix/before.yaml \
+  --tag tuning-before --criterion comparisons/deepeval/retention-fix/criterion-before.yaml \
   --record --cap-usd 1 --ledger /absolute/external/spend.md
 
 # Current production candidate; do all tuning before freezing:
 python3 comparisons/deepeval/retention-fix/run.py tuning \
-  --tag tuning-current --record --cap-usd 1 \
+  --tag tuning-final --record --cap-usd 1 \
   --ledger /absolute/external/spend.md
 
 python3 comparisons/deepeval/retention-fix/run.py freeze \
-  --selected comparisons/deepeval/retention-fix/tuning-current.json
+  --selected comparisons/deepeval/retention-fix/tuning-final.json
 
 # Exactly one heldout attempt, only after the final candidate freeze:
 python3 comparisons/deepeval/retention-fix/run.py heldout \
@@ -33,7 +33,7 @@ python3 comparisons/deepeval/retention-fix/run.py heldout \
 Do not change production source or the runner during a run. Every case checks the
 recorded source hashes. The freeze hashes the judge and core TypeScript sources,
 package manifests, lockfile, TypeScript configuration, criterion, renderer, and
-runner. It also hashes both corpus files without inspecting heldout cases.
+runner. The inherited TypeScript config and workspace manifests are included. It also hashes both corpus files without inspecting heldout cases.
 Historical criterion overrides are tuning-only and cannot be selected for freeze.
 
 Freezing requires a complete current-production tuning report. Freeze prohibits
@@ -69,7 +69,7 @@ home. It receives a replacement system prompt, no tools, no MCP configuration, n
 settings sources, no skills, no session persistence, one turn, safe mode, and no
 permission prompts. Safe mode disables automatic project and operator instructions
 while retaining normal authentication. Caller session and workspace environment
-variables are removed; the OAuth token is retained only for authentication and is
+variables are allowlisted for execution and authentication; provider endpoints and loader overrides are excluded. Authentication is
 never recorded. There is no permission bypass. CLI flags were checked against the
 installed `claude --help` before implementation.
 
@@ -94,8 +94,25 @@ Heldout compares against `../hard/baseline-heldout.json`; tuning compares agains
 `../hard/baseline-v3.json`. Existing DeepEval calls are reused as historical
 observations, never rerun. The report names and hashes that historical source.
 The current measurement uses the typed production parser, while the archived
-baseline used its historical verdict parser. Treat that difference as part of the
+baseline used its historical verdict parser. The fresh starting-package tuning run
+uses the initial criterion and parser at the starting main revision, before the later
+main merge. Its source hashes and rendered requests identify that version. Treat that difference as part of the
 measured package change. One heldout run does not establish repeat-run stability.
 
 No model calls or heldout case inspections were performed while building this
 harness. Aggregate historical scores were read to establish the comparison.
+
+The final runner also verifies the selected tuning report hash before heldout evaluation,
+records CLI/runtime versions, includes the CLI version in cache keys, and verifies source
+hashes after the last invocation. The starting-package run predates these recorder guards;
+its raw model identity, request hashes and cost remain recorded.
+
+The interrupted `tuning-current` report contains 11 completed cases. The final
+tuning tag reuses those exact request recordings, then records the remaining
+cases. One interrupted invocation has no returned charge and keeps its USD 0.05
+reservation. No heldout attempt had started at that interruption.
+
+The harness makes one CLI invocation per fresh case, with no harness retries.
+The CLI's internal transport retry behavior is not independently measured. The
+requested `haiku` alias is resolved by the installed CLI; each actual model name
+is recorded and must belong to Haiku, but the alias is not version-pinned.

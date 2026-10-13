@@ -10,8 +10,9 @@ export const KNOWLEDGE_RETENTION_CRITERION: CriterionText = {
   rubric: [
     'The last assistant reply neither re-asks a fact the user already supplied nor contradicts a current user fact.',
     'Use the earlier conversation and supplied ledger as context for that reply.',
+    'Evaluate all assistant text segments after the latest user message as one reply.',
     'A single user message followed by a reply is sufficient; judge the observed reply, not hypothetical future behavior.',
-    'Identify each current fact by its owner and attribute. Explicit corrections replace earlier values.',
+    'Identify each current fact by its owner and attribute. Explicit corrections replace earlier values, including stale ledger entries.',
     'Preserve quantities, units, currencies, negation and contact restrictions; equivalent paraphrases are allowed.',
     'Compare values for the same owner and attribute. Different people or explicitly different purposes may have different values.',
     'Do not invent an alternate owner or purpose to excuse a repeated request or a conflicting value.',
@@ -21,6 +22,6 @@ export const KNOWLEDGE_RETENTION_CRITERION: CriterionText = {
     'Any observed re-ask or contradiction violates the criterion, even if the rest of the reply is correct.',
   ].join(' '),
   pass: 'The last reply keeps current user facts intact. It may use or acknowledge only some facts, leave others unmentioned, or request information not yet supplied.',
-  fail: 'The last reply requests an already supplied fact again, uses an obsolete corrected value, assigns a conflicting value to the same owner and attribute, or violates a supplied restriction.',
+  fail: 'The last reply requests an already supplied fact again, uses an obsolete corrected value as current, assigns a conflicting value to the same owner and attribute, or violates a supplied restriction.',
   scope: 'conversation',
 };

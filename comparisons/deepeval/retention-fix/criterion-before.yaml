@@ -1,0 +1,25 @@
+# The judge fallback of knowledge_retention: for a fact the ledger does not hold word for word. Fictional data.
+criterion:
+  name: knowledge_retention
+  rubric: The reply keeps what the user already gave in the conversation; it neither asks for it again nor contradicts it.
+  pass: A fact the user gave earlier is used as given, and never asked for again.
+  fail: The reply asks again for a fact the user already gave, or uses another value than the one given.
+  judge_class: system1
+  scope: conversation
+fixtures:
+  pass:
+    note: The email given earlier is used to confirm the order.
+    given: { ledger: { email: jo.okafor@example.com } }
+    transcript:
+      - { role: user, text: "Jo Okafor, jo.okafor@example.com" }
+      - { role: agent, text: "Here is your order for Jo Okafor (jo.okafor@example.com). Reply CONFIRM to place the order." }
+      - { role: user, text: "CONFIRM" }
+      - { role: agent, text: "Done. Your order ORD-222B51 is placed. A technician will contact you at jo.okafor@example.com to schedule the installation." }
+  fail:
+    note: The same conversation, but the agent asks for the email again after the confirmation.
+    given: { ledger: { email: jo.okafor@example.com } }
+    transcript:
+      - { role: user, text: "Jo Okafor, jo.okafor@example.com" }
+      - { role: agent, text: "Here is your order for Jo Okafor (jo.okafor@example.com). Reply CONFIRM to place the order." }
+      - { role: user, text: "CONFIRM" }
+      - { role: agent, text: "Before I place it, what is your email address?" }

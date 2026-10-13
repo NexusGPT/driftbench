@@ -10,6 +10,32 @@ import run
 
 
 class Guards(unittest.TestCase):
+    def test_environment_excludes_loader_and_provider_overrides(self):
+        with patch.dict(run.os.environ, {'NODE_OPTIONS':'--import unwanted',
+                                        'ANTHROPIC_BASE_URL':'https://unwanted.invalid',
+                                        'TSX_TSCONFIG_PATH':'unwanted.json'}):
+            clean = run.clean_env()
+        self.assertNotIn('NODE_OPTIONS', clean)
+        self.assertNotIn('ANTHROPIC_BASE_URL', clean)
+        self.assertNotIn('TSX_TSCONFIG_PATH', clean)
+
+    def test_selected_report_tampering_invalidates_freeze(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp)
+            hard = state / 'hard'
+            hard.mkdir()
+            for name in ('sets.json', 'sets-heldout.json'):
+                (hard / name).write_text('{"synthetic":true}')
+            report = state / 'selected.json'
+            run.write(report, {'phase':'tuning', 'complete':True, 'source_sha256':{'a':'new'},
+                               'sets_sha256':run.digest((hard / 'sets.json').read_bytes())})
+            with patch.object(run, 'HARD', hard), patch.object(run, 'source_hashes', return_value={'a':'new'}):
+                run.freeze(state, report)
+                run.verify_frozen(state)
+                report.write_text(report.read_text() + ' ')
+                with self.assertRaisesRegex(ValueError, 'report changed'):
+                    run.verify_frozen(state)
+
     def test_reservation_survives_crash_and_settlement_replaces_it(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / 'budget.jsonl'
