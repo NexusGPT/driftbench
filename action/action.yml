@@ -53,6 +53,18 @@ inputs:
     description: The agent command for a process target other than process:acme-ops, as a JSON list such as ["python3","/path/to/agent.py"] or words split on spaces. It runs in the sandbox workspace, so name the agent by an absolute path, such as one under github.workspace. Empty means none.
     required: false
     default: ''
+  change:
+    description: A change manifest. The candidate runs only the blast radius of the change and carries the other cells from the baseline, which must then be a campaign id held in the store input. Empty means the whole suite runs.
+    required: false
+    default: ''
+  agent-version:
+    description: The version of the candidate agent, such as the commit sha. A radius run needs it, and it must be the manifest's to. Empty means none.
+    required: false
+    default: ''
+  audit:
+    description: With change, how many of the cells about to be carried run fresh and are compared with their stored run. One miss fails the job with verdict radius-miss. Empty means no audit.
+    required: false
+    default: ''
   aggregate:
     description: Campaign-level criteria, one name:op threshold per line, such as pass-rate:>=0.8. A failing one fails the job with verdict aggregate-failed. Empty means none.
     required: false
@@ -72,7 +84,7 @@ inputs:
 
 outputs:
   verdict:
-    description: parity, regression, not-shown-non-inferior, incomplete, aggregate-failed, or input-error when the CLI refused its input.
+    description: parity, regression, not-shown-non-inferior, incomplete, aggregate-failed, radius-miss, or input-error when the CLI refused its input.
     value: ${{ steps.ci.outputs.verdict }}
   report-path:
     description: The JSON summary the CLI wrote.
@@ -97,6 +109,9 @@ runs:
         INPUT_BUDGET_USD: ${{ inputs.budget-usd }}
         INPUT_FAULTS: ${{ inputs.faults }}
         INPUT_AGGREGATE: ${{ inputs.aggregate }}
+        INPUT_CHANGE: ${{ inputs.change }}
+        INPUT_AGENT_VERSION: ${{ inputs.agent-version }}
+        INPUT_AUDIT: ${{ inputs.audit }}
         INPUT_ROUTE: ${{ inputs.route }}
         INPUT_PROCESS_COMMAND: ${{ inputs.process-command }}
         INPUT_REPORT_PATH: ${{ inputs.report-path }}

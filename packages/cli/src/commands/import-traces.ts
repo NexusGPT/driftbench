@@ -1,5 +1,5 @@
 import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { join, relative, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import {
   type PriceTable,
   readTraces,
@@ -10,6 +10,7 @@ import {
 } from '@agent-nexus/driftbench-adapters';
 import { approveDrafts, draftSpec, pendingDrafts } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
+import { exists, reason, showPath as show } from '../files';
 import type { Io } from '../io';
 import { pushCommand } from './registry';
 
@@ -236,17 +237,4 @@ async function readStdin(): Promise<string> {
   const chunks: Buffer[] = [];
   for await (const chunk of process.stdin) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   return Buffer.concat(chunks).toString('utf8');
-}
-
-async function exists(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined)) !== undefined;
-}
-
-function show(path: string, io: Io): string {
-  const rel = relative(io.cwd, path);
-  return rel === '' || rel.startsWith('..') ? path : rel;
-}
-
-function reason(cause: unknown): string {
-  return cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
 }

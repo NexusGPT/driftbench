@@ -1,11 +1,10 @@
 Impact of the estate diff be2e7a0919cb to a5c8cb21f4ae on 8 live estate tests (0 retired before, 0 other specs).
-  Regenerate 5, re-approve 2, retire 1, new 2; 2 tests untouched, 24 atoms moved with the same quote.
+  Regenerate 4, re-approve 2, retire 1, new 2; 3 tests untouched, 24 atoms moved with the same quote.
 Regenerate:
-  northwind-draft-pair (draft-pair.yaml): instruction.standing.never-send-a-supplier-email-without white space, instruction.standing.keep-an-unconfirmed-draft-unsent removed
+  northwind-draft-pair (draft-pair.yaml): instruction.standing.keep-an-unconfirmed-draft-unsent removed
   northwind-late-shipment (late-shipment.yaml): instruction.standing.tell-the-user-about-a-late semantic
   northwind-ledger-archive (ledger-archive.yaml): guard.settings.posttooluse-bash-guard-ledger-guard-py guard state
   northwind-route-planner (route-planner.yaml): route.standing.an-ask-to-plan-the-delivery semantic
-  northwind-supplier-yes (supplier-yes.yaml): instruction.standing.never-send-a-supplier-email-without white space
 Re-approve, the meaning changed:
   route.standing.an-ask-to-plan-the-delivery (route): | plan the delivery routes for the next two days | the `route-planner` agent |
       tests: northwind-route-planner
@@ -23,4 +22,3 @@ Needs a person: 4.
   - re-approve instruction.standing.tell-the-user-about-a-late: its meaning changed; 1 test waits
   - approve the tests of the new atom instruction.standing.name-the-finance-lead-on-a: no test covers it yet
   - approve the tests of the new atom instruction.standing.keep-a-credit-note-as-a: no test covers it yet
-Wrote examples/estates/fixture-v2/maintain/impact.json.

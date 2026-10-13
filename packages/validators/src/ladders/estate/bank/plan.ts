@@ -118,7 +118,12 @@ function contractItem(
 export function planContractFamily(): Family {
   const family = 'plan.contract';
   const extra = [
-    { key: 'journey-route', tier: 2 as Tier, title: 'every route edge is walked by a journey' },
+    {
+      key: 'journey-route',
+      tier: 2 as Tier,
+      title:
+        'every route the standing instructions state is walked by a journey, and a route read only from a description starts none',
+    },
     { key: 'journey-reference', tier: 2 as Tier, title: 'every reference edge is walked by a journey' },
     { key: 'journey-dispatch', tier: 2 as Tier, title: 'every dispatch edge is walked by a journey' },
     { key: 'journey-next', tier: 2 as Tier, title: 'every next edge is walked by a journey' },
@@ -155,9 +160,42 @@ export function planContractFamily(): Family {
           walked.add(`${journey.atomIds[index]}>${journey.atomIds[index + 1]}`);
         }
       }
+      // docs/estate.md section 4: a route read only from a skill or helper description starts no journey. Which
+      // routes those are is read here from the map (a route atom in the file of a skill or helper), not from the
+      // plan under test.
+      const unitFiles = new Set(
+        map.atoms
+          .filter((atom) => atom.kind === 'skill' || atom.kind === 'subagent')
+          .map((atom) => atom.provenance.file),
+      );
+      const described = new Set(
+        map.atoms
+          .filter((atom) => atom.kind === 'route' && unitFiles.has(atom.provenance.file))
+          .map((atom) => atom.id),
+      );
+      const started = new Set(journeys.journeys.map((journey) => journey.atomIds[0]));
       for (const kind of ['route', 'reference', 'dispatch', 'next']) {
-        const edges = journeys.edges.filter((edge) => edge.kind === kind);
+        const all = journeys.edges.filter((edge) => edge.kind === kind);
+        const edges = kind === 'route' ? all.filter((edge) => !described.has(edge.from)) : all;
         const unwalked = edges.filter((edge) => !walked.has(`${edge.from}>${edge.to}`));
+        const fromDescription =
+          kind === 'route'
+            ? all.filter(
+                (edge) =>
+                  described.has(edge.from) &&
+                  (walked.has(`${edge.from}>${edge.to}`) || started.has(edge.from)),
+              )
+            : [];
+        if (fromDescription.length > 0) {
+          out.set(`${family}.journey-${kind}`, {
+            pass: false,
+            detail: `${fromDescription.length} routes read only from a description start a journey: ${fromDescription
+              .slice(0, 2)
+              .map((edge) => `${edge.from} to ${edge.to}`)
+              .join('; ')}`,
+          });
+          continue;
+        }
         out.set(`${family}.journey-${kind}`, {
           pass: unwalked.length === 0,
           detail:

@@ -291,7 +291,7 @@ You approve a map of what the agent can face, and code writes the blocks from it
 <details>
 <summary>Generate the tests of the example agent</summary>
 
-driftbench writes tests from a map of the situations an agent can face. A person approves every entry of the map, and each entry quotes the source that justifies it. Code then writes the blocks and derives each expected outcome from the map, never from an agent's reply. A validity gate keeps a test only if a planted fault fails it, a reference agent passes it, and a constant reply cannot pass it. Then `select` picks the fewest conversations that cover the map. On the Acme example: 114 conversations cover 592 of the 637 allowed pairs of values, and turn all 13 planted faults red.
+driftbench writes tests from a map of the situations an agent can face. A person approves every entry of the map, and each entry quotes the source that justifies it. Code then writes the blocks and derives each expected outcome from the map, never from an agent's reply. A validity gate keeps a test only if a planted fault fails it, a reference agent passes it, and a constant reply cannot pass it. Then `select` picks the fewest conversations that cover the map. On the Acme example the gated suite covers 592 of the 708 allowed pairs of values and every required cell.
 
 Generate the Acme suite from its approved map, from a clone. No model is called:
 
@@ -304,15 +304,15 @@ The table of test writers, the coverage line and the last line:
 ```
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           132     675       131           1
+twise           156     793       153           3
 boundary         85     146        13          72
-deviation        17      90        17           0
-metamorphic      38     168        38           0
-task             34      47        34           0
-cover            14      79        14           0
+deviation        21     111        21           0
+metamorphic      42     192        42           0
+task             67      71        67           0
+cover            28     155        28           0
 
-Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%).
-Wrote 333 files to generated.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
+Wrote 508 files to generated.
 ```
 
 Complete specs go to `specs/`. A spec with no approved phrase or no machine-checkable outcome goes to `incomplete/`, and the command then exits 1: the map has a gap to fill, and the output names it.
@@ -460,7 +460,7 @@ One run proves little. Every rate comes with its interval, comparisons are paire
 </a>
 <p align="center"><sub>The user changes course at step 3. The agent goes off track, then comes back two steps later.</sub></p>
 
-Every failing block gets a drift class: a local error, a contradiction, flow drift, format drift or tool drift. Ten kinds of deviation can be injected at any block. After an injection, driftbench reports the blocks to recover, the failures after recovery, and whether the agent's actions stayed safe.
+Every failing block gets a drift class: a local error, a contradiction, flow drift, format drift or tool drift. Twelve kinds of deviation can be injected at any block. After an injection, driftbench reports the blocks to recover, the failures after recovery, and whether the agent's actions stayed safe.
 
 ```bash
 pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2

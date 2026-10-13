@@ -591,8 +591,7 @@ window.CHART_DATA = {
           }
         ]
       }
-    ],
-    "note": "Gemini 3.8 Flash not run: provider quota"
+    ]
   },
   "bench-mm-eval": {
     "kind": "columns",
@@ -662,8 +661,7 @@ window.CHART_DATA = {
           }
         ]
       }
-    ],
-    "note": "Gemini 3.8 Flash partial (393 of 600 pairs): left out"
+    ]
   },
   "bench-rubricbench": {
     "kind": "columns",
@@ -718,7 +716,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Claude Haiku 5.5 still running · Gemini 3.8 Flash partial: left out"
+    "note": "Claude Haiku 5.5 still running: left out"
   },
   "bench-verify": {
     "kind": "columns",
@@ -769,7 +767,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Claude Haiku 5.5 pending · Gemini models not final: left out"
+    "note": "Claude Haiku 5.5 pending: left out"
   },
   "bench-writing": {
     "kind": "columns",
@@ -851,8 +849,7 @@ window.CHART_DATA = {
           }
         ]
       }
-    ],
-    "note": "Gemini 3.8 Flash not run: provider quota"
+    ]
   },
   "hard-deepeval": {
     "kind": "columns",

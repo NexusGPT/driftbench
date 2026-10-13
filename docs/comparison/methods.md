@@ -48,7 +48,7 @@ The result files are copies from the research branches, listed with their commit
 * Each set was frozen before the first model call. JudgeBench: 159 of the 270 pairs share a source question with earlier evaluations. Verify and RubricBench are previously evaluated splits. MM-Eval items were never scored before.
 * A correction across the whole family of cells is pending, so no cell is called a win or a loss. On JudgeBench with Claude Haiku 5.5 the uncorrected p is 0.0139; on MM-Eval with Haiku 0.00061, and with Gemini 3.5 Flash-Lite 0.042 in promptfoo's favour.
 * MM-Eval with Haiku scores 591 of the 600 pairs; the nine missing are safety items.
-* Models left out of a chart were not final: Gemini 3.8 Flash stopped on a provider quota or ran in part; Claude Haiku 5.5 was still running on RubricBench and pending on verify.
+* A model left out of a chart was not final: Claude Haiku 5.5 was still running on RubricBench and pending on verify.
 * On verify a judge that always says fail scores 78.7 percent, above both judges. On writing a rule that picks the longer reply scores 67.6 percent, above both judges, and the three models did not pass the development check against such rules.
 * Every comparison chart uses one score axis, 0 to 100.
 * The README shows the JudgeBench chart. The MM-Eval, RubricBench, verify and writing results against promptfoo are not charted in the README for now; their numbers are in the result files named above and in [chart-facts.csv](../assets/data/chart-facts.csv):
@@ -121,7 +121,7 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 * The pair ledger is opt-in (`answerContract: 'ledger'`), merged in PR 168.
 * promptfoo's select-best prompt is quoted from its grader, vendored at commit `8014282` in [comparisons/promptfoo/hard/vendor/grading.ts.txt](../../comparisons/promptfoo/hard/vendor/grading.ts.txt): "Output the index of the text that best fits the criteria. You must output a single integer."
-* RubricBench, Claude Haiku 5.5, 790 test pairs, 1,580 games: 1,306 correct (82.7 percent) against promptfoo select-best's 1,194 (75.6 percent); game McNemar p = 6.9e-10, with a correction across the full family of cells still pending. The test split was evaluated before. The result file is a copy of `examples/judge-benchmarks/experiments/ledger-rb/live-summary.json` on `research/ledger-rb` at `fe76cd48`, in [docs/assets/data/sealed/rubricbench-haiku.json](../assets/data/sealed/rubricbench-haiku.json). In the same file, Gemini 3.8 Flash is partial (116 of 790 pairs) and scores below promptfoo.
+* RubricBench, Claude Haiku 5.5, 790 test pairs, 1,580 games: 1,306 correct (82.7 percent) against promptfoo select-best's 1,194 (75.6 percent); game McNemar p = 6.9e-10, with a correction across the full family of cells still pending. The test split was evaluated before. The result file is a copy of `examples/judge-benchmarks/experiments/ledger-rb/live-summary.json` on `research/ledger-rb` at `fe76cd48`, in [docs/assets/data/sealed/rubricbench-haiku.json](../assets/data/sealed/rubricbench-haiku.json).
 
 ## The other innovation figures
 

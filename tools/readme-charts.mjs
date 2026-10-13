@@ -516,7 +516,6 @@ const MODEL = {
   haiku: 'Claude Haiku 5.5',
   'gpt-6-luna': 'GPT-6 Luna',
   'gemini-3.5-flash-lite': 'Gemini 3.5 Flash-Lite',
-  'gemini-3.8-flash': 'Gemini 3.8 Flash',
 };
 const p1 = (v) => v.toFixed(1);
 const columnGroup = (label, sub, ours, theirs, source, chart) => {
@@ -573,7 +572,6 @@ function sealedJudgeBench() {
     title: `JudgeBench: driftbench scores ${versus(groups)}.`,
     key: ['driftbench pair ledger', 'promptfoo select-best'],
     groups,
-    note: 'Gemini 3.8 Flash not run: provider quota',
   });
 }
 
@@ -600,7 +598,6 @@ function sealedMmEval() {
     title: `MM-Eval: driftbench scores ${versus(groups)}.`,
     key: ['driftbench pair ledger', 'promptfoo select-best'],
     groups,
-    note: 'Gemini 3.8 Flash partial (393 of 600 pairs): left out',
   });
 }
 
@@ -632,7 +629,7 @@ function sealedRubricBench() {
     title: `RubricBench: driftbench scores ${versus(groups)}.`,
     key: ['driftbench pair ledger', 'promptfoo select-best'],
     groups,
-    note: 'Claude Haiku 5.5 still running · Gemini 3.8 Flash partial: left out',
+    note: 'Claude Haiku 5.5 still running: left out',
   });
 }
 
@@ -657,7 +654,7 @@ function sealedVerify() {
     title: 'Verify: above promptfoo, below a judge that always says fail.',
     key: ['driftbench verify cascade', 'promptfoo llm-rubric', 'no model'],
     groups,
-    note: 'Claude Haiku 5.5 pending · Gemini models not final: left out',
+    note: 'Claude Haiku 5.5 pending: left out',
   });
 }
 
@@ -685,7 +682,6 @@ function sealedWriting() {
     title: `Writing: driftbench scores ${versus(groups)}; picking the longer reply beats both.`,
     key: ['driftbench pair ledger', 'promptfoo select-best', 'no model'],
     groups,
-    note: 'Gemini 3.8 Flash not run: provider quota',
   });
 }
 

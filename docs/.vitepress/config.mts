@@ -120,6 +120,7 @@ export default defineConfig({
           { text: 'Block', link: '/concepts/block' },
           { text: 'Given, When, Then', link: '/concepts/given-when-then' },
           { text: 'Run modes', link: '/concepts/run-modes' },
+          { text: 'Blast radius', link: '/concepts/blast-radius' },
           { text: 'Drift', link: '/concepts/drift' },
           { text: 'Recovery', link: '/concepts/recovery' },
           { text: 'Judges', link: '/concepts/judges' },
@@ -134,6 +135,7 @@ export default defineConfig({
           { text: 'Testing an estate', link: '/estate' },
           { text: 'Datasets and prompts', link: '/datasets' },
           { text: 'Validators', link: '/validators' },
+          { text: 'Benchmark floors', link: '/benchmarks' },
         ],
       },
       {

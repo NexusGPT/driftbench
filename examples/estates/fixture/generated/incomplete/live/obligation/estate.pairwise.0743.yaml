@@ -5,14 +5,13 @@
 id: estate.pairwise.0743
 version: be2e7a0919cb
 kind: task
-title: "obligation: On a carrier error, say so and give the carrier's page"
+title: "obligation: An unlisted supplier gets English and a note to the user"
 tier: generated
 tags:
   - estate
   - test:obligation
   - mode:live
   - kind:instruction
-  - judged
 target:
   adapter: claude-code
 given:
@@ -24,8 +23,9 @@ given:
 blocks:
   - id: ask
     when:
-      user: "[no approved phrase: trigger situation for instruction.shipment-tracker.on-a-carrier-error-say-so]"
+      user: "[no approved phrase: trigger situation for instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and]"
     expect:
+      lang: EN
       workspace:
         deleted: []
       criteria:
@@ -33,16 +33,16 @@ blocks:
 metadata:
   estate:
     atoms:
-      - instruction.shipment-tracker.on-a-carrier-error-say-so
+      - instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
     planRow: pairwise.0743
     cell:
-      ask_class: build
-      ask_shape: problem
+      ask_class: compose
+      ask_shape: correction
       session_state: helpers_running
-      owner_signal: frustration
+      owner_signal: go
       deviation: none
       estate_hazard: no_hazard
-      atoms.instruction: instruction.shipment-tracker.on-a-carrier-error-say-so
+      atoms.instruction: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -54,9 +54,7 @@ metadata:
     phrase: null
     ask: bank
     outcome: no-delete
-    judged:
-      - instruction.shipment-tracker.on-a-carrier-error-say-so
     needs:
       - marker: needs-askable-act
-        atom: instruction.shipment-tracker.on-a-carrier-error-say-so
-        detail: "no task in the atom's words (instruction.shipment-tracker.on-a-carrier-error-say-so (title)): the act does not start with a verb: \"\""
+        atom: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
+        detail: "no task in the atom's words (instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and (title)): the act does not start with a verb: \"\""

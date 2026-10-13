@@ -143,6 +143,30 @@ describe('driftbench estate unit on the Northwind suite', () => {
     ]);
   }, 180_000);
 
+  it('keeps the results and their order with --jobs, and says so when --no-sandbox runs without the sandbox', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'estate-unit-jobs-'));
+    const tests = join(dir, 'unit');
+    await cp(join(UNIT, 'guard_positive'), tests, { recursive: true });
+    expect((await run(['estate', 'unit', tests, '--estate', FIXTURE, '--record'])).code).toBe(0);
+
+    const one = await run(['estate', 'unit', tests, '--estate', FIXTURE, '--json']);
+    const four = await run(['estate', 'unit', tests, '--estate', FIXTURE, '--json', '--jobs', '4']);
+    expect([one.code, four.code]).toEqual([0, 0]);
+    const runs = (out: string) => (JSON.parse(out) as { runs: unknown[] }).runs;
+    expect(runs(four.out)).toEqual(runs(one.out));
+    expect(runs(one.out).length).toBeGreaterThan(1);
+
+    const bad = await run(['estate', 'unit', tests, '--estate', FIXTURE, '--jobs', '0']);
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--jobs takes a whole number of 1 or more, not 0');
+
+    const open = await run(['estate', 'unit', tests, '--estate', FIXTURE, '--no-sandbox']);
+    expect(open.code).toBe(0);
+    expect(open.out).toContain(
+      'no sandbox: the guards and scripts ran with the network and the home folder open',
+    );
+  }, 120_000);
+
   it('exits 2 on a missing estate, a missing path and a file that is no unit test', async () => {
     expect((await run(['estate', 'unit', UNIT])).code).toBe(2);
     expect((await run(['estate', 'unit', join(UNIT, 'nothing'), '--estate', FIXTURE])).code).toBe(2);

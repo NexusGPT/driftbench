@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs';
+import type ExcelJS from 'exceljs';
 import { invalid, isRecord, mapping, missing, optionalString, parseOrder, requiredList } from './args';
 import { holds, jsonEqual, listed, parseAssertions } from './assertion';
 import {
@@ -29,6 +29,7 @@ import {
   showCell,
 } from './grid';
 import { matchList } from './match';
+import { loadReaderLibrary } from './optional';
 import { TEXT_CHECKS } from './text';
 
 /**
@@ -315,9 +316,17 @@ export const XLSX_CHECKS: CheckTable<Workbook> = {
   ...TEXT_CHECKS,
 };
 
+/**
+ * exceljs, several hundred modules: it loads when the first workbook opens, not when this package does. A
+ * missing package fails here, outside the catch that reports an unreadable file.
+ */
+function loadExcelJS(): Promise<typeof ExcelJS> {
+  return loadReaderLibrary('exceljs', 'xlsx', async () => (await import('exceljs')).default);
+}
+
 /** Every sheet of a workbook, read once. Throws when the bytes are not a workbook. */
 export async function readWorkbook(bytes: Uint8Array): Promise<Sheet[]> {
-  const workbook = new ExcelJS.Workbook();
+  const workbook = new (await loadExcelJS()).Workbook();
   await workbook.xlsx.load(ownBuffer(bytes));
   const read = workbook.worksheets.map(readSheet);
   if (read.length === 0) throw new Error('the file holds no worksheet');
@@ -328,6 +337,7 @@ export const xlsxReader: KindReader = {
   kind: 'xlsx',
   checkNames: Object.keys(XLSX_CHECKS),
   async open(bytes, path) {
+    await loadExcelJS();
     try {
       const read = await readWorkbook(bytes);
       return new ReaderDocument<Workbook>('xlsx', path, renderWorkbook(read), XLSX_CHECKS, { sheets: read });

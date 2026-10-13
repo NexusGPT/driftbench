@@ -4,7 +4,7 @@
 id: estate.pairwise.0321
 version: be2e7a0919cb
 kind: task
-title: "register_sample: One closing line per invoice"
+title: "register_sample: Answer in the language of the user's latest message"
 lang: EN
 tier: generated
 tags:
@@ -20,8 +20,8 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: fresh
-    event: process_restart
+    session_state: after_restart
+    event: rate_wave
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -50,35 +50,41 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
+criteria:
+  - name: register.standing.answer-in-the-language-of-the
+    rubric: Answer in the language of the user's latest message
+    gating: false
+    scope: block
 blocks:
   - id: ask
     when:
-      user: Match the Fjord Kitchenware invoice INV-1001 with its order.
+      user: Give me a short status of invoices, shipments and supplier emails.
     expect:
-      must:
-        - matched
+      lang: EN
       workspace:
         others_untouched: true
+      criteria:
+        - register.standing.answer-in-the-language-of-the
 perturbations:
-  - id: deviation-D2_goal_shift
-    class: D2_goal_shift
+  - id: deviation-D8_tool_failure
+    class: D8_tool_failure
     inject_at: 0
-    user: "Actually, change of plan: do only the first part of what I asked and stop there."
+    user: The last tool call failed. Carry on.
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - register.invoice-reconcile.one-closing-line-per-invoice
+      - register.standing.answer-in-the-language-of-the
     planRow: pairwise.0321
     cell:
       ask_class: debug
-      ask_shape: ambiguous
-      session_state: fresh
-      owner_signal: language_switch
-      deviation: D2_goal_shift
-      estate_hazard: process_restart
-      atoms.register: register.invoice-reconcile.one-closing-line-per-invoice
+      ask_shape: multi_part
+      session_state: after_restart
+      owner_signal: frustration
+      deviation: D8_tool_failure
+      estate_hazard: rate_wave
+      atoms.register: register.standing.answer-in-the-language-of-the
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -86,7 +92,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: invoice-reconcile
-    phrase: 2
+    situation: open-items
+    phrase: 1
     ask: code
     outcome: bank
