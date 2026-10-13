@@ -70,7 +70,7 @@ export function verifyFreeze(root, repo, freeze, dossierText) {
 }
 
 export class Journal {
-  constructor(path, { capUsd = 25, appendSpend, billingResumeKeys = [], quotaResumeKeys = [] } = {}) {
+  constructor(path, { capUsd = 25, appendSpend, billingResumeKeys = [], quotaResumeKeys = [], outageResumeKeys = [] } = {}) {
     this.path = path; this.capUsd = capUsd; this.appendSpend = appendSpend;
     this.rows = readJsonl(path);
     this.starts = new Map(); this.finishes = new Map();
@@ -93,6 +93,12 @@ export class Journal {
       const row = this.finishes.get(key);
       if (!row || row.status !== 429 || !row.transportFailure || row.returnedAnswer || row.text)
         throw new Error('Quota resumption may authorize only proven no-answer 429 receipts');
+    }
+    this.outageResumeKeys = new Set(outageResumeKeys);
+    for (const key of this.outageResumeKeys) {
+      const row = this.finishes.get(key);
+      if (!row || row.model !== 'claude-haiku-5-5' || !row.transportFailure || row.returnedAnswer || row.text)
+        throw new Error('Outage resumption may authorize only recorded no-answer Haiku receipts');
     }
   }
   liability() {
@@ -126,6 +132,7 @@ export class Journal {
             costEstimated: !provenBillingRejection && !Number.isFinite(error.costUsd), usage: error.usage ?? null };
         }
       }, { ...metadata, transportAttempt });
+      if (this.outageResumeKeys.has(attemptKey)) continue;
       if (response.status === 402) {
         // An explicit, frozen owner top-up permits advancing past these old rejections only.
         if (this.billingResumeKeys.has(attemptKey)) continue;
@@ -140,7 +147,7 @@ export class Journal {
         continue;
       }
       nonQuotaAttempts++;
-      if (!response.transportFailure || !response.retryable || response.returnedAnswer || nonQuotaAttempts === maxAttempts) return response;
+      if (!response.transportFailure || !response.retryable || response.returnedAnswer || nonQuotaAttempts === maxAttempts || this.outageResumeKeys.has(key)) return response;
       await sleep(Math.min(response.retryAfterMs ?? nonQuotaAttempts * 1000, 30000));
     }
   }

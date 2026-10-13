@@ -1,9 +1,14 @@
 {
-  "status": "running",
-  "pid": 27416,
+  "status": "stopped-on-error",
+  "pid": 91290,
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
-  "concurrency": 12,
+  "concurrency": 10,
   "models": {
+    "gemini-3.8-flash": {
+      "status": "paused-daily-quota",
+      "reason": "not run: daily quota; resume only on owner word or after 2026-10-14T00:00:00Z in a committed unpause amendment",
+      "concurrency": 0
+    },
     "gpt-6-luna": {
       "phase": "test",
       "status": "phase-finished",
@@ -13,12 +18,8 @@
       "phase": "test",
       "status": "phase-running",
       "concurrency": 2
-    },
-    "gemini-3.8-flash": {
-      "phase": "noise",
-      "status": "phase-running",
-      "concurrency": 2
     }
   },
-  "at": "2026-10-13T10:37:55.988Z"
+  "at": "2026-10-13T11:41:17.730Z",
+  "error": "OPERATOR_DRAIN: finish active requests and stop dispatching"
 }

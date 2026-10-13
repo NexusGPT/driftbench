@@ -8,7 +8,9 @@ import json
 root = Path(__file__).resolve().parent
 rows = [json.loads(line) for line in (root / 'results/calls.jsonl').read_text().splitlines()]
 finishes = {x['key']: x for x in rows if x['type'] == 'finish'}
-authorized = set(json.loads((root / 'freeze.json').read_text()).get('billingResumption', {}).get('rejectedKeys', []))
+freeze = json.loads((root / 'freeze.json').read_text())
+authorized = set(freeze.get('billingResumption', {}).get('rejectedKeys', []))
+outage_authorized = set(freeze.get('outageResumption', {}).get('noAnswerKeys', []))
 models = defaultdict(Counter)
 for row in rows:
     if row['type'] != 'start' or row.get('transportAttempt', 1) <= 1:
@@ -18,7 +20,10 @@ for row in rows:
     previous_key = base if previous_attempt == 1 else f'{base}:transport:{previous_attempt}'
     previous = finishes[previous_key]
     assert previous.get('transportFailure') and not previous.get('returnedAnswer') and not previous.get('text'), ('Answered request reissued', row['key'])
-    if previous.get('status') == 402:
+    if previous_key in outage_authorized:
+        assert row['transportAttempt'] == 2 and row['model'] == 'claude-haiku-5-5'
+        kind = 'ownerAuthorizedOutageResumptions'
+    elif previous.get('status') == 402:
         assert previous_key in authorized and previous.get('billingRejected')
         kind = 'ownerAuthorizedBillingResumptions'
     elif previous.get('status') == 429:

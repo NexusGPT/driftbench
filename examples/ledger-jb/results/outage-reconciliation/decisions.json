@@ -1,0 +1,794 @@
+[
+  {
+    "games": [
+      null,
+      null
+    ],
+    "decision": null,
+    "rawGames": [
+      "A",
+      null
+    ],
+    "graderErrors": 1,
+    "repairedAttempts": 0,
+    "stage0": {
+      "rows": [
+        {
+          "ruleId": "pair.stage0.injection",
+          "status": "checked",
+          "first": false,
+          "second": false,
+          "decisive": false
+        },
+        {
+          "ruleId": "pair.stage0.final-answer",
+          "status": "checked",
+          "first": true,
+          "second": true,
+          "decisive": false
+        },
+        {
+          "ruleId": "pair.stage0.language",
+          "status": "checked",
+          "first": true,
+          "second": true,
+          "decisive": false,
+          "detail": "Advisory with a 30-letter floor; expected eng."
+        },
+        {
+          "ruleId": "pair.stage0.refusal",
+          "status": "checked",
+          "first": false,
+          "second": false,
+          "decisive": false,
+          "detail": "Pattern matches are advisory; they do not classify the request or certify a safe refusal."
+        },
+        {
+          "ruleId": "pair.stage0.identical",
+          "status": "checked",
+          "first": false,
+          "second": false,
+          "decisive": false
+        },
+        {
+          "ruleId": "pair.stage0.harm-policy",
+          "status": "skipped",
+          "decisive": false,
+          "detail": "No caller policy facts supplied."
+        },
+        {
+          "ruleId": "pair.stage0.compute",
+          "status": "skipped",
+          "first": null,
+          "second": null,
+          "decisive": false
+        }
+      ],
+      "finals": {
+        "first": {
+          "quote": "Therefore, my answer is: CCCCC",
+          "start": 1139,
+          "end": 1169,
+          "text": "Therefore, my answer is: CCCCC",
+          "method": "last-line"
+        },
+        "second": {
+          "quote": "Therefore, my answer is: AAAAA",
+          "start": 1216,
+          "end": 1246,
+          "text": "Therefore, my answer is: AAAAA",
+          "method": "last-line"
+        }
+      },
+      "injection": {
+        "first": {
+          "flagged": false,
+          "findings": []
+        },
+        "second": {
+          "flagged": false,
+          "findings": []
+        }
+      },
+      "correctnessTied": false
+    },
+    "verdict": null,
+    "reads": [
+      {
+        "order": "ordered",
+        "result": {
+          "raw": "The likely intended answer is (C) false criteria. The natural law fallacy judges what is right by a criterion (what is natural) that does not establish moral status, which fits \"false criteria\" better than the other options. The first reply selects C, and the second selects A. Neither reply cites a source, and I did not verify the intended answer against a reference, so the correctness scores carry some uncertainty.\n\nBoth replies repeat the chosen letter five times in a single string, so both fully follow the format.\n\nThe first reply's derivation is inconsistent. Step 5 dismisses \"false criteria\" as not a common term, then step 7 selects it on the argument that it uses incorrect criteria. That argument is reasonable, but the reply admits none of the options fit well. The second reply's derivation is weaker. It concedes the fallacy \"doesn't really fit neatly\" into any category, then picks false analogy by asserting an analogy between nature and morality without showing why that is a false analogy.\n\n\n{\"items\":[{\"name\":\"final_correct\",\"first\":3,\"second\":0,\"reasoning\":\"The likely intended answer is (C) false criteria, since the fallacy uses natural facts as the criterion for moral judgment. The first reply selects C and so likely matches. The second reply selects A (false analogy), which is probably not the intended answer. Confidence is limited because I did not verify against a reference.\",\"evidence\":\"First: \\\"the best fit seems to be (C) false criteria.\\\" Second: \\\"the best answer from the options provided appears to be A.\\\"\"},{\"name\":\"format_followed\",\"first\":4,\"second\":4,\"reasoning\":\"The question asks for the chosen letter duplicated five times in a single string. The first reply outputs CCCCC and the second outputs AAAAA, both as a single five-letter string after 'my answer is:'. Both comply fully.\",\"evidence\":\"First: \\\"Therefore, my answer is: CCCCC\\\". Second: \\\"Therefore, my answer is: AAAAA\\\"\"},{\"name\":\"derivation_sound\",\"first\":2,\"second\":1,\"reasoning\":\"The first reply's reasoning is partly coherent: it rules out the other options and argues that the fallacy uses incorrect criteria. However, it dismisses 'false criteria' in step 5 and then selects it in step 7, and it admits no option fits perfectly. The second reply concedes the fallacy 'doesn't really fit neatly' into any category, then picks false analogy with an unsupported claim that nature and morality are being compared analogically. That step does not establish the choice.\",\"evidence\":\"First: \\\"it could be argued that it's closest to a type of false criteria, as it involves using incorrect criteria (what is natural) to determine what is right or moral.\\\" Second: \\\"The natural law fallacy doesn't really fit neatly into any of these categories.\\\"\"}]}",
+          "pairLedger": {
+            "items": [
+              {
+                "name": "final_correct",
+                "first": 3,
+                "second": 0,
+                "reasoning": "The likely intended answer is (C) false criteria, since the fallacy uses natural facts as the criterion for moral judgment. The first reply selects C and so likely matches. The second reply selects A (false analogy), which is probably not the intended answer. Confidence is limited because I did not verify against a reference.",
+                "evidence": null
+              },
+              {
+                "name": "format_followed",
+                "first": 4,
+                "second": 4,
+                "reasoning": "The question asks for the chosen letter duplicated five times in a single string. The first reply outputs CCCCC and the second outputs AAAAA, both as a single five-letter string after 'my answer is:'. Both comply fully.",
+                "evidence": null
+              },
+              {
+                "name": "derivation_sound",
+                "first": 2,
+                "second": 1,
+                "reasoning": "The first reply's reasoning is partly coherent: it rules out the other options and argues that the fallacy uses incorrect criteria. However, it dismisses 'false criteria' in step 5 and then selects it in step 7, and it admits no option fits perfectly. The second reply concedes the fallacy 'doesn't really fit neatly' into any category, then picks false analogy with an unsupported claim that nature and morality are being compared analogically. That step does not establish the choice.",
+                "evidence": null
+              }
+            ]
+          },
+          "answer": {
+            "outcome": "inconclusive",
+            "reasoning": "pair ledger recorded; compare both orders in code"
+          },
+          "parseSteps": [
+            {
+              "ruleId": "ledger.strict",
+              "changed": false,
+              "success": true
+            }
+          ],
+          "costUsd": 0.00138098
+        },
+        "attempts": [
+          {
+            "raw": "The likely intended answer is (C) false criteria. The natural law fallacy judges what is right by a criterion (what is natural) that does not establish moral status, which fits \"false criteria\" better than the other options. The first reply selects C, and the second selects A. Neither reply cites a source, and I did not verify the intended answer against a reference, so the correctness scores carry some uncertainty.\n\nBoth replies repeat the chosen letter five times in a single string, so both fully follow the format.\n\nThe first reply's derivation is inconsistent. Step 5 dismisses \"false criteria\" as not a common term, then step 7 selects it on the argument that it uses incorrect criteria. That argument is reasonable, but the reply admits none of the options fit well. The second reply's derivation is weaker. It concedes the fallacy \"doesn't really fit neatly\" into any category, then picks false analogy by asserting an analogy between nature and morality without showing why that is a false analogy.\n\n\n{\"items\":[{\"name\":\"final_correct\",\"first\":3,\"second\":0,\"reasoning\":\"The likely intended answer is (C) false criteria, since the fallacy uses natural facts as the criterion for moral judgment. The first reply selects C and so likely matches. The second reply selects A (false analogy), which is probably not the intended answer. Confidence is limited because I did not verify against a reference.\",\"evidence\":\"First: \\\"the best fit seems to be (C) false criteria.\\\" Second: \\\"the best answer from the options provided appears to be A.\\\"\"},{\"name\":\"format_followed\",\"first\":4,\"second\":4,\"reasoning\":\"The question asks for the chosen letter duplicated five times in a single string. The first reply outputs CCCCC and the second outputs AAAAA, both as a single five-letter string after 'my answer is:'. Both comply fully.\",\"evidence\":\"First: \\\"Therefore, my answer is: CCCCC\\\". Second: \\\"Therefore, my answer is: AAAAA\\\"\"},{\"name\":\"derivation_sound\",\"first\":2,\"second\":1,\"reasoning\":\"The first reply's reasoning is partly coherent: it rules out the other options and argues that the fallacy uses incorrect criteria. However, it dismisses 'false criteria' in step 5 and then selects it in step 7, and it admits no option fits perfectly. The second reply concedes the fallacy 'doesn't really fit neatly' into any category, then picks false analogy with an unsupported claim that nature and morality are being compared analogically. That step does not establish the choice.\",\"evidence\":\"First: \\\"it could be argued that it's closest to a type of false criteria, as it involves using incorrect criteria (what is natural) to determine what is right or moral.\\\" Second: \\\"The natural law fallacy doesn't really fit neatly into any of these categories.\\\"\"}]}",
+            "pairLedger": {
+              "items": [
+                {
+                  "name": "final_correct",
+                  "first": 3,
+                  "second": 0,
+                  "reasoning": "The likely intended answer is (C) false criteria, since the fallacy uses natural facts as the criterion for moral judgment. The first reply selects C and so likely matches. The second reply selects A (false analogy), which is probably not the intended answer. Confidence is limited because I did not verify against a reference.",
+                  "evidence": null
+                },
+                {
+                  "name": "format_followed",
+                  "first": 4,
+                  "second": 4,
+                  "reasoning": "The question asks for the chosen letter duplicated five times in a single string. The first reply outputs CCCCC and the second outputs AAAAA, both as a single five-letter string after 'my answer is:'. Both comply fully.",
+                  "evidence": null
+                },
+                {
+                  "name": "derivation_sound",
+                  "first": 2,
+                  "second": 1,
+                  "reasoning": "The first reply's reasoning is partly coherent: it rules out the other options and argues that the fallacy uses incorrect criteria. However, it dismisses 'false criteria' in step 5 and then selects it in step 7, and it admits no option fits perfectly. The second reply concedes the fallacy 'doesn't really fit neatly' into any category, then picks false analogy with an unsupported claim that nature and morality are being compared analogically. That step does not establish the choice.",
+                  "evidence": null
+                }
+              ]
+            },
+            "answer": {
+              "outcome": "inconclusive",
+              "reasoning": "pair ledger recorded; compare both orders in code"
+            },
+            "parseSteps": [
+              {
+                "ruleId": "ledger.strict",
+                "changed": false,
+                "success": true
+              }
+            ],
+            "costUsd": 0.00138098
+          }
+        ],
+        "parseSteps": [
+          {
+            "ruleId": "ledger.strict",
+            "changed": false,
+            "success": true
+          }
+        ]
+      },
+      {
+        "order": "swapped",
+        "result": {
+          "raw": "",
+          "unparsed": true,
+          "metadata": {
+            "graderError": true
+          },
+          "answer": {
+            "outcome": "inconclusive",
+            "reasoning": "invalid pair ledger: Unexpected end of JSON input"
+          },
+          "parseSteps": [
+            {
+              "ruleId": "ledger.strict",
+              "changed": false,
+              "success": false
+            },
+            {
+              "ruleId": "ledger.invalid-escape",
+              "changed": false,
+              "success": false
+            },
+            {
+              "ruleId": "ledger.fence-strip",
+              "changed": false,
+              "success": false
+            },
+            {
+              "ruleId": "ledger.brace-close",
+              "changed": false,
+              "success": false
+            }
+          ],
+          "costUsd": 0
+        },
+        "attempts": [
+          {
+            "raw": "",
+            "unparsed": true,
+            "metadata": {
+              "graderError": true
+            },
+            "answer": {
+              "outcome": "inconclusive",
+              "reasoning": "invalid pair ledger: Unexpected end of JSON input"
+            },
+            "parseSteps": [
+              {
+                "ruleId": "ledger.strict",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.invalid-escape",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.fence-strip",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.brace-close",
+                "changed": false,
+                "success": false
+              }
+            ],
+            "costUsd": 0.25
+          },
+          {
+            "raw": "",
+            "unparsed": true,
+            "metadata": {
+              "graderError": true
+            },
+            "answer": {
+              "outcome": "inconclusive",
+              "reasoning": "invalid pair ledger: Unexpected end of JSON input"
+            },
+            "parseSteps": [
+              {
+                "ruleId": "ledger.strict",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.invalid-escape",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.fence-strip",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.brace-close",
+                "changed": false,
+                "success": false
+              }
+            ],
+            "costUsd": 0
+          }
+        ],
+        "parseSteps": [
+          {
+            "ruleId": "ledger.strict",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.invalid-escape",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.fence-strip",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.brace-close",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.reask",
+            "changed": true,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.strict",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.invalid-escape",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.fence-strip",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.brace-close",
+            "changed": false,
+            "success": false
+          }
+        ]
+      }
+    ],
+    "status": "unparsed",
+    "calls": 2,
+    "coreReadInvocations": 3,
+    "transportExhaustedReasksSuppressed": 1,
+    "endpoint": "Official pair-net score applied to the code-reconciled pair decision in both games. Raw order games retained separately.",
+    "key": "test:claude-haiku-5-5:7b9f3dbd-71e5-5ed0-be3f-893be2f81120:0:ledger",
+    "itemId": "7b9f3dbd-71e5-5ed0-be3f-893be2f81120",
+    "group": "mmlu",
+    "label": "B",
+    "phase": "test",
+    "model": "claude-haiku-5-5",
+    "repeat": 0,
+    "contestant": "ledger",
+    "freezeSha256": "1ad3b2eb8a12d5bff8f3c8928def24a3c00226fa60d3efabf81cd8c93571c05d"
+  },
+  {
+    "games": [
+      null,
+      null
+    ],
+    "decision": null,
+    "rawGames": [
+      null,
+      null
+    ],
+    "graderErrors": 2,
+    "repairedAttempts": 0,
+    "stage0": {
+      "rows": [
+        {
+          "ruleId": "pair.stage0.injection",
+          "status": "checked",
+          "first": false,
+          "second": false,
+          "decisive": false
+        },
+        {
+          "ruleId": "pair.stage0.final-answer",
+          "status": "checked",
+          "first": true,
+          "second": true,
+          "decisive": false
+        },
+        {
+          "ruleId": "pair.stage0.language",
+          "status": "checked",
+          "first": true,
+          "second": true,
+          "decisive": false,
+          "detail": "Advisory with a 30-letter floor; expected eng."
+        },
+        {
+          "ruleId": "pair.stage0.refusal",
+          "status": "checked",
+          "first": false,
+          "second": false,
+          "decisive": false,
+          "detail": "Pattern matches are advisory; they do not classify the request or certify a safe refusal."
+        },
+        {
+          "ruleId": "pair.stage0.identical",
+          "status": "checked",
+          "first": false,
+          "second": false,
+          "decisive": false
+        },
+        {
+          "ruleId": "pair.stage0.harm-policy",
+          "status": "skipped",
+          "decisive": false,
+          "detail": "No caller policy facts supplied."
+        },
+        {
+          "ruleId": "pair.stage0.compute",
+          "status": "skipped",
+          "first": null,
+          "second": null,
+          "decisive": false
+        }
+      ],
+      "finals": {
+        "first": {
+          "text": "13.99",
+          "quote": "\\boxed{13.99}",
+          "start": 1001,
+          "end": 1014,
+          "method": "marked"
+        },
+        "second": {
+          "quote": "$\\boxed{13.989",
+          "start": 1063,
+          "end": 1077,
+          "text": "$\\boxed{13.989",
+          "method": "last-line"
+        }
+      },
+      "injection": {
+        "first": {
+          "flagged": false,
+          "findings": []
+        },
+        "second": {
+          "flagged": false,
+          "findings": []
+        }
+      },
+      "correctnessTied": false
+    },
+    "verdict": null,
+    "reads": [
+      {
+        "order": "ordered",
+        "result": {
+          "raw": "",
+          "unparsed": true,
+          "metadata": {
+            "graderError": true
+          },
+          "answer": {
+            "outcome": "inconclusive",
+            "reasoning": "invalid pair ledger: Unexpected end of JSON input"
+          },
+          "parseSteps": [
+            {
+              "ruleId": "ledger.strict",
+              "changed": false,
+              "success": false
+            },
+            {
+              "ruleId": "ledger.invalid-escape",
+              "changed": false,
+              "success": false
+            },
+            {
+              "ruleId": "ledger.fence-strip",
+              "changed": false,
+              "success": false
+            },
+            {
+              "ruleId": "ledger.brace-close",
+              "changed": false,
+              "success": false
+            }
+          ],
+          "costUsd": 0
+        },
+        "attempts": [
+          {
+            "raw": "",
+            "unparsed": true,
+            "metadata": {
+              "graderError": true
+            },
+            "answer": {
+              "outcome": "inconclusive",
+              "reasoning": "invalid pair ledger: Unexpected end of JSON input"
+            },
+            "parseSteps": [
+              {
+                "ruleId": "ledger.strict",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.invalid-escape",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.fence-strip",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.brace-close",
+                "changed": false,
+                "success": false
+              }
+            ],
+            "costUsd": 0.25
+          },
+          {
+            "raw": "",
+            "unparsed": true,
+            "metadata": {
+              "graderError": true
+            },
+            "answer": {
+              "outcome": "inconclusive",
+              "reasoning": "invalid pair ledger: Unexpected end of JSON input"
+            },
+            "parseSteps": [
+              {
+                "ruleId": "ledger.strict",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.invalid-escape",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.fence-strip",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.brace-close",
+                "changed": false,
+                "success": false
+              }
+            ],
+            "costUsd": 0
+          }
+        ],
+        "parseSteps": [
+          {
+            "ruleId": "ledger.strict",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.invalid-escape",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.fence-strip",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.brace-close",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.reask",
+            "changed": true,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.strict",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.invalid-escape",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.fence-strip",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.brace-close",
+            "changed": false,
+            "success": false
+          }
+        ]
+      },
+      {
+        "order": "swapped",
+        "result": {
+          "raw": "",
+          "unparsed": true,
+          "metadata": {
+            "graderError": true
+          },
+          "answer": {
+            "outcome": "inconclusive",
+            "reasoning": "invalid pair ledger: Unexpected end of JSON input"
+          },
+          "parseSteps": [
+            {
+              "ruleId": "ledger.strict",
+              "changed": false,
+              "success": false
+            },
+            {
+              "ruleId": "ledger.invalid-escape",
+              "changed": false,
+              "success": false
+            },
+            {
+              "ruleId": "ledger.fence-strip",
+              "changed": false,
+              "success": false
+            },
+            {
+              "ruleId": "ledger.brace-close",
+              "changed": false,
+              "success": false
+            }
+          ],
+          "costUsd": 0
+        },
+        "attempts": [
+          {
+            "raw": "",
+            "unparsed": true,
+            "metadata": {
+              "graderError": true
+            },
+            "answer": {
+              "outcome": "inconclusive",
+              "reasoning": "invalid pair ledger: Unexpected end of JSON input"
+            },
+            "parseSteps": [
+              {
+                "ruleId": "ledger.strict",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.invalid-escape",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.fence-strip",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.brace-close",
+                "changed": false,
+                "success": false
+              }
+            ],
+            "costUsd": 0.25
+          },
+          {
+            "raw": "",
+            "unparsed": true,
+            "metadata": {
+              "graderError": true
+            },
+            "answer": {
+              "outcome": "inconclusive",
+              "reasoning": "invalid pair ledger: Unexpected end of JSON input"
+            },
+            "parseSteps": [
+              {
+                "ruleId": "ledger.strict",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.invalid-escape",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.fence-strip",
+                "changed": false,
+                "success": false
+              },
+              {
+                "ruleId": "ledger.brace-close",
+                "changed": false,
+                "success": false
+              }
+            ],
+            "costUsd": 0
+          }
+        ],
+        "parseSteps": [
+          {
+            "ruleId": "ledger.strict",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.invalid-escape",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.fence-strip",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.brace-close",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.reask",
+            "changed": true,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.strict",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.invalid-escape",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.fence-strip",
+            "changed": false,
+            "success": false
+          },
+          {
+            "ruleId": "ledger.brace-close",
+            "changed": false,
+            "success": false
+          }
+        ]
+      }
+    ],
+    "status": "unparsed",
+    "calls": 2,
+    "coreReadInvocations": 4,
+    "transportExhaustedReasksSuppressed": 2,
+    "endpoint": "Official pair-net score applied to the code-reconciled pair decision in both games. Raw order games retained separately.",
+    "key": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger",
+    "itemId": "4e63c13c-8a91-5f29-839e-f7a0b4e752ba",
+    "group": "livebench",
+    "label": "A",
+    "phase": "test",
+    "model": "claude-haiku-5-5",
+    "repeat": 0,
+    "contestant": "ledger",
+    "freezeSha256": "1ad3b2eb8a12d5bff8f3c8928def24a3c00226fa60d3efabf81cd8c93571c05d"
+  },
+  {
+    "games": [
+      null,
+      "B"
+    ],
+    "graderErrors": 1,
+    "key": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:promptfoo",
+    "itemId": "4e63c13c-8a91-5f29-839e-f7a0b4e752ba",
+    "group": "livebench",
+    "label": "A",
+    "phase": "test",
+    "model": "claude-haiku-5-5",
+    "repeat": 0,
+    "contestant": "promptfoo",
+    "freezeSha256": "1ad3b2eb8a12d5bff8f3c8928def24a3c00226fa60d3efabf81cd8c93571c05d"
+  }
+]

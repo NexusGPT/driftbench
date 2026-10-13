@@ -165,3 +165,29 @@ test('cutoff before dispatch writes no unresolved call or spend',async()=>{
   await assert.rejects(journal.transportCall('late',.1,async()=>{throw new Error('must not call');},{},{beforeDispatch:()=>{throw new Error('cutoff');}}),/cutoff/);
   assert.equal(journal.starts.size,0);assert.equal(journal.liability(),0);
 });
+
+test('outage authorization retries only named no-answer calls once and preserves answered reads',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-outage-')),'calls.jsonl');const first=new Journal(path);
+  const metadata={model:'claude-haiku-5-5'};
+  const reject=async()=>{throw Object.assign(new Error('claude returned an error result'),{code:'http'});};
+  await first.transportCall('outage',.25,reject,metadata);
+  await first.transportCall('unrelated',.25,reject,metadata);
+  await first.transportCall('answered',.25,async()=>({text:'saved',costUsd:.01}),metadata);
+  assert.throws(()=>new Journal(path,{outageResumeKeys:['answered']}),/only recorded no-answer/);
+  const resumed=new Journal(path,{outageResumeKeys:['outage']});let calls=0;
+  const operation=async()=>{calls++;return {text:'recovered',costUsd:.02};};
+  assert.equal((await resumed.transportCall('outage',.25,operation,metadata)).key,'outage:transport:2');
+  assert.equal((await resumed.transportCall('answered',.25,operation,metadata)).text,'saved');
+  assert.equal((await resumed.transportCall('unrelated',.25,operation,metadata)).transportFailure,true);
+  await resumed.transportCall('outage',.25,operation,metadata);assert.equal(calls,1);
+});
+
+test('authorized outage retry stops after one more no-answer failure',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-outage-')),'calls.jsonl');const first=new Journal(path),metadata={model:'claude-haiku-5-5'};
+  await first.transportCall('outage',.25,async()=>{throw Object.assign(new Error('original error'),{code:'http'});},metadata);
+  const resumed=new Journal(path,{outageResumeKeys:['outage']});let calls=0;
+  const operation=async()=>{calls++;throw Object.assign(new Error('offline'),{code:'network',retryable:true});};
+  await resumed.transportCall('outage',.25,operation,metadata);
+  await resumed.transportCall('outage',.25,operation,metadata);
+  assert.equal(calls,1);assert.equal(resumed.starts.size,2);assert.equal(resumed.liability(),.5);
+});

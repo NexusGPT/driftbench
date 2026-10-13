@@ -1,0 +1,67 @@
+{
+  "core": "35f07309",
+  "source": "packages/judges/src/clients/transport.ts:219",
+  "limitation": "CLI error output is discarded by the frozen raw transport. The recorded error has no provider status or response body; provider cause and billed usage cannot be inferred.",
+  "receipts": [
+    {
+      "key": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger:AB:0:4899deaf77dda847da0b737641231cc75900aff0a01e64674c4d929f64108fd5",
+      "at": "2026-10-13T11:28:28.538Z",
+      "itemId": "4e63c13c-8a91-5f29-839e-f7a0b4e752ba",
+      "contestant": "ledger",
+      "order": "AB",
+      "error": "claude returned an error result",
+      "errorCode": "http",
+      "status": null,
+      "retryable": false,
+      "returnedAnswer": false,
+      "rawProvider": null,
+      "costUsd": 0.25,
+      "costEstimated": true
+    },
+    {
+      "key": "test:claude-haiku-5-5:7b9f3dbd-71e5-5ed0-be3f-893be2f81120:0:ledger:BA:0:87265a65cd7dee12814037289ade252633ab4f1dce419329003fa2c5c9be2700",
+      "at": "2026-10-13T11:29:19.789Z",
+      "itemId": "7b9f3dbd-71e5-5ed0-be3f-893be2f81120",
+      "contestant": "ledger",
+      "order": "BA",
+      "error": "claude returned an error result",
+      "errorCode": "http",
+      "status": null,
+      "retryable": false,
+      "returnedAnswer": false,
+      "rawProvider": null,
+      "costUsd": 0.25,
+      "costEstimated": true
+    },
+    {
+      "key": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger:BA:0:f882af27e9ca59b2f8248307c9df160212f41c5406ad863c063590a14e50fc48",
+      "at": "2026-10-13T11:31:37.261Z",
+      "itemId": "4e63c13c-8a91-5f29-839e-f7a0b4e752ba",
+      "contestant": "ledger",
+      "order": "BA",
+      "error": "claude returned an error result",
+      "errorCode": "http",
+      "status": null,
+      "retryable": false,
+      "returnedAnswer": false,
+      "rawProvider": null,
+      "costUsd": 0.25,
+      "costEstimated": true
+    },
+    {
+      "key": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:promptfoo:AB:0:3ab78ff9cb2484791577eaa7b5b1312190697c1a72dbddd932c36a1f03a130b4",
+      "at": "2026-10-13T11:32:17.859Z",
+      "itemId": "4e63c13c-8a91-5f29-839e-f7a0b4e752ba",
+      "contestant": "promptfoo",
+      "order": "AB",
+      "error": "claude returned an error result",
+      "errorCode": "http",
+      "status": null,
+      "retryable": false,
+      "returnedAnswer": false,
+      "rawProvider": null,
+      "costUsd": 0.25,
+      "costEstimated": true
+    }
+  ]
+}

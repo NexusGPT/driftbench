@@ -1,6 +1,6 @@
 {
-  "version": 8,
-  "createdAt": "2026-10-13T11:21:03.535005+00:00",
+  "version": 9,
+  "createdAt": "2026-10-13T11:43:35.483515+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
@@ -55,13 +55,13 @@
   "hashes": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
     "examples/ledger-jb/src/core-adapter.mjs": "ca4bb42eba778c3489fd4ef337d6482d570cf7d4acc552158159cad7add7381d",
-    "examples/ledger-jb/src/harness.mjs": "05e866e744d63164bf0cf3dfd76e134bd76ccec8a5a422da977f4b8f04e51dbc",
+    "examples/ledger-jb/src/harness.mjs": "ff6895e31625a40d0a50c42544cdab0427fb9f8565170c26c7974ae612f22feb",
     "examples/ledger-jb/src/report.mjs": "c1639581f30bd420126a6b3fa3e2813849a2067bb90dfe27ab770ffcd1935fe5",
     "examples/ledger-jb/src/run.mjs": "0db131e49fa0b1f1bdc8bad88665c52708d3eabe2b77f0fb83a0f3cf88867070",
     "examples/ledger-jb/src/seal.py": "67996a4242a2856364eb193f3912708848c41a29972979941f0fcbe0a05ec706",
     "examples/ledger-jb/src/statistics.mjs": "898081d2408c2045ac9efe3d3b550ff6b45cacb2493f192d96b2328175e9db6f",
     "examples/ledger-jb/test/core-adapter.test.mjs": "8397d704df9a49e8e902a6adfe48b220983a0c4a523b63523ab3656ef07a1181",
-    "examples/ledger-jb/test/harness.test.mjs": "efc665d6d583d3e3f546d789ffae4258c1f51e7ae8e46a52b24f75244dc561c5",
+    "examples/ledger-jb/test/harness.test.mjs": "1ae8633d3e9397425bd6cc50e54105a6d2f32f17693d6fcd1799818187d1ed82",
     "examples/ledger-jb/test/statistics.test.mjs": "5e150346ca3a38310b2f7f59b267fee4c52cccab239fbdc15f746cb0bd6d1e53",
     "packages/checks/src/checks/artifacts.ts": "92958e17bd8b47cca97eebe1641c56241d59a73f7b7f39feaa84e9584d00fad1",
     "packages/checks/src/checks/budget.ts": "b63238ecb106d9c9e68a4116c9f3a04dda9c5f7f2ab41a6e7710c0a714b6ceef",
@@ -162,18 +162,19 @@
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
     "examples/ledger-jb/run-driver.py": "162639c760a66ee0483b0ccd2bf0ea30154bb53f073530c2917bce9c1e97060c",
     "examples/ledger-jb/summarize-reasks.mjs": "e1b1378d21912b6899bc181904442cb74a2b568493f67d3ecadd98f61998c482",
-    "examples/ledger-jb/parallel-remaining.mjs": "4c0d758916607d152418d52f9221d72e56670bdcc64cd84a02c2cf6fd1ffc0da",
+    "examples/ledger-jb/parallel-remaining.mjs": "eac65caaa3bf0ead73d91128408bfdd9ad82253f64ffbe16a45d11c1188ff305",
     "examples/ledger-jb/test/parallel.test.mjs": "6a9d8bde15c3ee26f13a92f5eced537d64dd059a94500ec96d5eee34680ed4e8",
     "examples/ledger-jb/audit-results.py": "d8a38d2e4a0ac72e4f6c2c274b01b0f9c3f3dd633ec3644388c0880246479c4b",
     "examples/ledger-jb/write-dossier.py": "83e32a5eb154c0ccad8a99aba619457544050716b06767e0d93478b4595bbe52",
     "examples/ledger-jb/reconcile-billing.py": "c199ac726b15bac0980cc37d4980fb54c2c51f43c3ba8b220c11a009787a839b",
-    "examples/ledger-jb/probe-gemini.mjs": "11f03dd5687a69e7dc46239978d045593043e8d38785a7615a88dff2b114c248"
+    "examples/ledger-jb/probe-gemini.mjs": "11f03dd5687a69e7dc46239978d045593043e8d38785a7615a88dff2b114c248",
+    "examples/ledger-jb/reconcile-outage.py": "ffb1aafd3b68c613e079b232929173d9b6de44c55aeab60cedbc834eb89791e8"
   },
   "amendment": {
-    "previousFreezeSha256": "fe4bcd5ac353d5c3251c6e4238a8d4fa8497a516876b016c81f6fbdc7b1785b7",
-    "reason": "Owner identifies daily quota and orders immediate Gemini stop without further waits or retries today. Gemini missing-only cutoff extends to 14 October 12:00 UTC; finish Haiku and publish its table.",
-    "boundary": "SIGUSR2 drains Haiku. Zero unresolved requests verified at 11:17:53 UTC, then owned PID 27416 terminated while only Gemini backoff timers remained. Six 429 receipts across two requests remain no-answer and eligible. No judge failure is saved.",
-    "core": "Unchanged 35f07309; prompts, schema, scoring, reasoning, sealed order and 25 USD cap unchanged."
+    "previousFreezeSha256": "1ad3b2eb8a12d5bff8f3c8928def24a3c00226fa60d3efabf81cd8c93571c05d",
+    "reason": "The four no-answer Haiku CLI errors between 11:28 and 11:32 UTC match a host network outage. The owner authorizes one additional ask for those four calls only and release of their unknown-cost holds if the re-asks settle. Never ask a returned answer again.",
+    "boundary": "PID 91290 drains through SIGUSR2; zero unresolved calls. Only three decisions involving the four no-answer requests are quarantined. All received responses remain cached.",
+    "core": "Unchanged 35f07309; prompts, schema re-ask, scoring, models, reasoning, sealed order and 25 USD cap unchanged. Gemini remains paused for daily quota."
   },
   "cacheIdentityModels": {
     "claude-haiku-5-5": {
@@ -587,5 +588,22 @@
     "validityDecisionsComplete": 0,
     "stoppedPid": 27416,
     "lastGeminiStartAt": "2026-10-13T11:15:01.224Z"
+  },
+  "outageResumption": {
+    "authorization": "The four no-answer Haiku CLI errors between 11:28 and 11:32 UTC match a host network outage. The owner authorizes one additional ask for those four calls only and release of their unknown-cost holds if the re-asks settle. Never ask a returned answer again.",
+    "noAnswerKeys": [
+      "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger:AB:0:4899deaf77dda847da0b737641231cc75900aff0a01e64674c4d929f64108fd5",
+      "test:claude-haiku-5-5:7b9f3dbd-71e5-5ed0-be3f-893be2f81120:0:ledger:BA:0:87265a65cd7dee12814037289ade252633ab4f1dce419329003fa2c5c9be2700",
+      "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger:BA:0:f882af27e9ca59b2f8248307c9df160212f41c5406ad863c063590a14e50fc48",
+      "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:promptfoo:AB:0:3ab78ff9cb2484791577eaa7b5b1312190697c1a72dbddd932c36a1f03a130b4"
+    ],
+    "maximumAdditionalAttemptsPerKey": 1,
+    "releaseCondition": "Replacement is a priced returned model answer; reconcile after the runner drains. Otherwise retain the hold.",
+    "manifest": "examples/ledger-jb/results/outage-reconciliation/manifest.json",
+    "quarantinedDecisionKeys": [
+      "test:claude-haiku-5-5:7b9f3dbd-71e5-5ed0-be3f-893be2f81120:0:ledger",
+      "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger",
+      "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:promptfoo"
+    ]
   }
 }

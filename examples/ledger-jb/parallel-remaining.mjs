@@ -51,7 +51,7 @@ async function main(){
   const data=Object.fromEntries(['fixtures','pilot','noise','pool','validity'].map(name=>[name,readJson(join(root,`data/${name}.json`))]));
   const adapter=await import(pathToFileURL(resolve(repo,freeze.adapter)).href);
   const transports=Object.fromEntries(await Promise.all(models.map(async model=>[model,await adapter.createTransport({model,settings:freeze.models[model],root})])));
-  const journal=new Journal(join(r,'calls.jsonl'),{capUsd:25,billingResumeKeys:freeze.billingResumption?.rejectedKeys??[],quotaResumeKeys:freeze.dailyQuotaPause?.noAnswerKeys??[],appendSpend(row){
+  const journal=new Journal(join(r,'calls.jsonl'),{capUsd:25,billingResumeKeys:freeze.billingResumption?.rejectedKeys??[],quotaResumeKeys:freeze.dailyQuotaPause?.noAnswerKeys??[],outageResumeKeys:freeze.outageResumption?.noAnswerKeys??[],appendSpend(row){
     appendFileSync(flag('--spend-ledger'),`| ${row.at} | ledger-jb ${row.phase} ${row.contestant} ${row.itemId} ${row.order} | ${row.model} | 1 call | ${row.costUsd.toFixed(8)} USD${row.costEstimated?' reserved, actual unknown':''} | lane liability ${journal.liability().toFixed(8)} USD |\n`);
   }});
   const template=readFileSync(join(root,'data/promptfoo-select-best.txt'),'utf8'),stop={},backoffAbort=new AbortController();

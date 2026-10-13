@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-13T11:00:23.397312+00:00",
+  "at": "2026-10-13T11:22:06.520557+00:00",
   "models": {
     "gpt-6-luna": {
       "automaticNoAnswerTransportRetries": 4
@@ -8,7 +8,8 @@
       "automaticNoAnswerTransportRetries": 1
     },
     "gemini-3.8-flash": {
-      "ownerAuthorizedBillingResumptions": 318
+      "ownerAuthorizedBillingResumptions": 318,
+      "quotaRetries": 4
     }
   },
   "returnedAnswersResent": 0,

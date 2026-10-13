@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-10-13T10:53:31.344Z",
+  "asOf": "2026-10-13T11:41:17.300Z",
   "definition": "Schema re-ask is the frozen core ledger.reask after malformed output. It is distinct from a transport retry of a request with no returned answer.",
   "models": {
     "gpt-6-luna": {
@@ -99,23 +99,23 @@
           "repairedAttempts": 72
         },
         "test": {
-          "ledgerPairs": 52,
-          "coreReaskInvocations": 0,
+          "ledgerPairs": 158,
+          "coreReaskInvocations": 3,
           "paidSchemaReaskReads": 0,
           "transportRetryAttempts": 0,
-          "transportExhaustedReasksSuppressed": 0,
+          "transportExhaustedReasksSuppressed": 3,
           "suppressedReasks": 0,
-          "repairedAttempts": 68
+          "repairedAttempts": 212
         }
       },
       "totals": {
-        "ledgerPairs": 266,
-        "coreReaskInvocations": 1,
+        "ledgerPairs": 372,
+        "coreReaskInvocations": 4,
         "paidSchemaReaskReads": 1,
         "transportRetryAttempts": 1,
-        "transportExhaustedReasksSuppressed": 0,
+        "transportExhaustedReasksSuppressed": 3,
         "suppressedReasks": 0,
-        "repairedAttempts": 363
+        "repairedAttempts": 507
       }
     },
     "gemini-3.8-flash": {
@@ -139,10 +139,10 @@
           "repairedAttempts": 0
         },
         "noise": {
-          "ledgerPairs": 36,
+          "ledgerPairs": 86,
           "coreReaskInvocations": 2,
           "paidSchemaReaskReads": 2,
-          "transportRetryAttempts": 147,
+          "transportRetryAttempts": 224,
           "transportExhaustedReasksSuppressed": 0,
           "suppressedReasks": 0,
           "repairedAttempts": 0
@@ -167,10 +167,10 @@
         }
       },
       "totals": {
-        "ledgerPairs": 110,
+        "ledgerPairs": 160,
         "coreReaskInvocations": 10,
         "paidSchemaReaskReads": 10,
-        "transportRetryAttempts": 245,
+        "transportRetryAttempts": 322,
         "transportExhaustedReasksSuppressed": 0,
         "suppressedReasks": 0,
         "repairedAttempts": 0
