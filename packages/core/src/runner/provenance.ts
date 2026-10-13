@@ -1,14 +1,29 @@
 import { createHash } from 'node:crypto';
+import type { AgentAdapter } from '../contracts/adapter';
 import type { CheckContext } from '../contracts/check';
+import { agentVersionOf } from '../radius/version';
 import type { RunResult } from '../schema/run';
-import { contentHash } from '../spec/hash';
+import { canonicalJson } from '../spec/hash';
 import type { RunOptions } from './run';
+
+/** Full SHA-256 of canonical JSON. Never persist user-supplied identity or stimulus text beside it. */
+export const provenanceHash = (value: unknown): string =>
+  createHash('sha256').update(canonicalJson(value)).digest('hex');
+
+export function adapterProvenance(adapter: AgentAdapter, targetAdapter?: string) {
+  return {
+    idHash: provenanceHash(adapter.id),
+    versionHash: provenanceHash(adapter.version),
+    cacheIdentityHash: adapter.cacheIdentity === undefined ? null : provenanceHash(adapter.cacheIdentity),
+    requiresCacheIdentity: adapter.id === 'process' || targetAdapter === 'process',
+  };
+}
 
 /** Hash bytes only when a check already reads them. No new file content is stored or additional read made. */
 export function captureArtifacts(ctx: Pick<CheckContext, 'observed' | 'readArtifact'>) {
   const artifacts = (ctx.observed.artifacts ?? []).map((file) => ({
-    path: file.path,
-    sha256: file.sha256 ?? null,
+    pathHash: provenanceHash(file.path),
+    sha256: file.sha256 && /^[0-9a-f]{64}$/.test(file.sha256) ? file.sha256 : null,
   }));
   const read = ctx.readArtifact;
   return {
@@ -19,10 +34,13 @@ export function captureArtifacts(ctx: Pick<CheckContext, 'observed' | 'readArtif
         : async (path: string) => {
             try {
               const bytes = await read(path);
-              artifacts.push({ path, sha256: createHash('sha256').update(bytes).digest('hex') });
+              artifacts.push({
+                pathHash: provenanceHash(path),
+                sha256: createHash('sha256').update(bytes).digest('hex'),
+              });
               return bytes;
             } catch (error) {
-              artifacts.push({ path, sha256: null });
+              artifacts.push({ pathHash: provenanceHash(path), sha256: null });
               throw error;
             }
           },
@@ -31,15 +49,22 @@ export function captureArtifacts(ctx: Pick<CheckContext, 'observed' | 'readArtif
 
 /** Unknown seeds remain null. A driver must explicitly declare {} when it uses no randomness. */
 export function runProvenance(options: RunOptions): NonNullable<RunResult['provenance']> {
-  const driver = { id: options.driver.id, seeds: options.driver.seeds ?? null };
-  const adapter = { id: options.adapter.id, version: options.adapter.version };
+  const driver = {
+    idHash: provenanceHash(options.driver.id),
+    seedsHash: options.driver.seeds === undefined ? null : provenanceHash(options.driver.seeds),
+  };
+  const adapter = adapterProvenance(options.adapter, options.target?.adapter);
+  const agentVersion = options.target === undefined ? undefined : agentVersionOf({ target: options.target });
   return {
+    version: 2,
     driver,
     adapter,
-    executionHash: contentHash({
+    agentVersionHash: agentVersion === undefined ? null : provenanceHash(agentVersion),
+    executionHash: provenanceHash({
       driver,
       adapter,
       target: options.target,
+      agentVersion: options.agentVersion,
       mode: options.mode,
       repeat: options.repeat,
       perturbationId: options.perturbationId,

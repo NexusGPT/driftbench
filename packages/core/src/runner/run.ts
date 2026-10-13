@@ -31,7 +31,7 @@ import {
   stimulusMessages,
 } from './given';
 import { describeContradiction, ledgerVerdicts } from './ledger';
-import { captureArtifacts, runProvenance } from './provenance';
+import { captureArtifacts, provenanceHash, runProvenance } from './provenance';
 import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
@@ -447,8 +447,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           ? {
               provenance: {
                 specIndex: step.kind === 'block' ? step.blockIndex : step.beforeBlock,
-                stimulus: planned.stimulus,
-                ledgerHash: contentHash(facts.ledger),
+                stimulusHash: provenanceHash(planned.stimulus),
+                ledgerHash: provenanceHash(facts.ledger),
                 artifacts: capture.artifacts,
               },
             }

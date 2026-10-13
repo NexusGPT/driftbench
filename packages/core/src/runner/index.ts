@@ -64,6 +64,7 @@ export {
   ledgerContradictions,
   ledgerVerdicts,
 } from './ledger';
+export { adapterProvenance, provenanceHash } from './provenance';
 export { type RecoveryMetrics, type RecoveryOptions, recoveryOf } from './recovery';
 export {
   CallFailure,

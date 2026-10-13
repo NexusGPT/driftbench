@@ -249,19 +249,26 @@ Not built yet, in order:
 
 ## Execution provenance
 
-New CLI campaigns store an optional execution stamp. Each block records the actual stimulus sent,
-its spec block index, the resolved Given hash, the check ledger hash, and artifact paths with byte
-hashes. File reads performed by checks are hashed as they happen; no extra reads or file contents
-are added. A failed read has a null hash. The observations retain any contents already stored there.
+New CLI campaigns store an optional execution stamp. Each block records SHA-256 hashes of the actual
+stimulus sent, the check ledger, and artifact paths, plus its spec block index and the existing resolved
+Given hash. File reads performed by checks are hashed as they happen; no extra reads or file contents
+are added. A failed read has a null byte hash. The observations retain any contents already stored there.
 
-Each run records its driver identity and declared seeds, adapter name and version, and a hash of
-its execution options. The scripted driver declares no random seeds. Other drivers must declare
-seeds explicitly; an undeclared seed set is unknown, not proof of determinism. The campaign records
-all routed adapters and their versions alongside the declared agent versions. Existing command
-output does not print these stamps. Library `runSpec` and `runCampaign` callers opt in with
+Each run records hashes of its driver identity and declared seeds, adapter name and version, agent
+version, and execution options. Every user-supplied identity is hashed, including seed keys and values;
+no raw copy sits beside the hash. The scripted driver declares no random seeds. Other drivers must
+declare seeds explicitly; an undeclared seed set is unknown, not proof of determinism. The campaign
+records hashed identities for all routed targets, adapters and agent versions. Existing command output
+does not print these stamps. Library `runSpec` and `runCampaign` callers opt in with
 `recordProvenance: true`; standalone runs retain their previous serialized shape by default.
 
-Old stores still load. A campaign without the execution stamp is legacy: a blast-radius campaign
-reruns it in full and reports the missing provenance. A partially stamped baseline also reruns in
-full. Legacy observations cannot establish compatibility for criterion re-judging; run a new full
+The adapter's optional `cacheIdentity` is hashed into its stamp and execution hash. For process adapters,
+this identity covers the command and argument boundaries. A process stamp without it is legacy and
+cannot authorize a carry. Changing a binary's contents at the same path still requires a new agent version.
+
+Old stores without stamps still load. A campaign without a complete execution stamp is legacy: a
+blast-radius campaign reruns it in full and reports the missing provenance. Empty adapter lists, missing
+target coverage, incomplete run or block fields, and unknown seeds also force a full rerun. The public
+`planRadiusCampaign` applies the same check; callers supply the baseline campaign's `provenance` beside
+its runs. Legacy observations cannot establish compatibility for criterion re-judging; run a new full
 campaign first. These stamps preserve execution evidence; they do not themselves authorize reuse.

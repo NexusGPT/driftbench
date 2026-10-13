@@ -1,9 +1,10 @@
 import type { Store } from '../contracts/store';
 import type { PlannedCell } from '../runner/campaign';
 import type { TargetRef } from '../schema/common';
-import type { CampaignRadius, RunResult } from '../schema/run';
+import type { Campaign, CampaignRadius, RunResult } from '../schema/run';
 import { canonicalJson } from '../spec/hash';
 import { type ChangeManifest, changeLabel } from './change';
+import { completeBaselineProvenance } from './provenance';
 import type { RadiusReport } from './radius';
 import { agentVersionOf } from './version';
 
@@ -68,7 +69,7 @@ export function planRadiusCampaign(
   cells: readonly PlannedCell[],
   radius: RadiusReport,
   manifest: ChangeManifest,
-  baseline: { campaignId: string; runs: readonly RunResult[] },
+  baseline: { campaignId: string; runs: readonly RunResult[]; provenance?: Campaign['provenance'] },
   limits: CarryLimits,
 ): RadiusPlan {
   const all = (nothing: string): RadiusPlan => ({
@@ -95,6 +96,9 @@ export function planRadiusCampaign(
       `campaign ${baseline.campaignId} holds no run of agent version ${manifest.from} (it holds: ${held || 'no run'})`,
     );
   }
+
+  if (!completeBaselineProvenance(baseline))
+    return all('the baseline has no execution provenance (missing or incomplete stamp)');
 
   const inRadius = new Set<string>();
   for (const spec of radius.specs) {

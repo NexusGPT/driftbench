@@ -22,6 +22,7 @@ import {
   campaignRadius,
   canonicalJson,
   carryRuns,
+  completeBaselineProvenance,
   compoundingIndex,
   contentHash,
   DEFAULT_MAX_AGE_DAYS,
@@ -1123,16 +1124,13 @@ async function radiusPlan(
     { modes: campaign.modes },
   );
   const baselineRuns = await store.listRuns({ campaignId: baseline.campaignId });
-  if (
-    !baseline.provenance ||
-    baselineRuns.some((run) => !run.provenance || run.blocks.some((block) => !block.provenance))
-  )
+  if (!completeBaselineProvenance({ provenance: baseline.provenance, runs: baselineRuns }))
     radius.whole = { change: 'legacy', reason: 'the baseline has no execution provenance' };
   let plan = planRadiusCampaign(
     cells,
     radius,
     manifest.manifest,
-    { campaignId: baseline.campaignId, runs: baselineRuns },
+    { campaignId: baseline.campaignId, runs: baselineRuns, provenance: baseline.provenance },
     {
       now: deps.now(),
       ...(maxCarry === undefined ? {} : { maxCarry }),

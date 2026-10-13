@@ -6,6 +6,7 @@ import {
   cellId,
   type PlannedCell,
   planRadiusCampaign,
+  provenanceHash,
   type RadiusSpec,
   type RunResult,
   radiusOf,
@@ -46,7 +47,35 @@ const stored = (id: string, variant: string | undefined, over: Partial<RunResult
     mode: 'F',
     repeat: 0,
     status: 'completed',
-    blocks: [],
+    provenance: {
+      version: 2,
+      driver: { idHash: provenanceHash('scripted'), seedsHash: provenanceHash({}) },
+      adapter: {
+        idHash: provenanceHash('function'),
+        versionHash: provenanceHash('1'),
+        cacheIdentityHash: null,
+        requiresCacheIdentity: false,
+      },
+      agentVersionHash: variant === undefined ? null : provenanceHash(over.carried?.agentVersion ?? variant),
+      executionHash: provenanceHash('execution'),
+    },
+    blocks: [
+      {
+        index: 0,
+        givenHash: '0123456789ab',
+        provenance: {
+          specIndex: 0,
+          stimulusHash: provenanceHash({ user: 'Hello' }),
+          ledgerHash: provenanceHash({}),
+          artifacts: [],
+        },
+        observed: { text: 'ok', segments: [], toolCalls: [], cost: {}, latencyMs: 0 },
+        verdicts: [],
+        drift: [],
+        pass: true,
+        ledgerCheck: { ok: true, contradictions: [] },
+      },
+    ],
     succession: {} as RunResult['succession'],
     cost: 0.25,
     latencyMs: 10,
@@ -63,7 +92,29 @@ const plan = (runs: RunResult[], limits = {}, planned = cells, change = manifest
     planned,
     radiusOf(specs, change),
     change,
-    { campaignId: 'c-base', runs },
+    {
+      campaignId: 'c-base',
+      runs,
+      provenance: {
+        version: 2,
+        adapters: [
+          ...new Map(
+            runs.map((run) => [
+              provenanceHash(run.target),
+              {
+                idHash: provenanceHash('function'),
+                versionHash: provenanceHash('1'),
+                cacheIdentityHash: null,
+                requiresCacheIdentity: false,
+                targetHash: provenanceHash(run.target),
+                agentVersionHash:
+                  run.target.variant === undefined ? null : provenanceHash(run.target.variant),
+              },
+            ]),
+          ).values(),
+        ],
+      },
+    },
     { now, ...limits },
   );
 
