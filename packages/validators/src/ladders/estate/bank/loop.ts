@@ -527,14 +527,35 @@ const ASKS: AskCheck[] = [
   {
     key: 'judged-only-registers',
     tier: 2,
-    title: 'judged criteria appear only for output rules',
+    title:
+      'judged criteria appear only for output rules (not gating) and for domain rules and judged controls (gating, listed)',
+    // docs/estate.md section 5, the Then table: `custom` on a register atom is a judged criterion, not gating;
+    // `custom` with a name no code checks (a domain rule) is a gating judged criterion, the spec is tagged
+    // `judged` and lists the atom in `metadata.estate.judged`; a control whose predicate has no machine inverse
+    // is a judged control, named `<atom>.control`.
     check: (run, all) => {
       const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
       const bad = all.filter((v) => {
-        const criteria = v.spec.loaded?.spec.criteria ?? [];
-        return criteria.some((c) => atoms.get((c as { name: string }).name)?.kind !== 'register');
+        const spec = v.spec.loaded?.spec as { criteria?: unknown[]; tags?: unknown } | undefined;
+        const judged = (estateMeta(v.spec) as { judged?: unknown }).judged;
+        const listed = new Set(Array.isArray(judged) ? (judged as string[]) : []);
+        const tagged = Array.isArray(spec?.tags) && spec.tags.includes('judged');
+        return (spec?.criteria ?? []).some((entry) => {
+          const criterion = entry as { name: string; gating?: boolean };
+          const id = criterion.name.replace(/\.control$/, '');
+          const atom = atoms.get(id);
+          if (!atom) return true;
+          if (atom.kind === 'register') return criterion.gating === true || id !== criterion.name;
+          // The judged control (a control whose predicate has no machine inverse) may be of any rule; the rule's
+          // own criterion needs a custom predicate.
+          const control = id !== criterion.name;
+          const custom = atom.evidence.some((evidence) => evidence.type === 'custom');
+          return !((control || custom) && criterion.gating === true && listed.has(id) && tagged);
+        });
       });
-      return bad.length === 0 ? undefined : `${bad.length} specs judge a non-register atom`;
+      return bad.length === 0
+        ? undefined
+        : `${bad.length} specs judge an atom that is neither an output rule (not gating) nor a listed domain rule or control (gating)`;
     },
   },
   {
