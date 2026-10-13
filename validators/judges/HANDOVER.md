@@ -17,17 +17,17 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 8 | 20 |
 | 9 | 20 |
 | 10 | 20 |
-| 11 | 20 |
+| 11 | 19 |
 | 12 | 20 |
 | 13 | 20 |
-| 14 | 20 |
+| 14 | 19 |
 | 15 | 20 |
 | 16 | 20 |
-| 17 | 20 |
+| 17 | 19 |
 | 18 | 20 |
-| 19 | 20 |
+| 19 | 19 |
 | 20 | 20 |
-| hidden | 20 |
+| hidden | 19 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
@@ -145,6 +145,7 @@ Iteration 126 (cause: no Hindi words. OTHER_LANGUAGES row, loose; sentences also
 Iteration 127 (cause: a slug file name splits the accent of evaluation into a space (d e valuation), so the French grid words missed. The French judge word allows the split. Test: screen.test.ts French evaluation grid.)
 Iteration 130 (cause: live run showed Gemini answers 400 on the ledger response schema (type list [boolean, null] and anyOf with a null type). googleSchema now writes one type plus nullable. Test: google-schema.test.ts (red first). Live: the request then passes validation; Google answers 429 monthly spending cap.)
 Iteration 131 (cause: the live run found Gemini answers 400 on the ledger schema (type list and null type), but bank item clients/google-gives-a-response-schema requires that very shape (alternatives with null). The change is reverted so the bank holds 638; the item goes to the maintainer lane with the Gemini 400 as counter-example.)
+Iteration 132 (cause: a live Gemini call answered 400 on the ledger schema (type list with null, anyOf with a null type). googleSchema writes one type plus nullable: true. The bank item clients/google-gives-a-response-schema required the rejected shape: it was wrong against the real API, so it now asks for nullable: true (corrected in extra.ts, its own commit; the bank stays 638 items). Counter-example: Gemini 400 'Unknown name type ... Proto field is not repeating'. Test: google-schema.test.ts.)
 
 ## Next actions
 
