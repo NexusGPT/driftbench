@@ -5,8 +5,11 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-FILES = ["audit.py", "sets.json", "sets-heldout.json", "audit-v2.json",
-         "sets-receipts.json", "sets-receipts-heldout.json"]
+FILES = ["audit.py", "sets.json", "sets-heldout.json", "audit-v3.json",
+         "sets-receipts.json", "sets-receipts-heldout.json", "run.py", "recordings.py", "render.mts",
+         "baseline-prompts.json", "baseline-prompts-heldout.json",
+         "baseline-prompts-receipts.json", "baseline-prompts-receipts-heldout.json",
+         "provenance.json", "corpus-history.json"]
 
 
 def hashes(root):
@@ -22,7 +25,7 @@ def verify(root):
 
 def freeze(root):
     from score import tally
-    selected = json.loads((root/"audit-v2.json").read_text())
+    selected = json.loads((root/"audit-v3.json").read_text())
     tally(selected)
     current = hashes(root)
     if selected.get("procedure_sha256") != current["audit.py"] or selected.get("sets_sha256") != current["sets.json"]:
@@ -31,9 +34,10 @@ def freeze(root):
     if path.exists():
         return verify(root)
     calls = root/"calls.jsonl"
-    if calls.exists() and any(r.get("run", "").endswith("heldout") for r in map(json.loads,calls.read_text().splitlines())):
+    from recordings import records
+    if any(r.get("run", "").endswith("heldout") for r in records(calls)):
         raise ValueError("Held-out recording already exists; cannot select a new candidate")
-    frozen = {"label": "not yet the shipped default", "selected_on": "corrected hard corpus v2 only",
+    frozen = {"label": "not yet the shipped default", "selected_on": "finalized on clarified hard v3, using hard v1/v2/v3 only",
               "timestamp": datetime.now().astimezone().isoformat(), "sha256": current}
     path.write_text(json.dumps(frozen,indent=2)+"\n")
     return frozen

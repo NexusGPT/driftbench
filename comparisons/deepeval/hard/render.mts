@@ -29,11 +29,11 @@ type Case = {
     output: Record<string, unknown>;
   }[];
 };
-const corpus = process.argv[2] ?? 'v2';
-if (!['v1', 'v2', 'heldout'].includes(corpus)) throw new Error(`Unknown corpus: ${corpus}`);
+const corpus = process.argv[2] ?? 'v3';
+if (!['v1', 'v2', 'v3', 'heldout'].includes(corpus)) throw new Error(`Unknown corpus: ${corpus}`);
 const receipt = process.argv[3] === 'receipt';
 if (receipt && corpus === 'v1') throw new Error('Receipts use corrected hard or heldout corpus');
-const suffix = `${receipt ? '-receipts' : ''}${corpus === 'v2' ? '' : `-${corpus}`}`;
+const suffix = `${receipt ? '-receipts' : ''}${corpus === 'v3' ? '' : `-${corpus}`}`;
 const sets = JSON.parse(readFileSync(resolve(here, `sets${suffix}.json`), 'utf8')) as Record<string, Case[]>;
 const prompts: Record<string, { system: string; user: string }> = {};
 for (const [name, rows] of Object.entries(sets)) {

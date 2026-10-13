@@ -10,9 +10,9 @@ import type {
   JudgeResult,
   TranscriptEntry,
   Vote,
-} from '@driftbench/judges';
-import * as judges from '@driftbench/judges';
-import { clopperPearson } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-judges';
+import * as judges from '@agent-nexus/driftbench-judges';
+import { clopperPearson } from '@agent-nexus/driftbench-stats';
 import { type JudgesApi, realApi } from '../../../src/ladders/judges/v2/bank';
 import { fleissOf, metricsOf } from '../../../src/ladders/judges/v2/families/agreement';
 import { bankMajority } from '../../../src/ladders/judges/v2/families/council';

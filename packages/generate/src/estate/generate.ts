@@ -1,5 +1,5 @@
-import { runtimeLoaded } from '@driftbench/adapters';
-import { type CriterionDef, type Issue, parseSpecText } from '@driftbench/core';
+import { runtimeLoaded } from '@agent-nexus/driftbench-adapters';
+import { type CriterionDef, type Issue, parseSpecText } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import type { GeneratedFile } from '../enumerate/generate';
 import { formatJson } from '../enumerate/json';

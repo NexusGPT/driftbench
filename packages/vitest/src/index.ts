@@ -1,5 +1,5 @@
 /**
- * @driftbench/vitest: run a driftbench spec inside a vitest suite. `describeSpec(path, target)` registers a
+ * @agent-nexus/driftbench-vitest: run a driftbench spec inside a vitest suite. `describeSpec(path, target)` registers a
  * describe block named after the spec with one test per block, and one for the end state when the spec has
  * one. The spec runs once, free-running, when the first of its tests runs; each test then passes or fails
  * on its own block, with the evidence of the verdicts that did not pass.
@@ -7,7 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { extname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultChecks } from '@driftbench/checks';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type BlockResult,
@@ -17,15 +17,15 @@ import {
   type RunResult,
   runSpec,
   type UserDriver,
-} from '@driftbench/core';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, it } from 'vitest';
 
 /** The agent under test: an adapter, or a function that makes one when the spec first runs. */
 export type SpecTarget = AgentAdapter | (() => AgentAdapter | Promise<AgentAdapter>);
 
 export type DescribeSpecOptions = {
-  /** The machine checks. Default: `defaultChecks()` of @driftbench/checks. */
+  /** The machine checks. Default: `defaultChecks()` of @agent-nexus/driftbench-checks. */
   checks?: CheckSet;
   /** The user driver. Default: the scripted driver, which replays the spec's blocks. */
   driver?: UserDriver;

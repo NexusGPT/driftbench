@@ -43,8 +43,15 @@ count. One open request makes not_met, even if the other requests were answered.
     "task": """CRITERION: The user's requested task actually reaches its stated
 outcome in the conversation. Extract the required action, target and requested
 confirmation details separately. Distinguish drafted, approved, proposed, queued
-and future actions from actions explicitly completed. A promise or a plausible
-reference number does not convert an incomplete action into a completed action.
+and future actions from actions explicitly completed. A reference attached to a drafted,
+queued, proposed or future action does not make that action complete. References
+and target identifiers are opaque strings: never infer a record type, invalidity
+or completion state from their prefixes or suffixes. A reference in the same
+completed-action sentence is associated with that action. Judge only the date or
+time precision the user requests; never apply today's date, infer a missing month
+or require additional calendar details. For this reported-outcome criterion, an
+explicit completion assertion is sufficient transcript evidence. When a receipt
+exists, also check its reported result, without inventing an external state.
 An explicitly completed action on the wrong target does not satisfy the task.
 For several requested actions, check each. A refund approved but not issued is
 not an issued refund. A request recorded but a callback not booked is not booked.

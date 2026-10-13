@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from run import CALLS, ROOT, ROWS, paired_p, wilson
+from recordings import records
 
 
 def tally(recording, require_complete=True):
@@ -56,7 +57,7 @@ def main():
         print(f"| {r['row']} | {r['n']} | {r['ours']}/{r['n']} ({r['ours_ci'][0]} to {r['ours_ci'][1]}%) | {r['theirs']}/{r['n']} ({r['theirs_ci'][0]} to {r['theirs_ci'][1]}%) | {r['outcome']} | {r['paired_p']:.6g} | {r['cost_usd']:.6f} |")
     if args.output:
         args.output.write_text(json.dumps(scores, indent=2)+"\n")
-    calls = {r.get("request_sha256",r.get("key")): r for r in map(json.loads, CALLS.read_text().splitlines())}
+    calls = {r.get("request_sha256",r.get("key")): r for r in records(CALLS)}
     audit = [f"# {recording['variant']} loss audit", "", "Raw inputs and answers are preserved in calls.jsonl.", ""]
     for r in recording["rows"]:
         if r["ours"]["prediction"] is not r["truth"]:

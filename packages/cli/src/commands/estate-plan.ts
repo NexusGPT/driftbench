@@ -11,8 +11,8 @@ import {
   renderPlan,
   renderPlanSummary,
   summaryPathOf,
-} from '@driftbench/estate';
-import { loadSpaceMap, type SpaceMap } from '@driftbench/space';
+} from '@agent-nexus/driftbench-estate';
+import { loadSpaceMap, type SpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

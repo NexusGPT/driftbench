@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { FakeModelPort } from '@driftbench/generate';
-import { SpaceId } from '@driftbench/space';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
+import { SpaceId } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import {
   ClaudeCodeReader,

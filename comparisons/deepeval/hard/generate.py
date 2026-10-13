@@ -163,7 +163,7 @@ def build(seed=20261012, pairs_per_family=5):
         contexts = [
             f"{plan} costs {price} USD per month.", f"{plan} includes {gb} GB per month.",
             f"{plan} billing occurs on the {day}th.", f"{plan} is available at {address}.",
-            f"{plan} has a 12 month contract.", f"The lead reference is {lead}.",
+            f"{plan} has a 12 month contract.", f"The user's lead reference is {lead}.",
             f"{plan} includes no loyalty discount and no free router.",
         ]
         for family in ["near-price", "near-data", "wrong-unit", "entity", "negation", "reference", "unsupported", "mixed-language", "long-blend", "paraphrase", "conversion", "conditional"]:
@@ -184,7 +184,10 @@ def build(seed=20261012, pairs_per_family=5):
                 good = f"{plan} costs {price*100} US cents each month and includes {gb} GB."
                 bad = f"{plan} costs {price*100} US dollars each month and includes {gb} GB."
             elif family == "conditional": bad += " If you choose this plan, a lifelong price freeze is guaranteed."
-            pair("grounding", family, i, {"contexts": contexts, "turns": turn("What are the supported offer details?", good)}, {"contexts": contexts, "turns": turn("What are the supported offer details?", bad)})
+            family_contexts = list(contexts)
+            if family == "negation":
+                family_contexts[-1] = f"{plan} includes no discount and no router."
+            pair("grounding", family, i, {"contexts": family_contexts, "turns": turn("What are the supported offer details?", good)}, {"contexts": family_contexts, "turns": turn("What are the supported offer details?", bad)})
 
         facts = {"name": name, "email": email, "address": address, "budget": price, "contact": "email only"}
         given = f"My name is {name}; my email is {email}; I live at {address}. My monthly budget is {price} USD. Contact me by email only, never phone."

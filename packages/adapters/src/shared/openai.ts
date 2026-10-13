@@ -1,4 +1,4 @@
-import { isPlainObject } from '@driftbench/core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
 
 /**
  * Pieces of the OpenAI-compatible chat shape that two adapters read: the http adapter in a chat

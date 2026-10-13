@@ -4891,7 +4891,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -4916,7 +4916,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -4941,7 +4941,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -4966,7 +4966,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -4991,7 +4991,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5016,7 +5016,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5041,7 +5041,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5066,7 +5066,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5091,7 +5091,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5116,7 +5116,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5141,8 +5141,8 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
-        "Acme Cedar 6824 includes no loyalty discount and no free router."
+        "The user's lead reference is LEAD-CEDAR-6824.",
+        "Acme Cedar 6824 includes no discount and no router."
       ],
       "turns": [
         {
@@ -5166,7 +5166,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5191,7 +5191,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5216,7 +5216,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5241,7 +5241,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5266,7 +5266,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5291,7 +5291,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5316,8 +5316,8 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
-        "Acme Cedar 2226 includes no loyalty discount and no free router."
+        "The user's lead reference is LEAD-CEDAR-2226.",
+        "Acme Cedar 2226 includes no discount and no router."
       ],
       "turns": [
         {
@@ -5341,7 +5341,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5366,7 +5366,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5391,7 +5391,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5416,7 +5416,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5441,7 +5441,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5466,7 +5466,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5491,7 +5491,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5516,7 +5516,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5541,7 +5541,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5566,8 +5566,8 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
-        "Acme Cedar 5850 includes no loyalty discount and no free router."
+        "The user's lead reference is LEAD-CEDAR-5850.",
+        "Acme Cedar 5850 includes no discount and no router."
       ],
       "turns": [
         {
@@ -5591,7 +5591,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5616,7 +5616,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5641,7 +5641,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5666,7 +5666,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5691,7 +5691,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5716,8 +5716,8 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
-        "Acme Cedar 6824 includes no loyalty discount and no free router."
+        "The user's lead reference is LEAD-CEDAR-6824.",
+        "Acme Cedar 6824 includes no discount and no router."
       ],
       "turns": [
         {
@@ -5741,7 +5741,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5766,7 +5766,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5791,7 +5791,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5816,7 +5816,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5841,7 +5841,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5866,7 +5866,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5891,7 +5891,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5916,7 +5916,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5941,7 +5941,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5966,7 +5966,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -5991,7 +5991,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6016,7 +6016,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6041,7 +6041,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6066,7 +6066,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6091,7 +6091,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6116,7 +6116,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6141,7 +6141,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6166,8 +6166,8 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
-        "Acme Cedar 5850 includes no loyalty discount and no free router."
+        "The user's lead reference is LEAD-CEDAR-5850.",
+        "Acme Cedar 5850 includes no discount and no router."
       ],
       "turns": [
         {
@@ -6191,7 +6191,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6216,7 +6216,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6241,7 +6241,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6266,7 +6266,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6291,7 +6291,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6316,7 +6316,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6341,7 +6341,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6366,7 +6366,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6391,7 +6391,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6416,7 +6416,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6441,7 +6441,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6466,7 +6466,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6491,7 +6491,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6516,7 +6516,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6541,7 +6541,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6566,8 +6566,8 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
-        "Acme Cedar 2226 includes no loyalty discount and no free router."
+        "The user's lead reference is LEAD-CEDAR-2226.",
+        "Acme Cedar 2226 includes no discount and no router."
       ],
       "turns": [
         {
@@ -6591,7 +6591,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6616,7 +6616,7 @@
         "Acme Cedar 2226 billing occurs on the 8th.",
         "Acme Cedar 2226 is available at 852 Lantern Lane, Fiction Bay.",
         "Acme Cedar 2226 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-2226.",
+        "The user's lead reference is LEAD-CEDAR-2226.",
         "Acme Cedar 2226 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6641,7 +6641,7 @@
         "Acme Cedar 5850 billing occurs on the 16th.",
         "Acme Cedar 5850 is available at 842 Lantern Lane, Fiction Bay.",
         "Acme Cedar 5850 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-5850.",
+        "The user's lead reference is LEAD-CEDAR-5850.",
         "Acme Cedar 5850 includes no loyalty discount and no free router."
       ],
       "turns": [
@@ -6666,7 +6666,7 @@
         "Acme Cedar 6824 billing occurs on the 11th.",
         "Acme Cedar 6824 is available at 326 Lantern Lane, Fiction Bay.",
         "Acme Cedar 6824 has a 12 month contract.",
-        "The lead reference is LEAD-CEDAR-6824.",
+        "The user's lead reference is LEAD-CEDAR-6824.",
         "Acme Cedar 6824 includes no loyalty discount and no free router."
       ],
       "turns": [

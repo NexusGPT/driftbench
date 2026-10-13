@@ -79,7 +79,7 @@ class HardTests(unittest.TestCase):
 
     def test_corpus_correction_changes_only_role_user_contexts(self):
         original = json.loads((ROOT / "sets-v1.json").read_text())
-        corrected = build()
+        corrected = json.loads((ROOT / "sets-v2.json").read_text())
         changes = 0
         for name, cases in corrected.items():
             for old, new in zip(original[name], cases):
@@ -91,6 +91,22 @@ class HardTests(unittest.TestCase):
                     self.assertNotEqual(old["turns"][0], new["turns"][0])
                     changes += 1
         self.assertEqual(changes, 60)
+
+    def test_source_clarification_preserves_labels_turns_and_other_sets(self):
+        for old_file,seed,pairs in [("sets-v2.json",20261012,5),("sets-heldout-v2.json",20261019,3)]:
+            old=json.loads((ROOT/old_file).read_text())
+            new=build(seed,pairs)
+            for name,cases in new.items():
+                for before,after in zip(old[name],cases):
+                    self.assertEqual({k:v for k,v in before.items() if k!="contexts"},
+                                     {k:v for k,v in after.items() if k!="contexts"})
+                    if name=="grounding":
+                        self.assertEqual(after["contexts"][5],before["contexts"][5].replace("The lead reference","The user's lead reference"))
+                        for i in range(5): self.assertEqual(before["contexts"][i],after["contexts"][i])
+                        if after["kind"]=="negation":
+                            self.assertTrue(after["contexts"][-1].endswith("includes no discount and no router."))
+                        else: self.assertEqual(before["contexts"][-1],after["contexts"][-1])
+                    else: self.assertEqual(before,after)
 
     def test_heldout_is_fresh_balanced_and_covers_all_families(self):
         hard = build()
@@ -166,6 +182,40 @@ class HardTests(unittest.TestCase):
         self.assertEqual(rec.cache, {})
         self.assertEqual(rec.cost(rec.keys), .05)
 
+    def test_chunk_rotation_is_lossless_and_replay_reads_every_chunk(self):
+        from recordings import append, records
+        row1 = {"request_sha256": call_key("haiku", "s", "u"), "result": "first", "charged_usd": .01}
+        row2 = {"request_sha256": call_key("haiku", "s", "v"), "result": "second", "charged_usd": .02}
+        with patch("recordings.MAX_BYTES", 250):
+            append(self.path, row1)
+            original = self.path.read_bytes()
+            append(self.path, row2)
+        self.assertEqual((self.path.parent/"calls-000.jsonl").read_bytes(), original)
+        self.assertEqual(list(records(self.path)), [row1, row2])
+        recorder = Recorder(path=self.path)
+        self.assertEqual(recorder.call("s", "u"), "first")
+        self.assertEqual(recorder.call("s", "v"), "second")
+        self.assertAlmostEqual(recorder.prior_spend, .03)
+
+    def test_redaction_preserves_private_original_and_public_decisions(self):
+        from recordings import sanitize
+        private = self.path.parent/"private"
+        private.mkdir()
+        value = "operator@example.invalid"
+        (private/"operator-email.txt").write_text(value)
+        row = {"system":"s", "user":"u", "requested_model":"haiku", "request_sha256":call_key("haiku","s","u"),
+               "result":json.dumps({"checks":[{"requirement":"name", "evidence":value, "status":"met"}]}),
+               "charged_usd":.01}
+        clean = sanitize(row, private)
+        self.assertNotIn(value, json.dumps(clean))
+        self.assertIn("[redacted-operator-email]", clean["result"])
+        self.assertEqual(json.loads((private/"future-originals.jsonl").read_text()),row)
+        self.assertEqual(clean["request_sha256"],row["request_sha256"])
+        self.assertEqual(clean["charged_usd"],row["charged_usd"])
+        self.assertEqual(aggregate(parse(clean["result"])),aggregate(parse(row["result"])))
+        with self.assertRaisesRegex(ValueError,"model input"):
+            sanitize({**row,"user":value},private)
+
     def test_interval_and_paired_test(self):
         self.assertEqual(wilson(120,120), [96.9,100])
         self.assertEqual(paired_p(0,0),1)
@@ -199,7 +249,7 @@ class HardTests(unittest.TestCase):
         root = Path(self.temp.name)
         for name in FILES: (root/name).write_text(name)
         current = hashes(root)
-        (root/"audit-v2.json").write_text(json.dumps({"procedure_sha256":current['audit.py'],"sets_sha256":current['sets.json']}))
+        (root/"audit-v3.json").write_text(json.dumps({"procedure_sha256":current['audit.py'],"sets_sha256":current['sets.json']}))
         (root/"calls.jsonl").write_text(json.dumps({"run":"baseline-heldout"})+"\n")
         with patch("score.tally"):
             with self.assertRaisesRegex(ValueError,"Held-out"): freeze(root)

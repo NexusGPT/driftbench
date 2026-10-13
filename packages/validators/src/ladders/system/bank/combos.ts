@@ -1,6 +1,6 @@
 import { join } from 'node:path';
-import { type Campaign, canonicalJson, type RunResult } from '@driftbench/core';
-import { openMemoryStore, openStore, type SqliteStore } from '@driftbench/store';
+import { type Campaign, canonicalJson, type RunResult } from '@agent-nexus/driftbench-core';
+import { openMemoryStore, openStore, type SqliteStore } from '@agent-nexus/driftbench-store';
 import { SYSTEM_COMPONENTS } from '../components';
 import { OPERATORS } from '../family';
 import { between, rngFor } from '../random';

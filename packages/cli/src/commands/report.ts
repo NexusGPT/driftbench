@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
-import type { RunMode } from '@driftbench/core';
+import type { RunMode } from '@agent-nexus/driftbench-core';
 import {
   buildScorecard,
   type CampaignData,
@@ -11,7 +11,7 @@ import {
   readPilotReport,
   renderHtml,
   renderJunit,
-} from '@driftbench/report';
+} from '@agent-nexus/driftbench-report';
 import type { Command } from 'commander';
 import { criteriaFromConfig } from '../aggregate-config';
 import type { Io } from '../io';

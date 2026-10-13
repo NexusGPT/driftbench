@@ -1,5 +1,5 @@
-import { functionAdapter, httpAdapter } from '@driftbench/adapters';
-import { defaultChecks } from '@driftbench/checks';
+import { functionAdapter, httpAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type BlockResult,
@@ -16,8 +16,8 @@ import {
   type TargetRef,
   type UserDriver,
   validateSpec,
-} from '@driftbench/core';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { lastUserText, plantedPerturbingDriver } from '../agent';
 import { OPERATORS } from '../family';
 import { type Behaviour, type Flow, flow, followerReply, type RawSpec } from '../plant';

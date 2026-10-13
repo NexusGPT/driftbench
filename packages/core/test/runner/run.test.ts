@@ -1,5 +1,5 @@
-import { defaultChecks } from '@driftbench/checks';
-import * as core from '@driftbench/core';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import * as core from '@agent-nexus/driftbench-core';
 import {
   AdapterTransportError,
   AgentFailure,
@@ -12,9 +12,9 @@ import {
   RunResult,
   type Spec,
   type UserDriver,
-} from '@driftbench/core';
-import { openMemoryStore, cellId as storeCellId } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { openMemoryStore, cellId as storeCellId } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import * as runner from '../../src/runner';
 import { blockCacheKey, cellId, runSpec } from '../../src/runner';
@@ -125,7 +125,7 @@ describe('runSpec on the Acme conversations, free-running, with the real Acme ag
   });
 });
 
-describe('the real stack: the function adapter of @driftbench/adapters, defaultChecks of @driftbench/checks', () => {
+describe('the real stack: the function adapter of @agent-nexus/driftbench-adapters, defaultChecks of @agent-nexus/driftbench-checks', () => {
   it.each(loaded.map((entry) => ({ id: entry.spec.id, spec: entry.spec })))(
     '$id passes every machine check',
     async ({ spec }) => {

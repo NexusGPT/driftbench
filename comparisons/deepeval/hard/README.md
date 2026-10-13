@@ -12,18 +12,30 @@ each set. Every set contains 60 passing and 60 failing cases. All names, plans,
 addresses, account records and contact details are fictional. The generator fixes
 the truth before measurement. No model output changes a label.
 
-`sets-v1.json` preserves the original corpus. `sets.json` is the corrected v2
-corpus: sixty role user turns now contain the unrelated request their replies
-refuse or answer. IDs, labels, assistant replies and every other set are unchanged.
-Both corpora remain reported. `generate-v1.py` reproduces the original corpus.
+`sets-v1.json` preserves the original corpus. `sets-v2.json` corrects sixty
+role user turns to contain the unrelated request their replies refuse or answer.
+IDs, labels, assistant replies and every other set remain unchanged. The original
+and corrected generators remain in `generate-v1.py` and `generate-v2.py`.
 
-`sets-heldout.json` uses the same corrected generator with seed 20261019 and
+`sets.json` is clarified v3. Both labels in the grounding negation family now have
+source text explicitly excluding every included router and discount. Every
+grounding source also identifies the lead reference as the user's own. IDs,
+labels, replies and all other source facts remain unchanged. V2 positives broaden
+“no loyalty discount and no free router” into “No router or discount is included”.
+The candidate is right to flag that broader claim despite its positive label.
+The owner approves source clarification, rather than changing the labels or
+teaching the candidate to accept the broader claim. All three versions are reported.
+
+`sets-heldout.json` uses the same clarified generator with seed 20261019 and
 three pairs per family, giving 72 cases per set. It uses fresh fictional client
 contexts and values, with 36 cases per label. Labels and data are fixed before
 any held-out model call. The shipped judge, candidate and default metric each
-receive one evaluation per case. Candidate selection uses only the hard corpus.
-`candidate-freeze.json` stamps the selected procedure, hard results and both
-corpora. The runner rejects any change to those files before held-out measurement.
+receive one evaluation per case. Candidate selection uses only hard v1/v2/v3. The original unrun held-out corpus
+remains in `sets-heldout-v2.json`; it is regenerated with the same seed and labels
+after source clarification, before its first model call. `corpus-history.json`
+records the pre-call hashes and approval.
+`candidate-freeze.json` stamps the selected procedure, runner, rendered prompts,
+hard results, provenance and current corpora. The runner rejects any change to those files before held-out measurement.
 
 | Set | Passing rule | Near misses |
 |---|---|---|
@@ -102,7 +114,7 @@ copies the conversation's reported result without reading its truth label.
 Incomplete and queued results remain incomplete and queued in their receipts.
 The shipped judge sees the tool call and result, the candidate sees the same
 receipt object, and the native metric receives it through `tools_called`.
-Both the 120-case hard variant and 72-case held-out variant are frozen before
+Both the 120-case clarified hard variant and 72-case held-out variant are frozen before
 their calls. These are constructed receipts, not real action executions.
 
 ## Record, then replay
@@ -112,15 +124,17 @@ From the repository root:
 ```sh
 python3 -m venv .venv
 .venv/bin/pip install deepeval==4.2.8
+python3 comparisons/deepeval/hard/generate-v1.py
+python3 comparisons/deepeval/hard/generate-v2.py --output sets-v2.json
 python3 comparisons/deepeval/hard/generate.py
 pnpm exec tsx comparisons/deepeval/hard/render.mts
 python3 comparisons/deepeval/hard/generate.py --seed 20261019 --pairs-per-family 3 --output sets-heldout.json
 pnpm exec tsx comparisons/deepeval/hard/render.mts heldout
 python3 comparisons/deepeval/hard/receipts.py
-pnpm exec tsx comparisons/deepeval/hard/render.mts v2 receipt
+pnpm exec tsx comparisons/deepeval/hard/render.mts v3 receipt
 pnpm exec tsx comparisons/deepeval/hard/render.mts heldout receipt
-.venv/bin/python comparisons/deepeval/hard/run.py --tag baseline-v2 --record --cap-usd 4
-.venv/bin/python comparisons/deepeval/hard/run.py --variant audit --tag audit-v2 --record --cap-usd 4
+.venv/bin/python comparisons/deepeval/hard/run.py --tag baseline-v3 --record --cap-usd 4
+.venv/bin/python comparisons/deepeval/hard/run.py --variant audit --tag audit-v3 --record --cap-usd 4
 .venv/bin/python comparisons/deepeval/hard/run.py --sets task --evidence receipt --tag baseline-task-receipts --record --cap-usd 4
 .venv/bin/python comparisons/deepeval/hard/run.py --sets task --evidence receipt --variant audit --tag audit-task-receipts --record --cap-usd 4
 python3 comparisons/deepeval/hard/freeze.py
@@ -142,18 +156,25 @@ Free reproduction uses no `--record` flag. A missing recording stops the run:
 
 ```sh
 .venv/bin/python comparisons/deepeval/hard/run.py --corpus v1 --tag replay-v1
-.venv/bin/python comparisons/deepeval/hard/run.py --tag replay-v2
-.venv/bin/python comparisons/deepeval/hard/run.py --variant audit --tag replay-audit-v2
+.venv/bin/python comparisons/deepeval/hard/run.py --corpus v2 --tag replay-v2
+.venv/bin/python comparisons/deepeval/hard/run.py --corpus v3 --tag replay-v3
+.venv/bin/python comparisons/deepeval/hard/run.py --corpus v3 --variant audit --tag replay-audit-v3
 .venv/bin/python comparisons/deepeval/hard/run.py --corpus heldout --tag replay-heldout
 .venv/bin/python comparisons/deepeval/hard/run.py --corpus heldout --variant audit --tag replay-audit-heldout
-python3 comparisons/deepeval/hard/score.py comparisons/deepeval/hard/baseline-v2.json
-python3 comparisons/deepeval/hard/score.py comparisons/deepeval/hard/audit-v2.json
+python3 comparisons/deepeval/hard/score.py comparisons/deepeval/hard/baseline-v3.json
+python3 comparisons/deepeval/hard/score.py comparisons/deepeval/hard/audit-v3.json
 python3 comparisons/deepeval/hard/score.py comparisons/deepeval/hard/audit-heldout.json
 pnpm exec vitest run --config comparisons/deepeval/hard/vitest.config.ts --maxWorkers=2
 .venv/bin/python -m unittest discover -s comparisons/deepeval/hard
 ```
 
-The per-corpus baseline and audit files contain per-case decisions and call keys.
+`audit-first.py` and `audit-v2-first.json` preserve the first hard candidate.
+Its task score is 112/120: it infers meaning from reference prefixes and adds
+calendar details the user never requests. Before held-out scoring, the task rule
+is revised to keep identifiers opaque and match the requested date precision.
+The final procedure is remeasured on the hard corpora before it is frozen.
+
+The per-corpus baseline and audit files contain per-case decisions and call digests.
 `calls.jsonl` stores recording identifiers as `request_sha256`; case results
 refer to `request_sha256s`. These are prompt digests, not credentials.
 The metadata migration preserves every raw prompt, response and envelope.
@@ -165,3 +186,20 @@ billed spend. Actual spend is the sum of unique recorded invocation costs.
 `losses-RECORDING.md` files are free replay audits. The audit variant
 is measured on the exact same case set and competitor recordings as the baseline.
 It is a selected procedure on this tuning set, not an unseen-test result.
+
+## Operator identifier redaction
+
+Six candidate knowledge answers invent an operator account identifier absent from
+the supplied conversations. The CLI runtime context exposes that identifier.
+Every occurrence in public recordings and parsed results is replaced with the
+literal `[redacted-operator-email]`. Labels, scores and decisions remain unchanged.
+Unredacted originals are stored outside the repository, never committed.
+Request digests are verified against the public inputs and remain unchanged;
+selection and recording file hashes are recomputed after redaction.
+
+`calls-000.jsonl`, subsequent numbered chunks and the active `calls.jsonl`, when
+present, form one recording stream in that order. Whole lines are split losslessly
+into files smaller than 8 MiB. `recordings.py` reads the complete stream and rotates
+the active file before its next append exceeds that limit. Future responses with
+the same operator identifier are privately preserved and publicly redacted before
+parsed results are saved. `redaction.json` records the initial six-answer cleanup.

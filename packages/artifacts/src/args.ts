@@ -1,4 +1,4 @@
-import type { Count } from '@driftbench/core';
+import type { Count } from '@agent-nexus/driftbench-core';
 
 /**
  * Reading the argument of a check. A check whose argument has the wrong shape fails, and its evidence

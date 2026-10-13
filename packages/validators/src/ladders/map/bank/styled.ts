@@ -1,4 +1,4 @@
-import type { SourceText } from '@driftbench/generate';
+import type { SourceText } from '@agent-nexus/driftbench-generate';
 import { stringify } from 'yaml';
 import { DECOYS, SYNONYMS } from '../render';
 import type { Draw } from '../spec';

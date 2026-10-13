@@ -1,8 +1,8 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { FakeJudge } from '@driftbench/judges';
-import { openStore } from '@driftbench/store';
+import { FakeJudge } from '@agent-nexus/driftbench-judges';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';

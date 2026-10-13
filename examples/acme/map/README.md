@@ -45,7 +45,7 @@ relations rule out: 180180 cells, 374 constraints. A person may flip any role; `
 grid it gives.
 
 The proposal is a valid space map at every step (`toSpaceMap`, then `validateSpaceMap` from
-`@driftbench/space`): one stage, deviation and channel dimension each, value ids unique per kind (so tool
+`@agent-nexus/driftbench-space`): one stage, deviation and channel dimension each, value ids unique per kind (so tool
 values carry their dimension, such as `coverage.check.out.found.true`), and `none` added to the deviations.
 
 ## Approving it

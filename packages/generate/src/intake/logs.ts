@@ -1,6 +1,6 @@
 import { realpath, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { chaoCoverage, goodTuringDiscovery, seededRandom } from '@driftbench/space';
+import { chaoCoverage, goodTuringDiscovery, seededRandom } from '@agent-nexus/driftbench-space';
 import { stringify as stringifyYaml } from 'yaml';
 import { z } from 'zod';
 import type { ModelPort } from '../model/port';

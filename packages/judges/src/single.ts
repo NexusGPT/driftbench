@@ -1,4 +1,4 @@
-import { type Check, parseCriterionRef, type Verdict } from '@driftbench/core';
+import { type Check, parseCriterionRef, type Verdict } from '@agent-nexus/driftbench-core';
 import { taskArtifactText } from './artifacts';
 import { JUDGE_CHECK, readInputs, requestFor, safeId } from './check';
 import type { JudgeClient } from './client';

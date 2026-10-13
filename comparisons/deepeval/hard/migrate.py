@@ -5,8 +5,8 @@ from pathlib import Path
 
 def migrate(root):
     changed = []
-    calls = root/"calls.jsonl"
-    if calls.exists():
+    from recordings import paths
+    for calls in paths(root/"calls.jsonl"):
         rows = [json.loads(line) for line in calls.read_text().splitlines()]
         count = 0
         for row in rows:

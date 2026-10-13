@@ -6,7 +6,7 @@ import {
   type Observed,
   type Segment,
   type ToolCall,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { contentText, joinText, parseArguments, parseObserved } from '../shared';
 
 /**

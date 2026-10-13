@@ -20,8 +20,8 @@ import {
   type SourceText,
   shortQuote,
   toSpaceMap,
-} from '@driftbench/generate';
-import { formatSpaceMap, validateSpaceMap } from '@driftbench/space';
+} from '@agent-nexus/driftbench-generate';
+import { formatSpaceMap, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 

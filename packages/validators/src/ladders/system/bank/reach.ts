@@ -1,4 +1,4 @@
-import { type DriftClass, outcomeOf, type PlannedCell, type RunResult } from '@driftbench/core';
+import { type DriftClass, outcomeOf, type PlannedCell, type RunResult } from '@agent-nexus/driftbench-core';
 import { CHECK_COMPONENTS, SYSTEM_COMPONENTS } from '../components';
 import { GUARD, OPERATORS } from '../family';
 import type { Behaviour, Flow } from '../plant';

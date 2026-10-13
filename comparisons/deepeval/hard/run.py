@@ -14,6 +14,7 @@ import math
 from pathlib import Path
 import subprocess
 import time
+from recordings import append, records, sanitize
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent
@@ -86,9 +87,8 @@ class Recorder:
         self.cache = {}
         self.records = {}
         self.prior_spend = 0.0
-        if path.exists():
-            for line in path.read_text().splitlines():
-                r = json.loads(line)
+        if path.exists() or list(path.parent.glob("calls-[0-9][0-9][0-9].jsonl")):
+            for r in records(path):
                 self.prior_spend += r["charged_usd"]
                 self.records[r["request_sha256"]] = r
                 if not r.get("error"):
@@ -129,9 +129,8 @@ class Recorder:
                 row["error"] = f"Claude invocation failed: {env.get('subtype', proc.returncode)}"
         except Exception as exc:
             row.update(error=str(exc), result="", charged_usd=reserve, cost_is_reservation=True)
-        with self.path.open("a") as f:
-            f.write(json.dumps(row, ensure_ascii=False) + "\n")
-            f.flush()
+        row = sanitize(row)
+        append(self.path, row)
         self.fresh.append(row)
         self.records[key] = row
         if row.get("error"):
@@ -222,7 +221,7 @@ def main():
     ap.add_argument("--sets", default=",".join(ROWS))
     ap.add_argument("--variant", choices=["baseline", "audit"], default="baseline")
     ap.add_argument("--tag", default="baseline")
-    ap.add_argument("--corpus", choices=["v1", "v2", "heldout"], default="v2")
+    ap.add_argument("--corpus", choices=["v1", "v2", "v3", "heldout"], default="v3")
     ap.add_argument("--evidence", choices=["conversation", "receipt"], default="conversation")
     ap.add_argument("--record", action="store_true")
     ap.add_argument("--cap-usd", type=float, default=0)
@@ -241,7 +240,7 @@ def main():
         deadline = now.replace(hour=7, minute=0, second=0, microsecond=0)
         if deadline <= now: deadline += timedelta(days=1)
         deadline_file.write_text(deadline.isoformat()+"\n")
-    suffix = "" if args.corpus == "v2" else "-"+args.corpus
+    suffix = "" if args.corpus == "v3" else "-"+args.corpus
     if args.evidence == "receipt":
         if args.corpus == "v1" or args.sets != "task":
             raise ValueError("Receipt variant uses --sets task with corrected hard or heldout corpus")
