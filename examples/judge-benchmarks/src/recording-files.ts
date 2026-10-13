@@ -23,12 +23,12 @@ export async function recordingFiles(file: string): Promise<string[]> {
     .map((entry) => join(dirname(file), entry));
 }
 
-export async function readRecordingRows(file: string): Promise<Recorded[]> {
-  const rows: Recorded[] = [];
+export async function readRecordingRows<T = Recorded>(file: string): Promise<T[]> {
+  const rows: T[] = [];
   for (const path of await recordingFiles(file)) {
     const text = await readFile(path, 'utf8');
     for (const line of text.split('\n')) {
-      if (line.trim()) rows.push(JSON.parse(line) as Recorded);
+      if (line.trim()) rows.push(JSON.parse(line) as T);
     }
   }
   return rows;
@@ -44,7 +44,7 @@ function shardPath(file: string, index: number): string {
   return file.replace(/\.jsonl$/, `-${String(index).padStart(3, '0')}.jsonl`);
 }
 
-export async function appendRecording(file: string, entry: Recorded): Promise<void> {
+export async function appendRecording(file: string, entry: unknown): Promise<void> {
   const line = `${JSON.stringify(entry)}\n`;
   const bytes = Buffer.byteLength(line, 'utf8');
   if (bytes > RECORDING_SHARD_BYTES) throw new Error(`Recording row exceeds ${RECORDING_SHARD_BYTES} bytes`);

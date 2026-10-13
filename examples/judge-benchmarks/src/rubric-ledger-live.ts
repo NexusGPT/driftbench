@@ -111,14 +111,20 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
   const base = { model, phase, id: item.id, group: item.group, sample, contestant, label: item.label, callKeys };
   try {
     if (contestant === 'promptfoo') {
-      const peer = contestantById('promptfoo'); const decisions: PairDecision[] = [];
+      const peer = contestantById('promptfoo'); const decisions: PairDecision[] = []; const errors: string[] = [];
       for (const swapped of [false, true]) {
         const p = peer.pair!({ question: item.question, criterion: item.criterion!,
           a: swapped ? item.b : item.a, b: swapped ? item.a : item.b });
-        const row = await ask(p); const decision = peer.parsePair!(row.text);
-        decisions.push(swapped ? flip(decision) : decision);
+        try {
+          const row = await ask(p); const decision = peer.parsePair!(row.text);
+          decisions.push(swapped ? flip(decision) : decision);
+        } catch (e) {
+          if (e instanceof LedgerBudgetStop || !execute) throw e;
+          decisions.push('tie'); errors.push(e instanceof Error ? e.message : String(e));
+        }
       }
-      return { ...base, decisions, status: decisions.includes('tie') ? 'missing-or-tie' : 'decided', elapsedMs: Date.now() - start };
+      return { ...base, decisions, status: errors.length ? 'transport-error' : decisions.includes('tie') ? 'missing-or-tie' : 'decided',
+        ...(errors.length ? { error: errors.join('; ') } : {}), elapsedMs: Date.now() - start };
     }
     const canonical = canonicalPairOrder(item.a, item.b);
     const request = pairLedgerRequest({ name: 'expert-rubrics', rubric: item.criterion! },
@@ -211,7 +217,7 @@ async function main() {
   if (calls.uncertainKeys.length) throw new Error(`Unfinished reserved calls: ${calls.uncertainKeys.length}; inspect before continuation`);
   const transports = new Map(await Promise.all(models.map(async (m) => [m, await transport(m, execute)] as const)));
   const resultPath = `${DIRECTORY}/decisions-${phase}.jsonl`;
-  const prior = await readRecordingRows(resultPath) as DecisionRow[];
+  const prior = await readRecordingRows<DecisionRow>(resultPath);
   const keyOf = (j: { phase: string; model: string; id: string; contestant: string; sample: number }) => JSON.stringify([j.phase, j.model, j.id, j.contestant, j.sample]);
   const done = new Set(prior.map(keyOf)); let completed = 0, next = 0, stopped = false;
   const todo = jobs.filter((j) => !done.has(keyOf({ ...j, id: j.item.id })));

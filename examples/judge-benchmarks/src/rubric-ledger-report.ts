@@ -6,19 +6,19 @@ import { LedgerCalls } from './rubric-ledger-calls';
 import { readRecordingRows } from './recording-files';
 import { pairedStatistics } from './rubric-ledger-stats';
 
-export function kappa(rows: readonly { label: string; decision: string }[]): number {
+export function kappa(rows: readonly { label: string; decision: string }[]): number | null {
   if (!rows.length) return 0;
   const agreement = rows.filter((r) => r.label === r.decision).length / rows.length;
   const labels = [...new Set(rows.flatMap((r) => [r.label, r.decision]))];
   const chance = labels.reduce((sum, label) => sum + rows.filter((r) => r.label === label).length *
     rows.filter((r) => r.decision === label).length / rows.length ** 2, 0);
-  return chance === 1 ? agreement === 1 ? 1 : 0 : (agreement - chance) / (1 - chance);
+  return chance === 1 ? null : (agreement - chance) / (1 - chance);
 }
 export async function report() {
   const plan = JSON.parse(await readFile(`${DIRECTORY}/development-plan.json`, 'utf8'));
   const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd).load();
-  const data = Object.fromEntries(await Promise.all(['pilot', 'fixtures', 'noise', 'validity', 'test'].map(async (phase) =>
-    [phase, await readRecordingRows(`${DIRECTORY}/decisions-${phase}.jsonl`) as DecisionRow[]])));
+  const data: Record<string, DecisionRow[]> = Object.fromEntries(await Promise.all(['pilot', 'fixtures', 'noise', 'validity', 'test'].map(async (phase) =>
+    [phase, await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`)] as const)));
   const cost = (rows: readonly DecisionRow[]) => {
     const keys = new Set(rows.flatMap((r) => r.callKeys));
     const paid = calls.rows.filter((r) => keys.has(r.key));
@@ -41,7 +41,7 @@ export async function report() {
       const k = kappa(rows.map((r) => ({ label: r.label, decision: r.decisions[0]! })));
       return { group: f.group, eligible, rows: rows.length, expected: eligible ? 18 : 0,
         correct: rows.filter((r) => r.decisions[0] === r.label).length, kappa: k,
-        earned: allThree && k >= 0.8, route: allThree && k >= 0.8 ? 'earned same-model seat' : 'base model' };
+        earned: allThree && k !== null && k >= 0.8, route: allThree && k !== null && k >= 0.8 ? 'earned same-model seat' : 'base model' };
     });
     const noiseRows = data.noise!.filter((r) => r.model === model);
     const repeats = plan.noiseIds.map((id: string) => noiseRows.filter((r) => r.id === id));

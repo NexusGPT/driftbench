@@ -54,8 +54,7 @@ export class LedgerCalls {
   }
   async load(): Promise<this> {
     await mkdir(this.directory, { recursive: true });
-      for (const value of await readRecordingRows(join(this.directory, 'starts.jsonl'))) {
-        const row = value as Start;
+      for (const row of await readRecordingRows<Start>(join(this.directory, 'starts.jsonl'))) {
         if (this.started.has(row.key)) throw new Error(`Duplicate start: ${row.key}`);
         this.started.set(row.key, row);
       }
