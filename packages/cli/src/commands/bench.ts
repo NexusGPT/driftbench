@@ -3,14 +3,7 @@ import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { loadSpecs } from '@agent-nexus/driftbench-core';
-import {
-  type Cassette,
-  loadCassette,
-  PROMPT_FINGERPRINT,
-  playerClient,
-  recordingClient,
-  requestKey,
-} from '@agent-nexus/driftbench-judges';
+import { type Cassette, loadCassette, PROMPT_FINGERPRINT, requestKey } from '@agent-nexus/driftbench-judges';
 import { openMemoryStore, openStore, readTree } from '@agent-nexus/driftbench-store';
 import { findRoot } from '@agent-nexus/driftbench-validators';
 import type { Command } from 'commander';
@@ -21,7 +14,9 @@ import {
   type BenchSlice,
   type CaseResult,
   checkFloor,
+  playBenchClient,
   raiseFloor,
+  recordBenchClient,
   replaySlice,
   scoreSlice,
   sha256,
@@ -438,10 +433,8 @@ export async function benchRecord(options: Options, io: Io): Promise<number> {
         throw new Error('re-record needed: partial client settings changed');
       const available = new Map<string, number>();
       for (const item of cassette.entries) available.set(item.key, (available.get(item.key) ?? 0) + 1);
-      const player = cassette.judges.length
-        ? playerClient(cassette, model.id, { answerContract: 'ledger' })
-        : undefined;
-      const recorder = recordingClient(live, cassette);
+      const player = cassette.judges.length ? playBenchClient(cassette, model.id) : undefined;
+      const recorder = recordBenchClient(live, cassette);
       const client = {
         ...live,
         async judge(request: Parameters<typeof live.judge>[0]) {

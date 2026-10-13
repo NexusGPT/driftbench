@@ -5,7 +5,9 @@ import {
   type JudgeClient,
   type JudgeRequest,
   PROMPT_FINGERPRINT,
+  parseJudgeText,
   playerClient,
+  recordingClient,
   requestKey,
 } from '@agent-nexus/driftbench-judges';
 import {
@@ -71,6 +73,42 @@ export interface BenchFloor {
 }
 export function sha256(text: string | Uint8Array): string {
   return createHash('sha256').update(text).digest('hex');
+}
+const TRANSPORT_UNPARSED = 'bench:transport-unparsed';
+/** Keep a transport rejection that the public raw-text parser alone cannot reconstruct. */
+export function recordBenchClient(client: JudgeClient, cassette: Cassette): JudgeClient {
+  const recorder = recordingClient(client, cassette);
+  return {
+    ...recorder,
+    async judge(request) {
+      const result = await recorder.judge(request);
+      if (result.unparsed && !parseJudgeText(result.raw, request).unparsed) {
+        const key = requestKey(request, client);
+        const entry = cassette.entries.findLast((row) => row.judge === client.id && row.key === key);
+        if (!entry) throw new Error('Recorded response is missing');
+        entry.note = TRANSPORT_UNPARSED;
+      }
+      return result;
+    },
+  };
+}
+export function playBenchClient(cassette: Cassette, judge: string): JudgeClient {
+  const player = playerClient(cassette, judge, { answerContract: 'ledger' });
+  const byKey = new Map<string, Cassette['entries']>();
+  for (const entry of cassette.entries) {
+    if (entry.judge === judge) byKey.set(entry.key, [...(byKey.get(entry.key) ?? []), entry]);
+  }
+  const used = new Map<string, number>();
+  return {
+    ...player,
+    async judge(request) {
+      const key = requestKey(request, player);
+      const index = used.get(key) ?? 0;
+      used.set(key, index + 1);
+      const result = await player.judge(request);
+      return byKey.get(key)?.[index]?.note === TRANSPORT_UNPARSED ? { ...result, unparsed: true } : result;
+    },
+  };
 }
 export function validateSlice(slice: BenchSlice): void {
   if (
@@ -215,7 +253,7 @@ export async function replaySlice(
   if ([...needed.values()].some((count) => count !== 0))
     throw new Error(`re-record needed: ${slice.name}/${judge}: missing request occurrences`);
   try {
-    return await scoreSlice(slice, playerClient(cassette, judge, { answerContract: 'ledger' }), options);
+    return await scoreSlice(slice, playBenchClient(cassette, judge), options);
   } catch (cause) {
     if (cause instanceof Error && 'code' in cause && cause.code === 'cassette_miss')
       throw new Error(

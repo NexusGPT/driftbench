@@ -6,7 +6,7 @@ import {
   recordingClient,
 } from '@agent-nexus/driftbench-judges';
 import { describe, expect, it, vi } from 'vitest';
-import { type BenchSlice, checkFloor, raiseFloor, replaySlice, scoreSlice } from '../run';
+import { type BenchSlice, checkFloor, raiseFloor, recordBenchClient, replaySlice, scoreSlice } from '../run';
 
 const slice: BenchSlice = {
   name: 'fictional',
@@ -133,6 +133,20 @@ describe('bench uses the shipped default', () => {
     const c = client();
     c.judge.mockImplementation(async (request: JudgeRequest) => parseJudgeText('not json', request));
     expect((await scoreSlice(slice, c, { head: 'a'.repeat(40) })).correct).toBe(0);
+  });
+  it('preserves a transport truncation even when the returned raw ledger can be parsed', async () => {
+    const cassette: Cassette = { version: 1, judges: [], entries: [] };
+    const c = client();
+    const judge = c.judge;
+    const truncated = {
+      ...c,
+      judge: async (request: JudgeRequest) => ({ ...(await judge(request)), unparsed: true as const }),
+    };
+    const live = await scoreSlice(slice, recordBenchClient(truncated, cassette), { head: 'a'.repeat(40) });
+    expect(live.correct).toBe(0);
+    expect((await replaySlice(slice, cassette, 'fake', { head: 'a'.repeat(40) })).results).toEqual(
+      live.results,
+    );
   });
 });
 describe('bench floors', () => {

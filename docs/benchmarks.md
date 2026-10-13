@@ -103,7 +103,7 @@ The command writes:
 | `benchmarks/evidence/<slice>@<version>/<model>.json` | Score report, cassette hash, resolved models, measured and charged spending, and call records |
 | `benchmarks/evidence/spend.jsonl` | Append-only spending rows; override with `--spend-ledger <path>` |
 
-The report records the dataset identity, prompt fingerprint, client settings, commit and timestamps. The command checks that recording and replay produce identical case results before accepting the completed cassette. A regression retains its evidence for diagnosis and returns a failure.
+The report records the dataset identity, prompt fingerprint, client settings, commit and timestamps. The command checks that recording and replay produce identical case results before accepting the completed cassette. A transport-truncated response remains inconclusive during replay even if its raw JSON is parseable. A regression retains its evidence for diagnosis and returns a failure.
 
 The manual [bench record workflow](../.github/workflows/bench-record.yml) accepts a slice, model and cap. Its cap must be positive and at most 5 USD. OpenAI uses the repository secret on a hosted runner. Haiku uses a preconfigured self-hosted runner labelled `driftbench-bench` and `claude-cli`. The workflow uploads cassettes and evidence for review; it does not commit them or raise floors.
 
