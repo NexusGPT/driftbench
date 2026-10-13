@@ -1,0 +1,10 @@
+Resume verification, 2026-10-13
+- HEAD before work: 7e6ab85194583c676be8a885ad0a98adbad9bd8c.
+- The old codex-mm worktree was absent. Restored commit 0278595cb5b5a6b49830a1cacdbfd22bb951c0de locally.
+- All six SHA-256 values in source-hashes.json matched before resumed model calls.
+- The three interrupted items each had exactly one saved order. Offline audit saved existing and missing request hashes.
+- Gemini pause marker remained present; its completed response count stayed at 12 during resume.
+- The paired estimator was checked on synthetic zero differences, constant gains, unequal subset sizes, and a missing subset.
+- Those checks passed: macro weighting is equal across the five subsets, both paired arms use the same rows, and the official macro rejects absent strata.
+- The complete-case scoring policy and strict full-panel analysis were committed at 41e024d7 before results were computed.
+- Exact final receipt, missing-panel and base replay checks are recorded in data/current-status.json and data/base-replay-audit.json.

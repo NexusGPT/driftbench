@@ -6,6 +6,9 @@ LOCK=threading.Lock()
 LEDGER=pathlib.Path('/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/spend-ledger.md')
 PREFIX=sys.argv[1] if len(sys.argv)>1 else 'dev'
 WORKERS=int(sys.argv[2]) if len(sys.argv)>2 else 6
+GEMINI_ONLY='--gemini-only' in sys.argv
+PHASE='gemini-billing-resume-20261013' if GEMINI_ONLY else 'available-panels'
+TIMEOUT=180 if GEMINI_ONLY else 300
 TASKS=DATA/('tasks.jsonl' if PREFIX=='dev' else f'{PREFIX}-tasks.jsonl')
 BASE=DATA/('base.jsonl' if PREFIX=='dev' else f'{PREFIX}-base.jsonl')
 OUT=DATA/f'{PREFIX}-calls.jsonl'
@@ -44,21 +47,27 @@ reserved=0.0
 inflight=set()
 stop=False
 retry_after={}
+attempt_counts={}
+if GEMINI_ONLY:
+ for a in rows(ATTEMPTS):
+  if a.get('phase')==PHASE and a['event']=='started':attempt_counts[a['key']]=attempt_counts.get(a['key'],0)+1
 def post(url,headers,body):
  req=urllib.request.Request(url,json.dumps(body).encode(),{'Content-Type':'application/json',**headers},method='POST')
- with urllib.request.urlopen(req,timeout=300) as response:
+ with urllib.request.urlopen(req,timeout=TIMEOUT) as response:
   return json.loads(response.read()),response.status
 
 def call(t):
  global spent,reserved,stop
  with LOCK:
   if t['key'] in cache or t['key'] in inflight:return
+  if GEMINI_ONLY and (t['provider']!='gemini' or attempt_counts.get(t['key'],0)>=2):return
   if t['provider']=='gemini' and (ROOT/'pause-gemini').exists():return
   if spent+reserved+.20>=30:
    stop=True;print('BUDGET_STOP',flush=True);return
   reserved+=.20
   inflight.add(t['key'])
-  append(ATTEMPTS,{'time':now(),'key':t['key'],'id':t['id'],'provider':t['provider'],'event':'started'})
+  attempt_counts[t['key']]=attempt_counts.get(t['key'],0)+1
+  append(ATTEMPTS,{'time':now(),'key':t['key'],'id':t['id'],'provider':t['provider'],'event':'started','phase':PHASE,'attempt':attempt_counts[t['key']],'timeoutSeconds':TIMEOUT})
  started=time.monotonic();p=t['provider'];route=p
  try:
   if p=='openai':payload,status=post('https://api.openai.com/v1/chat/completions',{'Authorization':'Bearer '+keys[p]},t['body'])
@@ -98,7 +107,7 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
   bases={r['id']:r for r in rows(BASE)}
   escalated={i for i,r in bases.items() if r.get('providerRefused') or not(len(r['games'])==2 and r['games'][0]==r['games'][1] and r['games'][0] in ('A','B'))}
   pending=[t for t in alltasks if t['id'] in escalated and t['key'] not in cache]
-  ready=[t for t in pending if retry_after.get(t['key'],0)<=time.time() and not(t['provider']=='gemini' and (ROOT/'pause-gemini').exists())]
+  ready=[t for t in pending if retry_after.get(t['key'],0)<=time.time() and not(t['provider']=='gemini' and (ROOT/'pause-gemini').exists()) and (not GEMINI_ONLY or (t['provider']=='gemini' and attempt_counts.get(t['key'],0)<2))]
   waiting=sorted({t['id'] for t in pending if t['provider']=='gemini'},key=int)
   (DATA/f'{PREFIX}-waiting-gemini.json').write_text(json.dumps({'items':waiting,'n':len(waiting),'pendingCalls':sum(t['provider']=='gemini' for t in pending)},indent=2)+'\n')
   if ready:
@@ -106,4 +115,6 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
    list(pool.map(call,ready))
   elif len(bases)==expected and (not pending or ('--available' in sys.argv and not any(t['provider']!='gemini' for t in pending))):
    print(json.dumps({'done':True,'geminiPaused':(ROOT/'pause-gemini').exists(),'waitingGeminiItems':len(waiting),'waitingGeminiCalls':sum(t['provider']=='gemini' for t in pending),'items':expected,'escalated':len(escalated),'calls':len(cache),'spendConservative':spent}),flush=True);break
+  elif GEMINI_ONLY and pending and all(attempt_counts.get(t['key'],0)>=2 for t in pending if t['provider']=='gemini'):
+   print(json.dumps({'stopped':'Gemini one-retry limit reached','pending':len(pending)}),flush=True);break
   else:time.sleep(10)
