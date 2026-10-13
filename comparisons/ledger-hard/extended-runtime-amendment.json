@@ -1,12 +1,12 @@
 {
   "created": "2026-10-13T13:48:05.429214+00:00",
-  "scope": "Runtime Sonnet budget and five-call cache pilot only. Existing Sol driver drains on its original USD 25 source; no Sol request or scheduling setting changes. Frozen statistics are unchanged except the independently enforced cell budget check.",
+  "scope": "Runtime Sonnet budget and five-call cache pilot only. Existing Sol driver drains on its original USD 25 source; no Sol request or scheduling setting changes. Frozen statistics are unchanged except the independently enforced cell budget check. Owner subsequently authorizes zero-token CLI api_error transport classification and two-consecutive-connection-failure Sol circuit. These are runtime changes only; prompts and statistics remain frozen.",
   "authority_file": "sonnet-5-5/budget-amendment.json",
   "budget_amendment_sha256": "25be91c20ee2ab813e3163e41b856a6feb2950caf6981255fd8ca4075af28a3e",
   "source_replacements": {
     "comparisons/ledger-hard/extended-run.py": {
       "original": "b4c3892eea5987e9e442e05ef2ebc0d00e4f4abe3d66d5549c09f9bc8278d49c",
-      "runtime": "603d7e72857749908198f84222c85d135854e06c3ecf2eff5d42ee1d1673a128"
+      "runtime": "ba75df8b640f646d766444a0c0fdb56134a11bf40f7d1ffaaec345e65067e516"
     },
     "comparisons/ledger-hard/extended-score.py": {
       "original": "1bea532d01f834ca8ef604e283c18c5f7cb0c837cd4f72c64f1b1525df3c5d6c",
@@ -14,9 +14,35 @@
     },
     "comparisons/ledger-hard/test_extended.py": {
       "original": "fb89dc6dc6a948ab8b18bb4f770cd3618b80112605160256f33da0b57b5dc651",
-      "runtime": "05a56964af3c645dbe4e427e04760f39dd2b97bc7c61e8bb3b4ba21220788718"
+      "runtime": "1531b27cd81b4550f7a9db5a7c54d48be98e845b3a194f88bea50142b0a28a53"
     }
   },
   "original_seal_commit": "afbd8abf",
-  "runtime_call_metadata": "Every post-amendment Sonnet call records DISABLE_PROMPT_CACHING in runtime_environment. The existing request key remains the stable sealed unit; its cache transport amendment is explicit."
+  "runtime_call_metadata": "Every post-amendment Sonnet call records DISABLE_PROMPT_CACHING in runtime_environment. The existing request key remains the stable sealed unit; its cache transport amendment is explicit.",
+  "history": [
+    {
+      "prior_amendment_sha256": "b82d0b61a5ad906e7a2d6d9056f5fad89f9fb2a65037bf60ad348a4480af2625",
+      "prior_source_replacements": {
+        "comparisons/ledger-hard/extended-run.py": {
+          "original": "b4c3892eea5987e9e442e05ef2ebc0d00e4f4abe3d66d5549c09f9bc8278d49c",
+          "runtime": "ba75df8b640f646d766444a0c0fdb56134a11bf40f7d1ffaaec345e65067e516"
+        },
+        "comparisons/ledger-hard/extended-score.py": {
+          "original": "1bea532d01f834ca8ef604e283c18c5f7cb0c837cd4f72c64f1b1525df3c5d6c",
+          "runtime": "59dba8fa51eaf92ce232f5222d0e33ccff2d4b9ce759a7f7dfd1775ab902cc1b"
+        },
+        "comparisons/ledger-hard/test_extended.py": {
+          "original": "fb89dc6dc6a948ab8b18bb4f770cd3618b80112605160256f33da0b57b5dc651",
+          "runtime": "1531b27cd81b4550f7a9db5a7c54d48be98e845b3a194f88bea50142b0a28a53"
+        }
+      },
+      "changed": "2026-10-13T14:10:15.979953+00:00",
+      "reason": "Owner-approved CLI zero-token API-error classification correction and Sol connection circuit"
+    }
+  ],
+  "transport_amendments": {
+    "sonnet-5-5/transport-reconciliation.json": "7881758f88d38dade69aa27e1d640f7d6f8431e0c71cd44ddf789d6410c0ae81",
+    "gpt-6.1-sol/transport-amendment.json": "fb0d3616622473b04e2e8702b3281fcf2095fdb9855d0c005e6c1420a6722b55",
+    "api-error-envelope-audit.json": "761d82e1713b7f9ef1e28aa7fe91103ed3097a065309f520d2860f1934368731"
+  }
 }

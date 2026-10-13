@@ -21,6 +21,14 @@ def sol_cost(usage):
     assert 0<=cached+written<=total
     return ((total-cached-written)*2+cached*.10+written*2.50+usage.get('output_tokens',0)*10)/1e6
 
+def cli_no_answer(raw):
+    usage=raw.get('usage') or {}
+    return raw.get('terminal_reason')=='api_error' and not any(usage.get(k,0) for k in ('input_tokens','output_tokens','cache_creation_input_tokens','cache_read_input_tokens'))
+
+def connection_failure(a):
+    error=a.get('error') or {}
+    return not a.get('provider_response') and error.get('status') is None and error.get('type') in ('RemoteDisconnected','URLError','TimeoutError','ConnectionResetError','TimeoutExpired')
+
 def prepared(cell):
     cfg=CELLS[cell];out=[]
     source={'primary':primary.requests(['haiku'],None),'dialect':variant.all_requests(models=['haiku' if cfg['route']=='claude-cli' else 'gpt-6-luna'])}
@@ -105,6 +113,15 @@ class Driver:
         self.cell=cell;self.dest=HERE/cell;self.cfg=CELLS[cell];self.lock=threading.RLock();self.stop=threading.Event()
         self.measured,self.reserved=accounting(self.dest)
         self.cache_disabled=None
+        self.connection_streak=0;self.stop_reason=None
+        self.history=collections.defaultdict(list)
+        for x in lines(self.dest/'attempts.jsonl'):
+            if x['event']=='finish':self.history[x['request_sha256']].append(x)
+    def observe_transport(self,a):
+        if self.cfg['route']=='responses':
+            self.connection_streak=self.connection_streak+1 if connection_failure(a) else 0
+            if self.connection_streak>=2:
+                self.stop_reason='two consecutive connection failures';self.stop.set()
     def totals(self):
         with self.lock:return self.measured,self.reserved
     def attempt(self,r,number):
@@ -126,16 +143,29 @@ class Driver:
                     success=ran.returncode==0 and raw.get('subtype')=='success' and not raw.get('is_error'),text=raw.get('result') or '',usage=usage,
                     measured_usd=raw.get('total_cost_usd'),resolved_model=sorted(raw.get('modelUsage',{})),generated_tokens=usage.get('output_tokens',0),
                     token_limit_lost=raw.get('stop_reason')=='max_tokens' or usage.get('output_tokens',0)>=OUTPUT_CAP,reasoning_applied='medium requested; CLI does not expose resolved effort')
+                if cli_no_answer(raw):
+                    a['cli_error_response']=a.pop('provider_response');a['text']=''
+                    status=raw.get('api_error_status')
+                    a['error']={'type':'ConnectionResetError' if status is None else 'CLIHTTPError','status':status,'message':raw.get('result','')}
+                    if status is None:a['unreported_cost_reserve_usd']=self.cfg['reserve']
             if a.get('measured_usd') is None:a['unreported_cost_reserve_usd']=self.cfg['reserve']
             model=a.get('resolved_model');a['model_match']=model==self.cfg['model'] or model==[self.cfg['model']]
-            if not a['model_match'] or a.get('generated_tokens',0)>OUTPUT_CAP:self.stop.set();a['integrity_stop']=True
+            if a.get('provider_response') and (not a['model_match'] or a.get('generated_tokens',0)>OUTPUT_CAP):self.stop.set();a['integrity_stop']=True
         except urllib.error.HTTPError as error:
             a.update(success=False,text='',measured_usd=0,error={'status':error.code,'body':error.read().decode(errors='replace')})
         except Exception as error:
             a.update(success=False,text='',measured_usd=None,unreported_cost_reserve_usd=self.cfg['reserve'],error={'type':type(error).__name__,'message':str(error)})
         a['finished']=stamp();return a
     def work(self,r):
-        transport=quota=number=0
+        history=self.history.get(r['request_sha256'],[])
+        transport=sum(variant.retryable(x) or cli_no_answer(x.get('provider_response') or {}) for x in history)
+        quota=sum((x.get('error') or {}).get('status')==429 for x in history)
+        number=max((x['attempt'] for x in history),default=0)
+        assert transport<3 and quota<4,'Exhausted attempts cannot be restarted'
+        if history:
+            delay=10 if transport==1 else 30
+            with self.lock:append(self.dest/'attempts.jsonl',{'event':'backoff','request_sha256':r['request_sha256'],'attempt':number+1,'seconds':delay,'stamp':stamp(),'reason':'resume proven unanswered attempt within original retry limit'})
+            self.stop.wait(delay)
         while True:
             if self.stop.is_set():
                 a={'pending':True,'request_sha256':r['request_sha256'],'reason':'stop before dispatch','stamp':stamp()}
@@ -147,6 +177,8 @@ class Driver:
             with self.lock:
                 append(self.dest/'attempts.jsonl',{'event':'finish',**a})
                 self.measured+=a.get('measured_usd') or 0;self.reserved+=a.get('unreported_cost_reserve_usd',0)
+                self.observe_transport(a)
+                if self.connection_streak==2:append(self.dest/'circuit-breaks.jsonl',{'stamp':stamp(),'request_sha256':r['request_sha256'],'reason':self.stop_reason,'consecutive_failures':self.connection_streak})
             status=(a.get('error') or {}).get('status')
             if a.get('provider_response'):break
             if status==402 or status in (400,401,403,404):
@@ -175,7 +207,9 @@ class Driver:
 
 def accounting(dest):
     events=[x for x in lines(dest/'attempts.jsonl') if x['event']=='finish']
-    return sum(x.get('measured_usd') or 0 for x in events),sum(x.get('unreported_cost_reserve_usd',0) for x in events)
+    correction=dest/'transport-reconciliation.json'
+    extra=json.loads(correction.read_text()).get('retained_reserve_usd',0) if correction.exists() else 0
+    return sum(x.get('measured_usd') or 0 for x in events),sum(x.get('unreported_cost_reserve_usd',0) for x in events)+extra
 
 def forecast(dest):
     data=answers(dest);planned=ordered_unique(dest);totals=collections.Counter((x['experiment'],x['row'],x['side']) for x in planned)
@@ -193,9 +227,16 @@ def run(cell,pilot=False,cache_pilot=False):
     with (dest/'runner.lock').open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         allreq=ordered_unique(dest);old=answers(dest);seen={a['request_sha256'] for a in old};assert len(seen)==len(old)
-        starts={x['request_sha256'] for x in lines(dest/'starts.jsonl')};assert not starts-seen,'Reconcile unknown started requests before resending'
+        starts={x['request_sha256'] for x in lines(dest/'starts.jsonl')}
+        attempts=lines(dest/'attempts.jsonl')
+        for key in starts-seen:
+            events=[x for x in attempts if x['request_sha256']==key and x['event'] in ('start','finish')]
+            completed=[x for x in events if x['event']=='finish']
+            assert completed and len(completed)*2==len(events),'Unknown in-flight request cannot be resent'
+            assert all(not x.get('provider_response') or cli_no_answer(x['provider_response']) for x in completed),'Answered request cannot be resent'
+            append(dest/'no-answer-recovery.jsonl',{'stamp':stamp(),'request_sha256':key,'prior_completed_attempts':len(completed),'evidence':'Every attempt ended with recorded no-answer transport evidence; remaining tries only'})
         if cache_pilot:
-            assert cell=='sonnet-5-5' and len(old)==5
+            assert cell=='sonnet-5-5' and 5<=len(old)<10
             assert cap==45
             d.cache_disabled=True
         elif pilot:assert not old
@@ -219,7 +260,10 @@ def run(cell,pilot=False,cache_pilot=False):
                     if measured+reserved+(len(inflight)+1)*d.cfg['reserve']>cap:
                         if not inflight:d.stop.set();reason='budget reserve'
                         break
-                    r=queue.popleft();append(dest/'starts.jsonl',{k:v for k,v in r.items() if k!='body'}|{'started':stamp()});inflight[pool.submit(d.work,r)]=r
+                    r=queue.popleft()
+                    if r['request_sha256'] not in starts:
+                        append(dest/'starts.jsonl',{k:v for k,v in r.items() if k!='body'}|{'started':stamp()});starts.add(r['request_sha256'])
+                    inflight[pool.submit(d.work,r)]=r
                 if not inflight:break
                 done,_=concurrent.futures.wait(inflight,timeout=10,return_when=concurrent.futures.FIRST_COMPLETED)
                 for fut in done:
@@ -228,6 +272,7 @@ def run(cell,pilot=False,cache_pilot=False):
                     fresh+=1
                     if a.get('integrity_stop'):reason='model identity or token cap defect'
                 count=len(old)+fresh
+                if d.stop_reason:reason=d.stop_reason
                 if not pilot and not cache_pilot and (count>=50 and last_projection<50 or count-last_projection>=100):
                     projected=forecast(dest);last_projection=count
                     if projected['projected_usd']>cap:d.stop.set();reason='projection exceeds cell cap'
@@ -237,7 +282,8 @@ def run(cell,pilot=False,cache_pilot=False):
         dump(dest/'run-state.json',state);projected=forecast(dest)
         if pilot:dump(dest/'pilot.json',projected|{'requests':[r['request_sha256'] for r in allreq[:5]],'retained_once':True})
         if cache_pilot:
-            new=[a for a in answers(dest) if a['request_sha256'] not in seen]
+            pilot_keys={r['request_sha256'] for r in allreq[5:10]}
+            new=[a for a in answers(dest) if a['request_sha256'] in pilot_keys]
             dump(dest/'cache-pilot.json',{'stamp':stamp(),'requests':[a['request_sha256'] for a in new],'recorded':len(new),'measured_usd':sum(a.get('measured_usd') or 0 for a in new),'disable_prompt_caching':True,'retained_once':True,'outcomes_used':False})
         with primary.LEDGER.open('a') as f:f.write(f'\n| {stamp()} | ledger-hard {cell} {"cache pilot" if cache_pilot else "five-call pilot" if pilot else "sealed run"} | {state["completed"]}/6560 recorded | {state["measured_usd"]:.8f} USD; {state["unknown_attempt_reserve_usd"]:.8f} reserve | {cap} USD model-cell cap; projected {projected["projected_usd"]}; stop {reason} |\n')
         print(json.dumps(state|{'projected_usd':projected['projected_usd']}),flush=True)

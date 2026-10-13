@@ -1,9 +1,23 @@
 import tempfile,unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 from common import HERE,load_module
 r=load_module('tested_extended',HERE/'extended-run.py')
 
 class ExtendedProtocol(unittest.TestCase):
+    def test_cli_api_error_zero_tokens_is_transport_not_answer(self):
+        d=r.Driver('sonnet-5-5')
+        raw={'terminal_reason':'api_error','is_error':True,'subtype':'success','result':'API Error: Connection dropped (ECONNRESET)','usage':{'input_tokens':0,'output_tokens':0,'cache_creation_input_tokens':0,'cache_read_input_tokens':0},'modelUsage':{},'total_cost_usd':0,'api_error_status':None}
+        req={'experiment':'primary','model':'claude-sonnet-5-5','id':'test','row':'rubric','side':'audit','request_sha256':'test','body':{'system':'system','user':'user'}}
+        with patch.object(r.subprocess,'run',return_value=SimpleNamespace(stdout=r.json.dumps(raw),returncode=1)):
+            a=d.attempt(req,1)
+        self.assertNotIn('provider_response',a);self.assertTrue(r.variant.retryable(a));self.assertFalse(d.stop.is_set());self.assertEqual(a['text'],'');self.assertEqual(a['cli_error_response'],raw);self.assertEqual(a['unreported_cost_reserve_usd'],.1)
+    def test_sol_circuit_breaks_after_two_consecutive_connection_failures(self):
+        d=r.Driver('gpt-6.1-sol');error={'success':False,'error':{'type':'ConnectionResetError'}}
+        d.observe_transport(error);self.assertFalse(d.stop.is_set())
+        d.observe_transport({'provider_response':{'status':'completed'}});self.assertEqual(d.connection_streak,0)
+        d.observe_transport(error);self.assertFalse(d.stop.is_set())
+        d.observe_transport(error);self.assertTrue(d.stop.is_set());self.assertEqual(d.connection_streak,2)
     def test_budget_amendment_only_changes_its_cell(self):
         with tempfile.TemporaryDirectory(dir=HERE) as tmp:
             path=r.Path(tmp);self.assertEqual(r.cell_cap(path),25)
