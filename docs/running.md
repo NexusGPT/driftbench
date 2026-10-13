@@ -156,7 +156,7 @@ The process target runs each cell in a sandbox, a temporary folder under one fol
 | Option | Effect |
 |---|---|
 | `--target`, `--mode`, `--repeats` | as for `plan` |
-| `--agent-version <label>` | the version of the agent under test. It is written as the `variant` of every target that names none, so the runs record which agent produced them. The target is part of the cell id and of the cache key: a run under `v2` never reuses a run or a cached block of `v1`. With `--prompt`, the prompt hash is the version and the label is recorded beside it. |
+| `--agent-version <label>` | the version of the agent under test. It is included in every block cache key, even when the target already pins a variant or prompt. The campaign stores the label for resume. It is also written as the `variant` of every target that names none, preserving existing cell identity rules. With `--prompt`, the prompt hash remains the version used for blast-radius comparisons. |
 | `--change <manifest>` | run only the [blast radius](concepts/blast-radius.md) of this change manifest, and carry the stored run of every other cell from the `--from` campaign. It needs `--from`, `--store` and an agent version. Without it, nothing changes: every cell runs |
 | `--from <campaign>` | with `--change`: the stored campaign the carried runs are read from |
 | `--audit <n>` | with `--change`: draw n of the cells about to be carried, run them fresh and compare each with its stored run on every gating verdict. One that differs is a radius miss: nothing is carried, every cell runs, and the command exits 1. `--audit-seed <n>` sets the draw (default 1) |
@@ -766,7 +766,9 @@ The record keeps the blocks that ran, the error, and a note when a session could
 
 ### The cache and replay
 
-The cache key of a block is the SHA-256 of the canonical JSON of the spec hash, the repeat, the block's position in the run, its whole resolved Given (the history so far included), its stimulus, the target, and the adapter's id and version. An end-state read is cached under the key of the block it follows and its source. The spec's `version` is a free label and plays no part.
+The cache key of a block is the SHA-256 of the canonical JSON of the spec hash, the repeat, the block's position in the run, its whole resolved Given (the history so far included), its stimulus, the target, and the adapter's id and version. An end-state read is cached under the key of the block it follows and its source. The spec's `version` is a free label and plays no part. When supplied, the agent version (`--agent-version` on the command line, `agentVersion` in runner options) is included as well. Without an agent version, the cache cannot see an agent change behind the same target and adapter identity. Bump the label when the agent changes, or use `--no-cache`. An absent agent version preserves the earlier key format.
+
+The process adapter reports version `0.1.0`. Its separate `cacheIdentity` holds a SHA-256 digest of its command and arguments; only the block cache key reads this field. Changing either changes the cache identity; changing the contents of the same binary or script does not. Adapters without this optional field keep their existing cache keys. Process runs use sandboxes and remain uncached.
 
 With a cache, the runner first replays the run from it. Any block or end-state read the cache misses sends the whole run to the adapter instead, and every block it observes goes into the cache. A replayed run has `cacheHit: true` and costs nothing against a budget. A run on an adapter that makes sandboxes is neither replayed nor cached: a replay has no workspace to read files from, so its artifact checks could not open them.
 

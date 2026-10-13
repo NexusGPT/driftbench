@@ -431,6 +431,8 @@ export const Campaign = z.strictObject({
   budgetUsd: z.number().nonnegative(),
   judge: JudgeConfig,
   createdAt: z.string().min(1),
+  /** The explicit agent version used by the block cache, retained when the campaign resumes. */
+  agentVersion: z.string().optional(),
   /** The registry versions the campaign ran: the dataset its specs came from, the prompts it pinned. */
   sources: z.array(RegistrySource).optional(),
   /** Set when the campaign ran the blast radius of a change and carried the rest. Absent on a full campaign. */
