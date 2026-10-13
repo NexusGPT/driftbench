@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
@@ -358,3 +359,193 @@ it('does not turn a plain prohibition into a gate from a quoted argument', async
   const work = await estate('invoice-audit', 'Never run `node scripts/check.mjs --label before reading`.');
   expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill']);
 });
+
+const commandProhibitions = [
+  ['reviewed command', 'Never run `node scripts/check.cjs`.\nRun `node scripts/check.cjs`.'],
+  [
+    'reviewed sections',
+    '## Limits\nNever run `node scripts/check.cjs`.\n## Work\nRun `node scripts/check.cjs`.',
+  ],
+  ['reverse order', 'Run `node scripts/check.cjs`.\nNever run `node scripts/check.cjs`.'],
+  ['do not', 'Do not run `node scripts/check.cjs`.\nRun `node scripts/check.cjs`.'],
+  ['must not', 'You must not execute `node scripts/check.cjs`.\nRun `node scripts/check.cjs`.'],
+  ['forbidden prefix', 'It is forbidden to run `node scripts/check.cjs`.\nRun `node scripts/check.cjs`.'],
+  ['forbidden suffix', 'Running `node scripts/check.cjs` is forbidden.\nRun `node scripts/check.cjs`.'],
+] as const;
+
+it.each(commandProhibitions)(
+  'preserves the %s prohibition without executing its target',
+  async (_name, body) => {
+    const work = await estate('invoice-audit', body);
+    await writeFile(
+      join(work.dir, '.claude/skills/invoice-audit/scripts/check.cjs'),
+      'require("node:fs").writeFileSync("executed.txt", "forbidden command ran");',
+    );
+    const records = play(work.dir);
+    expect(existsSync(join(work.dir, 'executed.txt'))).toBe(false);
+    expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+    expect(JSON.stringify(records)).toContain('prohibition');
+  },
+);
+
+it.each([
+  'Never read `references/policy.md`.\nRead `references/policy.md`.',
+  'Read `references/policy.md`.\nNever read `references/policy.md`.',
+  '## Limits\nNever read `references/policy.md`.\n## Work\nRead `references/policy.md`.',
+  'Read `references/policy.md`.\nReading `references/*.md` is forbidden.',
+  'Do not read `references/**/*.md`.\nRead `references/policy.md`.',
+])('retains exact and glob read prohibitions across placements: %s', async (body) => {
+  const work = await estate('invoice-audit', body);
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).not.toContain('Read from this estate.');
+});
+
+it.each(['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md'])(
+  'applies a prohibition in %s to a positive instruction in the skill',
+  async (file) => {
+    const work = await estate('invoice-audit', 'Read `references/policy.md`.');
+    await writeFile(join(work.dir, file), 'Never read `.claude/skills/invoice-audit/references/policy.md`.');
+    expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill']);
+  },
+);
+
+it('keeps a skill prohibition against a command in the request after the skill finishes', async () => {
+  const work = await estate('invoice-audit', 'Never run `node scripts/check.mjs`.');
+  // The command is estate-relative here; the skill rule is relative to the skill folder.
+  const output = execFileSync(
+    process.execPath,
+    [FAKE, '-p', `${ASK_INVOICE} Execute this command: node .claude/skills/invoice-audit/scripts/check.mjs`],
+    { cwd: work.dir, env: { PATH: process.env.PATH }, encoding: 'utf8', timeout: 60000 },
+  );
+  const records = output
+    .trim()
+    .split('\n')
+    .map((line) => JSON.parse(line));
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(output).not.toContain('checked this estate');
+});
+
+it('combines a prohibition and a permission from separate standing files', async () => {
+  const work = await estate('invoice-audit', 'Run `node scripts/check.mjs`.');
+  await writeFile(join(work.dir, 'CLAUDE.md'), 'Run `node .claude/skills/invoice-audit/scripts/check.mjs`.');
+  await writeFile(
+    join(work.dir, 'CLAUDE.local.md'),
+    'Never run `node .claude/skills/invoice-audit/scripts/check.mjs`.',
+  );
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill']);
+});
+
+it.each([
+  ['if prefix', 'If `references/hold.json` exists, never read `references/policy.md`.', true],
+  ['if suffix', 'Never read `references/policy.md` if `references/hold.json` exists.', true],
+  ['when prefix', 'When `references/hold.json` exists, do not read `references/policy.md`.', true],
+  ['unless prefix', 'Unless `references/hold.json` exists, you must not read `references/policy.md`.', false],
+  [
+    'unless suffix',
+    'Reading `references/policy.md` is forbidden unless `references/hold.json` exists.',
+    false,
+  ],
+  ['missing condition', 'If `references/hold.json` is missing, never read `references/policy.md`.', false],
+] as const)(
+  'binds a conditional prohibition only while its %s condition holds',
+  async (_name, rule, presentBlocks) => {
+    const work = await estate('invoice-audit', `${rule}\nRead \`references/policy.md\`.`);
+    const absent = calls(play(work.dir));
+    expect(absent.map((call) => call.name)).toEqual(presentBlocks ? ['Skill', 'Read'] : ['Skill']);
+    await writeFile(join(work.dir, '.claude/skills/invoice-audit/references/hold.json'), '{}');
+    const present = calls(play(work.dir));
+    expect(present.map((call) => call.name)).toEqual(presentBlocks ? ['Skill'] : ['Skill', 'Read']);
+  },
+);
+
+it('does not broaden a prohibition to a different target or action', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Never edit `references/policy.md`.\nNever read `references/private-*.md`.\nRead `references/policy.md`.\nRead `references/private-a.txt`.',
+  );
+  await writeFile(join(work.dir, '.claude/skills/invoice-audit/references/private-a.txt'), 'Allowed text.');
+  const used = calls(play(work.dir));
+  expect(used.map((call) => call.name)).toEqual(['Skill', 'Read', 'Read']);
+  expect(used[2].input.file_path).toContain('private-a.txt');
+});
+
+it('matches a command glob without prohibiting an unrelated command', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Never run `node scripts/check*.mjs`.\nRun `node scripts/prepare.mjs`.\nRun `node scripts/check.mjs`.',
+  );
+  await writeFile(
+    join(work.dir, '.claude/skills/invoice-audit/scripts/prepare.mjs'),
+    'console.log("prepared");',
+  );
+  const records = play(work.dir);
+  const used = calls(records);
+  expect(used.map((call) => call.name)).toEqual(['Skill', 'Bash']);
+  expect(used[1].input.command).toContain('scripts/prepare.mjs');
+  expect(JSON.stringify(records)).not.toContain('checked this estate');
+});
+
+it('rechecks a conditional prohibition after a command changes its condition', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'If `references/hold.json` exists, never read `references/policy.md`.\nRun `node scripts/check.mjs`.\nRead `references/policy.md`.',
+  );
+  await writeFile(
+    join(work.dir, '.claude/skills/invoice-audit/scripts/check.mjs'),
+    'import {writeFileSync} from "node:fs"; writeFileSync(".claude/skills/invoice-audit/references/hold.json", "{}");',
+  );
+  const records = play(work.dir);
+  expect(existsSync(join(work.dir, '.claude/skills/invoice-audit/references/hold.json'))).toBe(true);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Bash']);
+  expect(JSON.stringify(records)).not.toContain('Read from this estate.');
+});
+
+it('reports an unresolved prohibition condition before the governed action', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'If the supplier has withdrawn consent, never read `references/policy.md`.\nRead `references/policy.md`.',
+  );
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).toContain('condition of an estate prohibition cannot be resolved');
+});
+
+it('does not treat a negated prohibition as a prohibition', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Read `references/policy.md`.\nReading `references/policy.md` is not forbidden.',
+  );
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill', 'Read']);
+});
+
+it('retains a prohibition when its command arguments contain conditional or temporal words', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Never run `node scripts/check.mjs --label if before reading`.\nRun `node scripts/check.mjs --label if before reading`.',
+  );
+  expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill']);
+});
+
+it('matches a prohibited command whose script is a filename relative to the skill', async () => {
+  const work = await estate('invoice-audit', 'Never run `node check.mjs`.\nRun `node check.mjs`.');
+  await writeFile(
+    join(work.dir, '.claude/skills/invoice-audit/check.mjs'),
+    'console.log("forbidden basename");',
+  );
+  const records = play(work.dir);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).not.toContain('forbidden basename');
+});
+
+it.each([
+  ['Run `node scripts/check.mjs`.', 'Never run `node scripts/check.mjs`.'],
+  ['Read `references/policy.md`.', 'Never read `references/policy.md`.'],
+])(
+  'applies a standing prohibition to the same relative action in a skill: %s',
+  async (positive, prohibition) => {
+    const work = await estate('invoice-audit', positive);
+    await writeFile(join(work.dir, 'CLAUDE.md'), prohibition);
+    expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill']);
+  },
+);

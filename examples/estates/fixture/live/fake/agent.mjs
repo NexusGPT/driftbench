@@ -11,7 +11,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join, matchesGlob, resolve } from 'node:path';
 
 const STOP = new Set(
   'the and for with that this from into your you are can what which when where who how please just tell give make sure about them they their there here have has had will would could should than then also only each every some any one two all not but our its it'.split(
@@ -178,6 +178,135 @@ function denied(settings, tool, input) {
   });
 }
 
+// Sentence boundaries outside code spans only: dots in filenames and commands are not punctuation.
+function statementsOf(body) {
+  const statements = [];
+  let sentence = '';
+  for (const token of body.match(/`[^`]*`|[.!?\n]|[^`.!?\n]+/g) ?? []) {
+    if (/^[.!?\n]$/.test(token)) {
+      if (sentence.trim()) statements.push(sentence.trim().replace(/^[-*\d.)\s]+/, ''));
+      sentence = '';
+    } else sentence += token;
+  }
+  if (sentence.trim()) statements.push(sentence.trim());
+  return statements.filter((line) => !line.startsWith('#'));
+}
+
+const negative = (clause) =>
+  /\b(never|do not|don't|must not|forbidden)\b/i.test(
+    clause.replace(/`[^`]*`/g, '').replace(/\bnot forbidden\b/gi, ''),
+  );
+
+function masked(line) {
+  const spans = [];
+  const prose = line.replace(/`[^`]*`/g, (span) => `\uE000${spans.push(span) - 1}\uE000`);
+  const restore = (clause) => clause.replace(/\uE000(\d+)\uE000/g, (_, index) => spans[Number(index)]);
+  return { prose, restore };
+}
+
+// Skill paths are local to that skill; explicit .claude/ and absolute paths are estate-wide.
+function fileTarget(literal, cwd, folder) {
+  return resolve(cwd, isAbsolute(literal) || literal.startsWith('.claude/') ? '' : folder, literal);
+}
+
+function commandTarget(literal, cwd, folder) {
+  return literal
+    .trim()
+    .split(/\s+/)
+    .map((token) =>
+      token.includes('/') || existsSync(fileTarget(token, cwd, folder))
+        ? fileTarget(token, cwd, folder)
+        : token,
+    )
+    .join(' ');
+}
+
+/**
+ * Prohibitions are retained for the whole run, independently of positive action collection. Read/edit
+ * targets are paths and run targets are complete commands; shell-style globs match those same targets.
+ * Standing rules cover the stated action target in any skill as well as its estate-relative path;
+ * skill rules resolve targets within their own folder. All standing files
+ * and the routed unit are collected before the first action, so placement never overrides a ban.
+ *
+ * Conditional syntax: if/when/unless FILE exists, does not exist, is present or is missing. Conditions
+ * are checked at the governed call, not once at planning. Unknown conditions stop the matching action
+ * with a diagnostic; they are never silently treated as unconditional bans or permission. Temporal
+ * before/until gates in skills remain dependency edges below, rather than permanent prohibitions.
+ */
+function prohibitions(estate, unit, cwd) {
+  const sources = [{ body: estate.standing, folder: '' }, ...(unit ? [unit] : [])];
+  const rules = [];
+  for (const source of sources) {
+    for (const line of statementsOf(source.body)) {
+      if (!negative(line)) continue;
+      const { prose, restore } = masked(line);
+      const prefix = /^(if|when|unless)\s+(.+?)[,;]\s*(.+)$/i.exec(prose);
+      const suffix = /^(.+?)\s+(if|when|unless)\s+(.+)$/i.exec(prose);
+      const condition = prefix ? prefix[2] : suffix?.[3];
+      const connective = (prefix ? prefix[1] : suffix?.[2])?.toLowerCase();
+      const action = prefix ? prefix[3] : suffix ? suffix[1] : prose;
+      // These clauses have a conditional temporal meaning, not an unconditional ban.
+      if (/\b(before|after|until)\b/i.test(action)) continue;
+      const verb =
+        /\b(read(?:ing)?|run(?:ning)?|execut(?:e|ing)|edit(?:ing)?|dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing))\b/i.exec(
+          action,
+        );
+      if (!verb) continue;
+      const kind = /^read/i.test(verb[1])
+        ? 'Read'
+        : /^(run|execut)/i.test(verb[1])
+          ? 'Bash'
+          : /^edit/i.test(verb[1])
+            ? 'Edit'
+            : 'Agent';
+      const folder = source.folder ?? '';
+      const holds = () => {
+        if (!condition) {
+          // A condition outside the supported grammar still must not become an unconditional ban.
+          return /\b(if|when|unless|without|except|while)\b/i.test(action) ? undefined : true;
+        }
+        const match = /^`([^`]+)`\s+(exists|does not exist|is present|is missing)$/i.exec(restore(condition));
+        if (!match) return undefined;
+        const exists = existsSync(fileTarget(match[1], cwd, folder));
+        const value = /^(exists|is present)$/i.test(match[2]) ? exists : !exists;
+        return connective === 'unless' ? !value : value;
+      };
+      for (const match of restore(action).matchAll(/`([^`]+)`/g)) {
+        const literal = match[1].trim();
+        const target =
+          kind === 'Bash'
+            ? commandTarget(literal, cwd, folder)
+            : kind === 'Read' || kind === 'Edit'
+              ? fileTarget(literal, cwd, folder)
+              : literal;
+        rules.push({ kind, target, literal, inherited: source === sources[0], holds });
+      }
+    }
+  }
+  return (tool, input, literal) => {
+    const target =
+      tool === 'Bash'
+        ? commandTarget(input.command, cwd, '')
+        : tool === 'Read' || tool === 'Edit'
+          ? input.file_path
+          : input.subagent_type;
+    for (const rule of rules) {
+      if (rule.kind !== tool || typeof target !== 'string') continue;
+      if (
+        !matchesGlob(target, rule.target) &&
+        !(rule.inherited && literal !== undefined && matchesGlob(literal, rule.literal))
+      )
+        continue;
+      const applies = rule.holds();
+      if (applies === true)
+        return 'An estate prohibition forbids this action; I stopped before the tool call.';
+      if (applies === undefined)
+        return 'The condition of an estate prohibition cannot be resolved; I stopped before the tool call.';
+    }
+    return undefined;
+  };
+}
+
 /**
  * Collect the whole skill before acting. Explicit before/after/first/until clauses become dependency
  * edges, including clauses in later sections. Repeated mentions identify the same action. Without an
@@ -186,21 +315,9 @@ function denied(settings, tool, input) {
  * This small grammar uses backticked paths/commands/helper names, or an unambiguous action description.
  */
 function skillActions(unit, estate) {
-  // Sentence boundaries outside code spans only: dots in filenames and commands are not punctuation.
-  const statements = [];
-  let sentence = '';
-  for (const token of unit.body.match(/`[^`]*`|[.!?\n]|[^`.!?\n]+/g) ?? []) {
-    if (/^[.!?\n]$/.test(token)) {
-      if (sentence.trim()) statements.push(sentence.trim().replace(/^[-*\d.)\s]+/, ''));
-      sentence = '';
-    } else sentence += token;
-  }
-  if (sentence.trim()) statements.push(sentence.trim());
-  const negative = (clause) => /\b(never|do not|don't)\b/i.test(clause.replace(/`[^`]*`/g, ''));
+  const statements = statementsOf(unit.body);
   const active = statements.filter(
-    (line) =>
-      !line.startsWith('#') &&
-      (!negative(line) || /\b(before|after|until)\b/i.test(line.replace(/`[^`]*`/g, ''))),
+    (line) => !negative(line) || /\b(before|after|until)\b/i.test(line.replace(/`[^`]*`/g, '')),
   );
   const actions = [];
   const add = (kind, literal) => {
@@ -265,9 +382,7 @@ function skillActions(unit, estate) {
   const first = new Set();
   for (const line of active) {
     // Temporal words inside a quoted filename or command argument are data, not instructions.
-    const spans = [];
-    const prose = line.replace(/`[^`]*`/g, (span) => `\uE000${spans.push(span) - 1}\uE000`);
-    const restore = (clause) => clause.replace(/\uE000(\d+)\uE000/g, (_, index) => spans[Number(index)]);
+    const { prose, restore } = masked(line);
     const relation = (before, after) => relate(restore(before), restore(after));
     const prefix =
       /^(?:only\s+)?(before|after)\s+(.+?)(?:[,;]\s*|\s+(?=(?:read|run|execute|dispatch|call|do)\b))(.+)$/i.exec(
@@ -317,6 +432,8 @@ function skillActions(unit, estate) {
 
 export function planStream({ ask, cwd, sessionId, env }) {
   const estate = readEstate(cwd);
+  const unit = route(ask, estate);
+  const prohibited = prohibitions(estate, unit, cwd);
   const out = [];
   let id = 0;
   let blocked = false;
@@ -376,7 +493,13 @@ export function planStream({ ask, cwd, sessionId, env }) {
   };
 
   /** A tool call as the runtime makes it: denied by a permission, blocked by a hook, else done. */
-  const call = (tool, input, perform) => {
+  const call = (tool, input, perform, literal) => {
+    const prohibition = prohibited(tool, input, literal);
+    if (prohibition) {
+      blocked = true;
+      text(prohibition);
+      return undefined;
+    }
     if (denied(estate.settings, tool, input)) return undefined;
     const useId = `toolu_agent_${++id}`;
     out.push({
@@ -433,7 +556,6 @@ export function planStream({ ask, cwd, sessionId, env }) {
   }
 
   if (order[0]) step(order[0]);
-  const unit = route(ask, estate);
   if (unit?.kind === 'skill') {
     call('Skill', { skill: unit.name }, () => ({ content: `Launching skill: ${unit.name}` }));
     const plan = skillActions(unit, estate);
@@ -446,12 +568,17 @@ export function planStream({ ask, cwd, sessionId, env }) {
       let result;
       if (action.kind === 'Read') {
         const path = join(cwd, unit.folder, action.literal);
-        result = call('Read', { file_path: path }, () => {
-          const content = read(path);
-          return content === undefined
-            ? { error: true, content: `File not found: ${action.literal}` }
-            : { content };
-        });
+        result = call(
+          'Read',
+          { file_path: path },
+          () => {
+            const content = read(path);
+            return content === undefined
+              ? { error: true, content: `File not found: ${action.literal}` }
+              : { content };
+          },
+          action.literal,
+        );
       } else if (action.kind === 'Bash') {
         // Resolve commands against the skill folder; omit unfilled placeholders as before.
         const command = action.literal
@@ -459,18 +586,24 @@ export function planStream({ ask, cwd, sessionId, env }) {
           .filter((token) => !/^<.*>$/.test(token))
           .map((token) => (existsSync(join(cwd, unit.folder, token)) ? join(unit.folder, token) : token))
           .join(' ');
-        result = call('Bash', { command, description: 'Run the command the skill names' }, () => {
-          const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
-          return {
-            content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
-            error: ran.status !== 0,
-          };
-        });
+        result = call(
+          'Bash',
+          { command, description: 'Run the command the skill names' },
+          () => {
+            const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
+            return {
+              content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
+              error: ran.status !== 0,
+            };
+          },
+          action.literal,
+        );
       } else {
         result = call(
           'Agent',
           { subagent_type: action.literal, description: `Brief for ${action.literal}`, prompt: ask },
           () => ({ content: '{"status": "done"}' }),
+          action.literal,
         );
       }
       // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
