@@ -774,21 +774,39 @@ const OPERATORS = new Set(['||', '&&', ';', '|', '&']);
  * The script a command runs, relative to the root, and whether the shell finds it from an anchor. The
  * command is cut at `||`, `&&`, `;` and `|`; in each part, environment assignments (`ENV=1`) and an `env`
  * wrapper are passed over and an interpreter (`python3`) runs the path after its flags. A part whose program
- * is not a path (a shell test such as `[ "$X" = 1 ]`, `echo`) runs no script. The first part that runs a
- * path gives the script. With the estate's files, a dispatcher is seen through: among that part's path
- * arguments, the last one that exists is the script (tried from the root, then from the folder of each
- * earlier path and the folders above it), and the path the shell runs is kept as the dispatcher.
+ * is not a path (a shell test such as `[ "$X" = 1 ]`, `echo`) runs no script. A part that changes folder
+ * (`cd "$CLAUDE_PROJECT_DIR"`) anchors the relative paths after it; a shell given a command string
+ * (`bash -c '...'`) is read as that command. The first part that runs a path gives the script. With the
+ * estate's files, a dispatcher is seen through: among that part's path arguments, the last one that exists
+ * is the script (tried from the root, then from the folder of each earlier path and the folders above it),
+ * and the path the shell runs is kept as the dispatcher.
  */
 export function scriptOf(
   command: string,
   paths?: ReadonlySet<string>,
 ): { script?: string; anchored: boolean; dispatcher?: string } {
+  // The folder, from the project root, an earlier `cd` moved into; undefined while the folder is not known.
+  let folder: string | undefined;
   for (const segment of segments(command)) {
+    const words = segment.map((token) => token.replace(/["']/g, ''));
+    if (words[0] === 'cd') {
+      folder = changeFolder(folder, words[1] ?? '');
+      continue;
+    }
     const runs = runPath(segment);
     if (runs === undefined) continue;
-    const first = anchorOf(runs);
+    if (runs.inner !== undefined) {
+      const inner = scriptOf(runs.inner, paths);
+      if (inner.script === undefined) continue;
+      return inner;
+    }
+    const written = anchorOf(runs.path);
+    const first =
+      folder !== undefined && !written.anchored
+        ? { script: posix.normalize(posix.join(folder, written.script)), anchored: true }
+        : written;
     if (!paths) return first;
-    const last = scriptIn(segment.join(' '), '', paths);
+    const last = scriptIn(segment.join(' '), folder ?? '', paths);
     if (last === undefined || last === first.script) return first;
     return {
       script: last,
@@ -799,18 +817,37 @@ export function scriptOf(
   return { anchored: false };
 }
 
+/** The folder after `cd <target>`: from the project anchor, the folder under it; else known only from a known one. */
+function changeFolder(folder: string | undefined, target: string): string | undefined {
+  const anchor = /^\$\{?CLAUDE_PROJECT_DIR\}?(?:\/|$)/;
+  if (anchor.test(target)) return posix.normalize(target.replace(anchor, '') || '.').replace(/^\.$/, '');
+  if (folder === undefined || target === '' || /^[/~$-]/.test(target)) return undefined;
+  return posix.normalize(posix.join(folder, target)).replace(/^\.$/, '');
+}
+
 /** A command line cut into its parts at the shell's list and pipe operators. */
 function segments(command: string): string[][] {
   const parts: string[][] = [[]];
   for (const token of tokens(command)) {
     if (OPERATORS.has(token)) parts.push([]);
-    else parts[parts.length - 1]?.push(token);
+    else if (token.length > 1 && token.endsWith(';')) {
+      // `cd there; run` writes the separator against the word before it.
+      parts[parts.length - 1]?.push(token.slice(0, -1));
+      parts.push([]);
+    } else parts[parts.length - 1]?.push(token);
   }
   return parts.filter((part) => part.length > 0);
 }
 
-/** The path a part of a command runs, as written: after assignments, `env` and an interpreter's flags. */
-function runPath(segment: readonly string[]): string | undefined {
+const SHELLS = new Set(['sh', 'bash', 'zsh', 'dash', 'ksh']);
+
+/**
+ * What a part of a command runs, as written: the path after assignments, `env` and an interpreter's flags,
+ * or the command string a shell is handed with `-c`.
+ */
+function runPath(
+  segment: readonly string[],
+): { path: string; inner?: undefined } | { inner: string } | undefined {
   const words = segment.map((token) => token.replace(/["']/g, ''));
   let index = 0;
   const skip = (test: (word: string) => boolean) => {
@@ -839,10 +876,16 @@ function runPath(segment: readonly string[]): string | undefined {
   const head = words[index] ?? '';
   if (INTERPRETERS.has(basename(head))) {
     index++;
+    const flags = index;
     skip((word) => word.startsWith('-'));
+    // A shell handed a command string runs that command, not a script file.
+    const handed = words.slice(flags, index).some((flag) => /^-[A-Za-z]*c$/.test(flag));
+    if (SHELLS.has(basename(head)) && handed && index < segment.length) {
+      return { inner: (segment[index] ?? '').replace(/^(["'])([\s\S]*)\1$/, '$2') };
+    }
   }
   const word = words[index] ?? '';
-  return word.includes('/') || SCRIPT_EXTENSION.test(word) ? word : undefined;
+  return word.includes('/') || SCRIPT_EXTENSION.test(word) ? { path: word } : undefined;
 }
 
 /** A path as the shell finds it: from an anchor (the project folder, the home folder), else the working folder. */
@@ -1271,7 +1314,7 @@ function registryEntries(value: unknown): RegistryEntry[] {
   return Object.entries(current).flatMap<RegistryEntry>(([key, row]) => {
     if (Array.isArray(row)) return row.filter(isRecord).map((entry) => ({ row: entry, event: key }));
     if (!isRecord(row)) return [];
-    const guard = [row.guard, row.script, row.check, row.hook, row.file, row.path].some(
+    const guard = [row.guard, row.script, row.check, row.hook, row.file, row.path, row.command].some(
       (candidate) => typeof candidate === 'string',
     );
     return guard ? [{ row, key }] : [];
@@ -1291,7 +1334,9 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
   for (const { row, key, event } of rows) {
     const id = typeof row.id === 'string' ? row.id : key;
     if (id === undefined) continue;
-    const named = [row.guard, row.script, row.check, row.hook, row.file, row.path].find(
+    // A guard named by the command that runs it goes by the script of that command.
+    const ran = typeof row.command === 'string' ? scriptOf(row.command).script : undefined;
+    const named = [row.guard, row.script, row.check, row.hook, row.file, row.path, ran].find(
       (value) => typeof value === 'string',
     );
     if (typeof named !== 'string') continue;
