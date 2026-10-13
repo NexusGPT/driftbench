@@ -1,0 +1,789 @@
+{
+ "bench": "longjudge-wp",
+ "items": 30,
+ "newSpendUsd": 0.2369039,
+ "newCalls": 60,
+ "replayed": 120,
+ "results": [
+  {
+   "rowKey": "c1ed25b40c935739b7c1",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.007000599999999999
+  },
+  {
+   "rowKey": "2dc32b654e3a031a8105",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "B"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "flip"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0059435
+  },
+  {
+   "rowKey": "2d3cb3fcce38d1a22be1",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0061208
+  },
+  {
+   "rowKey": "20fe4f0e140c13b70c1a",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0059812
+  },
+  {
+   "rowKey": "fff14e54a5c7f9b5b3e1",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0098281
+  },
+  {
+   "rowKey": "cb420f160063912fc1d5",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "B",
+    "A"
+   ],
+   "variantGames": [
+    "B",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "B",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0115683
+  },
+  {
+   "rowKey": "f6c29e1b9258ef761fe5",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    null,
+    null
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.009757100000000001
+  },
+  {
+   "rowKey": "29847a65e7cc65216d09",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0104186
+  },
+  {
+   "rowKey": "1527c612353efdeef895",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "B",
+    "B"
+   ],
+   "variantGames": [
+    "B",
+    "B"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "B",
+    "B"
+   ],
+   "holistic": [
+    "B",
+    "B"
+   ],
+   "costUsd": 0.007905200000000001
+  },
+  {
+   "rowKey": "560bbd798a3065442e11",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "B",
+    "A"
+   ],
+   "variantGames": [
+    "B",
+    "B"
+   ],
+   "flipped": [
+    "stable",
+    "flip"
+   ],
+   "guarded": [
+    "B",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0081063
+  },
+  {
+   "rowKey": "94330bfa86a49014987a",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0074534
+  },
+  {
+   "rowKey": "b1d101703b01070640ed",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "B"
+   ],
+   "variantGames": [
+    "B",
+    "B"
+   ],
+   "flipped": [
+    "flip",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "B"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0060658000000000005
+  },
+  {
+   "rowKey": "3826eb9f58c23cdbfafd",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.007452
+  },
+  {
+   "rowKey": "ce96cf84a694bad7e635",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "B",
+    "B"
+   ],
+   "variantGames": [
+    "B",
+    "B"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "B",
+    "B"
+   ],
+   "holistic": [
+    "B",
+    "B"
+   ],
+   "costUsd": 0.0080037
+  },
+  {
+   "rowKey": "eb5ce1b9c94ef9936008",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0073685
+  },
+  {
+   "rowKey": "43fa1f74a8b3c531e7a3",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0075301
+  },
+  {
+   "rowKey": "4956ee1c5c7a109f5183",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0071965
+  },
+  {
+   "rowKey": "2c9fd1c057c8ad01fb80",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0055796000000000005
+  },
+  {
+   "rowKey": "b30d1f86ad21fbfc9b10",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0064348
+  },
+  {
+   "rowKey": "27f67dbdba8d0e766d8c",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "B",
+    "B"
+   ],
+   "variantGames": [
+    "B",
+    "B"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "B",
+    "B"
+   ],
+   "holistic": [
+    "B",
+    "B"
+   ],
+   "costUsd": 0.00674
+  },
+  {
+   "rowKey": "936d55033bdd6914efb7",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "B",
+    "B"
+   ],
+   "variantGames": [
+    "B",
+    "B"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "B",
+    "B"
+   ],
+   "holistic": [
+    "B",
+    "B"
+   ],
+   "costUsd": 0.0065554
+  },
+  {
+   "rowKey": "9e43b2d58fdf464cd17f",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.005986
+  },
+  {
+   "rowKey": "2ad913db094616dcc4f3",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0086574
+  },
+  {
+   "rowKey": "07ca2300f60edfef71d6",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.008085700000000001
+  },
+  {
+   "rowKey": "d213ab5529a6e6937173",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.009767300000000001
+  },
+  {
+   "rowKey": "ed6cb96900efa941a050",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0104594
+  },
+  {
+   "rowKey": "1abaaf3a63d3b080562e",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0089551
+  },
+  {
+   "rowKey": "5f9d82cdc611fbcd3cfb",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "B",
+    "B"
+   ],
+   "variantGames": [
+    "B",
+    "B"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "B",
+    "B"
+   ],
+   "holistic": [
+    "B",
+    "B"
+   ],
+   "costUsd": 0.0088822
+  },
+  {
+   "rowKey": "5731e007aafb602864f2",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "B",
+    "B"
+   ],
+   "variantGames": [
+    "B",
+    "B"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "B",
+    "B"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.0076259000000000006
+  },
+  {
+   "rowKey": "2dc65cf1938eef974d48",
+   "label": "A",
+   "group": "zh",
+   "games": [
+    "A",
+    "A"
+   ],
+   "variantGames": [
+    "A",
+    "A"
+   ],
+   "flipped": [
+    "stable",
+    "stable"
+   ],
+   "guarded": [
+    "A",
+    "A"
+   ],
+   "holistic": [
+    "A",
+    "A"
+   ],
+   "costUsd": 0.009475400000000002
+  }
+ ]
+}
