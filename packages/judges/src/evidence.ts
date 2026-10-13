@@ -373,9 +373,20 @@ export function groundEvidenceSpan(request: JudgeRequest, span: EvidenceSpan): G
     return grounded ? { grounded: true, where: span.source } : { grounded: false };
   }
   const place = dataPlaces(request).find(([where]) => where === span.source);
-  return place && textContainsQuote(place[1], span.quote)
-    ? { grounded: true, where: span.source }
-    : { grounded: false };
+  if (place)
+    return textContainsQuote(place[1], span.quote)
+      ? { grounded: true, where: span.source }
+      : { grounded: false };
+  // A bare input path or absent generic source can name the sole declared input.
+  // Never guess among inputs or replace a supplied canonical source with another source.
+  const input = request.inputs?.length === 1 ? request.inputs[0] : undefined;
+  if (
+    input &&
+    (span.source === input.path || ['reference', 'given', 'artifact'].includes(span.source)) &&
+    textContainsQuote(input.text, span.quote)
+  )
+    return { grounded: true, where: `input.${input.path}` };
+  return { grounded: false };
 }
 
 function dataPlaces(request: JudgeRequest): [string, string][] {
