@@ -2,7 +2,7 @@
   "at": "2026-10-13T16:02:34.607803+00:00",
   "paidSettingsChanged": false,
   "ownerAuthority": "Existing full Sol cell authorization under USD 50 including holds, with network gate, two calls and one cell at a time",
-  "statePath": ".cache/ledger-rb/supervisor-state.json",
+  "statePath": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-rb/.cache/ledger-rb/supervisor-state.json",
   "target": "Sol then Sonnet, pre-TEST validity, sealed TEST, final reports and verified pushes",
   "flow": [
     "wait for current pre-TEST report",
@@ -14,7 +14,7 @@
     "commit, push, verify remote SHA"
   ],
   "offlineAuditClarification": "Token losses require token-limit evidence; provider blocks alone do not count. Saved request comparisons cover each new cell. Sol report carries the subsequent Sonnet approval.",
-  "updatedAt": "2026-10-13T18:46:59.561870+00:00",
+  "updatedAt": "2026-10-13T18:48:38.857221+00:00",
   "priorRegistration": {
     "at": "2026-10-13T16:02:34.607803+00:00",
     "paidSettingsChanged": false,
@@ -41,9 +41,9 @@
     "offlineAuditClarification": "Token losses require token-limit evidence; provider blocks alone do not count. Saved request comparisons cover each new cell. Sol report carries the subsequent Sonnet approval.",
     "updatedAt": "2026-10-13T16:26:17.492271+00:00"
   },
-  "status": "detached supervisor prepared; launch pending",
+  "status": "detached supervisor active",
   "stop": "Final verified pushes only; outages, session limits and failed gates wait without exiting",
-  "logPath": ".cache/ledger-rb/supervisor.log",
+  "logPath": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-rb/.cache/ledger-rb/supervisor.log",
   "scriptHashes": {
     "examples/judge-benchmarks/src/rubric-ledger-supervisor.py": "bba0114d82d74d10675c4bdd7a4c65db5ad45f3e67cf5ff51c3a531e2a3d64cc",
     "examples/judge-benchmarks/src/rubric-ledger-sonnet-network-completion.ts": "aa084ee686963754534d6df48bda6321b7a59703ad26d4ae670b220fadc1a98e",
@@ -56,5 +56,9 @@
     ".cache/ledger-rb/write-sonnet-final.py": "88d7cd21358ddf5d2bc3ef2134144fdf92113ab94358871ebac69640934f7c27"
   },
   "capUsd": 50,
-  "paidConcurrency": 2
+  "paidConcurrency": 2,
+  "supervisorPid": 9836,
+  "supervisorPpid": 1,
+  "supervisorPgid": 9836,
+  "runtimeCommit": "13fc5aa0827ee9f53791eaf8b32fe79d0810b9dd"
 }
