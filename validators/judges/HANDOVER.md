@@ -123,6 +123,7 @@ Iteration 108 (cause: no few-labels warning. labelWarnings(blocks) in calibratio
 Iteration 109 (cause: kappa reported 0 for labels of one class. agreement() leaves kappa out unless both classes are labelled. Test: label-conflicts.test.ts kappa with one class of labels.)
 Iteration 110 (cause: cascade trusted the cheapest judge on an injected request. council.ts checks screenData(request).flagged before it cascades. Test: council.test.ts a flagged request never stops the cascade.)
 Iteration 111 (cause: the player scanned every entry on every call. playerClient builds a key index of its judge once. Test: player-index.test.ts (a call must not read the entry list again).)
+Iteration 112 (cause: no \\uXXXX reading. DECODERS row for runs of four or more escapes. Test: screen.test.ts reads uXXXX escapes.)
 
 ## Next actions
 
