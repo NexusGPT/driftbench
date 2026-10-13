@@ -15,12 +15,7 @@
     {
       "factor": 10,
       "cap": null,
-      "specs": {
-        "specs": 3283,
-        "blocks": 16284,
-        "complete": 3283,
-        "incomplete": 0
-      },
+      "specs": 3283,
       "generationCpuMs": 10980.664,
       "pair": {
         "t": 2,
@@ -2607,12 +2602,7 @@
     {
       "factor": 100,
       "cap": null,
-      "specs": {
-        "specs": 32067,
-        "blocks": 160817,
-        "complete": 32067,
-        "incomplete": 0
-      },
+      "specs": 32067,
       "generationCpuMs": 97489.294,
       "pair": {
         "t": 2,
