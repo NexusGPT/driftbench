@@ -128,24 +128,24 @@ node --max-old-space-size=2048 --import tsx tools/generator-speed.ts 100 after -
 
 Use factors `1` and `10` for the smaller maps. Add `--cpu-prof --cpu-prof-dir=.exec/speed` before `--max-old-space-size` to profile. Full measurements and per-file SHA-256 manifests remain under `.exec/speed/`, following this handover's measurement convention. No validator or bank file changes.
 
-Adjacent paired results: the capped full window falls from **68.666 to 54.079 CPU seconds**, a **21.24% reduction**, below the 60-second budget. The uncapped 10x window falls from 15.970 to 13.662 seconds. The 1x generation calls improve, but its full-window CPU rises from 2.445 to 2.753 seconds under load. The uncapped 100x adjacent pair is still running; the owner requests its addition after the network outage. Its diagnostic profile above is not a paired full-window speed claim.
+Adjacent paired results: the capped full window falls from **68.666 to 54.079 CPU seconds**, a **21.24% reduction**, below the 60-second budget. The uncapped 100x window falls from **182.515 to 147.855 CPU seconds**, an **18.99% reduction**, with the same 32,067 specs. Its two generation calls fall from 80.855 to 53.186 seconds. The uncapped 10x window falls from 15.970 to 13.662 seconds. The 1x generation calls improve, but its full-window CPU rises from 2.445 to 2.753 seconds under load. The uncapped pair finishes at 06:40:26 local, before the expected outage; these completed measurements replace the pending update.
 
 CPU seconds by stage. Each cell is before / after.
 
-| Stage | 1x | 10x | 100x cap 6127 |
-|---|---:|---:|---:|
-| render_map | 0.049 / 0.019 | 0.028 / 0.048 | 0.089 / 0.095 |
-| write_map | 0.029 / 0.002 | 0.004 / 0.053 | 0.083 / 0.027 |
-| load_map | 0.169 / 0.181 | 0.306 / 0.232 | 1.031 / 0.926 |
-| generate_first | 0.630 / 0.619 | 3.480 / 3.175 | 25.584 / 19.319 |
-| generate_second | 0.439 / 0.347 | 3.270 / 2.813 | 24.092 / 17.973 |
-| write_suites | 0.261 / 0.617 | 1.778 / 1.646 | 4.758 / 4.625 |
-| read_suites | 0.149 / 0.270 | 1.720 / 1.136 | 2.774 / 1.846 |
-| reload_specs | 0.591 / 0.602 | 4.705 / 4.018 | 9.053 / 8.012 |
-| normalize_specs | 0.002 / 0.015 | 0.007 / 0.010 | 0.013 / 0.017 |
-| cleanup | 0.100 / 0.075 | 0.671 / 0.527 | 1.185 / 1.185 |
-| **Full window** | **2.445 / 2.753** | **15.970 / 13.662** | **68.666 / 54.079** |
-| Wall seconds | 17.667 / 16.583 | 111.601 / 104.718 | 358.736 / 261.863 |
+| Stage | 1x | 10x | 100x | 100x cap 6127 |
+|---|---:|---:|---:|---:|
+| render_map | 0.049 / 0.019 | 0.028 / 0.048 | 0.073 / 0.067 | 0.089 / 0.095 |
+| write_map | 0.029 / 0.002 | 0.004 / 0.053 | 0.017 / 0.027 | 0.083 / 0.027 |
+| load_map | 0.169 / 0.181 | 0.306 / 0.232 | 0.814 / 0.775 | 1.031 / 0.926 |
+| generate_first | 0.630 / 0.619 | 3.480 / 3.175 | 39.953 / 25.597 | 25.584 / 19.319 |
+| generate_second | 0.439 / 0.347 | 3.270 / 2.813 | 40.902 / 27.589 | 24.092 / 17.973 |
+| write_suites | 0.261 / 0.617 | 1.778 / 1.646 | 16.954 / 15.110 | 4.758 / 4.625 |
+| read_suites | 0.149 / 0.270 | 1.720 / 1.136 | 13.874 / 8.475 | 2.774 / 1.846 |
+| reload_specs | 0.591 / 0.602 | 4.705 / 4.018 | 63.784 / 63.366 | 9.053 / 8.012 |
+| normalize_specs | 0.002 / 0.015 | 0.007 / 0.010 | 0.079 / 0.767 | 0.013 / 0.017 |
+| cleanup | 0.100 / 0.075 | 0.671 / 0.527 | 6.058 / 6.075 | 1.185 / 1.185 |
+| **Full window** | **2.445 / 2.753** | **15.970 / 13.662** | **182.515 / 147.855** | **68.666 / 54.079** |
+| Wall seconds | 17.667 / 16.583 | 111.601 / 104.718 | 1141.659 / 470.234 | 358.736 / 261.863 |
 
 Load averages are 1 / 5 / 15 minutes. Timestamps identify when each run finishes, in UTC on 2026-10-13.
 
@@ -155,6 +155,8 @@ Load averages are 1 / 5 / 15 minutes. Timestamps identify when each run finishes
 | 1x | after | 04:19:45.109 | 173.19 / 150.69 / 107.13 | 165.51 / 150.08 / 107.67 |
 | 10x | before | 04:21:44.346 | 158.68 / 149.15 / 107.84 | 139.07 / 147.64 / 112.43 |
 | 10x | after | 04:23:37.184 | 139.72 / 147.52 / 112.80 | 144.39 / 147.48 / 116.66 |
+| 100x | before | 04:32:31.947 | 95.04 / 84.67 / 71.94 | 283.60 / 259.52 / 188.87 |
+| 100x | after | 04:40:26.236 | 285.71 / 260.36 / 189.58 | 117.04 / 162.97 / 171.16 |
 | 100x cap 6127 | before | 04:14:25.893 | 50.47 / 55.56 / 59.89 | 105.83 / 88.82 / 74.24 |
 | 100x cap 6127 | after | 04:18:58.232 | 108.92 / 90.06 / 74.85 | 186.17 / 150.50 / 105.51 |
 
@@ -164,7 +166,7 @@ All per-file SHA-256 comparisons pass, including the JSON report. Both generatio
 |---|---:|---:|---:|---:|---|
 | 1x | 434 | 2003 | 435 | 0 | `e3e69214ff0f4aea46ef958b8191ce1ef6eeafa58af373cc68fbe6c4480351a4` |
 | 10x | 3283 | 16284 | 3284 | 0 | `510bd91ada0c4ecee2347a87e2fc0dad47fd34969f0f6a3950639d2137992073` |
-| 100x uncapped profile | 32067 | 160817 | 32068 | 0 | `cded18f57e73e871e2c819e061864d84828f3f8e887b0ff77e285a17c52b3202` |
+| 100x | 32067 | 160817 | 32068 | 0 | `cded18f57e73e871e2c819e061864d84828f3f8e887b0ff77e285a17c52b3202` |
 | 100x cap 6127 | 6127 | 27092 | 6128 | 0 | `b0af985375bcb2a81a963173aa96a263f7ab18cb40007bf57be7e7dbc390fd2b` |
 
 Manifest hashes cover sorted `path<TAB>file-sha256<NEWLINE>` entries. The uncapped 100x file count remains 32,068, representing 32,067 specs plus the report.
@@ -173,5 +175,6 @@ Verification at the initial push:
 - `pnpm typecheck` and the benchmark tool's separate TypeScript check pass.
 - `pnpm lint` passes with four pre-existing warnings.
 - Focused coverage, space, seed and generation tests: 18 files and 236 tests pass.
-- Full `pnpm exec vitest run --maxWorkers=2` runs on the baseline and speed source remain in progress. Both reproduce the five documented Acme fixture failures. The baseline also reports docs-link, CLI-select and validator-ladder failures; the speed run reports estate and CLI-CI timeouts. These runs are not green. The estate file passes all 16 tests when retried with `--testTimeout=30000`.
+- Full `pnpm exec vitest run --maxWorkers=2` runs on the baseline and speed source remain in progress. Both reproduce six Acme fixture failures: five enumeration tests and one CLI generate test. Both also report the generator ladder failure. These runs are not green. The estate file passes all 16 tests, and the CLI-select usage test passes, when retried with `--testTimeout=30000`. The CLI-CI wrapper retry still hits its explicit 120-second timeout and a cleanup race.
+- Four baseline docs failures come from Git excluding the archive under `.exec/`; its checker finds zero pages. All 23 affected docs tests pass when retried with `GIT_CEILING_DIRECTORIES` set to the archive parent, so the checker uses its non-repository fallback. The actual speed worktree has 612 valid links across 50 pages.
 - `node tools/rename-scope.mjs` runs; it changes only three README copies in the ignored measurement archives. No merges are performed. `git diff --check` passes.
