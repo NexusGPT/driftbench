@@ -25,7 +25,7 @@ async function replay(enabled: boolean, judge: boolean) {
     `id: pii-opt-in
 kind: task
 blocks:
-  - user: anything
+  - user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.
     expect:
       pii_judge: ${enabled}
 `,
