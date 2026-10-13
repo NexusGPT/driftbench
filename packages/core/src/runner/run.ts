@@ -2,6 +2,7 @@ import type { AdapterCapabilities, AgentAdapter, Session, Turn } from '../contra
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
+import { copyHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
@@ -326,11 +327,11 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         state = enterBlock(state, planned.given, planned.world);
         if (planned.given?.prefix) {
           await channel.restart();
-          history = structuredClone(planned.given.prefix);
+          history = copyHistory(planned.given.prefix);
           users = userMessagesOf(history);
         }
       }
-      const user = stimulusMessages(planned.stimulus);
+      const user = stimulusMessages(planned.stimulus).map(freezeMessage);
       const given = resolveGiven(state, history, run.target);
       const turn: Turn = {
         index: position,
@@ -383,7 +384,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       for (let r = 0; r < (observed.retries?.length ?? 0); r += 1) {
         run.onEvent?.({ type: 'retry', index: position, at: new Date().toISOString() });
       }
-      history = [...history, ...cloneJson(user), cloneJson(assistantMessage(observed))];
+      history = copyHistory(history, [...user, cloneJson(assistantMessage(observed))]);
       lastKey = key;
 
       const facts = addFacts(state.ledger, planned.expect.ledger_add);
@@ -688,7 +689,7 @@ function liveChannel(run: RunContext): Channel {
     restart: closeSession,
     reseat(prefix) {
       if (!session) return false;
-      session.history = structuredClone([...prefix]);
+      session.history = copyHistory(prefix);
       return true;
     },
     async observe(turn, user, key) {
@@ -696,7 +697,7 @@ function liveChannel(run: RunContext): Channel {
       const { value: answer, retries } = await collectRetries(async () => {
         if (!session) session = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
         const current = session;
-        current.history.push(...structuredClone(user));
+        current.history.push(...user);
         let sent: unknown = await call(`send on block ${turn.index}`, () => adapter.send(current, turn));
         const trace = adapter.trace;
         if (run.capabilities.trace && trace) {
@@ -714,7 +715,7 @@ function liveChannel(run: RunContext): Channel {
           `the adapter's Observed for block ${turn.index} does not match the schema as JSON: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
         );
       }
-      current.history.push(assistantMessage(parsed.data));
+      current.history.push(freezeMessage(cloneJson(assistantMessage(parsed.data))));
       // The cache keeps the block without its retries: a replay retries nothing.
       const { retries: _spent, ...kept } = parsed.data;
       await remember(key, kept);

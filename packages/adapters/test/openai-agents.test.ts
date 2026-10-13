@@ -51,6 +51,37 @@ const labels = new ToolLabels(ACME_TOOL_NAMES);
 const run = (newItems: unknown[], extra: Record<string, unknown> = {}) => ({ newItems, ...extra });
 
 describe('openai-agents adapter', () => {
+  it.each(['agent', 'context'] as const)('freezes messages before the %s setup hook', async (hook) => {
+    let called = 0;
+    const setup = (start: typeof given) => {
+      called++;
+      const message = start.prefix[0];
+      if (!message) throw new Error('missing prefix');
+      expect(() => {
+        message.content = 'setup-mutated';
+      }).toThrow(TypeError);
+      return acmeAgent();
+    };
+    const adapter = openaiAgentsAdapter({ runner: fakeRunner(), agent: acmeAgent(), [hook]: setup });
+    const session = await adapter.open({ ...given, prefix: [{ role: 'user', content: 'before' }] });
+    expect(session.history[0]?.content).toBe('before');
+    await adapter.close(session);
+    await expect(
+      adapter.open({
+        ...given,
+        prefix: [
+          {
+            role: 'user',
+            get content() {
+              return 'before';
+            },
+          },
+        ],
+      }),
+    ).rejects.toThrow(/content.*accessor/);
+    expect(called).toBe(1);
+  });
+
   it('replays a recorded run: tool calls under their spec labels, outputs parsed, usage summed, guardrails as guards', async () => {
     const [coverage] = recorded.runs;
     const runner = recordedRunner([coverage]);

@@ -35,7 +35,11 @@ export type AdapterCapabilities = {
  *
  * The runner owns `history`: it appends the stimulus's user message(s) before `send` and the
  * assistant reply (text plus tool calls with their output or error) after it. At send time the
- * history ends with the current user turn. An adapter never appends to it.
+ * history ends with the current user turn. Each message must be plain JSON data, validated and deeply
+ * frozen once before entering history. Accessors and non-plain values are rejected with a property path.
+ * Proxies are unsupported; the boundary validates data shape.
+ * Adapters share these read-only messages in fresh arrays and must copy a message before changing it.
+ * An adapter never appends to the runner's history. Adapter boundaries freeze direct callers' messages too.
  */
 export type Session = {
   readonly id: string;

@@ -4,6 +4,7 @@ import {
   AdapterTransportError,
   type AgentAdapter,
   AgentFailure,
+  type Message,
   Observed,
   type Session,
 } from '@agent-nexus/driftbench-core';
@@ -62,6 +63,66 @@ async function openRun(adapter: AgentAdapter, vars: Record<string, unknown> = {}
 }
 
 describe('claudeCodeLiveAdapter', () => {
+  it('rejects sparse and accessor history arrays at open and send', async () => {
+    const { adapter } = await setup();
+    const { session, given } = await openRun(adapter);
+    let reads = 0;
+    const accessor = Object.defineProperty([], '0', {
+      enumerable: true,
+      get: () => {
+        reads++;
+        return { role: 'user', content: ASK_WEEKLY };
+      },
+    });
+    for (const prefix of [new Array(1), accessor]) {
+      await expect(adapter.open({ ...given, prefix })).rejects.toThrow(/history\[0\]/);
+      session.history = prefix;
+      await expect(adapter.send(session, turnOf(0, ASK_WEEKLY, given))).rejects.toThrow(/history\[0\]/);
+    }
+    expect(reads).toBe(0);
+  });
+
+  it('rejects accessor messages before starting a sandbox', async () => {
+    const create = vi.fn(() => {
+      throw new Error('sandbox must not start');
+    });
+    const { adapter } = await setup({ provider: { kind: 'local', available: async () => true, create } });
+    const given = givenOf({});
+    let reads = 0;
+    given.prefix.push({
+      role: 'user',
+      get content() {
+        reads++;
+        return 'before';
+      },
+    });
+    await expect(adapter.open(given)).rejects.toThrow(/content.*accessor/);
+    expect(create).not.toHaveBeenCalled();
+    expect(reads).toBe(0);
+  });
+
+  it('freezes direct caller messages at open and send without changing their arrays', async () => {
+    const { adapter } = await setup();
+    const given = givenOf({});
+    const prefix: Message = { role: 'user', content: 'earlier' };
+    given.prefix.push(prefix);
+    const opening = adapter.open(given);
+    const frozenOnEntry = Object.isFrozen(prefix);
+    const session = await opening;
+    cleanups.push(() => adapter.close(session));
+    expect(frozenOnEntry).toBe(true);
+    expect(session.history).not.toBe(given.prefix);
+    expect(session.history[0]).toBe(prefix);
+    expect(() => {
+      prefix.content = 'changed';
+    }).toThrow(TypeError);
+    const added: Message = { role: 'user', content: ASK_WEEKLY };
+    session.history.push(added);
+    await adapter.send(session, turnOf(0, ASK_WEEKLY, given));
+    expect(Object.isFrozen(added)).toBe(true);
+    expect(given.prefix).toHaveLength(1);
+  });
+
   it('maps one turn of the stream into one Observed: calls, skills, guards, stages, diff, cost', async () => {
     const { adapter } = await setup();
     const { session, given } = await openRun(adapter);

@@ -2,6 +2,7 @@ import {
   AgentFailure,
   type BlockResult,
   type CheckContext,
+  type Message,
   type Observed,
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
@@ -153,11 +154,10 @@ describe('replayAdapter', () => {
     ),
   });
 
-  it('serves block fromBlock + k for the spec block k, and fails past the end', async () => {
-    const adapter = replayAdapter({ session, fromBlock: 1 });
-    expect(adapter.capabilities().deterministic).toBe(true);
+  it('rejects sparse and accessor history arrays at open and send', async () => {
+    const adapter = replayAdapter({ session });
     const given = {
-      prefix: [],
+      prefix: [] as Message[],
       ledger: {},
       world: {},
       vars: {},
@@ -165,8 +165,71 @@ describe('replayAdapter', () => {
       hash: 'h',
     };
     const open = await adapter.open(given);
+    let reads = 0;
+    const accessor = Object.defineProperty([], '0', {
+      enumerable: true,
+      get: () => {
+        reads++;
+        return { role: 'user', content: 'before' };
+      },
+    });
+    for (const prefix of [new Array(1), accessor]) {
+      await expect(adapter.open({ ...given, prefix })).rejects.toThrow(/history\[0\]/);
+      open.history = prefix;
+      await expect(adapter.send(open, { index: 0, stimulus: { user: 'one' }, given })).rejects.toThrow(
+        /history\[0\]/,
+      );
+    }
+    expect(reads).toBe(0);
+    await adapter.close(open);
+  });
+
+  it('rejects accessor messages without reading them', async () => {
+    let reads = 0;
+    const adapter = replayAdapter({ session });
+    await expect(
+      adapter.open({
+        prefix: [
+          {
+            role: 'user',
+            get content() {
+              reads++;
+              return 'before';
+            },
+          },
+        ],
+        ledger: {},
+        world: {},
+        vars: {},
+        target: { adapter: 'claude-code' },
+        hash: 'h',
+      }),
+    ).rejects.toThrow(/content.*accessor/);
+    expect(reads).toBe(0);
+  });
+
+  it('serves block fromBlock + k for the spec block k, and fails past the end', async () => {
+    const adapter = replayAdapter({ session, fromBlock: 1 });
+    expect(adapter.capabilities().deterministic).toBe(true);
+    const given = {
+      prefix: [{ role: 'user', content: 'prefix' }] as Message[],
+      ledger: {},
+      world: {},
+      vars: {},
+      target: { adapter: 'claude-code' },
+      hash: 'h',
+    };
+    const open = await adapter.open(given);
+    expect(open.history).not.toBe(given.prefix);
+    expect(open.history[0]).toBe(given.prefix[0]);
+    expect(() => {
+      (given.prefix[0] as Message).content = 'changed';
+    }).toThrow(TypeError);
+    const added: Message = { role: 'user', content: 'new' };
+    open.history.push(added);
     const turn = (index: number) => ({ index, stimulus: { user: 'x' }, given });
     expect((await adapter.send(open, turn(0))).text).toBe('second');
+    expect(Object.isFrozen(added)).toBe(true);
     await expect(adapter.send(open, turn(1))).rejects.toBeInstanceOf(AgentFailure);
     await expect(adapter.send(open, turn(1))).rejects.toThrow('the session has 2 blocks');
     await adapter.close(open);
