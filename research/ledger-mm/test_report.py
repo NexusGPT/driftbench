@@ -68,7 +68,13 @@ def report(iterations=20000):
                 missing[r['id']][r['contestant']] = r['error']
         recorded = {(r['id'], r['contestant']) for r in rows}
         unrecorded = [x['id'] for x in pool if any((x['id'], c) not in recorded for c in CONTESTANTS)]
-        cohort = [x for x in pool if x['id'] not in missing and x['id'] not in unrecorded]
+        # Amendment 14: an item the provider's safeguards blocked is excluded from the paired cohort for both
+        # contestants and counted beside the score; the all-in line scores the blocked contestant zero on it.
+        blocked = defaultdict(set)
+        for c in [c for c in calls if c['model'] == model]:
+            if (c.get('response') or {}).get('finishReason') == 'blocked:safeguards':
+                blocked[c['id']].add(c['contestant'])
+        cohort = [x for x in pool if x['id'] not in missing and x['id'] not in unrecorded and x['id'] not in blocked]
         primary = compare(cohort, rows, model, iterations=iterations)
         all_in = compare(pool, rows, model, iterations=iterations)
         losses_by_group = Counter(i['group'] for i in primary.get('items', []) if i['difference'] < 0)
@@ -88,6 +94,7 @@ def report(iterations=20000):
             'missing': {'items': len(missing), 'byContestant': dict(Counter(c for v in missing.values() for c in v)),
                         'errors': dict(Counter(e for v in missing.values() for e in v.values())), 'ids': sorted(missing)},
             'unrecordedItems': unrecorded,
+            'blockedBySafeguards': {'items': len(blocked), 'byContestant': dict(Counter(c for v in blocked.values() for c in v)), 'ids': sorted(blocked)},
             'stage0CallsExhausted': dict(stage0_exhausted),
             'retries': {'failedTries': len(mattempts), 'callsRecoveredByRetry': len({a['key'] for a in mattempts} & ok_keys),
                         'tryErrors': dict(Counter(a['error'] for a in mattempts))},

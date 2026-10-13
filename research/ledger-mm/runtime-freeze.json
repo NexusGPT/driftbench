@@ -1,5 +1,5 @@
 {
-  "stage": "test-v13",
+  "stage": "test-v14",
   "core": {
     "pr": "https://github.com/achammah/driftbench/pull/168",
     "commit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
@@ -95,7 +95,7 @@
     "research/ledger-mm/test_exec.mjs": "5f7bdc0d667a698ca517f79fb24753ab396f512bb9074c26792be810d9ecfec2",
     "research/ledger-mm/eligibility.json": "84b05992165f14a4bc4e130a793f52ac2204fec691d0f43ce33916579c82bdeb",
     "research/ledger-mm/test_eligibility.py": "a84b5aeef9b7c796310442328d9529705a5faf32d720c21bdbb36a70b1009e60",
-    "research/ledger-mm/test_report.py": "f3099ee8a5dd618ed9d3e48efe3ecad962a4a6b90383d9aa599844bb8a14dd5f",
+    "research/ledger-mm/test_report.py": "039b179e839b308406b63682079a488d06c94ba29c1174d3228f67502d1ff472",
     "research/ledger-mm/supervise.sh": "48009290f0265ce5158fc987818a454d851dd50da7f81e619520170e3902b21c",
     "research/ledger-mm/eligibility-haiku.json": "0524da8d2a0feba7e21c76f38d01ae06f395fe73909fc4ee0cbd6378d9275a63",
     "research/ledger-mm/supervise2.sh": "47cde99250d4c10ece72e8f7c88ef2cf302f3cd9c1863a13d4bab62d7ae3d1e8"
@@ -248,5 +248,11 @@
     "loggedUtc": "2026-10-13T18:36Z",
     "by": "lane, pending coordinator confirmation of the scoring line",
     "text": "Finding from kept envelopes: every Sonnet error with zero output tokens so far (16 tries) reads: API Error, Sonnet 5.5 safeguards flagged this message. It is a provider safeguards block on the input, deterministic, not a transport failure. Retrying it stalled the cell in a link-pause loop. Such a call is now recorded as final (finishReason blocked:safeguards), never re-sent, at its reported cost, and does not count as a connection failure. Other zero-output API errors stay recoverable no-answers. Reporting: blocked items are counted separately and shown in two lines (excluded from the paired cohort, and all-in as zero). Which line is official is the owner's call."
+  },
+  "amendment14": {
+    "loggedUtc": "2026-10-13T18:40Z",
+    "by": "owner via coordinator",
+    "writtenBeforeAnySonnetTestScoreWasRead": true,
+    "text": "Scoring rule for provider safeguards blocks, the same rule the Haiku cell used for its missing items: an item the provider's safeguards block is excluded from the paired comparison for both contestants, and the count is reported beside the score per contestant. A second line is also reported in which the blocked contestant scores zero on that item (the all-in line)."
   }
 }
