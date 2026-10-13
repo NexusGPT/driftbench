@@ -1366,7 +1366,7 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 
 `select` chooses the golden set from the gated specs: the fewest conversations covering the cells of the map on every subset of `--t` dimensions, then the `--k` best. Sealed specs never count. Exit 0 when the set is written and covers every required cell, 1 when it is written and a required cell stays empty, 2 on a usage or input error.
 
-`holdout seal` seals a share of the gated specs (the gate's own sealed split when it has one). `holdout score` runs the sealed specs once through the runner and prints the pass rate with its Wilson interval, never which spec passed; each score spends one query of the budget. Seal: exit 0 when written, 2 on bad input. Score: exit 0 when scored, 1 when the budget is spent, 2 on bad input.
+`holdout seal` seals a share of the gated specs (the gate's own sealed split when it has one). Give `--specs` the gate's output folder, the one that holds `specs/` and `holdout/`, such as `examples/acme/gated`: its `specs/` subfolder alone does not hold the sealed files, and `holdout seal` refuses it and names the folder to pass. `holdout score` runs the sealed specs once through the runner and prints the pass rate with its Wilson interval, never which spec passed; each score spends one query of the budget. Seal: exit 0 when written, 2 on bad input. Score: exit 0 when scored, 1 when the budget is spent, 2 on bad input.
 
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
