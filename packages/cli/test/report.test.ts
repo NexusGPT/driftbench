@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -113,6 +113,23 @@ describe('driftbench report', () => {
     ]);
     expect(bad.code).toBe(2);
     expect(bad.err).toContain('unknown aggregate nope');
+  });
+
+  it('scores the aggregates of the project config --config names', async () => {
+    writeFileSync(join(dir, 'project.yaml'), 'aggregates:\n  - pass-rate:>=0.99\n');
+    const { code, out, err } = await cli([
+      'report',
+      'c-x3',
+      '--store',
+      'store.db',
+      '--out',
+      'out/config.html',
+      '--config',
+      'project.yaml',
+    ]);
+    expect(err).toBe('');
+    expect(code).toBe(0);
+    expect(out).toContain('aggregate pass-rate >= 0.99: fails');
   });
 
   it('reports the aggregates of a campaign with no runs as inconclusive and exits 0', async () => {
