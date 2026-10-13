@@ -44,7 +44,25 @@ def recorded():
             out.append(('deepeval', metric, set_row, {r['id']: r['truth'] for r in rows},
                         {r['id']: r['ours']['prediction'] == r['truth'] for r in rows},
                         {r['id']: r['theirs']['prediction'] == r['truth'] for r in rows}))
+    receipts = json.loads((ROOT / 'deepeval/hard/baseline-task-receipts-heldout.json').read_text())['rows']
+    out.append(('deepeval', 'task completion (tool receipts, the README bar)', 'task-receipts',
+                {r['id']: r['truth'] for r in receipts},
+                {r['id']: r['ours']['prediction'] == r['truth'] for r in receipts},
+                {r['id']: r['theirs']['prediction'] == r['truth'] for r in receipts}))
+    # LangWatch: one unit per declared criterion; truth is pass, fail or inconclusive. "Earlier" is the PR 115
+    # pinned default the comparison page reports; the competitor is its native Scenario judge.
+    for row, fixture, stem in [('short', 'judges-entries-v2.json', 'adapter-v2'), ('long', 'longtrace-v2/hard.json', 'longtrace-v2')]:
+        cases = json.loads((ROOT / f'langwatch/hard/{fixture}').read_text())
+        truth = {f"{c['id']}#{i + 1}": t for c in cases for i, t in enumerate(c['truth'])}
+        def recorded_right(variant):
+            answers = json.loads((ROOT / f'langwatch/hard/recorded/{stem}-{variant}.json').read_text())['answers']
+            return {f"{a['id']}#{i + 1}": pred == truth[f"{a['id']}#{i + 1}"] for a in answers for i, pred in enumerate(a['predictions'])}
+        out.append(('langwatch', f'criterion labels, {row} cohort', row, truth, recorded_right('pr115'), recorded_right('theirs')))
     return out
+
+
+def expected(label):
+    return label if isinstance(label, str) else ('pass' if label else 'fail')
 
 
 def main():
@@ -56,7 +74,7 @@ def main():
                 'competitor_right': sum(theirs[i] for i in truth)}
         for mode in ('default', 'audit'):
             v = today(competitor, set_row, mode)
-            right = {i: v.get(i) == ('pass' if truth[i] else 'fail') for i in truth}
+            right = {i: v.get(i) == expected(truth[i]) for i in truth}
             done = [i for i in truth if v.get(i) is not None]
             b = sum(right[i] and not theirs[i] for i in done)
             c = sum(theirs[i] and not right[i] for i in done)

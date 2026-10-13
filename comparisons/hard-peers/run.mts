@@ -15,7 +15,7 @@ import { type Item, type Mode, requestFor } from './request';
 import { oldItems, oldRequestFor } from './request-old';
 
 // Scores the judge this checkout ships, and the competitor's own default prompt, on frozen held-out rows.
-// Usage: run.mts <promptfoo|langfuse|deepeval> <row>:<default|audit|theirs>[,...] [--replay] [--limit N] [--max-fresh N]
+// Usage: run.mts <promptfoo|langfuse|deepeval|langwatch> <row>:<default|audit|theirs>[,...] [--replay] [--limit N] [--max-fresh N]
 // Jobs run in order in one process, after one probe gate. deepeval theirs runs in deepeval_run.py.
 // Every answered call is recorded once and never sent again.
 const here = fileURLToPath(new URL('./', import.meta.url));
@@ -33,7 +33,7 @@ const maxFresh = option('--max-fresh');
 const old = process.argv.includes('--old');
 const OLD_CAP_USD = 3;
 if (
-  !['promptfoo', 'langfuse', 'deepeval'].includes(competitor) ||
+  !['promptfoo', 'langfuse', 'deepeval', 'langwatch'].includes(competitor) ||
   jobs.some(
     ([r, c]) =>
       !r ||
@@ -42,7 +42,7 @@ if (
   )
 )
   throw new Error(
-    'Usage: run.mts <promptfoo|langfuse|deepeval> <row>:<default|audit|theirs>[,...] [--replay] [--limit N] [--max-fresh N]',
+    'Usage: run.mts <promptfoo|langfuse|deepeval|langwatch> <row>:<default|audit|theirs>[,...] [--replay] [--limit N] [--max-fresh N]',
   );
 let row = '';
 let contestant: Mode | 'theirs' = 'default';
@@ -57,7 +57,8 @@ for (const [path, hash] of Object.entries(freeze.sha256))
   )
     throw new Error(`Changed after the freeze: ${path}`);
 
-const CAP_USD = 25;
+// 25 USD for the first three competitors plus 8 USD added for LangWatch (freeze amendment).
+const CAP_USD = 33;
 const PER_CALL_USD = 0.05;
 const CONCURRENCY = 2;
 mkdirSync(`${here}calls`, { recursive: true });
@@ -72,8 +73,9 @@ type Call = {
   contestant: string;
   id: string;
   attempt: number;
-  prompt: { system: string; user: string };
+  prompt: Prompt;
   text: string;
+  structured?: unknown;
   costUsd: number;
   modelUsage: unknown;
   timestamp: string;
@@ -111,9 +113,19 @@ let fresh = 0;
 let consecutiveFailures = 0;
 let gate: Promise<void> | undefined;
 
-const keyOf = (prompt: { system: string; user: string }, attempt: number) =>
+/** A competitor prompt may carry a JSON schema: the LangWatch judge answers through structured output. */
+type Prompt = { system: string; user: string; schema?: unknown };
+const keyOf = (prompt: Prompt, attempt: number) =>
   createHash('sha256')
-    .update(JSON.stringify(['haiku', prompt.system, prompt.user, attempt]))
+    .update(
+      JSON.stringify([
+        'haiku',
+        prompt.system,
+        prompt.user,
+        attempt,
+        ...(prompt.schema === undefined ? [] : [prompt.schema]),
+      ]),
+    )
     .digest('hex');
 
 function probeOnce(): Promise<boolean> {
@@ -141,7 +153,7 @@ async function waitForGate() {
   while (gate) await gate;
 }
 
-function lean(prompt: { system: string; user: string }) {
+function lean(prompt: Prompt, turns = 1) {
   // The flags of packages/judges/src/clients/claude-cli.ts, for both sides, with prompt caching disabled.
   const args = [
     '-p',
@@ -158,9 +170,10 @@ function lean(prompt: { system: string; user: string }) {
     '--strict-mcp-config',
     '--no-session-persistence',
     '--max-turns',
-    '1',
+    String(turns),
     '--max-budget-usd',
     String(PER_CALL_USD),
+    ...(prompt.schema === undefined ? [] : ['--json-schema', JSON.stringify(prompt.schema)]),
   ];
   return new Promise<{ stdout: string; stderr: string; code: number | null }>((resolve) => {
     const child = spawn(process.env.CLAUDE_BIN ?? 'claude', args, {
@@ -189,7 +202,7 @@ function lean(prompt: { system: string; user: string }) {
 }
 
 /** One answered call, from the recording or fresh. Undefined: no model output; the case stays missing. */
-async function ask(id: string, prompt: { system: string; user: string }, attempt: number) {
+async function ask(id: string, prompt: Prompt, attempt: number) {
   const key = keyOf(prompt, attempt);
   const old = cache.get(key);
   if (old) return old;
@@ -199,27 +212,38 @@ async function ask(id: string, prompt: { system: string; user: string }, attempt
   if (old && oldSpent + reserved + PER_CALL_USD > OLD_CAP_USD)
     throw new Error(`Old-set cap ${OLD_CAP_USD} USD reached`);
   reserved += PER_CALL_USD;
-  const ran = await lean(prompt);
-  reserved -= PER_CALL_USD;
   let text = '';
+  let structured: unknown;
   let costUsd: number | undefined;
   let modelUsage: unknown = null;
   let failure: string | undefined;
-  try {
-    const parsed = JSON.parse(ran.stdout);
-    if (typeof parsed.total_cost_usd === 'number' && parsed.total_cost_usd >= 0)
-      costUsd = parsed.total_cost_usd;
-    text = String(parsed.result ?? '');
-    modelUsage = parsed.modelUsage ?? parsed.usage;
-    if (ran.code !== 0 || parsed.is_error || !text)
-      failure = JSON.stringify({ code: ran.code, subtype: parsed.subtype, stderr: ran.stderr.slice(0, 300) });
-  } catch {
-    failure = JSON.stringify({
-      code: ran.code,
-      stdout: ran.stdout.slice(0, 300),
-      stderr: ran.stderr.slice(0, 300),
-    });
+  // A structured answer gets two turns, then six once, as the earlier LangWatch harness did; a text answer gets one.
+  for (const turns of prompt.schema === undefined ? [1] : [2, 6]) {
+    const ran = await lean(prompt, turns);
+    failure = undefined;
+    try {
+      const parsed = JSON.parse(ran.stdout);
+      if (typeof parsed.total_cost_usd === 'number' && parsed.total_cost_usd >= 0)
+        costUsd = (costUsd ?? 0) + parsed.total_cost_usd;
+      text = typeof parsed.result === 'string' ? parsed.result : '';
+      structured = parsed.structured_output;
+      modelUsage = parsed.modelUsage ?? parsed.usage;
+      if (ran.code !== 0 || parsed.is_error || (!text && structured === undefined))
+        failure = JSON.stringify({
+          code: ran.code,
+          subtype: parsed.subtype,
+          stderr: ran.stderr.slice(0, 300),
+        });
+    } catch {
+      failure = JSON.stringify({
+        code: ran.code,
+        stdout: ran.stdout.slice(0, 300),
+        stderr: ran.stderr.slice(0, 300),
+      });
+    }
+    if (!failure) break;
   }
+  reserved -= PER_CALL_USD;
   if (failure) {
     // No model output: not cached, retried in a later missing-only pass. Its spend is counted as reported, else reserved.
     const reservedUsd = costUsd ?? PER_CALL_USD;
@@ -249,6 +273,7 @@ async function ask(id: string, prompt: { system: string; user: string }, attempt
     attempt,
     prompt,
     text,
+    ...(structured === undefined ? {} : { structured }),
     costUsd: costUsd ?? PER_CALL_USD,
     modelUsage,
     timestamp: new Date().toISOString(),
@@ -314,7 +339,7 @@ for ([row, contestant] of jobs) {
     contestant === 'theirs'
       ? (JSON.parse(readFileSync(`${here}prompts/${competitor}-${row}-theirs.json`, 'utf8')) as Record<
           string,
-          { system: string; user: string }
+          Prompt
         >)
       : undefined;
   const results: Record<string, unknown>[] = new Array(items.length);
@@ -327,7 +352,7 @@ for ([row, contestant] of jobs) {
       const base = { id: item.id, kind: item.kind, pair: item.pair, truth: item.truth };
       try {
         if (theirs) {
-          const call = await ask(item.id, theirs[item.id] as { system: string; user: string }, 0);
+          const call = await ask(item.id, theirs[item.id] as Prompt, 0);
           results[index] = call
             ? { ...base, complete: true, keys: [call.key], costUsd: call.costUsd }
             : { ...base, complete: false };

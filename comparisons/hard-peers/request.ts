@@ -48,7 +48,8 @@ const FACTUALITY =
  */
 export function requestFor(competitor: string, row: string, item: Item, mode: Mode): JudgeRequest {
   const audit = mode === 'audit' ? { assessment: { kind: 'answer-audit' as const } } : {};
-  if (competitor === 'deepeval') {
+  // The LangWatch rows are conversation rows judged on the same shipped criteria as the DeepEval rows.
+  if (competitor === 'deepeval' || competitor === 'langwatch') {
     const transcript: TranscriptEntry[] = (item.turns ?? []).map((m) => ({
       role: m.role === 'assistant' ? 'agent' : 'user',
       text: m.content,

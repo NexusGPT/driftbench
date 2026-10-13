@@ -25,13 +25,19 @@ const DEEPEVAL: Record<string, string> = {
 export const OLD_ROWS: Record<string, string[]> = {
   promptfoo: ['rubric', 'factuality', 'pii', 'goal'],
   langfuse: ['correctness'],
-  deepeval: Object.keys(DEEPEVAL),
+  // task-receipts: the task set with constructed tool receipts, the recording the README task-completion bar uses.
+  deepeval: [...Object.keys(DEEPEVAL), 'task-receipts'],
+  // The two trusted-event cohorts docs/comparison/langwatch.md reports: short (seed 20261019) and long (seed 20261020).
+  langwatch: ['short', 'long'],
 };
 type OldItem = Item & {
   label?: 'pass' | 'fail';
   family?: string;
   contexts?: string[];
   role?: string;
+  tool_receipts?: { name: string; input_parameters: unknown; output: unknown }[];
+  entries?: TranscriptEntry[];
+  scenario?: string;
 };
 
 export function oldItems(competitor: string, row: string): Item[] {
@@ -44,6 +50,34 @@ export function oldItems(competitor: string, row: string): Item[] {
       pair: '',
       truth: x.label === 'pass',
     }));
+  if (competitor === 'langwatch') {
+    // One judged unit per declared criterion. Truth is pass, fail or inconclusive, by construction.
+    type Case = {
+      id: string;
+      kind: string;
+      scenario: string;
+      criteria: string[];
+      entries: TranscriptEntry[];
+      truth: string[];
+    };
+    const cases = read(
+      row === 'long'
+        ? 'comparisons/langwatch/hard/longtrace-v2/hard.json'
+        : 'comparisons/langwatch/hard/judges-entries-v2.json',
+    ) as Case[];
+    return cases.flatMap((c) =>
+      c.criteria.map((rubric, index) => ({
+        id: `${c.id}#${index + 1}`,
+        pair: c.id,
+        kind: c.kind,
+        truth: c.truth[index] as unknown as boolean,
+        rubric,
+        scenario: c.scenario,
+        entries: c.entries,
+      })),
+    );
+  }
+  if (row === 'task-receipts') return read('comparisons/deepeval/hard/sets-receipts-heldout.json').task;
   return read('comparisons/deepeval/hard/sets-heldout.json')[row];
 }
 
@@ -111,9 +145,21 @@ export function oldRequestFor(competitor: string, row: string, raw: Item, mode: 
           inputs: [{ path: 'trusted-reference.txt', text: item.reference as string }],
         };
   }
-  // comparisons/deepeval/hard/render.mts, conversation evidence
+  if (competitor === 'langwatch') {
+    // comparisons/langwatch/hard/trusted-adapter-v2.mts `trustedRequest`
+    const index = Number(item.id.split('#')[1]);
+    return {
+      criterion: { name: `requirement_${index}`, rubric: item.rubric as string, scope: 'conversation' },
+      transcript: [
+        { role: 'context', text: item.scenario as string },
+        ...(item.entries ?? []).map(({ role, text, tool }) => ({ role, text, ...(tool ? { tool } : {}) })),
+      ],
+      ...audit,
+    };
+  }
+  // comparisons/deepeval/hard/render.mts, conversation evidence or tool receipts
   const { name, rubric, pass, fail, scope } = yaml.parse(
-    readFileSync(`${repo}${DEEPEVAL[row]}`, 'utf8'),
+    readFileSync(`${repo}${DEEPEVAL[row === 'task-receipts' ? 'task' : row]}`, 'utf8'),
   ).criterion;
   const criterion: CriterionText = {
     name,
@@ -132,6 +178,13 @@ export function oldRequestFor(competitor: string, row: string, raw: Item, mode: 
       tool: 'catalog.search',
       text: item.contexts.join('\n'),
     });
+  for (const receipt of item.tool_receipts ?? [])
+    transcript.splice(
+      transcript.length - 1,
+      0,
+      { role: 'tool_call', tool: receipt.name, text: JSON.stringify(receipt.input_parameters) },
+      { role: 'tool_result', tool: receipt.name, text: JSON.stringify(receipt.output) },
+    );
   if (mode === 'default')
     return {
       criterion,
