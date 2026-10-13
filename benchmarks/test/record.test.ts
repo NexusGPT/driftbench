@@ -201,3 +201,28 @@ it('waits 60, 120 and 240 seconds after Gemini 429s and retries the same public 
   expect(bodies).toHaveLength(4);
   expect(new Set(bodies).size).toBe(1);
 });
+
+it.each([
+  [429, 4, 3],
+  [503, 1, 0],
+])('bounds Gemini HTTP %i retries to %i attempts', async (status, attempts, waits) => {
+  const fetch = vi.fn(async () => new Response('Fictional failure', { status }));
+  const sleep = vi.fn(async () => {});
+  const rows: unknown[] = [];
+  const client = makeRecordingClient(
+    'gemini-3.8-flash',
+    new SpendBudget(1),
+    { GEMINI_API_KEY: 'fictional' },
+    (row) => rows.push(row),
+    { fetch, sleep },
+  );
+  await expect(
+    client.judge({
+      criterion: { name: 'c', rubric: 'Reply politely.' },
+      transcript: [{ role: 'agent', text: 'Hello.' }],
+    }),
+  ).rejects.toThrow(`answered ${status}`);
+  expect(fetch).toHaveBeenCalledTimes(attempts);
+  expect(sleep).toHaveBeenCalledTimes(waits);
+  expect(rows).toHaveLength(1);
+});
