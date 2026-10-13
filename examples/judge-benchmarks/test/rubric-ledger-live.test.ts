@@ -2,10 +2,30 @@ import { mkdtemp } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { type DialectTransport } from '@agent-nexus/driftbench-judges';
-import { LedgerCalls, LedgerRateLimitStop, LedgerPrepaymentStop, type LedgerCall } from '../src/rubric-ledger-calls';
+import { LedgerCalls, LedgerRateLimitStop, LedgerPrepaymentStop, LedgerProbeStop, type LedgerCall } from '../src/rubric-ledger-calls';
 import { classifyProviderBlock, hasUnresolvedPrepayment, evaluate, mapped, scheduleModels, usagePrice, validityFixtures, variants, type DecisionRow } from '../src/rubric-ledger-live';
 
 describe('live pair-ledger harness', () => {
+  test('a one-call probe stops before a second reservation and resumes without repeating the answer', async () => {
+    for (const contestant of ['pair-ledger', 'promptfoo'] as const) {
+      const root = await mkdtemp(resolve('.cache/ledger-rb/test-live-'));
+      const calls = await new LedgerCalls(root, 1, 1).load(); let count = 0;
+      const fake: DialectTransport = { dialect: 'scratchpad-json', fingerprint: 'single-probe',
+        async complete() { count++; const text = contestant === 'promptfoo' ? '0' : JSON.stringify({ items: [
+          { name: 'rb_1', first: 4, second: 0, reasoning: 'fixture', evidence: null }] });
+          return { text, raw: text, dialect: 'scratchpad-json', fingerprint: 'single-probe', costUsd: .001 }; } };
+      const item = validityFixtures()[0]!;
+      const run = (store: LedgerCalls) => evaluate(item, [{ name: 'rb_1', rubric: item.criterion! }], 'gemini-3.8-flash',
+        'single-probe', 0, contestant, fake, store, true);
+      await expect(run(calls)).rejects.toBeInstanceOf(LedgerProbeStop);
+      expect(count).toBe(1); expect(calls.rows).toHaveLength(1); expect(calls.uncertainKeys).toHaveLength(0);
+      const resumed = await new LedgerCalls(root, 1).load();
+      await run(resumed); const afterResume = count;
+      expect(afterResume).toBeGreaterThan(1);
+      await run(resumed); expect(count).toBe(afterResume);
+      expect(resumed.rows.filter((r) => r.identity.ordinal === 0)).toHaveLength(1);
+    }
+  });
   test('a top-up epoch advances rejected requests only and preserves every returned answer', async () => {
     const calls = await new LedgerCalls(await mkdtemp(resolve('.cache/ledger-rb/test-live-')), 1).load();
     let count = 0;

@@ -60,8 +60,8 @@
     "retryPolicy": "Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero."
   },
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "21e3e39b8bf3c9d08f8f23c3a69559c01e7a91ac000d3de47941620696888aed",
-    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "bcb5b4a209635ed7303368e52f0d1aac6d6af0b3963607bd4044e27e0f6685ed",
+    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "faa61b720c1a045c6be8ada98f72798e0dffe46412f4c876e66f1b06ce7cf64d",
+    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "a7056b7fdea320585d085681a9b717a9e3454ba1ef7767581ffe411dc821bc93",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
     "examples/judge-benchmarks/src/rubric-ledger-report.ts": "a0d8254a0f409b2501880bda43640a846ee8e9614a8f38c7c4127dde2c032fb9",

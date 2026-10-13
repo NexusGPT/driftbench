@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-13T10:21:42.239514+00:00",
+  "authorization": "The owner topped up Gemini. Resume Gemini missing-only: one probe call first; if it answers, continue at 2 calls at a time with the 429 waits and the 402 circuit break. Never re-send an answered call.",
+  "billingResumeEpoch": 1,
+  "probe": "Exactly one new provider call on the next missing sealed Gemini TEST request. Reuse that answer in the resumed full run.",
+  "concurrencyAfterProbe": {
+    "claude-haiku-5-5": 2,
+    "gpt-6-luna": 8,
+    "gemini-3.8-flash": 2
+  },
+  "capUsd": 45,
+  "freezeSha256": "88db5dd0e26de3b0efde6cdb7a8bb07d91cac03e13d78e19b9aed5223440b0bb",
+  "unchanged": [
+    "item set",
+    "global record order",
+    "within-model dispatch order",
+    "judge contract",
+    "prompts",
+    "schema",
+    "reasoning",
+    "block headline policy"
+  ],
+  "alreadyAnsweredProbe": "rubric_eval_1008 promptfoo both orders returned 0 and 1 before TEST; reuse only"
+}

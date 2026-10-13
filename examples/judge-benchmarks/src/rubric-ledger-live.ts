@@ -10,7 +10,7 @@ import { buildPrompt, canonicalPairOrder, createDialectTransport, judgePairLedge
 import { codeEvidence } from './code-evidence';
 import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem } from './data';
-import { LedgerBudgetStop, LedgerRateLimitStop, LedgerPrepaymentStop, LedgerCalls, billingIdentity, isPrepaymentRejection, transportRetryable, type LedgerCall, type LedgerCompletion } from './rubric-ledger-calls';
+import { LedgerBudgetStop, LedgerRateLimitStop, LedgerPrepaymentStop, LedgerProbeStop, LedgerCalls, billingIdentity, isPrepaymentRejection, transportRetryable, type LedgerCall, type LedgerCompletion } from './rubric-ledger-calls';
 import { appendRecording, readRecordingRows } from './recording-files';
 
 export const DIRECTORY = 'examples/judge-benchmarks/experiments/ledger-rb';
@@ -168,7 +168,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
           const row = await ask(p); const decision = peer.parsePair!(row.text);
           decisions.push(swapped ? flip(decision) : decision);
         } catch (e) {
-          if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || e instanceof LedgerPrepaymentStop || !execute) throw e;
+          if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || e instanceof LedgerPrepaymentStop || e instanceof LedgerProbeStop || !execute) throw e;
           decisions.push('tie'); errors.push(e instanceof Error ? e.message : String(e));
         }
       }
@@ -204,7 +204,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
       detail: { ...result, coreJudgeInvocations: result.calls, calls: callKeys.length,
         contentReaskPolicy: 'Suppressed per owner: returned answers are never retried. Reask trace entries represent cached reparse only.' }, elapsedMs: Date.now() - start };
   } catch (e) {
-    if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || e instanceof LedgerPrepaymentStop || !execute) throw e;
+    if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || e instanceof LedgerPrepaymentStop || e instanceof LedgerProbeStop || !execute) throw e;
     return { ...base, decisions: ['tie', 'tie'], status: 'transport-error', error: e instanceof Error ? e.message : String(e), elapsedMs: Date.now() - start };
   }
 }
@@ -224,7 +224,7 @@ const sourcePaths = [
 
 async function main() {
   if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped] [--billing-resume positive-epoch only after owner confirms top-up]'); return;
+    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped] [--billing-resume positive-epoch only after owner confirms top-up] [--probe-one-call with Gemini-only TEST]'); return;
   }
   const phase = process.argv[process.argv.indexOf('--phase') + 1];
   if (!['seal', 'pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'test'].includes(phase ?? '')) throw new Error('Select a phase; use --help');
@@ -252,6 +252,8 @@ async function main() {
   const mArg = process.argv.indexOf('--models');
   const models = phase === 'provider-probe' ? ['gemini-3.8-flash'] as Model[] : mArg < 0 ? [...MODELS] : process.argv[mArg + 1]!.split(',') as Model[];
   if (models.some((m) => !MODELS.includes(m))) throw new Error('Unregistered model');
+  const probe = process.argv.includes('--probe-one-call');
+  if (probe && (phase !== 'test' || models.length !== 1 || models[0] !== 'gemini-3.8-flash')) throw new Error('Single-call probe requires Gemini-only TEST');
   const all = (await loadBenchmark('rubricbench')).items as PairItem[];
   const plan = JSON.parse(await readFile(`${DIRECTORY}/development-plan.json`, 'utf8'));
   const manifest: { id: string; requirements: RubricItem[] }[] = JSON.parse(await readFile(`${DIRECTORY}/requirements.json`, 'utf8'));
@@ -274,7 +276,7 @@ async function main() {
   if (phase === 'provider-probe') add(pool.get(SETTINGS.providerBlockProbe.id)!, 0, ['promptfoo']);
   if (phase === 'noise') for (const id of plan.noiseIds) for (let sample = 0; sample < 3; sample++) add(pool.get(id)!, sample, ['pair-ledger']);
   if (phase === 'test') for (const id of testIds.sort((a, b) => sha(SETTINGS.testOrderSeed + a).localeCompare(sha(SETTINGS.testOrderSeed + b)))) add(pool.get(id)!, 0, ['pair-ledger', 'promptfoo']);
-  const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd).load();
+  const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd, probe ? 1 : Infinity).load();
   if (process.argv.includes('--recover-interrupted')) console.log(JSON.stringify({ recoveredInterrupted: await calls.recoverInterrupted() }));
   if (calls.uncertainKeys.length) throw new Error(`Unfinished reserved calls: ${calls.uncertainKeys.length}; inspect before continuation`);
   const transports = new Map(await Promise.all(models.map(async (m) => [m, await transport(m, execute)] as const)));
@@ -285,7 +287,7 @@ async function main() {
   const todo = selectedJobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
   let writes = Promise.resolve();
   process.once('SIGUSR2', () => { stopped = true; console.error('Stop requested; draining in-flight work'); });
-  await scheduleModels(todo, SETTINGS.modelConcurrency, async (job) => {
+  await scheduleModels(todo, probe ? { 'gemini-3.8-flash': 1 } : SETTINGS.modelConcurrency, async (job) => {
       try {
         const requirements = reqs.get(job.item.id) ?? [{ name: 'rb_1', rubric: job.item.criterion! }];
         const row = classifyProviderBlock(await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute, undefined, billingEpoch), calls.rows);

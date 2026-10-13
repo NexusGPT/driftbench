@@ -49,6 +49,7 @@ export type LedgerCall = {
 export class LedgerBudgetStop extends Error {}
 export class LedgerRateLimitStop extends Error {}
 export class LedgerPrepaymentStop extends Error {}
+export class LedgerProbeStop extends Error {}
 export class LedgerUncertainCall extends Error {}
 export const isPrepaymentRejection = (row: Pick<LedgerCall, 'status' | 'httpStatus' | 'error'>): boolean =>
   row.status === 'error' && (row.httpStatus === 402 || /answered 402:/.test(row.error ?? ''));
@@ -76,7 +77,8 @@ export class LedgerCalls {
   private readonly started = new Map<string, Start>();
   private pending: Promise<unknown> = Promise.resolve();
   private readonly live = new Map<string, Promise<LedgerCall>>();
-  constructor(readonly directory: string, readonly capUsd: number) {
+  private newCalls = 0;
+  constructor(readonly directory: string, readonly capUsd: number, readonly maxNewCalls = Infinity) {
     if (!(capUsd > 0 && Number.isFinite(capUsd))) throw new Error('Invalid spend cap');
   }
   async load(): Promise<this> {
@@ -143,12 +145,14 @@ export class LedgerCalls {
     await this.serial(async () => {
       if (replayOnly) throw new Error(`Replay missing: ${identity.item} ${identity.contestant}`);
       if (this.started.has(key)) throw new LedgerUncertainCall(`Prior call has no completion: ${key}`);
+      if (this.newCalls >= this.maxNewCalls) throw new LedgerProbeStop('Single-call probe recorded; no second call submitted');
       if (!Number.isFinite(reserveUsd) || reserveUsd <= 0) throw new Error('Invalid call reservation');
       if (this.chargedUsd + reserveUsd > this.capUsd + 1e-12)
         throw new LedgerBudgetStop(`USD ${this.capUsd} lane cap cannot reserve another USD ${reserveUsd}`);
       const start: Start = { key, reserveUsd, identity, startedAt: new Date().toISOString() };
       await appendRecording(join(this.directory, 'starts.jsonl'), start);
       this.started.set(key, start);
+      this.newCalls++;
     });
     let row: LedgerCall;
     try {
