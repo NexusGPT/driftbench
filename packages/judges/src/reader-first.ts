@@ -221,6 +221,8 @@ export function createReaderFirstJudge(client: JudgeClient, options: ReaderFirst
         swapped,
         calls: 2,
         costUsd: (ab.costUsd ?? 0) + (ba.costUsd ?? 0),
+        // Set when a call's cost is unknown: costUsd is then a lower bound.
+        ...(ab.costIncomplete || ba.costIncomplete ? { costIncomplete: true as const } : {}),
       };
     },
   };

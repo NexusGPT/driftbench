@@ -165,6 +165,38 @@ describe('a reviewer can give a score with the label', () => {
     const again = assign(enqueue(emptyQueue(), [item(3)]), 'tone', 'run-1.b3', 'Ana');
     await expect(
       completeItem(dir, again, 'tone', 'run-1.b3', 'Ana', { id: 'run-1.b3', label: 'pass', transcript }, 1.5),
-    ).rejects.toThrow(/score must be from 0 to 1/);
+    ).rejects.toThrow(/outside the scale 0 to 1/);
+  });
+});
+
+describe('a criterion can have its own score scale', () => {
+  it('accepts a score inside the criterion scale and refuses one outside it', async () => {
+    const dir = await folder();
+    const scale = { min: 1, max: 5 };
+    const ok = assign(enqueue(emptyQueue(), [item(4)]), 'tone', 'run-1.b4', 'Ana');
+    const done = await completeItem(
+      dir,
+      ok,
+      'tone',
+      'run-1.b4',
+      'Ana',
+      { id: 'run-1.b4', label: 'pass', transcript },
+      3,
+      scale,
+    );
+    expect(done.entries[0]?.votes?.[0]?.score).toBe(3);
+    const out = assign(enqueue(emptyQueue(), [item(5)]), 'tone', 'run-1.b5', 'Ana');
+    await expect(
+      completeItem(
+        dir,
+        out,
+        'tone',
+        'run-1.b5',
+        'Ana',
+        { id: 'run-1.b5', label: 'pass', transcript },
+        0.5,
+        scale,
+      ),
+    ).rejects.toThrow(/outside the scale 1 to 5/);
   });
 });

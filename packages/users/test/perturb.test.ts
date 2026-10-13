@@ -398,6 +398,7 @@ describe('every perturbation the Acme conversation specs declare, through the re
       'acme-order-loose-confirmation second-loose-yes immediate 0',
       'acme-order-loose-confirmation order-service-down immediate 0',
       'acme-plan-upgrade billing-aside immediate 0',
+      'acme-plan-upgrade order-service-down immediate 0',
       'acme-plan-upgrade loose-ok immediate 0',
       'acme-tool-failure sales-queue-down immediate 0',
     ]);

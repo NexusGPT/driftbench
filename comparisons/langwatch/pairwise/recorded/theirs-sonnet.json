@@ -1,0 +1,968 @@
+{
+  "system": "theirs",
+  "model": "sonnet",
+  "spentUsd": 1.0222061,
+  "unanswered": 0,
+  "answers": [
+    {
+      "id": "q001",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009125999999999999
+    },
+    {
+      "id": "q002",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00902
+    },
+    {
+      "id": "q003",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009146
+    },
+    {
+      "id": "q004",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.009017999999999998
+    },
+    {
+      "id": "q005",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0091
+    },
+    {
+      "id": "q006",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008668
+    },
+    {
+      "id": "q007",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008643999999999999
+    },
+    {
+      "id": "q008",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008657999999999999
+    },
+    {
+      "id": "q009",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008704
+    },
+    {
+      "id": "q010",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008646000000000001
+    },
+    {
+      "id": "q011",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008742
+    },
+    {
+      "id": "q012",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008723999999999999
+    },
+    {
+      "id": "q013",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008938
+    },
+    {
+      "id": "q014",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008636000000000001
+    },
+    {
+      "id": "q015",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009274000000000001
+    },
+    {
+      "id": "q016",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.009056
+    },
+    {
+      "id": "q017",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008795999999999998
+    },
+    {
+      "id": "q018",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008566
+    },
+    {
+      "id": "q019",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009168
+    },
+    {
+      "id": "q020",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008629999999999999
+    },
+    {
+      "id": "q021",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008643999999999999
+    },
+    {
+      "id": "q022",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008636000000000001
+    },
+    {
+      "id": "q023",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008618
+    },
+    {
+      "id": "q024",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008709999999999999
+    },
+    {
+      "id": "q025",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.009236000000000001
+    },
+    {
+      "id": "q026",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008602
+    },
+    {
+      "id": "q027",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008968
+    },
+    {
+      "id": "q028",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008538
+    },
+    {
+      "id": "q029",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008686
+    },
+    {
+      "id": "q030",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.009114
+    },
+    {
+      "id": "q031",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00878
+    },
+    {
+      "id": "q032",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008808
+    },
+    {
+      "id": "q033",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00846
+    },
+    {
+      "id": "q034",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008738
+    },
+    {
+      "id": "q035",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008716
+    },
+    {
+      "id": "q036",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008956
+    },
+    {
+      "id": "q037",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008668
+    },
+    {
+      "id": "q038",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008586
+    },
+    {
+      "id": "q039",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008572
+    },
+    {
+      "id": "q040",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009194
+    },
+    {
+      "id": "q041",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0053255
+    },
+    {
+      "id": "q042",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008591999999999999
+    },
+    {
+      "id": "q043",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008416
+    },
+    {
+      "id": "q044",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008712000000000001
+    },
+    {
+      "id": "q045",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008642
+    },
+    {
+      "id": "q046",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008709999999999999
+    },
+    {
+      "id": "q047",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008716
+    },
+    {
+      "id": "q048",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.009274000000000001
+    },
+    {
+      "id": "q049",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0048548
+    },
+    {
+      "id": "q050",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.009242
+    },
+    {
+      "id": "q051",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008616
+    },
+    {
+      "id": "q052",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00903
+    },
+    {
+      "id": "q053",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.009278000000000002
+    },
+    {
+      "id": "q054",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0044956
+    },
+    {
+      "id": "q055",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00859
+    },
+    {
+      "id": "q056",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00878
+    },
+    {
+      "id": "q057",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00858
+    },
+    {
+      "id": "q058",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00847
+    },
+    {
+      "id": "q059",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008668
+    },
+    {
+      "id": "q060",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008732
+    },
+    {
+      "id": "q061",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008498
+    },
+    {
+      "id": "q062",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008686
+    },
+    {
+      "id": "q063",
+      "choice": "tie",
+      "ordered": "pass",
+      "swapped": "inconclusive",
+      "consistent": false,
+      "costUsd": 0.008766
+    },
+    {
+      "id": "q064",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0048518
+    },
+    {
+      "id": "q065",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009096
+    },
+    {
+      "id": "q066",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009016
+    },
+    {
+      "id": "q067",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008666
+    },
+    {
+      "id": "q068",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00902
+    },
+    {
+      "id": "q069",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008796
+    },
+    {
+      "id": "q070",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00845
+    },
+    {
+      "id": "q071",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008775999999999999
+    },
+    {
+      "id": "q072",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008508
+    },
+    {
+      "id": "q073",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008672
+    },
+    {
+      "id": "q074",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008766
+    },
+    {
+      "id": "q075",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008596
+    },
+    {
+      "id": "q076",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008754
+    },
+    {
+      "id": "q077",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008664
+    },
+    {
+      "id": "q078",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0087
+    },
+    {
+      "id": "q079",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008434
+    },
+    {
+      "id": "q080",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008858000000000001
+    },
+    {
+      "id": "q081",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009032
+    },
+    {
+      "id": "q082",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008562
+    },
+    {
+      "id": "q083",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008539999999999999
+    },
+    {
+      "id": "q084",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008634
+    },
+    {
+      "id": "q085",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008722
+    },
+    {
+      "id": "q086",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008723999999999999
+    },
+    {
+      "id": "q087",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0051634
+    },
+    {
+      "id": "q088",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.005053800000000001
+    },
+    {
+      "id": "q089",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008544
+    },
+    {
+      "id": "q090",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009087999999999999
+    },
+    {
+      "id": "q091",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008788
+    },
+    {
+      "id": "q092",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008648
+    },
+    {
+      "id": "q093",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009167999999999999
+    },
+    {
+      "id": "q094",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008902
+    },
+    {
+      "id": "q095",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00895
+    },
+    {
+      "id": "q096",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.009494
+    },
+    {
+      "id": "q097",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.00896
+    },
+    {
+      "id": "q098",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00866
+    },
+    {
+      "id": "q099",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008816000000000001
+    },
+    {
+      "id": "q100",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008576
+    },
+    {
+      "id": "q101",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009392
+    },
+    {
+      "id": "q102",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008615999999999999
+    },
+    {
+      "id": "q103",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008615999999999999
+    },
+    {
+      "id": "q104",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008466
+    },
+    {
+      "id": "q105",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008928
+    },
+    {
+      "id": "q106",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008686
+    },
+    {
+      "id": "q107",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008666
+    },
+    {
+      "id": "q108",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.0046856
+    },
+    {
+      "id": "q109",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009282
+    },
+    {
+      "id": "q110",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008983999999999999
+    },
+    {
+      "id": "q111",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.008568
+    },
+    {
+      "id": "q112",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008511999999999999
+    },
+    {
+      "id": "q113",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00844
+    },
+    {
+      "id": "q114",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008539999999999999
+    },
+    {
+      "id": "q115",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.00849
+    },
+    {
+      "id": "q116",
+      "choice": "first",
+      "ordered": "pass",
+      "swapped": "fail",
+      "consistent": true,
+      "costUsd": 0.009139999999999999
+    },
+    {
+      "id": "q117",
+      "choice": "tie",
+      "ordered": "inconclusive",
+      "swapped": "pass",
+      "consistent": false,
+      "costUsd": 0.008476
+    },
+    {
+      "id": "q118",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.0046196
+    },
+    {
+      "id": "q119",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008681999999999999
+    },
+    {
+      "id": "q120",
+      "choice": "second",
+      "ordered": "fail",
+      "swapped": "pass",
+      "consistent": true,
+      "costUsd": 0.008604
+    }
+  ]
+}

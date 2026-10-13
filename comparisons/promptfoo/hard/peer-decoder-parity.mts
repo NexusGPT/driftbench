@@ -1,7 +1,7 @@
 // Replay recorded answers through verbatim pinned native parsing/verdict functions.
 import { deepStrictEqual } from 'node:assert';
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
@@ -108,5 +108,5 @@ deepStrictEqual(
   0,
   'This replay must verify every JSON answer without an untested repair path',
 );
-writeFileSync(`${here}recorded/peer-native-decoder.json`, `${JSON.stringify(decoded, null, 2)}\n`);
+deepStrictEqual(decoded, JSON.parse(readFileSync(`${here}recorded/peer-native-decoder.json`, 'utf8')));
 console.log(`Decoded ${Object.keys(decoded).length} peer answers with pinned native verdict functions.`);

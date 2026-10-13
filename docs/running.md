@@ -2,7 +2,7 @@
 
 The runner runs a spec through an adapter, block by block, applies every check to each block, and records the run. A campaign runs many specs on many targets, in several modes, with repeats, and keeps every run in a store.
 
-Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (P); the scripted driver that replays a spec's blocks, and the perturbing driver that injects one deviation, declared by the spec or drawn from the red-team pack; campaigns; the cache; the determinism smoke test; the ledger check, the stage classifier and the drift classes on every block; the compounding index and the recovery metrics. The simulated user is built as a library and has no command yet. See [run modes](concepts/run-modes.md).
+Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (P); the scripted driver that replays a spec's blocks, and the perturbing driver that injects one deviation, declared by the spec or drawn from the red-team pack; campaigns; the cache; the determinism smoke test; the ledger check, the stage classifier and the drift classes on every block; the compounding index and the recovery metrics. The simulated user runs through `driftbench simulate` or `campaign run --driver simulated`. See [run modes](concepts/run-modes.md).
 
 ## From the command line
 
@@ -99,7 +99,7 @@ The projected cost of an adapter is its blocks times the latest cost per block m
 ## `driftbench campaign run`
 
 ```
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 ```
 
 Creates a campaign over the specs, runs every cell and prints one line per cell, in cell order.
@@ -109,6 +109,7 @@ With `--dataset <ref>`, the specs come from a dataset version of the store inste
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
 Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass  5 blocks
@@ -130,6 +131,7 @@ The command exits 0. A failing cell lists the gating verdicts that did not pass,
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --target function:acme
 Note: acme-price-sheet names the process adapter; --target runs it on function:acme.
 Campaign c-334a2d1abc96: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 2 criteria in 3 blocks of 1 spec (sheet_matches_catalog, reports_what_it_did), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✗ acme-price-sheet · function:acme · F · repeat 0  fail  block 0 must.0, block 0 stage.reached, block 0 skills.xlsx, block 0 guards.no_destructive_ops.pass, block 0 execution.ran_code, block 0 execution.exit_code, block 0 execution.max_commands, block 0 workspace.created, block 0 workspace.changed, block 0 workspace.deleted, block 0 workspace.others_untouched, block 0 artifacts.out/acme-price-sheet.xlsx, block 1 stage.reached, block 1 skills.xlsx, block 1 guards.no_destructive_ops.pass, block 1 execution.ran_code, block 1 execution.exit_code, block 1 workspace.created, block 1 workspace.changed, block 1 workspace.deleted, block 1 workspace.others_untouched, block 1 artifacts.out/acme-price-sheet.xlsx
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -140,6 +142,7 @@ That command exits 1. The execution and workspace verdicts are inconclusive and 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml
 Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 2 criteria in 3 blocks of 1 spec (sheet_matches_catalog, reports_what_it_did), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -150,12 +153,13 @@ The process target runs each cell in a sandbox, a temporary folder under one fol
 | Option | Effect |
 |---|---|
 | `--target`, `--mode`, `--repeats` | as for `plan` |
+| `--agent-version <label>` | the version of the agent under test. It is written as the `variant` of every target that names none, so the runs record which agent produced them. The target is part of the cell id and of the cache key: a run under `v2` never reuses a run or a cached block of `v1`. With `--prompt`, the prompt hash is the version and the label is recorded beside it. |
 | `--campaign <id>` | the campaign id. Without it, the id is `c-` and a hash of the specs, the targets, the modes, the repeats and the creation time. An id the store already holds is refused. |
 | `--store <file>` | keep the campaign, its specs, its runs and the cache in this SQLite file. Without it, the store lives in memory and the runs are gone when the command ends. |
 | `--no-cache` | neither replay runs from the cache nor write to it |
 | `--concurrency <n>` | cells that run at the same time, at least 1. Default 4. |
 | `--budget-usd <usd>` | a hard stop on the campaign's spend. See [the budget](#the-budget). |
-| `--process-command <command>` | the command that runs the agent of any `process:<name>` target other than `process:acme-ops`, through the [process adapter](adapters/process.md) in a local sandbox: a JSON list of strings such as `["python3", "agent.py"]`, or words split on spaces, with no quoting. The [Python package](python.md) passes it for a Python function agent. |
+| `--process-command <command>` | the command that runs the agent of any `process:<name>` target other than `process:acme-ops`, through the [process adapter](adapters/process.md) in a local sandbox: a JSON list of strings such as `["python3", "/path/to/agent.py"]`, or words split on spaces, with no quoting. The command runs in the workspace of each sandbox, a temporary folder, not in the folder you run `driftbench` in: name the agent file by its absolute path (`"$PWD/agent.py"` in a shell). A relative path that names a file of the working folder gets a note on stderr, and the run goes on. The [Python package](python.md) passes it for a Python function agent. |
 | `--retry-attempts <n>`, `--retry-base-ms <ms>`, `--retry-max-ms <ms>` | how model calls are retried, over the spec target's `retry`. See [retries](retries.md). |
 | `--driver <driver>`, `--persona <file>`, `--recording <file>`, `--model`, `--agent-family <family>`, `--judge-family <family>` | who writes the user turns: `scripted` (the default) or `simulated`, a persona through the model port or a recording. See [simulated user](simulated-user.md). |
 | `--json` | print one JSON document: `campaignId`, `stored`, `checks`, `cells` and `summary`. Each cell holds its state, its failing list, its run id, its end state when the spec has one, and `blocks`: each block's `index`, `blockId`, `pass`, observed `stage`, and its `verdicts`, each with `id`, `outcome`, `gating` and `evidence` |
@@ -169,6 +173,7 @@ The store needs Node.js 22.13 or newer, for `node:sqlite`.
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --mode T,F,P --repeats 2 --store modes.db
 Campaign c-9d34273e590c: 44 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · T · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · T · repeat 1  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
@@ -425,6 +430,7 @@ A campaign keeps its targets, not the commands behind them: a campaign run with 
 ```
 $ pnpm -s driftbench campaign resume c-3e6aff180724 --store acme.db
 Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (reused)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (reused)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (reused)  5 blocks
@@ -479,7 +485,7 @@ aggregates:
 
 Each entry is one `name:op threshold` string, the same syntax as `--aggregate`. A flag with the same name replaces the file's entry, and a flag with a new name adds to it. The file has one key, `aggregates`; any other key, or a bad entry, exits 2 and names the line. The file is optional: without it, only the flags count. See [campaign-level criteria](aggregates.md).
 
-To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.yml](../action/action.yml) takes the specs, the target, the baseline and the `aggregate` input, and fails the job unless the verdict is parity. A workflow that uses it is in [examples/acme/ci/driftbench-ci.yml](../examples/acme/ci/driftbench-ci.yml).
+To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.yml](../action/action.yml) takes the specs, the target, the baseline and the `aggregate` input, and fails the job unless the verdict is parity. Its `process-command` input passes `--process-command`, so the action gates your own process agent. A workflow that uses it is in [examples/acme/ci/driftbench-ci.yml](../examples/acme/ci/driftbench-ci.yml).
 
 ## Run events
 
@@ -542,6 +548,7 @@ The campaign record stores a budget of 0 when none was given. `resume` reads a s
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --repeats 2 --budget-usd 0
 Campaign c-7572a9cb7069: 2 cells, 4 at a time. Budget $0.00. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 2 criteria in 3 blocks of 1 spec (one_question_per_turn, no_invented_data), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ! acme-plan-upgrade · function:acme · F · repeat 0  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 ! acme-plan-upgrade · function:acme · F · repeat 1  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 2 cells: 0 pass, 0 fail, 0 failed, 2 stopped by the budget. Spent $0.00.
@@ -563,7 +570,7 @@ effective units per arm = specs * repeats / design effect
 
 ### The store
 
-`@agent-nexus/driftbench-store` keeps specs, campaigns, runs with their blocks, the cache and measured cost units in one SQLite file; `--store <file>` opens or creates it. It lists its campaigns newest first, which is how `status` and `resume` find the latest. `exportCampaign(campaignId, dir)` writes one campaign as a versioned JSON bundle: `campaign.json`, one `runs/<runId>.json` per run, and `manifest.json`, written last. No command exports a campaign yet. Cost units are recorded through the store's `putUnit`; nothing records them during a run yet, so a projection prices only the units put there.
+`@agent-nexus/driftbench-store` keeps specs, campaigns, runs with their blocks, the cache and measured cost units in one SQLite file; `--store <file>` opens or creates it. It lists its campaigns newest first, which is how `status` and `resume` find the latest. `exportCampaign(campaignId, dir)` and `campaign export <campaignId> --store <file> --out <dir>` write a bundle with the campaign, its runs, specs and recorded dataset and prompt versions. `campaign import <folder> --store <file>` checks the hashes and imports the bundle all or nothing. Cost units are recorded through the store's `putUnit`; nothing records them during a run yet, so a projection prices only the units put there.
 
 ## `runSpec`
 
@@ -702,6 +709,7 @@ On the command line the store is the cache. A second campaign over the same spec
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
 Campaign c-868fb474970f: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (replayed from the cache)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (replayed from the cache)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (replayed from the cache)  5 blocks

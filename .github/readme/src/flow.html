@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: from a map to a verdict</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* The pipeline in seven node cards, read left to right, then the second row. The blue path is the one a
+     verdict takes into CI. Every step is a command of the CLI. */
+  #frame { width: 640px; height: 376px; }
+  .nx-node { width: 136px; height: 122px; align-content: start; padding: 10px 11px; row-gap: 5px; }
+  .nx-node__kind { font: 500 10px/1 var(--nx-mono); letter-spacing: .6px; text-transform: uppercase; white-space: nowrap; }
+  .nx-node__title { font-size: 13.5px; }
+  .nx-node__detail { font-size: 11.5px; line-height: 1.3; }
+  .cmd { position: absolute; transform: translate(-50%, 0); height: 22px; font: 500 11px/1 var(--nx-mono); }
+  .r1 { top: 58px; }
+  .r2 { top: 220px; }
+  .head-k { left: 16px; top: 16px; }
+  .head-t { position: absolute; left: 16px; top: 30px; font: 400 18px/1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: var(--nx-ink); }
+  .verdict { width: 168px; }
+  .gate { left: 470px; top: 322px; }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 356">
+      <path class="nx-edge" d="M152 119 L168 119"/>
+      <path class="nx-edge" d="M304 119 L320 119"/>
+      <path class="nx-edge" d="M456 119 L472 119"/>
+      <path class="nx-edge" d="M540 180 C540 204, 84 196, 84 220"/>
+      <path class="nx-edge" d="M152 281 L168 281"/>
+      <path class="nx-edge--new" d="M304 281 L320 281"/>
+    </svg>
+
+    <span class="nx-kind head-k">How it works</span>
+    <div class="head-t">From a map of situations to a verdict CI can gate on.</div>
+
+    <div class="nx-node r1" style="left:16px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></span>
+      <span class="nx-node__kind">01 Map</span>
+      <span class="nx-node__title">What it can face</span>
+      <span class="nx-node__detail">Stages, values, tools, rules. You approve it.</span>
+    </div>
+    <div class="nx-node r1" style="left:168px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span>
+      <span class="nx-node__kind">02 Tests</span>
+      <span class="nx-node__title">Blocks, by code</span>
+      <span class="nx-node__detail">A gate drops tests that cannot fail.</span>
+    </div>
+    <div class="nx-node r1" style="left:320px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5l12 7-12 7z"/></svg></span>
+      <span class="nx-node__kind">03 Run</span>
+      <span class="nx-node__title">Your agent</span>
+      <span class="nx-node__detail">One adapter, three modes, replay.</span>
+    </div>
+    <div class="nx-node r1" style="left:472px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4L19 7"/></svg></span>
+      <span class="nx-node__kind">04 Checks</span>
+      <span class="nx-node__title">29 machine checks</span>
+      <span class="nx-node__detail">Reply, tools, files. A fail is final.</span>
+    </div>
+
+    <div class="nx-node r2" style="left:16px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M6 20h12M4 9h16M7 9l-3 6a3 3 0 0 0 6 0zM17 9l-3 6a3 3 0 0 0 6 0z"/></svg></span>
+      <span class="nx-node__kind">05 Judges</span>
+      <span class="nx-node__title">Quoted evidence</span>
+      <span class="nx-node__detail">A panel votes only when unsure.</span>
+    </div>
+    <div class="nx-node r2" style="left:168px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span>
+      <span class="nx-node__kind">06 Statistics</span>
+      <span class="nx-node__title">An interval on every rate</span>
+      <span class="nx-node__detail">Noise floor, paired tests.</span>
+    </div>
+    <div class="nx-node r2 nx-ring verdict" style="left:320px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+      <span class="nx-node__kind">07 Verdict</span>
+      <span class="nx-node__title">Scorecard, exit code</span>
+      <span class="nx-node__detail">Parity or regression, on every pull request.</span>
+    </div>
+    <span class="nx-ipill" style="left:508px;top:269px"><span class="nx-done">Exit 0</span>parity</span>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 18px "Libre Caslon Display"', '400 11px Geist', '600 13px Geist', '500 10.5px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

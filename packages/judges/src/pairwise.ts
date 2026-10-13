@@ -12,6 +12,12 @@ import {
   type TranscriptEntry,
 } from './contract';
 import { FACT_AUDIT_POLICY, parseFactLedger } from './fact-audit';
+import {
+  judgePairLedger,
+  type PairLedgerOptions,
+  type PairLedgerResult,
+  pairLedgerRequest,
+} from './pair-ledger';
 import { FRAME_RULE } from './transcript';
 
 /**
@@ -26,12 +32,13 @@ import { FRAME_RULE } from './transcript';
 
 export type PairwiseChoice = 'first' | 'second' | 'tie';
 
-export type PairwiseOptions = {
+export type PairwiseOptions = PairLedgerOptions & {
   reference?: string;
   rubricItems?: readonly RubricItem[];
   audit?: boolean;
   answerContract?: 'ledger' | 'legacy';
-  /** Default: both orders. Canonical judges one stable content-hash order, without an order-bias check. */
+  reasoning?: JudgeRequest['reasoning'];
+  /** Canonical is for explicit-winner calls. The pair ledger always requires both orders. */
   presentation?: 'both-orders' | 'canonical';
 };
 
@@ -159,7 +166,15 @@ export function judgePairwise(
   transcript: readonly TranscriptEntry[],
   first: string,
   second: string,
-  options: PairwiseOptions & { presentation: 'canonical' },
+  options: PairwiseOptions & { answerContract: 'ledger'; presentation?: 'both-orders' },
+): Promise<PairLedgerResult>;
+export function judgePairwise(
+  client: JudgeClient,
+  criterion: CriterionText,
+  transcript: readonly TranscriptEntry[],
+  first: string,
+  second: string,
+  options: PairwiseOptions & { presentation: 'canonical'; answerContract?: 'legacy' },
 ): Promise<CanonicalPairwiseVerdict>;
 export function judgePairwise(
   client: JudgeClient,
@@ -167,7 +182,7 @@ export function judgePairwise(
   transcript: readonly TranscriptEntry[],
   first: string,
   second: string,
-  options?: PairwiseOptions & { presentation?: 'both-orders' },
+  options?: PairwiseOptions & { answerContract?: 'legacy'; presentation?: 'both-orders' },
 ): Promise<PairwiseVerdict>;
 export function judgePairwise(
   client: JudgeClient,
@@ -176,7 +191,7 @@ export function judgePairwise(
   first: string,
   second: string,
   options?: PairwiseOptions,
-): Promise<PairwiseVerdict | CanonicalPairwiseVerdict>;
+): Promise<PairwiseVerdict | CanonicalPairwiseVerdict | PairLedgerResult>;
 export async function judgePairwise(
   client: JudgeClient,
   criterion: CriterionText,
@@ -184,7 +199,19 @@ export async function judgePairwise(
   first: string,
   second: string,
   options: PairwiseOptions = {},
-): Promise<PairwiseVerdict | CanonicalPairwiseVerdict> {
+): Promise<PairwiseVerdict | CanonicalPairwiseVerdict | PairLedgerResult> {
+  if (options.answerContract === 'ledger' && options.presentation === 'canonical')
+    throw new RangeError('pair ledger requires both-orders presentation');
+  if (options.answerContract === 'ledger')
+    return judgePairLedger(
+      client,
+      pairLedgerRequest(criterion, transcript, first, second, {
+        requirements: options.rubricItems,
+        reference: options.reference,
+        reasoning: options.reasoning,
+      }),
+      options,
+    );
   const { reference } = options;
   let calls = 0;
   const request = (a: string, b: string, reverse = false): JudgeRequest => ({

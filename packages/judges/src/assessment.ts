@@ -27,6 +27,17 @@ import {
   parseAnswerText as parseLegacyAnswerText,
   parseAnswerValue as parseLegacyAnswerValue,
 } from './legacy-contract';
+import {
+  isPairLedgerRequest,
+  pairLedgerSchema,
+  parsePairLedgerText,
+  parsePairLedgerValue,
+} from './pair-ledger-contract';
+import {
+  parseResponseRelevance,
+  ResponseRelevanceAnswer,
+  validateResponseRelevanceRequest,
+} from './response-relevance';
 
 /** The caller owns item names and weights. Names identify requirements, never output positions. */
 export type RubricItem = {
@@ -36,12 +47,13 @@ export type RubricItem = {
   readonly hard?: boolean;
 };
 export type Assessment =
-  | { readonly kind: 'pairwise' }
+  | { readonly kind: 'pairwise'; readonly items?: readonly RubricItem[] }
   | {
       readonly kind: 'fact-ledger';
       /** Pointwise only: reject reference/reply text that is not a source quote. Default semantic. */
       readonly grounding?: 'strict';
     }
+  | { readonly kind: 'response-relevance' }
   | { readonly kind: 'conformance'; readonly reference: string }
   | {
       readonly kind: 'rubric';
@@ -112,26 +124,30 @@ export function validateAssessment(assessment: Assessment): void {
 
 /** The provider schema matches the exact answer contract of this request. */
 export function responseSchema(request: JudgeRequest): Record<string, unknown> & { properties?: unknown } {
+  if (isPairLedgerRequest(request)) return pairLedgerSchema(request);
+  if (request.assessment?.kind === 'response-relevance') validateResponseRelevanceRequest(request);
   if (request.assessment?.kind === 'conformance') validateConformanceRequest(request);
   const a = request.answerContract === 'legacy' ? undefined : request.assessment;
   if (a) validateAssessment(a);
   if (a?.kind === 'fact-ledger' && !request.candidates) validatePointwiseFactRequest(request);
   const schema =
-    a?.kind === 'conformance'
-      ? ConformanceAudit
-      : a?.kind === 'fact-ledger'
-        ? request.candidates
-          ? FactLedgerAnswer
-          : PointwiseFactLedgerAnswer
-        : a?.kind === 'pairwise'
-          ? PairwiseAnswer
-          : a?.kind === 'rubric'
-            ? a.pairwise
-              ? pairLedger
-              : pointLedger
-            : request.answerContract === 'legacy'
-              ? undefined
-              : CriterionLedger;
+    a?.kind === 'response-relevance'
+      ? ResponseRelevanceAnswer
+      : a?.kind === 'conformance'
+        ? ConformanceAudit
+        : a?.kind === 'fact-ledger'
+          ? request.candidates
+            ? FactLedgerAnswer
+            : PointwiseFactLedgerAnswer
+          : a?.kind === 'pairwise'
+            ? PairwiseAnswer
+            : a?.kind === 'rubric'
+              ? a.pairwise
+                ? pairLedger
+                : pointLedger
+              : request.answerContract === 'legacy'
+                ? undefined
+                : CriterionLedger;
   if (!schema)
     return {
       type: 'object',
@@ -150,11 +166,23 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
 
 /** Parse only the final complete object. No binary fallback can reverse an explicit winner. */
 export function parseJudgeText(raw: string, request: JudgeRequest): JudgeResult {
+  if (request.assessment?.kind === 'response-relevance') {
+    const text = extractObject(raw);
+    if (text === undefined) return invalid(raw, 'no final complete JSON object');
+    const duplicate = repeatedObjectKey(text);
+    if (duplicate !== undefined) return invalid(raw, `repeated key ${duplicate}`);
+    try {
+      return parseJudgeValue(JSON.parse(text), request, raw);
+    } catch {
+      return invalid(raw, 'invalid JSON');
+    }
+  }
   if (request.assessment?.kind === 'conformance') {
     validateConformanceRequest(request);
     return parseConformanceText(raw);
   }
   if (request.answerContract === 'legacy') return parseLegacyAnswerText(raw);
+  if (isPairLedgerRequest(request)) return parsePairLedgerText(raw, request);
   const callerError = requirementsError(request);
   if (callerError) return invalid(raw, callerError);
   const text = extractObject(raw);
@@ -179,11 +207,27 @@ export function parseJudgeValue(
   request: JudgeRequest,
   raw = JSON.stringify(value),
 ): JudgeResult {
+  if (request.assessment?.kind === 'response-relevance') {
+    const duplicate = repeatedObjectKey(raw);
+    if (duplicate !== undefined) return invalid(raw, `repeated key ${duplicate}`);
+    return parseResponseRelevance(value, request, raw);
+  }
   if (request.assessment?.kind === 'conformance') {
     validateConformanceRequest(request);
     return parseConformanceValue(value, raw);
   }
   if (request.answerContract === 'legacy') return parseLegacyAnswerValue(value, raw);
+  if (isPairLedgerRequest(request)) {
+    const result = parsePairLedgerValue(value, request, raw);
+    return repeatedObjectKey(raw) === undefined
+      ? result
+      : {
+          raw,
+          unparsed: true,
+          metadata: { graderError: true },
+          answer: inconclusive('duplicate pair ledger key'),
+        };
+  }
   const callerError = requirementsError(request);
   if (callerError) return invalid(raw, callerError);
   const duplicate = repeatedObjectKey(repairAnswerText(raw));
@@ -381,5 +425,9 @@ export async function judgeRubric(
     ...(first.costUsd === undefined && retry.costUsd === undefined
       ? {}
       : { costUsd: (first.costUsd ?? 0) + (retry.costUsd ?? 0) }),
+    // An unknown part makes the sum unknown: it is never reported as the known part alone.
+    ...(first.costIncomplete || retry.costIncomplete
+      ? { costUsd: undefined, costIncomplete: true as const }
+      : {}),
   };
 }

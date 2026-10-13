@@ -21,8 +21,7 @@ describe('file names containing spaces', () => {
   it('resolves and lints a spaced reference, preserving its exact quote', async () => {
     const quote = 'Read `references/team notes.md` for the invoice.';
     const root = await estate({
-      '.claude/skills/reconcile/SKILL.md':
-        '---\nname: reconcile\ndescription: Reconcile an invoice.\n---\n' + quote,
+      '.claude/skills/reconcile/SKILL.md': `---\nname: reconcile\ndescription: Reconcile an invoice.\n---\n${quote}`,
       '.claude/skills/reconcile/references/team notes.md': '# Notes\n',
     });
     const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });

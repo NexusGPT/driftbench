@@ -135,6 +135,7 @@ describe('docs content', () => {
     const all = await pages();
     const concepts = all.filter((page) => page.path.startsWith('concepts'));
     expect(concepts.map((page) => basename(page.path)).sort()).toEqual([
+      'blast-radius.md',
       'block.md',
       'drift.md',
       'given-when-then.md',
