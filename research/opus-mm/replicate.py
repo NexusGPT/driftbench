@@ -32,6 +32,11 @@ def main():
         o = parse(e["text"])
         if o is not None:
             reads[e["id"]][e["side"]].append(o)
+    solve = {}
+    if len(sys.argv) > 4:
+        for l in open(sys.argv[4]):
+            if l.strip():
+                e = json.loads(l); solve[e["id"]] = e
     rows = []
     for rid, f in frozen.items():
         r = sample[rid]; ra, rb = reads[rid]["a"], reads[rid]["b"]
@@ -49,9 +54,20 @@ def main():
             harm = (bool(a.get("request_harmful")) + bool(b.get("request_harmful"))) / 2
             if harm >= 0.5 and bool(a.get("reply_refuses")) != bool(b.get("reply_refuses")):
                 new = sc("A" if a.get("reply_refuses") else "B", r["label"])
+        # Pre-registered solve arm: harm gate, then machine solve, then agreement, then split to pointwise.
+        solved = new
+        if ra and rb and not refused and r["group"] == "reasoning":
+            a, b = ra[0], rb[0]
+            harm = (bool(a.get("request_harmful")) + bool(b.get("request_harmful"))) / 2
+            gate = harm >= 0.5 and bool(a.get("reply_refuses")) != bool(b.get("reply_refuses"))
+            v = solve.get(rid, {}).get("verdict")
+            if not gate and v in ("A", "B"):
+                solved = sc(v, r["label"])
+        if r["group"] == "reasoning" and solve and rid not in solve and not refused:
+            continue  # solve arm not done for this item yet: keep the cohort identical for all arms
         if refused:
-            base = new = 0.0
-        rows.append({"id": rid, "group": r["group"], "base": base, "new": new, "refused": refused})
+            base = new = solved = 0.0
+        rows.append({"id": rid, "group": r["group"], "base": base, "new": new, "solve": solved, "refused": refused})
     n = collections.Counter(x["group"] for x in rows)
     print(f"cohort {len(rows)} items; per class {dict(n)}; pointwise spend {cost:.5f} USD")
 
@@ -61,31 +77,38 @@ def main():
             by[x["group"]].append(x[key])
         return {g: 100 * np.mean(by[g]) for g in GROUPS if by[g]}
 
-    for view, rs in [("official", rows), ("refusal-excluded", [x for x in rows if not x["refused"]])]:
-        mb, mn = macro(rs, "base"), macro(rs, "new")
-        tb, tn = np.mean(list(mb.values())), np.mean(list(mn.values()))
-        print(f"\n{view}: frozen {tb:.2f}, fusion {tn:.2f}, difference {tn - tb:+.2f}")
-        print("| Class | n | Frozen % | Fusion % |")
-        print("|---|---:|---:|---:|")
-        for g in GROUPS:
-            if g in mb:
-                print(f"| {g} | {sum(1 for x in rs if x['group'] == g)} | {mb[g]:.2f} | {mn[g]:.2f} |")
-        rng = np.random.default_rng(20261013)
-        by = {g: np.array([(x["base"], x["new"]) for x in rs if x["group"] == g]) for g in GROUPS}
-        by = {g: v for g, v in by.items() if len(v)}
-        ds = []
-        for _ in range(20000):
-            t = []
-            for g, arr in by.items():
-                s = arr[rng.integers(0, len(arr), len(arr))]
-                t.append(100 * (s[:, 1].mean() - s[:, 0].mean()))
-            ds.append(np.mean(t))
-        lo, hi = np.percentile(ds, [2.5, 97.5])
-        wins = sum(1 for x in rs if x["new"] > x["base"]); losses = sum(1 for x in rs if x["new"] < x["base"])
-        m = wins + losses; k = min(wins, losses)
-        p = min(1.0, 2 * sum(math.comb(m, i) for i in range(k + 1)) / 2 ** m) if m else 1.0
-        print(f"paired 95% interval (bootstrap within class, macro mean): {lo:+.2f} to {hi:+.2f}")
-        print(f"item wins / losses / unchanged: {wins} / {losses} / {len(rs) - m}; exact two-sided sign test p = {p:.4g}")
+    arms = [("new", "split fusion plus harm gate")] + ([("solve", "plus machine solve (pre-registered)")] if solve else [])
+    for key, arm in arms:
+        print(f"\n=== arm: {arm} ===")
+        for view, rs in [("official", rows), ("refusal-excluded", [x for x in rows if not x["refused"]])]:
+            report(view, rs, key, macro)
+
+
+def report(view, rs, key, macro):
+    mb, mn = macro(rs, "base"), macro(rs, key)
+    tb, tn = np.mean(list(mb.values())), np.mean(list(mn.values()))
+    print(f"\n{view}: frozen {tb:.2f}, arm {tn:.2f}, difference {tn - tb:+.2f}")
+    print("| Class | n | Frozen % | Arm % |")
+    print("|---|---:|---:|---:|")
+    for g in GROUPS:
+        if g in mb:
+            print(f"| {g} | {sum(1 for x in rs if x['group'] == g)} | {mb[g]:.2f} | {mn[g]:.2f} |")
+    rng = np.random.default_rng(20261013)
+    by = {g: np.array([(x["base"], x[key]) for x in rs if x["group"] == g]) for g in GROUPS}
+    by = {g: v for g, v in by.items() if len(v)}
+    ds = []
+    for _ in range(20000):
+        t = []
+        for g, arr in by.items():
+            s = arr[rng.integers(0, len(arr), len(arr))]
+            t.append(100 * (s[:, 1].mean() - s[:, 0].mean()))
+        ds.append(np.mean(t))
+    lo, hi = np.percentile(ds, [2.5, 97.5])
+    wins = sum(1 for x in rs if x[key] > x["base"]); losses = sum(1 for x in rs if x[key] < x["base"])
+    m = wins + losses; k = min(wins, losses)
+    p = min(1.0, 2 * sum(math.comb(m, i) for i in range(k + 1)) / 2 ** m) if m else 1.0
+    print(f"paired 95% interval (bootstrap within class, macro mean): {lo:+.2f} to {hi:+.2f}")
+    print(f"item wins / losses / unchanged: {wins} / {losses} / {len(rs) - m}; exact two-sided sign test p = {p:.4g}")
 
 
 if __name__ == "__main__":
