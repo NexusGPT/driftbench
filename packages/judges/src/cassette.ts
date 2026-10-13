@@ -6,6 +6,7 @@ import type { JudgeClient } from './client';
 import { JUDGE_DIALECTS } from './clients/dialects';
 import { CONFORMANCE_PROMPT_FINGERPRINT } from './conformance';
 import {
+  inconclusive,
   JudgeAnswer,
   JudgeClass,
   JudgeOutcome,
@@ -17,6 +18,10 @@ import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
 import { isPairLedgerRequest } from './pair-ledger-contract';
 import { PAIR_LEDGER_PROMPT_FINGERPRINT, PROMPT_FINGERPRINT } from './prompt';
+import {
+  RESPONSE_RELEVANCE_PROMPT_FINGERPRINT,
+  validateResponseRelevanceRequest,
+} from './response-relevance';
 
 /**
  * Cassettes: recorded judge answers. A recorder wraps a live client and keeps every answer; a player
@@ -94,6 +99,8 @@ export const CassetteEntry = z.strictObject({
   answer: z.unknown().optional(),
   raw: z.string().optional(),
   error: z.string().optional(),
+  /** A provider rejection retained even when the raw text happens to be complete JSON. */
+  unparsedReason: z.string().optional(),
   /** What the recorded call cost in US dollars, when the client reported it. Replayed with the answer. */
   cost_usd: z.number().nonnegative().optional(),
   /** The answer parsed only after the strict repair of unescaped quotes. Replayed with the answer. */
@@ -162,6 +169,10 @@ export function requestKey(
   prompt?: string,
   swapped?: JudgeRequest,
 ): string {
+  if (request.assessment?.kind === 'response-relevance') {
+    validateResponseRelevanceRequest(request);
+    if (client?.cls === 'system1') throw new RangeError('response-relevance requires a system2 judge');
+  }
   const procedure =
     client?.families !== undefined ||
     client?.comparison === true ||
@@ -187,17 +198,19 @@ export function requestKey(
     ...(swapped ? { comparison: fullKey(swapped) } : {}),
     prompt:
       prompt ??
-      (effective.answerContract === 'legacy'
-        ? LEGACY_PROMPT_FINGERPRINT
-        : isPairLedgerRequest(effective)
-          ? contentHash({
-              prompt: PAIR_LEDGER_PROMPT_FINGERPRINT,
-              dialect: effective.dialect,
-              table: JUDGE_DIALECTS,
-            })
-          : effective.assessment?.kind === 'conformance'
-            ? CONFORMANCE_PROMPT_FINGERPRINT
-            : PROMPT_FINGERPRINT),
+      (effective.assessment?.kind === 'response-relevance'
+        ? RESPONSE_RELEVANCE_PROMPT_FINGERPRINT
+        : effective.answerContract === 'legacy'
+          ? LEGACY_PROMPT_FINGERPRINT
+          : isPairLedgerRequest(effective)
+            ? contentHash({
+                prompt: PAIR_LEDGER_PROMPT_FINGERPRINT,
+                dialect: effective.dialect,
+                table: JUDGE_DIALECTS,
+              })
+            : effective.assessment?.kind === 'conformance'
+              ? CONFORMANCE_PROMPT_FINGERPRINT
+              : PROMPT_FINGERPRINT),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }
@@ -242,15 +255,17 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
           result.referenceAgreement ||
           result.referenceDisagreement !== undefined
           ? { ...base, result, raw: result.raw, ...cost(result) }
-          : result.unparsed || request.assessment || result.checks
-            ? { ...base, raw: result.raw, ...cost(result) }
-            : {
-                ...base,
-                answer: result.answer,
-                raw: result.raw,
-                ...cost(result),
-                ...(result.repaired ? { repaired: true as const } : {}),
-              },
+          : request.assessment?.kind === 'response-relevance' && result.unparsed
+            ? { ...base, raw: result.raw, unparsedReason: result.answer.reasoning, ...cost(result) }
+            : result.unparsed || request.assessment || result.checks
+              ? { ...base, raw: result.raw, ...cost(result) }
+              : {
+                  ...base,
+                  answer: result.answer,
+                  raw: result.raw,
+                  ...cost(result),
+                  ...(result.repaired ? { repaired: true as const } : {}),
+                },
       );
       return result;
     } catch (cause) {
@@ -349,6 +364,13 @@ function replay(entry: CassetteEntry, request: JudgeRequest): JudgeResult {
     ...(entry.cost_usd === undefined ? {} : { costUsd: entry.cost_usd }),
     ...(entry.repaired ? { repaired: true } : {}),
   };
+  if (entry.unparsedReason !== undefined)
+    return {
+      raw: entry.raw ?? '',
+      answer: inconclusive(entry.unparsedReason),
+      unparsed: true,
+      ...cost,
+    };
   if (request.assessment && entry.raw !== undefined)
     return { ...parseJudgeText(entry.raw, request), ...cost };
   if (entry.answer !== undefined)

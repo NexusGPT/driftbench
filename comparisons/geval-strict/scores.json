@@ -1,0 +1,82 @@
+{
+  "costUsd": 0.2519128,
+  "reportedCostUsd": 0.1519128,
+  "conservativeReservationsUsd": 0.1,
+  "invocations": 324,
+  "invocationErrors": 2,
+  "rows": {
+    "tuning": {
+      "cases": 120,
+      "frozenShipped": 99,
+      "frozenCandidate": 120,
+      "deepeval": 119,
+      "default": {
+        "correct": 105,
+        "distinctInputs": 84,
+        "nominalWilson95": [
+          0.8039690855177497,
+          0.9227657111903032
+        ],
+        "unparsed": 5,
+        "gainsVsDeepEval": 1,
+        "lossesVsDeepEval": 15,
+        "pairedExactP": 0.000518798828125,
+        "attributedUsd": 0.0329916,
+        "misses": [
+          "relevancy-promise-4-b",
+          "relevancy-explicit-unknown-0-b",
+          "relevancy-quote-answer-0-b",
+          "relevancy-explicit-unknown-2-b",
+          "relevancy-quote-answer-2-b",
+          "relevancy-quote-answer-4-b",
+          "relevancy-promise-2-b",
+          "relevancy-explicit-unknown-1-b",
+          "relevancy-explicit-unknown-3-b",
+          "relevancy-promise-0-b",
+          "relevancy-quote-answer-1-b",
+          "relevancy-promise-1-b",
+          "relevancy-promise-3-b",
+          "relevancy-explicit-unknown-4-b",
+          "relevancy-quote-answer-3-b"
+        ]
+      },
+      "feature": {
+        "correct": 118,
+        "distinctInputs": 84,
+        "nominalWilson95": [
+          0.9412628731870861,
+          0.9954175314588486
+        ],
+        "unparsed": 2,
+        "gainsVsDeepEval": 1,
+        "lossesVsDeepEval": 2,
+        "pairedExactP": 1,
+        "attributedUsd": 0.143894,
+        "misses": [
+          "relevancy-fluent-partial-0-a",
+          "relevancy-long-distractors-2-b"
+        ]
+      }
+    },
+    "heldout": {
+      "cases": 72,
+      "frozenShipped": 65,
+      "frozenCandidate": 69,
+      "deepeval": 70,
+      "feature": {
+        "correct": 72,
+        "distinctInputs": 72,
+        "nominalWilson95": [
+          0.9493470601886036,
+          1.0
+        ],
+        "unparsed": 0,
+        "gainsVsDeepEval": 2,
+        "lossesVsDeepEval": 0,
+        "pairedExactP": 0.5,
+        "attributedUsd": 0.03847232,
+        "misses": []
+      }
+    }
+  }
+}

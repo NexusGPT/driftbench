@@ -278,6 +278,7 @@ export {
 } from './reader-first';
 export { type ReaderFeatures, readerFeatures } from './reader-first-features';
 export { type ReferenceOptions, type ReferenceSolve, withReferenceConsensus } from './reference';
+export { judgeResponseRelevance, ResponseRelevanceAnswer } from './response-relevance';
 export { type ScreenFinding, type ScreenReport, screenData } from './screen';
 export { noJudgeCheck, type SingleJudgeOptions, singleJudgeCheck } from './single';
 export { judgeTurns, type TurnOutcome, type TurnsResult } from './turns';
