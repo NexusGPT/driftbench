@@ -40,7 +40,7 @@ out = [heading, '', f"Verified at {datetime.now(timezone.utc).isoformat()}.", ''
 for model, r in reports.items():
     out.append(f"| {model} | {r['ledger']['correct']}/270, {interval(r['ledger'])} | {r['promptfoo']['correct']}/270, {interval(r['promptfoo'])} | {interval(r['difference'])} | {r['wins']} / {r['losses']} | {r['p']:.12g} | {r['verdict']} |")
 out += ['', 'The pre-registration remains TIE-only for wins because 270 pairs are below the 440-pair target. TIE does not establish equivalence.',
-        'Additional-model multiplicity adjustment belongs to the parent comparison. The original 18-cell family is unchanged.', '',
+        'The parent comparison owns multiplicity adjustment, including treatment of the owner-dropped cell. No reduced-family correction is applied here.', '',
         '| Model | Contestant | TEST measured USD | TEST unknown holds USD | All phases measured USD | All phases unknown holds USD | TEST physical attempts |',
         '|---|---|---|---|---|---|---|']
 for model in MODELS:

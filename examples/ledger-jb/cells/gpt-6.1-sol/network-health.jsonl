@@ -1,0 +1,11 @@
+{"at":"2026-10-13T17:40:29.138Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":301,"consecutive":1,"required":10}
+{"at":"2026-10-13T17:40:59.082Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":248,"consecutive":2,"required":10}
+{"at":"2026-10-13T17:41:29.090Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":255,"consecutive":3,"required":10}
+{"at":"2026-10-13T17:41:59.030Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":193,"consecutive":4,"required":10}
+{"at":"2026-10-13T17:42:29.307Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":468,"consecutive":5,"required":10}
+{"at":"2026-10-13T17:42:59.071Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":232,"consecutive":6,"required":10}
+{"at":"2026-10-13T17:43:29.033Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":192,"consecutive":7,"required":10}
+{"at":"2026-10-13T17:43:59.148Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":307,"consecutive":8,"required":10}
+{"at":"2026-10-13T17:44:29.087Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":245,"consecutive":9,"required":10}
+{"at":"2026-10-13T17:44:59.055Z","model":"gpt-6.1-sol","url":"https://api.openai.com/v1/models","status":"health-probe","httpStatus":401,"healthy":true,"elapsedMs":212,"consecutive":10,"required":10}
+{"at":"2026-10-13T17:44:59.063Z","model":"gpt-6.1-sol","status":"health-gate-passed","consecutive":10,"workers":2}

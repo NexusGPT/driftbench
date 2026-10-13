@@ -34,6 +34,10 @@ for model in models:
     assert digest(ROOT / 'data/pool.json') == freeze['poolSha256']
     for path, expected in freeze['hashes'].items():
         assert digest(REPO / path) == expected, path
+    checkpoint_receipts = subprocess.check_output(
+        ['git', 'show', f'045dde5e7:examples/ledger-jb/cells/{model}/calls.jsonl'],
+        cwd=REPO, stderr=subprocess.STDOUT)
+    assert (cell / 'calls.jsonl').read_bytes().startswith(checkpoint_receipts), 'Checkpoint receipts or holds changed'
     calls = rows(cell / 'calls.jsonl')
     starts, finishes, active = {}, {}, set()
     max_active = 0
@@ -161,6 +165,7 @@ for model in models:
               'transportMissingTestRequests': 0, 'knownUsd': known, 'holdsUsd': held,
               'answeredTransportRetries': 0, 'outputAbove8192': 0, 'existingCompletedCellsUnchanged': True,
               'existingAnswersUnchanged': True, 'ownerDropApplied': True,
+              'checkpointReceiptsAndHoldsPreserved': True,
               'freezeSha256': digest(cell / 'freeze.json'), 'callsSha256': digest(cell / 'calls.jsonl'),
               'reportSha256': digest(cell / 'report.json'),
               'sonnetTestCachingOff': model == 'claude-sonnet-5-5'}

@@ -1,17 +1,20 @@
 {
   "model": "gpt-6.1-sol",
-  "pid": null,
-  "mode": "run",
+  "pid": 96736,
+  "mode": "network-recovery-sol",
   "freezeSha256": "6b51dd4a75590a4451db1ec53d873f31cacf72a5d5c965adfa6c06279c0c03b1",
-  "status": "queued-after-sonnet",
-  "phase": "test",
-  "completed": 62,
-  "planned": 540,
-  "at": "2026-10-13T14:56:34.395250+00:00",
-  "liabilityUsd": 21.7892724,
-  "requests": 911,
   "workers": 2,
-  "error": null,
-  "previousPid": 98184,
-  "capUsd": 35
+  "network": {
+    "status": "health-gate-passed",
+    "consecutive": 10,
+    "workers": 2
+  },
+  "status": "finished",
+  "at": "2026-10-13T19:05:11.274Z",
+  "phase": "test",
+  "completed": 540,
+  "planned": 540,
+  "reopened": 27,
+  "liabilityUsd": 27.71398459999995,
+  "requests": 1930
 }
