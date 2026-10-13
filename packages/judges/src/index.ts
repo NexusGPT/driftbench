@@ -2,6 +2,12 @@
 export const packageName = '@agent-nexus/driftbench-judges';
 
 export {
+  ANSWER_AUDIT_PROMPT_FINGERPRINT,
+  ANSWER_AUDIT_SYSTEM_PROMPT,
+  AnswerAudit,
+  judgeAnswerAudit,
+} from './answer-audit';
+export {
   type ExtractedAnswer,
   extractFinalAnswer,
   referenceConsensus,

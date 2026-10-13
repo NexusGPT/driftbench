@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { AnswerAudit } from './answer-audit';
 import type { Assessment, RubricScores } from './assessment';
 import type { ConformanceAudit } from './conformance';
 import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
@@ -120,6 +121,8 @@ export type JudgeResult = {
   readonly responseRelevance?: ResponseRelevanceAnswer;
   /** Opt-in criterion-local conformance audit, with its outcome computed in code. */
   readonly conformance?: ConformanceAudit;
+  /** Opt-in answer audit: the conditions the model listed and settled, with the outcome computed in code. */
+  readonly answerAudit?: AnswerAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
   readonly checks?: CriterionLedger['checks'];
   /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */

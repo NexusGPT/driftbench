@@ -1,4 +1,5 @@
 import { contentHash } from '@agent-nexus/driftbench-core';
+import { ANSWER_AUDIT_SYSTEM_PROMPT, answerAuditUser } from './answer-audit';
 import { validateAssessment } from './assessment';
 import { CONFORMANCE_SYSTEM_PROMPT, conformanceUser } from './conformance';
 import type { JudgeRequest, TranscriptEntry } from './contract';
@@ -161,6 +162,7 @@ export function renderUser(request: JudgeRequest): string {
   if (request.assessment?.kind === 'response-relevance') return renderResponseRelevance(request);
   if (request.assessment?.kind === 'fact-ledger' && !request.candidates) return pointwiseAuditData(request);
   if (request.assessment?.kind === 'conformance') return conformanceUser(request);
+  if (request.assessment?.kind === 'answer-audit') return answerAuditUser(request);
   if (request.factAudit && request.assessment?.kind !== 'rubric') return auditData(request);
   const parts = [
     request.assessment
@@ -206,6 +208,8 @@ export function buildPrompt(request: JudgeRequest): { system: string; user: stri
     return { system: RESPONSE_RELEVANCE_SYSTEM_PROMPT, user: renderResponseRelevance(request) };
   if (request.assessment?.kind === 'conformance')
     return { system: CONFORMANCE_SYSTEM_PROMPT, user: conformanceUser(request) };
+  if (request.assessment?.kind === 'answer-audit')
+    return { system: ANSWER_AUDIT_SYSTEM_PROMPT, user: answerAuditUser(request) };
   if (request.answerContract === 'legacy')
     return buildLegacyPrompt({
       ...request,
