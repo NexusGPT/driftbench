@@ -35,13 +35,13 @@
     },
     {
      "s1_calls": 90,
-     "s2_calls": 14,
-     "usd": 0.0022
+     "s2_calls": 16,
+     "usd": 0.0023
     },
     {
      "s1_calls": 90,
-     "s2_calls": 12,
-     "usd": 0.0019
+     "s2_calls": 14,
+     "usd": 0.002
     }
    ],
    "recorded": {
@@ -64,22 +64,22 @@
    "items": 30,
    "variant": {
     "accuracy": [
-     73.3,
-     80.0,
-     80.0
+     83.3,
+     86.7,
+     86.7
     ],
-    "mean": 77.8,
-    "range_points": 6.7,
-    "sd_points": 3.8,
-    "flips": 0.067
+    "mean": 85.6,
+    "range_points": 3.3,
+    "sd_points": 1.9,
+    "flips": 0.033
    },
    "stage1": {
     "accuracy": [
-     53.3,
-     53.3,
-     53.3
+     80.0,
+     80.0,
+     80.0
     ],
-    "mean": 53.3,
+    "mean": 80.0,
     "range_points": 0.0,
     "sd_points": 0.0,
     "flips": 0.0
@@ -87,18 +87,18 @@
    "usage_per_repeat": [
     {
      "s1_calls": 90,
-     "s2_calls": 30,
-     "usd": 0.0146
+     "s2_calls": 33,
+     "usd": 0.016
     },
     {
      "s1_calls": 90,
-     "s2_calls": 30,
-     "usd": 0.0155
+     "s2_calls": 32,
+     "usd": 0.0157
     },
     {
      "s1_calls": 90,
-     "s2_calls": 30,
-     "usd": 0.0161
+     "s2_calls": 32,
+     "usd": 0.0164
     }
    ],
    "recorded": {
@@ -127,7 +127,7 @@
      "flips": 0.3
     }
    },
-   "floor_points": 6.7
+   "floor_points": 3.3
   },
   "hardrows": {
    "items": 30,

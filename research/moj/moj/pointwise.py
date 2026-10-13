@@ -100,6 +100,7 @@ def meta_of(item):
     # one reference) or question (nothing but the request). Boundaries and weights are fitted per class of content.
     return {'label': item['label'], 'half': item['half'], 'split': item['split'], 'group': item['group'], 'kind': item['kind'],
             'carries': POINT_BENCHES[item['bench']].get('carries') or CLASSES[carried(item)],
+            'group_key': item.get('split_group', item['id']),  # cross-fitting folds are made of groups
             'language': item['language'], 'swapped': item['swapped'], 'baselines': item.get('baselines', {})}
 
 

@@ -2,61 +2,61 @@
 
 | Row | Tuning half: accuracy [95% interval] | Validation half: accuracy [95% interval] | Balanced accuracy, tuning / validation | S1 calls per 100 | S2 calls per 100 | USD per 100 | Seconds per item |
 |---|---|---|---|---:|---:|---:|---:|
-| MoJ pw-s1-whole | 82.4 [70, 90] n=54 | 91.3 [80, 97] n=46 | 82 / 91 | 200 | 0 | 0.0000 | 0.88 |
-| MoJ pw-s1-rows | 88.0 [77, 94] n=54 | 89.1 [77, 95] n=46 | 87 / 89 | 200 | 0 | 0.0000 | 1.43 |
-| MoJ pw-moj-luna | 88.9 [78, 95] n=54 | 89.1 [77, 95] n=46 | 89 / 89 | 300 | 26 | 0.0065 | 3.29 |
-| MoJ pw-moj-mix | 83.3 [71, 91] n=54 | 84.8 [72, 92] n=46 | 84 / 85 | 300 | 487 | 0.7304 | 25.97 |
-| our judge (recorded) | 94.4 [79, 99] n=27 | 70.5 [50, 85] n=22 | 95 / 71 | 0 | 214 | n/a | n/a |
-| our judge with a domain seat (recorded) | 87.5 [72, 95] n=32 | 96.3 [82, 99] n=27 | 88 / 96 | 0 | 100 | n/a | n/a |
-| other framework (recorded) | 80.0 [49, 94] n=10 | 80.0 [49, 94] n=10 | 86 / 83 | 0 | 200 | n/a | n/a |
-| other framework default grader, gpt-6-luna (fresh) | 86.1 [74, 93] n=54 | 83.7 [71, 92] n=46 | 86 / 84 | 0 | 200 | 0.0382 | 5.91 |
-| other framework default grader, gemini-3.8-flash (fresh) | 80.4 [68, 89] n=51 | 76.7 [62, 87] n=43 | 81 / 77 | 0 | 200 | 0.7096 | 14.10 |
-| other framework default grader, haiku (fresh) | 76.9 [64, 86] n=54 | 76.1 [62, 86] n=46 | 77 / 75 | 0 | 200 | 0.1121 | 8.74 |
-| cheater: longer wins | 35.2 [24, 49] n=54 | 39.1 [26, 54] n=46 | 36 / 38 | 0 | 0 | 0.0000 | 0.00 |
+| MoJ pw-s1-whole | 83.3 [71, 91] n=54 | 90.2 [78, 96] n=46 | 83 / 90 | 200 | 0 | 0.0000 | 0.91 |
+| MoJ pw-s1-rows | 84.3 [72, 92] n=54 | 93.5 [82, 98] n=46 | 84 / 94 | 200 | 0 | 0.0000 | 1.28 |
+| MoJ pw-moj-luna | 87.0 [76, 94] n=54 | 93.5 [82, 98] n=46 | 87 / 94 | 300 | 43 | 0.0151 | 4.40 |
+| MoJ pw-moj-mix | 87.0 [76, 94] n=54 | 91.3 [80, 97] n=46 | 87 / 91 | 300 | 126 | 0.2656 | 10.26 |
+| our judge (recorded) | 83.3 [65, 93] n=27 | 84.1 [64, 94] n=22 | 83 / 85 | 0 | 214 | n/a | n/a |
+| our judge with a domain seat (recorded) | 86.4 [71, 94] n=33 | 98.1 [84, 100] n=26 | 86 / 98 | 0 | 100 | n/a | n/a |
+| other framework (recorded) | 80.0 [55, 93] n=15 | 80.0 [38, 96] n=5 | 85 / 83 | 0 | 200 | n/a | n/a |
+| other framework default grader, gpt-6-luna (fresh) | 82.4 [70, 90] n=54 | 88.0 [76, 95] n=46 | 83 / 88 | 0 | 200 | 0.0437 | 6.25 |
+| other framework default grader, gemini-3.8-flash (fresh) | 79.8 [67, 88] n=52 | 77.4 [63, 87] n=42 | 80 / 77 | 0 | 200 | 0.6905 | 13.30 |
+| other framework default grader, haiku (fresh) | 73.1 [60, 83] n=54 | 80.4 [67, 89] n=46 | 73 / 80 | 0 | 200 | 0.1305 | 9.00 |
+| cheater: longer wins | 35.2 [24, 49] n=54 | 39.1 [26, 54] n=46 | 36 / 39 | 0 | 0 | 0.0000 | 0.00 |
 | cheater: first wins | 50.0 [37, 63] n=54 | 50.0 [36, 64] n=46 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
 
-## verify (53 tuning items, 42 validation items)
+## verify (46 tuning items, 49 validation items)
 
 | Row | Tuning half: accuracy [95% interval] | Validation half: accuracy [95% interval] | Balanced accuracy, tuning / validation | S1 calls per 100 | S2 calls per 100 | USD per 100 | Seconds per item |
 |---|---|---|---|---:|---:|---:|---:|
-| MoJ pw-s1-whole | 79.2 [67, 88] n=53 | 72.6 [58, 84] n=42 | 61 / 45 | 100 | 0 | 0.0000 | 0.72 |
-| MoJ pw-s1-rows | 35.8 [24, 49] n=53 | 28.6 [17, 44] n=42 | 53 / 22 | 100 | 0 | 0.0000 | 1.06 |
-| MoJ pw-moj-luna | 73.6 [60, 84] n=53 | 71.4 [56, 83] n=42 | 62 / 68 | 300 | 102 | 0.0523 | 13.06 |
-| MoJ pw-moj-mix | 75.5 [62, 85] n=53 | 71.4 [56, 83] n=42 | 72 / 63 | 300 | 388 | 1.1512 | 43.06 |
-| our judge (recorded) | 77.8 [55, 91] n=18 | 75.0 [47, 91] n=12 | 77 / 75 | 0 | 468 | 0.5625 | n/a |
-| other framework (recorded) | 77.8 [55, 91] n=18 | 75.0 [47, 91] n=12 | 77 / 75 | 0 | 99 | 0.0740 | n/a |
-| other framework default grader, gpt-6-luna (fresh) | 73.5 [60, 84] n=49 | 64.9 [49, 78] n=37 | 71 / 62 | 0 | 100 | 0.0797 | 8.58 |
-| other framework default grader, gemini-3.8-flash (fresh) | 79.2 [67, 88] n=53 | 71.4 [56, 83] n=42 | 74 / 63 | 0 | 100 | 0.8313 | 10.28 |
-| other framework default grader, haiku (fresh) | 75.5 [62, 85] n=53 | 61.9 [47, 75] n=42 | 72 / 53 | 0 | 100 | 0.1985 | 12.34 |
-| cheater: constant fail | 83.0 [71, 91] n=53 | 81.0 [67, 90] n=42 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
-| cheater: constant pass | 17.0 [9, 29] n=53 | 19.0 [10, 33] n=42 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
+| MoJ pw-s1-whole | 78.3 [64, 88] n=46 | 60.2 [46, 73] n=49 | 72 / 44 | 100 | 0 | 0.0000 | 0.65 |
+| MoJ pw-s1-rows | 76.1 [62, 86] n=46 | 55.1 [41, 68] n=49 | 70 / 50 | 100 | 0 | 0.0000 | 0.72 |
+| MoJ pw-moj-luna | 73.9 [60, 84] n=46 | 73.5 [60, 84] n=49 | 72 / 79 | 300 | 118 | 0.0546 | 12.86 |
+| MoJ pw-moj-mix | 67.4 [53, 79] n=46 | 71.4 [58, 82] n=49 | 65 / 77 | 300 | 159 | 0.1659 | 15.65 |
+| our judge (recorded) | 69.2 [42, 87] n=13 | 82.4 [59, 94] n=17 | 82 / 68 | 0 | 466 | 0.5564 | n/a |
+| other framework (recorded) | 84.6 [58, 96] n=13 | 70.6 [47, 87] n=17 | 91 / 62 | 0 | 97 | 0.0743 | n/a |
+| other framework default grader, gpt-6-luna (fresh) | 61.9 [47, 75] n=42 | 77.3 [63, 87] n=44 | 60 / 75 | 0 | 100 | 0.0636 | 8.11 |
+| other framework default grader, gemini-3.8-flash (fresh) | 67.4 [53, 79] n=46 | 83.7 [71, 91] n=49 | 61 / 79 | 0 | 100 | 0.7121 | 9.43 |
+| other framework default grader, haiku (fresh) | 69.6 [55, 81] n=46 | 69.4 [55, 80] n=49 | 59 / 70 | 0 | 100 | 0.1592 | 11.21 |
+| cheater: constant fail | 78.3 [64, 88] n=46 | 85.7 [73, 93] n=49 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
+| cheater: constant pass | 21.7 [12, 36] n=46 | 14.3 [7, 27] n=49 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
 
-## hardrows (55 tuning items, 41 validation items)
-
-| Row | Tuning half: accuracy [95% interval] | Validation half: accuracy [95% interval] | Balanced accuracy, tuning / validation | S1 calls per 100 | S2 calls per 100 | USD per 100 | Seconds per item |
-|---|---|---|---|---:|---:|---:|---:|
-| MoJ pw-s1-whole | 96.4 [88, 99] n=55 | 95.1 [84, 99] n=41 | 97 / 95 | 100 | 0 | 0.0000 | 0.33 |
-| MoJ pw-s1-rows | 98.2 [90, 100] n=55 | 96.3 [86, 99] n=41 | 98 / 97 | 100 | 0 | 0.0000 | 0.38 |
-| MoJ pw-moj-luna | 98.2 [90, 100] n=55 | 97.6 [87, 100] n=41 | 98 / 98 | 207 | 15 | 0.0012 | 1.14 |
-| MoJ pw-moj-mix | 100.0 [93, 100] n=55 | 100.0 [91, 100] n=41 | 100 / 100 | 220 | 78 | 0.0606 | 3.99 |
-| our judge (recorded) | 100.0 [93, 100] n=55 | 100.0 [91, 100] n=41 | 100 / 100 | 0 | 100 | 0.0386 | n/a |
-| our shipped judge (recorded) | 96.4 [88, 99] n=55 | 97.6 [87, 100] n=41 | 96 / 98 | 0 | 100 | 0.0352 | n/a |
-| other framework (recorded) | 92.7 [83, 97] n=55 | 92.7 [81, 97] n=41 | 92 / 93 | 0 | 100 | 0.0339 | n/a |
-| other framework default grader, gpt-6-luna (fresh) | 100.0 [93, 100] n=55 | 100.0 [91, 100] n=41 | 100 / 100 | 0 | 100 | 0.0087 | 2.14 |
-| other framework default grader, gemini-3.8-flash (fresh) | 100.0 [93, 100] n=55 | 100.0 [91, 100] n=41 | 100 / 100 | 0 | 100 | 0.1565 | 4.33 |
-| other framework default grader, haiku (fresh) | 94.5 [85, 98] n=55 | 92.7 [81, 97] n=41 | 94 / 93 | 0 | 100 | 0.0337 | 4.91 |
-| cheater: constant fail | 52.7 [40, 65] n=55 | 46.3 [32, 61] n=41 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
-| cheater: constant pass | 47.3 [35, 60] n=55 | 53.7 [39, 68] n=41 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
-
-## verify-with-reference (45 tuning items, 50 validation items)
+## hardrows (42 tuning items, 54 validation items)
 
 | Row | Tuning half: accuracy [95% interval] | Validation half: accuracy [95% interval] | Balanced accuracy, tuning / validation | S1 calls per 100 | S2 calls per 100 | USD per 100 | Seconds per item |
 |---|---|---|---|---:|---:|---:|---:|
-| MoJ pw-s1-whole | 91.1 [79, 96] n=45 | 92.0 [81, 97] n=50 | 83 / 88 | 100 | 0 | 0.0000 | 0.48 |
-| MoJ pw-s1-rows | 73.3 [59, 84] n=45 | 80.0 [67, 89] n=50 | 67 / 84 | 100 | 0 | 0.0000 | 0.50 |
-| MoJ pw-moj-luna | 73.3 [59, 84] n=45 | 82.0 [69, 90] n=50 | 67 / 81 | 200 | 14 | 0.0112 | 2.15 |
-| MoJ pw-moj-mix | 77.8 [64, 87] n=45 | 82.0 [69, 90] n=50 | 46 / 74 | 200 | 44 | 0.0296 | 4.23 |
-| other framework default grader, gpt-6-luna (fresh) | 80.5 [66, 90] n=41 | 78.0 [63, 88] n=41 | 49 / 47 | 0 | 100 | 0.0659 | 7.82 |
-| cheater: constant fail | 84.4 [71, 92] n=45 | 80.0 [67, 89] n=50 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
-| cheater: constant pass | 15.6 [8, 29] n=45 | 20.0 [11, 33] n=50 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
+| MoJ pw-s1-whole | 97.6 [88, 100] n=42 | 94.4 [85, 98] n=54 | 97 / 94 | 100 | 0 | 0.0000 | 0.40 |
+| MoJ pw-s1-rows | 97.6 [88, 100] n=42 | 97.2 [89, 99] n=54 | 97 / 97 | 100 | 0 | 0.0000 | 0.43 |
+| MoJ pw-moj-luna | 97.6 [88, 100] n=42 | 98.1 [90, 100] n=54 | 97 / 98 | 207 | 15 | 0.0015 | 1.28 |
+| MoJ pw-moj-mix | 97.6 [88, 100] n=42 | 98.1 [90, 100] n=54 | 97 / 98 | 207 | 30 | 0.0169 | 1.91 |
+| our judge (recorded) | 100.0 [92, 100] n=42 | 100.0 [93, 100] n=54 | 100 / 100 | 0 | 100 | 0.0389 | n/a |
+| our shipped judge (recorded) | 97.6 [88, 100] n=42 | 96.3 [87, 99] n=54 | 97 / 97 | 0 | 100 | 0.0343 | n/a |
+| other framework (recorded) | 97.6 [88, 100] n=42 | 88.9 [78, 95] n=54 | 97 / 90 | 0 | 100 | 0.0344 | n/a |
+| other framework default grader, gpt-6-luna (fresh) | 100.0 [92, 100] n=42 | 100.0 [93, 100] n=54 | 100 / 100 | 0 | 100 | 0.0091 | 2.30 |
+| other framework default grader, gemini-3.8-flash (fresh) | 100.0 [92, 100] n=42 | 100.0 [93, 100] n=54 | 100 / 100 | 0 | 100 | 0.1501 | 4.14 |
+| other framework default grader, haiku (fresh) | 95.2 [84, 99] n=42 | 92.6 [82, 97] n=54 | 95 / 93 | 0 | 100 | 0.0328 | 4.80 |
+| cheater: constant fail | 54.8 [40, 69] n=42 | 46.3 [34, 59] n=54 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
+| cheater: constant pass | 45.2 [31, 60] n=42 | 53.7 [41, 66] n=54 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
+
+## verify-with-reference (40 tuning items, 55 validation items)
+
+| Row | Tuning half: accuracy [95% interval] | Validation half: accuracy [95% interval] | Balanced accuracy, tuning / validation | S1 calls per 100 | S2 calls per 100 | USD per 100 | Seconds per item |
+|---|---|---|---|---:|---:|---:|---:|
+| MoJ pw-s1-whole | 85.0 [71, 93] n=40 | 96.4 [88, 99] n=55 | 74 / 94 | 100 | 0 | 0.0000 | 0.48 |
+| MoJ pw-s1-rows | 72.5 [57, 84] n=40 | 80.0 [68, 88] n=55 | 61 / 88 | 100 | 0 | 0.0000 | 0.49 |
+| MoJ pw-moj-luna | 72.5 [57, 84] n=40 | 81.8 [70, 90] n=55 | 61 / 85 | 200 | 11 | 0.0097 | 1.94 |
+| MoJ pw-moj-mix | 72.5 [57, 84] n=40 | 81.8 [70, 90] n=55 | 61 / 85 | 200 | 11 | 0.0097 | 1.94 |
+| other framework default grader, gpt-6-luna (fresh) | 81.1 [66, 91] n=37 | 77.8 [64, 87] n=45 | 48 / 47 | 0 | 100 | 0.0691 | 7.95 |
+| cheater: constant fail | 82.5 [68, 91] n=40 | 81.8 [70, 90] n=55 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
+| cheater: constant pass | 17.5 [9, 32] n=40 | 18.2 [10, 30] n=55 | 50 / 50 | 0 | 0 | 0.0000 | 0.00 |
 

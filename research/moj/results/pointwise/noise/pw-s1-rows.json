@@ -64,22 +64,22 @@
    "items": 30,
    "variant": {
     "accuracy": [
-     30.0,
-     30.0,
-     30.0
+     80.0,
+     80.0,
+     80.0
     ],
-    "mean": 30.0,
+    "mean": 80.0,
     "range_points": 0.0,
     "sd_points": 0.0,
     "flips": 0.0
    },
    "stage1": {
     "accuracy": [
-     30.0,
-     30.0,
-     30.0
+     80.0,
+     80.0,
+     80.0
     ],
-    "mean": 30.0,
+    "mean": 80.0,
     "range_points": 0.0,
     "sd_points": 0.0,
     "flips": 0.0
