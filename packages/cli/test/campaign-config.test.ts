@@ -282,6 +282,19 @@ describe('the campaign key of driftbench.yaml', () => {
     }
   }, 120_000);
 
+  it('runs the committed Acme example from the repository root: 24 cells, every one passing', async () => {
+    const result = await cli(
+      ['campaign', 'run', '--config', 'examples/acme/ci/campaign.yaml', '--json'],
+      ROOT,
+    );
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    const summary = JSON.parse(result.out) as { cells: Array<{ mode: string; state: string }> };
+    expect(summary.cells).toHaveLength(24);
+    expect(new Set(summary.cells.map((cell) => cell.mode))).toEqual(new Set(['T', 'F']));
+    expect(new Set(summary.cells.map((cell) => cell.state))).toEqual(new Set(['pass']));
+  }, 120_000);
+
   it('refuses a campaign key that does not fit, an unknown key in it, and a --config that cannot be read, with exit 2', async () => {
     const args = ['campaign', 'plan', SPEC, '--target', 'function:acme'];
     const cases: Array<[string, string]> = [

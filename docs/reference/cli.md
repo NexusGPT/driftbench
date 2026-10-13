@@ -257,11 +257,11 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 
 ## Campaigns and smoke
 
-These commands run specs on a target. Each has its options, its output and its exit codes on the [running](../running.md) page.
+These commands run specs on a target. Each has its options, its output and its exit codes on the [running](../running.md) page. `campaign run` and `campaign plan` also take their settings from the `campaign:` key of the project config, `driftbench.yaml` or `--config <file>`, where no flag is given: see [the campaign key](../running.md#the-campaign-key).
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--json]
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--config <file>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--config <file>] [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
 driftbench campaign export <campaignId> --store <file> --out <dir>
@@ -1298,6 +1298,8 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|sto
 `--process-command` runs the candidate of any `process:<name>` target other than `process:acme-ops` with your own command, as in [`campaign run`](../running.md): a JSON list of strings or words split on spaces. Run the baseline campaign with the same option, then gate: `driftbench ci --specs specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]" --baseline baseline --store runs.db`. Without it, `ci` reaches the bundled Acme targets only.
 
 A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
+
+`--config <file>` names the project config, `driftbench.yaml` in the working folder by default. `ci` scores its `aggregates:` and takes from its `campaign:` key the run settings it shares with `campaign run` where no flag is given: `routes`, `modes`, `repeats`, `concurrency`, `budget_usd`, `process_command` and `agent_version`. See [the campaign key](../running.md#the-campaign-key).
 
 A refused `ci` (exit 2) writes nothing: its input, `--out` included, is checked before the candidate runs, so the store and the summary file stay as they were.
 

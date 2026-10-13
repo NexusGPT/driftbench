@@ -20,7 +20,7 @@ The examples below run from the repository root. `pnpm -s` keeps pnpm's own line
 ## `driftbench campaign plan`
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--config <file>] [--json]
 ```
 
 Expands the cells, projects their cost and prints the minimum detectable effect. Nothing runs.
@@ -92,6 +92,7 @@ Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 7 ru
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes, between 0 and 1. Default 0.5. |
 | `--rho <rho>` | the correlation of repeats of one spec, as `icc` measures it, from 0 to 1. Default 0. |
 | `--store <file>` | read the measured unit costs from this store |
+| `--config <file>` | the project config whose `campaign:` settings apply where no flag is given; default `driftbench.yaml` in the working folder. See [the campaign key](#the-campaign-key) |
 | `--json` | print one JSON document: `cells`, `blocks`, `cost` (`usd`, `unmeasured`, `byAdapter`), `budgetUsd` and `withinBudget` when a budget is given, and `mde` |
 
 The projected cost of an adapter is its blocks times the latest cost per block measured for it, from the store's cost units. An adapter with no measured unit costs nothing in the projection and is named. Judge calls are not priced yet.
@@ -99,7 +100,7 @@ The projected cost of an adapter is its blocks times the latest cost per block m
 ## `driftbench campaign run`
 
 ```
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--cache-suite <name>] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--cache-suite <name>] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--config <file>] [--json]
 ```
 
 Creates a campaign over the specs, runs every cell and prints one line per cell, in cell order.
@@ -168,6 +169,7 @@ The process target runs each cell in a sandbox, a temporary folder under one fol
 | `--process-command <command>` | the command that runs the agent of any `process:<name>` target other than `process:acme-ops`, through the [process adapter](adapters/process.md) in a local sandbox: a JSON list of strings such as `["python3", "/path/to/agent.py"]`, or words split on spaces, with no quoting. The command runs in the workspace of each sandbox, a temporary folder, not in the folder you run `driftbench` in: name the agent file by its absolute path (`"$PWD/agent.py"` in a shell). A relative path that names a file of the working folder gets a note on stderr, and the run goes on. The [Python package](python.md) passes it for a Python function agent. |
 | `--retry-attempts <n>`, `--retry-base-ms <ms>`, `--retry-max-ms <ms>` | how model calls are retried, over the spec target's `retry`. See [retries](retries.md). |
 | `--driver <driver>`, `--persona <file>`, `--recording <file>`, `--model`, `--agent-family <family>`, `--judge-family <family>` | who writes the user turns: `scripted` (the default) or `simulated`, a persona through the model port or a recording. See [simulated user](simulated-user.md). |
+| `--config <file>` | the project config whose `campaign:` settings apply where no flag is given; default `driftbench.yaml` in the working folder. See [the campaign key](#the-campaign-key) |
 | `--json` | print one JSON document: `campaignId`, `stored`, `checks`, `cells` and `summary`. Each cell holds its state, its failing list, its run id, its end state when the spec has one, and `blocks`: each block's `index`, `blockId`, `pass`, observed `stage`, and its `verdicts`, each with `id`, `outcome`, `gating` and `evidence` |
 
 The store needs Node.js 22.13 or newer, for `node:sqlite`.
@@ -481,12 +483,13 @@ A transcript holds what the agent did in each block: the segments, the tool call
 
 ## Project config and the pull-request gate
 
-`driftbench.yaml` in the working folder, or the file `--config <file>` names, is the project config. `report`, `ci` and `view` read it. It has two keys, both optional:
+`driftbench.yaml` in the working folder, or the file `--config <file>` names, is the project config. `campaign run`, `campaign plan`, `report`, `ci` and `view` read it. It has three keys, all optional:
 
 | Key | Read by | Holds |
 |---|---|---|
 | `aggregates` | `report`, `ci` | the campaign-level criteria, one `name:op threshold` string each |
 | `scales` | `view` | per criterion, the `min` and `max` of the score a reviewer may give its queue item, with `min` below `max`. A criterion without one keeps 0 to 1 |
+| `campaign` | `campaign run`, `campaign plan`, `ci` | the settings of a campaign, each the flag of `campaign run` it names; see [the campaign key](#the-campaign-key) |
 
 
 
@@ -501,6 +504,52 @@ scales:
 Each entry is one `name:op threshold` string, the same syntax as `--aggregate`. A flag with the same name replaces the file's entry, and a flag with a new name adds to it. Any other key, or a bad entry, exits 2 and names the line. The file is optional: without it, only the flags count. See [campaign-level criteria](aggregates.md).
 
 To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.yml](../action/action.yml) takes the specs, the target, the baseline and the `aggregate` input, and fails the job unless the verdict is parity. Its `process-command` input passes `--process-command`, so the action gates your own process agent. A workflow that uses it is in [examples/acme/ci/driftbench-ci.yml](../examples/acme/ci/driftbench-ci.yml).
+
+### The campaign key
+
+`campaign:` declares a campaign in the file instead of on the command line. Each setting is a plain mapping onto one flag of `campaign run`, so the file and the flags mean the same thing:
+
+| Key | Flag | Holds |
+|---|---|---|
+| `specs` | the `[paths...]` argument | spec files or folders; used by `campaign run` when the command line names neither paths nor `--dataset` |
+| `dataset` | `--dataset` | a dataset version of the store, `name` or `name@version` |
+| `prompts` | `--prompt`, once per item | prompt versions of the store to record |
+| `targets` | `--target`, once per item | the targets every spec runs on |
+| `routes` | `--route`, once per item | targets by spec tag, each `tag=target` |
+| `modes` | `--mode` | a list of `T`, `F` and `P` |
+| `repeats` | `--repeats` | runs per spec, target and mode |
+| `agent_version` | `--agent-version` | the version of the agent under test |
+| `store` | `--store` | the store file |
+| `cache` | `--no-cache` when `false` | `campaign run` only |
+| `cache_suite` | `--cache-suite` | the cache suite of the campaign |
+| `concurrency` | `--concurrency` | cells that run at the same time |
+| `budget_usd` | `--budget-usd` | a hard stop on the spend |
+| `process_command` | `--process-command` | the command of a process target |
+| `driver`, `personas`, `recordings`, `model` | `--driver`, `--persona`, `--recording`, `--model` | the simulated user; `model: true` is a paid call |
+| `agent_family`, `judge_families` | `--agent-family`, `--judge-family` | the model families of the agent and of the judges |
+| `retry` | `--retry-attempts`, `--retry-base-ms`, `--retry-max-ms` | `max_attempts`, `base_delay_ms` and `max_delay_ms`, named as in a spec's `target.retry` |
+
+The rules:
+
+* A flag given on the command line wins over the file, flag by flag. A list flag such as `--target` replaces the file's whole list.
+* What to run comes from one place: the paths or `--dataset` of the command line when it gives one, else the file's `specs` and `dataset`.
+* Paths in the file are read from the working folder, as the same paths on the command line are.
+* `campaign plan` takes the settings it has a flag for: `targets`, `routes`, `modes`, `repeats`, `budget_usd` and `store`. Its spec paths stay on the command line.
+* `ci` takes the run settings it shares with `campaign run`: `routes`, `modes`, `repeats`, `concurrency`, `budget_usd`, `process_command` and `agent_version`. Its `--specs`, `--target`, `--baseline` and `--store` stay on the command line, and its cache stays off unless `--cache` is given.
+* The settings of one run are not in the file: `--campaign`, `--change`, `--from`, `--audit`, `--audit-seed`, `--max-carry`, `--max-age` and `--json`.
+* A file with no `campaign:` key changes nothing. A `campaign:` key with an unknown setting or a value that does not fit exits 2 and names the setting, such as `driftbench.yaml: campaign.repeats`.
+
+[`examples/acme/ci/campaign.yaml`](../examples/acme/ci/campaign.yaml) declares the Acme campaign: the conversation specs on `function:acme-sales`, modes T and F, two repeats.
+
+```
+$ pnpm -s driftbench campaign run --config examples/acme/ci/campaign.yaml --store acme.db
+...
+24 cells: 24 pass, 0 fail, 0 failed. Spent $0.00.
+$ pnpm -s driftbench campaign run --config examples/acme/ci/campaign.yaml --mode F --repeats 1
+...
+6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+```
 
 ## Run events
 
