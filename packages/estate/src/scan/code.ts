@@ -575,9 +575,13 @@ function routeAtoms(
     for (const row of table.rows) {
       const ask = row.cells[0]?.replace(/[`*]/g, '').trim() ?? '';
       for (const cell of row.cells.slice(1)) {
-        for (const match of cell.matchAll(/`([^`]+)`/g)) {
-          const target = match[1] ?? '';
-          const isSkill = names.skills.has(target);
+        const targets = new Set(Array.from(cell.matchAll(/`([^`]+)`/g), (match) => match[1] ?? ''));
+        const plain = cell.replace(/[`*]/g, '').trim();
+        if (names.skills.has(plain) || names.subagents.has(plain)) targets.add(plain);
+        const helper = /^(?:the )?(.+) agent$/.exec(plain)?.[1];
+        if (helper && names.subagents.has(helper)) targets.add(helper);
+        for (const target of targets) {
+          const isSkill = !(target === helper && names.subagents.has(helper)) && names.skills.has(target);
           if (!isSkill && !names.subagents.has(target)) continue;
           builder.add({
             kind: 'route',
