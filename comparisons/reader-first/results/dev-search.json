@@ -1,0 +1,236 @@
+{
+  "selectionSplit": "dev",
+  "selected": {
+    "judgeMargin": 4,
+    "minFailures": 1,
+    "correct": 144,
+    "overrides": 3,
+    "gained": ["d3f7457d-11ad-4f02-a849-31518f5a729d", "8a981764-d2ff-44a0-a3bb-78090ec8107f"],
+    "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"],
+    "featureMargin": 5
+  },
+  "combined": [
+    {
+      "judgeMargin": 4,
+      "minFailures": 1,
+      "correct": 144,
+      "overrides": 3,
+      "gained": ["d3f7457d-11ad-4f02-a849-31518f5a729d", "8a981764-d2ff-44a0-a3bb-78090ec8107f"],
+      "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    },
+    {
+      "judgeMargin": 10,
+      "minFailures": 3,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 10,
+      "minFailures": 2,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 10,
+      "minFailures": 1,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 8,
+      "minFailures": 3,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 8,
+      "minFailures": 2,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 8,
+      "minFailures": 1,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 6,
+      "minFailures": 3,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 5,
+      "minFailures": 3,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 4,
+      "minFailures": 3,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 3,
+      "minFailures": 3,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 2,
+      "minFailures": 3,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "judgeMargin": 3,
+      "minFailures": 1,
+      "correct": 142,
+      "overrides": 4,
+      "gained": ["d3f7457d-11ad-4f02-a849-31518f5a729d", "8a981764-d2ff-44a0-a3bb-78090ec8107f"],
+      "lost": ["0f74850d-c57c-4f7d-9e9e-9f962d56aaa5", "43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    },
+    {
+      "judgeMargin": 2,
+      "minFailures": 1,
+      "correct": 142,
+      "overrides": 4,
+      "gained": ["d3f7457d-11ad-4f02-a849-31518f5a729d", "8a981764-d2ff-44a0-a3bb-78090ec8107f"],
+      "lost": ["0f74850d-c57c-4f7d-9e9e-9f962d56aaa5", "43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    },
+    {
+      "judgeMargin": 6,
+      "minFailures": 2,
+      "correct": 140,
+      "overrides": 1,
+      "gained": [],
+      "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    },
+    {
+      "judgeMargin": 6,
+      "minFailures": 1,
+      "correct": 140,
+      "overrides": 1,
+      "gained": [],
+      "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    },
+    {
+      "judgeMargin": 5,
+      "minFailures": 2,
+      "correct": 140,
+      "overrides": 1,
+      "gained": [],
+      "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    },
+    {
+      "judgeMargin": 5,
+      "minFailures": 1,
+      "correct": 140,
+      "overrides": 1,
+      "gained": [],
+      "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    },
+    {
+      "judgeMargin": 4,
+      "minFailures": 2,
+      "correct": 140,
+      "overrides": 1,
+      "gained": [],
+      "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    },
+    {
+      "judgeMargin": 3,
+      "minFailures": 2,
+      "correct": 140,
+      "overrides": 1,
+      "gained": [],
+      "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    },
+    {
+      "judgeMargin": 2,
+      "minFailures": 2,
+      "correct": 140,
+      "overrides": 1,
+      "gained": [],
+      "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"]
+    }
+  ],
+  "features": [
+    {
+      "featureMargin": 5,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "featureMargin": 4,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "featureMargin": 3,
+      "correct": 142,
+      "overrides": 0,
+      "gained": [],
+      "lost": []
+    },
+    {
+      "featureMargin": 2,
+      "correct": 142,
+      "overrides": 2,
+      "gained": ["8a981764-d2ff-44a0-a3bb-78090ec8107f"],
+      "lost": ["e48ff2f5-c317-4125-813b-a0e0be5efb1e"]
+    },
+    {
+      "featureMargin": 1,
+      "correct": 114,
+      "overrides": 18,
+      "gained": ["d3f7457d-11ad-4f02-a849-31518f5a729d", "8a981764-d2ff-44a0-a3bb-78090ec8107f"],
+      "lost": [
+        "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+        "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+        "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+        "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+        "aae187f9-cc24-4ac2-8995-4226c91576df",
+        "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+        "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+        "24619b4d-159b-448a-a60d-b54ce6727b09",
+        "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+        "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+        "0d544b62-3218-4396-8b8b-147e4598943e",
+        "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+        "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+        "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+        "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+        "aa61c081-e59b-4673-b6a5-778789d390ef"
+      ]
+    }
+  ]
+}
