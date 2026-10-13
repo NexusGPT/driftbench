@@ -127,7 +127,7 @@ export const EstateDiff = z.strictObject({
 export type EstateDiff = z.infer<typeof EstateDiff>;
 
 /** The fields compared for a restated atom, beside the provenance. Approval is not among them. */
-const COMPARED = ['kind', 'title', 'role', 'situation', 'evidence', 'enforcement', 'fields'] as const;
+const COMPARED = ['id', 'kind', 'title', 'role', 'situation', 'evidence', 'enforcement', 'fields'] as const;
 
 /** Runs of white space become one space and the ends are trimmed: two quotes equal here differ in white space only. */
 export function normaliseQuote(quote: string): string {
@@ -147,39 +147,38 @@ export type DiffOptions = {
 };
 
 export function diffEstateMaps(before: EstateMap, after: EstateMap, options: DiffOptions = {}): EstateDiff {
-  const old = new Map(before.atoms.map((atom) => [atom.id, atom]));
-  const next = new Map(after.atoms.map((atom) => [atom.id, atom]));
-
-  const added = after.atoms.filter((atom) => !old.has(atom.id)).map(diffAtom);
-  const removed = before.atoms.filter((atom) => !next.has(atom.id)).map(diffAtom);
+  const priorById = matchAtoms(before.atoms, after.atoms);
+  const matched = new Set(priorById.values());
+  const added = after.atoms.filter((atom) => !priorById.has(atom.id)).map(diffAtom);
+  const removed = before.atoms.filter((atom) => !matched.has(atom)).map(diffAtom);
   const changed: AtomChange[] = [];
   const moved: AtomMove[] = [];
   const restated: AtomRestated[] = [];
   let unchanged = 0;
 
   for (const atom of after.atoms) {
-    const prior = old.get(atom.id);
+    const prior = priorById.get(atom.id);
     if (!prior) continue;
     const fields = changedFields(prior, atom);
     if (prior.provenance.hash === atom.provenance.hash) {
-      if (fields.length > 0) restated.push({ id: atom.id, kind: atom.kind, title: atom.title, fields });
+      if (fields.length > 0) restated.push({ id: prior.id, kind: atom.kind, title: atom.title, fields });
       else unchanged++;
       continue;
     }
     const change = classifyQuote(prior.provenance.quote, atom.provenance.quote);
     if (change === 'same') {
       moved.push({
-        id: atom.id,
+        id: prior.id,
         kind: atom.kind,
         title: atom.title,
         from: place(prior),
         to: place(atom),
       });
-      if (fields.length > 0) restated.push({ id: atom.id, kind: atom.kind, title: atom.title, fields });
+      if (fields.length > 0) restated.push({ id: prior.id, kind: atom.kind, title: atom.title, fields });
       continue;
     }
     changed.push({
-      id: atom.id,
+      id: prior.id,
       kind: atom.kind,
       title: atom.title,
       change,
@@ -190,7 +189,16 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
   }
 
   const oldEdges = new Map(before.edges.map((edge) => [edgeKey(edge), edge]));
-  const newEdges = new Map(after.edges.map((edge) => [edgeKey(edge), edge]));
+  const newEdges = new Map(
+    after.edges.map((edge) => {
+      const matched = {
+        ...edge,
+        from: priorById.get(edge.from)?.id ?? edge.from,
+        to: priorById.get(edge.to)?.id ?? edge.to,
+      };
+      return [edgeKey(matched), matched];
+    }),
+  );
   const edgesAdded = [...newEdges].filter(([key]) => !oldEdges.has(key)).map(([, edge]) => edge);
   const edgesRemoved = [...oldEdges].filter(([key]) => !newEdges.has(key)).map(([, edge]) => edge);
   edgesAdded.sort(byEdge);
@@ -215,6 +223,76 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
       edgesRemoved: edgesRemoved.length,
     },
   };
+}
+
+/** Match a folder move only through a unique declared skill name, never through similar prose alone. */
+function matchAtoms(before: readonly Atom[], after: readonly Atom[]): Map<string, Atom> {
+  const old = new Map(before.map((atom) => [atom.id, atom]));
+  const pairs = new Map<string, Atom>();
+  for (const atom of after) {
+    const prior = old.get(atom.id);
+    if (prior) pairs.set(atom.id, prior);
+  }
+  const skills = (atoms: readonly Atom[]) => {
+    const names = new Map<string, Atom[]>();
+    for (const atom of atoms) {
+      const name = atom.fields?.name;
+      if (atom.kind === 'skill' && typeof name === 'string')
+        names.set(name, [...(names.get(name) ?? []), atom]);
+    }
+    return names;
+  };
+  const oldSkills = skills(before);
+  const newSkills = skills(after);
+  const folders: Array<[string, string]> = [];
+  for (const [name, oldUnits] of oldSkills) {
+    const newUnits = newSkills.get(name);
+    if (oldUnits.length !== 1 || newUnits?.length !== 1) continue;
+    const oldUnit = oldUnits[0];
+    const newUnit = newUnits[0];
+    if (!oldUnit || !newUnit) continue;
+    const from = oldUnit.provenance.file.replace(/[^/]+$/, '');
+    const to = newUnit.provenance.file.replace(/[^/]+$/, '');
+    if (from !== to) folders.push([to, from]);
+  }
+  const normalise = (text: string) => {
+    for (const [to, from] of folders) text = text.split(to).join(from);
+    return text;
+  };
+  const key = (atom: Atom, moved: boolean) =>
+    JSON.stringify([
+      atom.kind,
+      moved ? normalise(atom.provenance.file) : atom.provenance.file,
+      moved ? normalise(atom.provenance.quote) : atom.provenance.quote,
+    ]);
+  const index = (atoms: readonly Atom[], moved: boolean) => {
+    const rows = new Map<string, Atom[]>();
+    for (const atom of atoms) {
+      const signature = key(atom, moved);
+      rows.set(signature, [...(rows.get(signature) ?? []), atom]);
+    }
+    return rows;
+  };
+  const used = new Set(pairs.values());
+  const missing = index(
+    before.filter((atom) => !used.has(atom)),
+    false,
+  );
+  const added = index(
+    after.filter((atom) => !pairs.has(atom.id)),
+    true,
+  );
+  for (const [signature, candidates] of added) {
+    const priors = missing.get(signature);
+    if (candidates.length !== 1 || priors?.length !== 1) continue;
+    const atom = candidates[0];
+    const prior = priors[0];
+    if (!atom || !prior) continue;
+    // A name match must have changed this atom's path or its path-bearing quote.
+    if (key(atom, false) === signature) continue;
+    pairs.set(atom.id, prior);
+  }
+  return pairs;
 }
 
 export type ParsedDiff = { ok: true; diff: EstateDiff } | { ok: false; message: string };
