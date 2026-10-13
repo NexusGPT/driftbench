@@ -1,0 +1,419 @@
+{
+  "scope": "Supplemental recording-only interpretation of the preregistered edit checks. No contestant or primary statistics change.",
+  "cells": [
+    {
+      "model": "haiku",
+      "contestant": "pair-ledger",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "haiku",
+      "contestant": "reader-first-c50b2dc3",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "haiku",
+      "contestant": "promptfoo",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "contestant": "pair-ledger",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "contestant": "reader-first-c50b2dc3",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    }
+  ]
+}

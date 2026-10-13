@@ -30,7 +30,7 @@ The opt-in reader-first row uses the source tree at `c50b2dc3`, PR 157. It choos
 
 The pair-ledger row must use the pushed core contract. Its source, dialect and reasoning hashes join the run freeze before any model call. The holistic `better_piece` row is the primary quality criterion. Only explicit request excerpts can introduce hard length, language, form or named-element rows. The request compiler is conservative and is not claimed to extract every possible implicit requirement.
 
-Both tested model families also appear among source response generators. This is a same-model contestant comparison, not evidence of family-independent deployment performance.
+Anthropic, OpenAI and Google model families also appear among source response generators in this sealed test pool. This is a same-model contestant comparison, not evidence of family-independent deployment performance.
 
 ## Preregistered interpretation
 

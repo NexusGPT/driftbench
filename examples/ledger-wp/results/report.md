@@ -1,12 +1,12 @@
 # LongJudge writing pair ledger study
 
-Measured state: 2026-10-13T07:35:43.368707+00:00. Branch `research/ledger-wp`, local head `a4ae4b3327a2e5148f97a47707aed3a0b865da50`.
+Measured state: 2026-10-13T07:51:16.917790+00:00. Branch `research/ledger-wp`, local head `e07d9e8abf603953367c6c6986e9669ceae5b369`.
 
 ## Outcome
 
 The model table below is the observed result, including pending and partial cells. No global superiority claim is made. This row is preregistered as no significant loss, not an assumed win.
 
-Actual recorded model spend: 0.98377766 USD. Unsettled reservations: 1.05000000 USD. Total lane cap: 15 USD. Returned calls: 225. Source: `results/spend.jsonl` and `results/calls.jsonl`.
+Actual recorded model spend: 1.89526873 USD. Unsettled reservations: 1.45000000 USD. Total lane cap: 35 USD. Returned calls: 421. Source: `results/spend.jsonl` and `results/calls.jsonl`.
 
 ## Licence and label provenance
 
@@ -75,15 +75,15 @@ Longer-wins uses whitespace units in English and Han characters in Chinese, matc
 
 | Stage | Model | Contestant | Pairs | Accuracy % | Projected test USD | Noise flips / comparisons | Fixture seat | Cheater bar |
 |---|---|---|---:|---:|---:|---|---|---|
-| pilot | haiku | pair-ledger | 11 | 63.64 | 0.9471 | pending/pending | pending | pending |
-| pilot | haiku | reader-first-c50b2dc3 | 11 | 63.64 | 1.2288 | pending/pending | pending | pending |
-| pilot | haiku | promptfoo | 11 | 72.73 | 0.5623 | pending/pending | pending | pending |
-| pilot | gpt-6-luna | pair-ledger | 11 | 81.82 | 0.3473 | pending/pending | pending | pending |
-| pilot | gpt-6-luna | reader-first-c50b2dc3 | 11 | 63.64 | 0.5147 | pending/pending | pending | pending |
-| pilot | gpt-6-luna | promptfoo | 11 | 59.09 | 0.1843 | pending/pending | pending | pending |
-| pilot | gemini-3.8-flash | pair-ledger | 11 | 72.73 | 2.8395 | pending/pending | pending | pending |
-| pilot | gemini-3.8-flash | reader-first-c50b2dc3 | 10 | 60.00 | 5.2714 | pending/pending | pending | pending |
-| pilot | gemini-3.8-flash | promptfoo | 11 | 81.82 | 2.0821 | pending/pending | pending | pending |
+| pilot | haiku | pair-ledger | 20 | 80.00 | 1.1296 | pending/pending | pending | pending |
+| pilot | haiku | reader-first-c50b2dc3 | 20 | 75.00 | 1.3568 | pending/pending | pending | pending |
+| pilot | haiku | promptfoo | 20 | 72.50 | 0.7184 | pending/pending | pending | pending |
+| pilot | gpt-6-luna | pair-ledger | 20 | 65.00 | 0.4196 | pending/pending | pending | pending |
+| pilot | gpt-6-luna | reader-first-c50b2dc3 | 20 | 75.00 | 0.5592 | pending/pending | pending | pending |
+| pilot | gpt-6-luna | promptfoo | 20 | 55.00 | 0.2350 | pending/pending | pending | pending |
+| pilot | gemini-3.8-flash | pair-ledger | 20 | 60.00 | 3.3606 | pending/pending | pending | pending |
+| pilot | gemini-3.8-flash | reader-first-c50b2dc3 | 20 | 75.00 | 5.5983 | pending/pending | pending | pending |
+| pilot | gemini-3.8-flash | promptfoo | 20 | 75.00 | 2.4523 | pending/pending | pending | pending |
 | dev | haiku | pair-ledger | 0 | pending | pending | 0/0 | False | False |
 | dev | haiku | reader-first-c50b2dc3 | 0 | pending | pending | 0/0 | False | False |
 | dev | haiku | promptfoo | 0 | pending | pending | 0/0 | False | False |
@@ -96,12 +96,71 @@ Longer-wins uses whitespace units in English and Han characters in Chinese, matc
 
 Detailed three-repeat noise, six planted fixtures, kappa, label-preserving, injection and label-flipping checks: `results/phase-report.json`. Unrun checks are pending, not passed. Source and parser remain frozen; no tuning follows these observations.
 
+| Model | Contestant | Edit | Observed / expected pairs | Consistent games | Consistency % | Preregistered bar % | Verdict |
+|---|---|---|---:|---:|---:|---:|---|
+| haiku | pair-ledger | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| haiku | pair-ledger | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| haiku | pair-ledger | injection | 0/4 | 0/0 | pending | 100 | pending |
+| haiku | pair-ledger | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| haiku | reader-first-c50b2dc3 | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| haiku | reader-first-c50b2dc3 | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| haiku | reader-first-c50b2dc3 | injection | 0/4 | 0/0 | pending | 100 | pending |
+| haiku | reader-first-c50b2dc3 | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| haiku | promptfoo | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| haiku | promptfoo | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| haiku | promptfoo | injection | 0/4 | 0/0 | pending | 100 | pending |
+| haiku | promptfoo | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| gpt-6-luna | pair-ledger | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| gpt-6-luna | pair-ledger | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| gpt-6-luna | pair-ledger | injection | 0/4 | 0/0 | pending | 100 | pending |
+| gpt-6-luna | pair-ledger | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| gpt-6-luna | reader-first-c50b2dc3 | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| gpt-6-luna | reader-first-c50b2dc3 | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| gpt-6-luna | reader-first-c50b2dc3 | injection | 0/4 | 0/0 | pending | 100 | pending |
+| gpt-6-luna | reader-first-c50b2dc3 | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| gpt-6-luna | promptfoo | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| gpt-6-luna | promptfoo | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| gpt-6-luna | promptfoo | injection | 0/4 | 0/0 | pending | 100 | pending |
+| gpt-6-luna | promptfoo | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| gemini-3.8-flash | pair-ledger | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| gemini-3.8-flash | pair-ledger | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| gemini-3.8-flash | pair-ledger | injection | 0/4 | 0/0 | pending | 100 | pending |
+| gemini-3.8-flash | pair-ledger | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| gemini-3.8-flash | reader-first-c50b2dc3 | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| gemini-3.8-flash | reader-first-c50b2dc3 | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| gemini-3.8-flash | reader-first-c50b2dc3 | injection | 0/4 | 0/0 | pending | 100 | pending |
+| gemini-3.8-flash | reader-first-c50b2dc3 | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| gemini-3.8-flash | promptfoo | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| gemini-3.8-flash | promptfoo | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| gemini-3.8-flash | promptfoo | injection | 0/4 | 0/0 | pending | 100 | pending |
+| gemini-3.8-flash | promptfoo | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+
+Edit consistency compares each variant with the first sealed fixture reading. Relabelling maps the choice back; label-flipping edits require the opposite choice. Planted accuracy is also retained in `results/validity-checks.json`. These are small planted checks, not estimates over arbitrary writing.
+
+## Runtime audit
+
+| Model | Contestant | Returned calls | Output-limit finishes | Recorded provider errors |
+|---|---|---:|---:|---:|
+| haiku | pair-ledger | 51 | 0 | 0 |
+| haiku | reader-first-c50b2dc3 | 45 | 0 | 0 |
+| haiku | promptfoo | 46 | 0 | 0 |
+| gpt-6-luna | pair-ledger | 52 | 0 | 0 |
+| gpt-6-luna | reader-first-c50b2dc3 | 45 | 0 | 0 |
+| gpt-6-luna | promptfoo | 46 | 0 | 0 |
+| gemini-3.8-flash | pair-ledger | 48 | 0 | 0 |
+| gemini-3.8-flash | reader-first-c50b2dc3 | 44 | 7 | 0 |
+| gemini-3.8-flash | promptfoo | 44 | 0 | 0 |
+
+The common HTTP output limit can truncate a reasoning-heavy response. This is recorded, not repaired outside the frozen contract. In the separate reader-first row, an invalid ballot can still yield the frozen length fallback. Source: `results/calls.jsonl`.
+
 ## Freeze and execution
 
 - Core: [PR 168](https://github.com/achammah/driftbench/pull/168), `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`, remote hash verified before calls.
 - Reader-first: [PR 157](https://github.com/achammah/driftbench/pull/157), source snapshot `c50b2dc3`.
 - Promptfoo select-best: `801428268b5e421b2f6994332f6a06f86b27bb1f`, verbatim attributed template and MIT notice.
-- Source freeze commit: `a4ae4b33`. Freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`. The 191 exact file hashes are in `freeze.json`.
+- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `8a08d246ef989b6798df925d2b658c593aa93813e1a73194530395d061c4f1e4`. The 191 exact file hashes are in `freeze.json`.
+- The owner changes only the spending cap to 35 USD, transport timeouts to 180 seconds, and concurrency to four. Judge contracts, parser behavior, models, medium reasoning, output limits, statistics and sealed order are unchanged.
+- A plugin crash interrupts six in-flight calls during the pilot. Their 0.90 USD reservations remain uncertain spend; returned answers are reused and only unfinished transports resume. See `runtime-recovery.json`.
 - Both HTTP models use medium reasoning for every contestant and the same 4096 output-token cap. Haiku uses native Claude CLI without an exposed reasoning setting.
 - The owner unblocks Gemini billing and restricts key files to `openai.key` and `gemini-driftbench.key`. Keys load inside each command and are not printed.
 - Six analysis tests and seven harness tests pass before calls, including source tamper rejection, concurrent spend reservation, output polarity and the pushed-core adapter.

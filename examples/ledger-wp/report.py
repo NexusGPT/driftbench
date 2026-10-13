@@ -1,5 +1,6 @@
 """Render the lane dossier from immutable inputs and recorded observations."""
 import datetime
+import collections
 import hashlib
 import json
 from pathlib import Path
@@ -32,6 +33,7 @@ def main():
         elif row['kind']=='settle':actual+=row['usd'];pending.pop(row['key'],None)
         elif row['kind']=='release':pending.pop(row['key'],None)
     calls=records('results/calls.jsonl')
+    validity=load('results/validity-checks.json',{})
     head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT).decode().strip()
     lines=['# LongJudge writing pair ledger study','',f"Measured state: {datetime.datetime.now(datetime.timezone.utc).isoformat()}. Branch `research/ledger-wp`, local head `{head}`.",'',
         '## Outcome','',
@@ -81,6 +83,22 @@ def main():
             noise=row.get('noise',{})
             lines.append(f"| {stage} | {row['model']} | {row['contestant']} | {row['pairs']} | {f(row['accuracy'])} | {f(row.get('projectedTestUsd'),4)} | {noise.get('repeatGameFlips','pending')}/{noise.get('comparisons','pending')} | {row.get('earnedFixtureSeat','pending')} | {row.get('cheaterBarPass','pending')} |")
     lines+=['','Detailed three-repeat noise, six planted fixtures, kappa, label-preserving, injection and label-flipping checks: `results/phase-report.json`. Unrun checks are pending, not passed. Source and parser remain frozen; no tuning follows these observations.','',
+        '| Model | Contestant | Edit | Observed / expected pairs | Consistent games | Consistency % | Preregistered bar % | Verdict |',
+        '|---|---|---|---:|---:|---:|---:|---|']
+    for row in validity.get('cells',[]):
+        for kind,check in row['checks'].items():
+            verdict='pending' if check['passes'] is None else 'pass' if check['passes'] else 'fail'
+            lines.append(f"| {row['model']} | {row['contestant']} | {kind} | {check['observedPairs']}/{check['expectedPairs']} | {check['matchingGames']}/{check['games']} | {f(check['consistencyPercent'])} | {check['thresholdPercent']} | {verdict} |")
+    lines+=['','Edit consistency compares each variant with the first sealed fixture reading. Relabelling maps the choice back; label-flipping edits require the opposite choice. Planted accuracy is also retained in `results/validity-checks.json`. These are small planted checks, not estimates over arbitrary writing.','',
+        '## Runtime audit','',
+        '| Model | Contestant | Returned calls | Output-limit finishes | Recorded provider errors |',
+        '|---|---|---:|---:|---:|']
+    for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
+        for contestant in ['pair-ledger','reader-first-c50b2dc3','promptfoo']:
+            subset=[r for r in calls if r['model']==model and r['contestant']==contestant]
+            limited=sum(r.get('providerMeta',{}).get('finishReason') in ['MAX_TOKENS','length'] for r in subset)
+            lines.append(f"| {model} | {contestant} | {len(subset)} | {limited} | {sum(bool(r.get('providerError')) for r in subset)} |")
+    lines+=['','The common HTTP output limit can truncate a reasoning-heavy response. This is recorded, not repaired outside the frozen contract. In the separate reader-first row, an invalid ballot can still yield the frozen length fallback. Source: `results/calls.jsonl`.','',
         '## Freeze and execution','',
         '- Core: [PR 168](https://github.com/achammah/driftbench/pull/168), `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`, remote hash verified before calls.',
         '- Reader-first: [PR 157](https://github.com/achammah/driftbench/pull/157), source snapshot `c50b2dc3`.',
