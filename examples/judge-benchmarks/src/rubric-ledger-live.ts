@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
+import { homedir, loadavg } from 'node:os';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { buildPrompt, canonicalPairOrder, createDialectTransport, judgePairLedger,
@@ -13,6 +13,7 @@ import { loadBenchmark, type PairItem } from './data';
 import { LedgerBudgetStop, LedgerRateLimitStop, LedgerPrepaymentStop, LedgerProbeStop, LedgerCalls, billingIdentity, isPrepaymentRejection, transportRetryable, type LedgerCall, type LedgerCompletion } from './rubric-ledger-calls';
 import { appendRecording, readRecordingRows } from './recording-files';
 import { checkQuotaWindow, GEMINI_WINDOW, quotaIdentity, requestHistory } from './rubric-ledger-quota';
+import { HaikuPacing } from './rubric-ledger-pacing';
 
 export const DIRECTORY = 'examples/judge-benchmarks/experiments/ledger-rb';
 export const MODELS = ['claude-haiku-5-5', 'gpt-6-luna', 'gemini-3.8-flash'] as const;
@@ -21,8 +22,10 @@ export const SETTINGS = {
   coreCommit: '35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd', corePr: 168,
   models: MODELS, reasoning: { 'claude-haiku-5-5': null, 'gpt-6-luna': 'medium', 'gemini-3.8-flash': 'medium' },
   maxTokens: 8192, timeoutMs: 300000, transportTries: 3, maxRetries: 0, capUsd: 45, reserveUsd: 0.10,
-  concurrency: 12, testOrderSeed: 'ledger-rb-test-order-v1',
-  modelConcurrency: { 'claude-haiku-5-5': 2, 'gpt-6-luna': 8, 'gemini-3.8-flash': 2 },
+  concurrency: 14, testOrderSeed: 'ledger-rb-test-order-v1',
+  modelConcurrency: { 'claude-haiku-5-5': 4, 'gpt-6-luna': 8, 'gemini-3.8-flash': 2 },
+  haikuPacing: { maximum: 4, fallback: 2, loadOneMinuteThreshold: 60,
+    errorTrigger: 'Any new Haiku transport or parse error after this runner starts. Reduction remains latched for the run; in-flight calls drain.' },
   rateLimitWaitMs: [60000, 120000, 240000],
   dailyQuotaWindow: GEMINI_WINDOW,
   providerBlockPolicy: 'An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.',
@@ -66,11 +69,17 @@ export function hasUnresolvedPrepayment(row: DecisionRow, calls: readonly Ledger
 
 /** Separate provider queues preserve each model's sealed submission order without head-of-line blocking. */
 export async function scheduleModels<T extends { model: string }>(jobs: readonly T[], limits: Record<string, number>,
-  run: (job: T) => Promise<void>, stopped: () => boolean = () => false): Promise<void> {
+  run: (job: T) => Promise<void>, stopped: () => boolean = () => false,
+  currentLimit: (model: string, maximum: number) => number = (_, maximum) => maximum): Promise<void> {
   await Promise.all(Object.entries(limits).flatMap(([model, count]) => {
-    const queue = jobs.filter((j) => j.model === model); let next = 0;
-    return Array.from({ length: count }, async () => {
-      while (!stopped()) { const job = queue[next++]; if (!job) break; await run(job); }
+    const queue = jobs.filter((j) => j.model === model); let next = 0, active = 0;
+    return Array.from({ length: count }, async (_, worker) => {
+      while (!stopped() && next < queue.length) {
+        const limit = currentLimit(model, count);
+        if (worker >= limit || active >= limit) { await new Promise((r) => setTimeout(r, 250)); continue; }
+        const job = queue[next++]; if (!job) break;
+        active++; try { await run(job); } finally { active--; }
+      }
     });
   }));
 }
@@ -218,6 +227,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
 const sourcePaths = [
   'examples/judge-benchmarks/src/rubric-ledger-live.ts', 'examples/judge-benchmarks/src/rubric-ledger-calls.ts',
   'examples/judge-benchmarks/src/rubric-ledger-quota.ts',
+  'examples/judge-benchmarks/src/rubric-ledger-pacing.ts',
   'examples/judge-benchmarks/src/rubric-ledger-stats.ts', 'examples/judge-benchmarks/src/contestants.ts',
   'examples/judge-benchmarks/src/rubric-ledger-report.ts',
   'examples/judge-benchmarks/src/code-evidence.ts', 'examples/judge-benchmarks/src/data.ts',
@@ -296,16 +306,28 @@ async function main() {
   const selectedJobs = jobs.filter((j) => models.includes(j.model));
   const todo = selectedJobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
   let writes = Promise.resolve();
+  const haikuErrors = () => calls.rows.filter((r) => r.model === 'claude-haiku-5-5' && r.status === 'error').length;
+  let newHaikuParseErrors = 0;
+  const pacing = new HaikuPacing(haikuErrors());
+  const currentLimit = (model: string, maximum: number) => {
+    if (model !== 'claude-haiku-5-5') return maximum;
+    const load = loadavg()[0]!, errors = haikuErrors() + newHaikuParseErrors;
+    const state = pacing.update(load, errors);
+    if (state.newlyReduced) console.error(JSON.stringify({ event: 'haiku-pacing-reduced', at: new Date().toISOString(),
+      limit: state.limit, reason: state.reason, loadOneMinute: load, errors }));
+    return Math.min(maximum, state.limit);
+  };
   process.once('SIGUSR2', () => { stopped = true; console.error('Stop requested; draining in-flight work'); });
   await scheduleModels(todo, probe ? { 'gemini-3.8-flash': 1 } : SETTINGS.modelConcurrency, async (job) => {
       try {
         const requirements = reqs.get(job.item.id) ?? [{ name: 'rb_1', rubric: job.item.criterion! }];
         const row = classifyProviderBlock(await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute, undefined, billingEpoch, job.model === 'gemini-3.8-flash' && execute ? 1 : undefined), calls.rows);
+        if (row.model === 'claude-haiku-5-5' && row.status === 'unparsed') newHaikuParseErrors++;
         writes = writes.then(() => appendRecording(resultPath, row)); await writes;
         completed++;
         console.log(JSON.stringify({ phase, model: job.model, contestant: job.contestant, completed: done.size + completed, target: selectedJobs.length, chargedUsd: calls.chargedUsd, status: row.status }));
       } catch (e) { stopped = true; console.error(e instanceof Error ? e.message : String(e)); }
-  }, () => stopped);
+  }, () => stopped, currentLimit);
   await writes;
   const recorded = new Map(latestDecisions(await readRecordingRows<DecisionRow>(resultPath)).map((r) => [decisionKey(r), r]));
   const ordered = jobs.flatMap((j, recordIndex) => {
