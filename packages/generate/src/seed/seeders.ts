@@ -468,7 +468,6 @@ export function rowDrafts(
   label: string,
 ): SpecDraft[] {
   return cells.map((cell, index) => {
-
     const id = `gen-twise-${pad(index + 1)}`;
     const title = `${label} row ${index + 1} of ${cells.length}`;
     if (!hasPaths(prepared)) return carrierDraft(prepared, context, id, 'twise', title, [...cell]);
