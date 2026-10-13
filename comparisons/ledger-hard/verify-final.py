@@ -7,12 +7,15 @@ d=load_module('dialect_verification',HERE/'dialect-run.py')
 def read(path):return [json.loads(s) for s in path.read_text().splitlines()] if path.exists() else []
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--require-complete',action='store_true');args=parser.parse_args()
+    # Live reads span two journals. Use a common settled cutoff to avoid mixing
+    # an earlier primary snapshot with later dialect dispatches.
+    observation_through=None if args.require_complete else (datetime.datetime.now(datetime.timezone.utc)-datetime.timedelta(seconds=5)).isoformat()
     run.verify_seal();d.verify()
     recovery=json.loads((HERE/'crash-recovery.json').read_text())
     audit=json.loads((HERE/'construction-cue-audit.json').read_text())
     assert audit['blocking_cues']==[] and audit['verdict'].startswith('PASS')
     source_hashes={}
-    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json'):
+    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json'):
         source_hashes.update(json.loads((HERE/amendment).read_text())['sha256'])
     for path,value in source_hashes.items():assert digest(ROOT/path)==value,path
     authorised={i['request_sha256']:i for i in recovery['items']}
@@ -29,9 +32,14 @@ def main():
         assert not set(unique)&all_keys
         all_keys.update(unique)
         starts=read(directory/'starts.jsonl');start_counts=collections.Counter(s['request_sha256'] for s in starts)
+        rejections=read(directory/'billing-rejections.jsonl')
+        rejection_counts=collections.Counter(a['request_sha256'] for a in rejections)
+        assert all(not a['success'] and not a.get('text') and not a.get('provider_response') and not a.get('usage') and (a.get('error') or {}).get('status')==402 for a in rejections)
         assert set(start_counts)<=set(unique)
         for key,count in start_counts.items():
-            assert count==(2 if key in authorised and key in by else 1),(key,count)
+            expected=rejection_counts[key]+(2 if key in authorised and key in by else 1)
+            if key not in by and rejection_counts[key]:expected=rejection_counts[key]+(1 if key in authorised else 0)
+            assert count==expected,(key,count,expected)
         assert all(key in start_counts for key in by)
         commit='eeb7875e' if experiment=='primary' else 'a7954b1b'
         committed=datetime.datetime.fromisoformat(subprocess.check_output(['git','show','-s','--format=%cI',commit],cwd=ROOT,text=True).strip())
@@ -55,12 +63,13 @@ def main():
         active=collections.Counter();maximum=collections.Counter()
         for a in attempt_events:
             if a['event']=='backoff':assert a['seconds'] in (10,30,60,120,240);continue
+            time=a['stamp'] if a['event']=='start' else a['finished']
+            if observation_through and time>observation_through:continue
             assert a.get('attempt_count',a.get('attempt',1))<=6
             model=a['model']
             active[model]+=1 if a['event']=='start' else -1
             assert active[model]>=0
             maximum[model]=max(maximum[model],active[model])
-            time=a['stamp'] if a['event']=='start' else a['finished']
             if boundary<=time<pacing_boundary:combined_events.append((time,1 if a['event']=='start' else -1))
             if time>=quota_boundary and model=='gemini-3.8-flash':quota_events.append((time,1 if a['event']=='start' else -1))
             if time>=pacing_boundary:pacing_events.append((time,1 if a['event']=='start' else -1,model))
@@ -77,10 +86,10 @@ def main():
             usage[model]={'calls':len(ms),'usage_totals':dict(sums),'measured_usd':sum(run.priced(a) or 0 if model=='gpt-6-luna' else a.get('measured_usd') or 0 for a in ms)}
         complete=set(by)==set(unique)
         if args.require_complete:assert complete and not any(active.values())
-        assert all((a.get('error') or {}).get('status')!=429 for a in answers),'Quota errors must never be scored'
+        assert all((a.get('error') or {}).get('status') not in (402,429) for a in answers),'Billing and quota errors must never be scored'
         details[experiment]={'complete':complete,'recorded_unique':len(by),'planned_unique':len(unique),'native_peer_decodes':len(replay),
             'recovery_max_concurrent':dict(maximum),'unanswered_started':len(set(start_counts)-set(by)),
-            'final_failed_calls':sum(not a['success'] for a in answers),'measured_usd':cost,'by_model':usage,
+            'billing_rejections_unscored':len(rejections),'final_failed_calls':sum(not a['success'] for a in answers),'measured_usd':cost,'by_model':usage,
             'journal_sha256':digest(directory/'calls.jsonl')}
     prior=set(json.loads((HERE/'prior-census.json').read_text())['payload_sha256'])
     for row in ROWS:
@@ -111,7 +120,7 @@ def main():
         pacing_total_max=max(pacing_total_max,sum(pacing_active.values()))
     assert pacing_total_max<=sum(pacing['per_model_limits'].values())
     if args.require_complete:assert not any(pacing_active.values())
-    result={'verified_at':stamp(),'experiments':details,'construction_audit_sha256':digest(HERE/'construction-cue-audit.json'),
+    result={'verified_at':stamp(),'concurrency_observation_through':observation_through,'experiments':details,'construction_audit_sha256':digest(HERE/'construction-cue-audit.json'),
         'crash_reasked_recorded':len(reasked),'crash_authorised':len(authorised),'measured_usd':total,
         'lost_attempt_reserve_usd':recovery['lost_attempt_reserve_usd'],'measured_plus_lost_reserve_usd':total+recovery['lost_attempt_reserve_usd'],
         'complete':all(v['complete'] for v in details.values()),'no_request_key_overlap':True,

@@ -1,0 +1,7 @@
+{
+  "stamp": "2026-10-13T09:36:08.656422+00:00",
+  "models": [
+    "gemini-3.8-flash"
+  ],
+  "reason": "Owner reports depleted prepaid credits; local HTTP 402 confirms. Resume missing-only after owner top-up."
+}

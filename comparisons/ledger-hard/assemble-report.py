@@ -21,6 +21,8 @@ def main():
     primary_text=primary_text.replace('transport failures; measured spend','final unsuccessful responses; measured spend')
     primary_text=primary_text.replace('Owner-authorized unanswered transport retries use at most three attempts with 10/30-second backoff and at most two concurrent Luna calls. All failed attempts remain recorded.', 'Unanswered transport retries follow the operational amendments above. All failed attempts remain recorded.')
     variant_text=(HERE/'dialect/REPORT.md').read_text().replace('final transport failures.', 'final unsuccessful responses.')
+    variant_text=variant_text.replace('Failures over 5% in a rolling 50 Luna attempts reduce variant concurrency from four to two.',
+        'The original adaptive four/two pacing is superseded by the per-model runtime amendment above.')
     lines=['# Ledger hard-row dossier','',f'Final recording analysis generated {stamp()}. All case and result counts come from the linked files in `comparisons/ledger-hard/`.','',
        f'- Full sealed coverage: 384 cases per row, 1,536 per model; two primary models and three dialect models.',
        f'- {primary["unique_calls"]} primary and {variant["unique_calls"]} dialect unique recorded requests, including the goal equal-evidence ablation.',

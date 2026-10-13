@@ -19,7 +19,7 @@ class RecoveryTests(unittest.TestCase):
     def request(self):return {'experiment':'primary','model':'gpt-6-luna','request_sha256':'fixture','side':'audit','row':'rubric','crash_reask':True}
     def invoke(self,answers):
         events=[]
-        with patch.object(r.primary,'call_once',side_effect=answers) as call, patch.object(r.primary,'append',side_effect=lambda p,x:events.append((p.name,x))),patch.object(r.time,'sleep') as sleep:
+        with patch.object(r,'PROVIDER_HOLDS',set()),patch.object(r,'dump'),patch.object(r.primary,'call_once',side_effect=answers) as call, patch.object(r.primary,'append',side_effect=lambda p,x:events.append((p.name,x))),patch.object(r.time,'sleep') as sleep:
             result=r.work(self.request())
         return result,events,call.call_count,[x.args[0] for x in sleep.call_args_list]
     def test_answered_malformed_content_never_retried(self):
@@ -52,5 +52,17 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(sum(p=='quota-pending.jsonl' for p,x in events),1)
         self.assertNotIn('outcome',result)
         self.assertTrue(result['quota_pending'])
+    def test_402_stops_provider_without_retry_or_judge_result(self):
+        result,events,n,delays=self.invoke([{'success':False,'text':'','error':{'status':402}}])
+        self.assertEqual((n,delays),(1,[]))
+        self.assertEqual(sum(p=='calls.jsonl' for p,x in events),0)
+        self.assertEqual(sum(p=='billing-rejections.jsonl' for p,x in events),1)
+        self.assertTrue(result['billing_pending'] and result['proven_rejection'])
+        self.assertNotIn('outcome',result)
+    def test_provider_hold_prevents_new_http_dispatch(self):
+        with patch.object(r,'PROVIDER_HOLDS',{'gpt-6-luna'}),patch.object(r.primary,'call_once') as call:
+            result=r.work(self.request())
+        call.assert_not_called()
+        self.assertTrue(result['hold_without_dispatch'])
 
 if __name__=='__main__':unittest.main()
