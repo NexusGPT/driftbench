@@ -38,3 +38,9 @@ The next entry records completed seed results or the final bank result. No unmea
 
 - Seed 2: level 5, 1791 of 2009 seed-dependent items pass. The 24 global Acme and scale items are pending, so this is not a full-bank score. Source: `8359f453`; evidence: `.exec/after-ab.json.seed-2.json`.
 - The regenerated D4 loose-confirmation probe is `gen-deviation-005`; the CLI gate test now references that probe. Its acceptance, fault-kill and control assertions remain unchanged. All 10 gate and pilot rechecks pass.
+
+## 2026-10-13T06:48:13+02:00: seed 1 finishes and full test results
+
+- Seed 1: level 5, 1788 of 2009 seed-dependent items pass. Seed 2: level 5, 1791 of 2009 pass. The same 24 global items remain pending. These counts do not claim full-bank scores.
+- The full repository run finishes with 424 passing files and 6 failing files; 5018 tests pass, 7 fail and 43 skip. The CI suite cleanup hook also times out. Three failures are stale fixture expectations now fixed; three are explicit test timeouts; the system-floor assertion reports level 2 rather than floor 7.
+- All seven failed tests have passing focused rechecks, including the exact system-floor run through level 7. The original system item failure is not captured by the test assertion, so its cause remains unconfirmed. All six affected suites are rerunning together with one worker, a 30-second default test timeout and a 60-second cleanup timeout. Explicit per-test timeouts and bank budgets remain unchanged.
