@@ -368,15 +368,29 @@ function scriptAtoms(
   }
 }
 
-/** Paths a line names: backticked tokens without spaces and markdown link targets. */
+/** Paths a line names: backticked file names and markdown link destinations. */
 export function namedPaths(line: string): string[] {
   const found: string[] = [];
   // A section anchor or a query names the same file; a web address is no path.
   const bare = (path: string) => path.replace(/[#?].*$/, '');
-  for (const match of line.matchAll(/`([^`\s]+)`/g))
-    if (match[1] && !/^[a-z]+:\/\//i.test(match[1])) found.push(bare(match[1]));
-  for (const match of line.matchAll(/\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
-    if (match[1] && !/^[a-z]+:/i.test(match[1])) found.push(bare(match[1]));
+  for (const match of line.matchAll(/`([^`\n]+)`/g)) {
+    const token = match[1]?.trim();
+    // A quoted shell command is an example, not one file name. Spaces within a file name stay.
+    const execution = /\b(?:run|execute)(?: the command)?\s*$|\bexample:\s*$/i.test(
+      line.slice(0, match.index),
+    );
+    if (
+      token &&
+      !/^[a-z]+:\/\//i.test(token) &&
+      !/[|;&]/.test(token) &&
+      !/\s--?\w/.test(token) &&
+      !(execution && /\s/.test(token))
+    )
+      found.push(bare(token));
+  }
+  for (const match of line.matchAll(/\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g)) {
+    const target = match[1] ?? match[2];
+    if (target && !/^[a-z]+:/i.test(target)) found.push(bare(target));
   }
   return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
 }
