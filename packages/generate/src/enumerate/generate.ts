@@ -229,6 +229,11 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   };
 
   const files: GeneratedFile[] = [];
+  const fileOwners = new Map<string, string>();
+  const addFile = (id: string, file: GeneratedFile): void => {
+    files.push(file);
+    fileOwners.set(file.path, id);
+  };
   const cappedText = new Map<string, () => string>();
   const complete: Spec[] = [];
   const all: Spec[] = [];
@@ -259,7 +264,6 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       const rendered: Rendered = renderDraft(prepared, draft, run);
       const renderText = () => specText(rendered, run, prepared.hash);
       const text = options.specCap === undefined ? renderText() : '';
-      if (options.specCap !== undefined) cappedText.set(rendered.id, renderText);
       const loaded = validateSpec(rendered.spec, rendered.id);
       if (!loaded.ok) {
         invalid.push({ id: rendered.id, errors: loaded.errors });
@@ -300,7 +304,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
         keep(seeder, loaded.spec);
       }
       const folder = needsPhrase || needsThen ? INCOMPLETE_DIR : COMPLETE_DIR;
-      files.push({ path: `${folder}/${seeder}/${rendered.id}.yaml`, text });
+      const path = `${folder}/${seeder}/${rendered.id}.yaml`;
+      if (options.specCap !== undefined) cappedText.set(path, renderText);
+      addFile(rendered.id, { path, text });
     }
     seeders[seeder] = totals;
     return own;
@@ -317,7 +323,6 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   for (const { id, spec, seed: workspace } of taskSpecs(prepared, options.tasks ?? [], run)) {
     const renderText = () => `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
     const text = options.specCap === undefined ? renderText() : '';
-    if (options.specCap !== undefined) cappedText.set(id, renderText);
     const loaded = validateSpec(spec, id);
     const totals = seeders.task;
     if (!loaded.ok) {
@@ -330,15 +335,17 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     all.push(loaded.spec);
     complete.push(loaded.spec);
     keep('task', loaded.spec);
-    files.push({ path: `${COMPLETE_DIR}/task/${id}.yaml`, text });
+    const path = `${COMPLETE_DIR}/task/${id}.yaml`;
+    if (options.specCap !== undefined) cappedText.set(path, renderText);
+    addFile(id, { path, text });
     // A workspace with a file that is not text starts from a folder: written beside the spec, as
     // `driftbench family instances` writes it (families/instances.ts seedFolderName).
     if (workspace) {
       const folder = `${COMPLETE_DIR}/task/${seedFolderName(id)}`;
       for (const [path, content] of Object.entries(workspace.text).sort(([a], [b]) => a.localeCompare(b)))
-        files.push({ path: `${folder}/${path}`, text: content });
+        addFile(id, { path: `${folder}/${path}`, text: content });
       for (const [path, content] of Object.entries(workspace.binary).sort(([a], [b]) => a.localeCompare(b)))
-        files.push({ path: `${folder}/${path}`, text: '', bytes: content });
+        addFile(id, { path: `${folder}/${path}`, text: '', bytes: content });
     }
   }
 
@@ -413,22 +420,10 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       seeders[seeder].blocks = own.reduce((sum, spec) => sum + spec.blocks.length, 0);
       seeders[seeder].complete = ready.length;
     }
-    const keptFiles = files.filter((file) =>
-      capped.ids.has(
-        file.path
-          .split('/')
-          .at(-1)
-          ?.replace(/\.yaml$/, '') ?? '',
-      ),
-    );
+    const keptFiles = files.filter((file) => capped.ids.has(fileOwners.get(file.path) ?? ''));
     files.splice(0, files.length, ...keptFiles);
     for (const file of files) {
-      const id =
-        file.path
-          .split('/')
-          .at(-1)
-          ?.replace(/\.yaml$/, '') ?? '';
-      file.text = cappedText.get(id)?.() ?? file.text;
+      file.text = cappedText.get(file.path)?.() ?? file.text;
     }
     const finalKeys = new Set(
       cellsOf(prepared, complete, t)
