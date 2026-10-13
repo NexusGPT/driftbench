@@ -1,0 +1,632 @@
+{
+  "summary": {
+    "snapshotAt": "2026-10-13T04:25:46.398809+00:00",
+    "verifyCleanAccepted": 95,
+    "verifyDefectsRejected": 95,
+    "verifyFalseAccepts": 0,
+    "rubricPairs": 60,
+    "strictValidPairs": 43,
+    "extraRowPairs": 17,
+    "extraRows": 22,
+    "cleanWinnerPairs": 60,
+    "familyCounts": {
+      "No commas": 4,
+      "Exactly four numbers": 5,
+      "All capitals": 2,
+      "No capitals": 4,
+      "Second paragraph starts with it": 2
+    },
+    "causeCounts": {
+      "question constraints appended": 14,
+      "question constraint prepended; rubric moved to id 2": 2,
+      "question constraint appended; score contradicts reasoning": 1
+    },
+    "retainId1Diagnostic": {
+      "cleanAccepted": 60,
+      "defectsRejected": 57
+    },
+    "humanScopedDiagnostic": {
+      "cleanAccepted": 60,
+      "defectsRejected": 59
+    },
+    "freshContractCalls": 0
+  },
+  "items": [
+    {
+      "id": "rb-bank-006",
+      "sourceTemplate": "rubric_eval_279",
+      "family": 6,
+      "template": "No commas",
+      "question": "Write one fictional sentence about glimmer0. Do not use commas.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+      "clean": "glimmer0 wakes then opens the silver gate.",
+      "defect": "glimmer0 wakes, then opens the silver gate.",
+      "reversed": true,
+      "canonicalClean": "B",
+      "recordingKey": "5d29b45da5be03e43e81",
+      "recordingLine": 7,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A contains a comma after \"wakes\" (\"glimmer0 wakes, then opens the silver gate.\"), violating the explicit no-commas constraint. B (\"glimmer0 wakes then opens the silver gate.\") has no commas and meets the constraint."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 2,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both responses are a single fictional sentence about glimmer0, as the question asks."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-007",
+      "sourceTemplate": "rubric_eval_833",
+      "family": 7,
+      "template": "Exactly four numbers",
+      "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+      "clean": "glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps.",
+      "defect": "glimmer stores 1 bells, 2 keys, 3 maps and several lamps.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "c31a170e96173488d262",
+      "recordingLine": 8,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A contains exactly four numbers: 1 bells, 2 keys, 3 maps, 4 lamps. B contains only three numbers (1, 2, 3); it replaces the fourth with the word 'several', so the exact-four-numbers requirement is contradicted."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both responses open with 'glimmer stores', using the required word."
+        },
+        {
+          "id": 3,
+          "weight": 2,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both describe a fictional inventory of items (bells, keys, maps, and lamps) held by 'glimmer'."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-014",
+      "sourceTemplate": "rubric_eval_161",
+      "family": 4,
+      "template": "All capitals",
+      "question": "Write one fictional chant about glimmer1. All words must use capital letters.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+      "clean": "GLIMMER1 LIGHTS THE NIGHT",
+      "defect": "GLIMMER1 Lights THE NIGHT",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "d07091094485d9d1f466",
+      "recordingLine": 15,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A: \"GLIMMER1 LIGHTS THE NIGHT\" has every word in capitals. B: \"GLIMMER1 Lights THE NIGHT\" contains the mixed-case word \"Lights\", which contradicts the strict all-capitals requirement."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both give one short fictional chant about GLIMMER1 in a single line. Neither adds extra chants, and the content is comparable, so this requirement does not separate them."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-015",
+      "sourceTemplate": "rubric_eval_201",
+      "family": 5,
+      "template": "No capitals",
+      "question": "Write one fictional sentence about glimmer1. Do not use any capital letters.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+      "clean": "glimmer1 carries a tiny lantern.",
+      "defect": "glimmer1 Carries a tiny lantern.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "14f6c5394b0e6d5e8bd0",
+      "recordingLine": 16,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "Rubric requirement: the response strictly contains no capital letters. A, \"glimmer1 carries a tiny lantern.\", has none. B, \"glimmer1 Carries a tiny lantern.\", capitalizes \"Carries\", which is a clear violation of the hard constraint."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Question requirement: write one fictional sentence about glimmer1. Both responses give exactly one sentence about glimmer1 with a fictional narrative, so both satisfy it equally."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-017",
+      "sourceTemplate": "rubric_eval_833",
+      "family": 7,
+      "template": "Exactly four numbers",
+      "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+      "clean": "glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps.",
+      "defect": "glimmer stores 2 bells, 3 keys, 4 maps and several lamps.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "6ff3105bd1578b8d7af5",
+      "recordingLine": 18,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A contains exactly four numbers: 2, 3, 4 and 5. B contains only three numerals (2, 3, 4); its fourth quantity is the vague word 'several', so it fails the exactly-4-numbers constraint."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both describe a fictional inventory of bells, keys, maps and lamps stored by 'glimmer', so both satisfy the core deliverable equally."
+        },
+        {
+          "id": 3,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both responses use the word 'glimmer' as required."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-025",
+      "sourceTemplate": "rubric_eval_201",
+      "family": 5,
+      "template": "No capitals",
+      "question": "Write one fictional sentence about glimmer2. Do not use any capital letters.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+      "clean": "glimmer2 carries a tiny lantern.",
+      "defect": "glimmer2 Carries a tiny lantern.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "d2906d8b57d5e86432f8",
+      "recordingLine": 26,
+      "cause": "question constraint prepended; rubric moved to id 2",
+      "intendedRow": {
+        "id": 2,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "The rubric requires strict adherence to no capital letters. A is entirely lowercase and fully satisfies this. B capitalizes \"Carries\" (capital C), which directly violates the hard constraint."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 1,
+          "weight": 2,
+          "a": 2,
+          "b": 2,
+          "evidence": "A: \"glimmer2 carries a tiny lantern.\" is one fictional sentence about glimmer2. B: \"glimmer2 Carries a tiny lantern.\" is also one fictional sentence about glimmer2, so both meet this requirement equally."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-026",
+      "sourceTemplate": "rubric_eval_279",
+      "family": 6,
+      "template": "No commas",
+      "question": "Write one fictional sentence about glimmer2. Do not use commas.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+      "clean": "glimmer2 wakes then opens the silver gate.",
+      "defect": "glimmer2 wakes, then opens the silver gate.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "afb5d971f889541308fd",
+      "recordingLine": 27,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A contains no commas: 'glimmer2 wakes then opens the silver gate.' B contains a comma after 'wakes' ('glimmer2 wakes, then opens the silver gate.'), which directly violates the explicit no-comma constraint."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both responses write exactly one fictional sentence about glimmer2 with a single terminal period, so both satisfy the core deliverable. B's comma is scored under check 1, not here."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-027",
+      "sourceTemplate": "rubric_eval_833",
+      "family": 7,
+      "template": "Exactly four numbers",
+      "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+      "clean": "glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps.",
+      "defect": "glimmer stores 3 bells, 4 keys, 5 maps and several lamps.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "d99114533d754c75f785",
+      "recordingLine": 28,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A contains exactly four numbers (3, 4, 5, 6). B contains only three numerals (3, 4, 5) and replaces the fourth with the non-numeric word \"several\", so it fails the exact-four-numbers constraint."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 2,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both describe a fictional inventory: \"glimmer stores\" a list of bells, keys, maps, and lamps."
+        },
+        {
+          "id": 3,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both use the word \"glimmer\" as required."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-035",
+      "sourceTemplate": "rubric_eval_201",
+      "family": 5,
+      "template": "No capitals",
+      "question": "Write one fictional sentence about glimmer3. Do not use any capital letters.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+      "clean": "glimmer3 carries a tiny lantern.",
+      "defect": "glimmer3 Carries a tiny lantern.",
+      "reversed": true,
+      "canonicalClean": "B",
+      "recordingKey": "997cd23d02d1b18981f8",
+      "recordingLine": 37,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "The rubric's hard constraint is no capital letters. Response A contains a capital 'C' in 'Carries', so it violates the constraint. Response B is entirely lowercase ('glimmer3 carries a tiny lantern.') and fully satisfies it."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 2,
+          "a": 2,
+          "b": 2,
+          "evidence": "The question asks for one fictional sentence about glimmer3. Both responses give exactly one sentence about glimmer3 with a fictional premise (a tiny lantern), so both satisfy this equally."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-036",
+      "sourceTemplate": "rubric_eval_279",
+      "family": 6,
+      "template": "No commas",
+      "question": "Write one fictional sentence about glimmer3. Do not use commas.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+      "clean": "glimmer3 wakes then opens the silver gate.",
+      "defect": "glimmer3 wakes, then opens the silver gate.",
+      "reversed": true,
+      "canonicalClean": "B",
+      "recordingKey": "e5a0a9ad1185bd173568",
+      "recordingLine": 36,
+      "cause": "question constraint appended; score contradicts reasoning",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "The rubric's hard constraint is no commas. Response A, 'glimmer3 wakes, then opens the silver gate.', contains a comma after 'wakes'. Response B, 'glimmer3 wakes then opens the silver gate.', contains none. Response A violates the constraint, so its score is 0, not 2. Response B scores 2."
+      },
+      "cleanScore": 2,
+      "defectScore": 2,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 2,
+          "a": 2,
+          "b": 2,
+          "evidence": "The question asks for one fictional sentence about glimmer3. Both responses are a single fictional sentence about glimmer3 and satisfy this equally."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-045",
+      "sourceTemplate": "rubric_eval_201",
+      "family": 5,
+      "template": "No capitals",
+      "question": "Write one fictional sentence about glimmer4. Do not use any capital letters.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+      "clean": "glimmer4 carries a tiny lantern.",
+      "defect": "glimmer4 Carries a tiny lantern.",
+      "reversed": true,
+      "canonicalClean": "B",
+      "recordingKey": "46e8d6cc43b27aeb2c78",
+      "recordingLine": 46,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A contains a capital letter: \"Carries\" starts with an uppercase C, violating the hard no-capitals constraint. B is entirely lowercase, with no capital letters anywhere."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both responses are one fictional sentence about glimmer4: A is \"glimmer4 Carries a tiny lantern.\" and B is \"glimmer4 carries a tiny lantern.\" Apart from capitalization, they are equivalent."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-046",
+      "sourceTemplate": "rubric_eval_279",
+      "family": 6,
+      "template": "No commas",
+      "question": "Write one fictional sentence about glimmer4. Do not use commas.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+      "clean": "glimmer4 wakes then opens the silver gate.",
+      "defect": "glimmer4 wakes, then opens the silver gate.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "2d12e7311d53c6a04526",
+      "recordingLine": 47,
+      "cause": "question constraint prepended; rubric moved to id 2",
+      "intendedRow": {
+        "id": 2,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "The rubric requires strict adherence to no commas. A contains no commas. B contains a comma after 'wakes', which violates the explicit hard constraint."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 1,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "A gives one fictional sentence about glimmer4: 'glimmer4 wakes then opens the silver gate.' B gives one fictional sentence about glimmer4: 'glimmer4 wakes, then opens the silver gate.' Both meet the core deliverable."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-047",
+      "sourceTemplate": "rubric_eval_833",
+      "family": 7,
+      "template": "Exactly four numbers",
+      "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+      "clean": "glimmer stores 5 bells, 6 keys, 7 maps and 8 lamps.",
+      "defect": "glimmer stores 5 bells, 6 keys, 7 maps and several lamps.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "2517c8492a3b78f21fba",
+      "recordingLine": 48,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A contains exactly four numbers (5, 6, 7, 8). B contains only three numeric values (5, 6, 7); 'several' is not a number, so it fails the exactly-4 requirement."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both responses use the word 'glimmer' as the inventory name ('glimmer stores ...')."
+        },
+        {
+          "id": 3,
+          "weight": 2,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both describe a fictional inventory of items (bells, keys, maps, lamps) held by 'glimmer'."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-048",
+      "sourceTemplate": "rubric_eval_1115",
+      "family": 8,
+      "template": "Second paragraph starts with it",
+      "question": "Write two fictional paragraphs about glimmer4. The second paragraph must start with the word it.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+      "clean": "glimmer4 opens the gate.\n\nit reveals a quiet garden.",
+      "defect": "glimmer4 opens the gate.\n\nThat reveals a quiet garden.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "75280fad0b05191ff999",
+      "recordingLine": 49,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A's second paragraph begins with \"it reveals a quiet garden,\" which satisfies the case-insensitive \"it\" start. B's second paragraph begins with \"That reveals a quiet garden,\" which does not start with \"it\"."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 2,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both responses contain exactly two fictional paragraphs about glimmer4: \"glimmer4 opens the gate.\" followed by a second paragraph. Neither has a material defect on this requirement."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-054",
+      "sourceTemplate": "rubric_eval_161",
+      "family": 4,
+      "template": "All capitals",
+      "question": "Write one fictional chant about glimmer5. All words must use capital letters.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+      "clean": "GLIMMER5 LIGHTS THE NIGHT",
+      "defect": "GLIMMER5 Lights THE NIGHT",
+      "reversed": true,
+      "canonicalClean": "B",
+      "recordingKey": "013ea5b9bdedcb1346d8",
+      "recordingLine": 55,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "Rubric requirement: every word must be in capital letters. A writes \"GLIMMER5 Lights THE NIGHT\", so \"Lights\" is not capitalized and the hard constraint is violated. B writes \"GLIMMER5 LIGHTS THE NIGHT\", with every word in capitals."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Question requirement: write one fictional chant about GLIMMER5. Both responses give a single short chant-style line that names GLIMMER5 and is fictional, so both satisfy this equally."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-057",
+      "sourceTemplate": "rubric_eval_833",
+      "family": 7,
+      "template": "Exactly four numbers",
+      "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+      "clean": "glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps.",
+      "defect": "glimmer stores 6 bells, 7 keys, 8 maps and several lamps.",
+      "reversed": false,
+      "canonicalClean": "A",
+      "recordingKey": "97ab1fc57426dc055539",
+      "recordingLine": 58,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A contains exactly four numerals: 6, 7, 8, and 9. B contains only three numerals (6, 7, 8); 'several' is a word, not a number, so B fails the exactly-4 requirement."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both responses use the word 'glimmer' as the inventory name, 'glimmer stores ...'."
+        },
+        {
+          "id": 3,
+          "weight": 2,
+          "a": 2,
+          "b": 2,
+          "evidence": "Both describe a fictional inventory of items (bells, keys, maps, lamps) with quantities, so each meets the describe-an-inventory request."
+        }
+      ]
+    },
+    {
+      "id": "rb-bank-058",
+      "sourceTemplate": "rubric_eval_1115",
+      "family": 8,
+      "template": "Second paragraph starts with it",
+      "question": "Write two fictional paragraphs about glimmer5. The second paragraph must start with the word it.",
+      "criterion": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+      "clean": "glimmer5 opens the gate.\n\nit reveals a quiet garden.",
+      "defect": "glimmer5 opens the gate.\n\nThat reveals a quiet garden.",
+      "reversed": true,
+      "canonicalClean": "B",
+      "recordingKey": "2ccb1e0c8e087e7f0bc0",
+      "recordingLine": 59,
+      "cause": "question constraints appended",
+      "intendedRow": {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "Rubric: the second paragraph must start with 'it' (case-insensitive). A's second paragraph begins 'That reveals a quiet garden.', which fails. B's second paragraph begins 'it reveals a quiet garden.', which passes."
+      },
+      "cleanScore": 2,
+      "defectScore": 0,
+      "extraRows": [
+        {
+          "id": 2,
+          "weight": 3,
+          "a": 2,
+          "b": 2,
+          "evidence": "Question's explicit constraint: two fictional paragraphs about glimmer5. Both responses have exactly two paragraphs, each a short fictional passage involving glimmer5, so both fully satisfy this equally."
+        }
+      ]
+    }
+  ]
+}

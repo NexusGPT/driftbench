@@ -1,0 +1,38 @@
+{
+  "capturedAt": "2026-10-13T04:25:46.398809+00:00",
+  "baseCommit": "e81f04ed79cc35ebd5bec57c1614170dbef3d2ae",
+  "sourceWorktree": "astra-planted",
+  "newModelCalls": 0,
+  "files": {
+    "verify-decisions.json": {
+      "source": "research/planted/runtime/bank-verify.json",
+      "bytes": 24038,
+      "sha256": "ba3a7f16f1a7abf1e28c7eac369174ad69ea216a3dd76f849de0efe93e82c974"
+    },
+    "rb-decisions.json": {
+      "source": "research/planted/runtime/bank-rb.json",
+      "bytes": 42921,
+      "sha256": "93c0d83f9514cd5b2a2fc18e8b6923b69d1431a8c09702ba997052482cde958b"
+    },
+    "rb-recordings.jsonl": {
+      "source": "research/planted/runtime/recordings/bank-rb/haiku.jsonl",
+      "bytes": 41564,
+      "sha256": "6882d15602b7437b776e066fcc8e816964f35c343fdc0e81ec9dd7fbb6a8d364"
+    },
+    "bank-audit.json": {
+      "source": "research/planted/runtime/bank-audit.json",
+      "bytes": 105,
+      "sha256": "4bff143495afa5f3707c6bda9b1700bd6471eb2607ee54db531be4f0de5287e8"
+    },
+    "latest-source-metrics.json": {
+      "source": "research/planted/metrics.json",
+      "bytes": 64385,
+      "sha256": "2f665e4a4e0f52c0023988eea6556736f8098b213aeb38597879cf848dfcb7e2"
+    }
+  },
+  "unchangedInputs": {
+    "research/planted/bank-rb.json": "edc44ecf3d83cf83dff0b4bedb8380fbcc3ad5880af9eae176e31bcedc55f0f8",
+    "research/planted/bank-verify.json": "06d6dd42d545886f739c653064b2d82348c398f7a13773da836de6881fcb8e59",
+    "research/planted/frozen-sources.json": "ae5ffc7fb3f413d97db1292f8f92f258ed163223616733bbd38239d4790b6011"
+  }
+}

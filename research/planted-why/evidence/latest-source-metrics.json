@@ -1,0 +1,2814 @@
+{
+  "freezeCommit": "d88113cb33cef242b068e630b176651b97a7e743",
+  "generatedAt": "2026-10-13T04:23:09.627708+00:00",
+  "bank": {
+    "verify": {
+      "pairs": 95,
+      "complete": 95,
+      "validRequirementGrades": 95,
+      "invalidOrMissingGrades": 0,
+      "TPR": {
+        "success": 95,
+        "n": 95,
+        "estimate": 1.0,
+        "lower": 0.9611351464605271,
+        "upper": 1.0
+      },
+      "TNR": {
+        "success": 95,
+        "n": 95,
+        "estimate": 1.0,
+        "lower": 0.9611351464605271,
+        "upper": 1.0
+      },
+      "bothTwinsCorrect": {
+        "success": 95,
+        "n": 95,
+        "estimate": 1.0,
+        "lower": 0.9611351464605271,
+        "upper": 1.0
+      },
+      "familyCounts": {
+        "0": {
+          "n": 10,
+          "tp": 10,
+          "tn": 10,
+          "joint": 10
+        },
+        "1": {
+          "n": 10,
+          "tp": 10,
+          "tn": 10,
+          "joint": 10
+        },
+        "2": {
+          "n": 10,
+          "tp": 10,
+          "tn": 10,
+          "joint": 10
+        },
+        "3": {
+          "n": 10,
+          "tp": 10,
+          "tn": 10,
+          "joint": 10
+        },
+        "4": {
+          "n": 10,
+          "tp": 10,
+          "tn": 10,
+          "joint": 10
+        },
+        "5": {
+          "n": 9,
+          "tp": 9,
+          "tn": 9,
+          "joint": 9
+        },
+        "6": {
+          "n": 9,
+          "tp": 9,
+          "tn": 9,
+          "joint": 9
+        },
+        "7": {
+          "n": 9,
+          "tp": 9,
+          "tn": 9,
+          "joint": 9
+        },
+        "8": {
+          "n": 9,
+          "tp": 9,
+          "tn": 9,
+          "joint": 9
+        },
+        "9": {
+          "n": 9,
+          "tp": 9,
+          "tn": 9,
+          "joint": 9
+        }
+      },
+      "items": [
+        {
+          "id": "verify-bank-000",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-001",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-002",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-003",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-004",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-005",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-006",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-007",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-008",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-009",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-010",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-011",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-012",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-013",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-014",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-015",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-016",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-017",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-018",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-019",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-020",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-021",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-022",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-023",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-024",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-025",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-026",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-027",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-028",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-029",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-030",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-031",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-032",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-033",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-034",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-035",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-036",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-037",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-038",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-039",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-040",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-041",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-042",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-043",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-044",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-045",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-046",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-047",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-048",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-049",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-050",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-051",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-052",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-053",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-054",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-055",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-056",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-057",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-058",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-059",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-060",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-061",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-062",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-063",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-064",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-065",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-066",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-067",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-068",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-069",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-070",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-071",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-072",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-073",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-074",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-075",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-076",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-077",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-078",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-079",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-080",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-081",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-082",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-083",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-084",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-085",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-086",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-087",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-088",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-089",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-090",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-091",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-092",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-093",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "verify-bank-094",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        }
+      ],
+      "successfulRecordedCalls": 574,
+      "usd": 0.3781833,
+      "stages": {
+        "quoted-extract": 18,
+        "blind-algebra": 91,
+        "blind-direct-program": 91,
+        "program": 182,
+        "single": 182,
+        "single-review": 10
+      },
+      "callsByItem": {
+        "verify-bank-000-clean": 5,
+        "verify-bank-001-clean": 4,
+        "verify-bank-002-clean": 4,
+        "verify-bank-003-clean": 4,
+        "verify-bank-004-clean": 4,
+        "verify-bank-005-clean": 4,
+        "verify-bank-006-clean": 4,
+        "verify-bank-007-clean": 4,
+        "verify-bank-008-clean": 5,
+        "verify-bank-009-clean": 4,
+        "verify-bank-010-clean": 5,
+        "verify-bank-011-clean": 4,
+        "verify-bank-012-clean": 4,
+        "verify-bank-013-clean": 4,
+        "verify-bank-014-clean": 4,
+        "verify-bank-015-clean": 4,
+        "verify-bank-016-clean": 4,
+        "verify-bank-017-clean": 4,
+        "verify-bank-018-clean": 5,
+        "verify-bank-019-clean": 4,
+        "verify-bank-020-clean": 5,
+        "verify-bank-021-clean": 4,
+        "verify-bank-022-clean": 4,
+        "verify-bank-023-clean": 4,
+        "verify-bank-024-clean": 4,
+        "verify-bank-025-clean": 4,
+        "verify-bank-026-clean": 4,
+        "verify-bank-027-clean": 4,
+        "verify-bank-028-clean": 5,
+        "verify-bank-029-clean": 4,
+        "verify-bank-031-clean": 4,
+        "verify-bank-030-clean": 4,
+        "verify-bank-032-clean": 4,
+        "verify-bank-033-clean": 5,
+        "verify-bank-034-clean": 4,
+        "verify-bank-035-clean": 4,
+        "verify-bank-036-clean": 4,
+        "verify-bank-037-clean": 4,
+        "verify-bank-038-clean": 5,
+        "verify-bank-039-clean": 4,
+        "verify-bank-040-clean": 5,
+        "verify-bank-041-clean": 4,
+        "verify-bank-042-clean": 4,
+        "verify-bank-043-clean": 4,
+        "verify-bank-044-clean": 4,
+        "verify-bank-045-clean": 4,
+        "verify-bank-046-clean": 4,
+        "verify-bank-047-clean": 4,
+        "verify-bank-048-clean": 5,
+        "verify-bank-049-clean": 4,
+        "verify-bank-050-clean": 5,
+        "verify-bank-051-clean": 4,
+        "verify-bank-052-clean": 4,
+        "verify-bank-053-clean": 4,
+        "verify-bank-054-clean": 4,
+        "verify-bank-055-clean": 4,
+        "verify-bank-056-clean": 4,
+        "verify-bank-057-clean": 4,
+        "verify-bank-058-clean": 5,
+        "verify-bank-059-clean": 4,
+        "verify-bank-060-clean": 5,
+        "verify-bank-061-clean": 4,
+        "verify-bank-062-clean": 4,
+        "verify-bank-064-clean": 4,
+        "verify-bank-065-clean": 4,
+        "verify-bank-066-clean": 4,
+        "verify-bank-067-clean": 4,
+        "verify-bank-068-clean": 5,
+        "verify-bank-069-clean": 4,
+        "verify-bank-070-clean": 5,
+        "verify-bank-071-clean": 4,
+        "verify-bank-072-clean": 4,
+        "verify-bank-074-clean": 4,
+        "verify-bank-075-clean": 4,
+        "verify-bank-076-clean": 4,
+        "verify-bank-077-clean": 4,
+        "verify-bank-079-clean": 4,
+        "verify-bank-078-clean": 5,
+        "verify-bank-080-clean": 5,
+        "verify-bank-085-clean": 4,
+        "verify-bank-084-clean": 4,
+        "verify-bank-082-clean": 4,
+        "verify-bank-081-clean": 4,
+        "verify-bank-086-clean": 4,
+        "verify-bank-087-clean": 4,
+        "verify-bank-089-clean": 4,
+        "verify-bank-088-clean": 5,
+        "verify-bank-000-defect": 3,
+        "verify-bank-090-clean": 5,
+        "verify-bank-001-defect": 2,
+        "verify-bank-091-clean": 4,
+        "verify-bank-092-clean": 4,
+        "verify-bank-094-clean": 4,
+        "verify-bank-002-defect": 2,
+        "verify-bank-003-defect": 2,
+        "verify-bank-004-defect": 2,
+        "verify-bank-010-defect": 3,
+        "verify-bank-009-defect": 2,
+        "verify-bank-007-defect": 2,
+        "verify-bank-005-defect": 2,
+        "verify-bank-008-defect": 2,
+        "verify-bank-006-defect": 2,
+        "verify-bank-011-defect": 2,
+        "verify-bank-012-defect": 2,
+        "verify-bank-013-defect": 2,
+        "verify-bank-014-defect": 2,
+        "verify-bank-020-defect": 3,
+        "verify-bank-018-defect": 2,
+        "verify-bank-019-defect": 2,
+        "verify-bank-016-defect": 2,
+        "verify-bank-015-defect": 2,
+        "verify-bank-017-defect": 2,
+        "verify-bank-021-defect": 2,
+        "verify-bank-023-defect": 2,
+        "verify-bank-022-defect": 2,
+        "verify-bank-024-defect": 2,
+        "verify-bank-027-defect": 2,
+        "verify-bank-029-defect": 2,
+        "verify-bank-028-defect": 2,
+        "verify-bank-030-defect": 2,
+        "verify-bank-025-defect": 2,
+        "verify-bank-026-defect": 2,
+        "verify-bank-031-defect": 2,
+        "verify-bank-032-defect": 2,
+        "verify-bank-034-defect": 2,
+        "verify-bank-033-defect": 2,
+        "verify-bank-040-defect": 3,
+        "verify-bank-039-defect": 2,
+        "verify-bank-037-defect": 2,
+        "verify-bank-038-defect": 2,
+        "verify-bank-035-defect": 2,
+        "verify-bank-036-defect": 2,
+        "verify-bank-041-defect": 2,
+        "verify-bank-042-defect": 2,
+        "verify-bank-044-defect": 2,
+        "verify-bank-043-defect": 2,
+        "verify-bank-050-defect": 3,
+        "verify-bank-045-defect": 2,
+        "verify-bank-049-defect": 2,
+        "verify-bank-048-defect": 2,
+        "verify-bank-047-defect": 2,
+        "verify-bank-046-defect": 2,
+        "verify-bank-051-defect": 2,
+        "verify-bank-053-defect": 2,
+        "verify-bank-054-defect": 2,
+        "verify-bank-052-defect": 2,
+        "verify-bank-060-defect": 3,
+        "verify-bank-057-defect": 2,
+        "verify-bank-059-defect": 2,
+        "verify-bank-058-defect": 2,
+        "verify-bank-055-defect": 2,
+        "verify-bank-056-defect": 2,
+        "verify-bank-061-defect": 2,
+        "verify-bank-062-defect": 2,
+        "verify-bank-064-defect": 2,
+        "verify-bank-067-defect": 2,
+        "verify-bank-070-defect": 3,
+        "verify-bank-069-defect": 2,
+        "verify-bank-068-defect": 2,
+        "verify-bank-065-defect": 2,
+        "verify-bank-066-defect": 2,
+        "verify-bank-071-defect": 2,
+        "verify-bank-072-defect": 2,
+        "verify-bank-074-defect": 2,
+        "verify-bank-077-defect": 2,
+        "verify-bank-075-defect": 2,
+        "verify-bank-081-defect": 2,
+        "verify-bank-082-defect": 2,
+        "verify-bank-084-defect": 2,
+        "verify-bank-079-defect": 2,
+        "verify-bank-076-defect": 2,
+        "verify-bank-080-defect": 3,
+        "verify-bank-078-defect": 2,
+        "verify-bank-090-defect": 3,
+        "verify-bank-087-defect": 2,
+        "verify-bank-085-defect": 2,
+        "verify-bank-089-defect": 2,
+        "verify-bank-088-defect": 2,
+        "verify-bank-086-defect": 2,
+        "verify-bank-091-defect": 2,
+        "verify-bank-092-defect": 2,
+        "verify-bank-094-defect": 2
+      },
+      "newCallsPerJudgment": {
+        "mean": 3.0210526315789474,
+        "min": 0,
+        "max": 5,
+        "counts": [
+          5,
+          3,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          5,
+          3,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          5,
+          3,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          5,
+          3,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          5,
+          3,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          5,
+          3,
+          4,
+          2,
+          4,
+          2,
+          0,
+          0,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          5,
+          3,
+          4,
+          2,
+          4,
+          2,
+          0,
+          0,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          5,
+          3,
+          4,
+          2,
+          4,
+          2,
+          0,
+          0,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          2,
+          5,
+          2,
+          4,
+          2,
+          5,
+          3,
+          4,
+          2,
+          4,
+          2,
+          0,
+          0,
+          4,
+          2
+        ]
+      },
+      "uniqueStimuli": 91,
+      "deduplicatedTPR": {
+        "success": 91,
+        "n": 91,
+        "estimate": 1.0,
+        "lower": 0.9594959960711198,
+        "upper": 1.0
+      },
+      "deduplicatedTNR": {
+        "success": 91,
+        "n": 91,
+        "estimate": 1.0,
+        "lower": 0.9594959960711198,
+        "upper": 1.0
+      },
+      "promptRequestsIncludingReplay": 789,
+      "replayHits": 240
+    },
+    "rb": {
+      "pairs": 60,
+      "complete": 60,
+      "validRequirementGrades": 43,
+      "invalidOrMissingGrades": 17,
+      "TPR": {
+        "success": 43,
+        "n": 60,
+        "estimate": 0.7166666666666667,
+        "lower": 0.5923271483560882,
+        "upper": 0.8149317157156729
+      },
+      "TNR": {
+        "success": 43,
+        "n": 60,
+        "estimate": 0.7166666666666667,
+        "lower": 0.5923271483560882,
+        "upper": 0.8149317157156729
+      },
+      "bothTwinsCorrect": {
+        "success": 43,
+        "n": 60,
+        "estimate": 0.7166666666666667,
+        "lower": 0.5923271483560882,
+        "upper": 0.8149317157156729
+      },
+      "familyCounts": {
+        "0": {
+          "n": 6,
+          "tp": 6,
+          "tn": 6,
+          "joint": 6
+        },
+        "1": {
+          "n": 6,
+          "tp": 6,
+          "tn": 6,
+          "joint": 6
+        },
+        "2": {
+          "n": 6,
+          "tp": 6,
+          "tn": 6,
+          "joint": 6
+        },
+        "3": {
+          "n": 6,
+          "tp": 6,
+          "tn": 6,
+          "joint": 6
+        },
+        "4": {
+          "n": 6,
+          "tp": 4,
+          "tn": 4,
+          "joint": 4
+        },
+        "5": {
+          "n": 6,
+          "tp": 2,
+          "tn": 2,
+          "joint": 2
+        },
+        "6": {
+          "n": 6,
+          "tp": 2,
+          "tn": 2,
+          "joint": 2
+        },
+        "7": {
+          "n": 6,
+          "tp": 1,
+          "tn": 1,
+          "joint": 1
+        },
+        "8": {
+          "n": 6,
+          "tp": 4,
+          "tn": 4,
+          "joint": 4
+        },
+        "9": {
+          "n": 6,
+          "tp": 6,
+          "tn": 6,
+          "joint": 6
+        }
+      },
+      "items": [
+        {
+          "id": "rb-bank-000",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-001",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-002",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-003",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-004",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-005",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-006",
+          "family": 6,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-007",
+          "family": 7,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-008",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-009",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-010",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-011",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-012",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-013",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-014",
+          "family": 4,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-015",
+          "family": 5,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-016",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-017",
+          "family": 7,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-018",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-019",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-020",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-021",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-022",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-023",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-024",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-025",
+          "family": 5,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-026",
+          "family": 6,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-027",
+          "family": 7,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-028",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-029",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-030",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-031",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-032",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-033",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-034",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-035",
+          "family": 5,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-036",
+          "family": 6,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-037",
+          "family": 7,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-038",
+          "family": 8,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-039",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-040",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-041",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-042",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-043",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-044",
+          "family": 4,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-045",
+          "family": 5,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-046",
+          "family": 6,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-047",
+          "family": 7,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-048",
+          "family": 8,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-049",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-050",
+          "family": 0,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-051",
+          "family": 1,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-052",
+          "family": 2,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-053",
+          "family": 3,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-054",
+          "family": 4,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-055",
+          "family": 5,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-056",
+          "family": 6,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        },
+        {
+          "id": "rb-bank-057",
+          "family": 7,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-058",
+          "family": 8,
+          "complete": false,
+          "cleanPassed": false,
+          "defectCaught": false
+        },
+        {
+          "id": "rb-bank-059",
+          "family": 9,
+          "complete": true,
+          "cleanPassed": true,
+          "defectCaught": true
+        }
+      ],
+      "successfulRecordedCalls": 60,
+      "usd": 0.0296598,
+      "stages": {
+        "canonical": 60
+      },
+      "callsByItem": {
+        "rb-bank-001": 1,
+        "rb-bank-000": 1,
+        "rb-bank-002": 1,
+        "rb-bank-003": 1,
+        "rb-bank-004": 1,
+        "rb-bank-005": 1,
+        "rb-bank-006": 1,
+        "rb-bank-007": 1,
+        "rb-bank-008": 1,
+        "rb-bank-009": 1,
+        "rb-bank-010": 1,
+        "rb-bank-011": 1,
+        "rb-bank-012": 1,
+        "rb-bank-013": 1,
+        "rb-bank-014": 1,
+        "rb-bank-015": 1,
+        "rb-bank-016": 1,
+        "rb-bank-017": 1,
+        "rb-bank-018": 1,
+        "rb-bank-019": 1,
+        "rb-bank-020": 1,
+        "rb-bank-021": 1,
+        "rb-bank-022": 1,
+        "rb-bank-023": 1,
+        "rb-bank-024": 1,
+        "rb-bank-025": 1,
+        "rb-bank-026": 1,
+        "rb-bank-027": 1,
+        "rb-bank-028": 1,
+        "rb-bank-029": 1,
+        "rb-bank-030": 1,
+        "rb-bank-032": 1,
+        "rb-bank-031": 1,
+        "rb-bank-033": 1,
+        "rb-bank-034": 1,
+        "rb-bank-036": 1,
+        "rb-bank-035": 1,
+        "rb-bank-037": 1,
+        "rb-bank-038": 1,
+        "rb-bank-039": 1,
+        "rb-bank-040": 1,
+        "rb-bank-041": 1,
+        "rb-bank-042": 1,
+        "rb-bank-043": 1,
+        "rb-bank-044": 1,
+        "rb-bank-045": 1,
+        "rb-bank-046": 1,
+        "rb-bank-047": 1,
+        "rb-bank-048": 1,
+        "rb-bank-049": 1,
+        "rb-bank-050": 1,
+        "rb-bank-052": 1,
+        "rb-bank-051": 1,
+        "rb-bank-053": 1,
+        "rb-bank-054": 1,
+        "rb-bank-055": 1,
+        "rb-bank-056": 1,
+        "rb-bank-057": 1,
+        "rb-bank-058": 1,
+        "rb-bank-059": 1
+      },
+      "newCallsPerJudgment": {
+        "mean": 1.0,
+        "min": 1,
+        "max": 1,
+        "counts": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "uniqueStimuli": 60,
+      "deduplicatedTPR": {
+        "success": 43,
+        "n": 60,
+        "estimate": 0.7166666666666667,
+        "lower": 0.5923271483560882,
+        "upper": 0.8149317157156729
+      },
+      "deduplicatedTNR": {
+        "success": 43,
+        "n": 60,
+        "estimate": 0.7166666666666667,
+        "lower": 0.5923271483560882,
+        "upper": 0.8149317157156729
+      },
+      "cleanWinner": {
+        "success": 60,
+        "n": 60,
+        "estimate": 1.0,
+        "lower": 0.93982814785791,
+        "upper": 0.9999999999999998
+      },
+      "conditionalTPRValidOnly": {
+        "success": 43,
+        "n": 43,
+        "estimate": 1.0,
+        "lower": 0.9179901967742088,
+        "upper": 1.0
+      },
+      "conditionalTNRValidOnly": {
+        "success": 43,
+        "n": 43,
+        "estimate": 1.0,
+        "lower": 0.9179901967742088,
+        "upper": 1.0
+      }
+    }
+  },
+  "noise": {
+    "verify": {
+      "requestedItems": 30,
+      "completeItems": 0,
+      "repeatCounts": [
+        0,
+        0,
+        0
+      ],
+      "costs": [
+        {
+          "successfulRecordedCalls": 5,
+          "usd": 0.0041288,
+          "stages": {
+            "quoted-extract": 3,
+            "blind-algebra": 2
+          },
+          "callsByItem": {
+            "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636": 1,
+            "c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": 1,
+            "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": 1,
+            "a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": 1,
+            "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": 1
+          }
+        },
+        {
+          "successfulRecordedCalls": 0,
+          "usd": 0,
+          "stages": {},
+          "callsByItem": {}
+        },
+        {
+          "successfulRecordedCalls": 0,
+          "usd": 0,
+          "stages": {},
+          "callsByItem": {}
+        }
+      ],
+      "successfulRecordedCalls": 5,
+      "usd": 0.0041288,
+      "items": [],
+      "newCallsPerPlannedJudgment": {
+        "mean": 0.05555555555555555,
+        "min": 0,
+        "max": 1,
+        "counts": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "rb": {
+      "requestedItems": 30,
+      "completeItems": 30,
+      "repeatCounts": [
+        30,
+        30,
+        30
+      ],
+      "costs": [
+        {
+          "successfulRecordedCalls": 30,
+          "usd": 0.038467,
+          "stages": {
+            "canonical": 30
+          },
+          "callsByItem": {
+            "rubric_eval_262": 1,
+            "rubric_eval_1125": 1,
+            "rubric_eval_432": 1,
+            "rubric_eval_56": 1,
+            "rubric_eval_1138": 1,
+            "rubric_eval_687": 1,
+            "rubric_eval_431": 1,
+            "rubric_eval_837": 1,
+            "rubric_eval_644": 1,
+            "rubric_eval_276": 1,
+            "rubric_eval_178": 1,
+            "rubric_eval_1089": 1,
+            "rubric_eval_204": 1,
+            "rubric_eval_62": 1,
+            "rubric_eval_559": 1,
+            "rubric_eval_193": 1,
+            "rubric_eval_130": 1,
+            "rubric_eval_499": 1,
+            "rubric_eval_109": 1,
+            "rubric_eval_126": 1,
+            "rubric_eval_952": 1,
+            "rubric_eval_927": 1,
+            "rubric_eval_49": 1,
+            "rubric_eval_129": 1,
+            "rubric_eval_892": 1,
+            "rubric_eval_1051": 1,
+            "rubric_eval_1108": 1,
+            "rubric_eval_343": 1,
+            "rubric_eval_878": 1,
+            "rubric_eval_1090": 1
+          }
+        },
+        {
+          "successfulRecordedCalls": 30,
+          "usd": 0.02703691,
+          "stages": {
+            "canonical": 30
+          },
+          "callsByItem": {
+            "rubric_eval_1125": 1,
+            "rubric_eval_262": 1,
+            "rubric_eval_432": 1,
+            "rubric_eval_687": 1,
+            "rubric_eval_56": 1,
+            "rubric_eval_1138": 1,
+            "rubric_eval_431": 1,
+            "rubric_eval_644": 1,
+            "rubric_eval_837": 1,
+            "rubric_eval_276": 1,
+            "rubric_eval_178": 1,
+            "rubric_eval_1089": 1,
+            "rubric_eval_62": 1,
+            "rubric_eval_204": 1,
+            "rubric_eval_559": 1,
+            "rubric_eval_129": 1,
+            "rubric_eval_130": 1,
+            "rubric_eval_499": 1,
+            "rubric_eval_126": 1,
+            "rubric_eval_952": 1,
+            "rubric_eval_109": 1,
+            "rubric_eval_927": 1,
+            "rubric_eval_1051": 1,
+            "rubric_eval_49": 1,
+            "rubric_eval_892": 1,
+            "rubric_eval_1108": 1,
+            "rubric_eval_343": 1,
+            "rubric_eval_878": 1,
+            "rubric_eval_1090": 1,
+            "rubric_eval_193": 1
+          }
+        },
+        {
+          "successfulRecordedCalls": 30,
+          "usd": 0.02778711,
+          "stages": {
+            "canonical": 30
+          },
+          "callsByItem": {
+            "rubric_eval_1125": 1,
+            "rubric_eval_262": 1,
+            "rubric_eval_56": 1,
+            "rubric_eval_432": 1,
+            "rubric_eval_1138": 1,
+            "rubric_eval_687": 1,
+            "rubric_eval_431": 1,
+            "rubric_eval_276": 1,
+            "rubric_eval_837": 1,
+            "rubric_eval_644": 1,
+            "rubric_eval_178": 1,
+            "rubric_eval_1089": 1,
+            "rubric_eval_62": 1,
+            "rubric_eval_204": 1,
+            "rubric_eval_129": 1,
+            "rubric_eval_559": 1,
+            "rubric_eval_193": 1,
+            "rubric_eval_499": 1,
+            "rubric_eval_130": 1,
+            "rubric_eval_126": 1,
+            "rubric_eval_109": 1,
+            "rubric_eval_952": 1,
+            "rubric_eval_927": 1,
+            "rubric_eval_49": 1,
+            "rubric_eval_892": 1,
+            "rubric_eval_1051": 1,
+            "rubric_eval_1108": 1,
+            "rubric_eval_878": 1,
+            "rubric_eval_343": 1,
+            "rubric_eval_1090": 1
+          }
+        }
+      ],
+      "successfulRecordedCalls": 90,
+      "usd": 0.09329102,
+      "items": [
+        {
+          "id": "rubric_eval_432",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_1125",
+          "decisions": [
+            "A",
+            "A",
+            "A"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_56",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_1138",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_262",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_687",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_837",
+          "decisions": [
+            "A",
+            "A",
+            "A"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_431",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_276",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_644",
+          "decisions": [
+            "tie",
+            "tie",
+            "tie"
+          ],
+          "correctness": [
+            false,
+            false,
+            false
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_178",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_1089",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_129",
+          "decisions": [
+            "A",
+            "A",
+            "A"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_62",
+          "decisions": [
+            "A",
+            "A",
+            "A"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_559",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_204",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_193",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            false,
+            false,
+            false
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_130",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_499",
+          "decisions": [
+            "A",
+            "A",
+            "A"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_109",
+          "decisions": [
+            "B",
+            "A",
+            "A"
+          ],
+          "correctness": [
+            false,
+            true,
+            true
+          ],
+          "pairwiseFlips": 2,
+          "correctnessFlips": 2,
+          "anyFlip": true
+        },
+        {
+          "id": "rubric_eval_126",
+          "decisions": [
+            "A",
+            "A",
+            "tie"
+          ],
+          "correctness": [
+            true,
+            true,
+            false
+          ],
+          "pairwiseFlips": 2,
+          "correctnessFlips": 2,
+          "anyFlip": true
+        },
+        {
+          "id": "rubric_eval_952",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_49",
+          "decisions": [
+            "A",
+            "A",
+            "A"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_927",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_892",
+          "decisions": [
+            "A",
+            "A",
+            "A"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_1051",
+          "decisions": [
+            "B",
+            "tie",
+            "tie"
+          ],
+          "correctness": [
+            false,
+            false,
+            false
+          ],
+          "pairwiseFlips": 2,
+          "correctnessFlips": 0,
+          "anyFlip": true
+        },
+        {
+          "id": "rubric_eval_1108",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_878",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        },
+        {
+          "id": "rubric_eval_1090",
+          "decisions": [
+            "B",
+            "tie",
+            "B"
+          ],
+          "correctness": [
+            false,
+            false,
+            false
+          ],
+          "pairwiseFlips": 2,
+          "correctnessFlips": 0,
+          "anyFlip": true
+        },
+        {
+          "id": "rubric_eval_343",
+          "decisions": [
+            "B",
+            "B",
+            "B"
+          ],
+          "correctness": [
+            true,
+            true,
+            true
+          ],
+          "pairwiseFlips": 0,
+          "correctnessFlips": 0,
+          "anyFlip": false
+        }
+      ],
+      "newCallsPerPlannedJudgment": {
+        "mean": 1.0,
+        "min": 1,
+        "max": 1,
+        "counts": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "pairwiseFlipRate": 0.08888888888888889,
+      "correctnessFlipRate": 0.044444444444444446,
+      "flips": 8,
+      "pairComparisons": 90,
+      "anyFlipItems": {
+        "success": 4,
+        "n": 30,
+        "estimate": 0.13333333333333333,
+        "lower": 0.053096554840547455,
+        "upper": 0.296813266820363
+      },
+      "accuracyByRepeat": [
+        0.8333333333333334,
+        0.8666666666666667,
+        0.8333333333333334
+      ],
+      "meanUnbiasedWithinItemVariance": 0.022222222222222223,
+      "floor95FullDevExtrapolated": 0.021868687765829273,
+      "floor95ThirtyItemCohort": 0.07543904893841144,
+      "fullDevN": 357,
+      "smallestStrictlyLargerDevGainItems": 8,
+      "smallestStrictlyLargerDevGain": 0.022408963585434174,
+      "accuracyUnstableItems": {
+        "success": 2,
+        "n": 30,
+        "estimate": 0.06666666666666667,
+        "lower": 0.018477023791270378,
+        "upper": 0.2132345836261692
+      },
+      "pilotUpperBoundFloor": 0.03911084280033295,
+      "smallestLargerGainAbovePilotUpperBoundItems": 14,
+      "correctnessFlipBootstrap95": [
+        0.0,
+        0.1111111111111111
+      ],
+      "floorBootstrap95": [
+        0.0,
+        0.03457743138953972
+      ],
+      "repeatsForOnePercentagePointFloor": 5,
+      "zeroFlipCaution": false,
+      "noFlipRiskBound": {
+        "method": "Wilson upper bound on chance an item flips across three repeats",
+        "upper": 0.296813266820363
+      }
+    }
+  },
+  "meter": {
+    "spent": 0.5079626200000001,
+    "unknownReserved": 0.0,
+    "active": {
+      "a6e88deb-6cb6-4ba6-8f11-ca0fc2081d8a": 0.25,
+      "21e97bf3-8369-431e-b620-0e20927eeb47": 0.25,
+      "0dd519d1-948e-4a1c-86ce-5783c0f5dea1": 0.25,
+      "0dc0ceb6-b52d-495a-85b4-480d92a3ea10": 0.25,
+      "c6b43d45-b8c2-404e-b515-0da112574885": 0.25,
+      "d4a71e19-dcd3-4415-9c46-edfee257a33c": 0.25
+    },
+    "calls": 731,
+    "peak": 6
+  },
+  "construction": {
+    "seed": "astra-planted-truth-2026-10-13-v1",
+    "verifyPairs": 95,
+    "rubricPairs": 60,
+    "verifySourceTemplates": 10,
+    "rubricSourceTemplates": 10,
+    "noiseItemsPerBenchmark": 30,
+    "noiseRepeats": 3,
+    "scope": "Seeded re-instantiations of executable DEV templates. Rubric items project one verbatim objective expert requirement; not full-rubric accuracy.",
+    "labels": "Construction code only. No model or official label used for bank truth.",
+    "noiseScope": "Seeded restricted DEV cohorts: math and fictional logic for verify; math and MBPP for RubricBench. Results do not estimate all-domain variability.",
+    "files": {
+      "bank-verify.json": "06d6dd42d545886f739c653064b2d82348c398f7a13773da836de6881fcb8e59",
+      "bank-rb.json": "edc44ecf3d83cf83dff0b4bedb8380fbcc3ad5880af9eae176e31bcedc55f0f8",
+      "noise-cohorts.json": "138458606cce3f7248a48d7c2404a268b855f189da4e90fd6147ee401037fcc5"
+    },
+    "noiseEligible": {
+      "verify": 38,
+      "rb": 30
+    }
+  },
+  "runControls": {
+    "initial": {
+      "freezeCommit": "d88113cb33cef242b068e630b176651b97a7e743",
+      "startedAt": "2026-10-13T03:50:09.963Z",
+      "deadline": 1791869220000,
+      "model": "haiku",
+      "concurrency": 2,
+      "cap": 8
+    },
+    "resumes": [
+      {
+        "freezeCommit": "749219bee12df3a6ee715217088a3cac90ab277b",
+        "startedAt": "2026-10-13T04:09:49.867Z",
+        "deadline": 1791866100000,
+        "model": "haiku",
+        "concurrency": 6,
+        "cap": 16
+      }
+    ],
+    "finalCapUsd": 16,
+    "maxConcurrentCalls": 6,
+    "lastNewCall": "2026-10-13T06:35:00+02:00"
+  },
+  "models": [
+    "claude-haiku-5-5"
+  ],
+  "meterAudit": {
+    "attempts": 731,
+    "sumKnownCosts": 0.50796262,
+    "unpricedAttempts": 0,
+    "errors": 0,
+    "successfulRecordedCalls": 729,
+    "unrecordedTransportAttempts": 2
+  }
+}
