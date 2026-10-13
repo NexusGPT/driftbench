@@ -1,8 +1,7 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { mkdir, mkdtemp } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 import type { Prompt } from './contestants';
 import { appendRecording, readRecordingRows } from './recording-files';
 
@@ -112,7 +111,11 @@ export function createCaller(
         throw new SpendCapReached(`spend cap ${limits.capUsd} USD reached`);
       if (limits.deadlineMs !== undefined && Date.now() >= limits.deadlineMs)
         throw new SpendCapReached('model call deadline reached');
-      folder ??= await mkdtemp(join(tmpdir(), 'driftbench-bench-'));
+      if (!folder) {
+        const root = resolve('.cache/judge-benchmarks/calls');
+        await mkdir(root, { recursive: true });
+        folder = await mkdtemp(join(root, 'claude-'));
+      }
       const result = await runClaude(
         prompt,
         { ...options, ...(limits.deadlineMs === undefined ? {} : { deadlineMs: limits.deadlineMs }) },
