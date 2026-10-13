@@ -102,6 +102,12 @@ export {
 export { type TokenUsage, type UsageProvider, usageFromResponse } from './clients/usage';
 export { comparePair, type PairChoice, type PairJudge, type PairWinner } from './compare-pair';
 export {
+  CONFORMANCE_PROMPT_FINGERPRINT,
+  CONFORMANCE_SYSTEM_PROMPT,
+  ConformanceAudit,
+  judgeConformance,
+} from './conformance';
+export {
   type Budget,
   CriterionText,
   inconclusive,
@@ -161,8 +167,10 @@ export {
 export { type LintIssue, lintCriterion } from './lint';
 export { buildPairPrompt } from './pair-prompt';
 export {
+  type CanonicalPairwiseVerdict,
   judgePairwise,
   type PairwiseChoice,
+  type PairwiseOptions,
   type PairwiseTally,
   type PairwiseVerdict,
   pairwiseRequest,
