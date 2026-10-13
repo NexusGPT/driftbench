@@ -425,5 +425,9 @@ export async function judgeRubric(
     ...(first.costUsd === undefined && retry.costUsd === undefined
       ? {}
       : { costUsd: (first.costUsd ?? 0) + (retry.costUsd ?? 0) }),
+    // An unknown part makes the sum unknown: it is never reported as the known part alone.
+    ...(first.costIncomplete || retry.costIncomplete
+      ? { costUsd: undefined, costIncomplete: true as const }
+      : {}),
   };
 }

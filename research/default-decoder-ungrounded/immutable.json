@@ -1,0 +1,14 @@
+{
+  "packages/judges/src/prompt.ts": "5910d8968f939f76b354390295002e3cf1c7c8e44e1ffb2665aea4e356c548eb",
+  "packages/judges/src/legacy-prompt.ts": "0997601e95748aa41b6b5cbf15c607e831fec4f96ef6586f30639482da9b0975",
+  "packages/judges/src/legacy-contract.ts": "f6a53f8f5609b3c0c21ed707e6c97fcf7680af7b43dc4e7ec849be5219f59b43",
+  "packages/judges/test/legacy-main.test.ts": "c50be915f13923e3179c63f8c8173a0cfeeed4afa2e7e219efe14c32816b17e7",
+  "packages/judges/test/fixtures/legacy-main-a97cb65e.json": "d46c51be74560e0101ebf6eedaf63e7233d6b935c6c28d42d883dde7f5848349",
+  "packages/judges/test/fixtures/legacy-cassette-main-a97cb65e.json": "2605fc77bb755d622e5b99d0a30a45f77ae73a65a52c5c69f529740654c7cfd9",
+  "comparisons/inspect/panel/data/claude-council.cassette.json": "b7cfee492bb81af4deffac5b82d34b80e8b07cfac7ab9d6975c711bab3292e08",
+  "examples/acme/criteria/calibration/campaign.cassette.json": "2f70f5e36822af19ea078fa454895e5344256384fb885104fcc3a7962305b96b",
+  "examples/acme/criteria/calibration/cassette.json": "b4f1df0e222fd054f042999b655870281486e214c78234a0f985280ecde2807a",
+  "examples/acme/criteria/calibration/claude-council.cassette.json": "882979bb258c5ba49bc9f5b97391aa47c708e1938569b6e9f932ac42251babbc",
+  "examples/acme/criteria/calibration/claude-haiku.cassette.json": "0f2e04f5bde0b29ed1ad10dcc772b52c86729a9f52dfdbab979ab920d70540ac",
+  "examples/acme/criteria/council.cassette.json": "c8b9efb7ab5123aeb6802a59de3dda740ce072cfa4e3c1775c575ae580e4001e"
+}

@@ -26,6 +26,11 @@ describe('criterion evidence spans are grounded in their named sources', () => {
   it('preserves the real unmet threshold judgment with separate spans, without guessing a pipe split', () => {
     const r = recorded.request as JudgeRequest;
     expect(parseJudgeText(recorded.raw_ledger_response, r).unparsed).toBe(true);
+    expect(parseJudgeText(recorded.raw_ledger_response, { ...r, criterionDecoderVersion: 2 })).toMatchObject({
+      answer: { outcome: 'fail' },
+      evidenceUnverified: 1,
+      checks: [{ met: false, evidence: null, grounded: false }],
+    });
     // Schema-only transcription of a real response, not a new model recording.
     const ledger = JSON.parse(recorded.raw_ledger_response);
     ledger.checks[0].evidence = [

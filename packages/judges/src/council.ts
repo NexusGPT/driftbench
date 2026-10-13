@@ -478,9 +478,13 @@ async function castVote(
   // Every retry the judge's client takes, under the shared policy, is recorded in its vote.
   const spent: RetryEvent[] = [];
   const retries = () => (spent.length > 0 ? { retries: spent } : {});
-  const ask = (asked: Budget) => {
+  const ask = async (asked: Budget) => {
     counter.cost += judge.cost;
-    return retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
+    const result = await retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
+    if (result.thinkingRecovery) counter.errors++;
+    // Every further process of the call is billed: the thinking recovery and each transient retry.
+    counter.cost += judge.cost * ((result.requestCount ?? result.thinkingRecovery?.requestCount ?? 1) - 1);
+    return result;
   };
   try {
     let result = await ask(budget);
@@ -510,6 +514,11 @@ async function castVote(
     };
   } catch (cause) {
     counter.errors += 1;
+    if (cause instanceof Error && ('thinkingRecovery' in cause || 'requestCount' in cause)) {
+      const counted = cause as { requestCount?: number; thinkingRecovery?: { requestCount: number } };
+      const requests = counted.requestCount ?? counted.thinkingRecovery?.requestCount ?? 1;
+      counter.cost += judge.cost * Math.max(0, requests - 1);
+    }
     const why = cause instanceof Error ? cause.message : String(cause);
     return {
       judge: name,

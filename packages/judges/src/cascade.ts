@@ -52,6 +52,8 @@ export type CascadeCriterion = CascadeVariant & {
   readonly unsureOnly: CascadeVariant;
   /** Calls that gave no answer at all. */
   readonly errors: number;
+  /** Calls whose cost is unknown. Present only when above 0: this criterion's spentUsd are lower bounds. */
+  readonly costIncompleteCalls?: number;
 };
 
 export type CascadeReport = {
@@ -60,6 +62,8 @@ export type CascadeReport = {
   readonly repeats: number;
   readonly criteria: readonly CascadeCriterion[];
   readonly spentUsd: number;
+  /** Calls whose cost is unknown. Present only when above 0: every spentUsd is then a lower bound. */
+  readonly costIncompleteCalls?: number;
 };
 
 type Answered = {
@@ -67,28 +71,38 @@ type Answered = {
   outcome: JudgeOutcome;
   score?: number;
   costUsd: number;
+  /** Calls of this answer whose cost is unknown. */
+  unpriced: number;
   error: boolean;
 };
 
+/** True for a judge result or a thrown judge failure whose cost is unknown in part or in whole. */
+const unpriced = (value: unknown): boolean =>
+  typeof value === 'object' && value !== null && 'costIncomplete' in value && value.costIncomplete === true;
+
 async function ask(judge: JudgeClient, request: JudgeRequest): Promise<Answered> {
   let costUsd = 0;
+  let unknown = 0;
   try {
     let result = await judge.judge({ ...request, budget: 'normal' });
     costUsd += result.costUsd ?? 0;
+    if (unpriced(result)) unknown += 1;
     if (result.unparsed) {
       result = await judge.judge({ ...request, budget: 'large' });
       costUsd += result.costUsd ?? 0;
+      if (unpriced(result)) unknown += 1;
     }
-    if (result.unparsed) return { outcome: 'inconclusive', costUsd, error: false };
+    if (result.unparsed) return { outcome: 'inconclusive', costUsd, unpriced: unknown, error: false };
     return {
       outcome: result.answer.outcome,
       ...(result.escalation ? { escalation: result.escalation } : {}),
       ...(result.answer.score === undefined ? {} : { score: result.answer.score }),
       costUsd,
+      unpriced: unknown,
       error: false,
     };
-  } catch {
-    return { outcome: 'inconclusive', costUsd, error: true };
+  } catch (cause) {
+    return { outcome: 'inconclusive', costUsd, unpriced: unknown + (unpriced(cause) ? 1 : 0), error: true };
   }
 }
 
@@ -134,6 +148,7 @@ export async function calibrateCascade(
       items.push({ id: block.id, truth: block.label, request: labelRequest(criterion, block) });
 
     let errors = 0;
+    let unknownCost = 0;
     let firstCost = 0;
     const full: JudgeOutcome[] = [];
     const lean: JudgeOutcome[] = [];
@@ -143,6 +158,7 @@ export async function calibrateCascade(
     for (const item of items) {
       const a = await ask(first, item.request);
       firstCost += a.costUsd;
+      unknownCost += a.unpriced;
       if (a.error) errors += 1;
       if (deployable) {
         full.push(a.outcome);
@@ -164,6 +180,7 @@ export async function calibrateCascade(
       for (const judge of escalateTo) {
         const b = await ask(judge, item.request);
         cost += b.costUsd;
+        unknownCost += b.unpriced;
         if (b.error) errors += 1;
         votes.push(b.outcome);
       }
@@ -203,6 +220,7 @@ export async function calibrateCascade(
       escalated,
       unsureOnly: variant(lean, thenCostUnsure),
       errors,
+      ...(unknownCost > 0 ? { costIncompleteCalls: unknownCost } : {}),
     });
   }
   return {
@@ -211,5 +229,8 @@ export async function calibrateCascade(
     repeats,
     criteria,
     spentUsd: criteria.reduce((sum, c) => sum + c.spentUsd, 0),
+    ...(criteria.some((c) => c.costIncompleteCalls)
+      ? { costIncompleteCalls: criteria.reduce((sum, c) => sum + (c.costIncompleteCalls ?? 0), 0) }
+      : {}),
   };
 }

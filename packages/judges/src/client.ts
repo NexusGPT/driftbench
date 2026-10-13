@@ -1,4 +1,5 @@
 import type { JudgeClass, JudgeRequest, JudgeResult } from './contract';
+import type { CriterionDecoderVersion } from './criterion-ledger';
 import type { HttpOptions } from './http';
 
 /**
@@ -24,6 +25,8 @@ export interface JudgeClient {
    * Part of the cassette key: a recording made with other settings never replays.
    */
   readonly settings?: string;
+  /** Replay decoder inferred from a cassette. Absent means strict version 1. */
+  readonly criterionDecoderVersion?: CriterionDecoderVersion;
   /** The provider's ledger output dialect, included in ledger recording keys. */
   readonly dialect?: string;
   /** A client default; an explicit request reasoning setting takes precedence. */
@@ -35,6 +38,8 @@ export interface JudgeClient {
 
 /** What every provider client takes. Keys are read from `env` only, never from an option. */
 export type ClientOptions = HttpOptions & {
+  /** Opt-in framing of user material as a quoted assessment source. */
+  quotedMaterial?: boolean;
   /** Where variables are read. Default `process.env`. */
   env?: Record<string, string | undefined>;
   /** The vote name. Default the client kind, such as `openai`. */

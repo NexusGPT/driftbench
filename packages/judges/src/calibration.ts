@@ -284,6 +284,8 @@ export type JudgeCalibration = {
   /** Calls made, re-asks included, and what they cost in US dollars as the clients reported it. */
   readonly calls: number;
   readonly spentUsd: number;
+  /** Calls whose cost is unknown. Present only when above 0: spentUsd is then a lower bound. */
+  readonly costIncompleteCalls?: number;
   readonly meetsBar: boolean;
   /** Why the judge misses the bar, when it does. */
   readonly misses: readonly string[];
@@ -339,6 +341,8 @@ export type CalibrationReport = {
   readonly errors: number;
   /** What every call cost in US dollars, summed from the clients that report a cost; 0 for a replay without one. */
   readonly spentUsd: number;
+  /** Calls whose cost is unknown. Present only when above 0: spentUsd is then a lower bound. */
+  readonly costIncompleteCalls?: number;
 };
 
 /** Runs calibration. Never throws on a judge failure: the failure is an inconclusive answer, counted. */
@@ -358,6 +362,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
   const pooled = new Map<string, { judged: JudgeOutcome[]; human: ('pass' | 'fail')[] }>();
   let errors = 0;
   let spentUsd = 0;
+  let costIncompleteCalls = 0;
 
   for (const criterion of config.criteria) {
     const blocks = config.labels.get(criterion.def.name) ?? [];
@@ -365,7 +370,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     // Units for alpha: the pass fixture, the fail fixture, then each labelled block; one row per judge.
     const matrix: (JudgeOutcome | null)[][] = [];
     for (const judge of judges) {
-      const counter = { errors: 0, spentUsd: 0, calls: 0 };
+      const counter = { errors: 0, spentUsd: 0, calls: 0, costIncomplete: 0 };
       const pass: JudgeOutcome[] = [];
       const fail: JudgeOutcome[] = [];
       for (let r = 0; r < repeats; r += 1) {
@@ -376,6 +381,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       for (const block of blocks) judged.push(await answer(judge, labelRequest(criterion, block), counter));
       errors += counter.errors;
       spentUsd += counter.spentUsd;
+      costIncompleteCalls += counter.costIncomplete;
 
       const separated = pass.filter((outcome, r) => outcome === 'pass' && fail[r] === 'fail').length;
       const labels = agreement(
@@ -398,6 +404,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
         errors: counter.errors,
         calls: counter.calls,
         spentUsd: counter.spentUsd,
+        ...(counter.costIncomplete > 0 ? { costIncompleteCalls: counter.costIncomplete } : {}),
         meetsBar: misses.length === 0,
         misses,
       });
@@ -438,6 +445,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     excluded,
     errors,
     spentUsd,
+    ...(costIncompleteCalls > 0 ? { costIncompleteCalls } : {}),
   };
 }
 
@@ -468,23 +476,30 @@ export function fixtureLeaks(criterion: LoadedCriterion, blocks: readonly Labell
   return blocks.filter((block) => fixtures.has(slice(block))).map((block) => block.id);
 }
 
+/** True for a judge result or a thrown judge failure whose cost is unknown in part or in whole. */
+const unpriced = (value: unknown): boolean =>
+  typeof value === 'object' && value !== null && 'costIncomplete' in value && value.costIncomplete === true;
+
 /** One answer as a council vote would get it: an unparsed answer is asked again with the large budget. */
 async function answer(
   judge: JudgeClient,
   request: JudgeRequest,
-  counter: { errors: number; spentUsd: number; calls: number },
+  counter: { errors: number; spentUsd: number; calls: number; costIncomplete: number },
 ): Promise<JudgeOutcome> {
   try {
     counter.calls += 1;
     let result = await judge.judge({ ...request, budget: 'normal' });
     counter.spentUsd += result.costUsd ?? 0;
+    if (unpriced(result)) counter.costIncomplete += 1;
     if (result.unparsed) {
       counter.calls += 1;
       result = await judge.judge({ ...request, budget: 'large' });
       counter.spentUsd += result.costUsd ?? 0;
+      if (unpriced(result)) counter.costIncomplete += 1;
     }
     return result.unparsed ? 'inconclusive' : result.answer.outcome;
-  } catch {
+  } catch (cause) {
+    if (unpriced(cause)) counter.costIncomplete += 1;
     counter.errors += 1;
     return 'inconclusive';
   }

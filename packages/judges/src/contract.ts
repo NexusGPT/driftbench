@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
+import type { ClaudeThinkingRecovery } from './clients/claude-cli';
 import type { ConformanceAudit } from './conformance';
-import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
+import type { CriterionCheck, CriterionDecoderVersion, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
 import type { LedgerParseStep, PairLedger } from './pair-ledger-contract';
 import type { ResponseRelevanceAnswer } from './response-relevance';
@@ -62,6 +63,8 @@ export type JudgeRequest = {
   readonly referenceDisagreement?: boolean;
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
+  /** Default-ledger decoder. Default 1: strict quote rejection. Opt-in 2 nulls an ungrounded string quote. */
+  readonly criterionDecoderVersion?: CriterionDecoderVersion;
   /** Provider output dialect and explicit reasoning setting for pair ledgers. */
   readonly dialect?: string;
   readonly reasoning?: 'low' | 'medium' | 'high';
@@ -111,6 +114,15 @@ export type ComparisonResult = {
 
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly thinkingRecovery?: ClaudeThinkingRecovery;
+  readonly retryReceipts?: readonly import('./clients/claude-errors').ClaudeRetryReceipt[];
+  /** Every Claude CLI process started for this answer, recovery and retries included. */
+  readonly requestCount?: number;
+  /** A process of the call reported no cost: costUsd is absent and a total that adds it is partial. */
+  readonly costIncomplete?: true;
+  /** The provider declined to answer: an inconclusive answer, never an error, with its short signal. */
+  readonly declineReason?: import('./clients/provider-block').ProviderDecline['declineReason'];
+  readonly providerBlock?: import('./clients/provider-block').ProviderBlock;
   readonly pairLedger?: PairLedger;
   readonly parseSteps?: readonly LedgerParseStep[];
   readonly metadata?: { readonly graderError?: boolean };
@@ -129,7 +141,9 @@ export type JudgeResult = {
   /** Opt-in criterion-local conformance audit, with its outcome computed in code. */
   readonly conformance?: ConformanceAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
-  readonly checks?: CriterionLedger['checks'];
+  readonly checks?: readonly CriterionCheck[];
+  /** Number of ungrounded evidence strings nulled without changing their met values. */
+  readonly evidenceUnverified?: number;
   /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {
