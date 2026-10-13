@@ -160,7 +160,7 @@ function scrub(text: string, headers: Record<string, string>): string {
   let out = text;
   for (const value of Object.values(headers)) {
     for (const secret of [value, value.replace(/^Bearer\s+/i, '')]) {
-      if (secret.length >= 8) out = out.split(secret).join('[redacted]');
+      if (secret.length >= 1) out = out.split(secret).join('[redacted]');
     }
   }
   return out;

@@ -8,34 +8,20 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | Seed | Level |
 |---|---|
 | 1 | 1 |
-| 2 | 1 |
-| 3 | 1 |
-| 4 | 1 |
-| 5 | 1 |
-| 6 | 1 |
-| 7 | 1 |
-| 8 | 1 |
-| 9 | 1 |
-| 10 | 1 |
-| 11 | 1 |
-| 12 | 1 |
-| 13 | 1 |
-| 14 | 1 |
-| 15 | 1 |
-| 16 | 1 |
-| 17 | 1 |
-| 18 | 1 |
-| 19 | 1 |
-| 20 | 1 |
-| hidden | 1 |
 <!-- level-table:end -->
 The stats validator is ladder version 2: 651 items in seven levels, each with threshold 1. The bank score is the share of items passing on every seed (seeds 1 to 20 and the hidden seed).
 
-## State (executor exec/stats-v2, branch of lane/v-stats)
+## State (executor exec/stats-v3, PR 107): final report
 
-This branch does not hold the statistics fixes of the old pilot branch (exec/stats-pilot), so its starting point is iteration 0: 418 of 651 items (0.6421). After journal iterations 11 to 15 (one cause each, commits 661bc502, a3c406d1, da3879de, bdae2638, 100f64c5) the full sweep at 100f64c5 shows 435 of 651 (0.6682), 57 failing causes, level 1 on every seed. Journal rows 11 to 14 were measured on seed 1 only (one sweep at a time under load): their passing counts are not comparable to row 15.
+* Final sweep (seeds 1 to 20 and the hidden seed) at commit 4867887a: 647 of 651 items pass on every seed (0.9939), level 3 on all 21 seeds. The row is in `bank-scores.jsonl` (iteration 41).
+* The four failing items are all chaoCoverage richness: `analytic.unseen.chao1-near.s20-even.x1.5`, `s40-tail5.x1.5`, `s80-tail10.x1.5` on every seed, and `s20-even.x3` on the hidden seed only. A maintainer is fixing them in a separate PR into main.
+* Iteration 41 (d0c14cbf) fixed `degenerate.bootstrapCI.equal`, which failed on seeds 11, 14, 17 and 19 in the earlier sweep.
+* Seed 1 went from 592 of 651 (iteration 30) to 648 in iterations 31 to 41 (647 on every seed). Causes fixed, one per iteration: varianceComponents names `observations`; cusum and pageHinkley name the option they refuse; non-finite and out-of-range scalars are named; special functions return the scipy limit at the domain edge; agreement, paired, ksTest, bootstrapCI and quantileSorted refusals name their argument; mean is exact on equal values and overflow safe; varianceComponents centres values before the sums of squares; hillNumber is continuous at q = 1; betaQuantile stops on relative width; neymanAllocation uses a heap; bootstrapCI is exact on equal values.
 
-Fixed so far: mde at a baseline of 0 or 1; designEffect below its bound; zeroFailureBound at a tiny p; campaign plan uses stats.mde (new `--rho`); the report run pass interval (Wilson on effective runs, t quantile; coverage 0.97 and 0.95 on the two planted designs).
+## Validator item defects (for the maintainer)
+
+* `analytic.unseen.chao1-near.s20-even.x1.5`, `.s40-tail5.x1.5`, `.s80-tail10.x1.5` (3 items): they read `chaoCoverage(counts).chao1` and want it within 10 percent of the true class count at 1.5 draws per class. Chao1 is a lower bound and at that sample size it is far below the truth by construction. `packages/stats/test/reference/fixtures.json` pins `chao1` to the classic estimator (for example 13.851851851851851 for the counts [5,3,1,1,2,1,2,4,1,7]), so the reference level and these items cannot both pass with one `chao1` field. Fixing it needs a new field (for example `iChao1`) that the items read, or a changed fixture. Executor branches may not change either. Not attempted.
+* `neymanAllocation` reference fixture versus `analytic.allocation.neyman-optimal.*`: now resolved on this branch (integer optimum by greedy gain, all items pass on seed 1).
 
 ## Floor
 
@@ -43,9 +29,9 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. Ladde
 
 ## Open items
 
-1. The missing methods (55 items, 7 causes): `clusteredMeanInterval`, `designEffectFromData`, `iccOneWay`, `kishEffectiveSize`, `oneWayAnova`, `stratifiedMean`, `weightedMean`. Each item names its signature, definition and source; the cases are in `packages/validators/fixtures/stats/roadmap.json`.
+1. The seven missing methods are built. The remaining failing items are degenerate inputs, neymanAllocation (maintainer), numerical stability and chaoCoverage.
 2. Degenerate inputs (about 130 items): per function, a RangeError that names the argument, the scipy limit at the edge of the special functions, exact answers on one or all-equal values. A shared finiteness helper fixes many at once (say so in the journal).
-3. Product: `sessionRate` in @agent-nexus/driftbench-estate (4 items), the early stop (1 item), chaoCoverage just above the class count, neymanAllocation rounding (11 items).
+3. chaoCoverage richness (4 items, a maintainer fixes them in a separate PR). Everything else passes on every seed.
 4. `simulation.newcombe.n30` fails on one seed of 21 (pairedRateDifference coverage); not touched yet.
 
 ## Hypotheses tried
@@ -56,7 +42,7 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. Ladde
 
 ## Next actions
 
-1. Add the missing methods one per iteration, test first (`packages/stats/test/`), export from `packages/stats/src/index.ts`.
+1. Degenerate inputs, a few functions per iteration, test first in `packages/stats/test/`. Each item names the function and the argument its RangeError must name.
 2. Run the sweep one at a time: `pnpm -s driftbench validate stats --seeds 1..20 --hidden --items --json > out.json` from a copy of the tree (a sweep takes 30 to 50 minutes at a load of 140).
 3. Build the journal row from the json (`bank` block) and append it with `pnpm -s driftbench validate stats --journal row.json`.
 

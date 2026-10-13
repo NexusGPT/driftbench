@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-076
-version: b583de68c530
+version: 6d29ed7a7539
 kind: conversation
 title: "t-wise row 76 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at order_placed"
 channel: whatsapp
@@ -168,7 +168,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: b583de68c530
+      hash: 6d29ed7a7539
     path: porting-locked-number
     cell:
       behaviour: B-007

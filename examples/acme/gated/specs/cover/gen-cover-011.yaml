@@ -2,9 +2,9 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-cover-011
-version: b583de68c530
+version: 6d29ed7a7539
 kind: conversation
-title: "Cell deviation=D7_silence_or_burst, stage=port_number: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D7_silence_or_burst at port_number"
+title: "Cell deviation=D9_out_of_scope, stage=port_number: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed, D9_out_of_scope at port_number"
 channel: chat
 lang: EN
 tier: generated
@@ -30,8 +30,8 @@ criteria:
     rubric: A new customer switches to Acme and keeps their number
     gating: false
     scope: conversation
-  - name: deviation.D7_silence_or_burst
-    rubric: One reply, no double send.
+  - name: deviation.D9_out_of_scope
+    rubric: The agent routes it to the place that handles it and keeps it out of the current flow.
     gating: false
     scope: block
 blocks:
@@ -50,11 +50,11 @@ blocks:
       lang: EN
       criteria:
         - flow.porting
-  - id: b2-D7_silence_or_burst
+  - id: b2-D9_out_of_scope
     when:
       injection:
-        class: D7_silence_or_burst
-        user: hello?
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
     expect:
       stage: port_number
       tools:
@@ -65,10 +65,10 @@ blocks:
         - label: order.create
           count: 0
       must:
-        - I'm here
+        - Acme Care
       lang: EN
       criteria:
-        - deviation.D7_silence_or_burst
+        - deviation.D9_out_of_scope
   - id: b3-port_number-to-offer
     when:
       user: My number is +1 202 555 0165.
@@ -147,7 +147,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: b583de68c530
+      hash: 6d29ed7a7539
     path: porting-keep-number
     cell:
       flow: porting
@@ -167,15 +167,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
-      - block: b2-D7_silence_or_burst
+      - block: b2-D9_out_of_scope
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
+          deviation: D9_out_of_scope
           stage: port_number
         phrase:
           dimension: deviation
-          value: D7_silence_or_burst
+          value: D9_out_of_scope
       - block: b3-port_number-to-offer
         seeder: cover
         cell:
@@ -224,10 +224,10 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D7_silence_or_burst
+      - block: b2-D9_out_of_scope
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
+        pass_probability: 0.615
       - block: b3-port_number-to-offer
         status: accepted
         pass_k: 1
@@ -248,7 +248,6 @@ rules:
   forbidden_tools:
     - coverage.check
     - notify_sales
-  one_message_per_turn: true
 end_state:
   source: tool:order.create
   mode: subset

@@ -72,7 +72,7 @@ describe('driftbench select', () => {
       // The price-sheet task family writes a dev-split spec with an instruction in data: every required cell
       // has an unsealed spec.
       expect(result.code).toBe(0);
-      expect(result.out).toContain('Pool: 198 unsealed specs; 60 sealed specs left out');
+      expect(result.out).toContain('Pool: 200 unsealed specs; 58 sealed specs left out');
       expect(result.out).toContain('k = 10 is smaller than the cover');
       expect(result.out).toContain('Required cells: 10 of 10; the pool covers 10.');
       expect(result.out).not.toContain('✗ flow price-sheet');
@@ -83,7 +83,7 @@ describe('driftbench select', () => {
       expect(golden.golden).toHaveLength(10);
       expect(golden.coverage.allowed).toBe(637);
       expect(golden.coverage.pool_covered).toBe(598);
-      expect(golden.pool).toMatchObject({ specs: 198, sealed_left_out: 60, faults_red: 13 });
+      expect(golden.pool).toMatchObject({ specs: 200, sealed_left_out: 58, faults_red: 13 });
       expect(golden.uncoverable_required).toEqual([]);
       const faults = new Set(golden.golden.flatMap((pick) => pick.adds_faults));
       expect(faults.size).toBe(12);

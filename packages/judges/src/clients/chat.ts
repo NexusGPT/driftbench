@@ -1,5 +1,6 @@
+import { parseJudgeText, responseSchema } from '../assessment';
 import type { ClientOptions, JudgeClient } from '../client';
-import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS, parseAnswerText } from '../contract';
+import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS } from '../contract';
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
 
@@ -57,7 +58,11 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         {
           model,
           max_completion_tokens: budgetOf(request),
-          response_format: { type: 'json_object' },
+          temperature: 0,
+          response_format: {
+            type: 'json_schema',
+            json_schema: { name: 'judge_answer', strict: false, schema: responseSchema(request) },
+          },
           messages: [
             { role: 'system', content: prompt.system },
             { role: 'user', content: prompt.user },
@@ -74,9 +79,12 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
       if (typeof message.refusal === 'string' && message.refusal !== '') {
         return { answer: inconclusive(`${model} declined: ${message.refusal}`), raw };
       }
-      const content = typeof message.content === 'string' ? message.content : '';
+      if (choice.finish_reason === 'content_filter') {
+        return { answer: inconclusive(`${model} declined: its content filter stopped the answer`), raw };
+      }
+      const content = contentText(message.content);
       if (choice.finish_reason === 'length') return truncated(content, model);
-      return parseAnswerText(content);
+      return parseJudgeText(content, request);
     },
   };
 }
@@ -104,6 +112,7 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         {
           model,
           max_tokens: budgetOf(request),
+          temperature: 0,
           system: prompt.system,
           messages: [{ role: 'user', content: prompt.user }],
         },
@@ -123,7 +132,7 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         .map((block) => block.text)
         .join('');
       if (payload.stop_reason === 'max_tokens') return truncated(text, model);
-      return parseAnswerText(text);
+      return parseJudgeText(text, request);
     },
   };
 }
@@ -154,13 +163,25 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         {
           systemInstruction: { parts: [{ text: prompt.system }] },
           contents: [{ role: 'user', parts: [{ text: prompt.user }] }],
-          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: budgetOf(request) },
+          generationConfig: {
+            responseMimeType: 'application/json',
+            responseSchema: googleSchema(responseSchema(request)),
+            maxOutputTokens: budgetOf(request),
+            temperature: 0,
+          },
         },
         options,
       );
       const raw = JSON.stringify(payload);
       const candidate =
         isRecord(payload) && Array.isArray(payload.candidates) ? payload.candidates[0] : undefined;
+      const feedback = isRecord(payload) ? payload.promptFeedback : undefined;
+      if (!isRecord(candidate) && isRecord(feedback) && typeof feedback.blockReason === 'string') {
+        return {
+          answer: inconclusive(`${model} declined: the prompt was blocked (${feedback.blockReason})`),
+          raw,
+        };
+      }
       if (!isRecord(candidate)) {
         return { answer: inconclusive(`${model} answered without a candidate`), raw, unparsed: true };
       }
@@ -170,9 +191,30 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         .map((part) => (isRecord(part) && typeof part.text === 'string' ? part.text : ''))
         .join('');
       if (candidate.finishReason === 'MAX_TOKENS') return truncated(text, model);
-      if (candidate.finishReason === 'SAFETY')
+      if (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'RECITATION')
         return { answer: inconclusive(`${model} declined the request`), raw };
-      return parseAnswerText(text);
+      return parseJudgeText(text, request);
     },
   };
+}
+
+/** The text of an OpenAI message content: a string, or the text parts of a list joined in order. */
+function contentText(content: unknown): string {
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+  return content
+    .map((part) => (isRecord(part) && part.type === 'text' && typeof part.text === 'string' ? part.text : ''))
+    .join('');
+}
+
+/** Gemini omits additionalProperties and JSON Schema dialect declarations at every level. */
+function googleSchema(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(googleSchema);
+  if (value && typeof value === 'object')
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([key]) => key !== 'additionalProperties' && key !== '$schema')
+        .map(([key, nested]) => [key, googleSchema(nested)]),
+    );
+  return value;
 }
