@@ -49,6 +49,10 @@ inputs:
     description: Specs a tag marks that run on another target, one tag=target per line, such as flow:price-sheet=process:acme-ops. Empty means none.
     required: false
     default: ''
+  process-command:
+    description: The agent command for a process target other than process:acme-ops, as a JSON list such as ["python3","/path/to/agent.py"] or words split on spaces. It runs in the sandbox workspace, so name the agent by an absolute path, such as one under github.workspace. Empty means none.
+    required: false
+    default: ''
   aggregate:
     description: Campaign-level criteria, one name:op threshold per line, such as pass-rate:>=0.8. A failing one fails the job with verdict aggregate-failed. Empty means none.
     required: false
@@ -94,6 +98,7 @@ runs:
         INPUT_FAULTS: ${{ inputs.faults }}
         INPUT_AGGREGATE: ${{ inputs.aggregate }}
         INPUT_ROUTE: ${{ inputs.route }}
+        INPUT_PROCESS_COMMAND: ${{ inputs.process-command }}
         INPUT_REPORT_PATH: ${{ inputs.report-path }}
         INPUT_DRIFTBENCH: ${{ inputs.driftbench }}
       run: bash "$GITHUB_ACTION_PATH/run.sh"

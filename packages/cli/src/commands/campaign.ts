@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
@@ -27,6 +27,7 @@ import {
   outcomeOf,
   type PlannedCell,
   type PlanOptions,
+  parseCriterionRef,
   planCampaign,
   type RegistrySource,
   type RetryOptions,
@@ -41,6 +42,7 @@ import {
   type UserDriver,
 } from '@agent-nexus/driftbench-core';
 import { portFromEnv } from '@agent-nexus/driftbench-generate';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import {
@@ -107,7 +109,7 @@ const ROUTE_HELP =
   'with --target: run the specs a tag marks on this target instead, such as flow:price-sheet=process:acme-ops; repeat for several';
 
 const PROCESS_COMMAND_HELP =
-  'the agent command for a process target other than process:acme-ops: a JSON list such as ["python3","agent.py"], or words split on spaces';
+  'the agent command for a process target other than process:acme-ops: a JSON list such as ["python3","/path/to/agent.py"], or words split on spaces; it runs in the sandbox workspace, so give absolute paths';
 
 /**
  * `--process-command`: a JSON list of strings, or a command line split on spaces (no quoting). Undefined
@@ -165,7 +167,31 @@ function processDeps(deps: CampaignDeps, text: string | undefined, io: Io): Camp
     );
     return undefined;
   }
+  const stranded = strandedFiles(command, io.cwd);
+  if (stranded.length > 0) {
+    const [first = ''] = stranded;
+    const is = stranded.length === 1 ? 'is a file' : 'are files';
+    io.err(
+      `Note: --process-command runs in the workspace of each sandbox, a temporary folder, not in the working folder. ${stranded.join(', ')} ${is} of the working folder, which the sandbox does not hold unless a spec seeds it: give the absolute path, ${JSON.stringify(resolve(io.cwd, first))}.\n`,
+    );
+  }
   return withProcessCommand(deps, command);
+}
+
+/**
+ * The words of a process command that name a file of the working folder by a relative path. The command
+ * runs in the sandbox's workspace, where such a path finds nothing unless a spec seeds the same file. A
+ * binary without a slash is looked up on the PATH, so it is not one of them.
+ */
+function strandedFiles(command: readonly string[], cwd: string): string[] {
+  return command.filter((word, index) => {
+    if (isAbsolute(word) || (index === 0 && !word.includes('/'))) return false;
+    try {
+      return statSync(resolve(cwd, word)).isFile();
+    } catch {
+      return false;
+    }
+  });
 }
 
 /** The targets this build reaches, for the message of a target it does not. */
@@ -860,6 +886,9 @@ async function executeCampaign(
     io.out(
       `Campaign ${campaign.campaignId}: ${count(plan.cells.length, 'cell')}, ${flags.concurrency} at a time.${budget} Checks: ${checks.length > 0 ? checks.join(', ') : 'none loaded'}.\n`,
     );
+    // Beside the list of checks: the criteria no check of this campaign will judge.
+    const unjudged = checks.includes(JUDGE_CHECK) ? undefined : notJudgedNote(specs.values());
+    if (unjudged !== undefined) io.out(unjudged);
   }
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
@@ -888,6 +917,42 @@ async function executeCampaign(
     if (!flags.kept) io.out('The runs are not kept: pass --store <file> to keep them.\n');
   }
   return outcomes.every((outcome) => outcome.state === 'pass') ? 0 : 1;
+}
+
+/** The name of the check a council of @agent-nexus/driftbench-judges adds to the checks. */
+const JUDGE_CHECK = 'judge';
+
+/**
+ * What a campaign without a judge left unjudged: the criteria its specs name in a block or a perturbation.
+ * Such a criterion gets no verdict, so a run can read pass with a gating criterion never looked at.
+ * Undefined when no spec names a criterion.
+ */
+function notJudgedNote(specs: Iterable<Spec>): string | undefined {
+  const names = new Set<string>();
+  const gating = new Set<string>();
+  let blocks = 0;
+  let withCriteria = 0;
+  for (const spec of specs) {
+    const always = new Set((spec.criteria ?? []).filter((each) => each.gating).map((each) => each.name));
+    const before = blocks;
+    for (const expect of [...spec.blocks, ...(spec.perturbations ?? [])].map((each) => each.expect)) {
+      const refs = (expect?.criteria ?? []).flatMap((ref) => parseCriterionRef(ref) ?? []);
+      if (refs.length === 0) continue;
+      blocks += 1;
+      for (const ref of refs) {
+        names.add(ref.name);
+        if (ref.gating || always.has(ref.name)) gating.add(ref.name);
+      }
+    }
+    if (blocks > before) withCriteria += 1;
+  }
+  if (names.size === 0) return undefined;
+  const listed = [...names].slice(0, 5).join(', ') + (names.size > 5 ? `, and ${names.size - 5} more` : '');
+  const criteria = names.size === 1 ? '1 criterion' : `${names.size} criteria`;
+  const these =
+    names.size === 1 ? 'it has no verdict and counts' : 'these criteria have no verdict and count';
+  const gates = gating.size === 0 ? 'none of them gating' : `${gating.size} of them gating`;
+  return `Not judged: ${criteria} in ${count(blocks, 'block')} of ${count(withCriteria, 'spec')} (${listed}), ${gates}. This campaign loads no judge, so ${these} in no pass or fail. See docs/concepts/judges.md.\n`;
 }
 
 async function openReported(
@@ -1626,19 +1691,6 @@ function collect(value: string, previous: string[]): string[] {
 function required<T>(value: T | undefined, what: string): T {
   if (value === undefined) throw new Error(`campaign: no ${what}`);
   return value;
-}
-
-/** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
 }
 
 /**

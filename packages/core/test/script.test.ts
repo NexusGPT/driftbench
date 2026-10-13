@@ -140,7 +140,25 @@ describe('succeed and fail end the script with a verdict', () => {
     expect(result.spec.end).toEqual({ verdict: 'failure', reason: 'the agent refused' });
   });
 
-  it('a turn after succeed() is refused: the script ends there', () => {
-    expect(() => conversation('after', [succeed('done'), user('one more')])).toThrow(/ends the script/);
+  it('succeed() in the middle ends the run there: the turns after it stay as blocks the verdict skips', () => {
+    const result = conversation('mid', [user('one'), succeed('done'), user('two'), user('three')]);
+    expect(result.load.ok).toBe(true);
+    expect(result.spec.end).toEqual({ verdict: 'success', reason: 'done', atBlock: 0 });
+    expect(result.spec.blocks).toHaveLength(3);
+  });
+
+  it('fail() before the last block records the block it stops after', () => {
+    const result = conversation('mid-bad', [user('one'), user('two'), fail('refused'), user('three')]);
+    expect(result.spec.end).toEqual({ verdict: 'failure', reason: 'refused', atBlock: 1 });
+  });
+
+  it('agent() or judge() after succeed() is refused: the block it checks would be skipped', () => {
+    expect(() => conversation('late-agent', [user('one'), succeed(), agent({ must: ['x'] })])).toThrow(
+      /skipped by the verdict/,
+    );
+  });
+
+  it('a second succeed() or fail() is refused', () => {
+    expect(() => conversation('twice', [user('one'), succeed(), user('two'), fail()])).toThrow(/not two/);
   });
 });

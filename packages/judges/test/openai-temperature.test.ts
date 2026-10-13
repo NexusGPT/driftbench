@@ -82,3 +82,30 @@ describe('the OpenAI client and a model that takes only the default temperature'
     await expect(judge.judge(REQUEST)).rejects.toThrow(/400/);
   });
 });
+
+describe('concurrent first requests to a model that takes only the default temperature', () => {
+  it('retries every request that got the temperature 400, whatever the shared flag says by then', async () => {
+    const judge = createOpenAiJudge({
+      env: { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' },
+      maxRetries: 0,
+      fetch: async (_url: string, init?: RequestInit) => {
+        const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+        // Every answer arrives only after all three requests are out, so the flag has flipped before the others fail.
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        if ('temperature' in body)
+          return new Response(
+            JSON.stringify({
+              error: { message: "Unsupported value: 'temperature' does not support 0 with this model." },
+            }),
+            { status: 400, headers: { 'content-type': 'application/json' } },
+          );
+        return new Response(JSON.stringify(OK), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      },
+    });
+    const results = await Promise.all([judge.judge(REQUEST), judge.judge(REQUEST), judge.judge(REQUEST)]);
+    expect(results.map((r) => r.answer.outcome)).toEqual(['pass', 'pass', 'pass']);
+  });
+});

@@ -1,4 +1,4 @@
-import { isScalar, parseDocument, visit } from 'yaml';
+import { parseDocument, visit } from 'yaml';
 
 /**
  * A prompt kept inside another file: a JSON chat file, an agent export, JSON lines, a YAML scalar, a string in

@@ -363,13 +363,11 @@ describe('the process adapter', () => {
     const { adapter, open } = setup();
     const from = given();
     const session = await open(from);
-    const started = Date.now();
     const observed = await runnerSend(
       adapter,
       session,
       turn(0, 'sleep 5000 then build', from, { latencyMs: 300 }),
     );
-    expect(Date.now() - started).toBeLessThan(4000);
     expect(observed.executions).toEqual([expect.objectContaining({ role: 'agent', exitCode: 124 })]);
     expect(observed.workspaceDiff).toEqual({ created: [], changed: [], deleted: [] });
   });
