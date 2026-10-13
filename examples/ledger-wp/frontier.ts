@@ -28,6 +28,13 @@ export function confirmedZeroTokens(entry:any) {
     (u.cache_creation_input_tokens??0)===0&&(u.cache_read_input_tokens??0)===0&&
     (u.input_tokens_details?.cached_tokens??0)===0&&(u.input_tokens_details?.cache_write_tokens??0)===0&&entry.costUsd===0;
 }
+export function sessionLimitNoAnswer(entry:any) {
+  return entry.model==='claude-sonnet-5-5'&&/\bsession limit\b/iu.test(entry.text??'')&&confirmedZeroTokens(entry);
+}
+export function authorizedSessionLimitRecovery(entry:any,amendment:any,now=Date.now()) {
+  return sessionLimitNoAnswer(entry)&&amendment?.model===entry.model&&amendment.logicalCallKeys?.includes(entry.logicalKey)===true&&
+    Date.parse(entry.finishedAt)<=Date.parse(amendment.authorizedAt)&&now>=Date.parse(amendment.notBeforeUtc);
+}
 export function nextTransportAttempt(key:string,history:any[],pending:string[]) {
   let attempt=1;
   while(history.some(r=>r.key===(attempt===1?key:sha(key+':transport:'+attempt)))||pending.includes(attempt===1?key:sha(key+':transport:'+attempt)))attempt++;
@@ -99,7 +106,7 @@ async function main() {
     if(mode==='calibrate'&&history.filter(r=>!r.providerError&&r.startedAt>=(f.calibrationAfter??'')).length>=5)throw Error('CALIBRATION_COMPLETE');
     let last:any;
     const previous=history.filter(r=>r.logicalKey===key);
-    if(previous.some(r=>r.providerError&&!isTransportFailure(r.text)&&!connectionFailure(r)))throw Error('Prior nontransport failure');
+    if(previous.some(r=>r.providerError&&!isTransportFailure(r.text)&&!connectionFailure(r)&&!authorizedSessionLimitRecovery(r,f.sessionQuotaRecoveryAmendment)))throw Error('Prior nontransport failure');
     const firstAttempt=nextTransportAttempt(key,history,budget.totals().pending);
     for(let offset=0;offset<4;offset++) {
       if(offset===3&&last?.httpStatus!==429)break;
@@ -135,11 +142,16 @@ async function main() {
       const entry={...meta,key:attemptKey,logicalKey:key,transportAttempt:attempt,promptHash:sha(JSON.stringify(prompt)),schemaHash:schema?sha(JSON.stringify(schema)):null,
         text:payload.result??'',costUsd:payload.total_cost_usd??0,usage:payload.usage??null,providerMeta,httpStatus,providerError:payload.is_error===true,
         startedAt,finishedAt:new Date().toISOString()};
+      if(sessionLimitNoAnswer(entry))entry.providerMeta.noAnswerReason='session_limit';
       append(resolve(dir,'calls.jsonl'),entry);history.push(entry);last=entry;
       observeNetwork(entry);
       if(!entry.providerError){budget.settle(attemptKey,entry.costUsd);cached.set(key,entry);state('running');return entry;}
       budget.chargeError(attemptKey,entry.costUsd);
       if(confirmedZeroTokens(entry))budget.settle(attemptKey,0);
+      if(sessionLimitNoAnswer(entry)) {
+        append(resolve(dir,'quota-stops.jsonl'),{at:entry.finishedAt,key:entry.key,logicalKey:key,reason:entry.text,costUsd:0,providerConfirmedZeroTokens:true});
+        stopped=true;throw Error('SESSION_LIMIT_NO_ANSWER');
+      }
       if(existsSync(networkHold)){stopped=true;throw Error('Shared network circuit break; fresh probe gate required');}
       if(httpStatus===402){budget.releaseRejected(attemptKey,402);stopped=true;throw Error('402 circuit break');}
       if(!isTransportFailure(entry.text)&&!connectionFailure(entry)){stopped=true;throw Error('Nontransport provider failure: '+entry.text);}

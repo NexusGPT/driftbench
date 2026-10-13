@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { HERE, sha, promptfoo, parsePromptfoo, Budget } from './harness';
 import { verifyCell, solCost } from './frontier';
+import { verifyConcurrentStartOrder } from './frontier-order';
 import { pairLedgerRequest, judgePairLedger } from '../../packages/judges/src/pair-ledger';
 import { buildPrompt } from '../../packages/judges/src/prompt';
 import { responseSchema } from '../../packages/judges/src/assessment';
@@ -17,7 +18,7 @@ for(const model of process.argv.slice(2)) {
   assert.equal(byKey.size,answers.length,'An answered call was resubmitted');
   const decisionKey=(r:any)=>JSON.stringify([r.model,r.split,r.sample,r.contestant,r.id]);
   assert.equal(new Set(decisions.map(decisionKey)).size,decisions.length,'Duplicate decision');
-  let replayed=0;
+  let replayed=0;const submissionOrder:any[]=[];
   for(const split of f.phases) {
     const items=JSON.parse(readFileSync(resolve(HERE,'seals',split+'.json'),'utf8'));
     const selected=decisions.filter(r=>r.split===split);
@@ -54,10 +55,8 @@ for(const model of process.argv.slice(2)) {
     const expected:any[]=[];
     for(let sample=0;sample<(['fixtures','dev'].includes(split)?3:1);sample++)for(const item of items)for(const contestant of f.contestants)expected.push({model,split,sample,contestant,id:item.id});
     const key=(r:any)=>JSON.stringify([r.model,r.split,r.sample,r.contestant,r.id]);
-    const starts=new Map(firstStarts.map(r=>[key(r),Date.parse(r.startedAt)]));
-    assert.equal(starts.size,expected.length);
-    const orderedTimes=expected.map(r=>starts.get(key(r))!);
-    assert(orderedTimes.every((t,i)=>Number.isFinite(t)&&(i===0||orderedTimes[i-1]<=t)),'Sealed submission order changed');
+    const starts=new Map(firstStarts.map(r=>[key(r),r]));
+    submissionOrder.push({split,...verifyConcurrentStartOrder(expected,starts,key,f.contestants)});
   }
   const events=calls.flatMap(r=>[{t:r.startedAt,d:1},{t:r.finishedAt,d:-1}]).sort((a,b)=>a.t.localeCompare(b.t)||a.d-b.d);
   let active=0,peak=0;for(const e of events){active+=e.d;peak=Math.max(peak,active);}assert.equal(active,0);assert(peak<=(model==='gpt-6.1-sol'?8:2));
@@ -68,7 +67,7 @@ for(const model of process.argv.slice(2)) {
   assert(Math.abs(budget.actual-known)<1e-9);assert(budget.actual+budget.reserved<=f.capUsd);
   const audit={model,at:new Date().toISOString(),passed:true,replayedComparisons:replayed,answeredCalls:answers.length,
     developmentMissingComparisons:new Set(missing.filter(r=>r.split!=='test'&&!decisions.some(d=>decisionKey(d)===decisionKey(r))).map(decisionKey)).size,
-    noAnsweredResubmissions:true,sealedJobOrder:true,peakConcurrentCalls:peak,peakSinceSerialAmendment:currentPeak,spend:budget,freezeSha256:sha(readFileSync(resolve(dir,'freeze.json'))),
+    noAnsweredResubmissions:true,sealedJobOrder:true,submissionOrder,queueOrderEvidence:'Frozen runLimitedJobs increments a synchronous sealed cursor; provider start timestamps follow asynchronous Stage 0. Concurrent startup inversions are disclosed separately.',peakConcurrentCalls:peak,peakSinceSerialAmendment:currentPeak,spend:budget,freezeSha256:sha(readFileSync(resolve(dir,'freeze.json'))),
     originalSourceAndSealHashes:'verified by verifyCell -> verifyFreeze',networkCalls:0};
   writeFileSync(resolve(dir,'audit.json'),JSON.stringify(audit,null,2)+'\n');console.log(JSON.stringify(audit));
 }

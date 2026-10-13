@@ -68,6 +68,7 @@ def main():
                 'orderedReadings':len(reads),'schemaReasks':len(reasks),'schemaReaskUsd':sum(a.get('costUsd',0) for x in reasks for a in x['attempts'][1:]),
                 'outputCapCalls':len(capped),'testItemsLostToOutputCap':lost,'missingTestItems':[x['id'] for x in items if x['id'] not in {r['id'] for r in data}],
                 'http429':sum(r.get('httpStatus')==429 for r in selected),'transportFailures':sum(r['providerError'] for r in selected),
+                'sessionLimitNoAnswers':sum(r['providerError'] and 'session limit' in r['text'].lower() for r in selected),
                 'tokens':{'input':sum((r.get('usage') or {}).get('input_tokens',0) for r in selected),
                     'output':sum((r.get('usage') or {}).get('output_tokens',0) for r in selected),
                     'cacheRead':sum((r.get('usage') or {}).get('cache_read_input_tokens',(r.get('usage') or {}).get('input_tokens_details',{}).get('cached_tokens',0)) for r in selected),
@@ -92,7 +93,7 @@ def main():
         lines.append(f"| {r['model']} | {a['correct']}/{n} | {b['correct']}/{b['games']} | {longer['correct']}/{longer['games']} | {p} | {r['spend']['actualUsd']:.8f} / {r['spend']['heldUsd']:.8f} | {'complete' if r['complete'] else 'pending'} |")
         lines+=['',f"### {r['model']}",f"- Freeze SHA256: `{r['freezeSha256']}`. Artifact folder: `examples/ledger-wp/cells/{r['model']}/`.",f"- Calibration projection: {json.dumps(r['projection'],ensure_ascii=False)}"]
         for s in r['scores']:
-            lines.append(f"- {s['contestant']}: TEST cost {s['testCostUsdIncludingTransport']:.8f} USD; all-phase cost {s['allPhaseCostUsd']:.8f} USD; output-cap calls {s['outputCapCalls']}; lost TEST items {len(s['testItemsLostToOutputCap'])}; missing TEST items {len(s['missingTestItems'])}; schema re-asks {s['schemaReasks']}/{s['orderedReadings']} costing {s['schemaReaskUsd']:.8f} USD; HTTP 429 {s['http429']}; tokens {json.dumps(s['tokens'])}.")
+            lines.append(f"- {s['contestant']}: TEST cost {s['testCostUsdIncludingTransport']:.8f} USD; all-phase cost {s['allPhaseCostUsd']:.8f} USD; output-cap calls {s['outputCapCalls']}; lost TEST items {len(s['testItemsLostToOutputCap'])}; missing TEST items {len(s['missingTestItems'])}; schema re-asks {s['schemaReasks']}/{s['orderedReadings']} costing {s['schemaReaskUsd']:.8f} USD; HTTP 429 {s['http429']}; zero-cost session-limit no-answers {s['sessionLimitNoAnswers']}; tokens {json.dumps(s['tokens'])}.")
         if p is not None:lines.append(f"- Paired test: {json.dumps(a['comparison'])}. Game McNemar is nominal; interpret with the request-cluster interval. Any positive claim awaits family multiplicity handling.")
     section='\n'.join(lines)+'\n'
     base=DOSSIER.read_text();marker='\n## Additive Sonnet and GPT-6.1 writing cells\n'

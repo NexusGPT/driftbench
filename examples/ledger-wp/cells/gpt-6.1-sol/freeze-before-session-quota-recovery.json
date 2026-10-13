@@ -1,0 +1,182 @@
+{
+  "at": "2026-10-13T13:37:53.138995+00:00",
+  "model": "gpt-6.1-sol",
+  "authorization": "Add two model cells: claude-sonnet-5-5 and gpt-6.1-sol. Two separate budgets up to 25 USD each on top of the old 35 USD. Five-call calibrations before full cell; report projection if above 25 USD.",
+  "capUsd": 32,
+  "budgetScope": "New model cell only; excludes original 35 USD lane budget and preserves old holds",
+  "contestants": [
+    "pair-ledger",
+    "promptfoo"
+  ],
+  "reasoning": "medium",
+  "maxOutputTokens": 4096,
+  "maxConcurrentCalls": 2,
+  "timeoutSeconds": 300,
+  "maxOtherTransportSubmissions": 3,
+  "max429Submissions": 4,
+  "http429BackoffSeconds": [
+    60,
+    120,
+    240
+  ],
+  "lastCallUtc": null,
+  "phases": [
+    "fixtures",
+    "validity",
+    "dev",
+    "test"
+  ],
+  "phaseComparisons": {
+    "fixtures": 36,
+    "validity": 40,
+    "dev": 180,
+    "test": 346
+  },
+  "calibration": "Exactly five answered calls from sealed PILOT prefix in sealed contestant order. Cost only; no prompt, pool, parser, criteria or contract tuning. Partial calibration job may remain as raw cached calls.",
+  "projection": "Per-contestant five-call mean times 301 comparisons. Primary calls per comparison use pre-existing completed Flash Lite runtime rate; promptfoo uses two. Hard budget prevents overspend regardless of projection.",
+  "core": {
+    "pr": "https://github.com/achammah/driftbench/pull/168",
+    "commit": "2bb0a7a787ca4466ff69d204f2380a7ad19cc056",
+    "pushed": true
+  },
+  "promptfooCommit": "801428268b5e421b2f6994332f6a06f86b27bb1f",
+  "seals": {
+    "test": "178754731d81f74abd2f6c001eca58ef4d16df7bbcd22bb702611e7bd09e7f0a",
+    "dev": "d47cdd3a3dab25e87e49bce60cbcb19706a7330ca4776b50df8745912f267c9b",
+    "validity": "e394ed458ddb9c05ccfc3ce3d21ba15facbfc4acb6142a28ab07ec4d5bb568c5",
+    "pilot": "a4d1b6f4ae7046f4bd17d7dc79e278c32f3e883fb93c83937c0a7721c7d25c15",
+    "fixtures": "e0873175e7f63f53bab63ff05899917247ecf2783421da427a349bfcea0ad469"
+  },
+  "sealCommits": {
+    "dev": "6dc58cc0",
+    "pilot": "57a11548",
+    "test": "650b07f5",
+    "fixtures": "212049e6",
+    "validity": "212049e6"
+  },
+  "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
+  "files": {
+    "examples/ledger-wp/frontier.ts": "fe9b0cd05179d5901ed4b9ba029b6f0e50c4f75bfcef8567136ec967675059df",
+    "examples/ledger-wp/frontier.test.ts": "76e9ed4808c136827d8be677becd19e5eaaf850272990093128d5fddfd1c0ae2",
+    "examples/ledger-wp/frontier-report.py": "2f0930184a9d2e0173364f9b0b3f19c2e32567fdce9ec89f483f4757694170a3",
+    "examples/ledger-wp/frontier-supervise.py": "72188169550d62c39215483e9807e4576b0e3c52b7769bd3f51711e1f71c5abd",
+    "examples/ledger-wp/frontier-wrapup.py": "b4121cf2b56af648c44ff3e306e22ec09f2857f851fd3fc27319ab70d6061c57",
+    "examples/ledger-wp/frontier-finalize.py": "d0813697c60e3c202c63c672d4d4eb36129664a5d0d39c0fd8448837d09f55d4",
+    "examples/ledger-wp/frontier-audit.ts": "9c97e9a60cc58bad94dd1916945ede61983b23d563a9accc79c6e863feec0a14"
+  },
+  "judgeContractChanged": false,
+  "sealedOrderChanged": false,
+  "statistics": "Unchanged stats.py summarize: nominal exact two-sided McNemar plus language-stratified request-cluster 95% CI; positive results await family multiplicity handling.",
+  "transportPolicy": "Never resubmit a returned answer. Frozen core single schema re-ask is retained and charged. HTTP 402 stops immediately and releases only proven rejection holds. Transport failures retain uncertain holds.",
+  "thinkingCap": "Total output including thinking is 4096. Native Sonnet additionally requests MAX_THINKING_TOKENS=2048; adaptive reasoning may ignore that fixed budget. Output-cap losses are reported.",
+  "thinkingSource": "https://code.claude.com/docs/en/env-vars",
+  "route": "https://api.openai.com/v1/responses",
+  "credentialFile": "~/.nexus-secrets/openai.key",
+  "temperature": "omitted",
+  "priceUsdPerMillion": {
+    "input": 2,
+    "cachedInput": 0.1,
+    "cacheWrites": 2.5,
+    "outputIncludingReasoning": 10
+  },
+  "priceSource": "https://developers.openai.com/api/docs/pricing",
+  "priceObservedAt": "2026-10-13T13:37:53.138995+00:00",
+  "runtimeAmendment": {
+    "at": "2026-10-13T13:42:41.100711+00:00",
+    "reason": "Sonnet one-hour cache writes are charged at 4 USD/M versus 2 USD/M uncached. Disable prompt caching only, leaving prompt, contestant input, medium setting and cap unchanged. Sol meter accounts for observed input_tokens_details.cache_write_tokens at 2.50 USD/M.",
+    "sources": [
+      "https://code.claude.com/docs/en/env-vars",
+      "https://platform.claude.com/docs/en/about-claude/pricing",
+      "https://developers.openai.com/api/docs/pricing"
+    ],
+    "previousFreezeSha256": "218e2317dd502d1037f239c7fca1f7f88906ce9038840536b6f9ce5cc01dfd28",
+    "promptChanged": false,
+    "contestantInputChanged": false,
+    "modelSettingChanged": false
+  },
+  "recoveryAmendment": {
+    "at": "2026-10-13T14:05:56.422921+00:00",
+    "authorization": "Owner authorizes GPT-6.1 cap 32 USD including holds, Sonnet cap 45 USD including holds, and one fresh cycle up to 3 submissions each for 12 exhausted no-answer calls. Two consecutive connection-class failures stop all new calls. Any connection failure mid-TEST stops before any TEST retry.",
+    "logicalCallKeys": [
+      "e6d4d05c50b4a7c0633548060539844676e5c60db50b9912855159b4d8d9b350",
+      "9e23bfaf453d99a6e2955f1b0db49ea1c03b9e79680888ce907157b2d1ec5fce",
+      "372d22cb73416957976ca654ebbc515a63e056fd19a194f323ff5f87413708be",
+      "da110c122edad1c7aa67d864a2978a44fa4dd2cf6e5cf0fdf1a37723fe49505a",
+      "217ec25675972f900e1fc9f0ae83c33728bd688c5f874bd9b2e6fe45c6c4ae97",
+      "83fc5fc8f957583c7f36366e582b907ef4366e1aa0b67ad2a0d9ae75acedbe0b",
+      "963df83be7f98ffd96e65fbe9344a4778e188b43b1f9ed100841a063cb39f18d",
+      "577e46a65e20a29ae840ae5af8b054b26575c4bcea8542685342e57b958c889c",
+      "330c4bfbf9fe1d77982836c8aa4ff84d328ed34f835003440509a1e138633445",
+      "67a3d1d7fb3d1fae8cf7c69b8e8acc4a5e981defa0482c2712078377dd7a0906",
+      "6482d7f31b20f4f4d81ebc36739c8a70ebd747e356b4ba0f02447b68f270a876"
+    ],
+    "freshSubmissionsPerKey": 3,
+    "maximumTotalSubmissionsPerKey": 6,
+    "connectivityProbe": "../../results/frontier-connectivity.json",
+    "sharedCircuitBreak": "../../results/frontier-network-hold.json",
+    "circuitHistory": "../../results/frontier-network-events.jsonl",
+    "oldHoldsRetained": true,
+    "returnedAnswersRetained": true,
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false,
+    "parentFreezeSha256": "b7330d4653e8310f164623dd0674ae11a1d8878c7930b219937dbe060800a9f8"
+  },
+  "networkSupervisionAmendment": {
+    "at": "2026-10-13T14:13:45.323285+00:00",
+    "authorization": "Owner instructs three successful probes spaced one minute apart for both providers before resuming, concurrency 2 per model, keep circuit break, wait 10 minutes after a new break then repeat probes, park after three such stops in one hour, TEST only after 20 consecutive healthy DEV calls. Answers, holds and caps unchanged.",
+    "providerProbeAuthentication": "none",
+    "probeSuccessHttpStatus": 401,
+    "probesRequired": 3,
+    "probeSpacingSeconds": 60,
+    "networkBreakWaitSeconds": 600,
+    "maxNewStopsPerHour": 3,
+    "stopCountScope": "New stops after the three-probe policy begins; prior failures remain in history.",
+    "healthyDevCallsBeforeTest": 20,
+    "healthyDevScope": "Per model in current healthy runtime epoch; no extra DEV calls or re-answering allowed.",
+    "midTestNetworkPolicy": "First connection failure stops all new submissions; tell owner before any TEST retry.",
+    "parentFreezeSha256": "2cc6722bd3641b5b2657219e88a789115bdcbf6758a8d39d423ac9ce7b9823ec",
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false
+  },
+  "unlimitedRecoveryAmendment": {
+    "at": "2026-10-13T14:34:05.800582+00:00",
+    "authorization": "Owner requires ten healthy probes 30 seconds apart on the active provider; concurrency 2, one model at a time; three consecutive connection-class failures pause 600 seconds then repeat the gate. Unlimited missing-only transport recovery, including the 12 exhausted logical calls. No answered call is resent. Settle no-answer holds only when explicit provider usage confirms zero tokens. TEST requires 20 consecutive healthy DEV calls; no final result while transport-missing items remain. Owner removes 16:00 UTC cutoff for these two cells because of host network pause, no TEST result seen.",
+    "probesRequired": 10,
+    "probeSpacingSeconds": 30,
+    "consecutiveConnectionFailures": 3,
+    "networkBreakWaitSeconds": 600,
+    "maxRecoveryCycles": null,
+    "activeModelCells": 1,
+    "maxConcurrentCalls": 2,
+    "healthyDevCallsBeforeTest": 20,
+    "lastCallUtc": null,
+    "cutoffReason": "Host network pause, no TEST result seen. Schedule amendment only.",
+    "previousFreezeSha256": "bd13156a166b1d9accbd0a1e547f63ce8723395686d563b5f9c61fe0297be7b7",
+    "supersedes": [
+      "networkSupervisionAmendment",
+      "recoveryAmendment maximumTotalSubmissionsPerKey and mid-TEST owner-word requirement"
+    ],
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false,
+    "promptsChanged": false,
+    "inputsChanged": false,
+    "modelsChanged": false,
+    "scoringChanged": false,
+    "capsChanged": false
+  },
+  "native503RuntimeFix": {
+    "at": "2026-10-13T15:14:52.965473+00:00",
+    "reason": "Native Claude CLI reports HTTP 503 inside its error text without a separate httpStatus field. Recognize that representation in the same connection-class circuit breaker. Existing healthy run drained before edit; no TEST call yet. No prompt, input, model setting, scoring, sealed order or cap change. Resume through the existing ten-probe gate.",
+    "previousFreezeSha256": "b895a4ebb1bb5689c9ff73370d2a5a83ddd510435b524df3631d3d4990012a6e"
+  },
+  "quotaOrderingAmendment": {
+    "at": "2026-10-13T16:31:44.972003+00:00",
+    "reason": "Sonnet native session quota rejected one call with explicit zero tokens at 16:28 UTC, reset reported 16:50 UTC. Park Sonnet without treating rejection as judge failure. Run GPT-6.1 alone through its ten-probe gate while Sonnet waits. Preserve first stop reason if an in-flight sibling later reports generic shutdown.",
+    "previousFreezeSha256": "6ff7ef223366f6da535e9c497ad51d58cff96ee9049fb9057605ebbc26b2f054",
+    "activeModelCells": 1,
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false,
+    "capsChanged": false,
+    "sonnetResumption": "Await owner reply on missing-only quota recovery; no answered call may be resent"
+  }
+}

@@ -56,13 +56,14 @@
   },
   "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
   "files": {
-    "examples/ledger-wp/frontier.ts": "fe9b0cd05179d5901ed4b9ba029b6f0e50c4f75bfcef8567136ec967675059df",
-    "examples/ledger-wp/frontier.test.ts": "76e9ed4808c136827d8be677becd19e5eaaf850272990093128d5fddfd1c0ae2",
-    "examples/ledger-wp/frontier-report.py": "2f0930184a9d2e0173364f9b0b3f19c2e32567fdce9ec89f483f4757694170a3",
+    "examples/ledger-wp/frontier.ts": "738836ac312cb1bd103904121e59c302cfe5e8a9bae38aa011c9857cde45b88b",
+    "examples/ledger-wp/frontier.test.ts": "566ec49b44033194ccd084825e79a75ae230edb53a9534ad0becc0b2d442802c",
+    "examples/ledger-wp/frontier-report.py": "547fe271f6508fe56d70fa260e8b33b7d814dd1bdcd80d2615cdcbd2a1e45478",
     "examples/ledger-wp/frontier-supervise.py": "72188169550d62c39215483e9807e4576b0e3c52b7769bd3f51711e1f71c5abd",
     "examples/ledger-wp/frontier-wrapup.py": "b4121cf2b56af648c44ff3e306e22ec09f2857f851fd3fc27319ab70d6061c57",
     "examples/ledger-wp/frontier-finalize.py": "d0813697c60e3c202c63c672d4d4eb36129664a5d0d39c0fd8448837d09f55d4",
-    "examples/ledger-wp/frontier-audit.ts": "9c97e9a60cc58bad94dd1916945ede61983b23d563a9accc79c6e863feec0a14"
+    "examples/ledger-wp/frontier-audit.ts": "e6134c4afd6fdd6de7ced7aea3d089c1b42ec365ccbad81ae2358751d1fd12e8",
+    "examples/ledger-wp/frontier-order.ts": "9dab5227b68e68694ba4e78b3104d504dea09951155beed3e051f6a40e827ba7"
   },
   "judgeContractChanged": false,
   "sealedOrderChanged": false,
@@ -178,5 +179,31 @@
     "sealedOrderChanged": false,
     "capsChanged": false,
     "sonnetResumption": "Await owner reply on missing-only quota recovery; no answered call may be resent"
+  },
+  "sessionQuotaRecoveryAmendment": {
+    "at": "2026-10-13T17:55:01.408825+00:00",
+    "model": "claude-sonnet-5-5",
+    "authorizedAt": "2026-10-13T16:51:52.985535+00:00",
+    "notBeforeUtc": "2026-10-13T16:50:00Z",
+    "logicalCallKeys": [
+      "9ed06d025d3b563090a4b76c9589ff83a2a7998ffd56f59ced3b25bcac2abb9b"
+    ],
+    "authorization": "Yes: Sonnet resumes missing-only after the quota reset (it reset at 16:50 UTC, verified by another helper), under its 45 USD cap, all answered calls kept. Classify a session limit reply as a no-answer with zero cost. One cell at a time.",
+    "previousFreezeSha256": "a17346f52de6f85b2e80a4f3a85448f26f4f7cb2593ef9456df5968d48154575",
+    "reason": "Owner verified quota reset at 16:50 UTC. Recover only the named zero-token session rejection, preserve every answer and run Sonnet alone after GPT-6.1. A new session-limit rejection stops immediately without retry.",
+    "judgeContractChanged": false,
+    "promptsChanged": false,
+    "inputsChanged": false,
+    "modelSettingsChanged": false,
+    "sealedOrderChanged": false,
+    "capsChanged": false
+  },
+  "concurrentStartAuditCorrection": {
+    "at": "2026-10-13T17:55:01.408825+00:00",
+    "reason": "The prior audit equated provider start timestamps with sealed queue dispatch. The frozen ledger Stage 0 awaits before HTTP, so promptfoo can enter HTTP first in the concurrent startup group. Preserve raw timestamps; verify sealed item order per contestant and reject nonconcurrent inversions. Record all overlapping inversions.",
+    "evidence": "startup-order-evidence.json",
+    "paidRuntimeQueueChanged": false,
+    "scoringChanged": false,
+    "priorAuditFailurePreservedInCommit": "54004cd8"
   }
 }
