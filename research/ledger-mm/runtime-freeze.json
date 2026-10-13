@@ -97,7 +97,8 @@
     "research/ledger-mm/test_eligibility.py": "a84b5aeef9b7c796310442328d9529705a5faf32d720c21bdbb36a70b1009e60",
     "research/ledger-mm/test_report.py": "34e58998f914b6e6bc4c4840dfab2188e1ea7466ea100a20a6c7609938e944c0",
     "research/ledger-mm/supervise.sh": "48009290f0265ce5158fc987818a454d851dd50da7f81e619520170e3902b21c",
-    "research/ledger-mm/eligibility-haiku.json": "0524da8d2a0feba7e21c76f38d01ae06f395fe73909fc4ee0cbd6378d9275a63"
+    "research/ledger-mm/eligibility-haiku.json": "0524da8d2a0feba7e21c76f38d01ae06f395fe73909fc4ee0cbd6378d9275a63",
+    "research/ledger-mm/supervise2.sh": "47cde99250d4c10ece72e8f7c88ef2cf302f3cd9c1863a13d4bab62d7ae3d1e8"
   },
   "executionRules": {
     "driver": "research/ledger-mm/run-test.mts, derived from frozen run.mts by execution changes only",
@@ -229,5 +230,10 @@
     "text": "Post-close recovery of transport no-answers on both contestants alike. These calls returned \"claude returned an error result\" on 3 tries and no envelope was kept. Each is asked once more (one round, up to 3 tries) with the whole envelope kept. The closed Haiku result stays exactly as recorded and reported (0.8886 against 0.8645). The recovery is reported only as a second labelled line \"with recovered items\", never in place of it. A call that returns output tokens on an error envelope stays missing in both lines.",
     "file": "research/ledger-mm/eligibility-haiku.json",
     "order": "after gpt-6.1-sol and claude-sonnet-5-5 finish"
+  },
+  "amendment11": {
+    "loggedUtc": "2026-10-13T15:56Z",
+    "by": "owner via coordinator",
+    "text": "Supervisor restarted after the 15:40 to 15:52 UTC host outage, missing-only, under the same frozen rules. Version 2 never exits on an outage: a link pause waits and repeats the probe gate with no cycle limit. The Haiku post-close addendum runs behind it."
   }
 }
