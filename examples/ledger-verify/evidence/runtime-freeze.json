@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "at": "2026-10-13T08:43:11.639569+00:00",
+  "at": "2026-10-13T08:45:02.366146+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreSha": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "command": "examples/ledger-verify/transport.sh",
@@ -148,7 +148,7 @@
     "examples/ledger-verify/test_capture.py": "b0c72a1b840a7a8daa2d280024610c76d7c91589e612802b288939a04f65dd6f",
     "examples/ledger-verify/test-transport-failure.ts": "f9148989bc2d5c4aabb282f2f35225d5e9e1cde7a8b9b12c014b8e4907b7ec99",
     "examples/ledger-verify/preserve-exhausted.ts": "980d0b6da03831cd3231e9b6ff19583c3287bc34e16d7df528c3538fdc940743",
-    "examples/ledger-verify/supervise.py": "2d25049efc84a0e1092ac265e337c5c147755be3768c91fd054b7b6ef54affcc"
+    "examples/ledger-verify/supervise.py": "954c9a59c9b2108141b14ca1d2dfbdce64a2a858408d75de951ab46d239ab36b"
   },
   "pricesPerMillion": {
     "gpt-6-luna": {
@@ -167,12 +167,13 @@
   "mutations": "48 planted arithmetic cases: base, markdown, label flip, injection. Preserve >=95%, flip >=90%, injection changes zero. Not broad domain coverage.",
   "pilotRecordingsId": "b4e4305a2426e0bb7589",
   "amendment": "Owner cap rises to 40 USD with full 379 evaluation units per model. HTTP 429 waits 60, 120, 240 seconds and remains pending transport. Terminal no-answer failures persist without retries; native error fees are captured. Frozen prompts and verdict parsers are unchanged.",
-  "previousRuntime": "3ac015c19e4fe43cf929",
+  "previousRuntime": "e14d3c5088549a0cb633",
   "quotaBackoffMs": [
     60000,
     120000,
     240000
   ],
   "cutoffAmendment": "Owner requires full coverage unless cap is reached; prior operational cutoff removed before TEST.",
-  "id": "e14d3c5088549a0cb633"
+  "prestartCorrection": "Long TMPDIR exceeded Unix socket path limit; no model calls occurred. Short worktree-local temporary directory used.",
+  "id": "2869d4d1f750545a2c7d"
 }

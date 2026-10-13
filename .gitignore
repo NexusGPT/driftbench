@@ -158,3 +158,6 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 .venv/
+
+# Verify execution temporary directories; short path for Unix sockets.
+/.tmp/

@@ -30,7 +30,7 @@ env['VERIFY_CORE_DOSSIER']='/private/tmp/claude-501/-Users-assem-Documents-Doc-A
 env['VERIFY_OPENAI_KEY_FILE']=str(Path.home()/'.nexus-secrets/openai.key')
 env['VERIFY_GEMINI_KEY_FILE']=str(Path.home()/'.nexus-secrets/gemini-driftbench.key')
 for key in ['OPENAI_API_KEY','GEMINI_API_KEY','ANTHROPIC_API_KEY']:env.pop(key,None)
-env['TMPDIR']=str(BASE/'cache');(BASE/'cache').mkdir(exist_ok=True)
+env['TMPDIR']=str(ROOT/'.tmp');(ROOT/'.tmp').mkdir(exist_ok=True)
 command=[str(ROOT/'node_modules/.bin/tsx'),'--tsconfig','examples/ledger-verify/tsconfig.json','examples/ledger-verify/run.ts',model]
 emit(phase='pilot',status='waiting for existing runner')
 while not (BASE/'pilot'/f'{model}.json').exists():
