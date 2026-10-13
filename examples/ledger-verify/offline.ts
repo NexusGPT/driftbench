@@ -5,6 +5,7 @@ import { contestantById } from '../judge-benchmarks/src/contestants';
 import { promptKey } from '../judge-benchmarks/src/call';
 import { runBenchmark } from '../judge-benchmarks/src/run';
 import { pythonOutput } from '../judge-benchmarks/src/extras';
+import { schemaFor } from './schemas';
 
 const base = 'examples/ledger-verify';
 const seal = JSON.parse(await readFile(`${base}/evidence/seal.json`, 'utf8'));
@@ -27,6 +28,12 @@ assert.deepEqual(peer.parsePoint?.('{"reason":"2 is correct","pass":true,"score"
 assert.deepEqual(peer.parsePoint?.('nonsense'), {});
 assert.equal(ours.parsePoint?.('A check. {"pass":false,"reason":"wrong"}').pass, false);
 assert(!Object.hasOwn(ours.point!(input), 'correct'));
+assert.deepEqual(schemaFor(peer.point!(input).system)?.required,['reason','pass','score']);
+assert.deepEqual(schemaFor(ours.point!(input).system)?.required,['pass','reason']);
+assert.deepEqual(schemaFor(ours.responseExtractor!.prompt(input.question,input.response).system)?.required,
+  ['final_answer','quote']);
+for (const path of ours.referencePaths!) assert.equal(schemaFor(path.prompt(input.question).system),undefined);
+assert.equal(schemaFor(ours.codeCheck!.write(input.question,input.response).system),undefined);
 
 // All command paths below are strict replay. A missing answer must stop before process execution.
 const recordingDir = `${base}/offline-recordings`;
@@ -57,6 +64,7 @@ assert.equal(executed, '42', 'Restricted execution must work on the owner host')
 const result = {
   sourceAndPoolHashes: 'PASS', frozenCascadeRoutes: 'PASS', pointParser: 'PASS',
   strictReplay: 'PASS', missingReplayFailsClosed: 'PASS', restrictedPython: 'PASS',
+  pointwiseSchemasAndPlainSolves: 'PASS',
   newModelCalls: 0, at: new Date().toISOString(),
 };
 await writeFile(`${base}/evidence/offline-checks.json`, JSON.stringify(result, null, 2) + '\n');

@@ -5,6 +5,7 @@
   "strictReplay": "PASS",
   "missingReplayFailsClosed": "PASS",
   "restrictedPython": "PASS",
+  "pointwiseSchemasAndPlainSolves": "PASS",
   "newModelCalls": 0,
-  "at": "2026-10-13T07:11:15.663Z"
+  "at": "2026-10-13T07:22:07.163Z"
 }

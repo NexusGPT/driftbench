@@ -30,7 +30,8 @@ The runtime freeze must bind that PR, commit, reasoning settings, dialect transp
 The fixed settings are inherited from the core contract without tuning on these items.
 The runner admits only Haiku and gpt-6-luna and uses six concurrent calls.
 The lane-wide cap is 25 USD, including pilots and validation calls.
-The transport must reserve in-flight costs atomically before a paid run can be enabled.
+The transport reserves in-flight costs atomically across both models and all phases.
+Failed calls with unknown charges retain their reservation and halt new work for review.
 The last-call cutoff is fixed in the runtime freeze before the first call.
 No content-driven retry or outcome-driven item selection is permitted.
 Pilot items are the first 20 DEV ids in lexical order and do not belong to TEST.
