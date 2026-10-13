@@ -15,14 +15,16 @@ describe('forbidden mentions do not require the forbidden act', () => {
   });
   it('does not add a dispatch edge when the helper dispatch is forbidden', async () => {
     const root = await estate({
-      [skill]: body + 'Never dispatch the `auditor` agent for this.',
+      [skill]: `${body}Never dispatch the \`auditor\` agent for this.`,
       '.claude/agents/auditor.md': '---\nname: auditor\ndescription: Audit an invoice.\n---\n',
     });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
     expect(map.edges.filter((edge) => edge.kind === 'dispatch')).toEqual([]);
   });
   it('does not turn a forbidden read into a positive reference', async () => {
-    const root = await estate({ [skill]: body + 'Do not read `references/private.md` under any condition.' });
+    const root = await estate({
+      [skill]: `${body}Do not read \`references/private.md\` under any condition.`,
+    });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
     expect(map.atoms.filter((a) => a.kind === 'reference')).toEqual([]);
   });
@@ -46,8 +48,7 @@ describe('forbidden mentions do not require the forbidden act', () => {
   });
   it('keeps a later affirmative dispatch of a helper mentioned in an earlier prohibition', async () => {
     const root = await estate({
-      [skill]:
-        body + 'Never dispatch the `auditor` for a weather question\nDispatch the `auditor` for the invoice',
+      [skill]: `${body}Never dispatch the \`auditor\` for a weather question\nDispatch the \`auditor\` for the invoice`,
       '.claude/agents/auditor.md': '---\nname: auditor\ndescription: Audit an invoice.\n---\n',
     });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
@@ -55,7 +56,7 @@ describe('forbidden mentions do not require the forbidden act', () => {
   });
 
   it('recognizes a curly-apostrophe prohibition', async () => {
-    const root = await estate({ [skill]: body + 'Don’t read `references/private.md`.' });
+    const root = await estate({ [skill]: `${body}Don’t read \`references/private.md\`.` });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
     expect(map.atoms.filter((a) => a.kind === 'reference')).toEqual([]);
   });

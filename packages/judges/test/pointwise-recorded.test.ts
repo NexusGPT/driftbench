@@ -1,3 +1,4 @@
+// biome-ignore-all lint/style/noNonNullAssertion: the entry is asserted to be defined on the line before.
 import { describe, expect, it } from 'vitest';
 import { parseJudgeText } from '../src/assessment';
 import { Cassette } from '../src/cassette';

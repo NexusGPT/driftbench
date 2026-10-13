@@ -107,14 +107,14 @@ export function proceed(turns: number, options: { hint?: string; expect?: Expect
 }
 
 /**
- * `succeed(reason?)` ends the script with a success verdict: the run stops after the blocks before it. It must be the
- * last step; a turn after it cannot run.
+ * `succeed(reason?)` ends the script with a success verdict where it stands: the run stops after the blocks before it.
+ * The turns after it are kept as blocks the verdict skips; an agent() or judge() after it is refused.
  */
 export function succeed(reason?: string): Turn {
   return { kind: 'end', verdict: 'success', ...(reason === undefined ? {} : { reason }) };
 }
 
-/** `fail(reason?)` ends the script with a failure verdict. Like `succeed`, it must be the last step. */
+/** `fail(reason?)` ends the script with a failure verdict. Like `succeed`, it can come at any step. */
 export function fail(reason?: string): Turn {
   return { kind: 'end', verdict: 'failure', ...(reason === undefined ? {} : { reason }) };
 }
@@ -133,15 +133,19 @@ export function conversation(
   const expects: Expectations[] = [];
   const simulated: number[] = [];
   let endSpec: { verdict: 'success' | 'failure'; reason?: string } | undefined;
+  // The index of the last block before the end turn: the blocks after it are skipped by the verdict.
+  let endAt = -1;
   for (const turn of turns) {
-    if (endSpec !== undefined) {
-      throw new ScriptError(
-        'a turn follows succeed() or fail(), which ends the script: that turn cannot run',
-      );
-    }
     if (turn.kind === 'end') {
+      if (endSpec !== undefined) throw new ScriptError('the script has one succeed() or fail(), not two');
       endSpec = { verdict: turn.verdict, ...(turn.reason === undefined ? {} : { reason: turn.reason }) };
+      endAt = blocks.length - 1;
       continue;
+    }
+    if (endSpec !== undefined && (turn.kind === 'agent' || turn.kind === 'judge')) {
+      throw new ScriptError(
+        `${turn.kind === 'agent' ? 'agent()' : 'judge()'} comes after succeed() or fail(): the block it checks is skipped by the verdict`,
+      );
     }
     if (turn.kind === 'proceed') {
       for (let n = 0; n < turn.turns; n += 1) {
@@ -188,7 +192,10 @@ export function conversation(
   if (options.stages !== undefined) spec.stages = [...options.stages];
   if (options.criteria !== undefined) spec.criteria = [...options.criteria];
   spec.blocks = compiled;
-  if (endSpec !== undefined) spec.end = endSpec;
+  if (endSpec !== undefined) {
+    // The verdict names its block only when blocks follow it; a script that ends on its last block keeps the short form.
+    spec.end = endAt === blocks.length - 1 ? endSpec : { ...endSpec, atBlock: endAt };
+  }
   if (simulated.length > 0) spec.metadata = { simulated_blocks: simulated };
   return { spec, load: validateSpec(spec, `script:${id}`) };
 }

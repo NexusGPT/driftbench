@@ -310,8 +310,8 @@ describe('generate on the approved Acme map', () => {
     expect(prepared.axisMap.dimensions).toEqual(written.map.dimensions);
     expect(prepared.axisMap.constraints).toEqual(written.map.constraints);
     const coverage = result.report.coverage;
-    // The hand-written baseline: 234 of the 637 pairs the map allows.
-    expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 637, covered: 234 });
+    // The hand-written baseline: 237 of the 637 pairs the map allows.
+    expect(coverage.baseline).toMatchObject({ specs: 7, allowed: 637, covered: 237 });
     expect(coverage.complete.covered).toBeGreaterThan(2 * (coverage.baseline?.covered ?? 0));
     const generated = await loadSpecs([GENERATED]);
     const counted = spaceCoverage(written.map, generated, { t: 2 });
