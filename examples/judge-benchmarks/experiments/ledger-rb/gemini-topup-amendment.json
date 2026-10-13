@@ -20,5 +20,23 @@
     "reasoning",
     "block headline policy"
   ],
-  "alreadyAnsweredProbe": "rubric_eval_1008 promptfoo both orders returned 0 and 1 before TEST; reuse only"
+  "alreadyAnsweredProbe": "rubric_eval_1008 promptfoo both orders returned 0 and 1 before TEST; reuse only",
+  "probeResult": {
+    "at": "2026-10-13T10:22:35.558927+00:00",
+    "key": "d6b2545c911c9077787c8513a63efac2e92862e9aead2a4fb6cc1b0a15ee3853",
+    "item": "rubric_eval_14",
+    "contestant": "pair-ledger",
+    "ordinal": 0,
+    "status": "answered",
+    "answerChars": 1480,
+    "costUsd": 0.0042345,
+    "newCalls": 1,
+    "unfinishedCalls": 0
+  },
+  "concurrent402Guard": {
+    "at": "2026-10-13T10:25:51.100370+00:00",
+    "freezeSha256": "9601c09292ae8f46c42472bdc63e1d6d9dc54acc4e06536838aa928f5a142610",
+    "rule": "A returned 402 opens a provider-wide circuit before a sibling can submit another order. Already in-flight answers remain recorded. No prompt or scoring change.",
+    "tests": "20 focused tests and TypeScript pass"
+  }
 }

@@ -27,7 +27,8 @@ describe('live pair-ledger harness', () => {
     }
   });
   test('a top-up epoch advances rejected requests only and preserves every returned answer', async () => {
-    const calls = await new LedgerCalls(await mkdtemp(resolve('.cache/ledger-rb/test-live-')), 1).load();
+    const root = await mkdtemp(resolve('.cache/ledger-rb/test-live-'));
+    let calls = await new LedgerCalls(root, 1).load();
     let count = 0;
     const fake: DialectTransport = { dialect: 'scratchpad-json', fingerprint: 'billing-resume-test',
       async complete() { count++; if (count === 1) throw Object.assign(new Error('prepayment depleted'), { status: 402 });
@@ -36,12 +37,14 @@ describe('live pair-ledger harness', () => {
     const run = (epoch?: number) => evaluate(item, [{ name: 'rb_1', rubric: item.criterion! }], 'gemini-3.8-flash',
       'billing-resume-test', 0, 'promptfoo', fake, calls, true, undefined, epoch);
     await expect(run()).rejects.toBeInstanceOf(LedgerPrepaymentStop);
+    calls = await new LedgerCalls(root, 1).load(); // explicit top-up starts a new runner
     await run(1); expect(count).toBe(3);
     await run(); await run(2); expect(count).toBe(3);
     expect(calls.rows.filter((r) => r.identity.billingResume === 1)).toHaveLength(1);
   });
   test('a new 402 stops the authorized epoch and that same epoch cannot retry it', async () => {
-    const calls = await new LedgerCalls(await mkdtemp(resolve('.cache/ledger-rb/test-live-')), 1).load();
+    const root = await mkdtemp(resolve('.cache/ledger-rb/test-live-'));
+    let calls = await new LedgerCalls(root, 1).load();
     let count = 0;
     const fake: DialectTransport = { dialect: 'scratchpad-json', fingerprint: 'billing-still-empty',
       async complete() { count++; throw Object.assign(new Error('prepayment depleted'), { status: 402 }); } };
@@ -49,6 +52,7 @@ describe('live pair-ledger harness', () => {
     const run = (epoch?: number) => evaluate(item, [{ name: 'rb_1', rubric: item.criterion! }], 'gemini-3.8-flash',
       'billing-still-empty', 0, 'promptfoo', fake, calls, true, undefined, epoch);
     await expect(run()).rejects.toBeInstanceOf(LedgerPrepaymentStop);
+    calls = await new LedgerCalls(root, 1).load(); // explicit top-up starts a new runner
     await expect(run(1)).rejects.toBeInstanceOf(LedgerPrepaymentStop);
     await expect(run(1)).rejects.toBeInstanceOf(LedgerPrepaymentStop);
     expect(count).toBe(2); expect(calls.chargedUsd).toBe(0);

@@ -61,7 +61,7 @@
   },
   "hashes": {
     "examples/judge-benchmarks/src/rubric-ledger-live.ts": "faa61b720c1a045c6be8ada98f72798e0dffe46412f4c876e66f1b06ce7cf64d",
-    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "a7056b7fdea320585d085681a9b717a9e3454ba1ef7767581ffe411dc821bc93",
+    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "7526d2354f529884adf1c03c9d5f47c343f5935e768a4a3052e917bf34987e4d",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
     "examples/judge-benchmarks/src/rubric-ledger-report.ts": "a0d8254a0f409b2501880bda43640a846ee8e9614a8f38c7c4127dde2c032fb9",

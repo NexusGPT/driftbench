@@ -1,7 +1,7 @@
 import { appendFile, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { LedgerBudgetStop, LedgerCalls, transportRetryable, type CallIdentity } from '../src/rubric-ledger-calls';
+import { LedgerBudgetStop, LedgerCalls, LedgerPrepaymentStop, transportRetryable, type CallIdentity } from '../src/rubric-ledger-calls';
 import { scratch } from './scratch';
 
 const identity: CallIdentity = { model: 'fake', phase: 'pilot', item: 'p1', contestant: 'ledger',
@@ -9,6 +9,24 @@ const identity: CallIdentity = { model: 'fake', phase: 'pilot', item: 'p1', cont
 const reply = { text: 'answer', raw: '{}', fingerprint: 'test', costUsd: 0.02 };
 
 describe('paid-call reservations and replay', () => {
+  it('opens a provider-wide 402 circuit before a sibling can submit its next order', async () => {
+    const store = await new LedgerCalls(await scratch('ledger-402-circuit-'), 1).load();
+    let reject!: (error: Error) => void; let finish!: (r: typeof reply) => void;
+    const first = store.complete(identity, .1, () => new Promise((_, r) => { reject = r; }), () => undefined);
+    const siblingIdentity = { ...identity, item: 'sibling' };
+    const sibling = store.complete(siblingIdentity, .1, () => new Promise((r) => { finish = r; }), () => undefined);
+    while (!reject || !finish) await new Promise((r) => setTimeout(r, 1));
+    reject(Object.assign(new Error('prepayment depleted'), { status: 402 }));
+    await first; finish(reply); await sibling;
+    let submitted = false;
+    await expect(store.complete({ ...siblingIdentity, ordinal: 1 }, .1,
+      async () => { submitted = true; return reply; }, () => undefined)).rejects.toBeInstanceOf(LedgerPrepaymentStop);
+    expect(submitted).toBe(false); expect(store.rows).toHaveLength(2); expect(store.uncertainKeys).toHaveLength(0);
+    expect(store.chargedUsd).toBeCloseTo(.02);
+    await store.complete(siblingIdentity, .1, async () => { throw new Error('answered request repeated'); }, () => undefined);
+    await store.complete({ ...identity, model: 'other-provider' }, .1, async () => reply, () => undefined);
+    expect(store.rows).toHaveLength(3);
+  });
   it('releases only proven 402 holds while retaining the raw rejection and unknown holds', async () => {
     const dir = await scratch('ledger-prepayment-');
     for (const [key, httpStatus] of [['rejected', 402], ['unknown', 503]] as const) {

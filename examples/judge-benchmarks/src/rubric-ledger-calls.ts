@@ -78,6 +78,7 @@ export class LedgerCalls {
   private pending: Promise<unknown> = Promise.resolve();
   private readonly live = new Map<string, Promise<LedgerCall>>();
   private newCalls = 0;
+  private readonly prepaymentStoppedModels = new Set<string>();
   constructor(readonly directory: string, readonly capUsd: number, readonly maxNewCalls = Infinity) {
     if (!(capUsd > 0 && Number.isFinite(capUsd))) throw new Error('Invalid spend cap');
   }
@@ -145,6 +146,8 @@ export class LedgerCalls {
     await this.serial(async () => {
       if (replayOnly) throw new Error(`Replay missing: ${identity.item} ${identity.contestant}`);
       if (this.started.has(key)) throw new LedgerUncertainCall(`Prior call has no completion: ${key}`);
+      if (this.prepaymentStoppedModels.has(identity.model))
+        throw new LedgerPrepaymentStop(`HTTP 402 circuit is open for ${identity.model}; no further request submitted`);
       if (this.newCalls >= this.maxNewCalls) throw new LedgerProbeStop('Single-call probe recorded; no second call submitted');
       if (!Number.isFinite(reserveUsd) || reserveUsd <= 0) throw new Error('Invalid call reservation');
       if (this.chargedUsd + reserveUsd > this.capUsd + 1e-12)
@@ -176,6 +179,9 @@ export class LedgerCalls {
         error: reason, retryable, ...(httpStatus === undefined ? {} : { httpStatus }),
         ...(retryAfterMs === undefined ? {} : { retryAfterMs }) };
     }
+    // A sibling job may still be finishing an answer. It can retain that answer,
+    // but its next order must not start after this provider rejects prepayment.
+    if (isPrepaymentRejection(row)) this.prepaymentStoppedModels.add(identity.model);
     await this.serial(async () => {
       await appendRecording(join(this.directory, 'calls.jsonl'), row);
       this.completed.set(key, row);
