@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
 import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer } from './fact-audit';
+import type { LedgerParseStep, PairLedger } from './pair-ledger-contract';
 
 /**
  * The answer contract every judge returns, and the request every judge reads.
@@ -57,6 +58,9 @@ export type CriterionText = z.infer<typeof CriterionText>;
 export type JudgeRequest = {
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
+  /** Provider output dialect and explicit reasoning setting for pair ledgers. */
+  readonly dialect?: string;
+  readonly reasoning?: string;
   /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
   readonly requirements?: readonly CriterionRequirement[];
   /** Opt-in answer contract. Pairwise calls name the winner; rubric calls score each supplied item. */
@@ -82,6 +86,9 @@ export type JudgeRequest = {
 
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly pairLedger?: PairLedger;
+  readonly parseSteps?: readonly LedgerParseStep[];
+  readonly metadata?: { readonly graderError?: boolean };
   /** Explicit pairwise winner before mapping it to the legacy binary outcome. */
   readonly winner?: 'A' | 'B' | 'tie' | 'inconclusive';
   /** Validated item scores and the deterministic aggregate. */
