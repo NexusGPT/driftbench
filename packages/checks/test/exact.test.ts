@@ -33,7 +33,28 @@ describe('exact: the reply equals the reference after normalising', () => {
   });
 
   it.each([
+    ['1,000', '1000'],
+    ['$1,000.50', '1000.50'],
+    ['12,345,678', '12345678'],
+    ['-$1,000.50', '-1000.50'],
+    ['+€1,000.50', '1000.50'],
+  ])('compares strictly grouped numbers numerically: %s versus %s', async (reply, reference) => {
+    expect(await judge(reply, reference)).toBe('pass');
+    expect(await judge(reference, reply)).toBe('pass');
+  });
+
+  it('keeps a trailing decimal point numeric, preserving the existing Number parsing rule', async () => {
+    expect(await judge('3.', '3')).toBe('pass');
+    expect(await judge('3', '3.')).toBe('pass');
+  });
+
+  it.each([
     ['3,5', '3.5'],
+    ['3,5', '35'],
+    ['1,00', '100'],
+    ['1,0000', '10000'],
+    ['1234,567', '1234567'],
+    ['-5', '5'],
     ['1,5', '15'],
     ['value 3,5', 'value 3.5'],
     ['value 3.5', 'value 35'],

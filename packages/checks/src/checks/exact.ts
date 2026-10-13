@@ -5,7 +5,7 @@ const NAME = 'exact';
 
 /**
  * Ignores punctuation except numeric separators and signs, trims, and lowers case.
- * Decimal commas remain literal: no locale or thousands separator is inferred.
+ * Grouped numbers are handled separately; other commas remain literal.
  */
 export function normaliseExact(text: string): string {
   return [...text.trim()]
@@ -27,7 +27,9 @@ function numberOf(text: string): number | undefined {
   if (trimmed === 'true') return 1;
   if (trimmed === 'false') return 0;
   if (trimmed === '') return undefined;
-  const value = Number(trimmed);
+  // Only unambiguous three-digit comma groups allow a currency symbol and comma removal.
+  const grouped = /^[+-]?\p{Sc}?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/u.test(trimmed);
+  const value = Number(grouped ? trimmed.replace(/[,\p{Sc}]/gu, '') : trimmed);
   return Number.isFinite(value) ? value : undefined;
 }
 
