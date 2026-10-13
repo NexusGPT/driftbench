@@ -26,7 +26,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: node tools/bench-lint.mjs
-      - run: pnpm bench replay --slice all --check-floor
+      - run: node --import tsx benchmarks/cli.ts replay --slice all --check-floor
 
   build:
     # Draft pull requests do not use runners; marking one ready starts its checks.

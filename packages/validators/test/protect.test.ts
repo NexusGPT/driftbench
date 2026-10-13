@@ -101,9 +101,14 @@ describe('the benchmark workflows', () => {
     );
     const runs = workflow.jobs.bench.steps.flatMap((step: { run?: string }) => step.run ?? []);
     expect(runs).toContain('node tools/bench-lint.mjs');
-    expect(runs).toContain('pnpm bench replay --slice all --check-floor');
+    expect(runs).toContain('node --import tsx benchmarks/cli.ts replay --slice all --check-floor');
     expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push']);
     expect(workflow.permissions).toEqual({ contents: 'read' });
+  });
+
+  it('keeps the developer bench shortcut pointed at the repository entry', () => {
+    const manifest = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'));
+    expect(manifest.scripts.bench).toBe('tsx benchmarks/cli.ts');
   });
 
   it('records only by manual dispatch, with bounded spend and artifact review before a maintainer commit', () => {
