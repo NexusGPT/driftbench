@@ -10,6 +10,7 @@ import {
   confidentLanguage,
   DETECT_DEFAULTS,
   type Detection,
+  functionWordVote,
   type DetectOptions,
   detect,
   isConsistent,
@@ -61,7 +62,7 @@ function expected(code: string, all: Judged[], settings: DetectOptions): Verdict
   }
   const judged = all.filter((segment) => segment.detection.readings.length > 0);
   if (judged.length === 0) return inconclusive('expected', tooShort(all, settings));
-  const off = judged.filter((segment) => !isConsistent(segment.detection, target, settings));
+  const off = judged.filter((segment) => !consistent(segment, target, settings));
   if (off.length > 0) {
     const lines = off.map(
       (segment) =>
@@ -87,7 +88,7 @@ function stable(ctx: CheckContext, all: Judged[], settings: DetectOptions): Verd
     );
   }
   if (judged.length === 0) return inconclusive('stable', tooShort(all, settings));
-  const off = judged.filter((segment) => !isConsistent(segment.detection, reference.code, settings));
+  const off = judged.filter((segment) => !consistent(segment, reference.code, settings));
   const since = `the run speaks ${reference.code} since block ${reference.block} (${reference.quote})`;
   if (off.length > 0) {
     const lines = off.map(
@@ -121,6 +122,11 @@ function referenceLanguage(
     if (code) return { code, block: ctx.blockIndex, quote: quote(segment.text, 40) };
   }
   return undefined;
+}
+
+/** A segment is consistent with `code` when the detector puts it within the margin, or its function words say so. */
+function consistent(segment: Judged, code: string, settings: DetectOptions): boolean {
+  return isConsistent(segment.detection, code, settings) || functionWordVote(segment.text, code);
 }
 
 function tooShort(all: Judged[], settings: DetectOptions): string {

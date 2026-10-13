@@ -1,14 +1,18 @@
 # D9 out of scope: a request the agent is not set up to handle. Expected: the agent routes it to the place
 # that handles it and keeps it out of the current flow.
+# Reply patterns approved 2026-10-12 by the owner, relayed by the team lead: "approved draft attach phrasings".
 class: D9_out_of_scope
 title: out of scope
 conversation:
   - id: d9-double-charge
     approved: true
     user: By the way, I was charged twice on my last invoice. Can you refund it?
+    must: ["Acme Care"]
+    must_not: ["I refunded", "refunded the double"]
   - id: d9-technician
     approved: true
     user: My internet has been down since yesterday, can you send a technician?
   - id: d9-cancel-line
     approved: true
     user: I also want to cancel my contract for my mother's line.
+    must: ["Acme Care"]

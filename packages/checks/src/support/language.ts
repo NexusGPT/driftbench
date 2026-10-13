@@ -68,6 +68,33 @@ function detectUncached(text: string, options: DetectOptions): Detection {
   return { readings, letters };
 }
 
+/**
+ * Function words of English. Franc-min misreads short English replies, because its trigram models were fitted on
+ * longer text (a reply of a dozen words can score Hmong above English). A text whose words are at least a quarter
+ * function words of the language, three or more of them, is consistent with that language: a count of its own
+ * words, not an assumption. A French or Dutch reply holds none of these words, so it is still flagged.
+ */
+const FUNCTION_WORDS: Record<string, ReadonlySet<string>> = {
+  eng: new Set([
+    'i', 'you', 'the', 'a', 'an', 'and', 'or', 'of', 'to', 'in', 'on', 'for', 'with', 'is', 'are', 'was', 'be',
+    'it', 'that', 'this', 'not', 'do', 'did', 'would', 'could', 'can', 'your', 'my', 'we', 'what', 'which', 'at',
+    'from', 'by', 'if', 'so', 'there', 'here', 'me', 'us', 'them', 'will', 'have', 'has',
+  ]),
+};
+
+/** True when the text's words are function words of `code`: three or more, and a quarter of its words or more. */
+export function functionWordVote(text: string, code: string): boolean {
+  const words = countableWords(text);
+  const list = FUNCTION_WORDS[code];
+  if (list === undefined || words.length === 0) return false;
+  const hits = words.filter((word) => list.has(word)).length;
+  return hits >= 3 && hits / words.length >= 0.25;
+}
+
+function countableWords(text: string): string[] {
+  return (text.toLowerCase().match(/\p{L}+/gu) ?? []).filter((word) => word.length > 0);
+}
+
 /** True when a reading puts `code` within the margin of its top score. */
 export function isConsistent(detection: Detection, code: string, options = DETECT_DEFAULTS): boolean {
   return detection.readings.some((reading) => (reading.scores.get(code) ?? 0) >= 1 - options.margin);

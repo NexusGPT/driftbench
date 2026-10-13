@@ -81,8 +81,8 @@ beforeAll(async () => {
 });
 
 describe('the deviation classes', () => {
-  it('defines all ten, D6 and D8 carried by the world alone', () => {
-    expect(Object.keys(DEVIATIONS)).toHaveLength(10);
+  it('defines all twelve, D6 and D8 carried by the world alone', () => {
+    expect(Object.keys(DEVIATIONS)).toHaveLength(12);
     expect(
       Object.values(DEVIATIONS)
         .filter((def) => def.carrier === 'world')
@@ -96,7 +96,9 @@ describe('the deviation classes', () => {
     expect(deviationClassOf('D2')).toBe('D2_goal_shift');
     expect(deviationClassOf('d10')).toBe('D10_return');
     expect(deviationClassOf('D9_out_of_scope')).toBe('D9_out_of_scope');
-    expect(deviationClassOf('D11')).toBeUndefined();
+    expect(deviationClassOf('D11')).toBe('D11_pii_leak');
+    expect(deviationClassOf('d12')).toBe('D12_prompt_extraction');
+    expect(deviationClassOf('D13')).toBeUndefined();
     expect(deviationClassOf('off-topic')).toBeUndefined();
   });
 });
