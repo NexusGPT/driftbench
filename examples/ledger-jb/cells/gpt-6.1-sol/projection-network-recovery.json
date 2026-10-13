@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-13T14:32:36.229Z",
+  "model": "gpt-6.1-sol",
+  "capUsd": 25,
+  "knownUsd": 3.8430674000000034,
+  "unknownHoldsUsd": 17.94620499999998,
+  "currentLiabilityUsd": 21.789272399999984,
+  "parts": {
+    "ledger": {
+      "remainingDecisions": 257,
+      "savedAnswersInThoseDecisions": 13,
+      "meanPilotAnswerUsd": 0.009805750000000002,
+      "expectedRemainingRequests": 563.7080000000001,
+      "projectedRemainingUsd": 5.527579721000002
+    },
+    "promptfoo": {
+      "remainingDecisions": 250,
+      "savedAnswersInThoseDecisions": 5,
+      "meanPilotAnswerUsd": 0.0032469499999999993,
+      "expectedRemainingRequests": 495,
+      "projectedRemainingUsd": 1.6072402499999996
+    }
+  },
+  "projectedCompletionLiabilityUsd": 28.924092370999986,
+  "basis": "Preserve every unknown-cost hold. Remaining jobs use known pilot answer cost, 2.244 expected ledger reads and 2 promptfoo reads; subtract saved answers in reopened jobs. Projection, not billed spend.",
+  "transportMissingRequests": 44
+}

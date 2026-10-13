@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "createdAt": "2026-10-13T14:31:30.739977+00:00",
+  "version": 3,
+  "createdAt": "2026-10-13T14:44:11.702367+00:00",
   "model": "gpt-6.1-sol",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
@@ -20,7 +20,7 @@
     "route": "https://api.openai.com/v1/responses",
     "serviceTier": "default"
   },
-  "capUsd": 25,
+  "capUsd": 35,
   "authorization": "Owner: 25 USD per new model cell, separate from the earlier 25 USD total. Measure first five Sonnet requests, project the cell, and stop if either projection passes 25 USD. Go ahead with both transports now.",
   "priorLiabilityUsd": 14.11485872,
   "budgetScope": "This model only; no transfer from or to the existing cell budget or other new model.",
@@ -199,9 +199,13 @@
     "examples/ledger-jb/additional/recovery.mjs": "78e69e3a1a4bb4271a3f677d591978c8504eee8d687f456dbfb8968b99e43427",
     "examples/ledger-jb/additional/recovery-transport.mjs": "8976ba6c57414d7c10e860adbab7231c427c34c100ae81717f72534296d6d914",
     "examples/ledger-jb/additional/run-recovery.mjs": "ccfb24be39ca40beebbda688a9bfeb850322f2ba59885b6f13f551e8b9fac99e",
-    "examples/ledger-jb/additional/recovery.test.mjs": "759116ce8dcb8a3f8a3bc3d0debdb28fec362ebff663f38c022f067efcfa0509"
+    "examples/ledger-jb/additional/recovery.test.mjs": "759116ce8dcb8a3f8a3bc3d0debdb28fec362ebff663f38c022f067efcfa0509",
+    "examples/ledger-jb/additional/sol-http.mjs": "3abfed4f8b2e5c34f35382a371d0b581f210ff2cc9655d0868d57ba394e9a155",
+    "examples/ledger-jb/additional/sol-transport.mjs": "22a9829324482db6333be9b0da93e5b61d160278ed5bb038a5f9c77bfbe9b02c",
+    "examples/ledger-jb/additional/sol-http.test.mjs": "0005a326ecd963fba525c2494290dc869b7005db8c8a8549a39ba851972cbf6a",
+    "examples/ledger-jb/additional/run-sol-recovery.mjs": "dd50360dabe73e209c66361f9f6b5c26fb07a5f5ba4998a1b44a7c2b56b0019e"
   },
-  "priorCellFreezeSha256": "74c2aaf848dbb36da10684efd440c5e8c3dd53add4201ac338d32e088974c035",
+  "priorCellFreezeSha256": "53ede4c773a5045758874701a42ee2b067a3722c13e4bb8fd1f118b2634d9009",
   "networkRecovery": {
     "authorization": "Owner network pause: ten consecutive healthy provider probes 30 seconds apart; concurrency two, one model cell at a time; three consecutive connection failures pause ten minutes and repeat the gate; recover no-answer requests with unlimited recovery cycles; never resend a model answer; caps unchanged; no final score with transport-missing items.",
     "probe": {
@@ -223,7 +227,9 @@
     "checkpoint": "cc507708",
     "originalReceipts": "calls.jsonl at checkpoint cc507708; new attempts append without replacement",
     "supersededDecisions": "transport-recovery/superseded-decisions.jsonl",
-    "scoreRelease": "All sealed pairs present and no transport-missing required requests."
+    "scoreRelease": "All sealed pairs present and no transport-missing required requests.",
+    "budgetAuthorization": "Owner raises gpt-6.1-sol to 35 USD including existing holds, accepts them as conservative reserves, and requires failed HTTP receipt capture plus a test before any new paid call.",
+    "httpReceipt": "Each failed attempt retains nested network cause, complete or partial provider body, request id and response id where received. Missing provider fields remain explicit null. Authentication headers and key values are never retained. Partial model output is never transport-retried."
   },
-  "runner": "examples/ledger-jb/additional/run-recovery.mjs"
+  "runner": "examples/ledger-jb/additional/run-sol-recovery.mjs"
 }
