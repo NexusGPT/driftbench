@@ -14,6 +14,9 @@ const SYSTEM1_COST = 1;
 /** Where a probability turns into pass or fail. Between the two the answer is inconclusive. */
 export type ProbabilityBounds = { passAt?: number; failAt?: number };
 
+const JEV_GATEWAY_URL = 'https://jev-gateway.nexus-orga.gpt.nexus/v1/systemone';
+const JEV_TYPESAFE_URL = 'https://api.typesafe.ai/v1/systemone';
+
 export type System1Options = ClientOptions & ProbabilityBounds;
 
 /** The question a system 1 judge answers yes or no. Yes means the criterion passes. */
@@ -44,13 +47,27 @@ function fromProbability(
 /**
  * Jev, a system 1 judge: POST {JEV_URL} with `{ model, state, questions }`, one question `verdict` of type
  * `noul` (a yes or no question), and the answer `{ model, answers: { verdict: { noul: <probability of yes> } } }`.
- * Reads JEV_URL, JEV_API_KEY (sent as a bearer token) and JEV_MODEL (default jev-latest). UNVERIFIED in
+ * Reads JEV_URL, JEV_API_KEY and JEV_MODEL (default jev-latest). JEV_ROUTE picks the route: `gateway` sends the key in the
+ * api-key header (URL default the Nexus gateway), `typesafe` sends a bearer token (URL default the direct API); without
+ * it JEV_URL is required and the key is a bearer token. UNVERIFIED in
  * this repository until a live call: the shape follows the provider's published request format.
  */
 export function createJevJudge(options: System1Options = {}): JudgeClient {
   const env = options.env ?? process.env;
-  const url = requireEnv(env, 'JEV_URL');
+  const route = env.JEV_ROUTE?.trim();
+  if (route !== undefined && route !== '' && route !== 'gateway' && route !== 'typesafe')
+    throw new JudgeError('config', 'JEV_ROUTE is gateway or typesafe');
+  const url =
+    env.JEV_URL?.trim() ||
+    (route === 'gateway'
+      ? JEV_GATEWAY_URL
+      : route === 'typesafe'
+        ? JEV_TYPESAFE_URL
+        : requireEnv(env, 'JEV_URL'));
   const key = requireEnv(env, 'JEV_API_KEY');
+  // The Nexus gateway takes the key in the api-key header; the direct TypeSafe route takes a bearer token.
+  const keyHeader: Record<string, string> =
+    route === 'gateway' ? { 'api-key': key } : { authorization: `Bearer ${key}` };
   const model = env.JEV_MODEL?.trim() || options.model || 'jev-latest';
   const id = options.id ?? 'jev';
   return {
@@ -63,7 +80,7 @@ export function createJevJudge(options: System1Options = {}): JudgeClient {
       const prompt = buildPrompt({ ...request, answerContract: 'legacy' });
       const payload = await postJson(
         url,
-        { authorization: `Bearer ${key}` },
+        keyHeader,
         {
           model,
           state: { criterion: request.criterion.name, data: prompt.user },
