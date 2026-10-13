@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-13T07:42:35.978242+00:00",
+  "reason": "Owner reports Codex plugin crash. Process inventory has no ledger-wp runner or its Claude calls.",
+  "completedPilotJobs": 128,
+  "uncertainCalls": 6,
+  "uncertainReservedUsd": 0.9,
+  "retryPolicy": "Reuse every returned answer; resubmit only unfinished transport calls, retaining uncertain prior spend.",
+  "authorization": "Resume from your checkpoint, cap 35 USD, 180 s timeouts, both HTTP models medium, at most 4 calls at a time."
+}

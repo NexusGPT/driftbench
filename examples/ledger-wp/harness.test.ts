@@ -36,7 +36,7 @@ test('concurrent reservations count before settlement and survive a restart',()=
 });
 test('freeze gate blocks pending core and corrupted files before calls',()=>{
   assert.throws(()=>verifyFreeze({core:{}}),/CORE_PR/);
-  const freeze={core:{pr:'https://example.test/1',commit:'x',pushed:true},files:{'examples/ledger-wp/stats.py':'wrong'},seals:{},capUsd:15,models:['haiku']};
+  const freeze={core:{pr:'https://example.test/1',commit:'x',pushed:true},files:{'examples/ledger-wp/stats.py':'wrong'},seals:{},capUsd:35,models:['haiku']};
   assert.throws(()=>verifyFreeze(freeze),/FROZEN_SOURCE/);
   freeze.files['examples/ledger-wp/stats.py']=sha(readFileSync(resolve(HERE,'stats.py')));
   assert.doesNotThrow(()=>verifyFreeze(freeze));

@@ -42,7 +42,7 @@ export class Budget {
   readonly file: string;
   readonly cap: number;
   events: any[];
-  constructor(file='results/spend.jsonl', cap=15) {this.file=file;this.cap=cap;this.events=rows(file);}
+  constructor(file='results/spend.jsonl', cap=35) {this.file=file;this.cap=cap;this.events=rows(file);}
   totals() {
     const pending=new Map<string,number>();let actual=0;
     for(const e of this.events) {
@@ -72,7 +72,7 @@ export function verifyFreeze(freeze: any) {
   for (const [split, expected] of Object.entries(freeze.seals)) {
     if(sha(readFileSync(resolve(HERE,'seals',split+'.json')))!==expected)throw Error('SEALED_POOL_CHANGED');
   }
-  if(freeze.capUsd!==15 || freeze.models.some((x:string)=>!['haiku','gpt-6-luna','gemini-3.8-flash'].includes(x)))throw Error('Invalid spend/model authorization');
+  if(freeze.capUsd!==35 || freeze.models.some((x:string)=>!['haiku','gpt-6-luna','gemini-3.8-flash'].includes(x)))throw Error('Invalid spend/model authorization');
 }
 
 async function runClaude(prompt: {system:string;user:string}, cwd:string): Promise<any> {
@@ -81,7 +81,7 @@ async function runClaude(prompt: {system:string;user:string}, cwd:string): Promi
     const env={...process.env,TMPDIR:cwd};delete env.CLAUDECODE;
     const child=spawn('claude',args,{cwd,env,stdio:['pipe','pipe','pipe']});
     let out='',err='';
-    const timer=setTimeout(()=>{child.kill('SIGKILL');reject(Error('Owned Claude call timed out; reservation retained'));},300_000);
+    const timer=setTimeout(()=>{child.kill('SIGKILL');reject(Error('Owned Claude call timed out; reservation retained'));},180_000);
     child.stdout.on('data',x=>out+=x.toString());child.stderr.on('data',x=>err+=x.toString());
     child.on('error',e=>{clearTimeout(timer);reject(e);});
     child.on('close',code=>{clearTimeout(timer);try {const data=JSON.parse(out);resolvePromise({...data,exitCode:code});} catch {reject(Error('Claude output not JSON, exit '+code+'; stderr '+err.slice(0,100)));}});
@@ -111,7 +111,7 @@ async function main() {
   const shim:any=await import(pathToFileURL(resolve(ROOT,'examples/judge-benchmarks/src/llm-shim.mjs')).href);
   const modelArg=arg('model');const models=modelArg?[modelArg]:freeze.models;
   if(models.some((x:string)=>!freeze.models.includes(x)))throw Error('Model not frozen');
-  const concurrency=Number(arg('concurrency')??4);if(!Number.isInteger(concurrency)||concurrency<1||concurrency>6)throw Error('Concurrency outside 1..6');
+  const concurrency=Number(arg('concurrency')??4);if(!Number.isInteger(concurrency)||concurrency<1||concurrency>4)throw Error('Concurrency outside 1..4');
   const budget=new Budget();
   const recorded=new Map(rows('results/calls.jsonl').map(r=>[r.key,r]));
   const decisions=rows('results/decisions.jsonl');
@@ -138,7 +138,7 @@ async function main() {
         const body=JSON.parse(options.body);
         if(meta.model.startsWith('gemini'))body.generationConfig={...body.generationConfig,maxOutputTokens:4096};
         else body.max_completion_tokens=4096;
-        const response=await fetch(url,{...options,body:JSON.stringify(body),signal:AbortSignal.timeout(300_000)});
+        const response=await fetch(url,{...options,body:JSON.stringify(body),signal:AbortSignal.timeout(180_000)});
         if(!response.ok) {const data=await response.text();throw Error('Provider '+response.status+': '+data.slice(0,300));}
         const observed=await response.clone().json();
         providerMeta={usage:observed.usage??observed.usageMetadata,model:observed.model??observed.modelVersion,finishReason:observed.choices?.[0]?.finish_reason??observed.candidates?.[0]?.finishReason};

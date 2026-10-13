@@ -1,0 +1,1117 @@
+{
+  "pilot": [
+    {
+      "model": "haiku",
+      "contestant": "pair-ledger",
+      "pairs": 11,
+      "games": 22,
+      "correct": 14,
+      "accuracy": 63.63636363636363,
+      "wilson95": [
+        42.951708090131014,
+        80.26679532963387
+      ],
+      "recipeUsd": 0.06021903,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": 0.5474457272727272,
+      "usdPer100Games": 0.2737228636363636,
+      "comparison": {
+        "matchedPairs": 11,
+        "wins": 1,
+        "losses": 3,
+        "deltaPoints": -9.090909090909092,
+        "requestCluster95": [
+          -25.0,
+          8.333333333333334
+        ],
+        "mcnemarTwoSided": 0.625,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": 0.9470811081818181,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 75.0,
+          "judgeLeadPoints": -11.363636363636367
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 13.636363636363633
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 63.63636363636363
+        }
+      }
+    },
+    {
+      "model": "haiku",
+      "contestant": "reader-first-c50b2dc3",
+      "pairs": 11,
+      "games": 22,
+      "correct": 14,
+      "accuracy": 63.63636363636363,
+      "wilson95": [
+        42.951708090131014,
+        80.26679532963387
+      ],
+      "recipeUsd": 0.07813166,
+      "graderErrors": 5,
+      "ties": 0,
+      "usdPer100Pairs": 0.7102878181818183,
+      "usdPer100Games": 0.35514390909090915,
+      "comparison": {
+        "matchedPairs": 11,
+        "wins": 6,
+        "losses": 8,
+        "deltaPoints": -9.090909090909092,
+        "requestCluster95": [
+          -54.54545454545455,
+          35.0
+        ],
+        "mcnemarTwoSided": 0.79052734375,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": 1.2287979254545456,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 75.0,
+          "judgeLeadPoints": -11.363636363636367
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 13.636363636363633
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 63.63636363636363
+        }
+      }
+    },
+    {
+      "model": "haiku",
+      "contestant": "promptfoo",
+      "pairs": 11,
+      "games": 22,
+      "correct": 16,
+      "accuracy": 72.72727272727273,
+      "wilson95": [
+        51.84826598759762,
+        86.84923971201053
+      ],
+      "recipeUsd": 0.0357513,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": 0.3250118181818182,
+      "usdPer100Games": 0.1625059090909091,
+      "projectedTestUsd": 0.5622704454545455,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 75.0,
+          "judgeLeadPoints": -2.2727272727272663
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 22.727272727272734
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 72.72727272727273
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "pairs": 11,
+      "games": 22,
+      "correct": 18,
+      "accuracy": 81.81818181818181,
+      "wilson95": [
+        61.48339256287345,
+        92.69311541657794
+      ],
+      "recipeUsd": 0.02208326,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": 0.2007569090909091,
+      "usdPer100Games": 0.10037845454545455,
+      "comparison": {
+        "matchedPairs": 11,
+        "wins": 5,
+        "losses": 0,
+        "deltaPoints": 22.727272727272727,
+        "requestCluster95": [
+          4.166666666666667,
+          50.0
+        ],
+        "mcnemarTwoSided": 0.0625,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": 0.34730945272727276,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 75.0,
+          "judgeLeadPoints": 6.818181818181813
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 31.818181818181813
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 81.81818181818181
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "pairs": 11,
+      "games": 22,
+      "correct": 14,
+      "accuracy": 63.63636363636363,
+      "wilson95": [
+        42.951708090131014,
+        80.26679532963387
+      ],
+      "recipeUsd": 0.0327238,
+      "graderErrors": 10,
+      "ties": 0,
+      "usdPer100Pairs": 0.29748909090909087,
+      "usdPer100Games": 0.14874454545454543,
+      "comparison": {
+        "matchedPairs": 11,
+        "wins": 6,
+        "losses": 5,
+        "deltaPoints": 4.545454545454546,
+        "requestCluster95": [
+          -35.0,
+          41.666666666666664
+        ],
+        "mcnemarTwoSided": 1.0,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": 0.5146561272727272,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 75.0,
+          "judgeLeadPoints": -11.363636363636367
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 13.636363636363633
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 63.63636363636363
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "pairs": 11,
+      "games": 22,
+      "correct": 13,
+      "accuracy": 59.09090909090909,
+      "wilson95": [
+        38.734818476315134,
+        76.74418380352814
+      ],
+      "recipeUsd": 0.0117194,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": 0.10654,
+      "usdPer100Games": 0.05327,
+      "projectedTestUsd": 0.18431419999999998,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 75.0,
+          "judgeLeadPoints": -15.909090909090907
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 9.090909090909093
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 59.09090909090909
+        }
+      }
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "contestant": "pair-ledger",
+      "pairs": 11,
+      "games": 22,
+      "correct": 16,
+      "accuracy": 72.72727272727273,
+      "wilson95": [
+        51.84826598759762,
+        86.84923971201053
+      ],
+      "recipeUsd": 0.18054675,
+      "graderErrors": 0,
+      "ties": 2,
+      "usdPer100Pairs": 1.6413340909090908,
+      "usdPer100Games": 0.8206670454545454,
+      "comparison": {
+        "matchedPairs": 11,
+        "wins": 0,
+        "losses": 2,
+        "deltaPoints": -9.090909090909092,
+        "requestCluster95": [
+          -27.272727272727273,
+          0.0
+        ],
+        "mcnemarTwoSided": 0.5,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": 2.839507977272727,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 75.0,
+          "judgeLeadPoints": -2.2727272727272663
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 22.727272727272734
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 72.72727272727273
+        }
+      }
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "contestant": "reader-first-c50b2dc3",
+      "pairs": 10,
+      "games": 20,
+      "correct": 12,
+      "accuracy": 60.0,
+      "wilson95": [
+        38.65815007622531,
+        78.1193467627183
+      ],
+      "recipeUsd": 0.3047055,
+      "graderErrors": 4,
+      "ties": 0,
+      "usdPer100Pairs": 3.0470550000000003,
+      "usdPer100Games": 1.5235275000000001,
+      "comparison": {
+        "matchedPairs": 10,
+        "wins": 4,
+        "losses": 8,
+        "deltaPoints": -20.0,
+        "requestCluster95": [
+          -66.66666666666667,
+          27.272727272727273
+        ],
+        "mcnemarTwoSided": 0.3876953125,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": 5.2714051500000005,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 75.0,
+          "judgeLeadPoints": -15.0
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 10.0
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 60.0
+        }
+      }
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "pairs": 11,
+      "games": 22,
+      "correct": 18,
+      "accuracy": 81.81818181818181,
+      "wilson95": [
+        61.48339256287345,
+        92.69311541657794
+      ],
+      "recipeUsd": 0.132387,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": 1.2035181818181817,
+      "usdPer100Games": 0.6017590909090909,
+      "projectedTestUsd": 2.0820864545454545,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 75.0,
+          "judgeLeadPoints": 6.818181818181813
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 31.818181818181813
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 81.81818181818181
+        }
+      }
+    }
+  ],
+  "dev": [
+    {
+      "model": "haiku",
+      "contestant": "pair-ledger",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "comparison": {
+        "matchedPairs": 0,
+        "wins": 0,
+        "losses": 0,
+        "deltaPoints": null,
+        "requestCluster95": null,
+        "mcnemarTwoSided": null,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": null,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": null
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": null
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": null
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": false,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": false
+      },
+      "fixtureKappa": null,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        }
+      }
+    },
+    {
+      "model": "haiku",
+      "contestant": "reader-first-c50b2dc3",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "comparison": {
+        "matchedPairs": 0,
+        "wins": 0,
+        "losses": 0,
+        "deltaPoints": null,
+        "requestCluster95": null,
+        "mcnemarTwoSided": null,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": null,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": null
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": null
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": null
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": false,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": false
+      },
+      "fixtureKappa": null,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        }
+      }
+    },
+    {
+      "model": "haiku",
+      "contestant": "promptfoo",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "projectedTestUsd": null,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": null
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": null
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": null
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": false,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": false
+      },
+      "fixtureKappa": null,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "comparison": {
+        "matchedPairs": 0,
+        "wins": 0,
+        "losses": 0,
+        "deltaPoints": null,
+        "requestCluster95": null,
+        "mcnemarTwoSided": null,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": null,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": null
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": null
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": null
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": false,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": false
+      },
+      "fixtureKappa": null,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "comparison": {
+        "matchedPairs": 0,
+        "wins": 0,
+        "losses": 0,
+        "deltaPoints": null,
+        "requestCluster95": null,
+        "mcnemarTwoSided": null,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": null,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": null
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": null
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": null
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": false,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": false
+      },
+      "fixtureKappa": null,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "projectedTestUsd": null,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": null
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": null
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": null
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": false,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": false
+      },
+      "fixtureKappa": null,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        }
+      }
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "contestant": "pair-ledger",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "comparison": {
+        "matchedPairs": 0,
+        "wins": 0,
+        "losses": 0,
+        "deltaPoints": null,
+        "requestCluster95": null,
+        "mcnemarTwoSided": null,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": null,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": null
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": null
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": null
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": false,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": false
+      },
+      "fixtureKappa": null,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        }
+      }
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "contestant": "reader-first-c50b2dc3",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "comparison": {
+        "matchedPairs": 0,
+        "wins": 0,
+        "losses": 0,
+        "deltaPoints": null,
+        "requestCluster95": null,
+        "mcnemarTwoSided": null,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": null,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": null
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": null
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": null
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": false,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": false
+      },
+      "fixtureKappa": null,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        }
+      }
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "projectedTestUsd": null,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": null
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": null
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": null
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": false,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": false
+      },
+      "fixtureKappa": null,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 0,
+          "correctGames": 0,
+          "games": 0,
+          "accuracy": null
+        }
+      }
+    }
+  ],
+  "policy": "A failed predeclared validity criterion is reported and never tuned away. Test launch requires an explicit recorded disposition."
+}

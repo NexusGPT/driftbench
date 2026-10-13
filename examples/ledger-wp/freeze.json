@@ -26,7 +26,7 @@
     "gpt-6-luna": "openai-json-schema",
     "gemini-3.8-flash": "google-response-schema"
   },
-  "capUsd": 15,
+  "capUsd": 35,
   "lastCallUtc": "2026-10-13T13:00:00Z",
   "maxOutputTokensHttp": 4096,
   "seals": {
@@ -45,7 +45,7 @@
   },
   "files": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-wp/harness.ts": "99031709cbc5f5f327aa8a3d54cd3f8eb4bdf7ffb45adc425e9d2aca5daa53f0",
+    "examples/ledger-wp/harness.ts": "53b315cb872816db385bd579d36f88d7de11a3a6043bc669fb5a75840b9eefbb",
     "examples/ledger-wp/phase_report.py": "adabe9c88210b02720345d6e7ae2ca74908fb9aac7357bce405c5bf9dd9f2e1a",
     "examples/ledger-wp/prepare.py": "12e81d34a14a2f00f2ab821d41a1911b29d2de91466fd71a998c7c3a33d76d2d",
     "examples/ledger-wp/seal_validity.py": "527d73e3b1ffdd0f5943d854c1e468b26b318703ae8eeb4d4369accbff5d66b2",
@@ -240,5 +240,16 @@
   "noContentRetries": true,
   "contractReask": "One re-ask only on invalid pair-ledger schema, exactly the frozen core.",
   "labelUse": "Gold labels never enter provider prompts, fixture requests or model cache keys.",
-  "keys": "User-authorized openai.key and gemini-driftbench.key, loaded inside invoking commands only."
+  "keys": "User-authorized openai.key and gemini-driftbench.key, loaded inside invoking commands only.",
+  "operationalAmendment": {
+    "at": "2026-10-13T07:42:35.978242+00:00",
+    "parentFreezeSha256": "1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682",
+    "ownerAuthorization": "Cap 35 USD; 180 second transport timeouts; at most four concurrent calls.",
+    "judgeContractChanged": false,
+    "changedFrozenFiles": [
+      "examples/ledger-wp/harness.ts"
+    ],
+    "transportTimeoutSeconds": 180,
+    "maxConcurrency": 4
+  }
 }

@@ -136,7 +136,7 @@
     {
       "model": "gemini-3.8-flash",
       "contestant": "pair-ledger",
-      "status": "pending billing",
+      "status": "pending or partial",
       "pairs": 0,
       "games": 0,
       "correct": 0,
@@ -161,7 +161,7 @@
     {
       "model": "gemini-3.8-flash",
       "contestant": "reader-first-c50b2dc3",
-      "status": "pending billing",
+      "status": "pending or partial",
       "pairs": 0,
       "games": 0,
       "correct": 0,
@@ -186,7 +186,7 @@
     {
       "model": "gemini-3.8-flash",
       "contestant": "promptfoo",
-      "status": "pending billing",
+      "status": "pending or partial",
       "pairs": 0,
       "games": 0,
       "correct": 0,

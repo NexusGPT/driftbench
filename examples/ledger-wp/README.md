@@ -16,9 +16,9 @@ Runtime dependencies can be linked to an existing installation. Do not copy `nod
 
 ## Paid run gate
 
-Every call requires `freeze.json`, a pushed core PR and source hashes matching the freeze. The pool seals have independent pre-call commits. Haiku, `gpt-6-luna`, and `gemini-3.8-flash` are authorized. The owner confirms Gemini billing and names `openai.key` and `gemini-driftbench.key`; no other key file is used. The process reserves cost before every submission and retains uncertain spend. The whole lane cap is 15 USD, including pilots, repetitions, errors and unfinished items.
+Every call requires `freeze.json`, a pushed core PR and source hashes matching the freeze. The pool seals have independent pre-call commits. Haiku, `gpt-6-luna`, and `gemini-3.8-flash` are authorized. The owner confirms Gemini billing and names `openai.key` and `gemini-driftbench.key`; no other key file is used. The process reserves cost before every submission and retains uncertain spend. The whole lane cap is 35 USD, including pilots, repetitions, errors and unfinished items.
 
-Keys are loaded only inside an invoking command. They never appear in command output, source, recordings or the dossier. One runner owns the shared spend ledger; do not launch two runner processes against these result files. Its internal workers share reservations safely.
+Keys are loaded only inside an invoking command. They never appear in command output, source, recordings or the dossier. One runner owns the shared spend ledger; do not launch two runner processes against these result files. Its internal workers share reservations safely. The owner limits concurrency to four and transport timeouts to 180 seconds.
 
 Run `--phase pilot`, review the cost projection, then `--phase dev`. Dev uses independent recording keys for three repeats. A failed validity criterion stays visible; no source or parser tuning follows the freeze. Record the disposition before running `--phase test`. Test follows the sealed hash order. Cap exhaustion stops submissions and reports partial coverage without selecting by score.
 
