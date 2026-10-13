@@ -1,0 +1,48 @@
+{
+  "modelCalls": 0,
+  "measurementOnly": true,
+  "checks": [
+    {
+      "index": 139,
+      "id": "1050a4c88209734a7b72840dbb19e42a_01bda74a1846c049c5ea217bb5a42035",
+      "atoms": 10,
+      "assignments": 1024,
+      "possibleTrueOptionSets": [
+        "BDE",
+        "BE",
+        "DE",
+        "E"
+      ],
+      "expectedAuditAnswer": null,
+      "auditVerdict": "label_supported",
+      "official": false
+    },
+    {
+      "index": 156,
+      "id": "d212694b0411cadba66b960b826e90c3_c18d3261db1cb1aaf0713ea1ffd2792d",
+      "atoms": 11,
+      "assignments": 2048,
+      "possibleTrueOptionSets": [
+        "B",
+        "BC"
+      ],
+      "expectedAuditAnswer": null,
+      "auditVerdict": "label_supported",
+      "official": true
+    },
+    {
+      "index": 208,
+      "id": "83d530f576c40265eca17ed0cc22f944_a5695b562ca1662f09f05988a63a9aa7",
+      "atoms": 5,
+      "assignments": 32,
+      "possibleTrueOptionSets": [
+        "",
+        "D"
+      ],
+      "expectedAuditAnswer": null,
+      "auditVerdict": "label_supported",
+      "official": false
+    }
+  ],
+  "interpretation": "These three indices are not among the 23 label corrections. Arbitrary factual-atom assignments test dependence on geography; non-invariance is not a label-error proof. This diagnostic changes no label."
+}

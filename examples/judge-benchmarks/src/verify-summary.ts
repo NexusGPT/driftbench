@@ -30,6 +30,9 @@ for (const file of (await readdir(folder)).filter((file) => file.endsWith('.json
       auditedAccuracy: (100 * right) / decisions.length,
       auditedBalancedAccuracy: 50 * (rate(true) + rate(false)),
       auditedCorrect: right,
+      auditedConflictErrors: decisions.filter(
+        (d) => corrections.has(d.id) && d.pass !== corrections.get(d.id),
+      ).length,
       items: decisions.length,
       costPer100Usd: (c.costUsd * 100) / decisions.length,
       calls: c.calls,
@@ -45,8 +48,9 @@ for (const file of (await readdir(folder)).filter((file) => file.endsWith('.json
 rows.sort(
   (a, b) =>
     b.auditedAccuracy - a.auditedAccuracy ||
-    b.officialAccuracy - a.officialAccuracy ||
-    a.costPer100Usd - b.costPer100Usd,
+    a.auditedConflictErrors - b.auditedConflictErrors ||
+    a.costPer100Usd - b.costPer100Usd ||
+    b.officialAccuracy - a.officialAccuracy,
 );
 await writeFile(join(folder, 'summary.json'), JSON.stringify(rows, null, 2) + '\n');
 console.log(

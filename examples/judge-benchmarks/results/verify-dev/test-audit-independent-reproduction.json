@@ -1,0 +1,23 @@
+{
+  "modelCalls": 0,
+  "originalMappingUnchanged": true,
+  "allSourceRecordsMatched": 221,
+  "summary": {
+    "label_supported": 123,
+    "proved_conflict": 23,
+    "unresolved": 75,
+    "items": 221,
+    "literal_premise_conflicts": 22,
+    "literal_premise_conflict_rate": 0.09954751131221719,
+    "final_option_priority_conflicts": 1,
+    "proved_conflict_rate": 0.10407239819004525,
+    "withdrawn_convention_sensitive_candidates": 5,
+    "remaining_possible_conflicts": 75,
+    "perfect_correctness_oracle_official_score_upper_bound_under_task_policy": 89.59276018099547,
+    "literal_premise_oracle_official_score_upper_bound": 90.04524886877829,
+    "interpretation": "Literal-premise conflicts and task-policy conflicts are kept separate. Convention-sensitive candidates are unresolved, not proved defects. No test tuning or model calls."
+  },
+  "scriptSha256": "1dd3523a483b2fb772d3e67731addbf2aedefe082142de8bd9d9b526ce8874e5",
+  "executionStdout": "{\n  \"label_supported\": 123,\n  \"proved_conflict\": 23,\n  \"unresolved\": 75,\n  \"items\": 221,\n  \"literal_premise_conflicts\": 22,\n  \"literal_premise_conflict_rate\": 0.09954751131221719,\n  \"final_option_priority_conflicts\": 1,\n  \"proved_conflict_rate\": 0.10407239819004525,\n  \"withdrawn_convention_sensitive_candidates\": 5,\n  \"remaining_possible_conflicts\": 75,\n  \"perfect_correctness_oracle_official_score_upper_bound_under_task_policy\": 89.59276018099547,\n  \"literal_premise_oracle_official_score_upper_bound\": 90.04524886877829,\n  \"interpretation\": \"Literal-premise conflicts and task-policy conflicts are kept separate. Convention-sensitive candidates are unresolved, not proved defects. No test tuning or model calls.\"\n}\n",
+  "executionStderr": ""
+}
