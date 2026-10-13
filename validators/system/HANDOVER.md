@@ -10,9 +10,11 @@
 
 Baseline on main a303a3f2 merged into codex/system-v3: bank version 5, 2384 items, 2355 passing, 29 failing, score 0.9878355704697986. Only seed 1 is complete. Do not extrapolate to other seeds. Older journals remain in journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl.
 
-Latest committed measurement: source e1d6cb6d (iteration 5, unused block cache keys), bank version 5, seed 1 level 7, 2362 of 2384 passing (score 0.9907718120805369). All scale items pass seed 1. The same source completes a five-seed stage, with levels 7,7,7,7,7 and 2359 of 2384 passing every completed seed (score 0.989513422818792). Coverage is 5 of 21 at this source, with no extrapolation. The journal compares seed 1 with the previous seed-1 result; the other four have no same-source before measurement. Older stages at different versions cannot be combined with this result.
+Iteration 5 committed measurement: source e1d6cb6d (iteration 5, unused block cache keys), bank version 5, seed 1 level 7, 2362 of 2384 passing (score 0.9907718120805369). All scale items pass seed 1. The same source completes a five-seed stage, with levels 7,7,7,7,7 and 2359 of 2384 passing every completed seed (score 0.989513422818792). Coverage is 5 of 21 at this source, with no extrapolation. The journal compares seed 1 with the previous seed-1 result; the other four have no same-source before measurement. Older stages at different versions cannot be combined with this result.
 
 Iteration 6, source 5b628263: seed 1 stays level 7, with 2361/2384 passing (score 0.9903523489932886), 1 of 21 at this source. Free-running growth is 28.6 against 25; teacher-forced and replay pass. This result supersedes the seed-1 score above, not its separate five-seed coverage. The growth work remains incomplete.
+
+Latest committed measurement, iteration 7 source 796124a5: seed 1 stays level 7, 2361/2384 (score 0.9903523489932886), 1 of 21. Free-running growth is 25.3 against 25. The numeric-ref fix passes all 16 targeted registry tests and the unchanged seed-4 dataset/ref-forms item; no whole seed-4 result at this source is claimed.
 
 ## Floor
 
@@ -20,7 +22,7 @@ No system floor is set on this branch yet. PR 143 has merged the initial floor i
 
 ## Open items
 
-The current seed-1 report has 22 stale item expectations and one free-running scale failure. Across the five-seed stage, free-running growth fails seed 3 at 30.5 and teacher-forced growth fails seed 4 at 38.6, against the unchanged bound of 25. Seed 4 also fails claim/cli/dataset/ref-forms for numeric hash prefix 456042. Replay growth passes all five completed seeds. The committed bank includes the five maintainer estate-item rewrites. The original baseline census is two real and 27 stale failures.
+The current seed-1 report has 22 stale item expectations and one free-running scale failure. Across the five-seed stage, free-running growth fails seed 3 at 30.5 and teacher-forced growth fails seed 4 at 38.6, against the unchanged bound of 25. That earlier seed 4 also fails claim/cli/dataset/ref-forms for numeric hash prefix 456042; iteration 7 fixes the cause and passes its targeted item. Replay growth passes all five completed seeds. The committed bank includes the five maintainer estate-item rewrites. The original baseline census is two real and 27 stale failures.
 
 Stale expectations cover the report's two rate intervals, four MDE assertions, extract proposal validation and map counts, select and holdout fixture counts, four mixed-suite golden comparisons and the pilot example totals. The executor does not edit any of them. The bank maintainer re-derives each assertion from current code or docs and retains its strength.
 
@@ -41,8 +43,8 @@ Iteration 5 commits packages/core/test/runner/uncached-key-cost.test.ts with the
 ## Next actions
 
 1. Merge main after PR 128 lands, run node tools/rename-scope.mjs, typecheck and remeasure seed 1. Report any remaining red item. For the remaining shared growing-history cause, the first file is packages/core/src/contracts/history.ts. Keep mutable plain arrays and structuredClone compatibility. The earlier private hybrid-copy and copied-runner timings are withdrawn: CommonJS copies duplicated the ownership marker. Repeat private probes as ESM before judging them.
-2. Fix unmatched digit-only hash prefixes in packages/store/src/store.ts. The local, not pushed test packages/store/test/registry-ref.test.ts reproduces prefix 456042 and ambiguity, and checks existing version-number priority. Commit its red-first tests with its fix after measurement.
-3. Finish the separate system v5 floor PR, then run the final first five seeds, report N of 21, and run remaining seeds only before 06:00 local. Leave the bank unchanged.
+2. Continue growing-history research from packages/core/src/contracts/history.ts. The current CPU profile puts snapshot allocation and garbage collection above ledger work. Private literal-accessor construction is slower and rejected; the native projection probe still exceeds the bound in some cases, so neither is accepted as a cure.
+3. Watch separate main PRs 149 (stats measurement cache) and 150 (CLI positive-floor caps). PR 143 is merged. Merge main at a measurement boundary, run the codemod, typecheck and lint, then run the final first five seeds. Report N of 21; continue remaining seeds only before 06:00 local.
 
 
 ## Pitfalls
@@ -76,11 +78,7 @@ The unchanged bank is packages/validators/src/ladders/system/bank. Its manifest 
 
 ## Local work, not pushed
 
-These changes exist only in the local codex/system-v3 worktree at this handover update. The untracked tests appear only there. A fresh checkout has none of these changes. They are not accepted measurements or committed regression coverage.
-
-* packages/store/src/store.ts: local, not pushed numeric-ref fallback after a missing version-number lookup. The full seed-1 measurement is in flight; no associated store fix is committed on this branch.
-* packages/store/test/registry-ref.test.ts: local, not pushed prefix 456042, full digit-only dataset and prompt hashes, numeric-version priority and ambiguous-prefix cases. Four cases fail before the local fix; all five pass afterward.
-* validators/system/research.md: local, not pushed digit-only registry-prefix research entry, naming the code and doc sources, red-first evidence and proposed fallback.
+No uncommitted paths remain after this handover commit. Before every later handover push, compare this inventory with the complete git status, including source, tests, research and untracked files. Each remaining path must be marked local, not pushed.
 
 ## Pull requests, as of
 

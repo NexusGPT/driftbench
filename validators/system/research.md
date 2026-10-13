@@ -103,3 +103,16 @@ Sources: packages/core/src/contracts/history.ts (lazyHistoryCopy and immutableHi
 Finding: a 400-message snapshot creates 400 indexed array accessors. Reading a message role also reads its content getter. Both deterministic tests fail before the representation change. Private copied adapters must be ESM: CommonJS reloads the marker module and forces prefix cloning, invalidating those earlier performance comparisons. Instrumented corrected ESM probes borrow all opened prefixes.
 
 Mechanism committed as 5b628263: retain data slots holding private message objects, capture primitive fields, and share per-field getters for nested JSON and accessors. Cache field templates only for explicitly immutable sources. Proxy and non-plain messages keep the prior indexed fallback. Compatibility checks pass, including structuredClone, frozen/sealed objects, unread proxies and sparse inputs. The 15 targeted growth checks pass 13 cases; seed 3 free-running is 25.5 and teacher-forced is 31.5 against 25. Those probes are not complete bank seeds and do not prove growth is fixed. The full seed-1 bank measurement stays level 7, with 2361/2384 passing and free-running growth 28.6 against 25. Teacher-forced and replay pass. Coverage is 1 of 21.
+
+
+## 2026-10-13: digit-only registry hash prefixes
+
+Question: why does dataset ref 456042 fail on seed 4 while six hexadecimal characters are documented as valid?
+
+Sources: packages/store/src/store.ts getVersion; packages/store/src/errors.ts StoreError; docs/datasets.md The registry; packages/cli/src/commands/registry.ts resolve.
+
+Finding: the digit-only branch returns immediately after a missing version-number lookup. It never reaches the hexadecimal prefix lookup shared by datasets and prompts. Four red-first cases reproduce a missing numeric prefix, its ambiguity and full digit-only hashes for both registry kinds. The existing version-number priority case stays green.
+
+Mechanism committed as 796124a5: preserve existing version-number priority and short or overlong missing-number behavior; let unmatched six-to-64 digit refs continue to the existing hash-prefix lookup. Ambiguity retains INVALID_RECORD and the existing diagnostic. No bank edit.
+
+Whole seed 1 stays level 7 and 2361/2384, 1 of 21 at this source. Free-running growth remains 25.3 against 25. The unchanged seed-4 dataset/ref-forms item passes its targeted check, which does not count as a complete seed. All 16 targeted registry cases pass.
