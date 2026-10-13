@@ -790,10 +790,12 @@ function isAct(trigger: string): boolean {
 /** The tool an act names: editing is an edit, committing or running is a shell call; else the act itself. */
 function actLabel(act: string, raw: RawEstate): string {
   const verb = act.toLowerCase();
-  if (/\b(edit|editing|change|changing|modify)\b/.test(verb)) return raw.labels.edit;
+  if (/\b(edit|editing|change|changing|modify|modifying|update|updating)\b/.test(verb))
+    return raw.labels.edit;
   if (/\b(write|writing|save|saving|create|creating)\b/.test(verb)) return raw.labels.write;
-  if (/\b(commit|committing|push|pushing|run|running|deploy)\b/.test(verb)) return raw.labels.shell;
-  if (/\b(dispatch|dispatching|delegate)\b/.test(verb)) return raw.labels.dispatch;
+  if (/\b(commit|committing|push|pushing|run|running|deploy|deploying|rename|renaming)\b/.test(verb))
+    return raw.labels.shell;
+  if (/\b(dispatch|dispatching|delegate|delegating)\b/.test(verb)) return raw.labels.dispatch;
   return act;
 }
 
