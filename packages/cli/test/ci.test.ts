@@ -141,8 +141,8 @@ describe('driftbench ci on the Acme gated suite', () => {
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
       expect(summary.baseline.campaignId).toBe(baselineId);
-      expect(summary.pairs).toBe(193);
-      expect(summary.table).toEqual({ bothPass: 193, regressed: 0, improved: 0, bothFail: 0 });
+      expect(summary.pairs).toBe(195);
+      expect(summary.table).toEqual({ bothPass: 195, regressed: 0, improved: 0, bothFail: 0 });
       expect(summary.criteriaNotShown).toEqual([]);
       expect(summary.newFlags).toEqual([]);
       expect(summary.flags).toEqual([...DEFAULT_FLAGS]);
@@ -180,7 +180,7 @@ describe('driftbench ci on the Acme gated suite', () => {
       const top = result.out.split('\n').slice(0, 3).join('\n');
       expect(top).toContain('Margin auto: 7.5 points');
       expect(top).toContain(
-        'Underpowered, under 30 goldens, left out of the parity test: artifacts (24 goldens), budget (24 goldens), cards (12 goldens), execution (24 goldens), must_not (1 golden), safety (24 goldens), skills (24 goldens), workspace (24 goldens).',
+        'Underpowered, under 30 goldens, left out of the parity test: artifacts (24 goldens), budget (24 goldens), cards (11 goldens), execution (24 goldens), must_not (1 golden), safety (24 goldens), skills (24 goldens), workspace (24 goldens).',
       );
     },
     SLOW,
@@ -212,7 +212,7 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(summary.underpowered).toEqual([
         { criterion: 'artifacts', goldens: 24 },
         { criterion: 'budget', goldens: 24 },
-        { criterion: 'cards', goldens: 12 },
+        { criterion: 'cards', goldens: 11 },
         { criterion: 'execution', goldens: 24 },
         { criterion: 'must_not', goldens: 1 },
         { criterion: 'safety', goldens: 24 },
@@ -244,16 +244,16 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(result.code).toBe(1);
       expect(result.out).toContain('Verdict: REGRESSION. Exit 1.');
       expect(result.out).toContain('Goldens that changed:');
-      expect(result.out).toMatch(/gen-boundary-065 · F +pass +fail +regressed +forbidden +block 3 forbidden/);
+      expect(result.out).toMatch(/gen-boundary-063 · F +pass +fail +regressed +forbidden +block 2 forbidden/);
       expect(result.out).toContain('and 77 more: every golden is in the summary file.');
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('regression');
-      expect(summary.table).toEqual({ bothPass: 91, regressed: 102, improved: 0, bothFail: 0 });
+      expect(summary.table).toEqual({ bothPass: 93, regressed: 102, improved: 0, bothFail: 0 });
       expect(summary.regressed).toHaveLength(102);
-      expect(summary.newFlags).toContain('gen-boundary-065 · F forbidden');
+      expect(summary.newFlags).toContain('gen-boundary-063 · F forbidden');
       expect(summary.effectPoints.lower).toBeGreaterThan(5);
-      expect(summary.rows.find((row) => row.name === 'gen-boundary-065 · F')?.candidate.failing[0]).toBe(
-        'block 3 forbidden.order.create',
+      expect(summary.rows.find((row) => row.name === 'gen-boundary-063 · F')?.candidate.failing[0]).toBe(
+        'block 2 forbidden.order.create',
       );
     },
     SLOW,
@@ -280,7 +280,7 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(result.code).toBe(1);
       expect(result.out).toContain('Verdict: REGRESSION. Exit 1.');
       const summary = await summaryAt(out);
-      expect(summary.table).toEqual({ bothPass: 171, regressed: 22, improved: 0, bothFail: 0 });
+      expect(summary.table).toEqual({ bothPass: 173, regressed: 22, improved: 0, bothFail: 0 });
       expect(summary.regressed.every((name) => name.startsWith('acme-price-sheet-'))).toBe(true);
     },
     SLOW,
@@ -616,7 +616,7 @@ describe('driftbench ci baselines', () => {
       expect(result.code).toBe(0);
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
-      expect(summary.pairs).toBe(10);
+      expect(summary.pairs).toBe(12);
       expect(summary.unpaired).toHaveLength(183);
       expect(summary.unpaired.every((entry) => entry.reason === 'baseline only')).toBe(true);
       expect(result.out).toContain('Not compared: ');

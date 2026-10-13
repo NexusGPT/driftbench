@@ -228,11 +228,31 @@ describe('planted estates', { timeout: 60_000 }, () => {
 });
 
 describe('families against the current components', { timeout: 120_000 }, () => {
-  it('reads a routing table in backticks and names the routing cell the reader refuses', async () => {
-    const results = await standingFamily().evaluate(3);
-    expect(results.get('scan.standing.plain-table')?.pass).toBe(true);
-    expect(results.get('scan.standing.plain-name')?.pass).toBe(false);
-    expect(results.get('scan.standing.plain-name')?.detail).toMatch(/missed route/);
+  it('reads a routing table in backticks and names a deliberately lost plain-name route', async () => {
+    const originalScan = PlantedEstate.prototype.scan;
+    let planted = false;
+    const scan = vi.spyOn(PlantedEstate.prototype, 'scan').mockImplementation(async function (
+      this: PlantedEstate,
+    ) {
+      const result = await originalScan.call(this);
+      const hid = 'scan.standing.plain-name:row';
+      if (this.expected.some((atom) => atom.hid === hid && atom.kind === 'route')) planted = true;
+      const id = result.idOf.get(hid);
+      result.idOf.delete(hid);
+      result.map.atoms = result.map.atoms.filter((atom) => atom.id !== id);
+      if (id !== undefined) result.atomOf.delete(id);
+      return result;
+    });
+    try {
+      const results = await standingFamily().evaluate(3);
+      expect(scan).toHaveBeenCalled();
+      expect(planted).toBe(true);
+      expect(results.get('scan.standing.plain-table')?.pass).toBe(true);
+      expect(results.get('scan.standing.plain-name')?.pass).toBe(false);
+      expect(results.get('scan.standing.plain-name')?.detail).toMatch(/missed route/);
+    } finally {
+      scan.mockRestore();
+    }
   });
 
   it('finds the script behind an anchor and names a deliberately missed dispatcher guard', async () => {
