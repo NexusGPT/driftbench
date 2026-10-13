@@ -1,0 +1,39 @@
+{
+ "name": "a3-hi95",
+ "note": "Accuracy candidate 3. a1 with the boundary at 0.95 (more System 2).",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.95,
+ "lo": 0.95,
+ "low": [
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ],
+ "stage1_by_terrain": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   },
+   "stage1": [
+    "s1p",
+    "f_len"
+   ],
+   "fit_terrain": true
+  }
+ ]
+}

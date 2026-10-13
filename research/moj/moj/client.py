@@ -215,6 +215,32 @@ def gemini(system, user, tag, offline=False, timeout=180):
     return ''.join(p.get('text', '') for p in parts if not p.get('thought')), row
 
 
+_haiku_gate = threading.Semaphore(2)
+
+
+def haiku(system, user, tag, offline=False, timeout=240):
+    """One Claude Haiku call through the claude CLI (low effort, no tools), as moj/panel_clients.py does. Returns (text, row)."""
+    import subprocess
+    import tempfile
+    request = {'client': 'claude-cli', 'model': 'haiku', 'tag': tag, 'system': system, 'user': user}
+
+    def send():
+        env = dict(os.environ)
+        env.pop('CLAUDECODE', None)
+        env['CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC'] = '1'
+        args = ['claude', '-p', '--output-format', 'json', '--model', 'haiku', '--system-prompt', system, '--effort', 'low', '--tools', '',
+                '--setting-sources', '', '--strict-mcp-config', '--no-session-persistence', '--max-turns', '1', '--max-budget-usd', '0.10',
+                '--disable-slash-commands']
+        with _haiku_gate, tempfile.TemporaryDirectory(prefix='moj-haiku-') as folder:
+            proc = subprocess.run(args, input=user, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=folder, env=env, timeout=timeout)
+        raw = json.loads(proc.stdout)
+        return {'text': raw.get('result', ''), 'usd': raw.get('total_cost_usd'), 'is_error': raw.get('is_error'), 'model_usage': raw.get('modelUsage')}
+
+    row = _recorded_call('haiku.jsonl', request, send, offline)
+    answer = row.get('answer')
+    return (answer.get('text') if answer else None), row
+
+
 def gemini_cost(row):
     usage = (row.get('answer') or {}).get('usageMetadata')
     if not usage:

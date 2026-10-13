@@ -15,7 +15,7 @@ import re
 import threading
 
 from .benches import BENCHES, HERE
-from .client import GEMINI_MODEL, gemini, gemini_cost, jev, luna, luna_cost
+from .client import GEMINI_MODEL, gemini, gemini_cost, haiku, jev, luna, luna_cost
 
 CATALOGUE = {}
 _rows_lock = threading.Lock()
@@ -34,9 +34,9 @@ class Ctx:
     def __init__(self, item, offline):
         self.item, self.offline = item, offline
         self.bench = BENCHES[item['bench']]
-        self.calls = {'jev': 0, 'luna': 0, 'gemini': 0}
+        self.calls = {'jev': 0, 'luna': 0, 'gemini': 0, 'haiku': 0}
         self.usd = 0.0
-        self.seconds = {'jev': [], 'luna': [], 'gemini': []}
+        self.seconds = {'jev': [], 'luna': [], 'gemini': [], 'haiku': []}
         self.missing = 0
 
     def jev(self, state, questions, route='gateway'):
@@ -61,6 +61,15 @@ class Ctx:
         self.calls['gemini'] += 1
         self.usd += gemini_cost(row)
         self.seconds['gemini'].append(row.get('seconds') or 0)
+        if text is None:
+            self.missing += 1
+        return text
+
+    def haiku(self, system, user, tag):
+        text, row = haiku(system, user, tag, offline=self.offline)
+        self.calls['haiku'] += 1
+        self.usd += ((row.get('answer') or {}).get('usd') or 0.0)
+        self.seconds['haiku'].append(row.get('seconds') or 0)
         if text is None:
             self.missing += 1
         return text
@@ -405,7 +414,7 @@ class PointCtx:
         # 'luna' holds every System-2 call and second so moj/policy.py reads the signal unchanged; 's2' splits it by model.
         self.calls = {'jev': 0, 'luna': 0, 's2': {}}
         self.usd = 0.0
-        self.seconds = {'jev': [], 'luna': [], 'gemini': []}
+        self.seconds = {'jev': [], 'luna': [], 'gemini': [], 'haiku': []}
         self.missing = 0
 
     def jev(self, state, questions):
@@ -960,3 +969,31 @@ def _feature_expert(name):
 
 for _name in ('f_len', 'f_paragraphs', 'f_structure', 'f_specifics', 'f_variety', 'f_sentence_len', 'f_coverage', 'f_dialogue'):
     expert(_name, kind='computed-feature', cost='0', job=f'Computed feature {_name[2:]} of the two replies (moj/features.py), antisymmetric, zero calls.')(_feature_expert(_name))
+
+
+@expert('hai', kind='system2-single-verdict-other-family', cost='2 Haiku (claude CLI, low effort)',
+        job='The promptfoo select-best template on Claude Haiku, both orders: a second-family panel member for reasoning terrain at low confidence.')
+def hai(ctx):
+    games = []
+    for order in ('AB', 'BA'):
+        state = ctx.pair(order)
+        system = PF_TEMPLATE.format(criteria=f"{ctx.bench['criterion']} The question: {ctx.item['question']}", a=state['FIRST'], b=state['SECOND'])
+        text = ctx.haiku(system, 'Output the index now.', 'select-best')
+        pick = re.search(r'-?\d+', (text or '').strip())
+        pick = pick.group(0) if pick else None
+        games.append(('A' if order == 'AB' else 'B') if pick == '0' else ('B' if order == 'AB' else 'A') if pick == '1' else None)
+    return {'pA': games_to_p(games) if None not in games else None, 'detail': {'games': games, 'model': 'claude-haiku (CLI alias haiku)'}}
+
+
+ROUTES2 = {
+    'long_form': 'Does the request ask for a long piece of writing, such as a story, an essay, an article, a speech, a script or a manual?',
+    'brevity': 'Does the request ask for a short or concise answer, or is it a short question best answered briefly?',
+    'creative': 'Is the request a creative writing task where originality and style matter more than facts?',
+}
+
+
+@expert('route2', kind='router', cost='1 S1 (3 questions, request only)',
+        job='Second terrain read, on the request alone: long-form writing asked, brevity asked, creative task. Tells long-form writing (where the label follows development and length) from short chat requests.')
+def route2(ctx):
+    probs = ctx.jev({'request': ctx.item['question']}, {name: {'question': text} for name, text in ROUTES2.items()})
+    return {'pA': None, 'detail': probs}

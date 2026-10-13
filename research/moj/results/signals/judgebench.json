@@ -677,6 +677,28 @@
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.83,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.59,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "c5d13fd8-9d91-5e82-9ac9-3d5b372ea856": {
@@ -1352,6 +1374,52 @@
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.3,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.633,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.000801,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 22.874
 },
 "missing": 0
 }
@@ -2034,6 +2102,28 @@
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.82,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.585,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb": {
@@ -2714,6 +2804,52 @@
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.78,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.606,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.00212,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 32.345
+},
+"missing": 0
 }
 },
 "0ca7d4e7-aa30-589d-8379-693de96fa461": {
@@ -3389,6 +3525,52 @@
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.35,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.129,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002216,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 21.854
 },
 "missing": 0
 }
@@ -4071,6 +4253,28 @@
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.82,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.125,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "0dbbab50-fb4b-59f5-83a7-883e9e6f53f3": {
@@ -4751,6 +4955,28 @@
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.85,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.67,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "5b5bd25b-3f2d-5ffc-9514-4464c551a497": {
@@ -5426,6 +5652,52 @@
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.8,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.122,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001605,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 37.95
 },
 "missing": 0
 }
@@ -6108,6 +6380,52 @@
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.77,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.995,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001336,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 6.92
+},
+"missing": 0
 }
 },
 "12684959-2d5c-5dd7-8166-cf6dd83e6ef2": {
@@ -6786,6 +7104,28 @@
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.81,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.446,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -7468,6 +7808,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.36,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.382,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "c67cf264-33f9-5730-aeea-a7364756a96b": {
@@ -8146,6 +8508,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.56,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.949,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001444,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 33.216
 },
 "missing": 0
 }
@@ -8828,6 +9236,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.96,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.399,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "5718cf3d-a1a8-5503-85dd-f58b8a7fac4d": {
@@ -9503,6 +9933,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.19,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.84,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -10185,6 +10637,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.83,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 3.285,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001187,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 30.585
+},
+"missing": 0
 }
 },
 "561aa423-34b6-5d88-bbd1-011da24ad2b0": {
@@ -10865,6 +11363,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.854,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "857131ea-e0ef-517b-9f31-996edf4dc832": {
@@ -11540,6 +12060,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.45,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.361,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001367,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 63.799
 },
 "missing": 0
 }
@@ -12222,6 +12788,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.5,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.949,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "56a1fdbb-c4ca-5626-851c-aae7e876e72a": {
@@ -12900,6 +13488,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.479,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002073,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 23.253
 },
 "missing": 0
 }
@@ -13582,6 +14216,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.81,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.479,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "5bea4109-3545-525a-813e-4b7f2a95a91b": {
@@ -14260,6 +14916,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.75,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.452,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001844,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 33.021
 },
 "missing": 0
 }
@@ -14942,6 +15644,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.7,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.454,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "3ba5c8c5-148b-5e2a-a8ca-4a7e4fded997": {
@@ -15620,6 +16344,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.45,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.407,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": null,
+"detail": {
+"games": [
+null,
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001552,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 48.877
 },
 "missing": 0
 }
@@ -16302,6 +17072,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.72,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.488,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "5c63211c-b04e-591b-a102-a55ac8793816": {
@@ -16980,6 +17772,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.438,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -17662,6 +18476,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.68,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.406,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "10a4153b-efca-565a-8b13-7e34aba0f30c": {
@@ -18340,6 +19176,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.87,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.867,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -19022,6 +19880,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.69,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.429,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "f340e79f-aec2-566b-9536-4f4c349e095d": {
@@ -19700,6 +20580,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.87,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.399,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -20382,6 +21284,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.71,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.444,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "6ab00107-92e5-526a-96fd-018e71261e9f": {
@@ -21060,6 +21984,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.74,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.389,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002439,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 46.565
 },
 "missing": 0
 }
@@ -21742,6 +22712,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.55,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.425,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001324,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 36.107
+},
+"missing": 0
 }
 },
 "f7d658fc-22ea-53c1-b1a2-4df8ace2aedf": {
@@ -22420,6 +23436,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.886,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -23102,6 +24140,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.4,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.549,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "adec78c1-2733-577d-bbb9-fa5ba72cd85f": {
@@ -23780,6 +24840,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.34,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -24462,6 +25544,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.7,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.937,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "2470ffa8-06f5-584d-90ed-6457745c4afc": {
@@ -25140,6 +26244,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.89,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.069,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -25822,6 +26948,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.4,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.393,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "be6b6818-ae30-57de-9c58-418073c98259": {
@@ -26500,6 +27648,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.212,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -27182,6 +28352,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.63,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.308,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "ccb5f20e-e712-5464-9c81-224cfe48b2f7": {
@@ -27860,6 +29052,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.405,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -28542,6 +29756,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.4,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.404,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "3a1685e5-509e-503f-b0d3-a23f41c29d46": {
@@ -29220,6 +30456,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.78,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.09,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -29902,6 +31160,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.5,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.938,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "a33481f3-edb0-54f4-89e5-12017561abd0": {
@@ -30580,6 +31860,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.75,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.275,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -31262,6 +32564,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.57,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.296,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "d7d8f0bd-8352-56c0-8eb4-34d212a2ad52": {
@@ -31940,6 +33264,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.85,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.068,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -32622,6 +33968,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.47,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.474,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "91cd748e-db11-5764-8727-34ef39a9594f": {
@@ -33300,6 +34668,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.429,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -33982,6 +35372,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.65,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.209,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "82a6f9e6-aa7f-5380-8503-2227e0455f1e": {
@@ -34653,6 +36065,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.95,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.319,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.000836,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 211.784
 },
 "missing": 0
 }
@@ -35328,6 +36786,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.502,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "c48c7648-83e9-5c9c-b433-14752a85bf4f": {
@@ -35999,6 +37479,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.67,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.222,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -36674,6 +38176,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.72,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.545,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "a0de8a56-5c4a-5e4a-9420-441005c375b1": {
@@ -37345,6 +38869,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.91,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.898,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -38020,6 +39566,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.253,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "0c330e4b-97db-5a89-a2c2-7513ec918421": {
@@ -38690,6 +40258,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.19,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.224,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001812,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 221.321
+},
+"missing": 0
 }
 },
 "8d50b1f0-a7fa-5134-bd78-b2aedd536122": {
@@ -39358,6 +40972,52 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.29,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.341,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.000905,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 4.574
 },
 "missing": 0
 }
@@ -40033,6 +41693,52 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.37,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.234,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.000785,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 3.488
+},
+"missing": 0
 }
 },
 "04a6b0ff-7e1d-5f39-b615-7e379aa1864a": {
@@ -40701,6 +42407,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.21,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.434,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001022,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 5.574
 },
 "missing": 0
 }
@@ -41376,6 +43128,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.64,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.243,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001773,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 11.621
+},
+"missing": 0
 }
 },
 "dd139afe-7e64-5ecf-a4bf-7dc016778bf8": {
@@ -42044,6 +43842,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.21,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.028,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002633,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 21.861
 },
 "missing": 0
 }
@@ -42719,6 +44563,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.54,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.254,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "c20860f9-7468-546b-ae86-4ae6a6493de9": {
@@ -43390,6 +45256,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.37,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.337,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -44065,6 +45953,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.4,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.451,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "57ee26c0-cc5d-5c32-b782-c7b5e5da5730": {
@@ -44736,6 +46646,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.49,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.056,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -45411,6 +47343,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.84,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.502,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001339,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 9.275
+},
+"missing": 0
 }
 },
 "d50b6560-bbb7-5118-b329-8ed50c155365": {
@@ -46084,6 +48062,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.55,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.321,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "754b1cf8-067c-513f-a0d3-c8bd401e8afb": {
@@ -46695,6 +48695,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.65,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.285,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -47310,6 +49332,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.83,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.246,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001009,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 5.391
+},
+"missing": 0
 }
 },
 "f805817d-968d-5b0b-a2b2-4c62c9b848d3": {
@@ -47921,6 +49989,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.81,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.487,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -48536,6 +50626,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.87,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.178,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "26a84e53-9faa-5387-8293-e1d3f8589c4e": {
@@ -49147,6 +51259,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.238,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -49762,6 +51896,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.87,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.021,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "295046df-4a28-5894-b61e-70cd586ad52c": {
@@ -50373,6 +52529,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.163,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001885,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 13.05
 },
 "missing": 0
 }
@@ -50988,6 +53190,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.43,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.176,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "01e1a2ac-06a4-5838-8bbb-b1895dea0b77": {
@@ -51599,6 +53823,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.9,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 4.249,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -52214,6 +54460,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.7,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.157,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "a7743898-29c2-52f0-9065-c9ea19b630dd": {
@@ -52825,6 +55093,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.89,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.46,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -53440,6 +55730,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.47,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.331,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "fdc57db0-8efc-5258-8a61-d514c7e73885": {
@@ -54053,6 +56365,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.8,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.144,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.00169,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 11.205
+},
+"missing": 0
 }
 },
 "d39cb716-d877-573a-8f6a-df4150c7ef0a": {
@@ -54663,6 +57021,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.23,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.56,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001506,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 12.539
+},
+"missing": 0
 }
 },
 "883785df-990c-51ce-894a-c9f5f2952750": {
@@ -55271,6 +57675,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.16,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.699,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001726,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 12.81
 },
 "missing": 0
 }
@@ -55886,6 +58336,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.83,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.128,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "ebe368cb-5783-5f03-8471-e31295bc4438": {
@@ -56497,6 +58969,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.87,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.073,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -57112,6 +59606,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.71,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.267,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "49707e65-4a66-56ed-9175-8ad3cba09f5d": {
@@ -57725,6 +60241,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.428,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "82e65bbd-1ecf-51e4-9eb1-db5c957d7f4b": {
@@ -58333,6 +60871,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.32,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.43,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001243,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 8.423
 },
 "missing": 0
 }
@@ -58948,6 +61532,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.72,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.315,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "a32ef549-a356-5507-8743-1e07d4e61423": {
@@ -59559,6 +62165,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.48,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.164,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -60174,6 +62802,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.125,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "c6b860be-9938-5c34-97fc-70dfc51bbfb7": {
@@ -60785,6 +63435,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.79,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.477,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -61400,6 +64072,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.65,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.478,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "a0f77206-6e2b-57af-8e32-664794ad10de": {
@@ -62011,6 +64705,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.76,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.161,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -62626,6 +65342,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.51,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.015,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "3239d81d-8220-5b81-99e0-1b7a470df3be": {
@@ -63237,6 +65975,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.57,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.14,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -63852,6 +66612,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.44,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.448,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002398,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 10.681
+},
+"missing": 0
 }
 },
 "bd2ab0d9-9fed-5c10-94a7-efa1750148f4": {
@@ -64463,6 +67269,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.49,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.289,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -65078,6 +67906,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.46,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.181,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "67bcb178-e185-509d-8917-9390ce37e57d": {
@@ -65689,6 +68539,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.463,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002106,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 12.633
 },
 "missing": 0
 }
@@ -66304,6 +69200,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.79,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.32,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "669f40bb-c901-54f2-9397-395c8759a999": {
@@ -66915,6 +69833,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.191,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -67530,6 +70470,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.89,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.122,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "6efc8c4d-df53-5758-b3b1-988604fa35af": {
@@ -68141,6 +71103,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.307,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -68756,6 +71740,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.67,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.337,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "0cdc4e4b-d2a3-5218-b01a-c60f2e407d5e": {
@@ -69369,6 +72375,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.52,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.165,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "57b3a50f-ce4b-5620-8f48-7196a0621301": {
@@ -69977,6 +73005,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.25,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.306,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -70592,6 +73642,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.77,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.141,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "46a3d4d9-c5cf-5cb1-9fbb-86c314347f6f": {
@@ -71200,6 +74272,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.27,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.039,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001503,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 13.539
 },
 "missing": 0
 }
@@ -71815,6 +74933,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.443,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "26d7ab00-c73b-5b3e-8bc3-4a8f941fceb7": {
@@ -72426,6 +75566,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.46,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.106,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -73041,6 +76203,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.73,
+"creative": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.146,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "e23cdc82-bbf1-5378-9404-d94c1e7ce2ef": {
@@ -73654,6 +76838,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.55,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.046,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "7bdca284-3957-5a99-ab5f-52b2081d184d": {
@@ -74262,6 +77468,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.18,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.474,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.003172,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 27.492
 },
 "missing": 0
 }
@@ -74877,6 +78129,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.82,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.2,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "310930bc-03d8-5dc0-b030-0e02ba61b8b9": {
@@ -75485,6 +78759,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.29,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.489,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001408,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 8.837
 },
 "missing": 0
 }
@@ -76100,6 +79420,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.79,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.3,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "b82d8f3f-f994-5775-b1b1-13420519ca81": {
@@ -76711,6 +80053,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.37,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.466,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -77326,6 +80690,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.89,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.217,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": null,
+"detail": {
+"games": [
+"B",
+null
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.00124,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 7.58
+},
+"missing": 0
 }
 },
 "377f8d5c-8ab3-5e42-b36d-bea220b19ac3": {
@@ -77937,6 +81347,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.28,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.066,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002876,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 25.625
 },
 "missing": 0
 }
@@ -78552,6 +82008,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.76,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.04,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "773db662-deac-5922-b0e5-dd5715594a16": {
@@ -79163,6 +82641,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.63,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.212,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -79778,6 +83278,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.351,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "0f1fed13-d89e-5956-a5f9-11befbdb47fb": {
@@ -80389,6 +83911,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.48,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.205,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -81004,6 +84548,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.68,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.449,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "3df69193-bfc2-5941-b0d6-103eb292aa76": {
@@ -81612,6 +85178,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.14,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.478,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -82227,6 +85815,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.187,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "428b2643-139f-52e0-aa84-ceeb4375712d": {
@@ -82838,6 +86448,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.317,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -83453,6 +87085,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.9,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.18,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "bab556f4-ea42-570d-8063-304e5f6c4185": {
@@ -84064,6 +87718,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.86,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.21,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -84679,6 +88355,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.45,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.949,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "2f665bcd-7aee-539b-9acf-142548185b64": {
@@ -85290,6 +88988,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.25,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 4.468,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -85905,6 +89625,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.45,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.209,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "d1dd83a6-7ccb-5f83-983e-f6fc38783836": {
@@ -86516,6 +90258,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.64,
+"creative": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.472,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -87131,6 +90895,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.65,
+"creative": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.577,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "e159e15e-d998-57e6-a636-b4624642585b": {
@@ -87742,6 +91528,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.98,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.53,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -88357,6 +92165,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.72,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.489,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "f2893256-1328-58fe-b1a1-97cfbce72ce8": {
@@ -88968,6 +92798,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.85,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.171,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -89583,6 +93435,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.7,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.299,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.00155,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 11.645
+},
+"missing": 0
 }
 },
 "7437394e-a300-5428-b321-e3ce7dd9b694": {
@@ -90194,6 +94092,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.28,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.177,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -90809,6 +94729,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.62,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 6.793,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "7ad6fda6-f7dd-5c3a-9d8b-6b50cc35dedd": {
@@ -91420,6 +95362,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.7,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.54,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -92035,6 +95999,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.84,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.45,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "1cc11161-3a95-59a1-aa7b-1406ccf4b9a6": {
@@ -92646,6 +96632,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.85,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.258,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -93261,6 +97269,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.71,
+"creative": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.44,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "8e81db7a-d39f-5bc0-9b38-7f25d36a7707": {
@@ -93872,6 +97902,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.74,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.449,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.003432,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 26.685
 },
 "missing": 0
 }
@@ -94487,6 +98563,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.39,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.525,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "943bf94c-9ba1-5b9b-9ec4-038c8f3e11d7": {
@@ -95098,6 +99196,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.65,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.345,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -95713,6 +99833,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.208,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "544ae546-5220-5ffd-86f3-5b44d4422ab7": {
@@ -96326,6 +100468,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.76,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.886,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "107ade41-859a-5dfb-8bd4-3b3257b8b989": {
@@ -96934,6 +101098,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.26,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.44,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.000865,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 8.486
 },
 "missing": 0
 }
@@ -97549,6 +101759,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.78,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.545,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "a5c0fd0a-7440-5461-9a32-c6c5ff574ae0": {
@@ -98160,6 +102392,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.77,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.263,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -98775,6 +103029,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.4,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.386,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "b57ea8df-78c5-5e71-9545-973d9c2d4bb5": {
@@ -99388,6 +103664,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.72,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.494,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "9536d58f-8a88-53be-b97e-45bb2d457c12": {
@@ -99996,6 +104294,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.76,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.482,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001528,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 12.888
 },
 "missing": 0
 }
@@ -100611,6 +104955,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.93,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.351,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "6486c18c-0e36-56c0-b62d-4aa97efa69f7": {
@@ -101222,6 +105588,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.83,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.067,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001728,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 17.108
 },
 "missing": 0
 }
@@ -101837,6 +106249,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.78,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.337,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002242,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 16.535
+},
+"missing": 0
 }
 },
 "4626f382-2aa2-5ac1-9c74-76185f48c6ad": {
@@ -102448,6 +106906,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.327,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -103063,6 +107543,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.24,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.512,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "5b13ebd9-3880-5331-bfcf-ac5ab4bed92a": {
@@ -103674,6 +108176,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.73,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.335,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -104289,6 +108813,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.289,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001891,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 15.238
+},
+"missing": 0
 }
 },
 "e0afc8ce-4f42-5202-80af-837ab58494ed": {
@@ -104900,6 +109470,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.027,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -105515,6 +110107,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.87,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.915,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "df042120-17b3-5328-936a-c6c1db94b6bc": {
@@ -106128,6 +110742,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.476,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "58ee7000-47a1-54d6-9857-77d0eaa3a4b7": {
@@ -106736,6 +111372,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.24,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.017,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001723,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 16.227
 },
 "missing": 0
 }
@@ -107351,6 +112033,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.72,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.939,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "52dc37ec-fb24-59d8-9390-53185cb0c6d1": {
@@ -107962,6 +112666,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.84,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.733,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -108577,6 +113303,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.75,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.483,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "d8e795e2-27e7-51f7-bf16-4e00e7accd9f": {
@@ -109188,6 +113936,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.86,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.491,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -109803,6 +114573,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.58,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.391,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "a1259c5f-3a11-578e-88ef-58a9a7986652": {
@@ -110414,6 +115206,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.514,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001886,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 13.23
 },
 "missing": 0
 }
@@ -111029,6 +115867,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.57,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.533,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "ef75bc50-4262-58cc-82f4-8d3c5bcac8db": {
@@ -111640,6 +116500,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.84,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.345,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -112255,6 +117137,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.9,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.447,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "14c5f015-d741-5cbc-8d42-864b58da36b7": {
@@ -112866,6 +117770,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.85,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.31,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -113481,6 +118407,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.59,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.322,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "f8e093c3-2e73-5a58-86e7-672074882f25": {
@@ -114092,6 +119040,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.94,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.445,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -114707,6 +119677,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.65,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.321,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "745f9340-63fd-527b-b707-126f38ebb096": {
@@ -115315,6 +120307,52 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.41,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.749,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001167,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 10.533
 },
 "missing": 0
 }
@@ -115930,6 +120968,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.86,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.908,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "ff5f3ce7-1423-5df5-922d-644070dfaea0": {
@@ -116541,6 +121601,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.76,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.338,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -117156,6 +122238,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.87,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.295,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "f3d9764d-347d-5b58-bf39-5ad1e07a5c1a": {
@@ -117769,6 +122873,52 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.76,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.864,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002139,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 18.365
+},
+"missing": 0
 }
 },
 "7f679934-64f6-5785-aab3-7bb93b453f09": {
@@ -118377,6 +123527,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.431,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -118992,6 +124164,52 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.31,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 4.81,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.000879,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 12.602
+},
+"missing": 0
 }
 },
 "3f7b9827-49b7-5d37-b403-6bd2673b96ec": {
@@ -119603,6 +124821,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.85,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.01,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -120218,6 +125458,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.88,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.594,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "7c22d528-b258-5125-9bcc-877df3431ae1": {
@@ -120829,6 +126091,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.8,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.436,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -121444,6 +126728,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.46,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.434,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "ed01d44a-e1bc-5833-9a59-ea5f5a9ebd60": {
@@ -122055,6 +127361,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.45,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.445,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -122670,6 +127998,52 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.82,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.445,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001567,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 13.034
+},
+"missing": 0
 }
 },
 "5c0d0e45-eb3f-5c6a-81ef-81fd39df82a9": {
@@ -123281,6 +128655,52 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.98,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.183,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001812,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 17.055
 },
 "missing": 0
 }
@@ -123896,6 +129316,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.74,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.086,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "e447d2a3-bd18-58cd-8b87-6d19b03842e0": {
@@ -124507,6 +129949,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.78,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.365,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -125122,6 +130586,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.55,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.485,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "a6cfbfd9-3c72-5081-9433-8f57a9851d51": {
@@ -125733,6 +131219,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.84,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.367,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -126348,6 +131856,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.31,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.285,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "b706543e-e966-57a8-9708-be90ff13312b": {
@@ -126959,6 +132489,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.455,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -127574,6 +133126,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.44,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.917,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "49c0f568-1ac2-53dc-be78-f3eea93820fd": {
@@ -128185,6 +133759,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.66,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.477,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -128800,6 +134396,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.77,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.891,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "bfd0002d-e137-5a79-a7fd-c2ef9ad12a1f": {
@@ -129411,6 +135029,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.67,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.447,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -130026,6 +135666,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.67,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.243,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "150d1bd0-115e-5e13-999a-4e0835674582": {
@@ -130637,6 +136299,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.86,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.478,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -131252,6 +136936,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.28,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.478,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "1c76021c-cb8e-5477-8f7e-88855d6dd547": {
@@ -131863,6 +137569,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.78,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.421,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -132478,6 +138206,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.63,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.874,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "cdc80d94-4fc3-5b62-88fc-167006f3b7bd": {
@@ -133089,6 +138839,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.77,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.911,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001871,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 18.666
 },
 "missing": 0
 }
@@ -133704,6 +139500,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.37,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.423,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.000778,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 10.011
+},
+"missing": 0
 }
 },
 "e4dcf6d6-e316-52d1-9723-b90da5dd862b": {
@@ -134315,6 +140157,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.85,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.984,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -134930,6 +140794,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.85,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.443,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.000758,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 10.27
+},
+"missing": 0
 }
 },
 "730909ae-6903-517a-ad99-9991d2cfc217": {
@@ -135541,6 +141451,52 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.32,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.503,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001686,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 13.634
 },
 "missing": 0
 }
@@ -136156,6 +142112,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.6,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.573,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "7a2a5167-8e15-50ff-b984-335d814cc77d": {
@@ -136767,6 +142745,52 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.74,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.344,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002916,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 32.995
 },
 "missing": 0
 }
@@ -137382,6 +143406,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.84,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.492,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "122e221d-9581-5240-889a-1106c2d167c0": {
@@ -137993,6 +144039,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.82,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.814,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -138608,6 +144676,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.88,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.507,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "ea2d1f98-91c1-5ffb-bafa-31e0928065e0": {
@@ -139216,6 +145306,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.25,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.431,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.00144,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 16.744
 },
 "missing": 0
 }
@@ -139831,6 +145967,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.68,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.087,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001597,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 14.858
+},
+"missing": 0
 }
 },
 "e49c100d-761c-5b04-8145-e94fbc847864": {
@@ -140442,6 +146624,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.351,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -141057,6 +147261,52 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.83,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.492,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.00118,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 13.165
+},
+"missing": 0
 }
 },
 "83ec31fe-5063-5c77-9b1e-0c32f113a042": {
@@ -141668,6 +147918,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.56,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.11,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -142283,6 +148555,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.52,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.326,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "d71a5264-231b-5af8-829d-9ee50f0acf90": {
@@ -142894,6 +149188,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.66,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.27,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": null,
+"detail": {
+"games": [
+null,
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002143,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 17.236
 },
 "missing": 0
 }
@@ -143509,6 +149849,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.65,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.162,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "94fbd28e-b67a-5444-8d45-5f27ac3d3d02": {
@@ -144120,6 +150482,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.86,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.383,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -144735,6 +151119,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.58,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.23,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "d78a5116-f0a0-5a7b-a461-8f42262cce47": {
@@ -145346,6 +151752,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.97,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.102,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -145961,6 +152389,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.73,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.441,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "b846cd69-0d48-5a2e-bc1a-49bc7e812473": {
@@ -146572,6 +153022,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.79,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.005,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -147187,6 +153659,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.86,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.287,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "52496015-9fbb-5fa4-a1e0-0ca8c032c398": {
@@ -147798,6 +154292,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.85,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.534,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -148413,6 +154929,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.44,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.578,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "8de34479-e94c-5c30-9146-da3d92f7223c": {
@@ -149024,6 +155562,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.51,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.52,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001975,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 16.241
 },
 "missing": 0
 }
@@ -149639,6 +156223,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.83,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.607,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "8b33bb85-b242-5845-83f0-5cb7e32be529": {
@@ -150247,6 +156853,52 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.8,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.277,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.001341,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 16.116
 },
 "missing": 0
 }
@@ -150862,6 +157514,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.78,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.192,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "70e2b4e6-a5a5-5f50-b838-e00cdd38df24": {
@@ -151473,6 +158147,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.89,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.318,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -152088,6 +158784,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.14,
+"brevity": 0.49,
+"creative": 0.03
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.295,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "d3c9f4fb-13a9-50f9-859a-3dbf42e8b866": {
@@ -152701,6 +159419,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.78,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.135,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "00176ef4-146c-53e1-8328-d349fb7d0ea3": {
@@ -153309,6 +160049,28 @@ null
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.33,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.979,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -153924,6 +160686,52 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.86,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.179,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002776,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 94.884
+},
+"missing": 0
 }
 },
 "57500a89-7795-5299-b6a8-d0ab8da2687a": {
@@ -154535,6 +161343,52 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.54,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.979,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
+},
+"hai": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "claude-haiku (CLI alias haiku)"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 2
+},
+"usd": 0.002273,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 0,
+"haiku": 20.297
 },
 "missing": 0
 }
@@ -155150,6 +162004,28 @@ null,
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.01,
+"brevity": 0.88,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.316,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "2d989dfb-7cf0-549e-945c-3dd060d1fad5": {
@@ -155761,6 +162637,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.03,
+"brevity": 0.53,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.297,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }
@@ -156376,6 +163274,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.78,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.477,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "ed47c678-7393-548d-975e-789595bea2c7": {
@@ -156989,6 +163909,28 @@ null
 "gemini": 0
 },
 "missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.77,
+"creative": 0.02
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.441,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"missing": 0
 }
 },
 "40c35c1b-4d3a-56ae-a7fa-22307efca211": {
@@ -157600,6 +164542,28 @@ null,
 "jev": 0,
 "luna": 0,
 "gemini": 0
+},
+"missing": 0
+},
+"route2": {
+"pA": null,
+"detail": {
+"long_form": 0.02,
+"brevity": 0.54,
+"creative": 0.01
+},
+"calls": {
+"jev": 1,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.489,
+"luna": 0,
+"gemini": 0,
+"haiku": 0
 },
 "missing": 0
 }

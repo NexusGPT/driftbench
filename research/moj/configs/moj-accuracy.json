@@ -1,0 +1,51 @@
+{
+ "name": "moj-accuracy",
+ "note": "Accuracy mode. Two System-1 steps: step 1 commits at fitted confidence 0.95; abstained pairs pay the router (two System-1 reads). Long-form writing terrain: System-1 pairwise plus the computed length feature, weights fitted on abstained long-form practice pairs. Writing terrain: stay with System 1. Reasoning terrain: reference first, then under 0.8 the gpt-6-luna verdict joined with the Haiku verdict (second family). Elsewhere: the gpt-6-luna verdict. System-2-family calls stay at or under 2 per pair on every practice set.",
+ "stage1": [
+  "s1p"
+ ],
+ "two_step": {
+  "commit": 0.95,
+  "routes": [
+   {
+    "name": "long-form-length",
+    "terrain": {
+     "long_form": 0.6
+    },
+    "add": [
+     "f_len"
+    ],
+    "fit_terrain": true,
+    "fit_abstained": true
+   },
+   {
+    "name": "writing-stay",
+    "terrain": {
+     "subjective_writing": 0.6
+    },
+    "commit": true
+   },
+   {
+    "name": "reference-first",
+    "terrain": {
+     "needs_reasoning": 0.6
+    },
+    "add": [
+     "ref"
+    ],
+    "stop_at": 0.8,
+    "else_add": [
+     "s2v",
+     "hai"
+    ]
+   },
+   {
+    "name": "system2",
+    "terrain": {},
+    "add": [
+     "s2v"
+    ]
+   }
+  ]
+ }
+}

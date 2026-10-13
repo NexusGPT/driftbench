@@ -1,0 +1,65 @@
+{
+ "name": "acc-haiku-checkable",
+ "note": "Accuracy candidate with the Haiku verdict joined to the System-2 verdict on reasoning terrain where the request has one checkable answer; other reasoning pairs keep the System-2 verdict alone.",
+ "stage1": [
+  "s1p"
+ ],
+ "two_step": {
+  "commit": 0.95,
+  "routes": [
+   {
+    "name": "long-form-length",
+    "terrain": {
+     "long_form": 0.6
+    },
+    "add": [
+     "f_len"
+    ],
+    "fit_terrain": true,
+    "fit_abstained": true
+   },
+   {
+    "name": "writing-stay",
+    "terrain": {
+     "subjective_writing": 0.6
+    },
+    "commit": true
+   },
+   {
+    "name": "reference-first-panel",
+    "terrain": {
+     "needs_reasoning": 0.6,
+     "checkable_answer": 0.6
+    },
+    "add": [
+     "ref"
+    ],
+    "stop_at": 0.8,
+    "else_add": [
+     "s2v",
+     "hai"
+    ]
+   },
+   {
+    "name": "reference-first",
+    "terrain": {
+     "needs_reasoning": 0.6
+    },
+    "add": [
+     "ref"
+    ],
+    "stop_at": 0.8,
+    "else_add": [
+     "s2v"
+    ]
+   },
+   {
+    "name": "system2",
+    "terrain": {},
+    "add": [
+     "s2v"
+    ]
+   }
+  ]
+ }
+}

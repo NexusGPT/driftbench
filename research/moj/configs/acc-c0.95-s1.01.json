@@ -1,0 +1,50 @@
+{
+ "name": "acc-c0.95-s1.01",
+ "note": "Accuracy candidate: two-step, commit 0.95; long-form terrain adds length (fitted on abstained long-form items); reasoning terrain: reference first, System-2 verdict under 1.01; else System-2 verdict.",
+ "stage1": [
+  "s1p"
+ ],
+ "two_step": {
+  "commit": 0.95,
+  "routes": [
+   {
+    "name": "long-form-length",
+    "terrain": {
+     "long_form": 0.6
+    },
+    "add": [
+     "f_len"
+    ],
+    "fit_terrain": true,
+    "fit_abstained": true
+   },
+   {
+    "name": "writing-stay",
+    "terrain": {
+     "subjective_writing": 0.6
+    },
+    "commit": true
+   },
+   {
+    "name": "reference-first",
+    "terrain": {
+     "needs_reasoning": 0.6
+    },
+    "add": [
+     "ref"
+    ],
+    "stop_at": 1.01,
+    "else_add": [
+     "s2v"
+    ]
+   },
+   {
+    "name": "system2",
+    "terrain": {},
+    "add": [
+     "s2v"
+    ]
+   }
+  ]
+ }
+}

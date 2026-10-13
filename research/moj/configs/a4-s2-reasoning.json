@@ -1,0 +1,39 @@
+{
+ "name": "a4-s2-reasoning",
+ "note": "Accuracy candidate 4. a1 with the System-2 verdict always joined on reasoning terrain, without the reference (2 System-2 calls there).",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "s2v",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ],
+ "stage1_by_terrain": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   },
+   "stage1": [
+    "s1p",
+    "f_len"
+   ],
+   "fit_terrain": true
+  }
+ ]
+}

@@ -2,7 +2,7 @@
 // Benchmark settings are copied verbatim from each ledger harness (marked below). Every model answer is recorded
 // in results/sealed/ledger-calls.jsonl keyed by request hash and replayed, never asked again; a call with no
 // answer is submitted at most 3 times. Run from the ledger-core worktree root so tsx resolves (it writes nothing there):
-//   TMPDIR=<scratch> node --import tsx <this file> <moj folder>
+//   TMPDIR=<scratch> node --import tsx <this file> <moj folder> [input folder] [output folder] [workers]
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -11,7 +11,9 @@ const CORE = '/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-core/pa
 const core = await import(CORE);
 const { buildPrompt, pairLedgerRequest, pairLedgerSchema, parsePairLedgerText, judgePairLedger, createDialectTransport } = core;
 const MOJ = process.argv[2];
-const OUT = resolve(MOJ, 'results/sealed');
+const IN = resolve(MOJ, process.argv[3] ?? 'sealed');
+const OUT = resolve(MOJ, process.argv[4] ?? 'results/sealed');
+const WORKERS = Number(process.argv[5] ?? 8);
 const here = '/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-mm/research/ledger-mm';
 const runDir = OUT;
 const model = 'gpt-6-luna';
@@ -150,9 +152,10 @@ const done = {};
 for (const bench of ['judgebench', 'mmeval', 'writing']) {
   const path = resolve(OUT, `ledger-${bench}.jsonl`);
   done[bench] = new Set(lines(path).filter(r => r.games).map(r => r.id));
-  const items = JSON.parse(readFileSync(resolve(MOJ, `sealed/${bench}.json`), 'utf8')).filter(x => !done[bench].has(String(x.id)));
+  if (!existsSync(resolve(IN, `${bench}.json`))) continue;
+  const items = JSON.parse(readFileSync(resolve(IN, `${bench}.json`), 'utf8')).filter(x => !done[bench].has(String(x.id)));
   let i = 0;
-  await Promise.all(Array.from({ length: 8 }, async () => {
+  await Promise.all(Array.from({ length: WORKERS }, async () => {
     while (i < items.length) {
       const item = items[i++]; item.id = String(item.id);
       try { append(path, { bench, ...(await judge(bench, item)) }); }

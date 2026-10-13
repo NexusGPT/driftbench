@@ -68,11 +68,14 @@ class Combiner:
             self.models[key] = fit_logistic(X, y, self.l2) if len(rows) else np.ones(len(key))
         return self.models[key]
 
-    def p_terrain(self, signals, experts, card):
-        """The combination with weights fitted only on training items of the same terrain (a content rule, never a benchmark name)."""
-        key = ('terrain', json.dumps(card.get('terrain', {}), sort_keys=True), tuple(experts))
+    def p_terrain(self, signals, experts, card, abstained=None):
+        """The combination with weights fitted only on training items of the same terrain (a content rule, never a benchmark name).
+        `abstained` = (stage-1 experts, commit): fit only on training items that step 1 would leave unsure, as in use."""
+        key = ('terrain', json.dumps(card.get('terrain', {}), sort_keys=True), tuple(experts), json.dumps(abstained))
         if key not in self.models:
             rows = [s for s in self.train if s['_meta']['label'] in ('A', 'B') and matches(card, terrain(s, []))]
+            if abstained:
+                rows = [s for s in rows if max(self.p(s, abstained[0]), 1 - self.p(s, abstained[0])) < abstained[1]]
             if len(rows) < 30:
                 self.models[key] = self.weights(experts)
             else:
@@ -101,6 +104,8 @@ class Combiner:
 def terrain(signals, used=()):
     """The terrain of an item: the router's content decisions, plus features derived from experts already run."""
     land = dict(signals.get('route', {}).get('detail', {}) or {})
+    for name, value in ((signals.get('route2') or {}).get('detail') or {}).items():
+        land[name] = value
     s1p = signals.get('s1p', {}).get('detail') or {}
     if 's1p' in used and s1p.get('AB') is not None and s1p.get('BA') is not None:
         land['order_split'] = 1.0 if (s1p['AB'] > 0.5) == (s1p['BA'] > 0.5) else 0.0  # both orders pick the same position
@@ -142,7 +147,7 @@ def calls_of(signals, experts):
         if not signal:
             continue
         jev += signal['calls']['jev']
-        gem += signal['calls'].get('gemini', 0)
+        gem += signal['calls'].get('gemini', 0) + signal['calls'].get('haiku', 0)
         luna += signal['calls']['luna'] + (signal['detail'].get('recorded_calls') or 0 if isinstance(signal.get('detail'), dict) else 0)
         usd += signal['usd']
         seconds += signal['seconds']['jev'] + signal['seconds']['luna']
@@ -175,7 +180,8 @@ def decide_two_step(config, signals, combiner):
                 paid.extend(added)
                 return added
             join(route.get('add', []))
-            p = combiner.p_terrain(signals, used, route) if route.get('fit_terrain') and not combiner.raw else combiner.p(signals, used)
+            p = (combiner.p_terrain(signals, used, route, [list(config['stage1']), spec['commit']] if route.get('fit_abstained') else None)
+                 if route.get('fit_terrain') and not combiner.raw else combiner.p(signals, used))
             conf = max(p, 1 - p)
             if route.get('else_add') and conf < route.get('stop_at', 1.01):
                 level += '+'

@@ -1,0 +1,188 @@
+{
+ "primary": {
+  "name": "moj-accuracy",
+  "note": "Accuracy mode. Two System-1 steps: step 1 commits at fitted confidence 0.95; abstained pairs pay the router (two System-1 reads). Long-form writing terrain: System-1 pairwise plus the computed length feature, weights fitted on abstained long-form practice pairs. Writing terrain: stay with System 1. Reasoning terrain: reference first, then under 0.8 the gpt-6-luna verdict joined with the Haiku verdict (second family). Elsewhere: the gpt-6-luna verdict. System-2-family calls stay at or under 2 per pair on every practice set.",
+  "stage1": [
+   "s1p"
+  ],
+  "two_step": {
+   "commit": 0.95,
+   "routes": [
+    {
+     "name": "long-form-length",
+     "terrain": {
+      "long_form": 0.6
+     },
+     "add": [
+      "f_len"
+     ],
+     "fit_terrain": true,
+     "fit_abstained": true
+    },
+    {
+     "name": "writing-stay",
+     "terrain": {
+      "subjective_writing": 0.6
+     },
+     "commit": true
+    },
+    {
+     "name": "reference-first",
+     "terrain": {
+      "needs_reasoning": 0.6
+     },
+     "add": [
+      "ref"
+     ],
+     "stop_at": 0.8,
+     "else_add": [
+      "s2v",
+      "hai"
+     ]
+    },
+    {
+     "name": "system2",
+     "terrain": {},
+     "add": [
+      "s2v"
+     ]
+    }
+   ]
+  }
+ },
+ "secondary": {
+  "name": "moj-economy",
+  "note": "Economy mode: r9-two-step as frozen and confirmed on the first sealed run (commit 9be7b751). Round 9. Two System-1 steps: step 1 answers (commit) or abstains; step 2, for abstained pairs only, reads the terrain and picks the design (stay with System 1 on writing, reference first on reasoning then the System-2 verdict if still under the stop, System-2 verdict elsewhere). Thresholds fitted on the tuning half: the cheapest setting whose cross-fitted tuning accuracy is within 0.5 point of the best (commit 0.8, reference stop 0.6).",
+  "stage1": [
+   "s1p"
+  ],
+  "two_step": {
+   "commit": 0.8,
+   "routes": [
+    {
+     "name": "writing-stay",
+     "terrain": {
+      "subjective_writing": 0.6
+     },
+     "commit": true
+    },
+    {
+     "name": "reference-first",
+     "terrain": {
+      "needs_reasoning": 0.6
+     },
+     "add": [
+      "ref"
+     ],
+     "stop_at": 0.6,
+     "else_add": [
+      "s2v"
+     ]
+    },
+    {
+     "name": "system2",
+     "terrain": {},
+     "add": [
+      "s2v"
+     ]
+    }
+   ]
+  }
+ },
+ "weights_fitted_on": "all practice pairs (850); the weights are refitted from the hashed practice signals at score time and must equal these",
+ "weights": {
+  "primary": {
+   "[\"s1p\"]": [
+    2.931433667908929
+   ],
+   "[\"s1p\", \"ref\"]": [
+    2.362495142755022,
+    2.774940401154533
+   ],
+   "[\"s1p\", \"ref\", \"s2v\", \"hai\"]": [
+    2.022261502321781,
+    2.644589038807921,
+    0.1549619437521585,
+    1.5345313511241512
+   ],
+   "[\"s1p\", \"ref\", \"s2v\"]": [
+    2.0532534970804464,
+    2.509146743490473,
+    0.3342574067474957
+   ],
+   "[\"terrain\", \"{\\\"long_form\\\": 0.6}\", [\"s1p\", \"f_len\"], \"[[\\\"s1p\\\"], 0.95]\"]": [
+    1.9844504810220662,
+    0.41504370613200053
+   ],
+   "[\"s1p\", \"s2v\"]": [
+    2.086970645646511,
+    0.8571589145585415
+   ]
+  },
+  "secondary": {
+   "[\"s1p\"]": [
+    2.931433667908929
+   ],
+   "[\"s1p\", \"ref\"]": [
+    2.362495142755022,
+    2.774940401154533
+   ],
+   "[\"s1p\", \"ref\", \"s2v\"]": [
+    2.0532534970804464,
+    2.509146743490473,
+    0.3342574067474957
+   ],
+   "[\"s1p\", \"s2v\"]": [
+    2.086970645646511,
+    0.8571589145585415
+   ]
+  }
+ },
+ "models": {
+  "system1": "jev-latest (gateway)",
+  "system2": "gpt-6-luna, medium effort, no temperature",
+  "second_family_member_of_accuracy_mode": "Claude Haiku through the claude CLI, low effort, on reasoning terrain under the stop only"
+ },
+ "file_sha256": {
+  "moj/policy.py": "8060c9e2020a09b4a1dc0ad445e10125a52433c4153d4522ff7455bd41d7f113",
+  "moj/experts.py": "068b210a44ccc4051c731bdff84ff123e010d4efc5f7f58e9bb76f8562ba0255",
+  "moj/features.py": "810580c16595d15e67bcee2664c49978db8c03a07d1cddd3aeec889100592e40",
+  "moj/client.py": "7790c4b89608d618fe3bb8da4a5db072d604f0883ec068bafb3b084812ed6bb4",
+  "moj/benches.py": "7a6e84e039e5c571966e97f4ff21a5cf864e7a082a1b920f643be9fe07e696f3",
+  "configs/moj-accuracy.json": "4e80eadc6127b99e2e76044d8b2bc9ca4ef799d4aa8d167c4288619aaf47435a",
+  "configs/moj-economy.json": "289be3ea48dc41387f237c14f693fd5e29e8c7fd19fc3cc1270f56b77dde9dd5",
+  "sealed/draw-2/run.py": "dbf71d5ce78b3ec680d5dba948b79edefdfa154d0c7e2dcc7c4bb3635960e6dc",
+  "sealed/draw-2/draw.py": "7f8fdaca410b2f85cf90e0378cc3c0de201df16c6e4791d53fa76a6334f1bc66",
+  "sealed/ledger_run.mts": "4a16ec05c6bff76da4319556e69413fb2939508f0e3f9d12d38443f58dced44a",
+  "sealed/draw-2/sealed-ids.json": "6409e0db443c5574a3823ebd5a26a2b0fb6ab7c0aa6e38db2ff3830f6fe09db7",
+  "results/signals/judgebench.json": "7fbe5f928d5a11686add4fd837e5f0d2e3ef0707c8ba10ae21212b5b39c541a6",
+  "results/signals/mmeval.json": "ff1e453a5fb463b03d78df522e5e9f0f931ffcf5cd7e6eeef4d05bcc129720fc",
+  "results/signals/writing.json": "7fadc51c9ee75dbcec6e4e8480dc145d75e8a6d703fcc9efb2d10e9b1ab46b22"
+ },
+ "cells": {
+  "mmeval": "CONFIRMATORY, the only cell in the test family: 600 never-scored ids, one per prompt group, disjoint from practice and from the first sealed run.",
+  "judgebench": "SECONDARY, outside the test family: 179 Claude-response pairs, unseen by MoJ, previously scored by the ledger harness, whose after-the-fact analysis informed the MoJ design. Cannot confirm anything alone.",
+  "writing": "SECONDARY, outside the test family: 217 pairs (44 never scored plus 173 unseen by MoJ, previously scored by the ledger harness, whose after-the-fact analysis informed the MoJ design). Cannot confirm anything alone."
+ },
+ "endpoints": {
+  "primary": "MM-Eval: accuracy mode minus promptfoo select-best (gpt-6-luna medium, both orders), paired by pair, half credit for a split. One test, two-sided 0.05; a paired bootstrap (20,000 draws) gives the interval and the p-value.",
+  "secondary": [
+   "MM-Eval: accuracy mode minus our ledger",
+   "MM-Eval: accuracy mode minus economy mode",
+   "JudgeBench and writing: the same three differences, with intervals, labelled secondary",
+   "Writing: accuracy mode against longer wins; the target is level with longer wins and well above promptfoo, no claim of beating the length rule"
+  ],
+  "reported_both": "strict both-order rule and half credit, on every benchmark"
+ },
+ "rule_for_a_win": "Accuracy mode wins the confirmatory cell when the lower bound of the 95 percent paired interval against promptfoo is above 0 and its System-2-family calls per pair are at or under 2.",
+ "power": {
+  "mmeval_n": 600,
+  "sd_of_paired_difference_from_first_sealed_run": 0.155,
+  "power_5_point_gap": 1.0,
+  "power_2_point_gap": 0.885,
+  "judgebench_n179_5_point_gap": 0.44,
+  "writing_n217_5_point_gap": 0.33
+ },
+ "network_rules": "10 healthy probes before the first sealed call; 2 calls in flight; a transport no-answer is recovered missing-only; a pair counts as a MoJ loss only after a final recovery cycle (gateway 403 by content: a loss).",
+ "budget": "25 USD of System-2 spend for this round; projected after the first 50 pairs of each benchmark."
+}
