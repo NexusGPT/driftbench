@@ -29,6 +29,40 @@ function title(text: string): string {
   return text.endsWith('.') ? text : `${text}.`;
 }
 
+/** Reply requirements from the hidden flow contract, also printed in the prompt as source evidence. */
+function replyRules(spec: HiddenSpec) {
+  const seen = new Set<string>();
+  return spec.paths.flatMap((path) =>
+    path.stages.slice(1).flatMap((to, index) => {
+      const from = path.stages[index] as string;
+      const key = `${path.flow}:${from}:${to}`;
+      if (seen.has(key)) return [];
+      seen.add(key);
+      const called = spec.tools.find((tool) => tool.stage === to);
+      const question = spec.stages.find((stage) => stage.id === to)?.question;
+      const must = [
+        ...(question ? [escapePattern(question)] : []),
+        ...(called?.output.map(
+          (property) =>
+            `${escapePattern(called.name.replace(/_/g, ' '))} says ${escapePattern(property.name)} is {${called.name}_out_${property.name}}\\.`,
+        ) ?? []),
+      ];
+      const mustNot = [
+        'Step [0-9]+:',
+        ...spec.tools
+          .filter((tool) => tool !== called)
+          .map((tool) => `${escapePattern(tool.name.replace(/_/g, ' '))} says `),
+      ];
+      const quote = `In ${path.flow}, a turn from ${from} to ${to} asks "${question ?? ''}", states every returned field of ${called?.name ?? 'no tool'}, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".`;
+      return [{ flow: path.flow, from, to, must, mustNot, quote }];
+    }),
+  );
+}
+
+function escapePattern(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /** The prompt: stages, moves, users and rules, one sentence per entry the map quotes. */
 export function renderPrompt(spec: HiddenSpec): string {
   const lines = [
@@ -50,6 +84,11 @@ export function renderPrompt(spec: HiddenSpec): string {
       (tool) =>
         `- ${tool.name}: ${title(tool.title)}${tool.stage ? ` It runs when the conversation reaches ${tool.stage}.` : ''}${tool.sideEffect ? ' It changes the world, so it runs only after CONFIRM and is never retried.' : ' It only reads.'}`,
     ),
+    '',
+    '## Reply requirements',
+    '',
+    'Each returned field is stated as "<tool label with spaces> says <field> is <value>." Unspecified required integer inputs use their schema minimum.',
+    ...replyRules(spec).map((rule) => `- ${rule.quote}`),
     '',
     '## Users',
     '',
@@ -264,7 +303,24 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
       kind: 'path' as const,
       id: path.id,
       flow: path.flow,
-      ...(Object.keys(path.when).length > 0 ? { when: path.when } : {}),
+      when: {
+        ...path.when,
+        ...Object.fromEntries(
+          spec.tools
+            .filter((tool) => tool.stage !== undefined && path.stages.slice(1).includes(tool.stage))
+            .flatMap((tool) =>
+              tool.output.map((property) => {
+                const dimension = `${tool.name}.out.${property.name}`;
+                return [
+                  dimension,
+                  spec.data
+                    .filter((value) => value.dimension === dimension && !value.invalid)
+                    .map((value) => value.id),
+                ];
+              }),
+            ),
+        ),
+      },
       stages: [...path.stages],
       behaviours: [...(spec.flows.find((flow) => flow.id === path.flow)?.behaviours ?? [])],
       ...(path.endState
@@ -285,16 +341,41 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
       tool: use.tool,
       stage: use.from,
       to: use.to,
-      input: { ...use.input },
+      input: {
+        ...Object.fromEntries(
+          (spec.tools.find((tool) => tool.name === use.tool)?.input ?? []).map((property) => [
+            property.name,
+            property.type === 'enum'
+              ? (property.members[0] as string)
+              : property.type === 'integer'
+                ? property.minimum
+                : true,
+          ]),
+        ),
+        ...use.input,
+      },
       evidence: { source: prompt, quote: use.quote },
       ...common,
     })),
+    ...replyRules(spec).map((rule) => ({
+      kind: 'states' as const,
+      subject: { dimension: 'flow', value: rule.flow },
+      stage: rule.from,
+      to: rule.to,
+      must: rule.must,
+      must_not: rule.mustNot,
+      evidence: { source: prompt, quote: rule.quote },
+      ...common,
+    })),
     ...spec.data
-      .filter((value) => value.binds !== undefined)
+      .filter((value) => value.binds !== undefined || value.direction === 'out')
       .map((value) => ({
         kind: 'binds' as const,
         subject: { dimension: value.dimension, value: value.id },
-        slots: { ...(value.binds as Record<string, string>) },
+        slots: {
+          ...value.binds,
+          ...(value.direction === 'out' ? { [`${value.tool}_out_${value.field}`]: String(value.value) } : {}),
+        },
         evidence: { source: tools, quote: value.quote },
         ...common,
       })),
