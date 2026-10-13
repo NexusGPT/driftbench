@@ -290,7 +290,7 @@
       "packages/validators/src/ladders/generator/follower.ts": "90ff9bbb8090adeeb6fe23679ee3475284800401e6081d2a145b14ad9495edc5",
       "packages/validators/src/ladders/generator/render.ts": "e7dbe748e5c30ea62edfe13436a1b21b63fe4746f26f4fef6d8e2a7c7ec939ce"
     },
-    "sourceState": "working tree fix; file hashes identify measured source (comment-only cleanup follows the run)"
+    "sourceState": "working tree fix; recorded hashes include comment-only cleanup after the run"
   },
   "unchangedBankAndOracleSources": [
     {
@@ -363,5 +363,115 @@
     "failed": 8,
     "passed": 43,
     "afterPassed": 51
+  },
+  "integrationBase": "a7fb2452c50b5aa34347ff55fe742cb59ce8de80",
+  "integratedAfter": {
+    "commit": "c6fc6ed2123896fd4b34ce35dac145589247901d",
+    "at": "2026-10-13T07:28:02.284Z",
+    "seed": 1,
+    "factor": 10,
+    "strength": 3,
+    "specs": 3604,
+    "blocks": 17894,
+    "pair": {
+      "t": 2,
+      "specs": 3604,
+      "allowed": 1526,
+      "covered": 1526,
+      "share": 1
+    },
+    "uncovered": [],
+    "cheaters": {
+      "constant": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "echo": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "copy-given": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "every-tool": {
+        "passes": 0,
+        "witnesses": []
+      },
+      "replay-suite": {
+        "passes": 0,
+        "witnesses": []
+      }
+    },
+    "followerFailures": [],
+    "errors": [],
+    "sourceFiles": {
+      "packages/generate/src/seed/scenario.ts": "5ca1549bbe1d46349cca00ce94fd3b10d5fb598985e0b30ecf8a0b3213365b4a",
+      "packages/validators/src/ladders/generator/hidden.ts": "84fa8d716864ac772e81094fec0f5153abc9b3bd59f6469463aba45af7027865",
+      "packages/validators/src/ladders/generator/follower.ts": "90ff9bbb8090adeeb6fe23679ee3475284800401e6081d2a145b14ad9495edc5",
+      "packages/validators/src/ladders/generator/render.ts": "e7dbe748e5c30ea62edfe13436a1b21b63fe4746f26f4fef6d8e2a7c7ec939ce"
+    },
+    "sourceState": "committed implementation after merging cap, speed and stage provenance fixes"
+  },
+  "acme": {
+    "base": "a0fedc3b27508ff342a18f5957f1485a253a2719",
+    "at": "2026-10-13T07:29:41.982Z",
+    "before": {
+      "specs": 252,
+      "blocks": 1111,
+      "cheaterBlockPasses": {
+        "constant": 0,
+        "echo": 0,
+        "first-tool": 0
+      }
+    },
+    "after": {
+      "specs": 259,
+      "blocks": 1152,
+      "cheaterBlockPasses": {
+        "constant": 0,
+        "echo": 0,
+        "first-tool": 0
+      }
+    },
+    "coverage": {
+      "before": {
+        "covered": 624,
+        "allowed": 637
+      },
+      "after": {
+        "covered": 637,
+        "allowed": 637
+      }
+    }
+  },
+  "bankExpectedAnswers": "All 13 bank, oracle, fault, cheater and baseline source files are byte identical to both bases; no item predicate or threshold changed. Full bank execution is left to CI.",
+  "focusedChecks": {
+    "openingAndDiscriminatorRed": {
+      "failed": 8,
+      "passed": 43
+    },
+    "openingAndDiscriminatorGreen": {
+      "passed": 51
+    },
+    "integratedGenerationBudgetAndOpening": {
+      "passed": 74,
+      "files": 4
+    },
+    "capRegressionAfterExplicitWeakFixture": {
+      "passed": 7,
+      "files": 1
+    },
+    "acmeRuntimeAndFaults": {
+      "passed": 15,
+      "files": 2
+    },
+    "hiddenFollowerCheatersApprovedReplies": {
+      "passed": 26,
+      "files": 4
+    },
+    "totalDistinctRelatedTestsPassed": 122,
+    "fullSuite": "left to CI per owner request due shared host load",
+    "review": "Independent Astra review found no blocking findings."
   }
 }

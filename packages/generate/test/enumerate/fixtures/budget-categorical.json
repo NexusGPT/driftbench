@@ -1,11 +1,11 @@
 {
-  "source": "Options A and B (a1462f30) merged with main (7c0b3592)",
+  "source": "Required opening policy traces, integrated with cap and speed on a7fb2452",
   "mapHash": "ed9e4089e9c5",
   "hashes": {
-    "pairwise": "ccd30540c7a32c81e366cd9b170ff7ac9d2ce69c43b3cab3614fc6b4c61e02f3",
-    "budget-20": "25601f06b8ae8ca796fbf01f74175e45d6ccb2a2a492c77fdd204a5c4e26da30",
-    "budget-50": "e4d16bfc7cf81f50737442321dd0f29a0c230d85d502251c95487b46b205b6ab",
-    "budget-100": "e426c420529fd00f24d05444b9f51c1d2d99ee801154008e26ae39c0adb39508",
-    "budget-200": "7f2bcff23507a68070703934e5c6eb71cf68b4c573250fdd9069c0813dacaf0d"
+    "pairwise": "b9187d47dabe3a4c276848ad0a36bbfc51a9e333dcf92a69865fa1db95c4ad6e",
+    "budget-20": "71ddd5b7a70f50b25c11a362d5d62373ba231bad816f7eb1f8f74f0ed29e144e",
+    "budget-50": "e05393a3981c8c608fcfb98322a7f36a976f672cf86d101755cbed0521169d1d",
+    "budget-100": "4e89982e332dcc6f08255aafb4c58f9243e067d14c19a4fee9a0d3406a55708f",
+    "budget-200": "1528a59352097560f22062bf69539366e3ed892daebd9c19ada625f5f536d080"
   }
 }
