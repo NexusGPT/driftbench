@@ -33,6 +33,8 @@ def tally(recording, require_complete=True):
         result = "ahead" if ko > kt else "behind" if ko < kt else "equal"
         summaries.append({"row":name, "n":n, "ours":ko, "theirs":kt,
                           "ours_ci":wilson(ko,n), "theirs_ci":wilson(kt,n),
+                          "ours_distinct_inputs":len({tuple(r["ours"]["request_sha256s"]) for r in cases}),
+                          "theirs_distinct_inputs":len({tuple(r["theirs"]["request_sha256s"]) for r in cases}),
                           "ours_only_right":b, "theirs_only_right":c,
                           "paired_p":paired_p(b,c), "outcome":result,
                           "ours_unparsed":sum(r["ours"]["prediction"] is None for r in cases),
@@ -54,7 +56,7 @@ def main():
     print("| Row | n | Ours (95% CI) | Theirs (95% CI) | Observed result | Paired p | Cost USD |")
     print("|---|---|---|---|---|---|---|")
     for r in scores:
-        print(f"| {r['row']} | {r['n']} | {r['ours']}/{r['n']} ({r['ours_ci'][0]} to {r['ours_ci'][1]}%) | {r['theirs']}/{r['n']} ({r['theirs_ci'][0]} to {r['theirs_ci'][1]}%) | {r['outcome']} | {r['paired_p']:.6g} | {r['cost_usd']:.6f} |")
+        print(f"| {r['row']} | {r['n']} | {r['ours']}/{r['n']} ({r['ours_ci'][0]} to {r['ours_ci'][1]}%; {r['ours_distinct_inputs']} distinct inputs) | {r['theirs']}/{r['n']} ({r['theirs_ci'][0]} to {r['theirs_ci'][1]}%; {r['theirs_distinct_inputs']} distinct inputs) | {r['outcome']} | {r['paired_p']:.6g} | {r['cost_usd']:.6f} |")
     if args.output:
         args.output.write_text(json.dumps(scores, indent=2)+"\n")
     calls = {r.get("request_sha256",r.get("key")): r for r in records(CALLS)}

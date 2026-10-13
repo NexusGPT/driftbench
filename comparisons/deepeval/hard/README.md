@@ -147,7 +147,7 @@ python3 comparisons/deepeval/hard/freeze.py
 The recorder permits one call at a time. It locks the entire run and reserves
 the full 0.05 USD invocation cap before a fresh call. A cumulative 8 USD cap applies
 to this folder's recorded calls. Unreported failures reserve 0.05 USD and remain
-visible. Reported costs come from each CLI response. Local time has a 07:00 cutoff.
+visible. Reported costs come from each CLI response. The final owner instruction stops new calls at 06:30 local time. The original runs used a 07:00 cutoff; later runs load the earlier deadline before starting.
 Successful calls persist immediately, so a restart replays them. Result files
 checkpoint after each measured row. A failed call is not cached as a success.
 Optional `--ledger PATH` appends a row for the run, including zero-cost replays.
@@ -191,6 +191,8 @@ It is a selected procedure on this tuning set, not an unseen-test result.
 
 Six candidate knowledge answers invent an operator account identifier absent from
 the supplied conversations. The CLI runtime context exposes that identifier.
+Recordings capture the supplied system and user arguments, not the CLI's implicit
+runtime context. The identifier is absent from every recorded input argument.
 Every occurrence in public recordings and parsed results is replaced with the
 literal `[redacted-operator-email]`. Labels, scores and decisions remain unchanged.
 Unredacted originals are stored outside the repository, never committed.
@@ -203,3 +205,38 @@ into files smaller than 8 MiB. `recordings.py` reads the complete stream and rot
 the active file before its next append exceeds that limit. Future responses with
 the same operator identifier are privately preserved and publicly redacted before
 parsed results are saved. `redaction.json` records the initial six-answer cleanup.
+
+## Additional held-out seed and pooled results
+
+The owner authorizes one additional seed for task and grounding only. Seed
+20261020 uses the unchanged `generate.py` with five pairs per family, producing
+120 cases per set. Its candidate inputs are all new relative to both the hard
+set and original held-out set. Task has 90 distinct inputs; grounding has 75.
+`additional/manifest.json` freezes labels, generated data, rendered prompts and
+source hashes before any additional call. The original candidate freeze remains
+unchanged, and the additional runner verifies both freezes before measurement.
+
+`run-additional.py` reuses the original recorder, native metrics, shipped scorer
+and candidate. It shares the same recording stream, serial lock, cumulative
+8 USD cap and 06:30 local call deadline. `render-additional.mts` preserves the
+original renderer and changes only corpus selection and output paths. Each
+contestant receives one evaluation per distinct input; repeated inputs replay
+the same answer. Matching fictional task receipts are also given to both sides.
+
+Original held-out counts remain separate. `pool.py` combines the original 72
+and additional 120 entries per task and grounding row. It prefixes result IDs
+with seed identifiers for collation only; model inputs and labels stay unchanged.
+Pooled task inputs total 144 distinct inputs; grounding totals 120. Every
+reported interval includes the side-specific distinct-input count. Native
+multi-stage counts use unique ordered input-stage sequences. Intervals still
+use nominal entries and do not remove dependence between related constructions.
+
+Free replay and pooling, without model calls:
+
+```sh
+.venv/bin/python comparisons/deepeval/hard/run-additional.py --tag replay-additional
+.venv/bin/python comparisons/deepeval/hard/run-additional.py --variant audit --tag replay-additional-audit
+.venv/bin/python comparisons/deepeval/hard/run-additional.py --sets task --evidence receipt --tag replay-additional-receipts
+.venv/bin/python comparisons/deepeval/hard/run-additional.py --sets task --evidence receipt --variant audit --tag replay-additional-audit-receipts
+python3 comparisons/deepeval/hard/pool.py
+```
