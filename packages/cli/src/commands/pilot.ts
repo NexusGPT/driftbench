@@ -20,11 +20,19 @@ import {
   runPilot,
 } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
-import { ACME_EXAMPLE_ABSENT, acmeExample, acmeExampleInstalled, requireAcmeExample } from '../acme-example';
+import { acmeExample, acmeExampleInstalled, requireAcmeExample } from '../acme-example';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { noStoreAt } from '../store-path';
-import { type CampaignDeps, defaultDeps, loadValidSpecs, parseTarget, showTarget } from './campaign';
+import {
+  type CampaignDeps,
+  defaultDeps,
+  loadValidSpecs,
+  noAdapter,
+  parseTarget,
+  resolveAdapter,
+  showTarget,
+} from './campaign';
 
 const RESAMPLE: readonly Resample[] = ['cells', 'conversations', 'both'];
 
@@ -58,10 +66,7 @@ export function pilotNoAdapter(
   target: TargetRef,
   exampleInstalled: boolean = acmeExampleInstalled(),
 ): string {
-  const reaches = exampleInstalled
-    ? `The pilot reaches function:acme (the Acme sales assistant) and function:${RANDOM_TARGET} or function:${RANDOM_TARGET}-<seed> (its seeded random control).`
-    : `${ACME_EXAMPLE_ABSENT} The pilot runs on the example's agents only, so this install has no pilot target.`;
-  return `No adapter is set up for ${showTarget(target)}. ${reaches}`;
+  return noAdapter(target, [], { pilot: true, exampleInstalled });
 }
 
 /** `acme-random` gives the default seed, `acme-random-<n>` seed n; anything else is not the control. */
@@ -210,9 +215,8 @@ export async function pilotRunCommand(options: RunFlags, io: Io, deps: CampaignD
   const built = await buildDesign(options, io);
   if (!built) return 2;
   const target: TargetRef = parseTarget(options.target);
-  const adapter = await deps.adapterFor(target);
+  const adapter = await resolveAdapter(target, () => deps.adapterFor(target), io, [], { pilot: true });
   if (!adapter) {
-    io.err(`${pilotNoAdapter(target)}\n`);
     return 2;
   }
   const store = await open(deps, resolve(io.cwd, options.store), io);

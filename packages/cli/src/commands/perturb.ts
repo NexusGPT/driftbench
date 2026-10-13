@@ -16,8 +16,8 @@ import {
   type CampaignDeps,
   defaultDeps,
   loadValidSpecs,
-  noAdapter,
   parseTarget,
+  resolveAdapter,
   showTarget,
   specRuns,
 } from './campaign';
@@ -122,9 +122,13 @@ export async function perturbCommand(
     if (!withFaults) return 2;
     runDeps = withFaults;
   }
-  const adapter = await runDeps.adapterFor(target);
+  const adapter = await resolveAdapter(
+    target,
+    () => runDeps.adapterFor(target),
+    io,
+    planned.pinned === undefined ? [] : [spec.id],
+  );
   if (!adapter) {
-    io.err(`${noAdapter(target, planned.pinned === undefined ? [] : [spec.id])}\n`);
     return 2;
   }
 
