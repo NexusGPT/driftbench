@@ -41,9 +41,12 @@ def main():
     parser.add_argument('--execute',action='store_true');args=parser.parse_args()
     primary.verify_seal();variant.verify()
     amendment=json.loads((HERE/'recovery-amendment.json').read_text())
-    for name,value in amendment['sha256'].items():assert digest(ROOT/name)==value,name
+    concurrency=json.loads((HERE/'concurrency-amendment.json').read_text())
+    for name,value in (amendment['sha256']|concurrency['sha256']).items():assert digest(ROOT/name)==value,name
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/recovery-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'recovery-amendment.json').read_bytes()
+    committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/concurrency-amendment.json'],cwd=ROOT)
+    assert committed==(HERE/'concurrency-amendment.json').read_bytes()
     recovery=json.loads((HERE/'crash-recovery.json').read_text())
     authorised={r['request_sha256'] for r in recovery['items']}
     locks=[]
@@ -71,13 +74,17 @@ def main():
     primary.ledger('crash recovery start; lost-attempt reserve USD 0.40',0,spent)
     signal.signal(signal.SIGTERM,lambda *_:STOP.set());signal.signal(signal.SIGINT,lambda *_:STOP.set())
     inflight={};fresh=0;stop=None;reserve=recovery['lost_attempt_reserve_usd']
-    with concurrent.futures.ThreadPoolExecutor(max_workers=sum(LIMITS.values())) as pool:
+    queue_order=collections.deque(queues)
+    global_limit=concurrency['combined_call_limit']
+    with concurrent.futures.ThreadPoolExecutor(max_workers=global_limit) as pool:
         while any(queues.values()) or inflight:
             if (HERE/'recovery-drain').exists():STOP.set();stop='drain requested'
             if datetime.datetime.now(datetime.timezone.utc)>=datetime.datetime.fromisoformat('2026-10-13T20:00:00+00:00'):STOP.set();stop='frozen cutoff'
-            for key,queue in queues.items():
+            for _ in range(len(queue_order)*global_limit):
+                if len(inflight)>=global_limit or STOP.is_set():break
+                key=queue_order[0];queue_order.rotate(-1);queue=queues[key]
                 active=sum((r['experiment'],r['model'])==key for r in inflight.values())
-                while queue and not STOP.is_set() and active<LIMITS[key]:
+                if queue and active<LIMITS[key]:
                     if spent+reserve+.02*(len(inflight)+1)>10:STOP.set();stop='shared cap with lost-attempt reserve';break
                     r=queue.popleft()
                     with LOCK:primary.append(dest(r['experiment'])/'starts.jsonl',{k:v for k,v in r.items() if k not in ('prompt','built')}|{'started':stamp()})
@@ -87,7 +94,7 @@ def main():
             for f in completed:
                 r=inflight.pop(f);a=f.result();spent+=measured(a);fresh+=1
                 if fresh%50==0:print(json.dumps({'stamp':stamp(),'fresh_completed':fresh,'remaining':{str(k):len(q) for k,q in queues.items()},'measured_usd':spent,'lost_reserve_usd':reserve,'limits':{str(k):v for k,v in LIMITS.items()}}),flush=True)
-            dump(HERE/'recovery-state.json',{'stamp':stamp(),'fresh_completed':fresh,'remaining':{str(k):len(q) for k,q in queues.items()},'inflight':len(inflight),'measured_usd':spent,'lost_reserve_usd':reserve,'stop_reason':stop,'limits':{str(k):v for k,v in LIMITS.items()}})
+            dump(HERE/'recovery-state.json',{'stamp':stamp(),'fresh_completed':fresh,'remaining':{str(k):len(q) for k,q in queues.items()},'inflight':len(inflight),'measured_usd':spent,'lost_reserve_usd':reserve,'stop_reason':stop,'global_limit':global_limit,'limits':{str(k):v for k,v in LIMITS.items()}})
     primary.ledger('crash recovery finish '+str(stop),fresh,spent)
     print(json.dumps({'finished':stamp(),'fresh_completed':fresh,'measured_usd':spent,'lost_reserve_usd':reserve,'stop_reason':stop}),flush=True)
 
