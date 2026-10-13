@@ -7,24 +7,24 @@ Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 38 were made by a f
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 0 |
+| 1 | 3 |
 <!-- level-table:end -->
 
-Iteration 38, sweep at 48a078786: seed 1 passes 1082 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
+Iteration 39, sweep at 32c570683 (main merged in, run alone): seed 1 passes 1103 of 1170 items and the ladder is at level 3. Reader, lint and plan pass in full. Generation is the first failing level (244 of 270). The handover was made here on the owner's instruction: building moves to other helpers.
 
-| Level | Passing at the takeover (5fbc3c9a) | Passing at 48a078786 |
+| Level | Passing at the takeover (5fbc3c9a) | Passing at 32c570683 |
 |---|---|---|
-| reader | 584/641 | 640/641 |
+| reader | 584/641 | 641/641 |
 | lint | 45/46 | 46/46 |
-| plan | 44/65 | 64/65 |
-| generation | 196/270 | 241/270 |
-| agent-mutants | 22/75 | 26/75 |
-| maintenance | 49/53 | 50/53 |
+| plan | 44/65 | 65/65 |
+| generation | 196/270 | 244/270 |
+| agent-mutants | 22/75 | 41/75 |
+| maintenance | 49/53 | 51/53 |
 | scale | 20/20 | 15/20 on this run (timing) |
 
-Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20, 15, 15, 15, 15, 15 and 15 times across the eleven sweeps, with no change to scale code.
+Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20, 15, 15, 15, 15, 15, 15 and 15 times across the twelve sweeps, with no change to scale code.
 
-The cross-seed sweep (seeds 1 to 20 and hidden) was not rerun after these changes. It stops at the first failing level, which is level 1 on every seed while the defect stands.
+The cross-seed sweep (seeds 1 to 20 and hidden) was not rerun. Run it now that level 1 passes on seed 1.
 
 ## Floor
 
@@ -54,7 +54,7 @@ The item asks that a rule respaced (two spaces inside it) touch no test. Section
 
 The items ask that a skill folder renamed with its name kept retire no test and bring no new atom. `packages/validators/test/estate/mutants.test.ts` ("names the tests maintenance regenerates instead of retiring") asserts the opposite of the product: `expect(renamed.length).toBeGreaterThan(0)` with `expected === 'kept' && got === 'retired'`. A product that follows the rename makes that test fail, and the executor may not edit it. The fix (match a renamed skill's atoms by skill name in `packages/estate/src/maintain/diff.ts`) should land together with the maintainer's change to that test.
 
-### Rulings in review (do not change the product for these items until each merges)
+### Rulings (all merged on main on 2026-10-13)
 
 | Finding | Items | PR |
 |---|---|---|
@@ -66,28 +66,37 @@ The items ask that a skill folder renamed with its name kept retire no test and 
 | judged criteria | gen.asks.judged-only-registers | 241 |
 | D3 | maintain.impact.spacing-touches-nothing | draft product PR for the owner: a white-space-only change touches no test (the owner's blast-radius direction; reverses docs/estate.md section 8) |
 
+PRs 230, 231, 233, 239, 240, 241 and 244 are in this branch through the merge at 32c570683. PR 274 (kill.fake judges settings by their static tests and names the documented equivalent mutants) merged on main after that merge and is NOT in the branch yet. After each later ruling merges: merge main (`git fetch origin main && git merge origin/main`), run the estate and validator estate test files one at a time, then one full sweep run alone, then a journal row.
+
 Open, not now (owner): give the rule follower an observable act for about eight rule kinds, so more mutant classes are measured (follow-up of D5).
 
 The gate fix held back by D6 (a gate's read tied to its file, or to the edited file) is saved outside the repo as a patch and test; it kills two gate mutants once PR 240 lands.
 
 ## Open items
 
-First failing level (reader), seed 1: `scan.hostile.prompt-hook` only (D1, PR 230).
+First failing level: generation (level 4 of the ladder table), seed 1, 26 items.
 
-Beyond level 1, from the all-level run at 48a078786 (88 failing items):
+All failing items at 32c570683 (67):
 
 | Family | Failing | Note |
 |---|---|---|
-| kill.fake | 27 | classified one by one under "Next actions", item 2 |
-| mutant.agent | 22 | D5 (PR 233) and D6 (PR 240); not to be worked around |
+| kill.fake | 27 | classified one by one under "Next actions", item 2; PR 274 changes the settings and equivalent-mutant items, remeasure after merging main |
 | gen.complete | 14 | custom predicates, guard message and stage reach checks |
+| mutant.agent | 7 | not examined since the merge; the gate fix saved as a patch may apply now that PR 240 is in |
 | gen.task | 6 | see "Next actions", item 3 |
 | gen.coverage | 5 | |
 | scale | 5 | timing on a loaded host |
-| gen.asks | 4 | PRs 239 and 241, and k distinct phrases per route |
-| maintain.impact | 3 | D3 (draft PR 244) and D4 (PR 240) |
-| plan.contract | 1 | D2 (PR 231) |
-| scan.hostile | 1 | D1 (PR 230) |
+| maintain.impact | 2 | the two rename items (D4): PR 240 is in, so the rename fix in `packages/estate/src/maintain/diff.ts` can now be made |
+| gen.asks | 1 | not examined since the merge |
+
+Product gaps the coordinator named, and their state:
+
+* Live specs for script atoms: built (journeys walk script edges). Their specs are red on the original because the fixture's recorded streams skip the script.
+* Live specs for reference atoms: the file-list fallback is built; the conditional currency read waits for an approved non-EUR situation; the matching-rules read is green through a recorded stream on original and mutant.
+* Live specs for gate atoms: not built. gate-1's end is prose (`needs-ordered-anchor`, documented and pinned by a test). Needs a ruling.
+* Tool asks loading their skill: built for declared tools (`owners()` in `plan/contract.ts`).
+* States and a judge for the 8 not green on the original: not buildable in the product; the bank's run passes neither (reproduced under "Next actions", item 2).
+* The misroute comment in `plan/contract.ts` (was line 199): fixed in 869c1e025, with the plan files.
 
 ## Hypotheses tried
 
@@ -167,13 +176,20 @@ For the second: a guard spec takes its payloads from the native unit tests writt
 
 Two commits. (1) Journeys walk a skill to the script its body runs, so scripts get live specs; a focus atom counts its complete specs once per ask and cell (7bbdf67cb). (2) A journey through a reference read under a condition waits for a situation that sets the condition off (48a078786). Plan 1145 rows, suite 847 complete. Family runs: plan 64, generation 241, kill.fake 4, all unchanged; the full sweep is row 38 of the journal.
 
+### Iteration 39
+
+1082 to 1103, level 0 to 3, with no product change: main merged in after the rulings merged. Reader 641, plan 65, generation 244, agent mutants 41, maintenance 51.
+
 ### What the previous executor got wrong
 
 The earlier stuck record held back 14 reader items as "contract conflicts": gate wordings beyond the four, routing outside tables, extra standing files, and relaxed step JSON. `NEEDS.md` keeps them in the bank, and none contradicts a decoy item. They were passable product gaps, and `docs/estate.md` and `docs/adapters/claude-code.md` now name the forms. Measurement note: each journal row of iterations 30 to 32 covers several one-cause commits measured by one sweep, because a full sweep takes 8 to 20 minutes on this host. Each commit was checked by running its affected families.
 
 ## Next actions
 
-1. After each ruling PR merges: merge main into this branch, then rerun the families it touches (see the table above).
+1. The next three steps, in order:
+   * Merge main again to take PR 274, run the estate test files one at a time, then one full sweep alone, and write journal row 40. Remeasure kill.fake: the setting, invariant and skill items should change.
+   * maintain.impact rename items (2): make the rename fix in `packages/estate/src/maintain/diff.ts` (match a renamed skill's atoms by skill name), red test first; then try the saved gate patch (`gate-pairs.patch` and `gate-pairs.test.ts`, kept outside the repo in the session scratchpad under `opus/estate/`) against mutant.agent.
+   * Generation, the first failing level: gen.complete (14), starting with the items whose marker is a registered check the runner lacks (guard message, guard timing, stage reach); one cause per commit, red test first.
 2. kill.fake: 4 of 31 with the estate-derived fake (route-1, guard-2, stage-1, stage-2). Iterations 37 and 38 built the product gaps the coordinator named; the 27 left, by why:
    * Built, now honest lives or honest waits (no ruling needed, written here so no one re-opens them):
      * tool-1: the tool_boundary row of a declared tool now names its skill (`plan/contract.ts` `owners()`), so the ask loads the skill, and the fake runs the command the skill body says to run. The spec is green on the original. On the delete mutant it stays green: the settings allow `Bash(python3 *)`, so an agent may still run the script without the skill's declaration. An honest live.
