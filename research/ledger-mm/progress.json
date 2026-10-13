@@ -1,7 +1,7 @@
 {
   "spend": {
-    "knownUsd": 0,
-    "unknownReservedUsd": 0,
+    "knownUsd": 0.1420359,
+    "unknownReservedUsd": 0.36000000000000004,
     "capUsd": 20
   },
   "models": {
@@ -10,21 +10,219 @@
       "status": "pending",
       "matched": 0,
       "planned": 600,
-      "phaseCounts": {},
+      "phaseCounts": {
+        "fixture": 18,
+        "pilot": 40
+      },
       "pilot": {
         "model": "haiku",
-        "status": "pending",
-        "matched": 0,
-        "planned": 20
+        "status": "complete",
+        "matched": 20,
+        "planned": 20,
+        "scores": {
+          "ledger": 0.7,
+          "promptfoo": 0.875
+        },
+        "intervals": {
+          "ledger": [
+            0.55,
+            0.85
+          ],
+          "promptfoo": [
+            0.75,
+            0.975
+          ]
+        },
+        "difference": -0.175,
+        "differenceInterval": [
+          -0.3,
+          -0.025
+        ],
+        "wins": 1,
+        "losses": 5,
+        "pTwoSided": 0.21875,
+        "holmP": null,
+        "holmStatus": "pending pooled 18-cell collation",
+        "cheaters": {
+          "constant-first": 0.5,
+          "longer-wins": 0.4,
+          "refusal-wins": 0.55
+        },
+        "items": [
+          {
+            "id": "3252",
+            "group": "chat",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "3221",
+            "group": "chat",
+            "label": "B",
+            "ledger": 0.0,
+            "promptfoo": 0.0,
+            "difference": 0.0
+          },
+          {
+            "id": "3265",
+            "group": "chat",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "3540",
+            "group": "chat",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "1660",
+            "group": "reasoning",
+            "label": "A",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "700",
+            "group": "reasoning",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "1904",
+            "group": "reasoning",
+            "label": "A",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "1251",
+            "group": "reasoning",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "4753",
+            "group": "safety",
+            "label": "B",
+            "ledger": 0.0,
+            "promptfoo": 0.5,
+            "difference": -0.5
+          },
+          {
+            "id": "4140",
+            "group": "safety",
+            "label": "B",
+            "ledger": 0.0,
+            "promptfoo": 1.0,
+            "difference": -1.0
+          },
+          {
+            "id": "4578",
+            "group": "safety",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "4618",
+            "group": "safety",
+            "label": "A",
+            "ledger": 0.0,
+            "promptfoo": 1.0,
+            "difference": -1.0
+          },
+          {
+            "id": "3716",
+            "group": "linguistics",
+            "label": "B",
+            "ledger": 0.0,
+            "promptfoo": 0.5,
+            "difference": -0.5
+          },
+          {
+            "id": "4050",
+            "group": "linguistics",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "3955",
+            "group": "linguistics",
+            "label": "A",
+            "ledger": 0.0,
+            "promptfoo": 1.0,
+            "difference": -1.0
+          },
+          {
+            "id": "3774",
+            "group": "linguistics",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "2738",
+            "group": "language mixing",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "2168",
+            "group": "language mixing",
+            "label": "A",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          },
+          {
+            "id": "2044",
+            "group": "language mixing",
+            "label": "A",
+            "ledger": 1.0,
+            "promptfoo": 0.5,
+            "difference": 0.5
+          },
+          {
+            "id": "2357",
+            "group": "language mixing",
+            "label": "B",
+            "ledger": 1.0,
+            "promptfoo": 1.0,
+            "difference": 0.0
+          }
+        ],
+        "graderErrors": {
+          "ledger": 1,
+          "promptfoo": 0
+        }
       },
       "usage": {
         "fixture": {
-          "calls": 0,
-          "knownUsd": 0
+          "calls": 18,
+          "knownUsd": 0.01034096
         },
         "pilot": {
-          "calls": 0,
-          "knownUsd": 0
+          "calls": 78,
+          "knownUsd": 0.0771536
         },
         "noise": {
           "calls": 0,
@@ -86,28 +284,49 @@
           "correctFlips": 0,
           "pass": false
         }
-      }
+      },
+      "cheaterBar": {
+        "constant-first": {
+          "cheaterScore": 0.5,
+          "margin": 0.19999999999999996,
+          "pass": true
+        },
+        "longer-wins": {
+          "cheaterScore": 0.4,
+          "margin": 0.29999999999999993,
+          "pass": true
+        },
+        "refusal-wins": {
+          "cheaterScore": 0.55,
+          "margin": 0.1499999999999999,
+          "pass": true
+        }
+      },
+      "projectedTestUsd": 2.314608
     },
     "gpt-6-luna": {
       "model": "gpt-6-luna",
       "status": "pending",
       "matched": 0,
       "planned": 600,
-      "phaseCounts": {},
+      "phaseCounts": {
+        "fixture": 18,
+        "pilot": 27
+      },
       "pilot": {
         "model": "gpt-6-luna",
         "status": "pending",
-        "matched": 0,
+        "matched": 11,
         "planned": 20
       },
       "usage": {
         "fixture": {
-          "calls": 0,
-          "knownUsd": 0
+          "calls": 18,
+          "knownUsd": 0.00322884
         },
         "pilot": {
-          "calls": 0,
-          "knownUsd": 0
+          "calls": 68,
+          "knownUsd": 0.0175175
         },
         "noise": {
           "calls": 0,
@@ -176,7 +395,9 @@
       "status": "pending",
       "matched": 0,
       "planned": 600,
-      "phaseCounts": {},
+      "phaseCounts": {
+        "fixture": 18
+      },
       "pilot": {
         "model": "gemini-3.8-flash",
         "status": "pending",
@@ -185,8 +406,8 @@
       },
       "usage": {
         "fixture": {
-          "calls": 0,
-          "knownUsd": 0
+          "calls": 18,
+          "knownUsd": 0.033795
         },
         "pilot": {
           "calls": 0,

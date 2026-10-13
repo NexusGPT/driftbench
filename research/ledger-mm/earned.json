@@ -1,0 +1,20 @@
+{
+  "haiku": {
+    "harm": false,
+    "correct": 16,
+    "planned": 18,
+    "kappa": null
+  },
+  "gpt-6-luna": {
+    "harm": true,
+    "correct": 18,
+    "planned": 18,
+    "kappa": 1
+  },
+  "gemini-3.8-flash": {
+    "harm": false,
+    "correct": 13,
+    "planned": 18,
+    "kappa": null
+  }
+}
