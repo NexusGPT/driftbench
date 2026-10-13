@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-13T13:48:00.479283+00:00",
+  "tests": 6,
+  "files": 1,
+  "passed": true,
+  "typecheck": "passed",
+  "testCommand": "pnpm exec vitest run examples/judge-benchmarks/test/rubric-ledger-added-models.test.ts --maxWorkers 1",
+  "typecheckScope": "three new source files, new test and imported dependencies",
+  "modelCalls": 0
+}
