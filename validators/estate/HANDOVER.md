@@ -8,6 +8,8 @@ Iteration 40 at 59f4b083b merges main, including PR 274 and D11/D12. Seed 1, run
 
 ## Current v4 result
 
+Latest focused measurements at f6826da6e: seed 1 remains level 3; generation 250/270; agent-mutants 50/74 (mutant.agent 39/44, kill.fake 11/30). Reader 641/641, lint 46/46, plan 65/65 and maintenance 53/53 are the prior isolated measurements, not rerun here. The six measured gains since d068edb6d are one-per-tool, instruction-no-force-push, tool_boundary task, hazard_recovery task and both fake helper deletions. Scale is not remeasured. PR307 remains open and is not in this branch.
+
 Iteration 41 at aa9877712: seed 1 remains level 3. The isolated ladder stops at generation and does not measure scale: reader 641/641, lint 46/46, plan 65/65, generation 247/270. Iteration 42, on the unchanged product tree, measures agent-mutants 47/74 and maintenance 53/53. The non-scale total is 1099/1149 across these sequential runs. Scale remains 15/20 on the older loaded-host baseline and must only be remeasured on a quiet host.
 
 The maintainer rules the negative reply-length item valid. aa9877712 fixes it: unqualified negative guard controls forbid deny, ask, warn and nudge, while ordinary allow invocations pass. Explicit verdicts remain exact. Regression red first, then 2/2; then 34/34; generate 32/32; CLI unit specs 5/5; gen.complete 84/97, up from 83/97. The earlier negative-guard ruling request below is resolved by this fix.
@@ -349,3 +351,28 @@ The five probes use PR307's estate-derived fixture/follower from 7341a1169 with 
 - bdfc60623: command_absent compiles its literal command to the existing some_call prohibition. Both regressions fail first, then pass 2/2; generator passes 32/32. The isolated seed 1 mutant.agent family rises from 38/44 to 39/44. The earlier instruction-no-force-push ruling diagnosis was incorrect: a fresh replay shows a push task, but the uncompiled custom predicate produced a judged criterion. The rule now has a machine check.
 
 Focused seed 1 measurements at bdfc60623: gen.complete 84/97, gen.task 19/23, gen.coverage 21/25, mutant.agent 39/44. One-per-tool is resolved by approval compilation. Two measured bank items gained since d068edb6d. No new full-level or scale claim is made. PR307's input repairs are not merged into this worktree yet.
+
+### v4 continuation: concrete tasks and helper availability
+
+- 5ffd99935: Read, Glob and Grep task asks state their concrete file operation. Regression red 3/3, then green 3/3; existing asks 20/20 and generation 32/32. gen.task rises from 19/23 to 20/23.
+- a23ca0691: a topic trigger uses the concrete task in its own description when present; explicit asks-to clauses retain priority. Regression red 1/2, then green 2/2; asks 20/20 and generation 32/32. The two shipment asks now name work; the obligation item remains red on the approved stop requests.
+- 691440b7b: hazard recovery asks request review of the interrupted task and its next action. The runner supplies the interruption; the ask gives no recovery prerequisite away. Regression red 3/3, then green 3/3; asks 20/20 and generation 32/32. gen.task rises to 21/23. Approved stop phrases remain unchanged.
+- beff9b84b: the estate-derived fake requires name and description in project helper frontmatter. It no longer invents a helper from its filename. This follows the runtime's documented project-helper loading contract: https://code.claude.com/docs/en/sub-agents#subagent-files-claude-code-skips. Regression red 2/3, then green 3/3. kill.fake rises from 9/30 to 11/30: both helper deletions are caught. The earlier request to rule those two deletions is withdrawn; they were a fake-runtime product gap.
+- f6826da6e: the existing live-agent regression referenced a generated pairwise file that no longer exists. It now uses the fresh forced-push case, pairwise.471. Focused file red 1/5 before repair, green 5/5 after; it still verifies the original passes and the guard deletion fails.
+
+Fresh generation family counts: gen.complete 84/97, gen.asks 23/24, gen.task 21/23, gen.reads 23/23, gen.coverage 21/25, unit.runner 41/41, estate.stats 37/37. Total 250/270. Fresh mutant.agent is 39/44 and kill.fake is 11/30, total 50/74. Each command runs alone; no scale command runs.
+
+### Fresh survivor evidence, not a product workaround
+
+The read-only probe at 691440b7b writes /private/tmp/estate-v4-survivors.json. It captures every green test's asks and original/mutant tool timeline for the six surviving atoms behind five mutant.agent items.
+
+- gate:repair-ticket and rule:fixed-gate: follower.ts lines 359-377 adds closing-rules.md from both the skill gate and the standing gate. Deleting either moves one duplicate read after Edit but leaves the other before Edit. A representative mutant reads the required file at 09:00:06, edits at 09:00:12, and reads it again at 09:00:14. Both gates require the prior read, not the absence of a later reread. Nine skill-gate tests and eight standing-gate tests pass this compliant trace.
+- The two closing-rules reference deletions remove one duplicate read and leave the other before Edit. The surviving read satisfies the reference and the gate. Requiring exactly two reads, or rejecting the harmless later reread, would reject a correct agent and is not a product fix.
+- The menu supplier-recipes reference is absent from the planted estate. Its two generated specs correctly retain needs-existing-file.
+- WebFetch's original replay has no offered-tools metadata. Its complete exclusion spec correctly stays inconclusive. A missing call alone cannot establish that a tool was unavailable.
+
+The bytewise equivalence check in levels.ts lines 485-503 compares full serialized sessions, so duplicate count changes and late duplicate reads are not classified equivalent even when the rules remain satisfied. The maintainer has the paired evidence. No validator source or test is changed.
+
+PR307 compatibility probe: current product against its pending 99b6b66f8 fixture/follower yields 96/97 gen.complete items. The remaining declared Glob helper case calls Glob without dispatching its owning ledger-auditor helper. The generated owner expectation remains intact. This is a scratch cross-branch probe, not an official ladder result.
+
+Remaining fake-runtime work: default manifest recordings mask script, reference and reply-rule changes. A change to default playback must preserve the shared adapter protocol tests; no hand-authored per-atom stream or mutant branch is allowed. The maintainer has this integration question. The runner also receives no --states or --judge in fixture-suite.ts, and copies only the map, plan and phrases when generating, so missing runtime states, judge evidence and recorded sessions cannot be synthesized as passing observations. Automatic state-library discovery is not used: mutant copies omit that library and would produce false kills.
