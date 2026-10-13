@@ -1,0 +1,8 @@
+{
+  "freezeCommit": "d88113cb33cef242b068e630b176651b97a7e743",
+  "startedAt": "2026-10-13T03:50:09.963Z",
+  "deadline": 1791869220000,
+  "model": "haiku",
+  "concurrency": 2,
+  "cap": 8
+}

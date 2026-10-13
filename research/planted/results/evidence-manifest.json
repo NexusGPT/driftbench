@@ -1,0 +1,154 @@
+{
+  "results/bank-audit.json": {
+    "bytes": 105,
+    "sha256": "4bff143495afa5f3707c6bda9b1700bd6471eb2607ee54db531be4f0de5287e8"
+  },
+  "results/bank-rb.json": {
+    "bytes": 42921,
+    "sha256": "93c0d83f9514cd5b2a2fc18e8b6923b69d1431a8c09702ba997052482cde958b"
+  },
+  "results/bank-rb.jsonl": {
+    "bytes": 34130,
+    "sha256": "72679d6aaa8bf4f69973eb0cdafe3893773931de514c10e84b06de025eeb497e"
+  },
+  "results/bank-verify-batches.jsonl": {
+    "bytes": 30263,
+    "sha256": "132a265812168e399dffdea5dc64c49203abb408de6576d1274651713cff5c34"
+  },
+  "results/bank-verify.json": {
+    "bytes": 24038,
+    "sha256": "ba3a7f16f1a7abf1e28c7eac369174ad69ea216a3dd76f849de0efe93e82c974"
+  },
+  "results/driver.log": {
+    "bytes": 5302,
+    "sha256": "e44c9351437968e69613d801bc4e81555dd0d1d1422da77314a6e4f9bad0141a"
+  },
+  "results/meter-state.json": {
+    "bytes": 106,
+    "sha256": "d639b5353e57f796d8f25d998c7fa2ff6b364dfaf21feacb43c60072b9024b03"
+  },
+  "results/noise-rb-1.json": {
+    "bytes": 44363,
+    "sha256": "521d43c909b19ea3f34ddbb7842471bbe2848fde79d827cfb21ac678c48f852b"
+  },
+  "results/noise-rb-1.jsonl": {
+    "bytes": 34962,
+    "sha256": "d58a9bcef01a7a778f32e2f16683f675f89a991bf1c74b6222213d93b7acdb65"
+  },
+  "results/noise-rb-2.json": {
+    "bytes": 43740,
+    "sha256": "c252113a040b14fe8a57a1eb01835c9ed85b5ae613dd1a536bde697866c9880e"
+  },
+  "results/noise-rb-2.jsonl": {
+    "bytes": 34339,
+    "sha256": "ca41d71ec8689e01711bd29428b00c7608cbfd96d81968b2fb458ba9872fb8a9"
+  },
+  "results/noise-rb-3.json": {
+    "bytes": 43163,
+    "sha256": "cc847f25ee881216fc24e8bcf24c986fea6b92eea54bc7c1e965446ac331742a"
+  },
+  "results/noise-rb-3.jsonl": {
+    "bytes": 33965,
+    "sha256": "a752a2158ed9894c9f434e1179b18f783f2ee5b19289f3b5f699384a4b20fca9"
+  },
+  "results/noise-verify-1-batches.jsonl": {
+    "bytes": 6363,
+    "sha256": "0afd1192f57efbbefeb3e4f93e7fb642d59b851d916398cae0d3c4ccecc700b4"
+  },
+  "results/noise-verify-1.json": {
+    "bytes": 5147,
+    "sha256": "f15a0a91679ee27df96e3d5ece733382804d821738064203f2785f43d907c972"
+  },
+  "results/noise-verify-2-batches.jsonl": {
+    "bytes": 4225,
+    "sha256": "e2562d57c9df9d5d7bc076a7062a0003e7e99fb126210f8927d4ad6c81cb2acf"
+  },
+  "results/noise-verify-2.json": {
+    "bytes": 3381,
+    "sha256": "e0d8ff918881d33a72e3f7754a9b382b8e8497317bb5546e782f15732bae6649"
+  },
+  "results/noise-verify-3-batches.jsonl": {
+    "bytes": 4243,
+    "sha256": "c7c27078e634ed7c6cdb63a60d0fbf7deb4fb2bf55ccc3bc0fa07898955d9467"
+  },
+  "results/noise-verify-3.json": {
+    "bytes": 3399,
+    "sha256": "19d609519f0d6c11dca4917a54711606284ed0b4541902da28c0a9e09f758a90"
+  },
+  "results/progress.json": {
+    "bytes": 198,
+    "sha256": "62a3dfcba6c88bc47b5e99458136bfbeb7eb69987a5bf9b96e37892fd244f30e"
+  },
+  "results/recordings/bank-rb/haiku.jsonl": {
+    "bytes": 41564,
+    "sha256": "6882d15602b7437b776e066fcc8e816964f35c343fdc0e81ec9dd7fbb6a8d364"
+  },
+  "results/recordings/bank-verify/longjudge-verify/haiku.jsonl": {
+    "bytes": 702040,
+    "sha256": "322bfcf5493f8f4aa0ec4c2bf29f9b28b5f6901bc0b6d6e4ec3add5d1cbe7653"
+  },
+  "results/recordings/bank-verify/longjudge-verify/program-outputs.jsonl": {
+    "bytes": 132322,
+    "sha256": "0ff9570a4f61d067acfed0bf5d42c275d4e736d8a796eb2f749cf69526a3c357"
+  },
+  "results/recordings/noise-rb-1/haiku.jsonl": {
+    "bytes": 43716,
+    "sha256": "b740367229f56c680a5f82c8ded9f2e9cbd0f949b0f05ae28b706a00161a0673"
+  },
+  "results/recordings/noise-rb-2/haiku.jsonl": {
+    "bytes": 42704,
+    "sha256": "3eb6b5d030fd04c5516b4435f7a7571635f315f3dff4a90ef5e9c7be5c113a1d"
+  },
+  "results/recordings/noise-rb-3/haiku.jsonl": {
+    "bytes": 43534,
+    "sha256": "f0577dedb8d9a40f54b14369fbcc591f9b53f35071bf38c2bf00b1c56aa84180"
+  },
+  "results/recordings/noise-verify-1/longjudge-verify/haiku.jsonl": {
+    "bytes": 218633,
+    "sha256": "bf718342aedbd6aa46fe914e9bb42ecafe7c2d89dc98ee1432d1c73b298e20ee"
+  },
+  "results/recordings/noise-verify-1/longjudge-verify/program-outputs.jsonl": {
+    "bytes": 35852,
+    "sha256": "6133d5807c84fc92e1d38e221a44fadb1f91e2d9faf85512b3071736fd64c0fc"
+  },
+  "results/recordings/noise-verify-2/longjudge-verify/haiku.jsonl": {
+    "bytes": 132379,
+    "sha256": "7924779663aecc00affc696ebfc76e7058ae67ef4998d64d7b4c213e0d2b495d"
+  },
+  "results/recordings/noise-verify-2/longjudge-verify/program-outputs.jsonl": {
+    "bytes": 23814,
+    "sha256": "d0c746736e4167189cb5cc767b41c1e584733eeb507c774ffe5f33da0931fdd3"
+  },
+  "results/recordings/noise-verify-3/longjudge-verify/haiku.jsonl": {
+    "bytes": 137656,
+    "sha256": "33b0cc5df91cae32bacf3f193daea169741074e141844516b5f7d5e02717d18f"
+  },
+  "results/recordings/noise-verify-3/longjudge-verify/program-outputs.jsonl": {
+    "bytes": 21770,
+    "sha256": "fc2b52018b6ea9398623cf3c439681d2ce9bcfdd1c473cda1429ed2f204960ed"
+  },
+  "results/resumes.jsonl": {
+    "bytes": 495,
+    "sha256": "d8cd9a778c34cb433513808b752847a6c63479175cfb73fa9195b1cfa7b2c6bf"
+  },
+  "results/run-start.json": {
+    "bytes": 189,
+    "sha256": "05e288ef127654908e5cfe8fb87e8a833c05e0ce8c12bf1129dabbe3ee25a8ff"
+  },
+  "results/spend.jsonl": {
+    "bytes": 230479,
+    "sha256": "ebcc7118cfb55fd6161b819e5bc4e900b159cb8cbce5e7a39f10b80b1fc1e497"
+  },
+  "results/stats-check.json": {
+    "bytes": 228,
+    "sha256": "33332b05231a542cef09bf8710c89c1980aef90180c4cb2447ed27a3b92933f9"
+  },
+  "results/stop.json": {
+    "bytes": 383,
+    "sha256": "a9178714d66050353ecdcd7b930ea8da288b34d4d4d008f77d21689e51cfd2bc"
+  },
+  "results/rb-execution.jsonl": {
+    "bytes": 25048,
+    "sha256": "610ccacf75701c03c630d8ae757cde20da4f6767da568429c0234c71a99ddbf5"
+  }
+}

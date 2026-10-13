@@ -1,0 +1,18 @@
+{
+  "verifiedAt": "2026-10-13T04:37:14.567848+00:00",
+  "offlineReproductionIdentical": true,
+  "evidenceHashesVerified": 38,
+  "frozenBeforeFirstCall": true,
+  "freezeCommitTimestamp": "2026-10-13T05:49:18+02:00",
+  "activeCalls": 0,
+  "actualTransportCalls": 1021,
+  "knownCostUsd": 0.9143630399999996,
+  "unpricedUsd": 0,
+  "lastModelStartUtc": "2026-10-13T04:34:58.140514+00:00",
+  "lateStarts": 0,
+  "peakCalls": 6,
+  "verifyNoiseCompleteTriples": 16,
+  "rbNoiseCompleteTriples": 30,
+  "requestedVerifyNoiseIncomplete": true,
+  "reportCopyEqual": true
+}

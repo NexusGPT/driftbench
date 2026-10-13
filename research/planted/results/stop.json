@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T04:35:06.957Z",
+  "error": "Error: Incomplete noise-verify-1: claude stopped: Last new call limit reached: 06:35 Brussels",
+  "meter": {
+    "spent": 0.9057888399999996,
+    "unknownReserved": 0,
+    "active": {
+      "576582de-512d-4ab6-a486-86044e0118e5": 0.25,
+      "9ad3ab96-d40e-4b59-8214-3f226fc704ab": 0.25
+    },
+    "calls": 1019,
+    "peak": 6
+  }
+}

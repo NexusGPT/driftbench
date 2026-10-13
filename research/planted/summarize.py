@@ -95,6 +95,14 @@ for bench,N in [('verify',95),('rb',357)]:
            'usd':sum(x['usd'] for x in costs),'items':rows}
     counts=[c['callsByItem'].get(id,0) for c in costs for id in ids]
     block['newCallsPerPlannedJudgment']={'mean':sum(counts)/90,'min':min(counts),'max':max(counts),'counts':counts}
+    completedCounts=[costs[k]['callsByItem'].get(row['id'],0) for k,rep in enumerate(reps) for row in rep if (isinstance(row.get('pass'),bool) if bench=='verify' else row.get('decision') in ['A','B','tie'])]
+    block['completedJudgmentCallAccounting']={'completedJudgments':len(completedCounts),'retainedCalls':sum(completedCounts),'meanRetainedCalls':sum(completedCounts)/len(completedCounts) if completedCounts else None,'min':min(completedCounts) if completedCounts else None,'max':max(completedCounts) if completedCounts else None}
+    batches=[]
+    for k in [1,2,3]:
+        path=runtime/f'noise-{bench}-{k}-batches.jsonl'
+        if path.exists():batches += [json.loads(x) for x in path.read_text().splitlines()]
+    block['promptRequestsIncludingReplay']=sum(x['contestants'][0]['calls'] for x in batches) if bench=='verify' else block['successfulRecordedCalls']
+
     if rows:
         n=len(rows);flip=sum(x['pairwiseFlips'] for x in rows)/(3*n);cflip=sum(x['correctnessFlips'] for x in rows)/(3*n)
         vari=cflip/2
@@ -191,7 +199,7 @@ for bench in ['rb','verify']:
     lines.append(f"| {bench} bank | {b.get('actualTransportCalls','pending')} | {b['successfulRecordedCalls']} | {b.get('promptRequestsIncludingReplay',b['successfulRecordedCalls'])} | {b.get('actualTransportUsd',b['usd']):.7f} |")
 for bench in ['rb','verify']:
     b=metrics['noise'][bench]
-    lines.append(f"| {bench} noise | {b.get('actualTransportCalls','pending')} | {b['successfulRecordedCalls']} | {b['successfulRecordedCalls']} | {b.get('actualTransportUsd',b['usd']):.7f} |")
+    lines.append(f"| {bench} noise | {b.get('actualTransportCalls','pending')} | {b['successfulRecordedCalls']} | {b['promptRequestsIncludingReplay']} | {b.get('actualTransportUsd',b['usd']):.7f} |")
 lines+=['',f"Total transport attempts: {meter['calls']}. Recorded spend: USD {meter['spent']:.7f}. Unpriced reserved amount: USD {meter['unknownReserved']:.2f}. Cap: USD 16.00. Peak active model calls: {meter['peak']}.",
         f"Last actual model-call start: {metrics['completion']['lastModelStartedUtc']}. Calls starting at or after the 06:35 Brussels cutoff: {metrics['completion']['startsAtOrAfterCutoff']}.",
         f"Observed model identifiers: {', '.join(metrics['models']) or 'not returned'}. Calls request the haiku alias.",'',
@@ -201,7 +209,7 @@ lines+=['',f"Total transport attempts: {meter['calls']}. Recorded spend: USD {me
         'Per-judgment call accounting:',
         f"- Verify bank: {metrics['bank']['verify'].get('actualTransportCalls',0)} actual calls across 190 answer judgments, mean {metrics['bank']['verify'].get('actualTransportCalls',0)/190:.3f}; shared blind-reference cache hits are listed separately in metrics.json.",
         f"- RubricBench bank: {metrics['bank']['rb']['successfulRecordedCalls']} calls across 60 pairs, mean {metrics['bank']['rb']['newCallsPerJudgment']['mean']:.3f} per pair. One canonical comparison provides both requirement grades.",
-        f"- Verify noise: {metrics['noise']['verify'].get('actualTransportCalls',0)} actual calls across 90 planned full-cascade judgments, mean {metrics['noise']['verify'].get('actualTransportCalls',0)/90:.3f} per planned judgment; incomplete pilots do not establish the completed-judgment mean.",
+        f"- Verify noise: {metrics['noise']['verify']['completedJudgmentCallAccounting']['completedJudgments']} completed full-cascade judgments used {metrics['noise']['verify']['completedJudgmentCallAccounting']['retainedCalls']} retained calls, mean {metrics['noise']['verify']['completedJudgmentCallAccounting']['meanRetainedCalls']:.3f} (range {metrics['noise']['verify']['completedJudgmentCallAccounting']['min']} to {metrics['noise']['verify']['completedJudgmentCallAccounting']['max']}). Total paid attempts: {metrics['noise']['verify'].get('actualTransportCalls',0)}, including incomplete cascades and restart overhead.",
         f"- RubricBench noise: {metrics['noise']['rb']['successfulRecordedCalls']} calls across 90 planned pair judgments, mean {metrics['noise']['rb']['newCallsPerPlannedJudgment']['mean']:.3f}.",'',
         'Final scored-stage requests include cache replay in saved batches. Transport attempts include restart overhead. No attempt is dropped from the spend total.',
         'Verification and limits:',

@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-13T04:35:38.174Z",
+  "label": "noise-verify-3",
+  "done": 20,
+  "total": 30,
+  "spent": 0.9143630399999996,
+  "unknownReserved": 0,
+  "active": {},
+  "calls": 1021,
+  "peak": 6
+}

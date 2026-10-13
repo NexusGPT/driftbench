@@ -1,0 +1,1156 @@
+[
+  {
+    "id": "rubric_eval_1051",
+    "decision": "B",
+    "reversed": true,
+    "key": "f2bb4f95a707d4081b67",
+    "costUsd": 0.0014779100000000002,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both define `def cummulative_sum(test_list):` with the correct double-'m' spelling."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both functions accept exactly one parameter, `test_list`."
+      },
+      {
+        "id": 3,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both place the solution in a ```python fenced block. A adds a second fenced block of print examples, which does not affect the solution block."
+      },
+      {
+        "id": 4,
+        "weight": 2,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both keep the starter signature and replace the docstring with a rewritten Args/Returns docstring, so the starter docstring is modified rather than kept verbatim."
+      },
+      {
+        "id": 5,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both loop over each tuple and add every element, which correctly sums all integers in the nested tuples."
+      },
+      {
+        "id": 6,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "A's execution shows stdout 30, 37, 44 with all three tests passing. B's execution shows all three tests passing."
+      },
+      {
+        "id": 7,
+        "weight": 1,
+        "a": 0,
+        "b": 0,
+        "evidence": "Both place their explanation of how the code works after the code block. Neither gives reasoning before the code."
+      },
+      {
+        "id": 8,
+        "weight": 2,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both have comments on the outer loop, inner loop, and accumulation step inside the function."
+      },
+      {
+        "id": 9,
+        "weight": 2,
+        "a": 1,
+        "b": 0,
+        "evidence": "A drops the original example docstring but integrates the 30, 37, 44 outputs in a separate code block with '# Output:' comments. B removes the example outputs entirely and refers only to 'the provided example outputs' without stating them."
+      }
+    ],
+    "correct": false
+  },
+  {
+    "id": "rubric_eval_1089",
+    "decision": "B",
+    "reversed": true,
+    "key": "eeed187a550f88acf581",
+    "costUsd": 0.00160251,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A boxes the correct minimum, 16. Lagrange multipliers on the constraint confirm x^4=4, y^2=2, z^4=1 gives 4+8+4=16. B boxes 12, which is incorrect."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 1,
+        "b": 0,
+        "evidence": "A splits the sum into five terms (x^4, 2·2y^2, 2·2z^4) but then writes a fourth root of the five-factor product, so the root order does not match the term count. B uses a three-term AM-GM on x^4, 2y^2, 2z^4, which does not match the coefficients 4y^2 and 4z^4 in the original sum."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 0,
+        "evidence": "A's bound 8xy^2z^2 is not a constant before substitution. It only becomes constant via xyz=2, and the equality-case discussion is garbled. B wrongly equates x^4y^2z^4 with (xyz)^4, which is false, so its numerical bound of 12 is invalid."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_109",
+    "decision": "B",
+    "reversed": false,
+    "key": "944d51bae0ede26fc95c",
+    "costUsd": 0.00153431,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "A boxes (1/6)(5/6)^5 as the maximum. B boxes f(1/6) = (1/6)(5/6)^5 as the maximum. Both match the rubric value."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both give f'(x) = (1-x)^5 - 5x(1-x)^4 correctly and find critical points x=1 and x=1/6. A factors to (1-x)^4[(1-x)-5x]; B factors to (1-x)^4(1-6x). Both are correct."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 1,
+        "evidence": "A computes f''(x) = -5(1-x)^4 after an incorrect intermediate line. The correct second derivative is (1-x)^3(30x-10), so A's expression is wrong. Its sign at x=1/6 is still negative, so the local-max conclusion is right but the justification is flawed. B never uses a second derivative or concavity argument; it compares endpoint and critical values, which establishes the global maximum but does not explicitly verify a local maximum at x=1/6."
+      },
+      {
+        "id": 4,
+        "weight": 1,
+        "a": 1,
+        "b": 2,
+        "evidence": "A follows the requested order (define, differentiate, solve, verify, substitute), but its verification step contains an error, so that step is not properly justified. B is clean and easy to follow with correct steps, though it folds substitution into the endpoint check and has no explicit local-max verification step."
+      }
+    ],
+    "correct": false
+  },
+  {
+    "id": "rubric_eval_1090",
+    "decision": "B",
+    "reversed": true,
+    "key": "56bf0d91e876ac8a7fc4",
+    "costUsd": 0.00179321,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 1,
+        "b": 1,
+        "evidence": "A gives F_S(0)=1−t²/r² correctly and a piecewise form, but its positive-s branch is wrong (1−1/(s²t²) for s>1/t, using a conditional denominator t²) and it omits s<0. Its output is also cut off mid-sentence. B gives F_S(0)=1−(t/r)² correctly and includes s≤0 → 0, but its positive branches are wrong (1−1/(s r²) on (0,1/t²), and 1 for s>1/t²). Both are partial."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 1,
+        "b": 0,
+        "evidence": "A never reaches a conclusion. It begins 'The CDF F_S(s) is discontinuous at s = ' and stops, so it does not explicitly answer the question, though it points toward the discontinuity at 0. B explicitly answers 'S is a continuous random variable… The answer is: True.' This is wrong: the CDF jumps at s=0 by P(X≥t)=1−t²/r²>0, and B's justification (non-zero derivative on an interval) ignores this."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 0,
+        "b": 0,
+        "evidence": "Both responses are written primarily in English, not Korean, despite the Korean question."
+      }
+    ],
+    "correct": false
+  },
+  {
+    "id": "rubric_eval_1108",
+    "decision": "B",
+    "reversed": false,
+    "key": "a5966d7b1872dcd9775c",
+    "costUsd": 0.0018241099999999999,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A's final answer is ±√22/3, then √22/3, which is wrong. The correct value is √35/3. B's final answer is √35/3, which is correct."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 0,
+        "b": 1,
+        "evidence": "A derives (√3 sinθ + cosθ)² = 22/9 by substituting 13/9 for 2sin²θ + 2√3 sinθcosθ, which is a mis-substitution. The correct value is 35/9. B reaches 35/9, but step 7 drops the +2√3 sinθcosθ term when substituting, so the shown derivation is material-defective even though the result is right."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 2,
+        "evidence": "Both correctly square √3cosθ − sinθ = 1/3, expand, and apply sin²θ + cos²θ = 1 to get 2sin²θ + 2√3 sinθcosθ = 26/9. A then mis-substitutes in step 4 (it uses the halved equation 13/9 instead of 26/9). B's steps 1–6 are correct, with the only defect in step 7 as noted above."
+      },
+      {
+        "id": 4,
+        "weight": 2,
+        "a": 1,
+        "b": 2,
+        "evidence": "Both note that sinθ and cosθ are positive on (0, π/2) and select the positive root. A's selection logic is sound, but it is applied to the wrong value (√22/3). B applies it to √35/3 correctly."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_1125",
+    "decision": "A",
+    "reversed": true,
+    "key": "ae7d41a012fe7b9e6a61",
+    "costUsd": 0.0006863100000000001,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A's final answer is 1.5 square inches, which is wrong. B's final answer is 68 square inches, which matches the correct answer."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 0,
+        "b": 2,
+        "evidence": "A takes the overlap dimensions as differences of the paper sizes (8.5 - 8 = 0.5 and 11 - 8 = 3), not the shorter sides. B correctly states the overlap is bounded by the shorter side of each sheet: 8 inches for the 8×10 sheet and 8.5 inches for the 8.5×11 sheet."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 0,
+        "b": 2,
+        "evidence": "A treats the non-overlapping extensions of each sheet (the 0.5 in and 3 in strips that stick out) as the overlap dimensions, which is the exact misinterpretation the rubric targets. B does not make this error and bases the overlap only on the shorter sides."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_1138",
+    "decision": "B",
+    "reversed": true,
+    "key": "e98803a5d3e7a9d3d3b5",
+    "costUsd": 0.00108231,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A concludes the smallest value of ab not dividing 80 is 32, which is correct (4·8=2·16=32; every product below 32 of distinct divisors divides 80). B's final answer is 6, which is wrong."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A chooses only from divisors of 80 (2, 4, 8, 16, 5). B explicitly picks b = 3, which is not a divisor of 80, directly violating the constraint."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 2,
+        "b": 1,
+        "evidence": "A lists all ten divisors correctly: 1, 2, 4, 5, 8, 10, 16, 20, 40, 80. B gives only a general description of the structure of divisors ('combinations of primes with powers at most those in 80's factorization') and never lists them. That description is correct in principle, but B then fails to apply it."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_126",
+    "decision": "A",
+    "reversed": true,
+    "key": "eb3bafafc92305e676b2",
+    "costUsd": 0.00108961,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "A states det R = -1 and justifies it by orientation reversal, which is valid. B computes det R = (12/13)(-12/13) - (-5/13)(-5/13) = -169/169 = -1, which is correct."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 0,
+        "b": 1,
+        "evidence": "A never constructs a reflection matrix; it only uses general properties. B uses R = I - 2vv^T/(v^Tv) and gets [[12/13, -5/13], [-5/13, -12/13]]. That arithmetic is correct, but the formula reflects across the line perpendicular to v. Reflecting over the vector (1,5) requires 2vv^T/(v^Tv) - I, so B's matrix is the negative of the intended one. Partial credit."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 0,
+        "b": 2,
+        "evidence": "A shows no intermediate quantities. B explicitly computes vv^T = [[1,5],[5,25]] and v^Tv = 26, both correct."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_129",
+    "decision": "A",
+    "reversed": true,
+    "key": "a86c81c04bf05e95ff8f",
+    "costUsd": 0.00166771,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A concludes 12/5, which is wrong. The correct fifth term is 12, since the first sequence must be arithmetic with a_2 = c_1 and a_3 = c_1 + c_2, forcing the second sequence to be constant at 3. B's final answer is 12. Its last step, 4(x+b) = 4(x+4b), is algebraically invalid, but the boxed answer is correct."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 0,
+        "b": 1,
+        "evidence": "A sets the second term a = c (correct) but then asserts 2a = c + b for the third term. The correct relation is a_3 = a_2 + c_2 = c_1 + c_2, so A misapplies the recurrence. B labels the second term as x + b, but a_2 = a_1 + c_1 = x. Its later third-term relation is consistent with its own mislabel, so the error is partial."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 1,
+        "evidence": "Both state the first sequence as 0, a, 2a, 3a, ... and the second as c + nb (A) or x + nb (B), preserving the arithmetic forms. Both then break the required linkage between the sequences: A's 2a = c + b is wrong, and B's a = x + b is wrong with an invalid substitution at the end."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_130",
+    "decision": "B",
+    "reversed": true,
+    "key": "d4c63d57686eb590d8c0",
+    "costUsd": 0.0015959099999999999,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A traces to 15√28/28 = 30√7/28 = 15√7/14, which is correct, fully simplified, and rationalized, though it shows several boxed intermediates. B reaches 15·6√7/84 but then boxes 5√7/14. Since 90/84 = 15/14, B's final answer is wrong."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 2,
+        "b": 1,
+        "evidence": "A fully factors 1350 = 2·3³·5² and 168 = 2³·3·7 and extracts squared factors step by step. B writes 1350 = 225·6 and 168 = 4·42, but leaves 42 unfactored, so its extraction for the denominator is incomplete."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 0,
+        "evidence": "A's rationalization steps (multiply by √14, 2·√14·√14 = 28, 15√28 → 30√7) are mostly justified, though the repeated boxing and the 'which can be simplified to' jump are untidy. B's rationalization is clearly set up, but its final cancellation 90√7/84 → 5√7/14 is an unjustified error, so the transformation is not valid."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_178",
+    "decision": "B",
+    "reversed": true,
+    "key": "05ef86abb57f1d508b74",
+    "costUsd": 0.0017059100000000002,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 1,
+        "a": 1,
+        "b": 0,
+        "evidence": "A is shorter, with a docstring, one code block, and a numbered explanation. B adds a further paragraph and three usage examples with outputs, so it is less concise."
+      },
+      {
+        "id": 2,
+        "weight": 1,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both place a compact docstring and short in-body comments in a clear, readable function."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 2,
+        "b": 1,
+        "evidence": "A stays on counting and returning the dict. B adds demonstration calls and printed outputs beyond the task."
+      },
+      {
+        "id": 4,
+        "weight": 2,
+        "a": 0,
+        "b": 0,
+        "evidence": "Neither gives a step-by-step plan before the code. Both show the code first and explain afterward."
+      },
+      {
+        "id": 5,
+        "weight": 2,
+        "a": 2,
+        "b": 2,
+        "evidence": "A has a comment explaining the Counter line in the body. B has comments on the Counter line and the return. Both explain the logic."
+      },
+      {
+        "id": 6,
+        "weight": 3,
+        "a": 2,
+        "b": 1,
+        "evidence": "A contains the solution in exactly one markdown code block. B's solution is in one block, but it also adds a second code block with usage examples, which breaks the single-block requirement."
+      },
+      {
+        "id": 7,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both use collections.Counter, convert to dict, and pass all three supplied example tests in execution."
+      },
+      {
+        "id": 8,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both implement def freq_count(list1) with the given name and parameter, and both return the result directly."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_193",
+    "decision": "B",
+    "reversed": false,
+    "key": "0605902d33217daaff8a",
+    "costUsd": 0.00182421,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both define `def tuple_to_dict(test_tup):` with exactly one parameter named `test_tup`."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both place the full code in a ```python fenced block."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 1,
+        "evidence": "Both keep the function name and signature but replace the starter docstring. Neither retains the three example outputs from the original docstring, so both partially fail this requirement equally."
+      },
+      {
+        "id": 4,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both iterate over even indices with range(0, len, 2), using the element at i as key and i+1 as value, which pairs adjacent elements correctly."
+      },
+      {
+        "id": 5,
+        "weight": 1,
+        "a": 1,
+        "b": 1,
+        "evidence": "Both put a step-by-step explanation after the code block, not before it. The explanations are equally placed."
+      },
+      {
+        "id": 6,
+        "weight": 2,
+        "a": 1,
+        "b": 2,
+        "evidence": "A has comments on the dictionary initialization and the loop, but none on the return or the key/value lines. B comments the initialization, the loop, the key and value retrieval, and the insertion step, covering each significant part."
+      },
+      {
+        "id": 7,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Execution shows both produce {1: 5, 7: 10, 13: 5}, {1: 2, 3: 4, 5: 6}, and {7: 8, 9: 10, 11: 12}, matching all three docstring examples."
+      },
+      {
+        "id": 8,
+        "weight": 1,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both are clean and idiomatic. A uses test_tup[i+1] inline, while B assigns key and value to named variables, which is equally conventional and readable."
+      },
+      {
+        "id": 9,
+        "weight": 1,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both explanations are numbered, coherent, and accurately describe the loop logic. B additionally shows the example calls with outputs."
+      },
+      {
+        "id": 10,
+        "weight": 2,
+        "a": 1,
+        "b": 1,
+        "evidence": "Both keep the function name and parameter but rewrite the docstring text and drop the example outputs, so both alter the starter docstring equally."
+      }
+    ],
+    "correct": false
+  },
+  {
+    "id": "rubric_eval_204",
+    "decision": "B",
+    "reversed": false,
+    "key": "49c522352395cc102e70",
+    "costUsd": 0.00086901,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A gives 49, which is wrong. The correct count is 16 (2^6 · 3^6 gives 4 even exponents choices for each prime, 4 × 4 = 16). B gives 16 and boxes it."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A explicitly counts with (6+1) × (6+1) = 49, the general divisor-count formula that the rubric rejects. B uses (6/2)+1 = 4 for each prime, the required method for counting even exponents."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 2,
+        "evidence": "A's factorization steps are clear, but its counting step is a misleading argument that yields a wrong result. B's steps (factor out 2^5, factor 1458, identify even exponents, count with (6/2)+1, multiply) are compact and directly relevant, with no extraneous material."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_262",
+    "decision": "B",
+    "reversed": false,
+    "key": "6bcee793bf67bcedfd85",
+    "costUsd": 0.00077191,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A's final answer is 3/8, which is wrong. B's final answer is 2/5, which is correct: (1/3)/(5/6) = (1/3)(6/5) = 6/15 = 2/5."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A converts 0.8\\overline{3} to 8/9 by wrongly setting 9y = 8, so the fraction is incorrect. B sets 9y = 7.5 and gets y = 5/6, which is correct."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 0,
+        "b": 2,
+        "evidence": "A's derivation has a computational error in the repeating-decimal step (10y = 8.333... minus y = 0.8333... does not give 8), and this error propagates to the wrong final answer. B's steps (x = 1/3, 9y = 7.5, reciprocal multiplication, reduction to 2/5) are all correct and complete."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_276",
+    "decision": "B",
+    "reversed": true,
+    "key": "4cd869b20e23a0c3be07",
+    "costUsd": 0.00125201,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A solves to n = 7, which is correct. Checking the square with n = 7 gives all rows, columns, and diagonals equal to 15. B obtains n = 9/2, which is wrong."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 1,
+        "b": 1,
+        "evidence": "Both write the first row correctly as (n-3)+3+(n+1) = 2n+1. Both then write a second expression that is not a true column sum. A's (n-3)+(2n-9)+(n-1) is the main diagonal, a valid line sum but mislabeled. B's (n+2)+(2n-9)+(n-1) mixes row 2's first two entries with an altered third entry, so it matches no line."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 0,
+        "evidence": "A's first row matches its position, but the expression labeled 'second column' is actually the main diagonal, so the label does not match the cells. B's first row matches, but its 'second column' expression matches no actual row, column, or diagonal, so the equation is built on incorrect positions."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_343",
+    "decision": "B",
+    "reversed": false,
+    "key": "5445eb9ce6c2d7d18284",
+    "costUsd": 0.00087211,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A's final answer is 6, which is wrong. The correct 5000th term is 8: the period is 24, and 5000 mod 24 = 8 falls on the 8th up-count term. B's final answer is 8, which matches, though its reasoning is flawed."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 0,
+        "b": 0,
+        "evidence": "Both responses treat the cycle as 26 numbers (13 up plus 13 down). Neither recognizes that 13 is not repeated at the turn, so the effective period is 24 (13 up + 12 down)."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 0,
+        "b": 0,
+        "evidence": "A computes 5000 mod 26 = 8 and derives 6. B computes 5000 mod 26 = 8 and reads off 8. Neither uses 5000 mod 24 = 8. B's matching remainder is coincidental and its reasoning does not support the mod-24 step."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_431",
+    "decision": "B",
+    "reversed": false,
+    "key": "b924c263ef483e77736a",
+    "costUsd": 0.00092311,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A's final answer is 110, which is wrong. Its expansion has the wrong x^3 coefficient (28 instead of 32), x^2 (15 instead of 12), x (4 instead of -2), and constant (-1 instead of 0). B's final answer is 106, which matches the correct value. Its expansion is also correct: 1+7+21+35+32+12-2 = 106."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 0,
+        "b": 1,
+        "evidence": "Neither response states that the coefficient sum equals g(1) or verifies g(1)=f(2). Both sum coefficients directly. B's method is valid and its sum is correct, so it gets partial credit. A's direct summation is built on an incorrect expansion, so it gets none."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 0,
+        "b": 0,
+        "evidence": "Neither response computes f(2) = 128 − 24 + 2 = 106. Both expand the full polynomial instead."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_432",
+    "decision": "B",
+    "reversed": true,
+    "key": "fa5e5791355522418304",
+    "costUsd": 0.00073751,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A's final answer is 448, which matches the correct count: 8 rows × C(8,2)=28 plus 8 columns × 28 = 448. B's final answer is 56, which is wrong. B computes 28 + 28 and never multiplies by the 8 rows or 8 columns."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 2,
+        "b": 1,
+        "evidence": "A decomposes the problem into choosing a row (8 options) or column (8 options), then choosing 2 squares within it (C(8,2)=28), and sums the cases. B identifies the 8 rows and 8 columns and does the within-line choice of 2 squares, but never multiplies the within-line count by the choice of line, so the decomposition is incomplete."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 2,
+        "b": 0,
+        "evidence": "A explicitly writes 8*28 + 8*28 = 448, so every multiplicative factor is present. B mentions 8 rows and 8 columns but drops the factor of 8 entirely, which is exactly the kind of missed multiplicative factor this check targets."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_49",
+    "decision": "A",
+    "reversed": true,
+    "key": "85c908a63fdb50d146c7",
+    "costUsd": 0.00164981,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 2,
+        "a": 2,
+        "b": 2,
+        "evidence": "A gives a numbered four-step walkthrough (import, define, sort with itemgetter(1), return sorted_list[0][0]). B gives an equivalent four-step walkthrough plus in-code step comments. Both trace input to result clearly."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 1,
+        "b": 1,
+        "evidence": "Both say the sorted list puts the smallest second value first, and A's step 4 and B's comment say so. Neither states that ascending order is the default or that sorting makes the minimum sit at index 0 in so many words, so both are only partial."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 2,
+        "evidence": "A says itemgetter gives easy access to tuple elements and that itemgetter(1) selects the second element for sorting. B explains that itemgetter extracts the second element and that itemgetter(1) is passed to sorted's key parameter, which is the more complete account of why it fits."
+      },
+      {
+        "id": 4,
+        "weight": 2,
+        "a": 1,
+        "b": 2,
+        "evidence": "A's code has only two comments, on the sort line and the return line. B's code comments the itemgetter import and use, the sort key, and the minimum-at-front logic with the return, covering more of the lines."
+      },
+      {
+        "id": 5,
+        "weight": 3,
+        "a": 1,
+        "b": 2,
+        "evidence": "B puts the whole solution in one ```python block. A's solution is in one block, but A adds a second code block for example usage, which weakens the single-block requirement."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_499",
+    "decision": "A",
+    "reversed": true,
+    "key": "30ff2f2336775f281e9c",
+    "costUsd": 0.0011677100000000002,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "The correct result is 35√42/189. Response A ends at 5√42/63, which is not equivalent (35/189 = 5/27, not 5/63). Response B ends at exactly 35√42/189."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 0,
+        "b": 2,
+        "evidence": "Response A's step 3 wrongly cancels a 6 against the numerator's 4 and cancels a 7 that is absent from the denominator, so factors are lost. Response B multiplies 4·7 and 6·6 correctly, giving 28√50/(36√21), and carries 28, 36, and 5 through to 35√2/(9√21) and then 35√42/189."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 2,
+        "evidence": "Response A identifies the 6s but mis-cancels: it cancels the 6 against the numerator 4 and cancels a 7 with nothing in the denominator, which is a material defect. Response B does not cancel incorrectly; it reduces 140/36 to 35/9 correctly, and its 2 and 6 handling is valid."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_559",
+    "decision": "B",
+    "reversed": true,
+    "key": "f0752e72ce89bf947c23",
+    "costUsd": 0.00166621,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 0,
+        "evidence": "Neither response gives 899/25. A's final answer is -35/9, which is the correct maximum (the expression simplifies to 1/b^2 - a^2, maximized at b=3, a=-2). B's final answer is 37/9, which is wrong because it maximizes a^2 and minimizes 1/b^2. The rubric's 899/25 also appears mathematically incorrect, but I scored it as the rubric states."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 1,
+        "b": 0,
+        "evidence": "A does not argue from the simplified form. It expands incorrectly (writes -1/b instead of -a/b) and justifies a=-2 by 'largest a', which is wrong reasoning, but its endpoint choices (b=3 to make 1/b^2 large, a=-2 to make a^2 small) match what the rubric asks for. B argues from the simplified form a^2 - 1/b^2, but reverses both choices: it maximizes a^2 and minimizes 1/b^2, the opposite of what the rubric requires."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 0,
+        "b": 1,
+        "evidence": "A never recognizes that 1/b^2 is positive or that -a^2 is non-positive. B partially reflects the sign structure by writing the term as -1/b^2 and treating it as negative, but it never states that -a^2 is non-positive and treats a^2 as something to maximize, so the sign reasoning is only partly present."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_56",
+    "decision": "B",
+    "reversed": true,
+    "key": "90c5f9463289a293d838",
+    "costUsd": 0.0009447100000000001,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A's final answer is 13, matching the target. B's final answer is 11, which is wrong."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both treat painting as unordered and divide 6×5 by 2 to get 15 total ways (C(6,2)=15)."
+      },
+      {
+        "id": 3,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A counts the product-6 cases as 2 total, one per pair {1,6} and {2,3}, so each pair is one unordered combination. B counts each pair twice (\"Paint the 1 blue, then the 6\" and \"Paint the 6 blue, then the 1\") and gets 4, the double-counting the rubric warns against. A's phrasing \"blue-blue or blue-red\" is awkward, but its count is correct."
+      },
+      {
+        "id": 4,
+        "weight": 2,
+        "a": 2,
+        "b": 1,
+        "evidence": "A states the method explicitly as 15 - 2 = 13. B uses total-minus-disallowed (15 - 4 = 11), so the method is present, but the disallowed count is wrong, so it does not reach the required 15 - 2 result."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_62",
+    "decision": "A",
+    "reversed": false,
+    "key": "66a1fec83e0fe9c7d828",
+    "costUsd": 0.0012671100000000001,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both responses reach the correct final congruence 29^13 - 5^13 ≡ 3 (mod 7). A gets there via 1 - 5 ≡ -4 ≡ 3; B via 1 - (-2) ≡ 3."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 2,
+        "b": 1,
+        "evidence": "A explicitly lists 5^1 through 5^6 mod 7 (5, 4, 6, 2, 3, 1), all correct, and identifies the period of 6. B never computes powers of 5 mod 7. It uses a different pattern, (-2)^3 ≡ -1, which is a valid cycle for -2 but not a display of the powers of 5 and their period, so it earns only partial credit."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 2,
+        "b": 2,
+        "evidence": "A shows each reduction and power step with explicit arithmetic (25≡4, 20≡6, 30≡2, etc.). B shows (-2)^12 = ((-2)^3)^4 ≡ (-1)^4 ≡ 1 and -8 ≡ -1, which are also verifiable."
+      },
+      {
+        "id": 4,
+        "weight": 1,
+        "a": 2,
+        "b": 2,
+        "evidence": "A has a six-step breakdown: reduce bases, substitute, simplify, find the pattern, apply it, and compute the final result. B has three clearly structured sections with substeps. Both are readable and multi-step, and A is somewhat more granular."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_644",
+    "decision": "tie",
+    "reversed": false,
+    "key": "f79d8ae6a15459f789a3",
+    "costUsd": 0.0014246100000000002,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "A places the full solution in one ```python block. B places the full solution in one ```python block and adds a separate usage block with prints. Both satisfy the requirement."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both define `def cube_nums(nums):` with one parameter named `nums`."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 0,
+        "b": 0,
+        "evidence": "Both replace the starter docstring with a new one and drop the three example outputs. Neither preserves the original docstring."
+      },
+      {
+        "id": 4,
+        "weight": 3,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both loop over `nums` and return `num ** 3` for each element. Execution shows all three supplied examples pass for both."
+      },
+      {
+        "id": 5,
+        "weight": 2,
+        "a": 1,
+        "b": 1,
+        "evidence": "Both open with one generic sentence, then give the code, then a numbered step-by-step explanation after the code. Neither presents step-by-step reasoning before the code block."
+      },
+      {
+        "id": 6,
+        "weight": 2,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both have comments on the list creation, loop, cube computation, append, and return. B's comments are slightly more granular, but both clearly cover each logical part."
+      },
+      {
+        "id": 7,
+        "weight": 1,
+        "a": 2,
+        "b": 2,
+        "evidence": "Both use a simple for loop with append. Both are readable and idiomatic for this task. No meaningful difference."
+      },
+      {
+        "id": 8,
+        "weight": 2,
+        "a": 1,
+        "b": 1,
+        "evidence": "Both give code after only a brief lead-in sentence, with the step-by-step explanation placed after the code rather than before it. Equal partial satisfaction."
+      }
+    ],
+    "correct": false
+  },
+  {
+    "id": "rubric_eval_687",
+    "decision": "B",
+    "reversed": false,
+    "key": "68783ace4d4d142a303b",
+    "costUsd": 0.0011182100000000001,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 1,
+        "evidence": "A's final answer is 1105/4095, which is wrong. It follows from a miscounted exactly-one case (2,300 instead of 6,900) and gives 5,525 favorable groups instead of 925. B reaches 925/20475, which equals 37/819 in value, but it is not reduced, so it is not presented in lowest terms."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 0,
+        "b": 2,
+        "evidence": "A computes 3 * 25C3 as 2,300 and never multiplies by 3, so the value is wrong. B correctly states 3 * 2,300 = 6,900."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 1,
+        "b": 2,
+        "evidence": "Both split the unfavorable event into zero top students (25C4 = 12,650) and exactly one top student. A's case structure is right, but its exactly-one count is numerically wrong. B's decomposition is correct and fully evaluated."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_837",
+    "decision": "A",
+    "reversed": false,
+    "key": "397c4e945053a33b8e83",
+    "costUsd": 0.00142521,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A's final answer is 4, which is correct. B's final answer is e + c = 2 ± 2√2, which is wrong. The correct result is e + c = 4, from e(16−4e) = c(16−4c) and e ≠ c, giving e + c = 4 (e.g., e=4, c=0 or e=0, c=4)."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 0,
+        "b": 0,
+        "evidence": "Neither response derives (e−2)² = (c−2)². Both stop at (e−2)² + (c−2)² = 8 after completing the square and never isolate the difference condition from f(e)=f(c) with f(t)=4t−t²."
+      },
+      {
+        "id": 3,
+        "weight": 3,
+        "a": 1,
+        "b": 0,
+        "evidence": "A never concludes e + c = 4 from e−2 = −(c−2). It asserts that the sum is 2+2=4 by a non sequitur (the points 'must lie on the circle', so the sum equals the center sum). The value is right but the derivation is unjustified. B does not reach this step; it treats the circle points as independent and gets a wrong sum."
+      },
+      {
+        "id": 4,
+        "weight": 2,
+        "a": 1,
+        "b": 0,
+        "evidence": "A reports a single unique answer, which avoids the error of multiple candidate sums, but its reasoning for uniqueness is invalid. B explicitly misreads the circle equation as yielding two valid sums, 2 ± 2√2, which is the misinterpretation the rubric targets."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_878",
+    "decision": "B",
+    "reversed": false,
+    "key": "03205a36992ba877d870",
+    "costUsd": 0.00131761,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 0,
+        "b": 2,
+        "evidence": "A's final answer is t = 38, which is wrong. Its arithmetic is also off: (4/3)π(36)³ = 62208π, not 196608π. B's final answer is t = 12, which matches the rubric."
+      },
+      {
+        "id": 2,
+        "weight": 3,
+        "a": 0,
+        "b": 1,
+        "evidence": "A names the isoperimetric principle correctly in words but misapplies it. It argues the polyhedron's surface area is at most the sphere's, which is the wrong direction, and never derives V/S ≤ r/3. B states the principle correctly (the sphere packs volume with least surface area) and derives r/3 = 36/3 = 12 for the sphere. Its final step is a non-sequitur, since bounding V above and S below separately does not justify the ratio bound, so it earns only partial credit."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 0,
+        "b": 1,
+        "evidence": "A has conceptual misuses: the wrong direction for the surface-area comparison, a wrong ratio, and an arithmetic error. B has a muddled 'enrolled volume' heading, a confused paragraph about surface area growing without limit, and a misstatement that S ≤ sphere's area. Its core sphere calculation is sound, so it earns partial credit."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_892",
+    "decision": "A",
+    "reversed": false,
+    "key": "0285c0d6e7ea620773b8",
+    "costUsd": 0.00108351,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A's final answer is 11√(2·3³·5), exactly the rubric's form, and it is correct since 2·3³·5 = 270 and 11²·270 = 32670. B's final answer 99√10 is wrong: 99² · 10 = 98010, not 32670."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 1,
+        "b": 0,
+        "evidence": "A correctly pulls out 11² as a perfect square, but wrongly states that 2·3³·5 has no perfect square factors, overlooking 3². B treats 3² and 33² as perfect squares, but its factorization 2·3²·5·33² is wrong, so the squares it extracts are not actually factors of 32670."
+      },
+      {
+        "id": 3,
+        "weight": 3,
+        "a": 2,
+        "b": 1,
+        "evidence": "A's successive divisions (16335, 5445, 1815, 605, 121, 11, 1) and final factorization 2·3³·5·11² are all correct. B's first step 2×3×5×1089 is correct, but its restatement 2×3²×5×33² adds an extra factor of 3, which is a material error."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_927",
+    "decision": "B",
+    "reversed": true,
+    "key": "8265074fd2b6f586c690",
+    "costUsd": 0.00099391,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A's final answer is π·4(√2+1), which matches the rubric's 4(√2+1). B's final answer is π(2√2+2), which is not equivalent: B treats the hypotenuse as the base circumference, so its radius and slant height are wrong."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 2,
+        "b": 0,
+        "evidence": "A states the legs are the radius and height, with both equal to 2, so the non-axis leg is the base radius. B says the leg becomes the slant height and derives the radius √2 from the hypotenuse, which is incorrect."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 2,
+        "b": 0,
+        "evidence": "A computes the slant height as √(2²+2²)=2√2 from the Pythagorean theorem, so the hypotenuse is the slant height. B identifies the hypotenuse as the base circumference and uses slant height 2, which contradicts the required mapping."
+      },
+      {
+        "id": 4,
+        "weight": 2,
+        "a": 2,
+        "b": 1,
+        "evidence": "A uses πrl with r=2 and l=2√2, adds πr²=4π, and gets 4π(√2+1). B writes the correct structure πrl+πr² but substitutes r=√2 and l=2, so the values are wrong and the result is incorrect."
+      }
+    ],
+    "correct": true
+  },
+  {
+    "id": "rubric_eval_952",
+    "decision": "B",
+    "reversed": true,
+    "key": "3f775fd7bc76fa2a0893",
+    "costUsd": 0.0010987100000000001,
+    "checks": [
+      {
+        "id": 1,
+        "weight": 3,
+        "a": 2,
+        "b": 0,
+        "evidence": "A gives the correct final answer 20/27 (4/9 + 8/27). B boxes 10/27, which is wrong. B's count of 9 'Team A twice' outcomes and 1 'three times' outcome ignores that Team A is in 2 of the 3 possible pairs each day."
+      },
+      {
+        "id": 2,
+        "weight": 2,
+        "a": 2,
+        "b": 1,
+        "evidence": "A treats each day as independent with P(A selected)=2/3 and P(not selected)=1/3, multiplying across days. B uses a 27-outcome sample space, which is a valid framework, but it miscounts the favorable outcomes (correct count is 12 for exactly two and 8 for all three), so the model is only partly applied."
+      },
+      {
+        "id": 3,
+        "weight": 2,
+        "a": 2,
+        "b": 1,
+        "evidence": "A computes exactly-two (3 × (2/3)²(1/3) = 4/9) and all-three ((2/3)³ = 8/27) separately, with correct values. B separately lists 'selected twice' and 'selected three times' cases, but its values (9 and 1 of 27) are wrong."
+      },
+      {
+        "id": 4,
+        "weight": 1,
+        "a": 2,
+        "b": 0,
+        "evidence": "A opens by deriving P(A selected on a single day) = 2/3 and then P(not selected) = 1/3. B starts from the total number of outcomes and never derives the single-day selection probability for Team A."
+      }
+    ],
+    "correct": true
+  }
+]
