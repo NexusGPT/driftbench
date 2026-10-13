@@ -71,15 +71,15 @@ def games_of(i, design):
     agree = g is not None and len(g) == 2 and g[0] == g[1] and g[0] != 'tie'
     if design == 'frozen':
         return g
-    if design in ('stack', 'harm+fusion') and harm(i):
+    if design in ('stack', 'harm+fusion') and harm(i):  # 'cascade+pointwise' is the stack without the gate
         return [harm(i)] * 2
     if agree:
         return g
-    if design in ('stack', 'cascade'):
+    if design in ('stack', 'cascade', 'cascade+pointwise'):
         c = council(i)
         if c:
             return [c, c]
-    if design in ('stack', 'harm+fusion'):
+    if design in ('stack', 'harm+fusion', 'cascade+pointwise'):
         p = pointwise(i)
         if p:
             return [p, p]
@@ -98,7 +98,7 @@ def total(scores, sample=None):
     sample = sample or {gname: [i for i in ids if meta[i]['group'] == gname] for gname in groups}
     return sum(sum(scores[i] for i in s) / len(s) for s in sample.values()) / len(sample) * 100
 
-designs = ['frozen', 'cascade', 'harm+fusion', 'stack']
+designs = ['frozen', 'cascade', 'cascade+pointwise', 'harm+fusion', 'stack']
 scores = {d: {i: item_score(i, games_of(i, d)) for i in ids} for d in designs}
 by = {gname: [i for i in ids if meta[i]['group'] == gname] for gname in groups}
 rng = random.Random(20261013)

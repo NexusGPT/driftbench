@@ -34,12 +34,29 @@
         "safety": 92.95
       }
     },
+    "cascade+pointwise": {
+      "total": 91.07,
+      "vsFrozen": 1.41,
+      "paired95": [
+        -0.04,
+        2.97
+      ],
+      "wins": 11,
+      "losses": 6,
+      "bySubset": {
+        "chat": 70.27,
+        "language mixing": 99.49,
+        "linguistics": 98.57,
+        "reasoning": 94.04,
+        "safety": 92.95
+      }
+    },
     "harm+fusion": {
       "total": 90.97,
       "vsFrozen": 1.32,
       "paired95": [
         0.23,
-        2.57
+        2.6
       ],
       "wins": 12,
       "losses": 4,
@@ -55,8 +72,8 @@
       "total": 91.58,
       "vsFrozen": 1.93,
       "paired95": [
-        0.4,
-        3.57
+        0.39,
+        3.63
       ],
       "wins": 13,
       "losses": 6,
