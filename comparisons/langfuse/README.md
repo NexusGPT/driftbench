@@ -24,11 +24,12 @@ A row marked limit has no command because the comparison does not apply, or the 
 
 ## Hard and held-out measurements
 
-| Procedure | Tuning hard | Fresh held-out | Tuning USD / 100 | Held-out USD / 100 |
+| Procedure | Tuning hard | Frozen held-out | Tuning USD / 100 | Held-out USD / 100 |
 |---|---|---|---|---|
-| Shipped judge | 111/120 | 109/120 | $0.049067 | $0.049150 |
+| Shipped judge, previous contract | 111/120 | 109/120 | $0.049067 | $0.049150 |
 | fact-ledger procedure (not yet the shipped default) | 120/120 | 120/120 | $0.043389 | $0.043523 |
 | Template, preregistered 1.0 | 83/120 | 83/120 | $0.052505 | $0.052484 |
 | Template, best reported setting 0.5 | 113/120 | 115/120 | $0.052505 | $0.052484 |
+| PR 115 default | 114/120 | 116/120 | $0.055769 | $0.054001 |
 
-The fact-ledger procedure is not yet the shipped default. The shipped judge's tuning result remains 111/120. Template threshold rows share calls and cost. Both sets, raw and repaired numbers, confidence intervals and scope appear in `docs/comparison/langfuse.md`. Construction and free replay are in `hard/README.md`.
+The fact-ledger procedure is not yet the shipped default. The first row preserves the previous shipped contract. PR 115 default is measured at approved commit `8195902dd20c84267f85feba268c17868e00dfbe` and becomes shipped after PR 115 passes CI. It leads the template's best setting by one correct item on each frozen set; overlapping intervals do not establish statistical superiority. The new round costs $0.13172400 for 240 unique calls. Template threshold rows share calls and cost. Both sets, raw and repaired numbers, confidence intervals and scope appear in `docs/comparison/langfuse.md`. Construction and free replay are in `hard/README.md`.
