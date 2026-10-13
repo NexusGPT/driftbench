@@ -40,7 +40,7 @@ def report(iterations=20000):
            'spend': {'knownUsd': sum(r.get('usd', 0) for r in test_spend),
                      'retainedReserveUsd': sum(r['reserve'] for r in test_spend if 'usd' not in r),
                      'laneTotalUsdIncludingDevAndReserves': sum(r.get('usd', r['reserve']) for r in spend.values()),
-                     'capUsd': 20}}
+                     'capUsd': json.loads((HERE / 'runtime-freeze.json').read_text()).get('capUsd', 20)}}
     for model in MODELS:
         rows = [r for r in decisions if r['model'] == model]
         if not rows:

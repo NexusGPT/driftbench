@@ -95,7 +95,7 @@
     "research/ledger-mm/test_exec.mjs": "77928d78a8d17c02be6c35fff0ee7dfc6eaaa49a4f1bb2beee90b6c3dd89d9e5",
     "research/ledger-mm/eligibility.json": "84b05992165f14a4bc4e130a793f52ac2204fec691d0f43ce33916579c82bdeb",
     "research/ledger-mm/test_eligibility.py": "a84b5aeef9b7c796310442328d9529705a5faf32d720c21bdbb36a70b1009e60",
-    "research/ledger-mm/test_report.py": "9998a2b8dfedae9dd4ec10812a2b0dfcda3312f0513ce7aa77e48f72203b2c3d"
+    "research/ledger-mm/test_report.py": "c269a8574683f18e521e4bdf84a46e4063961cfd7cbf008d18c6e96f150e065d"
   },
   "executionRules": {
     "driver": "research/ledger-mm/run-test.mts, derived from frozen run.mts by execution changes only",
