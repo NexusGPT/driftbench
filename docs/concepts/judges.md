@@ -221,7 +221,7 @@ The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-d
 * No majority is a split. It is logged and, in hybrid mode, judged again by the three re-judges of the other class. When that splits too, or in a mode with one class, the assigned judges answer once more with the large budget; their votes carry `@large`. Still no majority is inconclusive.
 * Cascade, an option: the cheapest judge runs first, and the council stops there only on a pass with a `score` at or above the threshold (0.9 by default). A fail, an inconclusive or an unsure pass brings in the other two. A judge that leaves `score` out never stops the cascade, so a criterion that judge leads always costs three calls.
 * Modes: `system1`, `hybrid` or `llm`. `system1` and `llm` force their class and never call the other one. Scores from different modes are not comparable.
-* Diversity: the council is refused when it is built, before any call, when a judge shares the model family of the agent under test (compared without case). The agent family must be stated: `none` for an agent that is not a model. In perturbed mode, the simulated user runs on a third family; the simulated user is planned, phase 3.
+* Diversity: the council is refused when it is built, before any call, when a judge shares the model family of the agent under test (compared without case). The agent family must be stated: `none` for an agent that is not a model. In perturbed mode, the simulated user runs on a third family; the simulated user is built, phase 3.
 * The council is also refused for fewer than three judges of a class the mode uses, two judges with one id, a row with a class the mode does not use or without three different judges of the right class, a re-judge row outside hybrid mode, and a criterion both assigned and unassigned.
 
 ### Label-blind escalation
@@ -621,7 +621,7 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 * `no_invented_data` shows three votes: its owner, `google-chat`, leaves `score` out, so the cascade never stops early.
 * For `sheet_matches_catalog`, the judge reads the workbook the ops agent wrote, rendered by the xlsx reader, with the workspace diff.
 
-`driftbench campaign run` cannot load a council yet: it runs `defaultChecks()` and its record stores `judge: { mode: system1, judges: [] }`. A caller that wants judged criteria in a campaign passes `defaultChecks({ judges: council })` as the campaign's checks from code. A command line option to load a cassette and an assignment table is not built yet. See [running](../running.md).
+`driftbench campaign run` cannot load a council yet: it runs `defaultChecks()` and its record stores `judge: { mode: system1, judges: [] }`. A caller that wants judged criteria in a campaign passes `defaultChecks({ judges: council })` as the campaign's checks from code. A command line option to load a cassette and an assignment table is not built yet. Until then the run says so: under its list of checks, `campaign run` and `campaign resume` print a `Not judged:` line that counts the criteria the specs name, lists them and says how many are gating. Those criteria get no verdict, so they count in no pass and no fail. `--json` is unchanged: a criterion without a judge has no entry in `verdicts`. See [running](../running.md).
 
 ## Model-facing criterion checks
 
