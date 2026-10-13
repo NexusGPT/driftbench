@@ -12,7 +12,7 @@ import {
   resolveReaderFirst,
 } from '../../../packages/judges/src/reader-first';
 import { readerFeatures } from '../../../packages/judges/src/reader-first-features';
-import { createCaller, Recordings } from './call';
+import { CallFailed, createCaller, Recordings } from './call';
 import { loadBenchmark, type PairItem, splitOf } from './data';
 
 const getArg = (name: string) => {
@@ -23,14 +23,24 @@ const phase = getArg('phase');
 if (!['explore', 'final-dev', 'test', 'replay'].includes(phase ?? ''))
   throw new Error('Require --phase explore|final-dev|test|replay');
 const root = resolve('comparisons/reader-first');
+const resume = process.argv.includes('--resume');
+const deadlineArg = getArg('call-deadline');
+if (deadlineArg && !resume) throw new Error('Deadline override requires an authorized resume');
+const lastNewCallAt = Date.parse(deadlineArg ?? '2026-10-13T04:39:00Z');
+if (!Number.isFinite(lastNewCallAt)) throw new Error('Invalid call deadline');
+if (resume && phase !== 'test') throw new Error('Only TEST can resume');
 const split = phase === 'test' ? 'test' : 'dev';
+const startedAt = new Date().toISOString();
+const concurrency = 6;
+let priorReserveUsd = 0.2;
 const out = getArg('out') ?? `${root}/results/${phase}.json`;
 const recordFile = `${root}/recordings/haiku.jsonl`;
 const sourceFiles = [
-  'packages/judges/src/reader-first.ts',
-  'packages/judges/src/reader-first-features.ts',
-  'packages/judges/src/prompt.ts',
-  'packages/judges/src/assessment.ts',
+  'comparisons/reader-first/src/call.ts',
+  'comparisons/reader-first/src/data.ts',
+  'comparisons/reader-first/src/study.ts',
+  'packages/core/src/spec/hash.ts',
+  ...execFileSync('git', ['ls-files', 'packages/judges/src'], { encoding: 'utf8' }).trim().split('\n'),
 ];
 const hashes = Object.fromEntries(
   await Promise.all(
@@ -48,11 +58,19 @@ if (phase === 'test') {
   const frozen = JSON.parse(await readFile(`${root}/results/freeze.json`, 'utf8'));
   if (JSON.stringify(frozen.hashes) !== JSON.stringify(hashes)) throw new Error('Frozen source changed');
   if (frozen.devCorrect < 142 || frozen.devGames !== 180) throw new Error('DEV gate not met');
-  await writeFile(
-    `${root}/results/test-started.json`,
-    JSON.stringify({ at: new Date().toISOString(), commit, hashes, fullSplit: true }, null, 2),
-    { flag: 'wx' },
-  );
+  const receipt = { at: new Date().toISOString(), commit, hashes, fullSplit: true, lastNewCallAt };
+  if (resume) {
+    const first = JSON.parse(await readFile(`${root}/results/test-started.json`, 'utf8'));
+    const prior = JSON.parse(await readFile(out, 'utf8'));
+    if (JSON.stringify(first.hashes) !== JSON.stringify(hashes)) throw new Error('Resume source changed');
+    if (prior.complete) throw new Error('Completed TEST cannot run again');
+    await appendFile(
+      `${root}/results/test-resumes.jsonl`,
+      `${JSON.stringify({ ...receipt, frozenCommit: first.commit, completedBefore: prior.completedPairs })}\n`,
+    );
+  } else {
+    await writeFile(`${root}/results/test-started.json`, JSON.stringify(receipt, null, 2), { flag: 'wx' });
+  }
 }
 const bench = await loadBenchmark('longjudge-wp');
 const items = bench.items.filter(
@@ -65,14 +83,30 @@ try {
 } catch (e) {
   if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e;
 }
-const spentBefore = existing
-  .split('\n')
-  .filter(Boolean)
-  .reduce((s, x) => s + (JSON.parse(x).costUsd as number), 0);
+let priorFailureSpendUsd = 0;
+try {
+  const failures = (await readFile(`${root}/recordings/haiku.failures.jsonl`, 'utf8'))
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+  priorFailureSpendUsd = failures.reduce((sum, row) => sum + (row.costUsd ?? 0), 0);
+  priorReserveUsd += failures.reduce((sum, row) => sum + row.reservedUsd, 0);
+} catch (e) {
+  if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e;
+}
+const spentBefore =
+  priorFailureSpendUsd +
+  existing
+    .split('\n')
+    .filter(Boolean)
+    .reduce((s, x) => s + (JSON.parse(x).costUsd as number), 0);
 const caller = createCaller(
   await new Recordings(recordFile).load(),
-  { model: 'haiku', maxCallUsd: 0.1, timeoutMs: 180_000 },
-  { capUsd: 9.8 - spentBefore, replayOnly: phase === 'final-dev' || phase === 'replay' },
+  { model: 'haiku', maxCallUsd: 0.1, timeoutMs: 180_000, lastNewCallAt },
+  {
+    capUsd: 20 - priorReserveUsd - 0.1 * concurrency - spentBefore,
+    replayOnly: phase === 'final-dev' || phase === 'replay',
+  },
 );
 const rows: any[] = new Array(items.length);
 let next = 0;
@@ -125,6 +159,11 @@ function report() {
     phase,
     split,
     at: new Date().toISOString(),
+    startedAt,
+    concurrency,
+    lastNewCallAt,
+    resume,
+    priorReserveUsd,
     commit,
     hashes,
     thresholds: READER_FIRST_THRESHOLDS,
@@ -186,6 +225,10 @@ async function worker() {
       const swapped = readerBallot(parseJudgeText(ba.text, baReq), item.b, item.a);
       rows[i] = {
         id: item.id,
+        pairKey: `${item.id}:${createHash('sha256')
+          .update(JSON.stringify([item.a, item.b]))
+          .digest('hex')
+          .slice(0, 12)}`,
         questionId: createHash('sha256').update(item.question).digest('hex').slice(0, 16),
         label: item.label,
         language,
@@ -206,21 +249,21 @@ async function worker() {
           }),
         );
     } catch (e) {
-      failedReservations += 1;
+      if (e instanceof CallFailed && e.costUsd === undefined) failedReservations += 1;
       stopped = e instanceof Error ? e.message : String(e);
       await checkpoint();
     }
   }
 }
 await mkdir(`${root}/results`, { recursive: true });
-await Promise.all([worker(), worker()]);
+await Promise.all(Array.from({ length: concurrency }, worker));
 await checkpoint();
 const final = report();
 const ledger = getArg('ledger');
 if (ledger)
   await appendFile(
     ledger,
-    `| ${new Date().toISOString()} | research/astra-reader-first ${phase}, ${final.completedPairs}/${items.length} pairs, two calls maximum | haiku | ${caller.calls()} | 10.00 | ${caller.spent().toFixed(8)} | reserve ${(failedReservations * 0.1).toFixed(2)}; cumulative ${final.cumulativeSpendUsd.toFixed(8)} |\n`,
+    `| ${new Date().toISOString()} | research/astra-reader-first ${phase}, ${final.completedPairs}/${items.length} pairs, ${concurrency} calls maximum | haiku | ${caller.calls()} | 20.00 | ${caller.spent().toFixed(8)} | reserve ${(failedReservations * 0.1).toFixed(2)}; cumulative ${final.cumulativeSpendUsd.toFixed(8)} |\n`,
   );
 console.log(JSON.stringify({ ...final, rows: undefined }, null, 2));
 if (!final.complete) process.exitCode = 1;

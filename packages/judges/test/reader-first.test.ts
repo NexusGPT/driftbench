@@ -135,7 +135,18 @@ it('counts Chinese replies in Han characters even under an English instruction',
 it('requires model failures and matching one-sided machine flags', () => {
   const a = readerFeatures('A clear complete answer.');
   const b = readerFeatures('Another answer.');
-  const ballot = { valid: true, problems: [], items: READER_FIRST_CRITERIA.map((name) => ({ name, a: 0, b: 4, quoteA: 'A clear', quoteB: 'Another', reasoning: 'fixture' })) };
+  const ballot = {
+    valid: true,
+    problems: [],
+    items: READER_FIRST_CRITERIA.map((name) => ({
+      name,
+      a: 0,
+      b: 4,
+      quoteA: 'A clear',
+      quoteB: 'Another',
+      reasoning: 'fixture',
+    })),
+  };
   const swapped = { ...ballot, items: ballot.items.map((x) => ({ ...x, a: 4, b: 0 })) };
   const result = resolveReaderFirst(a, b, ballot, swapped, { configuration: 'reader-first' });
   expect(result.judgeGap).toBe(20);

@@ -14,10 +14,12 @@ Initial thresholds: judgeMargin 4, featureMargin 2, minFailures 2. DEV-only sear
 
 ## Reproduction
 
-Use worktree-local `TMPDIR` and `DRIFTBENCH_BENCH_CACHE` with `pnpm exec tsx comparisons/reader-first/src/study.ts --phase explore`. `--phase final-dev` only replays exact recordings. `--phase test` requires the committed freeze hashes and creates an exclusive run receipt before reading the split. A second TEST invocation is refused. Raw candidate text is loaded from the public dataset, never copied from a judge summary.
+Use worktree-local `TMPDIR` and `DRIFTBENCH_BENCH_CACHE` with `node --import tsx comparisons/reader-first/src/study.ts --phase explore`. `--phase final-dev` only replays exact recordings. `--phase test` requires the committed freeze hashes and creates an exclusive run receipt before reading the split. A second TEST invocation requires an incomplete first run and the explicit resume flag. Raw candidate text is loaded from the public dataset, never copied from a judge summary.
 
 Harness source: `research/opus-wp` at af25ea12, `examples/judge-benchmarks/src/{data,call}.ts`. The call harness uses one attempt here so unreturned retries cannot silently spend. The default judging code is imported without edits.
 
 ## Deadline update
 
-The owner raises concurrency to six and the budget to USD 20.00. Last new call: 2026-10-13 06:35 Brussels. Commit, push and report deadline: 06:40. Two in-flight calls from the original two-worker process are stopped and reserve USD 0.20. Returned recordings replay without spending again. TEST starts only when frozen DEV passes and measured remaining runtime fits the cutoff.
+The owner raises concurrency to six and the budget to USD 20.00. Last new call: 2026-10-13 06:39 Brussels. Commit, push and report deadline: 06:42. Two in-flight calls from the original two-worker process are stopped and reserve USD 0.20. Returned recordings replay without spending again. TEST starts when frozen DEV passes. Incomplete results at cutoff are labeled partial, as authorized by the owner.
+
+The owner authorizes TEST after 144/180 DEV, with six calls at a time and no new calls after 06:39 Brussels. An interrupted TEST is partial and resumes from the same frozen source hashes and cached calls after the outage. Resume requires `--resume --call-deadline <authorized ISO timestamp>`; a completed TEST cannot run again. The 22 of 90 invalid-evidence DEV pairs use length fallback.
