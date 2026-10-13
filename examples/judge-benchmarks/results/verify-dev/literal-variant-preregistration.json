@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-13T02:38:21.991610+02:00",
+  "candidates": [
+    "driftbench-verify-program-backward-step-literal",
+    "driftbench-verify-diverse5-all-step-literal"
+  ],
+  "change": "Append a countermodel check for unspecified quantities to the final comparison prompt. Independent solves, extraction, tools, thresholds, official scorer and audit mappings stay unchanged.",
+  "reason": "A measured DEV error accepts a unique soda price under an unstated count even while acknowledging that other counts yield other prices.",
+  "selection": "Only complete 95-item DEV runs qualify. Highest audited score, official score then cost break ties. No TEST outputs are consulted.",
+  "verification": {
+    "typecheck": "passed",
+    "benchmarkTests": 52,
+    "benchmarkTestFiles": 7,
+    "maxWorkers": 2,
+    "testTimeoutMs": 30000,
+    "biomeChangedFile": "passed"
+  }
+}

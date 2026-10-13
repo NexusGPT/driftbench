@@ -1,0 +1,38 @@
+{
+  "modelCalls": 0,
+  "proofs": [
+    {
+      "id": "6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482",
+      "questionSha256": "bb28a002d1132579e9930f0c0b14d80a5e201576ec08a032f99e5633ea95c803",
+      "responseSha256": "fd754afeaeab3373bd4d30961e4a938f18acd075f175ffe2f711f4fb2fd15c00",
+      "proof": "Original roots -1 and 3 with exterior nonpositive set force a<0,b=-2a,c=-3a. Target is a*(-3x*x+2x+1)<0, hence -1/3<x<1.",
+      "exactWitness": {
+        "a": "-1",
+        "b": "2",
+        "c": "3",
+        "x": "-2",
+        "originalPolynomial": "-5",
+        "requestedPolynomial": "15",
+        "submittedExteriorSetContainsX": true,
+        "requestedStrictInequalityHolds": false
+      },
+      "gridCheck": "289 exact Fraction inputs on [-12,12] with step 1/12, both original set and corrected target set agree; supplementary check, not proof of universality."
+    },
+    {
+      "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+      "questionSha256": "31a315015a156fb04c23cb4b3d695ef1013f1a8e6e6083fcb2710f79eb36c79d",
+      "responseSha256": "64467f5d82aadecb0c1e2cbe2af1d8f19f47ca69780a7d769aaef9c4f0c991c0",
+      "exactElapsedDays": 2767,
+      "JoeDate": "1879-11-21",
+      "submittedCommittedJoeDate": "1879-02-14",
+      "terminalOrderedNames": [
+        "Emma",
+        "Jenny",
+        "Joe",
+        "Kyle",
+        "Jason"
+      ],
+      "proof": "Question4 asks for an ordered list of dates. Correct name order does not make the explicit erroneous Joe date in that final list correct."
+    }
+  ]
+}

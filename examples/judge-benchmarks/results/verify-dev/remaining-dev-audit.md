@@ -25,7 +25,7 @@ The code reads all M and L commands, including several L commands after one M. I
 ```python
 import json, math, re
 from pathlib import Path
-DEV = Path("/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/results/verify-dev")
+DEV = Path("examples/judge-benchmarks/results/verify-dev")
 items = json.loads((DEV / "items.json").read_text())
 def sub(a,b): return (a[0]-b[0],a[1]-b[1])
 def cross(a,b): return a[0]*b[1]-a[1]*b[0]
@@ -332,7 +332,7 @@ The evaluator implements arithmetic with exact rational numbers and Boolean prec
 import ast,itertools,json,re
 from fractions import Fraction
 from pathlib import Path
-DEV=Path("/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/results/verify-dev")
+DEV=Path("examples/judge-benchmarks/results/verify-dev")
 items=json.loads((DEV/"items.json").read_text())
 def evaluate(node,environment):
     if isinstance(node,ast.Expression): return evaluate(node.body,environment)
@@ -4536,7 +4536,7 @@ This is deliberately a model-dependent check. It assumes eight conventional sema
 ```python
 import itertools,json,re
 from pathlib import Path
-DEV=Path("/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/results/verify-dev")
+DEV=Path("examples/judge-benchmarks/results/verify-dev")
 items=json.loads((DEV/"items.json").read_text())
 vocabulary={
  'O':'nice good awful terrible wonderful lovely ridiculous silly repulsive mysterious obnoxious',

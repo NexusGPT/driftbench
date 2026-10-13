@@ -210,7 +210,7 @@ Reproduce the appendix programs without creating a source file:
 ```python
 from pathlib import Path
 import re
-report = Path("/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/results/verify-dev/remaining-dev-audit.md")
+report = Path("examples/judge-benchmarks/results/verify-dev/remaining-dev-audit.md")
 for number, program in enumerate(re.findall(r"```python\n(.*?)\n```", report.read_text(), re.S), 1):
     exec(compile(program, f"audit-block-{number}", "exec"), {})
 ```
@@ -218,3 +218,7 @@ for number, program in enumerate(re.findall(r"```python\n(.*?)\n```", report.rea
 Release snapshot: 2026-10-13T00:57:41.257984+02:00.
 
 Companion verification: all95 matrix rows match the immutable DEV ids and labels; the candidate question and full6233-character response match literally; all source hashes and the appendix hash match; the companion reproduction command executes all five appendix blocks successfully. Checked at 2026-10-13T00:58:55.467232+02:00.
+
+## Root portability verification
+
+At 2026-10-13T02:06:14.795319+02:00, the four worktree-specific paths become repository-relative paths. The original release hash above remains historical. The current appendix SHA-256 is `06736bc8e6d5340438edd190435042867c7ca3b2f9758523fcd9a0830449fdd0`. All five proof blocks pass again in fresh namespaces. Outputs and block hashes are in `dev-proof-reproduction-portable.json`. Run the DEV audit script first if the ignored public-source input cache is absent. No judge prompt, label or scoring rule changes in this portability update.

@@ -110,6 +110,19 @@ export function dossierContestants(
     referenceAgreementThreshold: undefined,
     finalStepCheck: step.finalStepCheck,
   };
+  const literal = (source: Contestant, id: string): Contestant => ({
+    ...source,
+    id,
+    source: `${source.source}; explicit countermodel test for unstated assumptions`,
+    point: (input) => {
+      const prompt = source.point?.(input);
+      if (!prompt) throw new Error('The premise verifier needs a point prompt.');
+      return {
+        ...prompt,
+        system: `${prompt.system}\nA claimed unique value must follow from the written premises. Try two feasible assignments to any unspecified count, quantity or logical fact. If both satisfy all premises but produce different requested outputs, a unique submitted value is not established. Do not accept an unstated assumption as the intended reading merely because its arithmetic matches a reference. Disclosing an extra assumption does not answer the original question. Check the meaning of the selected option and all requested outputs, not just a matching number or letter.`,
+      };
+    },
+  });
   return [
     quoted,
     aided,
@@ -117,6 +130,14 @@ export function dossierContestants(
     recovered,
     recoveredFive,
     withBoardgameConvention(recovered, 'driftbench-verify-program-backward-step-context'),
+    withBoardgameConvention(
+      literal(recovered, 'driftbench-verify-program-backward-step-literal'),
+      'driftbench-verify-program-backward-step-literal',
+    ),
+    withBoardgameConvention(
+      literal(recoveredFive, 'driftbench-verify-diverse5-all-step-literal'),
+      'driftbench-verify-diverse5-all-step-literal',
+    ),
     withBoardgameConvention(
       {
         ...recovered,
