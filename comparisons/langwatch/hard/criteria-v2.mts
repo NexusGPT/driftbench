@@ -21,7 +21,7 @@ export function registration() {
   for (const [path, digest] of Object.entries(manifest.hashes)) {
     const absolute = join(here, path);
     if (sha(readFileSync(absolute)) !== digest) throw new Error(`Frozen adapter/source changed: ${path}`);
-    const committed = execFileSync('git', ['show', `HEAD:${relative(root, absolute)}`], { cwd: root });
+    const committed = execFileSync('git', ['show', `HEAD:${relative(root, absolute)}`], { cwd: root, maxBuffer: 64 * 1024 * 1024 });
     if (sha(committed) !== digest) throw new Error(`Preregistration must be committed: ${path}`);
   }
   const committed = execFileSync('git', ['show', 'HEAD:comparisons/langwatch/hard/adapter-v2-freeze.json'], {
