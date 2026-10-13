@@ -393,6 +393,19 @@ const DECODERS: readonly ((text: string) => string | undefined)[] = [
     });
     return decoded === text ? undefined : decoded;
   },
+  // Runs of eight or more 8-bit binary groups: the bytes read as UTF-8.
+  (text) => {
+    const decoded = text.replace(/(?<![01])(?:[01]{8}(?:\s+|$|(?![01]))){8,}/g, (run) => {
+      const bytes = Uint8Array.from(
+        run
+          .trim()
+          .split(/\s+/)
+          .map((group) => Number.parseInt(group, 2)),
+      );
+      return readable(bytes) ?? run;
+    });
+    return decoded === text ? undefined : decoded;
+  },
   // HTML numeric entities (&#65; and &#x41;): read as the characters they stand for.
   (text) => {
     const decoded = text.replace(
