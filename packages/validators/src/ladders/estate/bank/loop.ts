@@ -373,6 +373,15 @@ const ASKS: AskCheck[] = [
     title: 'every spec records its atoms, plan row, cell, seeder, seed and map hash',
     check: (run, all) => {
       const bad = all.filter((v) => {
+        // A static test (docs/estate.md section 5) records its atom, plan row and map hash in its own JSON.
+        const fixed = staticRecord(v);
+        if (fixed !== undefined)
+          return (
+            fixed === null ||
+            typeof fixed.atom !== 'string' ||
+            typeof fixed.planRow !== 'string' ||
+            fixed.mapHash !== run.scanned.map.hash
+          );
         const meta = estateMeta(v.spec) as Record<string, unknown>;
         return (
           !Array.isArray(meta.atoms) ||
@@ -593,11 +602,43 @@ const ASKS: AskCheck[] = [
     tier: 1,
     title: 'every spec loads',
     check: (_r, all) => {
-      const bad = all.filter((v) => !v.spec.loaded);
+      // A static test is JSON for `estate static`, not a task spec: it loads when it is an object with its id,
+      // test type and check. Every other file loads as a task spec.
+      const bad = all.filter((v) => {
+        const fixed = staticRecord(v);
+        if (fixed === undefined) return !v.spec.loaded;
+        return (
+          fixed === null ||
+          typeof fixed.id !== 'string' ||
+          typeof fixed.testType !== 'string' ||
+          typeof fixed.check !== 'object' ||
+          fixed.check === null
+        );
+      });
       return bad.length === 0 ? undefined : `${bad.length} specs do not load`;
     },
   },
 ];
+
+/**
+ * The JSON of a static test (a file under `static/` ending in `.json`, docs/estate.md section 5: "Invariant and
+ * setting rows are static tests: JSON under `static/<test type>/`"): the object, null when the text is not a
+ * JSON object, undefined for every other file.
+ */
+export function staticRecord(v: {
+  spec: { record: { path: string }; text: string };
+}): Record<string, unknown> | null | undefined {
+  const path = v.spec.record.path;
+  if (!path.startsWith('static/') || !path.endsWith('.json')) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(v.spec.text);
+    return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 export function genAsksFamily(): Family {
   const family = 'gen.asks';
