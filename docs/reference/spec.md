@@ -297,7 +297,7 @@ The expected output and state delta of a block. Every field is optional.
 | `sql` | [Expect sql](#expect-sql) | no |  | The SQL the agent ran must return the same rows as the golden query on the database. |
 | `regex` | list of strings, each not empty | no |  | Regular expressions the visible text must match, case-sensitive; must ignores case instead. |
 | `injection` | boolean | no |  | True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it. |
-| `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. Texts with different number sequences cannot compare equal. |
+| `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. A dot or comma between two digits counts, except a strictly grouped thousands comma. |
 | `exact_strict` | boolean | no |  | Compare exact byte for byte after trimming the ends, instead of ignoring case, punctuation and spacing. |
 | `json` | [JsonExpect](#jsonexpect) | no |  | The reply is valid JSON, optionally with a schema and paths. |
 | `tool_f1` | [Expect tool_f1](#expect-tool_f1) | no |  | Precision, recall and F1 of the tool calls against the expected ones. |

@@ -25,16 +25,25 @@ function numberOf(text: string): number | undefined {
   return Number.isFinite(value) ? value : undefined;
 }
 
-/** Original-text number values: malformed comma groups split tokens instead of erasing commas. */
-function numberTokens(text: string): number[] {
-  const tokens =
-    /[+-]?\p{Sc}?(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?(?!\d)|(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)/gu;
-  return Array.from(text.matchAll(tokens), ([token]) => Number(token.replace(/[,\p{Sc}]/gu, '')));
+/** Keep digits and separators between digits, except strictly grouped thousands commas. */
+function digitSignature(text: string): string {
+  const ungrouped = text.replace(/\d+(?:,\d+)*/g, (run) =>
+    /^\d{1,3}(?:,\d{3})+$/.test(run) ? run.replace(/,/g, '') : run,
+  );
+  return [...ungrouped]
+    .filter(
+      (char, index, chars) =>
+        /\d/.test(char) ||
+        ((char === '.' || char === ',') &&
+          /\d/.test(chars[index - 1] ?? '') &&
+          /\d/.test(chars[index + 1] ?? '')),
+    )
+    .join('');
 }
 
 /**
  * `expect.exact`: the visible text of the reply equals the reference (`exact_strict: true` compares byte for byte). Two numbers compare as numbers, so
- * `42.0` equals `42`; other text must have equal number sequences before comparing after normalising.
+ * `42.0` equals `42`; other text retains dots and commas between digits in a separate guard before normalising.
  * An empty reply never equals a reference,
  * because the spec refuses an empty reference.
  */
@@ -71,18 +80,15 @@ export const exact: Check = {
         ),
       ];
     }
-    const replyNumbers = numberTokens(reply);
-    const referenceNumbers = numberTokens(reference);
-    if (
-      replyNumbers.length !== referenceNumbers.length ||
-      replyNumbers.some((value, index) => value !== referenceNumbers[index])
-    ) {
+    const replyDigits = digitSignature(reply);
+    const referenceDigits = digitSignature(reference);
+    if (replyDigits !== referenceDigits) {
       return [
         machineVerdict(
           NAME,
           '0',
           'fail',
-          `number tokens [${replyNumbers.join(', ')}] differ from [${referenceNumbers.join(', ')}]`,
+          `digit signatures ${quote(replyDigits)} differ from ${quote(referenceDigits)}`,
         ),
       ];
     }
