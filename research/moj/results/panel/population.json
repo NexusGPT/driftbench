@@ -1,0 +1,5331 @@
+[
+  {
+    "key": "judgebench|cae46f34-3909-5086-9b39-dd0aa53e4063",
+    "bench": "judgebench",
+    "id": "cae46f34-3909-5086-9b39-dd0aa53e4063",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "5b59558029a74644c8e73520666f8f266fbed0034753f8db3ba054d0209ae06c",
+    "low": true,
+    "low_source": "recorded-s1p-margin-below-0.7",
+    "stage1_confidence": 0.63,
+    "base": {
+      "pA": 0.37,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0.0,
+      "source": "recorded-s1p"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|c5d13fd8-9d91-5e82-9ac9-3d5b372ea856",
+    "bench": "judgebench",
+    "id": "c5d13fd8-9d91-5e82-9ac9-3d5b372ea856",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "019846a430042ee4af1af8afe425613eda33de3412b7c9fade92310f06a2f186",
+    "low": false,
+    "low_source": "recorded-s1p-margin-below-0.7",
+    "stage1_confidence": 0.76,
+    "base": {
+      "pA": 0.76,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0.0,
+      "source": "recorded-s1p"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|97e2c15b-92c8-5934-bf37-c46fbf095930",
+    "bench": "judgebench",
+    "id": "97e2c15b-92c8-5934-bf37-c46fbf095930",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "13b69f1fb11e0be74d458fc750171596909ab556a6dd4ddba4219dbed0380444",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 3,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb",
+    "bench": "judgebench",
+    "id": "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "ef1a3e1612ccbb5d25f6709f176ddc818c80c1bbcbbbfb863e891afcc7163df4",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "bench": "judgebench",
+    "id": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "c62e221392cf37130dead9a93b12702b22bb288ff3d40c6afd4416f1371c8eb3",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|9eea6f37-5da7-5b9e-81f7-6f27eccf11da",
+    "bench": "judgebench",
+    "id": "9eea6f37-5da7-5b9e-81f7-6f27eccf11da",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "ac192cd23dd12a01381fbc98db81ad101e44dbb42e302be09dbc697c9885b8e9",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|0dbbab50-fb4b-59f5-83a7-883e9e6f53f3",
+    "bench": "judgebench",
+    "id": "0dbbab50-fb4b-59f5-83a7-883e9e6f53f3",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "027ba54fc04caffc809e39ae88a91953745721b383c01a98a6784d6699bf5294",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|5b5bd25b-3f2d-5ffc-9514-4464c551a497",
+    "bench": "judgebench",
+    "id": "5b5bd25b-3f2d-5ffc-9514-4464c551a497",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "9e3f959811b713c9eb9efefd57fd47ac1c5d6b37ebcfee2f15cfd95b8986a6cf",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|907c3d20-a0dc-5b21-b4ba-1e784d7cfaf6",
+    "bench": "judgebench",
+    "id": "907c3d20-a0dc-5b21-b4ba-1e784d7cfaf6",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "a3b93746cee47acebc93b500bba51b115778a6a734fc304e895628fed8b290eb",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|12684959-2d5c-5dd7-8166-cf6dd83e6ef2",
+    "bench": "judgebench",
+    "id": "12684959-2d5c-5dd7-8166-cf6dd83e6ef2",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "684c6f86a0b4530476c90144343347096e0561e3adefe26c6c361325dec4f540",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|5b3b51e9-36f5-535e-998e-6f9a5e677875",
+    "bench": "judgebench",
+    "id": "5b3b51e9-36f5-535e-998e-6f9a5e677875",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "29f072582ed2a35b8c8e00b37c70ade17c253c4a49ab635dd7bcb0c2c0f9bac7",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|c67cf264-33f9-5730-aeea-a7364756a96b",
+    "bench": "judgebench",
+    "id": "c67cf264-33f9-5730-aeea-a7364756a96b",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "4e636f2abddc6c8ef194923facb8e1688bec7715674a650f17d29c11c704c924",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      }
+    }
+  },
+  {
+    "key": "judgebench|01e7f689-32d4-53b7-a05b-32cbc6807a7c",
+    "bench": "judgebench",
+    "id": "01e7f689-32d4-53b7-a05b-32cbc6807a7c",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "44f4718e137b319d97f72b27258d89729aba557c5f69d139ddf0829c51583584",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|5718cf3d-a1a8-5503-85dd-f58b8a7fac4d",
+    "bench": "judgebench",
+    "id": "5718cf3d-a1a8-5503-85dd-f58b8a7fac4d",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "add1c2ce81e8fb4f85280c86a98817cc6b8a1669d56ee952fd732d2b5154ad55",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|aecacdc0-1dfc-5339-b6c7-eea5baa1471d",
+    "bench": "judgebench",
+    "id": "aecacdc0-1dfc-5339-b6c7-eea5baa1471d",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "bcbca9d85fff54c3df90de5e8cf0374b50aa52fb88262c64a6ff411356a620ad",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|561aa423-34b6-5d88-bbd1-011da24ad2b0",
+    "bench": "judgebench",
+    "id": "561aa423-34b6-5d88-bbd1-011da24ad2b0",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "95792e8b286902924c2c9f66a998360a5a3ac6614d374b539988843e703d95e0",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      }
+    }
+  },
+  {
+    "key": "judgebench|857131ea-e0ef-517b-9f31-996edf4dc832",
+    "bench": "judgebench",
+    "id": "857131ea-e0ef-517b-9f31-996edf4dc832",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "831c486acfdb1e65bef43a3a84ada21fb51e1d78fdd45c2d374f860a8dee5e5b",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|3b317691-c56f-50df-92a6-8ad2f444dfe4",
+    "bench": "judgebench",
+    "id": "3b317691-c56f-50df-92a6-8ad2f444dfe4",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "3042c3362d186c6018739f846c48c3d7f5eaf46c8a1707e99037f4e840e3920f",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      }
+    }
+  },
+  {
+    "key": "judgebench|56a1fdbb-c4ca-5626-851c-aae7e876e72a",
+    "bench": "judgebench",
+    "id": "56a1fdbb-c4ca-5626-851c-aae7e876e72a",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "153bd2fd3df859c22ec7d52d57a09ff4b72c9c4ef10c6bc74808ac52d22502d8",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|0f999ea7-10a1-5b85-a175-b86d50338266",
+    "bench": "judgebench",
+    "id": "0f999ea7-10a1-5b85-a175-b86d50338266",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "759a76ea1525b7e3ebdb0d6ac14c940a9bde0aae2fc8ac7830bb42f173826eab",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|5bea4109-3545-525a-813e-4b7f2a95a91b",
+    "bench": "judgebench",
+    "id": "5bea4109-3545-525a-813e-4b7f2a95a91b",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "3aebd5d7c1d3e4bec23ee21060e3c9a42736462990ea9c59beb7a5c3db977cbf",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|c89566b4-5831-5242-8ae9-45c2f0ae955c",
+    "bench": "judgebench",
+    "id": "c89566b4-5831-5242-8ae9-45c2f0ae955c",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "afd6bf94c3fc76155b4d717a42e3cd6fb8ca220449a95575cb6210178d89ceea",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|3ba5c8c5-148b-5e2a-a8ca-4a7e4fded997",
+    "bench": "judgebench",
+    "id": "3ba5c8c5-148b-5e2a-a8ca-4a7e4fded997",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "bde4fc2152ea1a65458971497d0d95beb420498a640a2f373b723e1e0dd4f58f",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|6ed13f8d-9733-5839-a628-22c6ec6c9f27",
+    "bench": "judgebench",
+    "id": "6ed13f8d-9733-5839-a628-22c6ec6c9f27",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "24a7dec56957ee822dee1d0b510833e6ba4d1072f567e49e90a1a13a00890bb1",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|5c63211c-b04e-591b-a102-a55ac8793816",
+    "bench": "judgebench",
+    "id": "5c63211c-b04e-591b-a102-a55ac8793816",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "880f36516822bdb478304d647b47d8bf71c2b1123b624c473a3a7b0d62068a70",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|2aa40f83-9d2a-5a22-8c37-817397efb2e7",
+    "bench": "judgebench",
+    "id": "2aa40f83-9d2a-5a22-8c37-817397efb2e7",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "dd8a2cb3f556470c5236131c07039c4975935c32e2145754f39857522858161e",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|10a4153b-efca-565a-8b13-7e34aba0f30c",
+    "bench": "judgebench",
+    "id": "10a4153b-efca-565a-8b13-7e34aba0f30c",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "b19d749048eddf94a3db29f0ff41c3ccbb3d34eb6cc39f77dd68d16099a15dba",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|07019bab-fc3e-5c91-ac9c-36869cfe79b0",
+    "bench": "judgebench",
+    "id": "07019bab-fc3e-5c91-ac9c-36869cfe79b0",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "d9d07f3d5b8accfcb47d04df6f527a0b6bd9c2fdb7817bac94d26d0661db0490",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 3,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|f340e79f-aec2-566b-9536-4f4c349e095d",
+    "bench": "judgebench",
+    "id": "f340e79f-aec2-566b-9536-4f4c349e095d",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "b15a8acd190d4a28b24ec1bfdf0a59ec9dbce1e2deadebb173c93b369c20488d",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|e9963b54-87aa-5b3f-b524-66ed9f7b5489",
+    "bench": "judgebench",
+    "id": "e9963b54-87aa-5b3f-b524-66ed9f7b5489",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "8a185c457fba5f6ad20c93a857ac98b6243d791c98e9ec5e7332b201aff42e0d",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|6ab00107-92e5-526a-96fd-018e71261e9f",
+    "bench": "judgebench",
+    "id": "6ab00107-92e5-526a-96fd-018e71261e9f",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "53282c9737c27c9c19ebe43fa5ed973cdd612bda039a96dc85dafa37279f48fa",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "calls": 3,
+        "status": "tie"
+      }
+    }
+  },
+  {
+    "key": "judgebench|07c3dda8-0f84-5624-9b4a-19ed31d85a2b",
+    "bench": "judgebench",
+    "id": "07c3dda8-0f84-5624-9b4a-19ed31d85a2b",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "aa903033840a34a02a262b36fdc14a1786c579007f27ba62399841831f1d1735",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      }
+    }
+  },
+  {
+    "key": "judgebench|f7d658fc-22ea-53c1-b1a2-4df8ace2aedf",
+    "bench": "judgebench",
+    "id": "f7d658fc-22ea-53c1-b1a2-4df8ace2aedf",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "2e2567fa34b4d1d4d844ba1041d674318e8e4d5d8e2b69b0e9d47d39f21bc160",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|df1964d5-629f-5b4a-bcd5-79137e8f3bc5",
+    "bench": "judgebench",
+    "id": "df1964d5-629f-5b4a-bcd5-79137e8f3bc5",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "dde30d4d5d0fb1e787256cacc8da6286eadef874c66e5fd55df7d370e19c8265",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      }
+    }
+  },
+  {
+    "key": "judgebench|adec78c1-2733-577d-bbb9-fa5ba72cd85f",
+    "bench": "judgebench",
+    "id": "adec78c1-2733-577d-bbb9-fa5ba72cd85f",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "a614abe125c7c594264263fb17a93903c954936c8856071a21d15fdb05696d25",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|a22906b1-02f2-59da-ba1f-7a75487ba740",
+    "bench": "judgebench",
+    "id": "a22906b1-02f2-59da-ba1f-7a75487ba740",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "030098f114d7d29a5a99dfbf975b581cee89872933b82c1929480a1411aa9116",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|2470ffa8-06f5-584d-90ed-6457745c4afc",
+    "bench": "judgebench",
+    "id": "2470ffa8-06f5-584d-90ed-6457745c4afc",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "5dc1d29346544e13c129331cc5afa20631b7ab24629e94755809004d7079826d",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|138e503c-b09d-5d19-82ff-0b5ddc3e7bf6",
+    "bench": "judgebench",
+    "id": "138e503c-b09d-5d19-82ff-0b5ddc3e7bf6",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "746311c48a774cdd843448d73cde22a43e97ff71b77c5675864a4e27427e6938",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|be6b6818-ae30-57de-9c58-418073c98259",
+    "bench": "judgebench",
+    "id": "be6b6818-ae30-57de-9c58-418073c98259",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "885db1f078acd3e810a5f67bacba657581894a856942f162711cfbc77302626f",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|405f3561-1bb7-56f5-88a2-c28cec94c5d4",
+    "bench": "judgebench",
+    "id": "405f3561-1bb7-56f5-88a2-c28cec94c5d4",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "4714107d8699af668adadf46298f2f570749313bb2f29dd1cc93aee3203428d9",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|ccb5f20e-e712-5464-9c81-224cfe48b2f7",
+    "bench": "judgebench",
+    "id": "ccb5f20e-e712-5464-9c81-224cfe48b2f7",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "7c7973a3b8600103c67a2deb3c745893d689fa1be4e625af8d41bb794c344394",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|01fb6121-e025-5251-a55f-f903c79e4ec6",
+    "bench": "judgebench",
+    "id": "01fb6121-e025-5251-a55f-f903c79e4ec6",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "6bffe66da84c9f4b005e9807cb99ec383568f9132671a366c49ac2b349dd1101",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|3a1685e5-509e-503f-b0d3-a23f41c29d46",
+    "bench": "judgebench",
+    "id": "3a1685e5-509e-503f-b0d3-a23f41c29d46",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "573a2508a81270c88fdd8e0c79d1a7c67bdf765a31ed13db6ed57d834ac9f511",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|129dfd5d-5786-57e3-8548-df0d26a42659",
+    "bench": "judgebench",
+    "id": "129dfd5d-5786-57e3-8548-df0d26a42659",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "44c303863fc99e227400976af853fd29ba9988782ac1b95d6a24e8a5283bf23e",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      }
+    }
+  },
+  {
+    "key": "judgebench|a33481f3-edb0-54f4-89e5-12017561abd0",
+    "bench": "judgebench",
+    "id": "a33481f3-edb0-54f4-89e5-12017561abd0",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "ad06131607f966d77dec1c68a4e5ebe75388b4487ad73439ccbdaa56e4c6558d",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|05ea6065-69da-58b9-a53b-872e8d940915",
+    "bench": "judgebench",
+    "id": "05ea6065-69da-58b9-a53b-872e8d940915",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "492df38e45a559b2a71dc369812ae6750bfb8560d24b5fba71dbb241b8beb9d5",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|d7d8f0bd-8352-56c0-8eb4-34d212a2ad52",
+    "bench": "judgebench",
+    "id": "d7d8f0bd-8352-56c0-8eb4-34d212a2ad52",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "6ce6bab75b82214d22729ee22da916ed9776299e325d91db3cf5b6303b10424d",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|3be26fc0-ead5-5d0f-8c87-2feb0524e902",
+    "bench": "judgebench",
+    "id": "3be26fc0-ead5-5d0f-8c87-2feb0524e902",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "2fc0f5b435de53b039830e5b0a62836e6761be28cc286f4b7c4528b678c20110",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|91cd748e-db11-5764-8727-34ef39a9594f",
+    "bench": "judgebench",
+    "id": "91cd748e-db11-5764-8727-34ef39a9594f",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "ada21fc7f9092f7190c637a86b7d4518f22c2c1d79a168ef454123d09318c803",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|ca91b783-54e9-5fb6-9c30-a7ebf3ee7258",
+    "bench": "judgebench",
+    "id": "ca91b783-54e9-5fb6-9c30-a7ebf3ee7258",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "a161d3b225b2bc213d919a11956971774dad737ad02042f91cf560c58292729d",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|82a6f9e6-aa7f-5380-8503-2227e0455f1e",
+    "bench": "judgebench",
+    "id": "82a6f9e6-aa7f-5380-8503-2227e0455f1e",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "c530624343a91dc348f0e3d8a8882fed388cccbbf565e9b5e460076a10532e37",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "calls": 3,
+        "status": "tie"
+      }
+    }
+  },
+  {
+    "key": "judgebench|7805fdd4-aa25-504b-8de2-6df971c56500",
+    "bench": "judgebench",
+    "id": "7805fdd4-aa25-504b-8de2-6df971c56500",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "2bb8ed41a93d7ea6a5c5bd3c9597149f337f5c0d6f4bb9fa1db4d1687e8b66cc",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|c48c7648-83e9-5c9c-b433-14752a85bf4f",
+    "bench": "judgebench",
+    "id": "c48c7648-83e9-5c9c-b433-14752a85bf4f",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "1412c6bcda693966a320af3c41b3b81e55b370518658db7c720cdbf4d883ff00",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|1c4387ea-e443-5233-956d-ca32e3b79b2e",
+    "bench": "judgebench",
+    "id": "1c4387ea-e443-5233-956d-ca32e3b79b2e",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "87350cb4054d13c48d4749ba01a71d9e77290d226c9e9fc938d774837e16e68a",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|a0de8a56-5c4a-5e4a-9420-441005c375b1",
+    "bench": "judgebench",
+    "id": "a0de8a56-5c4a-5e4a-9420-441005c375b1",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "27a04b7564147e2968567d861491433200c21fa03f20cc320bce296bb3a03825",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|2be73c3d-b9e8-5876-8ec8-a125cc349ab0",
+    "bench": "judgebench",
+    "id": "2be73c3d-b9e8-5876-8ec8-a125cc349ab0",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "56d12038040b8874e52a20f4ec8dc6dd806288621cb21317a70f621201249fea",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|0c330e4b-97db-5a89-a2c2-7513ec918421",
+    "bench": "judgebench",
+    "id": "0c330e4b-97db-5a89-a2c2-7513ec918421",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "2639c45db5a096b2765554baa46ea9e8daa0a7d17539ecefa2e33356316a5620",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|8d50b1f0-a7fa-5134-bd78-b2aedd536122",
+    "bench": "judgebench",
+    "id": "8d50b1f0-a7fa-5134-bd78-b2aedd536122",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "3f489c53fd0a09171f444fbfdff7034a8e05dd0ad92b6c4ca1e08a8b68865f98",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|e4b55dd8-fbc7-5b24-94e6-fed411aa78e7",
+    "bench": "judgebench",
+    "id": "e4b55dd8-fbc7-5b24-94e6-fed411aa78e7",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "47211876772f78f2f23cca7e0045e3006624ddc837f133d703ea6b9cf59e838e",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|04a6b0ff-7e1d-5f39-b615-7e379aa1864a",
+    "bench": "judgebench",
+    "id": "04a6b0ff-7e1d-5f39-b615-7e379aa1864a",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "98d58f58192825fe82d75796c4137af35da18d8ada3fc8a3ea685c01c63d4f25",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|23913c97-eb0c-5740-b0ea-d89af8741023",
+    "bench": "judgebench",
+    "id": "23913c97-eb0c-5740-b0ea-d89af8741023",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "56a3e84bfa831d7c947bb18f37932eecb47f539ef544a74ae2f7926cfdd629e6",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|dd139afe-7e64-5ecf-a4bf-7dc016778bf8",
+    "bench": "judgebench",
+    "id": "dd139afe-7e64-5ecf-a4bf-7dc016778bf8",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "b6deb0950fb97022a8e7dc0653d974b4ed91fd3f607f9ff819e91bdc6d735593",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|af372926-1fbb-54bf-aff8-14c9cde2db90",
+    "bench": "judgebench",
+    "id": "af372926-1fbb-54bf-aff8-14c9cde2db90",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "df172c8debe82527bf47de9b6297944d83c8a5503d2e6e873f5045826006a9e5",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|c20860f9-7468-546b-ae86-4ae6a6493de9",
+    "bench": "judgebench",
+    "id": "c20860f9-7468-546b-ae86-4ae6a6493de9",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "01d08709987fd6018a675c57850b4526ca038401ec73762b6cf79d067dcbae2e",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|35e4e1cd-ccdf-51ae-8fee-687a634c6c2e",
+    "bench": "judgebench",
+    "id": "35e4e1cd-ccdf-51ae-8fee-687a634c6c2e",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "05996108c2911f6abe41b0f8ea782b6dbd5e850345c597deeceb12f9e4c1d3c8",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|57ee26c0-cc5d-5c32-b782-c7b5e5da5730",
+    "bench": "judgebench",
+    "id": "57ee26c0-cc5d-5c32-b782-c7b5e5da5730",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "6cd50b334f9e1a70588ce0ff7c81263e60b2b180cc61c93e795aa422d460546a",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|70bf4c34-6b15-53e6-bb19-9094bdaf6c9f",
+    "bench": "judgebench",
+    "id": "70bf4c34-6b15-53e6-bb19-9094bdaf6c9f",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "f3fb7bba869aa8138bba005abc512ce7cd04ac5a1856775e28cd6041ee36eb77",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "judgebench|d50b6560-bbb7-5118-b329-8ed50c155365",
+    "bench": "judgebench",
+    "id": "d50b6560-bbb7-5118-b329-8ed50c155365",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "c452311d36a6800b1e59d87cff602a4443a098215b82e38d9a3f820a631341a8",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|3252",
+    "bench": "mmeval",
+    "id": "3252",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "65bb1f505c7bf9cf26734cdf9d97d8e622d21215e2eb491e7ecb3be72dd2a978",
+    "low": true,
+    "low_source": "recorded-s1p-margin-below-0.7",
+    "stage1_confidence": 0.5,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0.0,
+      "source": "recorded-s1p"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|3221",
+    "bench": "mmeval",
+    "id": "3221",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "5536cb0f123484e94a24a2c16e09bca8b22e6d14552b6ac6527a7913d74c3fe9",
+    "low": true,
+    "low_source": "recorded-s1p-margin-below-0.7",
+    "stage1_confidence": 0.595,
+    "base": {
+      "pA": 0.595,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0.0,
+      "source": "recorded-s1p"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|3265",
+    "bench": "mmeval",
+    "id": "3265",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "75ece2cab3fdc10ed8b3ff0c5d1c376021b2e0ba8aaf08d7d30476b969922d44",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 3,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|3540",
+    "bench": "mmeval",
+    "id": "3540",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "eb9677a81b23a1847c24a971a34110b38b9f7c510773d1560faab62ba403e916",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|1660",
+    "bench": "mmeval",
+    "id": "1660",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "844ab6e905fce2175326c8087226eeb8a2aa49dacebd9b93ee05ef53cee5ec6a",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|700",
+    "bench": "mmeval",
+    "id": "700",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "ddf49b64f22ebe1df71bea1fe39581d7678cd7b04926aeb6a7d73b587663c763",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 0,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      }
+    }
+  },
+  {
+    "key": "mmeval|1904",
+    "bench": "mmeval",
+    "id": "1904",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "81317649fec0db5b5accd6dfa728b12c80505fa79b97629a9883deae3f06a67b",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 0,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      }
+    }
+  },
+  {
+    "key": "mmeval|1251",
+    "bench": "mmeval",
+    "id": "1251",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "4e8a65a1bb49d88ef4460f75371c1392379484f1b595189c1a6670c1430ce1dc",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 0,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      }
+    }
+  },
+  {
+    "key": "mmeval|4753",
+    "bench": "mmeval",
+    "id": "4753",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "ffcb46b78931a03eb0822d136e868806f41714cb153d5a55f84693192e53e8d7",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          null,
+          null
+        ],
+        "calls": null,
+        "status": null
+      }
+    }
+  },
+  {
+    "key": "mmeval|4140",
+    "bench": "mmeval",
+    "id": "4140",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "34e22ba244727d007fa2d4fb5fac3bc1dcb87bbf487d751a7df42e85aead60fa",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 0,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      }
+    }
+  },
+  {
+    "key": "mmeval|4578",
+    "bench": "mmeval",
+    "id": "4578",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "27e3c6caf27ea10a8e3c0f01cedb9407d0adda024d493ac31768485709168b99",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 0,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      }
+    }
+  },
+  {
+    "key": "mmeval|4618",
+    "bench": "mmeval",
+    "id": "4618",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "1b35f76189b53f10a8be520550b10cfd43a4e3854fb5dbcea80e8dbf397a3df5",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          null,
+          null
+        ],
+        "calls": null,
+        "status": null
+      }
+    }
+  },
+  {
+    "key": "mmeval|3716",
+    "bench": "mmeval",
+    "id": "3716",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "e05445d70bc23650edfdf084e95b032be99c5e6819be06eb1e8b45f8bfcd1a5f",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          null,
+          null
+        ],
+        "calls": null,
+        "status": null
+      }
+    }
+  },
+  {
+    "key": "mmeval|4050",
+    "bench": "mmeval",
+    "id": "4050",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "835cceeabd5908585e8c2b2d5b39be96c827b233fcf7ced89968ec3ca5af7ab9",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|3955",
+    "bench": "mmeval",
+    "id": "3955",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "771c81a9e9ce4c24de9e007ff59cf1605dce2e5654731d74b1441d39f8086b02",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          null,
+          null
+        ],
+        "calls": null,
+        "status": null
+      }
+    }
+  },
+  {
+    "key": "mmeval|3774",
+    "bench": "mmeval",
+    "id": "3774",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "be83a2ffd94aee3bbf4880c46cc1a3c22550f294b058926be489b4eb745fa239",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          null,
+          null
+        ],
+        "calls": null,
+        "status": null
+      }
+    }
+  },
+  {
+    "key": "mmeval|2738",
+    "bench": "mmeval",
+    "id": "2738",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "efc0444706558baccf4e92842ddfa761783ce7511d8cbe698e968f3d14638f4d",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          null,
+          null
+        ],
+        "calls": null,
+        "status": null
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      }
+    }
+  },
+  {
+    "key": "mmeval|2168",
+    "bench": "mmeval",
+    "id": "2168",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "91888b9876db7858ae34caf77d7b98b26a05b925451c0e777be347782fe92e7e",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|2044",
+    "bench": "mmeval",
+    "id": "2044",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "a7e13393225b1062ffb38e9991d8142d13725f15283e2a3b0ffb3acb9c10487f",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|2357",
+    "bench": "mmeval",
+    "id": "2357",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "389efc8d8e91c7b858c541e0a20d1afd35d2c43199e9586598905ff501a99847",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|3485",
+    "bench": "mmeval",
+    "id": "3485",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "8f6d263e2a9e2513c45048c4af888217d4f3565184ce23044f2f5a8c7779c89a",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3290",
+    "bench": "mmeval",
+    "id": "3290",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "34581f3c405ca5cbdd2c160291c6eb36a3cd3af1532c06f9d45cc2cb5582c07e",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3182",
+    "bench": "mmeval",
+    "id": "3182",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "48ac72609ee2a979c8276228ce87d49008fcf459e0c3cb81588c8a8762798233",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3242",
+    "bench": "mmeval",
+    "id": "3242",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "d350a9755880ad4be1d43887e15515e9c1160a29bf384862f3ea82755a5c8dd0",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3540",
+    "bench": "mmeval",
+    "id": "3540",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "5fb042c0c6df6a45f685577b6325ccae8c9694a31771febf5d8002a5a1dd08ad",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|3501",
+    "bench": "mmeval",
+    "id": "3501",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "37780e88185279965df99dec1a786379a18f4d3d6cac492fd6ef86e9fcb76d0c",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|1358",
+    "bench": "mmeval",
+    "id": "1358",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "bdb7e085259ba5dda011621413412dcecda98ede0743be98832fd8531b0d496f",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|1164",
+    "bench": "mmeval",
+    "id": "1164",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "96a63dcd403126573a4290a48f0c27272a1f1ddd59846df8a4f02bbebeb27e28",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|1545",
+    "bench": "mmeval",
+    "id": "1545",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "825e979d8b79f51a87b690e87be33d91d0834e4876933902827c5f96d350dc7d",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|194",
+    "bench": "mmeval",
+    "id": "194",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "6f9a4881ea6931b6c77677e09b8af59f3977f02b21c5aa3797fa364c900fa2cb",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|1414",
+    "bench": "mmeval",
+    "id": "1414",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "25fc8b094bb21fca8714a4ed6caab6454c6cb147f75665acfef08914f7fb464d",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|1660",
+    "bench": "mmeval",
+    "id": "1660",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "7cd839dba720b62626ed1086f0c1a192429527394ce92753d130e2503b7ab782",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|4140",
+    "bench": "mmeval",
+    "id": "4140",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "f056da5a33fd8e3b206c547dd7d35d20743465b7f0e829fc0a99f98a82c80e5b",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 0,
+        "status": "decided"
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      }
+    }
+  },
+  {
+    "key": "mmeval|4405",
+    "bench": "mmeval",
+    "id": "4405",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "ddc43bf8c13110eb756435006b7fed78c9eb1f5104cc8346cc0cdca07f10b99c",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|4239",
+    "bench": "mmeval",
+    "id": "4239",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "0c644e1b2c07efd5862d0e5561fdc7cf1c74836b14c1c18088a6008f61c39fc6",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|4944",
+    "bench": "mmeval",
+    "id": "4944",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "fba4625cbe76dca055a2ae0a3226aa8f02883e2e26a097cd0357faa6f1bd255d",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|4760",
+    "bench": "mmeval",
+    "id": "4760",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "f21a7664dc426e3fa59f0b3e6bb2e2ba941ee7aa80cd655bb6013dd8d01ea9fe",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|4197",
+    "bench": "mmeval",
+    "id": "4197",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "7cd0226ef2ecda3429afa8ae8868515dcc8a8cdb368e057fadebb041d6e321f1",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3912",
+    "bench": "mmeval",
+    "id": "3912",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "9004700f2245c8ee90a90423c0c5f162f1fe66edf472673977ea39fee3b08c6c",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|4050",
+    "bench": "mmeval",
+    "id": "4050",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "1295acbbf984de9fb4f1bb3091915fb6462c0b0ab51b97ece1b5bedc57b747c2",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|4048",
+    "bench": "mmeval",
+    "id": "4048",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "ac6f1f930cc5c086cb606d5d89ed1d5d069dfc677016a1c4477f63ae80d5ca98",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3859",
+    "bench": "mmeval",
+    "id": "3859",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "c41e62a5d3ac4d29d183e17e383b24fa10e4f59977a2ba6852d984a317eb5b61",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3883",
+    "bench": "mmeval",
+    "id": "3883",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "f93a8e8793599ff765d22a099b96c78116eb33bed621d75068e1b25b5e59664b",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3923",
+    "bench": "mmeval",
+    "id": "3923",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "03a36643d57e27cbe7bd76d3472f66f86e8dd990e5c8bc872d8195e39b6f8447",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3138",
+    "bench": "mmeval",
+    "id": "3138",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "75aa556d8a0ac4cb582616dfc0316f42a23b13d53842baef79debae1b4d20ccf",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|2357",
+    "bench": "mmeval",
+    "id": "2357",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "f8dd7cddef30e0162bfc8c1be29cb3796714f04932fe71c244ec4dd6443db41f",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ]
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "status": "decided"
+      }
+    }
+  },
+  {
+    "key": "mmeval|2632",
+    "bench": "mmeval",
+    "id": "2632",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "193189d9ab5c0c201b6ecea8b9bbe2c44428659fdf8929ee2a647b92c5964db4",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|2075",
+    "bench": "mmeval",
+    "id": "2075",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "f049b80840b0d965fdeafcc24fa27fd42db7e1d7c0497efb2d866a303037d8db",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|2185",
+    "bench": "mmeval",
+    "id": "2185",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "438d5feae966c64a18ea92a76d4cf1946bf5b174bef5f592adf91ef3a75a5e03",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "mmeval|3167",
+    "bench": "mmeval",
+    "id": "3167",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "5ec13fae0388a7bb029fa10166a78dab14771da0fbbdb0f47eb23b33c247121e",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": null,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {}
+  },
+  {
+    "key": "writing|5731e007aafb602864f22672a5b672310b87662f91acd67b2a254a9f5c7f4d07",
+    "bench": "writing",
+    "id": "5731e007aafb602864f22672a5b672310b87662f91acd67b2a254a9f5c7f4d07",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "2b25a9b548b60aae8a38f9d4c5a3bbe2c1fd6ddf01f61ee7876d2601e3ddaa56",
+    "low": false,
+    "low_source": "recorded-s1p-margin-below-0.7",
+    "stage1_confidence": 0.77,
+    "base": {
+      "pA": 0.22999999999999998,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0.0,
+      "source": "recorded-s1p"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0016016000000000001
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0021357
+      }
+    }
+  },
+  {
+    "key": "writing|3c301b381c57a8cfad47642d0f7a27b62883154ff2347de6a75a6f43352fd4fe",
+    "bench": "writing",
+    "id": "3c301b381c57a8cfad47642d0f7a27b62883154ff2347de6a75a6f43352fd4fe",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "b35e89a6355a95d75f5924c329eaa605f3913a5037b87935e1a7ab427a9a9bbf",
+    "low": false,
+    "low_source": "recorded-s1p-margin-below-0.7",
+    "stage1_confidence": 0.82,
+    "base": {
+      "pA": 0.82,
+      "calls": 2,
+      "usd": null,
+      "known_usd": 0.0,
+      "source": "recorded-s1p"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013014
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 3,
+        "costUsd": 0.00274317
+      }
+    }
+  },
+  {
+    "key": "writing|3039c668f2ee09c4e35a6d960fb718fe6be342fc00dcf75f1626777874241510",
+    "bench": "writing",
+    "id": "3039c668f2ee09c4e35a6d960fb718fe6be342fc00dcf75f1626777874241510",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "244739a103a57f8934d3c948b0f6773b318e359effe6a74ecc861beeca633bc1",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0012599,
+      "known_usd": 0.0012599,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0021577
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0012599
+      }
+    }
+  },
+  {
+    "key": "writing|49c333d62c0daf38363d1c97bed49f7c62d3ee4ae23a93edb1c55e6512d08e71",
+    "bench": "writing",
+    "id": "49c333d62c0daf38363d1c97bed49f7c62d3ee4ae23a93edb1c55e6512d08e71",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "d072838ec9060e51e3c26e9180b594ca83c69855603f4bda4dd421dd77b005e1",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0007577,
+      "known_usd": 0.0007577,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0007577
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0012518000000000002
+      }
+    }
+  },
+  {
+    "key": "writing|f958b6aaf3968d4d6225cb70e796d0850bd10f17ca23e4af73088b2dcf7cca9f",
+    "bench": "writing",
+    "id": "f958b6aaf3968d4d6225cb70e796d0850bd10f17ca23e4af73088b2dcf7cca9f",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "b752cea577bed6b499d8eb978c6b42348efd2bfb197f3f28622b3c56215a8da7",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0005143,
+      "known_usd": 0.0005143,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0005143
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0015499
+      }
+    }
+  },
+  {
+    "key": "writing|1b959325df2d9f3497f7834cccfb7ac3c1cc6be7be8e8a5e0adfc5938995af2e",
+    "bench": "writing",
+    "id": "1b959325df2d9f3497f7834cccfb7ac3c1cc6be7be8e8a5e0adfc5938995af2e",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "f983279b65911878add5e7de28301e51b3e2747657ec9c60d04f3b9b5cfe9f2d",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": 0.0011555,
+      "known_usd": 0.0011555,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0011555
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 3,
+        "costUsd": 0.0024346
+      }
+    }
+  },
+  {
+    "key": "writing|61dcf707deafa5ebf140770571b991a89d79b7336957e055cfbf5b1fa18c7fa2",
+    "bench": "writing",
+    "id": "61dcf707deafa5ebf140770571b991a89d79b7336957e055cfbf5b1fa18c7fa2",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "fe98e281723a1dcf45df9b40e97637cf5f83c6f273b6a2004f445cfa266d8bb5",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0011852999999999998,
+      "known_usd": 0.0011852999999999998,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0011852999999999998
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 3,
+        "costUsd": 0.0027954900000000003
+      }
+    }
+  },
+  {
+    "key": "writing|f65abab6a71dffd068e5fbbe916682ecc706163c3dea205584b9d78dd1dbd49f",
+    "bench": "writing",
+    "id": "f65abab6a71dffd068e5fbbe916682ecc706163c3dea205584b9d78dd1dbd49f",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "087135be8787ae47d22bd7cefaa6d62edee66280b40bec1b9d95193b0f2a62a9",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0013592,
+      "known_usd": 0.0013592,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013592
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.002192
+      }
+    }
+  },
+  {
+    "key": "writing|d6e86cb7f2633db38c0b6bbb0176fe8f96d4f3735964cd487eaa60c91be02dab",
+    "bench": "writing",
+    "id": "d6e86cb7f2633db38c0b6bbb0176fe8f96d4f3735964cd487eaa60c91be02dab",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "820aa3b41c277456f9ede968be25a57af1a8972d178b80cb4f75ce3aa55071c0",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0012615999999999999,
+      "known_usd": 0.0012615999999999999,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0012615999999999999
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0024588
+      }
+    }
+  },
+  {
+    "key": "writing|c506bebd5047b6fd7661dc4afd99690906d64ad97885041406224de598e686fb",
+    "bench": "writing",
+    "id": "c506bebd5047b6fd7661dc4afd99690906d64ad97885041406224de598e686fb",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "2b5ed036f69fed737438717c524c55009cb522cc775a36511305c1ca40813fcf",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0008021,
+      "known_usd": 0.0008021,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013019
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0008021
+      }
+    }
+  },
+  {
+    "key": "writing|c9a15234f5473eb2e98e82649deb8be0d3cfbec3eb98457b0e6d532eb52a6d83",
+    "bench": "writing",
+    "id": "c9a15234f5473eb2e98e82649deb8be0d3cfbec3eb98457b0e6d532eb52a6d83",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "a4d73390adc89a17192973d5dbc57bf2e562d3883cbf6658a4ea3b091af10395",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0005208,
+      "known_usd": 0.0005208,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0005208
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0010622000000000001
+      }
+    }
+  },
+  {
+    "key": "writing|b636290747dbca93d871f37f2b8ee6abab3cd93cc196d5222f19ea081c4055a3",
+    "bench": "writing",
+    "id": "b636290747dbca93d871f37f2b8ee6abab3cd93cc196d5222f19ea081c4055a3",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "36b8ee2a3d94922d628d9189b67ada9528b16ea7ed56b7e8c4695b39759e6cf1",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0021533000000000004,
+      "known_usd": 0.0021533000000000004,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0021533000000000004
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0031742000000000003
+      }
+    }
+  },
+  {
+    "key": "writing|dd4a3194ddba2a33748383cde7f5e8727c2d3fa73a89f97c127fbc0fb76cf926",
+    "bench": "writing",
+    "id": "dd4a3194ddba2a33748383cde7f5e8727c2d3fa73a89f97c127fbc0fb76cf926",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "aa49ed09f94b268b1dd02054c7a46cfb8b311e376b0d1f7c8546739ecd77d9b8",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0011592,
+      "known_usd": 0.0011592,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.001797
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0011592
+      }
+    }
+  },
+  {
+    "key": "writing|ca72195f65fad110a3065529557eb344e875334d7764b06e1d731535306d10ba",
+    "bench": "writing",
+    "id": "ca72195f65fad110a3065529557eb344e875334d7764b06e1d731535306d10ba",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "f79ccc7c25f0dc1fa3a09f54d44b6c2751c3e815eeade3e4f6ea39831d3248a5",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": 0.0007031,
+      "known_usd": 0.0007031,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0007031
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013942
+      }
+    }
+  },
+  {
+    "key": "writing|e35a3925df1212fa293e54df75f676dd9053ba5fc5402f204c79ad266bd64180",
+    "bench": "writing",
+    "id": "e35a3925df1212fa293e54df75f676dd9053ba5fc5402f204c79ad266bd64180",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "5df4973026615d5a77be4e7609a206005b2a6a64d0d6fa78c386d37c155c64ff",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": 0.0013127,
+      "known_usd": 0.0013127,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013127
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.00189976
+      }
+    }
+  },
+  {
+    "key": "writing|0fc139b32b725f51edd0119dcc1051221ca6739ce8bb4d793029b391d50a02ff",
+    "bench": "writing",
+    "id": "0fc139b32b725f51edd0119dcc1051221ca6739ce8bb4d793029b391d50a02ff",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "40241775dc0e637586f75863252b672fd6febdbcced396d2a56511c2a4aef015",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0019248000000000002,
+      "known_usd": 0.0019248000000000002,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0019248000000000002
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0029333000000000002
+      }
+    }
+  },
+  {
+    "key": "writing|97a9bd9009b3713d1bc4f2aebf7a6640e0c091115adf0cf4ef1143b16c90f3f6",
+    "bench": "writing",
+    "id": "97a9bd9009b3713d1bc4f2aebf7a6640e0c091115adf0cf4ef1143b16c90f3f6",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "ad05bd1bb48b27e7f1c927889fb5d95709676f877bb6eab1d01d7e66ea8d1fbc",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0017677,
+      "known_usd": 0.0017677,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0017677
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0028212
+      }
+    }
+  },
+  {
+    "key": "writing|74f4748a7a00ddf8ce2dc04b6e892d4f837bdbf397e4c170cc97545e7f775042",
+    "bench": "writing",
+    "id": "74f4748a7a00ddf8ce2dc04b6e892d4f837bdbf397e4c170cc97545e7f775042",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "d730d64d4f701a950b1d41744f24f3d889c2fa63bdc91c375a249c4ca3927587",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0037743000000000004,
+      "known_usd": 0.0037743000000000004,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0037743000000000004
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 3,
+        "costUsd": 0.0060100399999999995
+      }
+    }
+  },
+  {
+    "key": "writing|60be46d533f5bdca32613f3cd1c924c08d479378707e62d073187b748f648454",
+    "bench": "writing",
+    "id": "60be46d533f5bdca32613f3cd1c924c08d479378707e62d073187b748f648454",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "4d2a8161f506a45e9b76b1a56e84737b1d4446a798b291585fdba3d3d1dc97e2",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0013245,
+      "known_usd": 0.0013245,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013245
+      },
+      "ledger": {
+        "games": [
+          "tie",
+          "tie"
+        ],
+        "calls": 3,
+        "costUsd": 0.0031228000000000007
+      }
+    }
+  },
+  {
+    "key": "writing|80f0721acaea756305c3ceea82135ad4e304e915c1b2f1443eacf66de0d27e45",
+    "bench": "writing",
+    "id": "80f0721acaea756305c3ceea82135ad4e304e915c1b2f1443eacf66de0d27e45",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "59ddfa95669800367b8208954aeeb1ecf52aee41e0d18b7aaf00e994c2c2c5c9",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": 0.0013309,
+      "known_usd": 0.0013309,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013309
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 3,
+        "costUsd": 0.00327642
+      }
+    }
+  },
+  {
+    "key": "writing|940ecafd5cfce547c277f21514627bbf11ac0285ba95c2937a888e3d3a7623fa",
+    "bench": "writing",
+    "id": "940ecafd5cfce547c277f21514627bbf11ac0285ba95c2937a888e3d3a7623fa",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "1ea1dea90d64d500abed0a2d2ccb9ecf85965134a82c44b619ef0e47f5f95915",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0034384000000000003,
+      "known_usd": 0.0034384000000000003,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0040999999999999995
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0034384000000000003
+      }
+    }
+  },
+  {
+    "key": "writing|dc386ca798775957ddaff89254023a077cde1bc57533e65cf987e06b9772600e",
+    "bench": "writing",
+    "id": "dc386ca798775957ddaff89254023a077cde1bc57533e65cf987e06b9772600e",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "160d489ce97cc841c14b3e3b26b91e1c02a967109eade3bb5832b5fee78f1401",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0007503000000000001,
+      "known_usd": 0.0007503000000000001,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0007503000000000001
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0016626
+      }
+    }
+  },
+  {
+    "key": "writing|e4657fc72efd60e3d5bba9c46fab1262f6172266c93d256ca5f647b52ef0e0b4",
+    "bench": "writing",
+    "id": "e4657fc72efd60e3d5bba9c46fab1262f6172266c93d256ca5f647b52ef0e0b4",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "abcce535cbe501acf1324f50e511318776b8c2be824d0c07ede50b12f1d23f86",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0011328000000000002,
+      "known_usd": 0.0011328000000000002,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0017299000000000001
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0011328000000000002
+      }
+    }
+  },
+  {
+    "key": "writing|9b47d1e912c937c6045fed44d20b38d445e739f6b1b1b6157105209061364c13",
+    "bench": "writing",
+    "id": "9b47d1e912c937c6045fed44d20b38d445e739f6b1b1b6157105209061364c13",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "f3a80afaac9451e7b2a8062c59174fd3d778a6d43e35815ed6073dc40f1c91ab",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": 0.0011627,
+      "known_usd": 0.0011627,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0011627
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 3,
+        "costUsd": 0.00411265
+      }
+    }
+  },
+  {
+    "key": "writing|87f62e22527d29b156acec8f3cefba990c7204e9196dfe1b9bc34e3eb84ee8ba",
+    "bench": "writing",
+    "id": "87f62e22527d29b156acec8f3cefba990c7204e9196dfe1b9bc34e3eb84ee8ba",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "4c72b377589fc61a2cbd87717291dab263f955ac67353c17654ced24c4bf62af",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0012103,
+      "known_usd": 0.0012103,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0012103
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0018539000000000001
+      }
+    }
+  },
+  {
+    "key": "writing|1c94b45439bf8d360523fed6d8085650c7fb8aa1cb5c7cbc11aee7347bcf2dc1",
+    "bench": "writing",
+    "id": "1c94b45439bf8d360523fed6d8085650c7fb8aa1cb5c7cbc11aee7347bcf2dc1",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "6690be0f83d3a8ba79a43b7495f9656a2ed33a006fa8c9b6a93dca131743f0cd",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0011301000000000002,
+      "known_usd": 0.0011301000000000002,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0011301000000000002
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0018846000000000002
+      }
+    }
+  },
+  {
+    "key": "writing|1c20cc603fdd725523cb7c79a155a6d13b1e0262e91a6160b5f583ac38c3c27f",
+    "bench": "writing",
+    "id": "1c20cc603fdd725523cb7c79a155a6d13b1e0262e91a6160b5f583ac38c3c27f",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "19fd9fac686e5c3546d771c4bd6079c6b070248689dc66c4c3ae337cf3dbd2c2",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0019649000000000003,
+      "known_usd": 0.0019649000000000003,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0019649000000000003
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0029165
+      }
+    }
+  },
+  {
+    "key": "writing|b30d1f86ad21fbfc9b10e55acebb51e32b61acffe54474728165b123bb40ddf5",
+    "bench": "writing",
+    "id": "b30d1f86ad21fbfc9b10e55acebb51e32b61acffe54474728165b123bb40ddf5",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "b5e1e1350ebf27d17dac9a979c03f2cf964578663d7581a8baf59a770628a631",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0012391000000000001,
+      "known_usd": 0.0012391000000000001,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0019831000000000002
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0012391000000000001
+      }
+    }
+  },
+  {
+    "key": "writing|eb5922169cd364767a73b4b5768d5c3b688230c5408f24b07ac0970047bbb9b3",
+    "bench": "writing",
+    "id": "eb5922169cd364767a73b4b5768d5c3b688230c5408f24b07ac0970047bbb9b3",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "66a4d09844a83554180e59962809a31840d97705caa51e2d2546a7b516cd7ce7",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0009247000000000001,
+      "known_usd": 0.0009247000000000001,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0009247000000000001
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.001829
+      }
+    }
+  },
+  {
+    "key": "writing|eb5ce1b9c94ef99360084c9d52fee65288a9c3f2f7ac51a5bcd03c3ad2820fde",
+    "bench": "writing",
+    "id": "eb5ce1b9c94ef99360084c9d52fee65288a9c3f2f7ac51a5bcd03c3ad2820fde",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "a66260ff9b5e00159824a1b642d14f10ce5ed048f5d9ef251d19166f1d5fa12b",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.00145,
+      "known_usd": 0.00145,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.00145
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0024129
+      }
+    }
+  },
+  {
+    "key": "writing|f6c29e1b9258ef761fe5576d6845d0586b9896fc1ca858fd248eefffaf9872ae",
+    "bench": "writing",
+    "id": "f6c29e1b9258ef761fe5576d6845d0586b9896fc1ca858fd248eefffaf9872ae",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "b022cc11aa144f48747c2d2dc53422eb2041b86662ccd8aeffde7e77e5030510",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0017894,
+      "known_usd": 0.0017894,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0028262
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0017894
+      }
+    }
+  },
+  {
+    "key": "writing|0bcaf1760cbc799fa3efada17bf47a85fc4ba0d6e258de1c886d6dd889e422de",
+    "bench": "writing",
+    "id": "0bcaf1760cbc799fa3efada17bf47a85fc4ba0d6e258de1c886d6dd889e422de",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "78515722a8ec651dbe6896b80fa13db465fc198fa21f6595053190d5b4d52616",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0005433,
+      "known_usd": 0.0005433,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013429000000000002
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0005433
+      }
+    }
+  },
+  {
+    "key": "writing|ed6cb96900efa941a0504f5f61be8165d2a489a989172f3e9a52ecb7670dfe18",
+    "bench": "writing",
+    "id": "ed6cb96900efa941a0504f5f61be8165d2a489a989172f3e9a52ecb7670dfe18",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "f0413a713b48dcf0cbccb9fb45781c1231c88c97c731ac14bc0bd27a6260eeef",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0028486000000000006,
+      "known_usd": 0.0028486000000000006,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0037531000000000005
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0028486000000000006
+      }
+    }
+  },
+  {
+    "key": "writing|936d55033bdd6914efb739394c115e8df9f008591b45e1ea932661d9f8aa33e8",
+    "bench": "writing",
+    "id": "936d55033bdd6914efb739394c115e8df9f008591b45e1ea932661d9f8aa33e8",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "64c2ae0a720ea8268c72b34fac33093db1d8010c5409295b5c7e3f51b007acdb",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": 0.0013714,
+      "known_usd": 0.0013714,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013714
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 3,
+        "costUsd": 0.00235527
+      }
+    }
+  },
+  {
+    "key": "writing|699a97a19d4f4499174bc546bd102724b3969a1ab45770fafbe1d373b326e995",
+    "bench": "writing",
+    "id": "699a97a19d4f4499174bc546bd102724b3969a1ab45770fafbe1d373b326e995",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "6be71bb37a36c185b999c38ef30934dce854f77fa61814b89561003ba0a58560",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0006319,
+      "known_usd": 0.0006319,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.001218
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0006319
+      }
+    }
+  },
+  {
+    "key": "writing|bf75af224353ba97c6052e35cbb60bf0a2526ad0dec15d36cc820c7a6a20c95e",
+    "bench": "writing",
+    "id": "bf75af224353ba97c6052e35cbb60bf0a2526ad0dec15d36cc820c7a6a20c95e",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "06dcab3d8d2b435c48ec9094320e5c40c1850409beb157f4c5154b42b4ffba0c",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": 0.0012211000000000001,
+      "known_usd": 0.0012211000000000001,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 3,
+        "costUsd": 0.00234633
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0012211000000000001
+      }
+    }
+  },
+  {
+    "key": "writing|9e43b2d58fdf464cd17fb376eef52f4dafb3f1fe64ee2c85805531679e2d8daf",
+    "bench": "writing",
+    "id": "9e43b2d58fdf464cd17fb376eef52f4dafb3f1fe64ee2c85805531679e2d8daf",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "f9cde97f6fd1b51a1c899b0d6f3262f38d1bba6d07207f3e75e2986aaedd8dbe",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0009294,
+      "known_usd": 0.0009294,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0009294
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 3,
+        "costUsd": 0.00258082
+      }
+    }
+  },
+  {
+    "key": "writing|0bec34cfe26f929662d0fafd6b8ebd10170b3a3e7f42cc33d073016ad3aaa1b6",
+    "bench": "writing",
+    "id": "0bec34cfe26f929662d0fafd6b8ebd10170b3a3e7f42cc33d073016ad3aaa1b6",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "3e81ec715cb600d20977d08b1cadb1fe89bcc8bec35819debb77e04b04b31ea7",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0009032,
+      "known_usd": 0.0009032,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0009032
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0015964999999999998
+      }
+    }
+  },
+  {
+    "key": "writing|2dc65cf1938eef974d48f548ca167cab38c2c89410ca11b99006513c1041b36b",
+    "bench": "writing",
+    "id": "2dc65cf1938eef974d48f548ca167cab38c2c89410ca11b99006513c1041b36b",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "381f4575054f2f83ebfaec013cd4ea9f7297af558387f1cb78a62f3846437b90",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0028639,
+      "known_usd": 0.0028639,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0036090000000000002
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0028639
+      }
+    }
+  },
+  {
+    "key": "writing|94330bfa86a49014987ac21fe4ff6cdddb0ec9b3c6a18d158977320f385cfa37",
+    "bench": "writing",
+    "id": "94330bfa86a49014987ac21fe4ff6cdddb0ec9b3c6a18d158977320f385cfa37",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "d1c7bf988a155d77bf3c132f04debecf5d7bf2118d23694f37fd00f9f4dd3026",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0011506000000000003,
+      "known_usd": 0.0011506000000000003,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0011506000000000003
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0024061000000000004
+      }
+    }
+  },
+  {
+    "key": "writing|dc663e330e63205d306e84cebd87a0c37463b85ec343ae7051f4665659bf3337",
+    "bench": "writing",
+    "id": "dc663e330e63205d306e84cebd87a0c37463b85ec343ae7051f4665659bf3337",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "6c6a042a20c1e7850e2677679a2cce64bd9b139dc3a8b5cbc3d24d748d6239e9",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0010119,
+      "known_usd": 0.0010119,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0010119
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0021422
+      }
+    }
+  },
+  {
+    "key": "writing|a223f611a92a6605ee86ddc75437255b40a1f1399490dc15e3775a81731b1844",
+    "bench": "writing",
+    "id": "a223f611a92a6605ee86ddc75437255b40a1f1399490dc15e3775a81731b1844",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "447b175e7a93a67e2fcaac63442f981642b9542a9d0bd39d63adef7346a8b9e2",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.001052,
+      "known_usd": 0.001052,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.001052
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 3,
+        "costUsd": 0.0027703
+      }
+    }
+  },
+  {
+    "key": "writing|ebf7409185f6d88ff350f985e4d5a7445f369eba50e0648ccf5320d59a310c71",
+    "bench": "writing",
+    "id": "ebf7409185f6d88ff350f985e4d5a7445f369eba50e0648ccf5320d59a310c71",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "dfa78e2363fd30adb416cc8c620b4b53225121e95d4e6e08045313a05826dda0",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0035863,
+      "known_usd": 0.0035863,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0035863
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0043499
+      }
+    }
+  },
+  {
+    "key": "writing|d1503d97eaf48bdbd5063942388629ffa0c36970598efeb189ed83a22b1be85d",
+    "bench": "writing",
+    "id": "d1503d97eaf48bdbd5063942388629ffa0c36970598efeb189ed83a22b1be85d",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "388c3e238d236c5005131ca6a5a5a4c23bc15d75fa76917638d3611e3d20f0d4",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.5,
+      "calls": 2,
+      "usd": 0.0014953,
+      "known_usd": 0.0014953,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0022471999999999995
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0014953
+      }
+    }
+  },
+  {
+    "key": "writing|7e5280339f8eb3ca22ad0db5e2959252fdd5636fe5f0b8719d2e9c2ae42444a5",
+    "bench": "writing",
+    "id": "7e5280339f8eb3ca22ad0db5e2959252fdd5636fe5f0b8719d2e9c2ae42444a5",
+    "half": "valid",
+    "label": "B",
+    "input_hash": "035196f0f838831e1e5e8a09b4c249a33aaa215822cd201ee7555375ffc506f4",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0009948000000000001,
+      "known_usd": 0.0009948000000000001,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0009948000000000001
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 3,
+        "costUsd": 0.00354858
+      }
+    }
+  },
+  {
+    "key": "writing|1527c612353efdeef8950c2ca86b27bc299546a61227ae286a69b5cff6f068dc",
+    "bench": "writing",
+    "id": "1527c612353efdeef8950c2ca86b27bc299546a61227ae286a69b5cff6f068dc",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "41f0e9d42f138c79b7c86d33693eb6fb3796c618b86abbd6ac0076f8e4a41051",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0015938000000000003,
+      "known_usd": 0.0015938000000000003,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0015938000000000003
+      },
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0024796
+      }
+    }
+  },
+  {
+    "key": "writing|b4af10aac576306bf7bfd2a67ae2a3cb22dab49e598c3d7ba388782461e884e2",
+    "bench": "writing",
+    "id": "b4af10aac576306bf7bfd2a67ae2a3cb22dab49e598c3d7ba388782461e884e2",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "f24c467374c68dc0e3be99e7e1cacedac7cc97fc24db51a9fd69a5bd5cca482f",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.002994,
+      "known_usd": 0.002994,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0038446
+      },
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.002994
+      }
+    }
+  },
+  {
+    "key": "writing|606aa13b77b6c497cb9d05856c6cf9a7e9e500f9e51ccb12e8699742fefca000",
+    "bench": "writing",
+    "id": "606aa13b77b6c497cb9d05856c6cf9a7e9e500f9e51ccb12e8699742fefca000",
+    "half": "tune",
+    "label": "B",
+    "input_hash": "b0cce57e17a8f975a46ef829631d6c3c5d59855d1748a11791a5c4472289cdb4",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 0.0,
+      "calls": 2,
+      "usd": 0.0013614,
+      "known_usd": 0.0013614,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "promptfoo": {
+        "games": [
+          "B",
+          "B"
+        ],
+        "calls": 2,
+        "costUsd": 0.0013614
+      },
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 3,
+        "costUsd": 0.0030744699999999997
+      }
+    }
+  },
+  {
+    "key": "writing|436b82ca93e64cb2438b014b887c6f74494469c2f0a004fea52e357893629ac7",
+    "bench": "writing",
+    "id": "436b82ca93e64cb2438b014b887c6f74494469c2f0a004fea52e357893629ac7",
+    "half": "valid",
+    "label": "A",
+    "input_hash": "b61163346d42e9ac33aa8adc8adc7432da54996da6ed643d244cf64339a0486e",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0014811000000000002,
+      "known_usd": 0.0014811000000000002,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0019669
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0014811000000000002
+      }
+    }
+  },
+  {
+    "key": "writing|9d51af63b4eed47b00e15fdf243a717c809527750b7a9fdb1529b95c804cc4d6",
+    "bench": "writing",
+    "id": "9d51af63b4eed47b00e15fdf243a717c809527750b7a9fdb1529b95c804cc4d6",
+    "half": "tune",
+    "label": "A",
+    "input_hash": "103ed7f18bc30ac39011fff8601b3885c86589fc1243e833451af219246841cc",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": null,
+    "base": {
+      "pA": 1.0,
+      "calls": 2,
+      "usd": 0.0007214000000000001,
+      "known_usd": 0.0007214000000000001,
+      "source": "recorded-promptfoo-fallback"
+    },
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0012495
+      },
+      "promptfoo": {
+        "games": [
+          "A",
+          "A"
+        ],
+        "calls": 2,
+        "costUsd": 0.0007214000000000001
+      }
+    }
+  }
+]

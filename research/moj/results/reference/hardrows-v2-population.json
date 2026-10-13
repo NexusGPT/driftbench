@@ -1,0 +1,1778 @@
+[
+  {
+    "key": "hardrows|factuality.064",
+    "id": "factuality.064",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.81,
+    "hash": "423b16fdfb035467c48ebd19f4e015e1a66240d6b01faa2a7b4ce9be3b15e59a",
+    "cluster": "hardrows:591f168521134920",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00045399000000000004,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00033130000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00039240000000000005,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.013",
+    "id": "factuality.013",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.76,
+    "hash": "1ed625d7327e2a1f80a112b03704c3eee40840b219da1e8edeaa55ee6d8ccdce",
+    "cluster": "hardrows:6c2caa28cde84e20",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00047649,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00040380000000000006,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00037290000000000007,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.075",
+    "id": "factuality.075",
+    "half": "valid",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.89,
+    "hash": "efd711b14bc6780e1da937b28d4115307e4a038f8aad1aaf109761aef27e2d39",
+    "cluster": "hardrows:806805f133eb2650",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00036399,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003488,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00046190000000000006,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.041",
+    "id": "factuality.041",
+    "half": "valid",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.94,
+    "hash": "f4ee1567024e0730c406e193820490a9bd2e3b88833a69a5f5db1c7eb6640548",
+    "cluster": "hardrows:5f4cadf218478cae",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00036099000000000005,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00036280000000000004,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0004404000000000001,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.029",
+    "id": "factuality.029",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.97,
+    "hash": "405309cbd3af6a932a8e2ed994d8e7f50789e3155573ebf26d8015ca4dd3505b",
+    "cluster": "hardrows:4d7fa45e24563050",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00040059,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003289,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003725,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.116",
+    "id": "factuality.116",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "58645f524c7525fd2dabaa5fc5c2e3fac81e159fb860620dfbaa1f9c4aa2032d",
+    "cluster": "hardrows:de7911448adf681e",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00042559,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003109,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.098",
+    "id": "factuality.098",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "e4b4afdfba3deee397a2c01d6c3e7f580fd2629edb5a14deb78334987e2185de",
+    "cluster": "hardrows:4d7fa45e24563050",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00033559000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003149,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003685,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.068",
+    "id": "factuality.068",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "fd057ed4a69c4474a89a8f3839f89c50aae49683a0bb59507bbbc52f1bb876de",
+    "cluster": "hardrows:6b9c8d292249a82c",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00035759,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003554,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003435,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.025",
+    "id": "factuality.025",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "df03b9753ed8f6ea72bd03a2dd6018452ce0a4302f788fa6ee506d19dc8ed952",
+    "cluster": "hardrows:98b4d045e48d6e1e",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00032979000000000005,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0002988,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00033970000000000007,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.101",
+    "id": "factuality.101",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.97,
+    "hash": "97e234e4d2dbabbd5c84622442e5b3e1b281903b6179f0a17e27466aead4a2e2",
+    "cluster": "hardrows:48e6091bc144590d",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00044379,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003003,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00033720000000000006,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.062",
+    "id": "factuality.062",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.99,
+    "hash": "9b0f12eda8737425ba4f9985c081a26635c33c210f0a30af4ba268119f06a10b",
+    "cluster": "hardrows:f9be32765d201f01",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00030279000000000005,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0002963,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003467,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.015",
+    "id": "factuality.015",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.99,
+    "hash": "620cdc137ec5f0c00bcfaff0d804df8d186674a98d6bbfa413d8d2c811ada394",
+    "cluster": "hardrows:48e6091bc144590d",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00033679,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00030429999999999997,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034020000000000003,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.099",
+    "id": "factuality.099",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "b2cacfe3cd632d3193ed8d94b6c05f3108d9c6b434df777172de13a8a2238a3d",
+    "cluster": "hardrows:278b58f257a99cf9",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034509000000000005,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00030789999999999995,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0004045,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.036",
+    "id": "factuality.036",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.97,
+    "hash": "9edbd4a27a7d7a6f72dbf992cf22b5acddf86fe18ce82db5ce582a4c5c311841",
+    "cluster": "hardrows:2bfe914763240c47",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00029159,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003179,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.000335,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.086",
+    "id": "factuality.086",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "b8a1f9aecc7545bdcea93b6c2c2710554a5c814713585dfaf4d722412f8feba8",
+    "cluster": "hardrows:278b58f257a99cf9",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00033909,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003664,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.000336,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.105",
+    "id": "factuality.105",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "19b475d6becbd17174babec24d3f4c0926b3eb3d7de4e0cb7bf6c8e1e1e05482",
+    "cluster": "hardrows:7f9fabc59c5519f9",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00039559,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003159,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.000338,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.065",
+    "id": "factuality.065",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.97,
+    "hash": "a5a0b9083a1e68f66eb91a9e3963453bf5959dc6fb45d88854279bad6bfc0701",
+    "cluster": "hardrows:19780b5928b48fa0",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00037579,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003231,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0004327,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.021",
+    "id": "factuality.021",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "1fbcafe68d07f727a6b95c2a09fc4eef67df9db3273adb7287642d401fd61bc3",
+    "cluster": "hardrows:af200a0ed4868795",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00036379,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003241,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034920000000000003,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.011",
+    "id": "factuality.011",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "092c6db35c6ef546318d62908d441b2be3ac76db866fe8610d95d456c4fcb923",
+    "cluster": "hardrows:19780b5928b48fa0",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00042878999999999997,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00032010000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003502,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.007",
+    "id": "factuality.007",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "6701388cd6a119d07af133bd8e19a5d80f403b67dac7ea948173f86550bc9687",
+    "cluster": "hardrows:99743cf2bcd865b8",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00032779,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00032010000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034270000000000004,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.032",
+    "id": "factuality.032",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.95,
+    "hash": "e1f2a0f6c67820431a51f280e459adf32e61e8ad8c74e4cd4b855ad2661066d3",
+    "cluster": "hardrows:49606e41a9daa429",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034689,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003291,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003602,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.073",
+    "id": "factuality.073",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "6ce4bd607a927a2075a4a31977975f64b8053fdd513e0d7f8f582f30bd81e6e1",
+    "cluster": "hardrows:a5c763602f1c2a4e",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00037139000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00032859999999999996,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003702,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.070",
+    "id": "factuality.070",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "947f6e140ff002566543f62b04ca0f3d9419700e7823c2b9be93a00df5da3365",
+    "cluster": "hardrows:67dda1906c71bbb9",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00046789,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003456,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003602,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.115",
+    "id": "factuality.115",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "09e71aee40026776973a8384af6c612931273e1eee99c7394cfe17b281619b53",
+    "cluster": "hardrows:433227d41a7664ac",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00036339,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003421,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00038219999999999997,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.055",
+    "id": "factuality.055",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "89793c850dd33d32ff57474c9a986f0c73dc0b59054e3fb332c7bffc72d75539",
+    "cluster": "hardrows:3eca68983d8170e5",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00074349,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0006023000000000001,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0006443999999999999,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.014",
+    "id": "factuality.014",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "bbf9123861cedbbaa0b45de1a0f0461aad859f686155a0de03180e1bbac6f0d9",
+    "cluster": "hardrows:ded55a94be12efb7",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0006884899999999999,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0005913000000000001,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0006339,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.081",
+    "id": "factuality.081",
+    "half": "valid",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "a71e1797a9fac5dfba73701d99665eec6cfff2fa04279b037487333bcd799e67",
+    "cluster": "hardrows:b17319dd6aa96038",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00073599,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0006028000000000001,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0007049,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.006",
+    "id": "factuality.006",
+    "half": "valid",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "b6877ef98b015a09d52677d5b4f2b3e3894359022e0d714c5015f9b68fb4bffc",
+    "cluster": "hardrows:f8f587b7a7b6e308",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00069699,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0006655,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0006784,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.057",
+    "id": "factuality.057",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "692bb67549d8fa697fde7150d2fc415a1fab602146e8e0acd9ff0cbbd8205323",
+    "cluster": "hardrows:87baa8dbfebc05d6",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00030529000000000005,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00031810000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003382,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.040",
+    "id": "factuality.040",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "a4d9872ef5d9b315d91c69a198a5c7552dc7603de86f26b0d08b4fab233d9e71",
+    "cluster": "hardrows:1ea257779dea841a",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00032029000000000004,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003166,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003457,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.060",
+    "id": "factuality.060",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "218b5edfaf7d48350f419a03c17777a86cec8750e51a14635aea0cce30a7932b",
+    "cluster": "hardrows:c61592e8f3ec89d3",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034979,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003216,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00035119999999999997,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.102",
+    "id": "factuality.102",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "b48c2a6160cfb9b35ae0230a7bd399d1db248a11da34c01c220b84f800632331",
+    "cluster": "hardrows:04e5c0b3e8f11dc0",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00029979000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003216,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034619999999999996,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.090",
+    "id": "factuality.090",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "de3d9bb3242151f9ea56e5e9743a357dabd21297e23c25b2e1370e45a9d28e5a",
+    "cluster": "hardrows:8edf8a5b72d0f588",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00029419000000000005,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00029699999999999996,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00032659999999999997,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.042",
+    "id": "factuality.042",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "b8f37dac76162011546fd2cea88413c797c066c15f70133164f4ad7ff6b61b5f",
+    "cluster": "hardrows:dec270938fc53172",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00033919,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00031899999999999995,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00035709999999999995,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.063",
+    "id": "factuality.063",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "f5e85450f0d70c67703a1534c8af2b20531692556fd37b9af249d5a67a0f659f",
+    "cluster": "hardrows:dec270938fc53172",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00023489000000000002,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00032720000000000004,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003528,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.118",
+    "id": "factuality.118",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.99,
+    "hash": "78b085399acc0bae8fb36154b4af26068e468cb4bc00146a3b02da69a884f7f0",
+    "cluster": "hardrows:748f77500979495e",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034089000000000005,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00031270000000000007,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00033830000000000004,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.037",
+    "id": "factuality.037",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "11a4bde2eed627043a6360e5915fa7ee71376f41cd2d121a67e0aff390af9443",
+    "cluster": "hardrows:6d868e9c00062b05",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00035999000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00031329999999999997,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003479,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.027",
+    "id": "factuality.027",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "db450ed666c9c4c8822525533a28128bab064065b4ea9d5aa046fe38793182d2",
+    "cluster": "hardrows:f7044c9aa37ce1c3",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00040149,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003168,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003524,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.083",
+    "id": "factuality.083",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "3706b87b6e89a445f006d23ed49975217f65292b62adfbc06e4c31a48c225e41",
+    "cluster": "hardrows:0a8746906e9b3415",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00027899,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003423,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003419,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.067",
+    "id": "factuality.067",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "26db84e010ae116f3585fc35ee001b2a8517c0b514b70bf61c31ba48b8f27688",
+    "cluster": "hardrows:6d868e9c00062b05",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00037349000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003168,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003409,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.038",
+    "id": "factuality.038",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "655959a4d71b2039db6216b64f703c156824b1fe1f7728a3b9f8300d59df2583",
+    "cluster": "hardrows:b28b2cb17bc6abee",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034679000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00030609999999999996,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003457,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.097",
+    "id": "factuality.097",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.96,
+    "hash": "33146937f7aa587a507ec0a38dba6461b9f7f79c67a88ea4d0e333aff7770093",
+    "cluster": "hardrows:3289471a43b6115d",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00030079,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00031759999999999997,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034219999999999997,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.010",
+    "id": "factuality.010",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "ce74ddee8b55a340596c346966ece9de0b75ad82499a8a091fe2ec54204b378e",
+    "cluster": "hardrows:8ed630bbaf02be9d",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00032879000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003101,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00036669999999999997,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.114",
+    "id": "factuality.114",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.98,
+    "hash": "21315f90039cd09b327d5afcbf97091236436965e473fb2f3c6a9cf3e7e0d8ac",
+    "cluster": "hardrows:e8e845f02b52e0e3",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00031629,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003096,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003502,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.113",
+    "id": "factuality.113",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.7,
+    "hash": "85511b7d4b638f01dc32bc2352a8399a58d670f3c3b4af5636ca1674908b546f",
+    "cluster": "hardrows:12eaa3a93845a18c",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00036369,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00031250000000000006,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00042259999999999997,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.054",
+    "id": "factuality.054",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.78,
+    "hash": "6952de5f24f7aa0c6dcb847f49fbb92205bd76948e5683def0e5ba57174679a6",
+    "cluster": "hardrows:1a01c044e4ae037c",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00036669000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003085,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.0003591,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.005",
+    "id": "factuality.005",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.76,
+    "hash": "7647e3a759343a13cd43acf4fbd83b42c7b28abf74735947de95e41ba401a358",
+    "cluster": "hardrows:ff91a167d044442b",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00034469000000000004,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00047420000000000003,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.0005641,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  },
+  {
+    "key": "hardrows|factuality.074",
+    "id": "factuality.074",
+    "half": "valid",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-baseline-disagreement",
+    "stage1_confidence": 0.87,
+    "hash": "de2c51aec69fcae722933d46314790c47699f3ff85d47e359c5bdb8e4915e3e9",
+    "cluster": "hardrows:ec42dca718b8c7a5",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 1,
+        "costUsd": 0.00037319,
+        "model": "claude-haiku-5-5"
+      },
+      "shipped": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00033650000000000005,
+        "model": "claude-haiku-5-5"
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1,
+        "costUsd": 0.00041359999999999997,
+        "model": "claude-haiku-5-5"
+      }
+    }
+  }
+]

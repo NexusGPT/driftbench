@@ -1,0 +1,2432 @@
+[
+  {
+    "key": "verify-with-reference|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+    "id": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.94,
+    "hash": "40813c75e67ce70ea14cbb570058e1bb0ab47cd88e9cc91c288a8938d74b244d",
+    "cluster": "verify-with-reference:67c487e0171279d7",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "missing"
+          ],
+          [
+            "A"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+    "id": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+    "half": "tune",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.69,
+    "hash": "4a973a7113a04a6a39d17d43f11fe109ba0359c0faf3fc0a5b3e9f9a4814486f",
+    "cluster": "verify-with-reference:05b34fa8f37d78aa",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "missing"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+    "id": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "1eb2a00e802cb905d92dd8ad09afb67e1cab00f214b2aa462d97046fd4449fbf",
+    "cluster": "verify-with-reference:5d34de367a265ad9",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+    "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9299999999999999,
+    "hash": "e4b0db4a4c0f1c878b4cf680f06c188fc4360de2fa07b1e5149ebe860243ed23",
+    "cluster": "verify-with-reference:9aedf78c63389c17",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+    "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.96,
+    "hash": "4a922c581ed4189bff705f7dd3e4fb3bbb9bd892b4ef3747415486bfaa73358f",
+    "cluster": "verify-with-reference:a2f89ff9bef02600",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
+    "id": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "f0804563a48ce5dc594b315bd27b20d25206501416541a46ac82eb33166b17d0",
+    "cluster": "verify-with-reference:7a36f716974d458c",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+    "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9299999999999999,
+    "hash": "f71c98ce5789ed8d7cf456f959fd7ab91da2340fd3a668f28e57f9ae653f50a3",
+    "cluster": "verify-with-reference:3eacf2e4d1c1a90c",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+    "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.73,
+    "hash": "df1ff761e51f2ddfab0575684cf3ca5f3c2d4ef17815ae82e5597ce76367c42c",
+    "cluster": "verify-with-reference:5cb793b68627d218",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+    "id": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.84,
+    "hash": "04d99218d629d301823324fe5b93108ed99acdcbb97406088f1578f151bcd5ee",
+    "cluster": "verify-with-reference:c68c5fc81f9be5ff",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
+    "id": "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.78,
+    "hash": "bab22137b86edfe3c2748c96305db2d50ce4e9ba5204a27f58e0ada5db538a94",
+    "cluster": "verify-with-reference:752ac7c706fbcebc",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+    "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.94,
+    "hash": "b9bbaada464a70b1e86235cb81db67973be6bd367366dfb27e3b442a1334fc62",
+    "cluster": "verify-with-reference:0873a45f21d1c954",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+    "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.96,
+    "hash": "abc3061fc446a45170ec3bfbf4b521bf77c4652c2ee90575ff822ee9372ac1cb",
+    "cluster": "verify-with-reference:a9a03b3e9a034e39",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+    "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.99,
+    "hash": "5c840b3eb32294bb855d7ce95729c5c97420b0914044ac556b13c5023ce7885e",
+    "cluster": "verify-with-reference:936b5e36be04e6ea",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "B"
+          ],
+          [
+            "A"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+    "id": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "22c48acbe7ea7b7503fcfaeae8b176a20ea5dea9b33106cf2fff16bbdf47f8b2",
+    "cluster": "verify-with-reference:7ec853b8585b236e",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
+    "id": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "fd404d2b5bb08a1f2619d1bad974ac444332bc8476e9a1ffbdf27142465c5ad4",
+    "cluster": "verify-with-reference:01a8a1ea221b18a5",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
+    "id": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
+    "half": "tune",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.55,
+    "hash": "7726fb133e70f961beec67ab1a92a5f9b22e7f46a25b425c51dcfe82600ce984",
+    "cluster": "verify-with-reference:cad2f2e58779f92f",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
+    "id": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9299999999999999,
+    "hash": "a33b9a021848a48244eccee83ffceb302d7ae6b9a1a981debb6daff51e8b1b98",
+    "cluster": "verify-with-reference:6a92169a26964f60",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
+    "id": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.88,
+    "hash": "f9cd6dc8b8146140a8149b86c51db57c7d2c39a4d1c2ea31fb6565009f426276",
+    "cluster": "verify-with-reference:90f11578f840d99d",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
+    "id": "4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "61a5e012ad7a397a3e87f999bdb942945cbc43f3fdff478e7bc711064f2f3020",
+    "cluster": "verify-with-reference:a71a1240a8513f62",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "A"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "A"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+    "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.84,
+    "hash": "35eab2a88349c915702d53d821b6f3f2f9f2f5bc85b74c07ed0be58bfb15e649",
+    "cluster": "verify-with-reference:31a315015a156fb0",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.7,
+        "costUsd": 0.005666,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 1.0,
+        "costUsd": 0.000738,
+        "model": "gpt-6-luna",
+        "phase": "pilot",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
+    "id": "4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "5c4ae8b68d80ead39338f19b56d7bf58d3d4b1930589c3de16ec3099366d5129",
+    "cluster": "verify-with-reference:33ce809f62eca350",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "A"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
+    "id": "4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "946e4b75bd6f57f1b657eecb1a3dffc6368b21589731734d67d73ffb43c51662",
+    "cluster": "verify-with-reference:78eaf5323d28de24",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
+    "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "e247ed8d605db23edcc72ddc05baee8b1621a632f790e7d3ce24824e6a17159c",
+    "cluster": "verify-with-reference:bc7e17c9fabaddf0",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+    "id": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.85,
+    "hash": "9a2e881254e530bc93d3c7bf7926ca260d0485f7e671f4921d9d698181957bc9",
+    "cluster": "verify-with-reference:b0fd69e7ea79caa7",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
+    "id": "50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "11ed6f7cec71c159ff0c04d28e5d069388cb58444a04bdcb3d6c2a2f062485a7",
+    "cluster": "verify-with-reference:8223bc6ce7ee98e3",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+    "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.94,
+    "hash": "1fdf51ab38461e5c5e4a0500a23bcb9f3ca3f825afca70397cf15f38435c0895",
+    "cluster": "verify-with-reference:25931bd2bac7e70e",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
+    "id": "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "bcecf9a1777c7973efecec652133aefc831ea79bfa1c9d770754473be823d787",
+    "cluster": "verify-with-reference:f1eec418bc1a1abe",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "B"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+    "id": "5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.75,
+    "hash": "6968d4db4e3d2d1c2b090f08bc402306fa04de1b75d5793dffca31892695fe13",
+    "cluster": "verify-with-reference:fe673be25ef0bd44",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "A"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "A"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "A"
+          ],
+          [
+            "A"
+          ],
+          [
+            "A"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
+    "id": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.96,
+    "hash": "53c2c51a0b26d02e8d698c71f6f524cf700ffd0a9b26522c642dfae63037be47",
+    "cluster": "verify-with-reference:90e76a5bf90e087e",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "missing"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "missing"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+    "id": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "e27a90782c16178ee7f7f05e192280d25fe01678ddd9bf4ca97c4d3a8d41ede3",
+    "cluster": "verify-with-reference:c2c5af1b933c81fc",
+    "baselines": {
+      "ledger": {
+        "games": [
+          "missing"
+        ],
+        "calls": 4.6,
+        "costUsd": 0.005419,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "missing"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      },
+      "promptfoo": {
+        "games": [
+          "B"
+        ],
+        "calls": 0.93,
+        "costUsd": 0.000749,
+        "model": "gpt-6-luna",
+        "phase": "noise-0",
+        "cost_note": "phase mean per item",
+        "repeats": [
+          [
+            "B"
+          ],
+          [
+            "B"
+          ],
+          [
+            "B"
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "key": "verify-with-reference|579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e",
+    "id": "579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9,
+    "hash": "fc2c3afe9c50c47464745f8fa43f99a681425b739af6c031adaca397dd2f41e9",
+    "cluster": "verify-with-reference:99847cfbc2a5f303",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8",
+    "id": "57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.91,
+    "hash": "eb8e6e2b41025717ad530268f6927aaf80ee1a07aacee29af681087050491f1d",
+    "cluster": "verify-with-reference:e2b38dcf48950d05",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898",
+    "id": "5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898",
+    "half": "tune",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.55,
+    "hash": "81263fe1c31171522c08debbea01cfe2d7184ad96b51936aba8cba7f419f41ca",
+    "cluster": "verify-with-reference:6d0a545bcd56a39e",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31",
+    "id": "5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "ac9d4fd1966aea71dfcc4b6907cbca435746c3e9d92b4c5e1497e6ef824e0501",
+    "cluster": "verify-with-reference:848934fdbe71d405",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e",
+    "id": "5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e",
+    "half": "valid",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.65,
+    "hash": "1d7a02fb50e66e171d97e8bef3d3bc808358e461c3f52ae9f722c2e7ee379f7a",
+    "cluster": "verify-with-reference:d587aa7857c9ada4",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21",
+    "id": "5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21",
+    "half": "valid",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.62,
+    "hash": "7379aba231ca720a6483dcdff51f851096da9e46704bc66e6012a0171e57bec1",
+    "cluster": "verify-with-reference:f6a0566fffa1aa89",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482",
+    "id": "6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.99,
+    "hash": "edab3623569becc4eba029a3d2196a61f68d674e8c7141b0bad34d7532cda103",
+    "cluster": "verify-with-reference:bb28a002d1132579",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|662cc73cee1fdf39a1094a764dfd3e9f_4fb33ca6bf4220a5115d35eeddd6702b",
+    "id": "662cc73cee1fdf39a1094a764dfd3e9f_4fb33ca6bf4220a5115d35eeddd6702b",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "31ec1a3b787c1d75668ba19db87637eaa279e83df8c54af97807470ec643334a",
+    "cluster": "verify-with-reference:c209ee140f446f55",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|6a3431d6cab874b5d26e1963a5952a89_58a69db1ee812fe90dcc48f6d0534f3d",
+    "id": "6a3431d6cab874b5d26e1963a5952a89_58a69db1ee812fe90dcc48f6d0534f3d",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "11fe8937eecff674e5222bba614a31c4ff1e129ecc9f4c82e4eb1535aea43d1c",
+    "cluster": "verify-with-reference:ad4b02a2bfc869e1",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b",
+    "id": "6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.96,
+    "hash": "e01a743781f6fb0a173813b6283d8fa5170f910364029b46ac773ee679f617d7",
+    "cluster": "verify-with-reference:1190c0a4a6238c20",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0",
+    "id": "7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0",
+    "half": "valid",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.66,
+    "hash": "abfe2d4a7ededc19bf5a3edbcafbaecde72411c9eaeeb06fad98b73204b01559",
+    "cluster": "verify-with-reference:b3f0b9b18474c342",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9",
+    "id": "73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.95,
+    "hash": "fe786207defe416f28b94a46217502f22938eb802e87803c0f139f18ca40f7ef",
+    "cluster": "verify-with-reference:c64767f825109c90",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+    "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "b3d547fc18ebe3f68e5666915f6877cee7df5f6eeb9c73e3ac765781240ddcf0",
+    "cluster": "verify-with-reference:2b70d93b180f584f",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+    "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.99,
+    "hash": "20f6cd3b80df383d6fef4fe2d3d5ced6e42da5a585d65831a49019930ff0bf71",
+    "cluster": "verify-with-reference:1daf41d93e136c94",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6",
+    "id": "7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.73,
+    "hash": "57114f9094293e3134c379f64fd3d2af02c7c56a650421f9377f532839c4d66e",
+    "cluster": "verify-with-reference:1aabc208b737c800",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014",
+    "id": "81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014",
+    "half": "valid",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.6,
+    "hash": "3ff589653a6d9ffde8c739d880b458fbf7ffcb09255e9fb610ee527673289d30",
+    "cluster": "verify-with-reference:3e955bdcfeb9c56f",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7",
+    "id": "848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.77,
+    "hash": "bbd4d67d0f40dcb0920a9123ec831744cc10b6cfe464bc48f21110d41add95e6",
+    "cluster": "verify-with-reference:dcf82437f4c77a96",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+    "id": "8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+    "half": "valid",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.51,
+    "hash": "d46786fe325f939b1c15d2f5381d8784ecb46d3dc10417686b6b52592b263052",
+    "cluster": "verify-with-reference:6ce79e424349eb32",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|876a5a4c146362bead527dec85ffd338_523e2ac6241ab9c964a3a5116ebd7389",
+    "id": "876a5a4c146362bead527dec85ffd338_523e2ac6241ab9c964a3a5116ebd7389",
+    "half": "tune",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.51,
+    "hash": "b60c344eb9b06893d5f256d862e9222c7c0da107a52b62f021713ec19bc20b8c",
+    "cluster": "verify-with-reference:4b5dc4b32fbb0e28",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6",
+    "id": "885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.99,
+    "hash": "c716c9d21d766860ca745a2e929d069a43b306ace83356ef71d972de9ae10851",
+    "cluster": "verify-with-reference:ee52499ebff80cec",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75",
+    "id": "886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.7,
+    "hash": "9e92353abf01fcb32deff280ca5d19c3d42577b2d70bbe86d3712a952f7d9fce",
+    "cluster": "verify-with-reference:c8a3b7bdb42bfc69",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a",
+    "id": "892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "efc1131aa798c649388bfc1588306fdadb6225695ecac4459f2b2d0f99426e59",
+    "cluster": "verify-with-reference:ab88a569680ea6ff",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+    "id": "8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+    "half": "valid",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.5800000000000001,
+    "hash": "5cc626ff53ea004684281a891e10d2b5620c9d5c4512818c9670a8f9cd3bab6c",
+    "cluster": "verify-with-reference:da35d0bf9399545c",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|8afa540116fbcf61b6a65125a1272a82_10a36a85dc46ca3ce4659c52bd553f22",
+    "id": "8afa540116fbcf61b6a65125a1272a82_10a36a85dc46ca3ce4659c52bd553f22",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "e4838dfc1397eaed4b065cff945565b52aefc811e235031e021491b1d0f3729e",
+    "cluster": "verify-with-reference:52d8d5d439c3a377",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|8d5e34bb0c4ae72f49a999d4950d0d50_b386787e81fc71a19aeff29ecb5b7cae",
+    "id": "8d5e34bb0c4ae72f49a999d4950d0d50_b386787e81fc71a19aeff29ecb5b7cae",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.96,
+    "hash": "b874eb8bdb5faeeab450e3bf564f27d7cd9218da025bce8110b322d57b77552c",
+    "cluster": "verify-with-reference:be7270b741a985e7",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+    "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "519983e5418332e7c4d0037d42ea22369a6020045f64333ab4413e316fbfd201",
+    "cluster": "verify-with-reference:410c2683485e5c31",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a",
+    "id": "8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a",
+    "half": "valid",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.5700000000000001,
+    "hash": "fc648e926f1ca62ccd54366774a4f25cbc108933c90414cba931bf7542b3ad29",
+    "cluster": "verify-with-reference:887fbc386ffa0bc1",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|9627c5098f4185184311edb8a3ccb640_116a5adea8a225f8c8542f0576808a6e",
+    "id": "9627c5098f4185184311edb8a3ccb640_116a5adea8a225f8c8542f0576808a6e",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9299999999999999,
+    "hash": "9fb25d774dff7e03e5e0f02d04cd04e9c74c769011ce04b9b3eb979e9a0ebf1c",
+    "cluster": "verify-with-reference:9e930dfadd5b9972",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590",
+    "id": "97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.93,
+    "hash": "2bf7e9dc749dd9362f1618da04b2d714ea0494c19f2a7cb735ebe6a6d21376dc",
+    "cluster": "verify-with-reference:40f3e57c330a9a3f",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+    "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.99,
+    "hash": "0d8ac902a646e02cafa8e122eb453bf3ad14a76473fb98b7ab554564249bb7b6",
+    "cluster": "verify-with-reference:75c5444c00fa50b9",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+    "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9,
+    "hash": "cff0707245bc1fd1db9d5447c3445e031e67c37ccb94791aefa8b0200cb225df",
+    "cluster": "verify-with-reference:84a31b967a88cfc4",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|9d4c782a67b4228b731a91cc3bf87657_0f6ea49ff3dbd1e15e81461f46f5192b",
+    "id": "9d4c782a67b4228b731a91cc3bf87657_0f6ea49ff3dbd1e15e81461f46f5192b",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "e98ffe42ea3587a8eeaaa406e572124418020f5db2f05f7ba9ef934a38fb1c4b",
+    "cluster": "verify-with-reference:eba083a93718077e",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|9d9b9827b9c7f258b3b21b1c42a2d0ab_eff2f462cb62e139749f5a7aa067a8a6",
+    "id": "9d9b9827b9c7f258b3b21b1c42a2d0ab_eff2f462cb62e139749f5a7aa067a8a6",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "dd3b22101663bbbdc9fa9eba8ceea238d2ef2704b322d1d8cd6c21ba9f295981",
+    "cluster": "verify-with-reference:c67f0a57c1943dde",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259",
+    "id": "9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.79,
+    "hash": "54c07dc77aeecd23bbf01732b7789e758866125d00a70bbec1ca379098a9032a",
+    "cluster": "verify-with-reference:2efc0e89190d20ce",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+    "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.84,
+    "hash": "e4d950b083cc313c9902b4c14a45816345754521bfd17a5310522c6fd84972c5",
+    "cluster": "verify-with-reference:438b751f5eaec795",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1",
+    "id": "a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.88,
+    "hash": "f9371fcb182d636966f6313255a9bc1c98bef7e9633928032d551061ab0f076e",
+    "cluster": "verify-with-reference:c297832d2306e7b1",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7",
+    "id": "a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "3a9281359c7ce1b5eecae206983a5582d5d27c4932d3e012b35aab2cfe6178e0",
+    "cluster": "verify-with-reference:f4b71efad10c47d0",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8",
+    "id": "a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8",
+    "half": "tune",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.63,
+    "hash": "855a30c01d378153d07278c761138aa200837eee5e2b346543e9f7f0a6edcbf3",
+    "cluster": "verify-with-reference:970aa4f77baa5b2b",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|a9bf5e02651e58020b9f909519b5e4b2_1f4b04cd993f71f517fac248bc184f7e",
+    "id": "a9bf5e02651e58020b9f909519b5e4b2_1f4b04cd993f71f517fac248bc184f7e",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.96,
+    "hash": "349b416da2503e32619213df76b217890bde24e8c45e21c2f149f4c13e7756a4",
+    "cluster": "verify-with-reference:1fe3c482da0a386a",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+    "id": "adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "c834a82c007ec84f88d41fccc1fccca8cc830f75403d794680e51c025a45ad95",
+    "cluster": "verify-with-reference:ea3d62f278a16a6b",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a",
+    "id": "aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "114a0f42f5e20ad0c6bfabe4b6f584117fea25f55a48768864c3d362e8d59790",
+    "cluster": "verify-with-reference:a75d07cc7c11262e",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d",
+    "id": "aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9299999999999999,
+    "hash": "cfe0765c3c3387fb97f228944f9cfda792b143226010f4458ae58ade27a16ae1",
+    "cluster": "verify-with-reference:4b25f370b72822a8",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|aeffde6db44b11ba884385c6d3330778_86ab71bcb255a4099f268a5af4548add",
+    "id": "aeffde6db44b11ba884385c6d3330778_86ab71bcb255a4099f268a5af4548add",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "ed880838bb23957a2f122769b2dd9ff8bd8f7a8205f95610a420e4c6cf39ff8b",
+    "cluster": "verify-with-reference:0255eca1f646c957",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|b399132127b57ffbf6fe2023a8971cf0_5489558bf570728f589efe731e286105",
+    "id": "b399132127b57ffbf6fe2023a8971cf0_5489558bf570728f589efe731e286105",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "9156a3bb953e5cc98266c5a0de39266b5bf57b22d258a58933dd327b320b8264",
+    "cluster": "verify-with-reference:2eaf8cb202372815",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4",
+    "id": "b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.98,
+    "hash": "0d5ea132f299a01d6c537183fc486b012868e0ecb97949733f06ea06267956f5",
+    "cluster": "verify-with-reference:e5391454ee1ae2db",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0",
+    "id": "b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.86,
+    "hash": "e9759d520c85303e58d00bde97889cc1f9e98a4db38c1be24a8706f3d7ff5e46",
+    "cluster": "verify-with-reference:552ac3db1e4f4ae7",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b",
+    "id": "be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.91,
+    "hash": "83e9770d9f966eae0358a8451c9fc5a00362b639f799cafc2ac4627b46e86ae4",
+    "cluster": "verify-with-reference:c8dec3a619aa952e",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|be36325bac0fa5963c9cae9d74dab91a_3001a5b03a832d025f4e8b9b44ef99a1",
+    "id": "be36325bac0fa5963c9cae9d74dab91a_3001a5b03a832d025f4e8b9b44ef99a1",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.99,
+    "hash": "1c7f9829ceec8c1f2986ff74afddd88fee0f8eec6ed335460d948ab0eb482beb",
+    "cluster": "verify-with-reference:d911c60c3dea2aae",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|be73eb99a5ea91d6c472aa92c6fae571_5068cdce1c8e345dd0640c60d72950d1",
+    "id": "be73eb99a5ea91d6c472aa92c6fae571_5068cdce1c8e345dd0640c60d72950d1",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.97,
+    "hash": "b34e10a264df3cf0d0995388543a666f50a4bcf9b6a711686229ab9f754d16d1",
+    "cluster": "verify-with-reference:48b0a1cb1343d6af",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54",
+    "id": "c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.71,
+    "hash": "e745260d5096a2b24c86cd085bfadd9716ea6cce8574f25788234ded2036640e",
+    "cluster": "verify-with-reference:b47b253c0a7bfb12",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03",
+    "id": "c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.89,
+    "hash": "eba7cd40ed753480c7d28f36236b4d966ed7f234ec375b690b987a92c043e0bc",
+    "cluster": "verify-with-reference:bb363636b157e8a8",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|c79635cb392bd0cff8e73bb148ed437f_4725ee3614c57d1a8271e3350be4f05d",
+    "id": "c79635cb392bd0cff8e73bb148ed437f_4725ee3614c57d1a8271e3350be4f05d",
+    "half": "tune",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9,
+    "hash": "cd5d9da5192c2464f481e16dbc1ec8b24bea67c1bae0d422bfccb6ce69055b34",
+    "cluster": "verify-with-reference:fe15344cca459430",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f",
+    "id": "c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.87,
+    "hash": "3d9d01538a9a554ae8b879f6879bf8ba1e70910d376ae994aba42c55bda1626d",
+    "cluster": "verify-with-reference:69fee374d4d01ab6",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40",
+    "id": "ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9299999999999999,
+    "hash": "ca66034beb6174d6a1fd83788e9aad9783230998bee797c0e3948fb2d8e089b2",
+    "cluster": "verify-with-reference:1d1d5a4edd566aab",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6",
+    "id": "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9299999999999999,
+    "hash": "e1ee77857ed1afe80e6e42e218f7a0e7dd474d9806d975d3fb4a17adce8c528f",
+    "cluster": "verify-with-reference:76cd39541cf724cc",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+    "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+    "half": "valid",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.61,
+    "hash": "9a0daac0e6c159d070218da840fca1524bba4e7637f9528a34b6a8b4fbc8c484",
+    "cluster": "verify-with-reference:b922fe7ddf8f7d01",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+    "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.99,
+    "hash": "5ea810fd45abd091b3ec47076ea71246870365e4dacd6ec82c0e90105de694ab",
+    "cluster": "verify-with-reference:12596e35cb3d4064",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9",
+    "id": "daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9",
+    "half": "valid",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.52,
+    "hash": "5e0ecbc526284efaa98578d62a7d5e5670c1ea5e4bbc9f91064693864f54ac76",
+    "cluster": "verify-with-reference:15c47d30cea888b0",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|e05c879fa8330428d5f4c60e2165c671_a1cf5c7e22209a7dde60b811f14dcfa3",
+    "id": "e05c879fa8330428d5f4c60e2165c671_a1cf5c7e22209a7dde60b811f14dcfa3",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.86,
+    "hash": "16c70b3ab9545de62e1f20bcf23eb2a740cb74f1faeee24a67d1ecdbc275af8b",
+    "cluster": "verify-with-reference:24bab31a0671e02d",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b",
+    "id": "e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b",
+    "half": "valid",
+    "label": "A",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.76,
+    "hash": "894cffcd059e8c980409769e253a131be6f7e1789f175e1dc14a958e8f8457c4",
+    "cluster": "verify-with-reference:6756a2e74b25f765",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|e33318504a7ac7627d557aa1c8a28757_2773ef67563d0ff7b53513d4038a7626",
+    "id": "e33318504a7ac7627d557aa1c8a28757_2773ef67563d0ff7b53513d4038a7626",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.99,
+    "hash": "b86f529bb5fe3777f69ca0c1173108ba54cdae871d1abc7ad19beca9e19d385f",
+    "cluster": "verify-with-reference:5609c81f75cfe145",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d",
+    "id": "e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d",
+    "half": "tune",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.71,
+    "hash": "0bf807e64237f9bcd98c5a134035a67dfd45a2720c7bcdf0e2cb491dcc3c3275",
+    "cluster": "verify-with-reference:ef407c6d257ab0ee",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99",
+    "id": "e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99",
+    "half": "tune",
+    "label": "B",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.6799999999999999,
+    "hash": "ff812257ff0a9ee32f40cfc02a670d5f2043f57ffeafb862ef383041e8278dc9",
+    "cluster": "verify-with-reference:a1f99fabbd70ec83",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|ea0320de605869a0838201660ae8105e_1e8bfac1a4b21fd6f1399ff208f493fd",
+    "id": "ea0320de605869a0838201660ae8105e_1e8bfac1a4b21fd6f1399ff208f493fd",
+    "half": "tune",
+    "label": "A",
+    "low": true,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.62,
+    "hash": "9a878b92f2d0b5f934a4b71a757140f9a40b5be2e800d150e93adb47d6773a73",
+    "cluster": "verify-with-reference:9130caa8e166dd9b",
+    "baselines": {}
+  },
+  {
+    "key": "verify-with-reference|f7f4f5882b9c712068cbeac5acb4a0a4_7294b3b236c33212fbbe5aa24dbd47f4",
+    "id": "f7f4f5882b9c712068cbeac5acb4a0a4_7294b3b236c33212fbbe5aa24dbd47f4",
+    "half": "valid",
+    "label": "B",
+    "low": false,
+    "low_source": "recorded-pw_whole-margin-below-0.7",
+    "stage1_confidence": 0.9,
+    "hash": "d5e03a22df18781092cdfe27364ea996385306c9ac0ebfb5caf324dd7b1b1be5",
+    "cluster": "verify-with-reference:ef70964dced054cc",
+    "baselines": {}
+  }
+]

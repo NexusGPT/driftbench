@@ -1,0 +1,207 @@
+Offline replay matches every decision and metric.
+{
+  "fit": {
+    "tune_n": 40,
+    "threshold": 0.5,
+    "note": "No fitted choices; fixed pointwise threshold, validation labels never affect prompts."
+  },
+  "variants": {
+    "reference-first": {
+      "overall": {
+        "n": 55,
+        "clusters": 55,
+        "accuracy": 0.9545454545454546,
+        "ci95": [
+          0.8909090909090909,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "low": {
+        "n": 9,
+        "clusters": 9,
+        "accuracy": 0.8888888888888888,
+        "ci95": [
+          0.6666666666666666,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "matched_overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.9473684210526315,
+        "ci95": [
+          0.8421052631578947,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "matched_low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      }
+    },
+    "reference-blind": {
+      "overall": {
+        "n": 55,
+        "clusters": 55,
+        "accuracy": 0.41818181818181815,
+        "ci95": [
+          0.2909090909090909,
+          0.5454545454545454
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "low": {
+        "n": 9,
+        "clusters": 9,
+        "accuracy": 0.0,
+        "ci95": [
+          0.0,
+          0.2991527535509594
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "matched_overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.5789473684210527,
+        "ci95": [
+          0.3684210526315789,
+          0.7894736842105263
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "matched_low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      }
+    },
+    "ledger": {
+      "overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.8421052631578947,
+        "ci95": [
+          0.6842105263157895,
+          1.0
+        ],
+        "calls_per_100": 467.36842105263156,
+        "known_calls_per_100": 467.36842105263156,
+        "known_usd_per_100": 0.5600999999999999,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      },
+      "matched_overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.8421052631578947,
+        "ci95": [
+          0.6842105263157895,
+          1.0
+        ],
+        "calls_per_100": 467.36842105263156,
+        "known_calls_per_100": 467.36842105263156,
+        "known_usd_per_100": 0.5600999999999999,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "matched_low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      }
+    },
+    "promptfoo": {
+      "overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.8947368421052632,
+        "ci95": [
+          0.7368421052631579,
+          1.0
+        ],
+        "calls_per_100": 98.1578947368421,
+        "known_calls_per_100": 98.1578947368421,
+        "known_usd_per_100": 0.07408947368421054,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      },
+      "matched_overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.8947368421052632,
+        "ci95": [
+          0.7368421052631579,
+          1.0
+        ],
+        "calls_per_100": 98.1578947368421,
+        "known_calls_per_100": 98.1578947368421,
+        "known_usd_per_100": 0.07408947368421054,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "matched_low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      }
+    }
+  },
+  "budget_used_usd": 8.6340862
+}

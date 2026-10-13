@@ -1,0 +1,26 @@
+{
+  "name": "panel-weighted",
+  "entrypoint": "moj.panel.route_item",
+  "variant": "weighted",
+  "low_below": 0.7,
+  "reference_stop": 0.7,
+  "reference_priority": true,
+  "stage1": [
+    "s1p"
+  ],
+  "hi": 0.9,
+  "lo": 0.7,
+  "cards": [],
+  "always": [],
+  "low": [
+    "panel"
+  ],
+  "offline_replay": "python3 -m moj.panel --offline",
+  "note": "Use route_item for live routing; moj.score does not implement within-panel weighting or reference priority.",
+  "weights": {
+    "luna": -0.3622596083552747,
+    "gemini": 0.3422164089813182,
+    "haiku": -0.4680326411221783
+  },
+  "split_version": "moj-split-v2"
+}
