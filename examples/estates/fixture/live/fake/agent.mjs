@@ -221,6 +221,53 @@ function commandTarget(literal, cwd, folder) {
     .join(' ');
 }
 
+/** Only the current user's explicit action request satisfies an asked/requested condition. */
+function requestedAction(ask, kind, target, cwd, folder) {
+  const { prose, restore } = masked(ask);
+  // Quoted targets are opaque; a dot within an unquoted filename is not a sentence boundary.
+  return prose.split(/[\n;]+|[.!?](?:\s+|$)/).some((clause) => {
+    const request =
+      /^(?:please\s+)?(?:(?:can|could|will|would)\s+you\s+|i\s+(?:want|need|ask)\s+you\s+to\s+)?(?:please\s+)?(run|execute|read|edit|dispatch|call|delegate)\s*:?[ \t]+(.+)$/i.exec(
+        clause.trim(),
+      );
+    if (!request) return false;
+    const requestedKind = /^(run|execute)$/i.test(request[1])
+      ? 'Bash'
+      : /^read$/i.test(request[1])
+        ? 'Read'
+        : /^edit$/i.test(request[1])
+          ? 'Edit'
+          : 'Agent';
+    if (requestedKind !== kind) return false;
+    const named = restore(
+      request[2].replace(/^(?:(?:this|the|following)\s+)?(?:exact\s+)?(?:command|file|helper)\s*:\s*/i, ''),
+    ).trim();
+    const literal = /^`[^`]+`$/.test(named) ? named.slice(1, -1) : named;
+    // Match the actual governed target, not the prohibition's glob or a shared word in its name.
+    return ['', folder].some((scope) => {
+      const requestedTarget =
+        kind === 'Bash'
+          ? commandTarget(literal, cwd, scope)
+          : kind === 'Read' || kind === 'Edit'
+            ? fileTarget(literal, cwd, scope)
+            : literal;
+      return requestedTarget === target;
+    });
+  });
+}
+
+function askedCondition(condition) {
+  const words = condition
+    .toLowerCase()
+    .replace(/\b(?:explicitly|specifically|directly)\s*/g, '')
+    .trim();
+  const passive =
+    /^(?:you (?:are|were|have been) )?(?:asked|requested)(?: by (?:the )?user)?(?: to do (?:so|it|this|that))?(?: by (?:the )?user)?$/;
+  const active =
+    /^(?:the )?user (?:has )?(?:asks|requests|asked|requested)(?: (?:for )?(?:it|this|that)|(?: you)? to do (?:so|it|this|that))?$/;
+  return passive.test(words) || active.test(words);
+}
+
 /**
  * Prohibitions are retained for the whole run, independently of positive action collection. Read/edit
  * targets are paths and run targets are complete commands; shell-style globs match those same targets.
@@ -229,11 +276,16 @@ function commandTarget(literal, cwd, folder) {
  * and the routed unit are collected before the first action, so placement never overrides a ban.
  *
  * Conditional syntax: if/when/unless FILE exists, does not exist, is present or is missing. Conditions
- * are checked at the governed call, not once at planning. Unknown conditions stop the matching action
+ * are checked at the governed call, not once at planning. Asked/requested (including "the user asks",
+ * "asked by the user", and explicit/specific requests) tests only the CURRENT turn for an imperative,
+ * polite question or "I want you to" request naming that action and exact target. Mentions, negations,
+ * other targets, and earlier turns do not count. Targets may be backticked or unquoted; commands use
+ * their complete input. This exception never clears an unconditional prohibition, even if a later
+ * instruction says "you may now". Every other unknown condition still stops the matching action
  * with a diagnostic; they are never silently treated as unconditional bans or permission. Temporal
  * before/until gates in skills remain dependency edges below, rather than permanent prohibitions.
  */
-function prohibitions(estate, unit, cwd) {
+function prohibitions(estate, unit, cwd, ask) {
   const sources = [{ body: estate.standing, folder: '' }, ...(unit ? [unit] : [])];
   const rules = [];
   for (const source of sources) {
@@ -260,10 +312,14 @@ function prohibitions(estate, unit, cwd) {
             ? 'Edit'
             : 'Agent';
       const folder = source.folder ?? '';
-      const holds = () => {
+      const holds = (calledTarget) => {
         if (!condition) {
           // A condition outside the supported grammar still must not become an unconditional ban.
           return /\b(if|when|unless|without|except|while)\b/i.test(action) ? undefined : true;
+        }
+        if (askedCondition(restore(condition))) {
+          const value = requestedAction(ask, kind, calledTarget, cwd, unit?.folder ?? '');
+          return connective === 'unless' ? !value : value;
         }
         const match = /^`([^`]+)`\s+(exists|does not exist|is present|is missing)$/i.exec(restore(condition));
         if (!match) return undefined;
@@ -297,7 +353,7 @@ function prohibitions(estate, unit, cwd) {
         !(rule.inherited && literal !== undefined && matchesGlob(literal, rule.literal))
       )
         continue;
-      const applies = rule.holds();
+      const applies = rule.holds(target);
       if (applies === true)
         return 'An estate prohibition forbids this action; I stopped before the tool call.';
       if (applies === undefined)
@@ -433,7 +489,7 @@ function skillActions(unit, estate) {
 export function planStream({ ask, cwd, sessionId, env }) {
   const estate = readEstate(cwd);
   const unit = route(ask, estate);
-  const prohibited = prohibitions(estate, unit, cwd);
+  const prohibited = prohibitions(estate, unit, cwd, ask);
   const out = [];
   let id = 0;
   let blocked = false;

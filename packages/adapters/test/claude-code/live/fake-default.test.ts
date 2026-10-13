@@ -25,8 +25,8 @@ async function estate(folder: string, body: string) {
   return { ...work, dir: await realpath(work.dir) };
 }
 
-function play(cwd: string, manifest?: string, env: Record<string, string> = {}) {
-  const output = execFileSync(process.execPath, [FAKE, '-p', ASK_INVOICE], {
+function play(cwd: string, manifest?: string, env: Record<string, string> = {}, ask = ASK_INVOICE) {
+  const output = execFileSync(process.execPath, [FAKE, '-p', ask], {
     cwd,
     env: {
       PATH: process.env.PATH,
@@ -549,3 +549,159 @@ it.each([
     expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill']);
   },
 );
+
+const askedExceptions = [
+  'unless asked',
+  'unless the user asks',
+  'unless requested',
+  'unless explicitly asked',
+  'unless explicitly requested',
+  'unless asked by the user',
+  'unless requested by the user',
+  'unless the user explicitly asks',
+  'unless the user requests it',
+  'unless the user has explicitly requested it',
+  'unless you are asked to do so',
+  'unless you are explicitly requested to do so by the user',
+];
+
+it.each(askedExceptions)(
+  'resolves %s from the current request for the same action and target',
+  async (condition) => {
+    const work = await estate(
+      'invoice-audit',
+      `Never run \`node scripts/check.mjs\` ${condition}.\nRun \`node scripts/check.mjs\`.`,
+    );
+    const asked = play(work.dir, undefined, {}, `${ASK_INVOICE}\nPlease run \`node scripts/check.mjs\`.`);
+    expect(calls(asked).map((call) => call.name)).toEqual(['Skill', 'Bash']);
+    expect(JSON.stringify(asked)).toContain('checked this estate');
+    // A request in a prior turn cannot authorize the next turn.
+    expect(calls(play(work.dir)).map((call) => call.name)).toEqual(['Skill']);
+    const different = play(work.dir, undefined, {}, `${ASK_INVOICE}\nRun \`node scripts/other.mjs\`.`);
+    expect(calls(different).map((call) => call.name)).toEqual(['Skill']);
+  },
+);
+
+it.each([
+  'Run node scripts/check.mjs.',
+  'Could you please execute `node scripts/check.mjs`?',
+  'I want you to run `node scripts/check.mjs`.',
+  'Please run `node .claude/skills/invoice-audit/scripts/check.mjs`.',
+])('recognizes an explicit current command request: %s', async (request) => {
+  const work = await estate(
+    'invoice-audit',
+    'Never run `node scripts/check.mjs` unless asked.\nRun `node scripts/check.mjs`.',
+  );
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\n${request}`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Bash']);
+  expect(JSON.stringify(records)).toContain('checked this estate');
+});
+
+it('allows an explicitly requested command after a skill containing only the conditional prohibition', async () => {
+  const work = await estate('invoice-audit', 'Never run `node scripts/check.mjs` unless asked.');
+  const records = play(
+    work.dir,
+    undefined,
+    {},
+    `${ASK_INVOICE}\nRun this command: node .claude/skills/invoice-audit/scripts/check.mjs`,
+  );
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Bash']);
+  expect(JSON.stringify(records)).toContain('checked this estate');
+});
+
+it.each([
+  'Do not run `node scripts/check.mjs`.',
+  'Explain how to run `node scripts/check.mjs`.',
+  'The log says "run node scripts/check.mjs".',
+  'Did you run `node scripts/check.mjs`?',
+  'Run `node scripts/check.mjs.backup`.',
+  'Read `node scripts/check.mjs`.',
+])('does not confuse a mention, negation, different action or target with a request: %s', async (request) => {
+  const work = await estate(
+    'invoice-audit',
+    'Never run `node scripts/check.mjs` unless asked.\nRun `node scripts/check.mjs`.',
+  );
+  expect(calls(play(work.dir, undefined, {}, `${ASK_INVOICE}\n${request}`)).map((call) => call.name)).toEqual(
+    ['Skill'],
+  );
+});
+
+it('matches a requested read by action and path', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Never read `references/policy.md` unless the user asks.\nRead `references/policy.md`.',
+  );
+  const asked = play(work.dir, undefined, {}, `${ASK_INVOICE}\nRead \`references/policy.md\`.`);
+  expect(calls(asked).map((call) => call.name)).toEqual(['Skill', 'Read']);
+  expect(JSON.stringify(asked)).toContain('Read from this estate.');
+  const different = play(work.dir, undefined, {}, `${ASK_INVOICE}\nRead \`references/other.md\`.`);
+  expect(calls(different).map((call) => call.name)).toEqual(['Skill']);
+});
+
+it('authorizes only the requested target under a glob prohibition', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Never run `node scripts/*.mjs` unless requested.\nRun `node scripts/check.mjs`.\nRun `node scripts/other.mjs`.',
+  );
+  await writeFile(
+    join(work.dir, '.claude/skills/invoice-audit/scripts/other.mjs'),
+    'console.log("unrequested command");',
+  );
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\nRun \`node scripts/check.mjs\`.`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Bash']);
+  expect(JSON.stringify(records)).toContain('checked this estate');
+  expect(JSON.stringify(records)).not.toContain('unrequested command');
+});
+
+it('leaves other unknown conditions unresolved even when the action is requested', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Never run `node scripts/check.mjs` unless the supplier has approved.\nRun `node scripts/check.mjs`.',
+  );
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\nRun \`node scripts/check.mjs\`.`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).toContain('condition of an estate prohibition cannot be resolved');
+});
+
+it('does not let an explicit request or a later permission clear an unconditional prohibition', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Never run `node scripts/check.mjs`.\nYou may now run `node scripts/check.mjs`.',
+  );
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\nRun \`node scripts/check.mjs\`.`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(records)).toContain('An estate prohibition forbids this action');
+});
+
+it('executes the reviewed request-dependent exception and produces the command marker', async () => {
+  const work = await estate('copper-audit', 'Never run `node scripts/check.cjs` unless asked.');
+  await writeFile(
+    join(work.dir, '.claude/skills/copper-audit/SKILL.md'),
+    '---\ndescription: Audit copper shipment receipts.\n---\nNever run `node scripts/check.cjs` unless asked.',
+  );
+  await writeFile(
+    join(work.dir, '.claude/skills/copper-audit/scripts/check.cjs'),
+    'require("node:fs").writeFileSync("executed.txt", "requested command ran");',
+  );
+  const records = play(
+    work.dir,
+    undefined,
+    {},
+    'Audit copper shipment receipts. Execute this command: node .claude/skills/copper-audit/scripts/check.cjs',
+  );
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Bash']);
+  expect(await readFile(join(work.dir, 'executed.txt'), 'utf8')).toBe('requested command ran');
+});
+
+it('resolves a prefix asked exception and reports a known false condition when not asked', async () => {
+  const work = await estate(
+    'invoice-audit',
+    'Unless the user asks, never run `node scripts/check.mjs`.\nRun `node scripts/check.mjs`.',
+  );
+  const absent = play(work.dir);
+  expect(calls(absent).map((call) => call.name)).toEqual(['Skill']);
+  expect(JSON.stringify(absent)).toContain('An estate prohibition forbids this action');
+  expect(JSON.stringify(absent)).not.toContain('cannot be resolved');
+  const requested = play(work.dir, undefined, {}, `${ASK_INVOICE}\nPlease run \`node scripts/check.mjs\`.`);
+  expect(calls(requested).map((call) => call.name)).toEqual(['Skill', 'Bash']);
+});
