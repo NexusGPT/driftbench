@@ -1,7 +1,7 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
-import { RUNTIMES, readerFor, runStaticTests, type StaticResult } from '@driftbench/estate';
-import { formatJson, StaticTest } from '@driftbench/generate';
+import { RUNTIMES, readerFor, runStaticTests, type StaticResult } from '@agent-nexus/driftbench-estate';
+import { formatJson, StaticTest } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

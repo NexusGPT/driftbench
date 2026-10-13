@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { canonicalJson, parseSpecText } from '@driftbench/core';
+import { canonicalJson, parseSpecText } from '@agent-nexus/driftbench-core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { openMemoryStore, type RegistryFile, readCampaignBundle, type SqliteStore } from '../src/index';
 import { sha256, versionHash } from '../src/registry';

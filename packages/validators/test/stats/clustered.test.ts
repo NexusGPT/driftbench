@@ -1,4 +1,4 @@
-import * as stats from '@driftbench/stats';
+import * as stats from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import {
   CLUSTERED_COVERAGE,

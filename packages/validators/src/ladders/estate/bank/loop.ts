@@ -4,8 +4,8 @@ import {
   type EstateTest,
   estateImpact,
   type ImpactReport,
-} from '@driftbench/estate';
-import { generateEstateSuite } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-estate';
+import { generateEstateSuite } from '@agent-nexus/driftbench-generate';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
 import { type EstateMutant, estateMutants } from '../mutants';
 import { type EstateRun, estateRun, scanRendered } from '../pipeline';

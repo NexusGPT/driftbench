@@ -9,7 +9,7 @@ import {
   loadSpecs,
   parseCriterionRef,
   parseSpecText,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { stringify } from 'yaml';
 

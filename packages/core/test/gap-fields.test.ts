@@ -1,4 +1,4 @@
-import { Expect, validateSpec } from '@driftbench/core';
+import { Expect, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 describe('similarity, relevancy and knowledge_retention in the spec', () => {

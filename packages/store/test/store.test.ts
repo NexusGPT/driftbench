@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { type LoadedSpec, loadSpecs, parseSpecText } from '@driftbench/core';
+import { type LoadedSpec, loadSpecs, parseSpecText } from '@agent-nexus/driftbench-core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cellId, openMemoryStore, type SqliteStore } from '../src/index';
 import { block, campaign, perturbedRun, run, SUPPORT, storeError } from './fixtures';

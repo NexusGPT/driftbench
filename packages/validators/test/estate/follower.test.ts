@@ -1,4 +1,4 @@
-import { mapSession, parseJsonl } from '@driftbench/adapters';
+import { mapSession, parseJsonl } from '@agent-nexus/driftbench-adapters';
 import { describe, expect, it } from 'vitest';
 import { drawEstate, follow, type HiddenEstate, situationsOf } from '../../src/ladders/estate/index';
 

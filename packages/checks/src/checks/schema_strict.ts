@@ -1,4 +1,4 @@
-import { type Check, type CheckContext, machineVerdict, type Verdict } from '@driftbench/core';
+import { type Check, type CheckContext, machineVerdict, type Verdict } from '@agent-nexus/driftbench-core';
 import { parameterSchema, validateStrict } from '../support/schema';
 import { isRecord } from '../support/values';
 

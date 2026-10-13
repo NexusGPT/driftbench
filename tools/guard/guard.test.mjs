@@ -118,7 +118,7 @@ describe('emails', () => {
         'jane@example.com bob@shop.test x@y.invalid dev@localhost 1+bot@users.noreply.github.com git@github.com',
       ),
     ).toEqual([]);
-    expect(kinds('pnpm@10.30.2 @driftbench/core user@host')).toEqual([]);
+    expect(kinds('pnpm@10.30.2 @agent-nexus/driftbench-core user@host')).toEqual([]);
   });
 });
 

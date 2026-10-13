@@ -1,8 +1,8 @@
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, sep } from 'node:path';
-import { functionAdapter } from '@driftbench/adapters';
-import { defaultChecks } from '@driftbench/checks';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type Check,
@@ -17,7 +17,7 @@ import {
   type Spec,
   stimulusMessages,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   blockCell,
   blockOutcome,
@@ -38,8 +38,8 @@ import {
   stimulusText,
   type ThenField,
   thenFields,
-} from '@driftbench/generate';
-import { createPerturbingDriver, createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-generate';
+import { createPerturbingDriver, createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { baselineSuite } from './baseline';
 import { CHEATERS, type Cheater, cheaterAdapter, replayCalls } from './cheaters';
 import { combinedFault, FAULT_CLASSES, faultFamily, type HiddenFault } from './faults';

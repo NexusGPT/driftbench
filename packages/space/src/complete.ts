@@ -1,4 +1,9 @@
-import { type InvalidSpec, type LoadedSpec, type LoadResult, error as specError } from '@driftbench/core';
+import {
+  type InvalidSpec,
+  type LoadedSpec,
+  type LoadResult,
+  error as specError,
+} from '@agent-nexus/driftbench-core';
 import { addEventCodes } from './coverage';
 import {
   chaoCoverage,

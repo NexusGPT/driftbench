@@ -1,4 +1,4 @@
-import { compareTranscripts, type RunResult, runSpec } from '@driftbench/core';
+import { compareTranscripts, type RunResult, runSpec } from '@agent-nexus/driftbench-core';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

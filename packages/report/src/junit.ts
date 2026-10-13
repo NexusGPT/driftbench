@@ -1,4 +1,4 @@
-import type { RunResult } from '@driftbench/core';
+import type { RunResult } from '@agent-nexus/driftbench-core';
 import { type CampaignData, groupBy, runPassed, showTarget } from './data';
 
 function xml(text: string): string {

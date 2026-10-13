@@ -1,5 +1,5 @@
-import type { Spec } from '@driftbench/core';
-import { coverage, type SpaceCoverage } from '@driftbench/space';
+import type { Spec } from '@agent-nexus/driftbench-core';
+import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
 import { FAULT_CLASSES } from './faults';
 import { DEVIATION_POOL, type HiddenSpec, phrasePattern } from './hidden';

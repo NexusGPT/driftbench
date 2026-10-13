@@ -7,7 +7,7 @@ import {
   estateImpact,
   type PlanRow,
   toEstateSpaceMap,
-} from '@driftbench/estate';
+} from '@agent-nexus/driftbench-estate';
 import type { Item, Measure } from '../../ladder';
 import { componentOfKind, componentOfMarker, ESTATE_COMPONENTS } from './components';
 import type { HiddenEstate } from './hidden';

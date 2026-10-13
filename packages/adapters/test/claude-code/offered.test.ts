@@ -1,5 +1,5 @@
-import { toolsOffered } from '@driftbench/checks';
-import type { CheckContext, Observed } from '@driftbench/core';
+import { toolsOffered } from '@agent-nexus/driftbench-checks';
+import type { CheckContext, Observed } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { mapSession, parseJsonl, type ReplayRaw } from '../../src/claude-code';
 

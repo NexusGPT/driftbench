@@ -1,5 +1,5 @@
-import type { LoadResult } from '@driftbench/core';
-import { compileSpace, placeSpec, type SpaceMap } from '@driftbench/space';
+import type { LoadResult } from '@agent-nexus/driftbench-core';
+import { compileSpace, placeSpec, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { at, map, spec } from './support';
 

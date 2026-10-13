@@ -1,4 +1,4 @@
-import type { ModelPort } from '@driftbench/generate';
+import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import type { Atom } from '../schema';
 import { AtomBuilder, codeAtoms, guardName } from './code';
 import { type ChunkRun, type ProseRefusal, runChunk } from './prose';

@@ -1,5 +1,5 @@
-import { completeness } from '@driftbench/space';
-import * as stats from '@driftbench/stats';
+import { completeness } from '@agent-nexus/driftbench-space';
+import * as stats from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import {
   type CompletenessLine,

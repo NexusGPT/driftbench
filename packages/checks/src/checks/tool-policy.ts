@@ -5,7 +5,7 @@ import {
   type ToolCall,
   type ToolRule,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { times } from '../support/values';
 
 const NAME = 'tool_policy';

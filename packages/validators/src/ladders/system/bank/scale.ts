@@ -1,4 +1,4 @@
-import { defaultChecks } from '@driftbench/checks';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type Campaign,
   compareTranscripts,
@@ -10,8 +10,8 @@ import {
   runCampaign,
   type Spec,
   validateSpec,
-} from '@driftbench/core';
-import { selectGolden } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-core';
+import { selectGolden } from '@agent-nexus/driftbench-generate';
 import {
   buildScorecard,
   type CampaignData,
@@ -21,9 +21,9 @@ import {
   renderJunit,
   spread,
   toolAccuracy,
-} from '@driftbench/report';
-import { openMemoryStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-report';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { SYSTEM_COMPONENTS } from '../components';
 import { type Behaviour, followerReply } from '../plant';
 import {

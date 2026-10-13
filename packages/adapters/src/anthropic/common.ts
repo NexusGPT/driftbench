@@ -15,7 +15,7 @@ import {
   type ToolCall,
   type Turn,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describeError, joinText, parseObserved, readSource, type ToolPayload } from '../shared';
 
 /**
