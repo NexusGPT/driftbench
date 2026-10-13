@@ -11,7 +11,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { isAbsolute, join, matchesGlob, resolve } from 'node:path';
+import { isAbsolute, join, matchesGlob, relative, resolve } from 'node:path';
 
 const STOP = new Set(
   'the and for with that this from into your you are can what which when where who how please just tell give make sure about them they their there here have has had will would could should than then also only each every some any one two all not but our its it'.split(
@@ -221,16 +221,16 @@ function commandTarget(literal, cwd, folder) {
     .join(' ');
 }
 
-/** Only the current user's explicit action request satisfies an asked/requested condition. */
-function requestedAction(ask, kind, target, cwd, folder) {
+/** The same current-turn parser supplies candidates and evidence for asked/requested conditions. */
+function requestedActions(ask) {
   const { prose, restore } = masked(ask);
   // Quoted targets are opaque; a dot within an unquoted filename is not a sentence boundary.
-  return prose.split(/[\n;]+|[.!?](?:\s+|$)/).some((clause) => {
+  return prose.split(/[\n;]+|[.!?](?:\s+|$)/).flatMap((clause) => {
     const request =
       /^(?:please\s+)?(?:(?:can|could|will|would)\s+you\s+|i\s+(?:want|need|ask)\s+you\s+to\s+)?(?:please\s+)?(run|execute|read|edit|dispatch|call|delegate)\s*:?[ \t]+(.+)$/i.exec(
         clause.trim(),
       );
-    if (!request) return false;
+    if (!request) return [];
     const requestedKind = /^(run|execute)$/i.test(request[1])
       ? 'Bash'
       : /^read$/i.test(request[1])
@@ -238,22 +238,29 @@ function requestedAction(ask, kind, target, cwd, folder) {
         : /^edit$/i.test(request[1])
           ? 'Edit'
           : 'Agent';
-    if (requestedKind !== kind) return false;
     const named = restore(
       request[2].replace(/^(?:(?:this|the|following)\s+)?(?:exact\s+)?(?:command|file|helper)\s*:\s*/i, ''),
     ).trim();
     const literal = /^`[^`]+`$/.test(named) ? named.slice(1, -1) : named;
-    // Match the actual governed target, not the prohibition's glob or a shared word in its name.
-    return ['', folder].some((scope) => {
-      const requestedTarget =
-        kind === 'Bash'
-          ? commandTarget(literal, cwd, scope)
-          : kind === 'Read' || kind === 'Edit'
-            ? fileTarget(literal, cwd, scope)
-            : literal;
-      return requestedTarget === target;
-    });
+    return [{ kind: requestedKind, literal }];
   });
+}
+
+function actionTarget(kind, literal, cwd, folder) {
+  return kind === 'Bash'
+    ? commandTarget(literal, cwd, folder)
+    : kind === 'Read' || kind === 'Edit'
+      ? fileTarget(literal, cwd, folder)
+      : literal;
+}
+
+/** Match the governed target, never the prohibition's glob or just a word shared with its name. */
+function requestedAction(ask, kind, target, cwd, folder) {
+  return requestedActions(ask).some(
+    (action) =>
+      action.kind === kind &&
+      ['', folder].some((scope) => actionTarget(kind, action.literal, cwd, scope) === target),
+  );
 }
 
 function askedCondition(condition) {
@@ -364,21 +371,25 @@ function prohibitions(estate, unit, cwd, ask) {
 }
 
 /**
- * Collect the whole skill before acting. Explicit before/after/first/until clauses become dependency
+ * Collect the whole skill and current-turn requests before acting. Requests supply candidate actions
+ * even when the skill contains only a prohibition. Append new requests in turn order after estate
+ * candidates; the same action and normalized target execute once. All candidates share the existing
+ * prerequisite graph and permission/prohibition checks. Explicit before/after/first/until clauses become dependency
  * edges, including clauses in later sections. Repeated mentions identify the same action. Without an
  * ordering clause, choose the earliest first mention among ready actions (source order, then code-span
  * order). Unresolved relations and cycles stop the skill; they never silently fall back to prose order.
  * This small grammar uses backticked paths/commands/helper names, or an unambiguous action description.
  */
-function skillActions(unit, estate) {
+function skillActions(unit, estate, requested, cwd) {
   const statements = statementsOf(unit.body);
   const active = statements.filter(
     (line) => !negative(line) || /\b(before|after|until)\b/i.test(line.replace(/`[^`]*`/g, '')),
   );
   const actions = [];
-  const add = (kind, literal) => {
-    if (!actions.some((action) => action.kind === kind && action.literal === literal))
-      actions.push({ kind, literal, needs: new Set() });
+  const add = (kind, literal, folder = unit.folder) => {
+    const target = actionTarget(kind, literal, cwd, folder);
+    if (!actions.some((action) => action.kind === kind && action.target === target))
+      actions.push({ kind, literal, target, folder, needs: new Set() });
   };
   for (const line of active) {
     for (const match of line.matchAll(/`([^`]+)`/g)) {
@@ -393,6 +404,15 @@ function skillActions(unit, estate) {
     }
   }
 
+  for (const action of requested) {
+    // Current-turn file paths name an existing workspace file before falling back to a skill-local file.
+    const folder =
+      (action.kind === 'Read' || action.kind === 'Edit') && existsSync(fileTarget(action.literal, cwd, ''))
+        ? ''
+        : unit.folder;
+    add(action.kind, action.literal, folder);
+  }
+
   const noise = new Set(
     'before after first then only until run running execute executing command read reading file dispatch dispatching call calling do done must been have has you the a an of is it to'.split(
       ' ',
@@ -400,19 +420,24 @@ function skillActions(unit, estate) {
   );
   const terms = (text) => [...words(text)].filter((word) => !noise.has(word));
   const matchActions = (clause) => {
+    const prose = masked(clause).prose;
+    const kind = /\bread(?:ing)?\b/i.test(prose)
+      ? 'Read'
+      : /\b(run(?:ning)?|execut(?:e|ing)|command)\b/i.test(prose)
+        ? 'Bash'
+        : /\bedit(?:ing)?\b/i.test(prose)
+          ? 'Edit'
+          : /\b(dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing))\b/i.test(prose)
+            ? 'Agent'
+            : undefined;
+    const candidates = actions.filter((action) => !kind || action.kind === kind);
     const quoted = [...clause.matchAll(/`([^`]+)`/g)].map((match) => match[1].trim());
     if (quoted.length) {
-      const found = actions.filter((action) => quoted.includes(action.literal));
-      return quoted.every((literal) => found.some((action) => action.literal === literal)) ? found : [];
+      const matches = (action, literal) =>
+        action.target === actionTarget(action.kind, literal, cwd, unit.folder);
+      const found = candidates.filter((action) => quoted.some((literal) => matches(action, literal)));
+      return quoted.every((literal) => found.some((action) => matches(action, literal))) ? found : [];
     }
-    const kind = /\bread(?:ing)?\b/i.test(clause)
-      ? 'Read'
-      : /\b(run(?:ning)?|execut(?:e|ing)|command)\b/i.test(clause)
-        ? 'Bash'
-        : /\b(dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing))\b/i.test(clause)
-          ? 'Agent'
-          : undefined;
-    const candidates = actions.filter((action) => !kind || action.kind === kind);
     const named = terms(clause);
     if (!named.length) return candidates.length === 1 ? candidates : [];
     // Names come from the action's own input, including a script's basename, never from a fixture table.
@@ -597,6 +622,32 @@ export function planStream({ ask, cwd, sessionId, env }) {
     return result;
   };
 
+  const editFile = (target, folder) => {
+    const readFirst = estate.standing
+      .split('\n')
+      .some(
+        (line) =>
+          /\bread\b[^.]*\bbefore\b[^.]*\b(edit|chang|modif|writ)/i.test(line) &&
+          !/\bnever read\b/i.test(line),
+      );
+    const path = fileTarget(target, cwd, folder);
+    if (readFirst) {
+      const result = call('Read', { file_path: path }, () => ({ content: read(path) ?? '' }), target);
+      if (!result || result.error) return result;
+    }
+    const before = read(path) ?? '';
+    const added = `${before.endsWith('\n') ? '' : '\n'}Updated as asked.\n`;
+    const result = call(
+      'Edit',
+      { file_path: path, old_string: before.split('\n').pop() ?? '', new_string: added },
+      () => ({ content: `The file ${target} has been updated.` }),
+      target,
+    );
+    if (result && !result.error)
+      out.push({ fake: 'write', path: relative(cwd, path), content: `${before}${added}` });
+    return result;
+  };
+
   const step = (name) => out.push({ fake: 'step', step: name });
   const { order, anytime } = walk(estate.steps);
 
@@ -614,105 +665,83 @@ export function planStream({ ask, cwd, sessionId, env }) {
   if (order[0]) step(order[0]);
   if (unit?.kind === 'skill') {
     call('Skill', { skill: unit.name }, () => ({ content: `Launching skill: ${unit.name}` }));
-    const plan = skillActions(unit, estate);
-    if (plan.error) {
-      text(plan.error);
-      hooks('Stop', undefined, { stop_hook_active: false });
-      return { records: out, blocked: true };
-    }
-    for (const action of plan.actions) {
-      let result;
-      if (action.kind === 'Read') {
-        const path = join(cwd, unit.folder, action.literal);
-        result = call(
-          'Read',
-          { file_path: path },
-          () => {
-            const content = read(path);
-            return content === undefined
-              ? { error: true, content: `File not found: ${action.literal}` }
-              : { content };
-          },
-          action.literal,
-        );
-      } else if (action.kind === 'Bash') {
-        // Resolve commands against the skill folder; omit unfilled placeholders as before.
-        const command = action.literal
-          .split(/\s+/)
-          .filter((token) => !/^<.*>$/.test(token))
-          .map((token) => (existsSync(join(cwd, unit.folder, token)) ? join(unit.folder, token) : token))
-          .join(' ');
-        result = call(
-          'Bash',
-          { command, description: 'Run the command the skill names' },
-          () => {
-            const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
-            return {
-              content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
-              error: ran.status !== 0,
-            };
-          },
-          action.literal,
-        );
-      } else {
-        result = call(
-          'Agent',
-          { subagent_type: action.literal, description: `Brief for ${action.literal}`, prompt: ask },
-          () => ({ content: '{"status": "done"}' }),
-          action.literal,
-        );
-      }
-      // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
-      if (!result || result.error) {
-        text('A skill action could not complete; I stopped before continuing.');
-        hooks('Stop', undefined, { stop_hook_active: false });
-        return { records: out, blocked: true };
-      }
-    }
   } else if (unit?.kind === 'helper') {
     call('Agent', { subagent_type: unit.name, description: `Brief for ${unit.name}`, prompt: ask }, () => ({
       content: '{"status": "done"}',
     }));
   }
+  const planUnit = unit?.kind === 'skill' ? unit : { body: '', folder: '' };
+  const requested = requestedActions(ask).filter(
+    (action) => !(unit?.kind === 'helper' && action.kind === 'Agent' && action.literal === unit.name),
+  );
+  const plan = skillActions(planUnit, estate, requested, cwd);
+  if (plan.error) {
+    text(plan.error);
+    hooks('Stop', undefined, { stop_hook_active: false });
+    return { records: out, blocked: true };
+  }
+  for (const action of plan.actions) {
+    let result;
+    if (action.kind === 'Read') {
+      const path = fileTarget(action.literal, cwd, action.folder);
+      result = call(
+        'Read',
+        { file_path: path },
+        () => {
+          const content = read(path);
+          return content === undefined
+            ? { error: true, content: `File not found: ${action.literal}` }
+            : { content };
+        },
+        action.literal,
+      );
+    } else if (action.kind === 'Bash') {
+      // Resolve commands against the skill folder; omit unfilled placeholders as before.
+      const command = action.literal
+        .split(/\s+/)
+        .filter((token) => !/^<.*>$/.test(token))
+        .map((token) => (existsSync(join(cwd, action.folder, token)) ? join(action.folder, token) : token))
+        .join(' ');
+      result = call(
+        'Bash',
+        { command, description: 'Run the named command' },
+        () => {
+          const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
+          return {
+            content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
+            error: ran.status !== 0,
+          };
+        },
+        action.literal,
+      );
+    } else if (action.kind === 'Edit') {
+      result = editFile(action.literal, action.folder);
+    } else {
+      result = call(
+        'Agent',
+        { subagent_type: action.literal, description: `Brief for ${action.literal}`, prompt: ask },
+        () => ({ content: '{"status": "done"}' }),
+        action.literal,
+      );
+    }
+    // A denied, missing or failed prerequisite is not satisfied. Never execute its dependent action.
+    if (!result || result.error) {
+      text('An action could not complete; I stopped before continuing.');
+      hooks('Stop', undefined, { stop_hook_active: false });
+      return { records: out, blocked: true };
+    }
+  }
   const rest = order.slice(1);
   if (rest[0]) step(rest[0]);
 
-  // The command the ask spells out, run as written.
-  const command = /\b(?:run|execute)\b[^:]*:\s*(.+?)\s*$/i.exec(ask)?.[1];
-  if (command) {
-    call('Bash', { command, description: 'Run the command the user gave' }, () => {
-      const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
-      return {
-        content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
-        error: ran.status !== 0,
-      };
-    });
-  }
-
-  // The workspace file the ask names: read first when a standing rule says so, then edited.
-  const target = ask
-    .split(/\s+/)
-    .map((token) => token.replace(/[.,;:!?]+$/, ''))
-    .find((token) => token.includes('/') && !token.startsWith('.claude') && isFile(join(cwd, token)));
-  if (target) {
-    const readFirst = estate.standing
-      .split('\n')
-      .some(
-        (line) =>
-          /\bread\b[^.]*\bbefore\b[^.]*\b(edit|chang|modif|writ)/i.test(line) &&
-          !/\bnever read\b/i.test(line),
-      );
-    const path = join(cwd, target);
-    if (readFirst) call('Read', { file_path: path }, () => ({ content: read(path) ?? '' }));
-    const before = read(path) ?? '';
-    const added = `${before.endsWith('\n') ? '' : '\n'}Updated as asked.\n`;
-    const result = call(
-      'Edit',
-      { file_path: path, old_string: before.split('\n').pop() ?? '', new_string: added },
-      () => ({ content: `The file ${target} has been updated.` }),
-    );
-    if (result && !result.error) out.push({ fake: 'write', path: target, content: `${before}${added}` });
-  }
+  // Preserve the existing implicit file-edit request only when no explicit action is named.
+  const target = requestedActions(ask).length
+    ? undefined
+    : ask
+        .split(/\s+/)
+        .map((token) => token.replace(/[.,;:!?]+$/, ''))
+        .find((token) => token.includes('/') && !token.startsWith('.claude') && isFile(join(cwd, token)));
+  if (target) editFile(target, '');
 
   for (const name of rest.slice(1)) step(name);
   for (const name of anytime) step(name);

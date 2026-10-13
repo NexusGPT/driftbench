@@ -705,3 +705,130 @@ it('resolves a prefix asked exception and reports a known false condition when n
   const requested = play(work.dir, undefined, {}, `${ASK_INVOICE}\nPlease run \`node scripts/check.mjs\`.`);
   expect(calls(requested).map((call) => call.name)).toEqual(['Skill', 'Bash']);
 });
+
+it.each([
+  'Please run `node .claude/skills/zircon-audit/scripts/check.cjs`.',
+  'Could you please execute `node .claude/skills/zircon-audit/scripts/check.cjs`?',
+])('plans the current user request with a conditional-ban-only body: %s', async (request) => {
+  const work = await estate('zircon-audit', 'Never run `node scripts/check.cjs` unless asked.');
+  await writeFile(
+    join(work.dir, '.claude/skills/zircon-audit/scripts/check.cjs'),
+    'require("node:fs").appendFileSync("executed.txt", "requested command ran\\n");',
+  );
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\n${request}`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Bash']);
+  expect(await readFile(join(work.dir, 'executed.txt'), 'utf8')).toBe('requested command ran\n');
+});
+
+it.each([
+  ['Never run `node scripts/check.cjs` unless asked.', ASK_INVOICE],
+  [
+    'Never run `node scripts/check.cjs`.',
+    `${ASK_INVOICE}\nPlease run \`node .claude/skills/zircon-audit/scripts/check.cjs\`.`,
+  ],
+])('does not invent permission or an action for a ban-only body: %s', async (body, ask) => {
+  const work = await estate('zircon-audit', body);
+  await writeFile(
+    join(work.dir, '.claude/skills/zircon-audit/scripts/check.cjs'),
+    'require("node:fs").writeFileSync("executed.txt", "unrequested command ran");',
+  );
+  const records = play(work.dir, undefined, {}, ask);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(existsSync(join(work.dir, 'executed.txt'))).toBe(false);
+});
+
+it('adds a requested command to the prerequisite graph before ordering the actions', async () => {
+  const work = await estate('invoice-audit', 'Before running the check, read `references/policy.md`.');
+  const records = play(
+    work.dir,
+    undefined,
+    {},
+    `${ASK_INVOICE}\nPlease run \`node .claude/skills/invoice-audit/scripts/check.mjs\`.`,
+  );
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Read', 'Bash']);
+  expect(JSON.stringify(records)).toContain('checked this estate');
+});
+
+it('executes a repeated estate and current-turn command once, including the colon form', async () => {
+  const work = await estate('invoice-audit', 'Run `node scripts/check.mjs`.');
+  await writeFile(
+    join(work.dir, '.claude/skills/invoice-audit/scripts/check.mjs'),
+    'import {appendFileSync} from "node:fs"; appendFileSync("executed.txt", "once\\n");',
+  );
+  const records = play(
+    work.dir,
+    undefined,
+    {},
+    `${ASK_INVOICE}\nExecute this command: node .claude/skills/invoice-audit/scripts/check.mjs`,
+  );
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Bash']);
+  expect(await readFile(join(work.dir, 'executed.txt'), 'utf8')).toBe('once\n');
+});
+
+it('plans an explicit read with a ban-only body without also editing the file', async () => {
+  const work = await estate('invoice-audit', 'Never read `references/policy.md` unless asked.');
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\nPlease read \`references/policy.md\`.`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Read']);
+  expect(JSON.stringify(records)).toContain('Read from this estate.');
+  expect(await readFile(join(work.dir, '.claude/skills/invoice-audit/references/policy.md'), 'utf8')).toBe(
+    'Read from this estate.\n',
+  );
+});
+
+it('plans an explicit command even when no unit routes the ask', async () => {
+  const work = await estate('invoice-audit', 'Report what can be checked.');
+  await writeFile(join(work.dir, 'check.cjs'), 'console.log("standalone requested command");');
+  const records = play(work.dir, undefined, {}, 'Could you please execute `node check.cjs`?');
+  expect(calls(records).map((call) => call.name)).toEqual(['Bash']);
+  expect(JSON.stringify(records)).toContain('standalone requested command');
+});
+
+it('executes an explicit edit candidate through the same ban and write path', async () => {
+  const work = await estate('invoice-audit', 'Never edit `references/policy.md` unless asked.');
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\nPlease edit \`references/policy.md\`.`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Edit']);
+  expect(
+    await readFile(join(work.dir, '.claude/skills/invoice-audit/references/policy.md'), 'utf8'),
+  ).toContain('Updated as asked.');
+});
+
+it('keeps the existing implicit workspace edit effective', async () => {
+  const work = await estate('invoice-audit', 'Report what can be checked.');
+  await mkdir(join(work.dir, 'public'));
+  await writeFile(join(work.dir, 'public/receipt.txt'), 'Original receipt.\n');
+  play(work.dir, undefined, {}, 'Fix the heading in public/receipt.txt');
+  expect(await readFile(join(work.dir, 'public/receipt.txt'), 'utf8')).toContain('Updated as asked.');
+});
+
+it('reads an explicitly requested workspace file without treating it as an implicit edit', async () => {
+  const work = await estate('invoice-audit', 'Report what can be checked.');
+  await mkdir(join(work.dir, 'public'));
+  await writeFile(join(work.dir, 'public/receipt.txt'), 'Original receipt.\n');
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\nRead public/receipt.txt.`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Read']);
+  expect(calls(records)[1].input.file_path).toBe(join(work.dir, 'public/receipt.txt'));
+  expect(JSON.stringify(records)).toContain('Original receipt.');
+  expect(await readFile(join(work.dir, 'public/receipt.txt'), 'utf8')).toBe('Original receipt.\n');
+});
+
+it('applies an inherited relative edit prohibition to a requested candidate', async () => {
+  const work = await estate('invoice-audit', 'Report what can be checked.');
+  await writeFile(join(work.dir, 'CLAUDE.md'), 'Never edit `references/policy.md`.');
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\nEdit \`references/policy.md\`.`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill']);
+  expect(await readFile(join(work.dir, '.claude/skills/invoice-audit/references/policy.md'), 'utf8')).toBe(
+    'Read from this estate.\n',
+  );
+});
+
+it('dispatches a requested helper with a conditional-ban-only skill', async () => {
+  const work = await estate('invoice-audit', 'Never dispatch `amount-reader` unless asked.');
+  await mkdir(join(work.dir, '.claude/agents'));
+  await writeFile(
+    join(work.dir, '.claude/agents/amount-reader.md'),
+    '---\nname: amount-reader\ndescription: Compare the amounts in records.\n---\nRead the amounts.',
+  );
+  const records = play(work.dir, undefined, {}, `${ASK_INVOICE}\nPlease dispatch \`amount-reader\`.`);
+  expect(calls(records).map((call) => call.name)).toEqual(['Skill', 'Agent']);
+  expect(calls(records)[1].input.subagent_type).toBe('amount-reader');
+});
