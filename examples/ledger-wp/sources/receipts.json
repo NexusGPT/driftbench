@@ -1,0 +1,30 @@
+[
+  {
+    "name": "hf-tree.json",
+    "url": "https://huggingface.co/api/datasets/m-a-p/Writing-Preference-Bench/tree/main",
+    "sha256": "721404905657a7b3260f7899f8b8770d379f5cbe9189304edc8019546ad35737",
+    "bytes": 536,
+    "fetchedAt": "2026-10-13T07:01:31.152584+00:00"
+  },
+  {
+    "name": "wp-readme.md",
+    "url": "https://raw.githubusercontent.com/WritingPreferenceBench/Writing-Preference-Bench/main/README.md",
+    "sha256": "5a2b80a6bd2f18790f1a7acf76c407d9b2a5d43761bd58c0fbfaf4a2e87a7045",
+    "bytes": 7200,
+    "fetchedAt": "2026-10-13T07:01:44.658685+00:00"
+  },
+  {
+    "name": "wp-paper.html",
+    "url": "https://arxiv.org/html/2510.14616v2",
+    "sha256": "91e3c349c42c07be8c9015aff64d58a9a8e8b48d3a992310d872b1bccf9e41d0",
+    "bytes": 261720,
+    "fetchedAt": "2026-10-13T07:02:03.729508+00:00"
+  },
+  {
+    "name": "longjudge-wp.jsonl",
+    "url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/wp_bench.jsonl",
+    "sha256": "a47a50c8359c6d64b027d018e8cc48707189cf6bf2c5e39ddba2a1eb55750257",
+    "bytes": 6563378,
+    "fetchedAt": "2026-10-13T07:02:14.033817+00:00"
+  }
+]

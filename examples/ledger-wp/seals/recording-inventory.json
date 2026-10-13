@@ -1,0 +1,333 @@
+{
+  "scanned": [
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/jev-judgebench.jsonl",
+      "sha256": "f682ecb0c5561bc62c5d96cae39e1b54a3f376b6e589124d72082da926c12ef4",
+      "parsedRows": 363,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/jev-mmeval.jsonl",
+      "sha256": "6e3add456affc7b48bca02a2951749adf19c449ac5aa60501268c0347ddb047e",
+      "parsedRows": 1200,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/jev-rubricbench.jsonl",
+      "sha256": "c3ea3c24d5f97d0c70a0eb9f44871174953220a2f05fc53eb85c5987a65ba719",
+      "parsedRows": 291,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/judgebench/gemini-3.5-flash-lite.jsonl",
+      "sha256": "f6f8c3bc033b01211d10e268344fcc16e36e869fe8093c71c30a0b36a0586616",
+      "parsedRows": 727,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/judgebench/gemini-3.8-flash.jsonl",
+      "sha256": "02b45dbd4b1ead76e3cf2d67c65cbd9eb34eae955e28fe23204d1cfb4117c87a",
+      "parsedRows": 727,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/judgebench/gpt-5.4-mini.jsonl",
+      "sha256": "f31456e5c40febf7618ab455df071d3979fcb9e963c5c6248bf2811dc406b237",
+      "parsedRows": 727,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/mmeval/gemini-3.8-flash.jsonl",
+      "sha256": "c701320f0b5dd45cdc98fb6be5fb90efaa046258a12a5a9a212db4fab3918bc8",
+      "parsedRows": 2401,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/mmeval/gpt-5.4-mini.jsonl",
+      "sha256": "99c1568bd6a1df1ae0bd5e3a27a1f10066211b8095c69f6502d7ea031e77581c",
+      "parsedRows": 2401,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/rubricbench/gemini-3.5-flash-lite.jsonl",
+      "sha256": "db8c4b1248545cceffa8c9b20a0b896df9687fe72d3b26cf66e41d270dca3043",
+      "parsedRows": 469,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council/examples/council/recordings/rubricbench/gpt-5.4-mini.jsonl",
+      "sha256": "27847e97c0eeacf69c9c25d55f42e14cfd45a019c2922f06c24c777ab132a863",
+      "parsedRows": 469,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-jb/examples/judge-benchmarks/recordings/judgebench/haiku.executions.jsonl",
+      "sha256": "4e45442e101e4ff56415eba825b30d9ea6ea1b966b033682e356c2bc0d4b494b",
+      "parsedRows": 423,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-jb/examples/judge-benchmarks/recordings/judgebench/haiku.jsonl",
+      "sha256": "eb1d88f94eea8c6b5a5286c2b311842b09729a6d0035ef58e6e85c6e6ad1d2b9",
+      "parsedRows": 10834,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-jb/examples/judge-benchmarks/recordings/judgebench/sonnet.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "parsedRows": 61,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-jb/examples/judge-benchmarks/recordings/longjudge-verify/haiku.jsonl",
+      "sha256": "737cad9effee55185b298d9556853b250d23e01a51c2d8b3f3aa0c6738e54214",
+      "parsedRows": 4139,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-jb/examples/judge-benchmarks/recordings/longjudge-wp/haiku.jsonl",
+      "sha256": "53d33778403aa993b44bef9242df44b294f18540034df3bf044496528fb0003f",
+      "parsedRows": 5499,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-jb/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "ccb1f08574b7a1844dd9cf323ffd6c87ba21eae7cde33e7e133446690d2694d9",
+      "parsedRows": 17746,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-jb/examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "sha256": "c96ac72c59ae3d0cf8f0945781e9010122b979412d962a8a9e4aa3c03dd678e0",
+      "parsedRows": 24146,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/judgebench/haiku-000.jsonl",
+      "sha256": "f87a22603b2de64e640d302032a7d1c2994cefdc7b2da1571ff03a6c4a3c622c",
+      "parsedRows": 8191,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/judgebench/haiku-001.jsonl",
+      "sha256": "a78eedeb1bdeef5767554f4a5cd48a9fd5897514046de8b98fa8fe509ec3f327",
+      "parsedRows": 578,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/judgebench/sonnet-000.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/longjudge-verify/haiku-000.jsonl",
+      "sha256": "737cad9effee55185b298d9556853b250d23e01a51c2d8b3f3aa0c6738e54214",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/longjudge-wp/haiku-000.jsonl",
+      "sha256": "53d33778403aa993b44bef9242df44b294f18540034df3bf044496528fb0003f",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/mmeval/haiku-000.jsonl",
+      "sha256": "c254ad3faf812b010f34a9512f47770dd2763efb312f0fe7c1b84073d4bfccb9",
+      "parsedRows": 11601,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/mmeval/haiku-001.jsonl",
+      "sha256": "c50ecafac072a0645e1454f664e6e5f658710b864fe379ec0901f3c7815c303c",
+      "parsedRows": 6145,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-000.jsonl",
+      "sha256": "dea06188635cb8fe19700a15b007f6ea5a3f9b251d8928b3188e7a730850520d",
+      "parsedRows": 9420,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-001.jsonl",
+      "sha256": "f941f957c9c9261aa11e24b3c539671d54011bfd36ce92015094957041400db6",
+      "parsedRows": 7124,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-002.jsonl",
+      "sha256": "38bb3aa6cf68a152152729f10921ae25ae688fd10b1924872bb4fc1b2cbec21d",
+      "parsedRows": 4339,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-003.jsonl",
+      "sha256": "17abd2731fab7ff51524d09f90deaf7079800086604c41dbb2eee75d2b963203",
+      "parsedRows": 5616,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-004.jsonl",
+      "sha256": "0a2e604f3c56b2d1e3b1ec45a9125572df4946ce2217ab8cc720ab7fdc559bed",
+      "parsedRows": 564,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/recordings/judgebench/haiku.jsonl",
+      "sha256": "4d22e92bc74e8241b32bdb47dddafc4affabc054c21e7a0f17705fa8d65d5891",
+      "parsedRows": 8769,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/recordings/judgebench/sonnet.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/recordings/longjudge-verify/haiku.jsonl",
+      "sha256": "3ee76b21eb299b5462d752a737d3290dc3e5189fa90bf37cc85b00041de39850",
+      "parsedRows": 5908,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/recordings/longjudge-verify/program-outputs.jsonl",
+      "sha256": "4f16293eb9d8d670ae8dad3373980c048c1bb13f0509e3cd3e87324b1bff3c1e",
+      "parsedRows": 502,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/recordings/longjudge-wp/haiku.jsonl",
+      "sha256": "53d33778403aa993b44bef9242df44b294f18540034df3bf044496528fb0003f",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "ccb1f08574b7a1844dd9cf323ffd6c87ba21eae7cde33e7e133446690d2694d9",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify/examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "sha256": "c96ac72c59ae3d0cf8f0945781e9010122b979412d962a8a9e4aa3c03dd678e0",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-wp/examples/judge-benchmarks/recordings/judgebench/haiku.jsonl",
+      "sha256": "4d22e92bc74e8241b32bdb47dddafc4affabc054c21e7a0f17705fa8d65d5891",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-wp/examples/judge-benchmarks/recordings/judgebench/sonnet.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-wp/examples/judge-benchmarks/recordings/longjudge-verify/haiku.jsonl",
+      "sha256": "737cad9effee55185b298d9556853b250d23e01a51c2d8b3f3aa0c6738e54214",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-wp/examples/judge-benchmarks/recordings/longjudge-wp/haiku.jsonl",
+      "sha256": "4e3494fdbd8a992236cdc7f194d33ffa0117c6febcc6c7bdc98753fca59559bc",
+      "parsedRows": 6683,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-wp/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "ccb1f08574b7a1844dd9cf323ffd6c87ba21eae7cde33e7e133446690d2694d9",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-wp/examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "sha256": "c96ac72c59ae3d0cf8f0945781e9010122b979412d962a8a9e4aa3c03dd678e0",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/judge-benchmarks/examples/judge-benchmarks/recordings/judgebench/haiku.jsonl",
+      "sha256": "40b191497830357779cae4d8e92b748d3eb22e2dd97da1fa3a1c596919b3e71f",
+      "parsedRows": 9359,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/judge-benchmarks/examples/judge-benchmarks/recordings/judgebench/sonnet.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/judge-benchmarks/examples/judge-benchmarks/recordings/longjudge-verify/haiku.jsonl",
+      "sha256": "8de0663af3d11a3a3299453766456fc1552a3a312606c00fd50f7b2dd5349b9f",
+      "parsedRows": 5151,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/judge-benchmarks/examples/judge-benchmarks/recordings/longjudge-wp/haiku.jsonl",
+      "sha256": "53d33778403aa993b44bef9242df44b294f18540034df3bf044496528fb0003f",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/judge-benchmarks/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "9c81b51880d7a2f2280b7f83a989145a13dafeae6323fa5d6f32a46767228651",
+      "parsedRows": 18879,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/judge-benchmarks/examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "sha256": "305b0c5c59f0a0170f93f629c9816c0da6050eae26e1f949da2c6573c87761ad",
+      "parsedRows": 28038,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-wp/examples/judge-benchmarks/recordings/judgebench/haiku.jsonl",
+      "sha256": "4d22e92bc74e8241b32bdb47dddafc4affabc054c21e7a0f17705fa8d65d5891",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-wp/examples/judge-benchmarks/recordings/judgebench/sonnet.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-wp/examples/judge-benchmarks/recordings/longjudge-verify/haiku.jsonl",
+      "sha256": "737cad9effee55185b298d9556853b250d23e01a51c2d8b3f3aa0c6738e54214",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-wp/examples/judge-benchmarks/recordings/longjudge-wp/haiku.jsonl",
+      "sha256": "b207175bd12540dfeb6fe6754e2df6ae8357f6d9ca6424e592a0bc10ea6bc540",
+      "parsedRows": 8123,
+      "duplicateFile": false
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-wp/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "ccb1f08574b7a1844dd9cf323ffd6c87ba21eae7cde33e7e133446690d2694d9",
+      "parsedRows": 0,
+      "duplicateFile": true
+    },
+    {
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-wp/examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "sha256": "c96ac72c59ae3d0cf8f0945781e9010122b979412d962a8a9e4aa3c03dd678e0",
+      "parsedRows": 0,
+      "duplicateFile": true
+    }
+  ],
+  "missingWorktrees": [
+    "codex-mm",
+    "astra-hard"
+  ],
+  "rule": "Missing trees are explicitly unverified; all LongJudge request IDs and question hashes excluded conservatively."
+}

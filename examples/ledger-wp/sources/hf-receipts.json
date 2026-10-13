@@ -1,0 +1,30 @@
+[
+  {
+    "name": "README.md",
+    "url": "https://huggingface.co/datasets/m-a-p/Writing-Preference-Bench/resolve/main/README.md",
+    "sha256": "869887ca12ae5a51220c23c61c2751b69a7c8446b797463ab1d398764f08d5b7",
+    "bytes": 6418,
+    "fetchedAt": "2026-10-13T07:02:56.035841+00:00"
+  },
+  {
+    "name": "WP_bench_chinese.json",
+    "url": "https://huggingface.co/datasets/m-a-p/Writing-Preference-Bench/resolve/main/WP_bench_chinese.json",
+    "sha256": "fd9c8faf85b7f4ae4b48f938c9fd608e5ed2011f726789130b37c1588f2ab6e0",
+    "bytes": 6964996,
+    "fetchedAt": "2026-10-13T07:03:00.266693+00:00"
+  },
+  {
+    "name": "WP_bench_english-1.json",
+    "url": "https://huggingface.co/datasets/m-a-p/Writing-Preference-Bench/resolve/main/WP_bench_english-1.json",
+    "sha256": "49a952b788d8239efd07cb4cfd048b7c84cb9159a9e65c26784918d65960c4b7",
+    "bytes": 9036937,
+    "fetchedAt": "2026-10-13T07:03:01.405789+00:00"
+  },
+  {
+    "name": "WP_bench_english-2.json",
+    "url": "https://huggingface.co/datasets/m-a-p/Writing-Preference-Bench/resolve/main/WP_bench_english-2.json",
+    "sha256": "24352761e3e55c034bf57d341ae02be561820a94df92f41cfac796fab1a5cc18",
+    "bytes": 10039340,
+    "fetchedAt": "2026-10-13T07:02:59.066243+00:00"
+  }
+]

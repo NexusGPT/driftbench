@@ -1,0 +1,85 @@
+{
+  "seed": "ledger-wp-2026-10-13-v1",
+  "sourcePairs": 1800,
+  "longjudgePairs": 263,
+  "longjudgeRequests": 158,
+  "eligibleFreshPairs": 1303,
+  "eligibleRequests": 399,
+  "exclusionCountsOverlap": {
+    "non_strict_preference": 3,
+    "longjudge_request_overlap": 494,
+    "recorded_id_overlap": 494,
+    "exact_longjudge_pair": 263
+  },
+  "invalidLabels": [
+    {
+      "id": "77a653df11e7fa3976e8be62f694f75697c792d4ef51722f82cece835a697f32",
+      "sourceFile": "WP_bench_chinese.json",
+      "sourceIndex": 2,
+      "scores": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "478b73d0b646a178f5dd515c35e4f7288a38487c259cafd24cb8ff3c93175655",
+      "sourceFile": "WP_bench_chinese.json",
+      "sourceIndex": 179,
+      "scores": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "7edeeba7663feb9616efb7299e6951ed30d5a7f7eff60f4ab31593333693f7e7",
+      "sourceFile": "WP_bench_chinese.json",
+      "sourceIndex": 448,
+      "scores": [
+        0,
+        0
+      ]
+    }
+  ],
+  "recordedIds": 4080,
+  "scannedFiles": 54,
+  "missingWorktrees": [
+    "codex-mm",
+    "astra-hard"
+  ],
+  "hashes": {
+    "pilot": "a4d1b6f4ae7046f4bd17d7dc79e278c32f3e883fb93c83937c0a7721c7d25c15",
+    "dev": "d47cdd3a3dab25e87e49bce60cbcb19706a7330ca4776b50df8745912f267c9b",
+    "test": "178754731d81f74abd2f6c001eca58ef4d16df7bbcd22bb702611e7bd09e7f0a"
+  },
+  "splits": {
+    "pilot": {
+      "pairs": 20,
+      "games": 40,
+      "requests": 17,
+      "languages": {
+        "zh": 11,
+        "en": 9
+      }
+    },
+    "dev": {
+      "pairs": 30,
+      "games": 60,
+      "requests": 21,
+      "languages": {
+        "en": 13,
+        "zh": 17
+      }
+    },
+    "test": {
+      "pairs": 173,
+      "games": 346,
+      "requests": 146,
+      "languages": {
+        "en": 122,
+        "zh": 51
+      }
+    }
+  },
+  "selection": "173 fresh pairs, proportional language allocation, SHA-256 rank without inspecting contestant outcomes. Entire LongJudge requests excluded. Pilot and dev previously exposed, request-disjoint from one another and test.",
+  "noveltyLimit": "No benchmark recording ID overlap in the enumerated available trees. This does not prove absence from model pretraining or inaccessible recordings."
+}
