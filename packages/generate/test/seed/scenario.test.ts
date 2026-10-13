@@ -668,6 +668,27 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
   });
 });
 
+describe('opening coverage diagnostics', () => {
+  it('names a non-discriminating recovery even when an approved opening phrase exists', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        { kind: 'recovery', class: 'D5_language_switch', flows: ['balance'], stage_after: 'pending', ...by },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D5_language_switch', stage: 'greet' },
+    });
+    expect(built).toEqual({
+      ok: false,
+      reason:
+        'path balance-found: the first-turn recovery of D5_language_switch stays at greet without a required tool call; it cannot distinguish an idle or echo reply',
+    });
+  });
+});
+
 describe('pilot iteration 10: a deviation on the first turn', () => {
   it('probes the start stage when the recovery keeps the conversation there and asks for a call', () => {
     const prepared = prepare((draft) => {

@@ -130,3 +130,86 @@ The owner authorizes the `follower.compose` repair. A report mutation returning 
 ## Replay-stage boundary repair
 
 Pre-turn Claude Code step-feed entries remain in the first block for legacy `stage.reached` behavior, with optional `carried: true` provenance. The new `stage.reported` check excludes carried entries. Reports at the user-turn timestamp count in that block only. The T/F/P replay regression fails before the production fix and passes afterward; omitted and false reporting flags retain the prior result. Evidence: `.exec/replay-stage-red-confirmed.log` and `.exec/replay-stage-green.log`, with 130 targeted tests passing across 12 files.
+
+## Spec cap: historical PR 155 evidence
+
+This section preserves the pre-integration record from PR 155. Its measurements and handoff instructions apply to that source; the current next actions appear above.
+
+### Interface and preservation target
+
+`--budget N` still bounds only the budget seeder's t-wise rows. The independent `--spec-cap N` bounds total written specs. `--spec-cap-mode tuples` is the default: preserve every pair, triple and requested-strength tuple reached by the candidate pool. Explicit `--spec-cap-mode pairs` permits reported triple losses. Both modes retain every graph, boundary, deviation, metamorphic and task probe, plus every incomplete spec. Only complete t-wise and cover specs can be trimmed. A cap below the protected count is refused; a cap losing a target tuple exits 1 and lists that tuple.
+
+The full candidate pool remains necessary: a 10x trial with `--budget 256 --t 3` reaches 1,465 pairs, below the uncapped suite's 1,485. The total cap therefore selects after both the existing budget/t-wise seeder and cover seeder. Budget mode remains available independently and composes with the cap. The reported `preserving` size is the deterministic greedy selection's minimum passing limit, not a proof of a globally optimal set cover.
+
+The coverage report now leads with actual axis-map coverage of written complete specs. The candidate t-wise or budget array appears second and is labelled as measured before total-cap selection. `coverage.actual[].uncovered` lists all missed axis tuples; `spec_cap.coverage[].lost` distinguishes new cap losses from pre-existing gaps.
+
+### The 41 uncovered pairs at 10x
+
+Actual uncapped coverage is **1,485 of 1,526 pairs (97.31 percent)**. Every missing pair is one of the behaviours below paired with `stage=opening`. The candidate array's 2,049 of 2,049 triples is a different denominator and does not establish full axis-map coverage.
+
+Cause: the first-turn recovery stays at the initial stage and requires no tool call. The first-turn discriminator rejects that probe. All 41 targeted `coverDraft` attempts reproduce this cause; some alternative paths additionally have no recovery for the requested class. These are alternate path failures for the same pairs, not additional uncovered pairs.
+
+- `B-001`, `B-002`, `B-003`, `B-004`, `B-006`, `B-1000`, `B-1001`
+- `B-1003`, `B-1004`, `B-1006`, `B-1007`, `B-1009`, `B-1010`, `B-1012`
+- `B-1013`, `B-1016`, `B-1019`, `B-1020`, `B-1021`, `B-1022`, `B-1023`
+- `B-1024`, `B-1025`, `B-1027`, `B-1028`, `B-1030`, `B-1031`, `B-1034`
+- `B-1036`, `B-1037`, `B-1039`, `B-1040`, `B-1042`, `B-1043`, `B-1044`
+- `B-1045`, `B-1046`, `B-1049`, `B-1051`, `B-1052`, `B-1053`
+
+Other causes: **0 pairs**. The complete pair list and per-path reasons are in [generator-cap-opening.json](../../tools/analysis/generator-cap-opening.json).
+
+The guard remains unchanged at `packages/generate/src/seed/scenario.ts:203`; its discriminator is at `scenario.ts:471`. A diagnostic fix at `scenario.ts:223` now names this rejection when an approved opening phrase exists. It no longer incorrectly attributes that case to a missing phrase. The scenario tests retain the positive control where an approved recovery requires a call at the first stage, and add the negative control with an approved phrase but no discriminating recovery.
+
+Next-owner handoff:
+
+- `packages/generate/src/seed/seeders.ts:1553` already tries all opening-compatible classes when a missing pair targets the start stage.
+- `packages/generate/src/seed/possible.ts:76` treats these conversational events as possible. Do not remove them from the declared axis denominator to report 100 percent.
+- `packages/validators/src/ladders/generator/hidden.ts:379` defines the fictional recoveries; D1, D5, D6 and D9 remain at the pending stage without a required call. `packages/validators/src/ladders/generator/render.ts:301` copies those contracts into the map.
+- Closing these pairs needs an approved opening contract and matching follower behaviour that distinguishes an idle or echo reply, followed by a gate check. The prior handover records 53 extra constant/echo passes when the first-turn filter was bypassed. This change preserves that filter and does not invent new map behaviour or modify the validator.
+
+### Candidate cap measurements
+
+Actual uncapped axis-map coverage comes first: at **10x, pairs 1,485/1,526 and triples 8,690/9,162**; at **100x, pairs 13,510/13,946 and triples 83,722/88,542**. The baseline leaves 41 and 436 pairs uncovered respectively. The chosen caps preserve every reached pair, not 100 percent of the declared axis map.
+
+Candidate t-wise array coverage, a separate measurement before the total cap: **10x, 2,049/2,049 triples in 989 rows**; **100x, 19,689/19,689 triples in 9,690 rows**. These figures exclude unreachable candidate combinations and do not replace actual coverage.
+
+Fictional fixture `scaledSpec(1, factor)`, generator seed 1, `t=3`. Each row measures actual written specs, including all 109 protected probes. CPU is process user plus system time for one map load, generation, file write and YAML reload, excluding fault assays. These exploratory measurements use the same cap algorithm (`8ce6daa7`) while the separate report and diagnostic changes were finalized. They exclude the speed branch's optimizations. The committed [measurement script](../../tools/analysis/generator-cap.ts) runs the same comparison at a single version; [raw results](../../tools/analysis/generator-cap-results.json) include tuple denominators, exact caught classes, witnesses, survivor classes and suite hashes.
+
+| Scale | Total cap | Specs written | Pairs kept / uncapped | Triples kept (% uncapped; % axis map) | Faults caught | CPU seconds | Pass |
+|---|---:|---:|---:|---|---:|---:|---|
+| 10x | none | 3,283 | 1,485 / 1,485 | 8,690 (100.00%; 94.85%) | 44 / 70 | 10.981 | yes |
+| 10x | 512 | 512 | 1,287 / 1,485 | 3,935 (45.28%; 42.95%) | 44 / 70 | 4.382 | no: pairs lost |
+| 10x | 709 | 709 | 1,484 / 1,485 | 4,680 (53.86%; 51.08%) | 44 / 70 | 5.719 | no: pairs lost |
+| 10x | 710 | 710 | 1,485 / 1,485 | 4,684 (53.90%; 51.12%) | 44 / 70 | 4.464 | yes |
+| 10x | 4096 | 710 | 1,485 / 1,485 | 4,684 (53.90%; 51.12%) | 44 / 70 | 4.697 | yes |
+| 10x | 6126 | 710 | 1,485 / 1,485 | 4,684 (53.90%; 51.12%) | 44 / 70 | 4.191 | yes |
+| 10x | 6127 | 710 | 1,485 / 1,485 | 4,684 (53.90%; 51.12%) | 44 / 70 | 4.340 | yes |
+| 100x | none | 32,067 | 13,510 / 13,510 | 83,722 (100.00%; 94.56%) | 44 / 70 | 97.489 | yes |
+| 100x | 512 | 512 | 4,188 / 13,510 | 9,999 (11.94%; 11.29%) | 44 / 70 | 25.105 | no: pairs lost |
+| 100x | 709 | 709 | 6,158 / 13,510 | 14,727 (17.59%; 16.63%) | 44 / 70 | 23.786 | no: pairs lost |
+| 100x | 710 | 710 | 6,164 / 13,510 | 14,742 (17.61%; 16.65%) | 44 / 70 | 23.220 | no: pairs lost |
+| 100x | 4096 | 4,096 | 11,479 / 13,510 | 36,251 (43.30%; 40.94%) | 44 / 70 | 28.263 | no: pairs lost |
+| 100x | 6126 | 6,126 | 13,509 / 13,510 | 43,752 (52.26%; 49.41%) | 44 / 70 | 34.579 | no: pairs lost |
+| 100x | 6127 | 6,127 | 13,510 / 13,510 | 43,755 (52.26%; 49.42%) | 44 / 70 | 37.499 | yes |
+
+Choose **710 at 10x** and **6,127 at 100x**, explicitly with `--spec-cap-mode pairs`. Each keeps every reached pair and catches exactly the same 44 fault classes as the uncapped suite. Each limit one lower loses a reached pair. These are the smallest passing limits for this deterministic greedy selection, not a global-minimum claim. Larger tested limits at 10x stop after the same 710 useful specs; they do not fill spare capacity with redundant specs.
+
+At 10x, the chosen cap trims **719 t-wise specs and 1,854 cover specs**. At 100x it trims **7,063 t-wise specs and 18,877 cover specs**. It trims no graph, boundary, deviation, metamorphic, task or incomplete probe. Every tested cap retains all 109 protected specs equal to the uncapped parsed specs: graph 6, boundary 39, deviation 20, metamorphic 44. There are no task or incomplete specs in these fixtures. The default tuple-exact mode remains unchanged by this recommendation.
+
+### Fault assay limits and remaining gaps
+
+All rows test the validator's 70 fault classes, one deterministic every-time, anywhere instance per class, with the scripted reference follower. A kill requires a passing reference block and a failed fault block at or after the fault's first changed block, matching the validator's causal rule. Every reference passes; runner errors are zero. The same **44 classes** are caught in all rows, including the rejected smaller caps. No caught class is lost, but this is not evidence for every intermittent or location-specific fault variant, another seed, or another map.
+
+The uncapped suite and chosen caps leave the same 26 classes uncaught. Changed but uncaught: `X1.field-extra`, `X2.fact-flip`, `X2.fact-invent`, `X3.no-report`, `X4.narrate`. No changed trace in this fixture: `X2.slot-first`, `C.no-file`, `C.wrong-name`, `C.wrong-folder`, `C.empty-file`, `C.deletes-input`, `C.touches-other`, `C.temp-left`, `C.no-artifact`, `C.artifact-only`, `C.outside`, `C.absolute`, `C.uppercase`, `C.wrong-ext`, `C.nested`, `C.overwrite-input`, `C.extra-file`, `C.partial`, `C.binary`, `C.says-nothing`, `C.twice`. The code-related classes are not exercised by these conversational maps. The capped suites also leave the reported triples uncovered: 4,478 of 9,162 at 10x and 44,787 of 88,542 at 100x. `coverage.actual[].uncovered` names those tuples; `spec_cap.coverage[].lost` names the subset that the cap removed.
+
+### Verification and speed handoff
+
+Typecheck passes. Lint passes with 20 existing warnings. The final cap, coverage-report, CLI and scenario test run passes **52 tests in 3 files**. A fresh full `pnpm test --maxWorkers=2` run is active against the fixed source. An isolated Acme check reproduces five stale-fixture assertions already named by the base handover. The pilot additionally reports that the committed suite has map hash `b583de68c530` while the approved map has hash `6d29ed7a7539`. The extraction checks pass when re-run with a 60-second test timeout; their first run hit the 5-second default. These fixture and runtime issues are not marked as passes. `node tools/rename-scope.mjs` ran after the initial main merge and changed zero files.
+
+The separate speed worker has the request to measure `--spec-cap 6127 --spec-cap-mode pairs` with and without its speed fixes. No completed speed-worker result has been received at this checkpoint. The single-generation CPU column above does not establish the validator's two-generation 60-second time gate.
+
+### Post-outage integration
+
+The owner directs this PR to remain on its measured base before the outage. At the pre-outage checkpoint, GitHub reports conflicts against `exec/generator-v2` in `packages/generate/src/enumerate/generate.ts`, `packages/generate/src/seed/seeders.ts`, `packages/generate/test/enumerate/acme.test.ts` and this handover. The branch has not merged the newer A/B contracts.
+
+After network restoration, merge `origin/exec/generator-v2` into `exec/generator-cap` in this worktree, preserve both the new contracts and these cap/report invariants, and run `node tools/rename-scope.mjs`. Then re-measure the uncapped and capped suites against the new fault contracts. Recompute the smallest passing limits, retain every reached pair and protected probe, and compare the exact caught class sets. Commit the newly stamped evidence separately from the base merge. Re-run typecheck, lint and tests, and add the speed worker's completed result if supplied. Do not reuse this pre-A/B fault count as evidence for the combined implementation.

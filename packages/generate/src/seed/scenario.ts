@@ -222,6 +222,16 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       );
     const chosen = pick(rng, allowed);
     if (!chosen) {
+      if (
+        probe.stage === path.stages[0] &&
+        OPENING_CLASSES.has(probe.classId) &&
+        probe.stage !== undefined &&
+        !discriminates(recovery, probe.stage, path.stages[0]) &&
+        choosePhraseExists(prepared, deviationKey, probe.classId, contextOf(probe.stage), slots, request)
+      )
+        return fail(
+          `the first-turn recovery of ${probe.classId} stays at ${probe.stage} without a required tool call; it cannot distinguish an idle or echo reply`,
+        );
       return fail(
         `no stage of the path takes ${probe.classId}: none its recovery allows has an approved phrase`,
       );
