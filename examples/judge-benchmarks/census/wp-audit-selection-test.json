@@ -1,0 +1,791 @@
+{
+  "split": "test",
+  "population": 173,
+  "selected": 29,
+  "selectionRule": "At least two distinct design families oppose the label in both orders, with no ties. Selection does not itself establish a label error.",
+  "items": [
+    {
+      "n": 1,
+      "rowKey": "1b2318cf952aa740fd44",
+      "id": "d172bf53-90b9-4eb3-9c7a-0529a50750b1",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/01-1b2318cf952aa740fd44.md",
+      "readFully": false
+    },
+    {
+      "n": 2,
+      "rowKey": "20e405738b4aebf2c213",
+      "id": "c34707a6-593b-4706-8acb-d5f5a53606b0",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/02-20e405738b4aebf2c213.md",
+      "readFully": false
+    },
+    {
+      "n": 3,
+      "rowKey": "fde71fda3397d26b0d6c",
+      "id": "c34707a6-593b-4706-8acb-d5f5a53606b0",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/03-fde71fda3397d26b0d6c.md",
+      "readFully": false
+    },
+    {
+      "n": 4,
+      "rowKey": "befa73d742c1ae5852c0",
+      "id": "b92786b3-32e8-423a-a09e-eb912ba11b84",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/04-befa73d742c1ae5852c0.md",
+      "readFully": false
+    },
+    {
+      "n": 5,
+      "rowKey": "9edffb1ebe12ece47d7b",
+      "id": "a89478e4-acb9-4e2c-9914-9bf8412b4326",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/05-9edffb1ebe12ece47d7b.md",
+      "readFully": false
+    },
+    {
+      "n": 6,
+      "rowKey": "29944a8621e20db915ef",
+      "id": "9add7a56-d524-46ba-b107-4cee2a0e5bbd",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/06-29944a8621e20db915ef.md",
+      "readFully": false
+    },
+    {
+      "n": 7,
+      "rowKey": "b57ff2afa7139c05c1f6",
+      "id": "9add7a56-d524-46ba-b107-4cee2a0e5bbd",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/07-b57ff2afa7139c05c1f6.md",
+      "readFully": false
+    },
+    {
+      "n": 8,
+      "rowKey": "86fb9eb839483a2000b4",
+      "id": "7ded4857-f6b0-48f8-9d84-168f9891c7cd",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/08-86fb9eb839483a2000b4.md",
+      "readFully": false
+    },
+    {
+      "n": 9,
+      "rowKey": "ccce41c5937124e48302",
+      "id": "755f3f28-5a8a-47f6-8c27-b8eb88cdf69f",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/09-ccce41c5937124e48302.md",
+      "readFully": false
+    },
+    {
+      "n": 10,
+      "rowKey": "018f221c4dc4b7c5788a",
+      "id": "57ca40f6-0276-4fe1-8382-9afec5e3d138",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/10-018f221c4dc4b7c5788a.md",
+      "readFully": false
+    },
+    {
+      "n": 11,
+      "rowKey": "3b046e1d9f362971d2c9",
+      "id": "4c8d4506-24a7-4ca6-b8a9-063b3b5693c7",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/11-3b046e1d9f362971d2c9.md",
+      "readFully": false
+    },
+    {
+      "n": 12,
+      "rowKey": "5b261e421961f95df3a2",
+      "id": "21b35bb9-3496-466d-a729-dde2a5d66c31",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/12-5b261e421961f95df3a2.md",
+      "readFully": false
+    },
+    {
+      "n": 13,
+      "rowKey": "5b6ef53bbfd42c01ce10",
+      "id": "1f9724bf-dfcf-412e-9318-5adb35424d5c",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/13-5b6ef53bbfd42c01ce10.md",
+      "readFully": false
+    },
+    {
+      "n": 14,
+      "rowKey": "f246893e8014cd4a4e9a",
+      "id": "1f25b2b4-4782-4b85-b073-1bfad2064e43",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/14-f246893e8014cd4a4e9a.md",
+      "readFully": false
+    },
+    {
+      "n": 15,
+      "rowKey": "78870489721b0b991236",
+      "id": "1f25b2b4-4782-4b85-b073-1bfad2064e43",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/15-78870489721b0b991236.md",
+      "readFully": false
+    },
+    {
+      "n": 16,
+      "rowKey": "25cb1fd10bf1d2cce337",
+      "id": "0659e8ea-ce0d-4105-9da5-37fc8dfedd0f",
+      "group": "zh",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/16-25cb1fd10bf1d2cce337.md",
+      "readFully": false
+    },
+    {
+      "n": 17,
+      "rowKey": "bdb85ee28ee079813994",
+      "id": "87d8f020-a595-41ce-a1a5-e11810f7a2ce",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/17-bdb85ee28ee079813994.md",
+      "readFully": false
+    },
+    {
+      "n": 18,
+      "rowKey": "f8f484627df5a2159f29",
+      "id": "27d89e89-b597-424f-aeee-1fddd0357e6b",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/18-f8f484627df5a2159f29.md",
+      "readFully": false
+    },
+    {
+      "n": 19,
+      "rowKey": "d669375e98c71c38f774",
+      "id": "cc451c5b-e8a1-4832-858d-dd7bffc2f208",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/19-d669375e98c71c38f774.md",
+      "readFully": false
+    },
+    {
+      "n": 20,
+      "rowKey": "e64cccb9526cd70e7427",
+      "id": "02797eda-b8d4-4a1c-aee5-4b278dd8dbad",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/20-e64cccb9526cd70e7427.md",
+      "readFully": false
+    },
+    {
+      "n": 21,
+      "rowKey": "bf8a88bd721fed629c3a",
+      "id": "02797eda-b8d4-4a1c-aee5-4b278dd8dbad",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/21-bf8a88bd721fed629c3a.md",
+      "readFully": false
+    },
+    {
+      "n": 22,
+      "rowKey": "a0a48311d56d91319740",
+      "id": "6dd1948b-61e5-48f7-917e-449363e77f2b",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/22-a0a48311d56d91319740.md",
+      "readFully": false
+    },
+    {
+      "n": 23,
+      "rowKey": "cc1aa03ebf5da9894679",
+      "id": "e5b207ed-af74-4877-a3d2-2d36d16c8efa",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/23-cc1aa03ebf5da9894679.md",
+      "readFully": false
+    },
+    {
+      "n": 24,
+      "rowKey": "ca13700f03dbf8173123",
+      "id": "f40ec5a7-cd7a-484b-90e0-54e4a325771f",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/24-ca13700f03dbf8173123.md",
+      "readFully": false
+    },
+    {
+      "n": 25,
+      "rowKey": "0a85f46a94afa7de3df3",
+      "id": "f845791f-3496-49ef-be6a-8ecf9705cf27",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/25-0a85f46a94afa7de3df3.md",
+      "readFully": false
+    },
+    {
+      "n": 26,
+      "rowKey": "3e5fab3c2e1ab85dabbf",
+      "id": "5ffcdb47-3054-4086-9601-c896f0561a04",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/26-3e5fab3c2e1ab85dabbf.md",
+      "readFully": false
+    },
+    {
+      "n": 27,
+      "rowKey": "89d545a2116cd9eb94bd",
+      "id": "495e6e17-250b-4f8f-9c93-be71c80931ed",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/27-89d545a2116cd9eb94bd.md",
+      "readFully": false
+    },
+    {
+      "n": 28,
+      "rowKey": "e94b5c0a758535b15924",
+      "id": "1f8b127b-61ee-40ff-979f-163180b85e15",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/28-e94b5c0a758535b15924.md",
+      "readFully": false
+    },
+    {
+      "n": 29,
+      "rowKey": "c54f5dde08fc09af156e",
+      "id": "1f8b127b-61ee-40ff-979f-163180b85e15",
+      "group": "en",
+      "label": "A",
+      "judges": [
+        {
+          "design": "historical-adaptive",
+          "family": "adaptive",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "frozen-holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        }
+      ],
+      "path": "examples/judge-benchmarks/.scratch/audit-test-inputs/29-c54f5dde08fc09af156e.md",
+      "readFully": false
+    }
+  ]
+}

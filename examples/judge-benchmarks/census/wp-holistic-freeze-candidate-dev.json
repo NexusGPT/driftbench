@@ -1,0 +1,4258 @@
+{
+  "variant": "anchor",
+  "split": "dev",
+  "fullPopulation": 90,
+  "sampled": false,
+  "selectedVariant": "anchor-raw-legacy",
+  "rawOnly": true,
+  "model": "haiku",
+  "resolverLabelMap": false,
+  "items": 90,
+  "completed": 90,
+  "complete": true,
+  "summary": {
+    "metric": "accuracy (LongJudgeBench, over games)",
+    "value": {
+      "estimate": 0.6444444444444445,
+      "lower": 0.5721657088286799,
+      "upper": 0.7106867028828542
+    },
+    "n": 90,
+    "byGroup": {
+      "zh": {
+        "n": 98,
+        "value": 0.7653061224489796
+      },
+      "en": {
+        "n": 82,
+        "value": 0.5
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.9555555555555556
+  },
+  "perOrder": [
+    {
+      "correct": 57,
+      "n": 90,
+      "accuracy": 0.6333333333333333
+    },
+    {
+      "correct": 59,
+      "n": 90,
+      "accuracy": 0.6555555555555556
+    }
+  ],
+  "rated": {
+    "metric": "accuracy (LongJudgeBench, over games)",
+    "value": {
+      "estimate": 0.6444444444444445,
+      "lower": 0.5721657088286799,
+      "upper": 0.7106867028828542
+    },
+    "n": 90,
+    "byGroup": {
+      "zh": {
+        "n": 98,
+        "value": 0.7653061224489796
+      },
+      "en": {
+        "n": 82,
+        "value": 0.5
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.9555555555555556
+  },
+  "excerpt": {
+    "metric": "accuracy (LongJudgeBench, over games)",
+    "value": {
+      "estimate": 0.6444444444444445,
+      "lower": 0.5721657088286799,
+      "upper": 0.7106867028828542
+    },
+    "n": 90,
+    "byGroup": {
+      "zh": {
+        "n": 98,
+        "value": 0.7653061224489796
+      },
+      "en": {
+        "n": 82,
+        "value": 0.5
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.9555555555555556
+  },
+  "reconciled": {
+    "metric": "accuracy (LongJudgeBench, over games)",
+    "value": {
+      "estimate": 0.6444444444444445,
+      "lower": 0.5721657088286799,
+      "upper": 0.7106867028828542
+    },
+    "n": 90,
+    "byGroup": {
+      "zh": {
+        "n": 98,
+        "value": 0.7653061224489796
+      },
+      "en": {
+        "n": 82,
+        "value": 0.5
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.9555555555555556
+  },
+  "costPer100": 0.5718106555555555,
+  "reconciledCostPer100": 0.5718106555555555,
+  "costUsd": 0.51462959,
+  "baseCostUsd": 0.51462959,
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 180,
+  "results": [
+    {
+      "rowKey": "c1ed25b40c935739b7c1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops each requested section with specific, usable guidance and explains the reasoning behind the waterproof limits and payment safety. Draft B meets the structure but stays shallow and conventional, with thinner operational detail and a minor specification inconsistency.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops each required section with explanatory depth and reader-oriented detail, such as the reasoning behind the waterproof limits, multi-step FAQ diagnostics, and fuller safety guidance. A stays accurate and complete but remains a thinner, more formulaic template.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00526891,
+      "baseCostUsd": 0.00526891,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2dc32b654e3a031a8105",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A fills in the product parameters, accessories, charging time, and usage steps with concrete, consistent details, so the manual is ready to use. B's parameter section is mostly placeholders and its guidance is more generic, so it develops the brief less fully despite its broader feature coverage.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B realizes the commission as a usable, complete manual with specific content in every section, while A leaves core parameters as placeholders. A is warmer and more thorough in its guidance, but its unfilled template fields make it less finished, which is the decisive difference in development.",
+          "mismatch": false,
+          "confidence": 2
+        }
+      ],
+      "costUsd": 0.0037419199999999997,
+      "baseCostUsd": 0.0037419199999999997,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2d3cb3fcce38d1a22be1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the brief with specific, checkable detail and comparative analysis, including the upgrade table and tradeoff-aware buying advice. Draft B stays general, substitutes adjectives for measurements, and makes several unsupported claims, so it does not deliver the professional depth the brief asked for.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B 以具体规格、测试条件和可操作的对比表支撑判断，并区分标称与实际续航；A 依赖无来源的模糊数值和重复的泛化表述，缺少行业参考所需的实质内容。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0054788200000000006,
+      "baseCostUsd": 0.0054788200000000006,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "20fe4f0e140c13b70c1a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the requested analysis across all listed areas with explained mechanisms, cold-weather context, avoidance strategies, and role-specific recommendations. B offers a shorter report whose specific-looking test data is largely unsupported and whose comparisons are muddled, so A is more credible and more fully realized for an expert audience.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B's upgrade analysis is factually grounded and its signal-loss and battery sections are coherent. Draft A fills its tables with unsourced figures and misstates the predecessor's sensing and transmission, which an industry reader would catch immediately.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.005650720000000001,
+      "baseCostUsd": 0.005650720000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "fff14e54a5c7f9b5b3e1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A enacts events, dialogue, and character change across a full plot, including a concrete emotional trial and a climactic resolution. B delivers mood and summary but dramatizes almost nothing, so its growth and friendship remain asserted rather than developed.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B enacts a sustained sequence of events and character trials. Lin's growth, the companions' bond, and the cosmological stakes are dramatized across scenes. A compresses the same premise into a summary of stated ideas with little dramatized action, so B is the more fully developed commission despite its preachiness and formulaic plotting.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00842092,
+      "baseCostUsd": 0.00842092,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "cb420f160063912fc1d5",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A dramatizes its premise through sensory environment and embodied combat, and it develops the balance theme through the protagonist's pain-driven insight. Draft B summarizes events and states its moral outright, leaving its theme and atmosphere underdeveloped by comparison.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the requested environmental atmosphere, combat, and character-driven growth far more fully, with specific sensory detail and integrated thematic insight. A is complete but conventional and summarizes its key events. B's unfinished ending and overwrought style keep it from a higher level, but its craft is clearly deeper than A's.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00964242,
+      "baseCostUsd": 0.00964242,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "f6c29e1b9258ef761fe5",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops a single personalized concept, with the couple's story and motifs carried through every section, while B stays a generic template with placeholder budget figures. A's emotional resonance and specific realized content outweigh its arithmetic and timing flaws.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops a specific couple-centered narrative and ties venue, layout, rituals, and cost decisions to it, while A stays with generic options and an unspecified budget. B has numerical and timing errors, but its concrete, cohesive execution is decisively stronger.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.005900819999999999,
+      "baseCostUsd": 0.005900819999999999,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "29847a65e7cc65216d09",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A sustains a distinctive, emotionally resonant voice across every section and develops each requested element with specific atmosphere and rationale, while B delivers accurate tables but thin, generic prose with little emotional or experiential development.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops one emotionally resonant concept across every requested element and gives it sustained, specific execution, from named music and LED sky backdrops to a detailed, transition-aware run-of-show. A lists the same categories in a conventional template with thin, generic detail and little voice.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.007231120000000001,
+      "baseCostUsd": 0.007231120000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "1527c612353efdeef895",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B以统一的星河主题把场地、色彩、灯光和花艺串联起来，并给出可核算的预算数字和带时间与配乐的流程。A的预算全为占位符，流程和装饰描述大量重复，缺少可执行的具体性。",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A delivers a complete, specific plan with real numbers, including a budget that sums correctly and a precise timed schedule. B leaves the budget as placeholders and describes its venue and layout only in generic terms, so it does not realize the brief's core professional requirements.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0059675200000000005,
+      "baseCostUsd": 0.0059675200000000005,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "560bbd798a3065442e11",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A realizes the brief's undercover and 暗访 requirements on screen and builds emotional stakes through specific images, such as the demolished home and the old man's tears. B covers more plot beats but in summary form, with less enacted development of its characters and methods.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B is more developed in visual craft and dramatic staging: it sets up the lead's undercover methods, makes the evidence reveal a concrete public set piece, and gives OLD LI a meaningful hidden-evidence arc. A relies more on stock dialogue and a thin, tell-heavy plot.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00542862,
+      "baseCostUsd": 0.00542862,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "94330bfa86a49014987a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A dramatizes the investigation through concrete scenes, escalating obstacles, and visible pressure on the protagonist and witnesses, while B mostly summarizes key events offstage and relies on stated intentions and generic dialogue.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B dramatizes the investigation through specific, escalating scenes: a compensation discrepancy, covert recording, a livestream, and visible pressure on the mayor and the editor. Draft A stays at the level of announced events and stock dialogue, with its antagonist offstage and its turns resolved by convenient interventions. B's craft is more developed even though it is also conventional.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00458362,
+      "baseCostUsd": 0.00458362,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "b1d101703b01070640ed",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A realizes the requested screenplay with dramatized scenes, concrete evidence, and character action, while B remains a hedged outline that describes rather than enacts the story.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B enacts the requested screenplay with scenes, camera direction, and dialogue, while Draft A remains an outline that only describes events in hypothetical terms. B's execution is conventional, but it realizes the brief as a script; A does not.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00420982,
+      "baseCostUsd": 0.00420982,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "3826eb9f58c23cdbfafd",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A dramatizes the biography with concrete scenes, dialogue, and turning points, while integrating analysis of character and failure into the narrative. B stays at the level of abstract summary and hedged commentary, so it does not realize the brief's demand for vivid chronological storytelling.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B以具体事件、人物对话与心理刻画推动叙述，达到生动与分析并重的要求；A虽结构完整，却以概括性论断为主，细节与人物动作薄弱，发展程度明显较低。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0049789199999999995,
+      "baseCostUsd": 0.0049789199999999995,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "ce96cf84a694bad7e635",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B dramatizes key moments with specific scenes, quotations, and interpretive framing, giving the biography real narrative life and analytical depth. A remains accurate and orderly but summarizes events and offers thinner, more predictable judgment.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A realizes the requested vivid chronological biography with developed scenes and sustained quotation from the sources, while B compresses events into summary and contains a notable factual error in the Julu battle.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00570112,
+      "baseCostUsd": 0.00570112,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "eb5ce1b9c94ef9936008",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A dramatizes events with concrete scenes and sourced quotations, and it sustains a chronological narrative with analysis woven in. Draft B is brief, contains several factual errors, and gives generic assertions where the brief asked for developed, evidence-based insight.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B dramatizes key events with vivid scenes and direct quotations, creating a sustained narrative and character. A reduces the biography to summary with generic assertions and several factual errors, so the difference in development and craft is decisive.",
+          "mismatch": false,
+          "confidence": 5
+        }
+      ],
+      "costUsd": 0.00561802,
+      "baseCostUsd": 0.00561802,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "43fa1f74a8b3c531e7a3",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops causal, case-specific analysis across bacterial, viral, and parasitic pathogens, with management implications. Draft B stays generic and contains a diagnostic error on Trichodina morphology.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the requested case studies with diagnostic detail and sustained analysis, including the Trichodina denticle ring, the conditional-pathogen interpretation of E. coli, and the specificity logic behind the PCR result. A stays generic, gives an inaccurate Trichodina description, and frames the report as a sample with meta-commentary.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0067953200000000005,
+      "baseCostUsd": 0.0067953200000000005,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "4956ee1c5c7a109f5183",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Both are competent, complete screenplays, but A develops its comic and emotional engine more fully: the bubble motif recurs across scenes, the banker and skeptic beats are sharper, and the competition climax is dramatized with specific obstacles and a meaningful critic payoff. B is tidier but its key set pieces are summarized and its resolution is more predictable.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops recurring comic motifs (the 'soul' gags and the 'bubble' metaphor that pays off) and uses screenplay form with specific, character-driven detail, whereas A relies on more generic beats and dialogue.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00584742,
+      "baseCostUsd": 0.00584742,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2c9fd1c057c8ad01fb80",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A enacts a full romantic comedy with distinct scenes, rivals, comic reversals, and character-driven dialogue, while Draft B is a thin, expository outline with stiff dialogue and little humor. A's excerpt shows the light, observational wit and the romance-through-subtext that the brief calls for.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B dramatizes the romance and comedy through scenes with specific, humorous business and secondary characters, creating a sustained screenplay experience. A remains a summarized outline with expository dialogue and a thin competition climax, so B's development and craft are clearly stronger.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00471532,
+      "baseCostUsd": 0.00471532,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "b30d1f86ad21fbfc9b10",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A dramatizes the full arc in finished, enacted scenes with payoffs for its motifs, while B summarizes the story, offers only a few sample scenes, and explicitly leaves the script unfinished.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B把梗概转化为可演的分场剧本，有具体事件、阻力和人物反转，甜点主题也随剧情深化；A主要停留在大纲与注释层面，戏剧展开和场景实现明显不足。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.005166820000000001,
+      "baseCostUsd": 0.005166820000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "27f67dbdba8d0e766d8c",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B把购买指南落实到了可操作的细节，尤其是验机流程和分场景的参数阈值，而A停留在原则层面。B的术语偏多且个别信息存疑，但其实用性与具体内容的差距足以使其胜出。",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the brief with specific thresholds, named models by price band, a brand pitfalls table, and a step-by-step inspection routine, while B stays generic and gives the reader few actionable specifics, despite A's jargon density and dated recommendations.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0050224200000000005,
+      "baseCostUsd": 0.0050224200000000005,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "936d55033bdd6914efb7",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B把每项参数拆解为作用、判断方法和取舍建议，并结合真伪查询、收货验机等可操作步骤，发展程度和实用性明显优于A的简短罗列，尽管存在个别不严谨之处。",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops each parameter with plain-language explanation, specific tiers, and concrete verification steps for IMEI, seals, and warranty. B covers the same ground in terse bullets, so its guidance on why each parameter matters and how to check a phone is less developed.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0051651200000000005,
+      "baseCostUsd": 0.0051651200000000005,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "9e43b2d58fdf464cd17f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A is more specific and actionable across the brief: it gives budget tiers, a concrete memory recommendation, a verification procedure, purchase timing, and a checklist. B is more readable and explanatory but more generic and less useful in its concrete guidance.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the brief's practical scope more fully, with specific, decision-ready thresholds, warranty and grey-market distinctions, timing, and a closing checklist, where A stays broader and more generic. A is easier to read, but B better fulfills the request for specific content and clear steps.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.004313620000000001,
+      "baseCostUsd": 0.004313620000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2ad913db094616dcc4f3",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A dramatizes its events with specific action and interior reaction, so suspense and momentum actually build. B mostly summarizes its middle and climax in abstract phrasing, so its tension and characters remain underdeveloped despite a clearer outline.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B dramatizes the brief through physical events, reversals, and escalating set pieces, while A mostly tells the reader about its themes and conflicts. B's action and suspense build on each other, giving it the stronger realized execution.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.006893020000000001,
+      "baseCostUsd": 0.006893020000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "07ca2300f60edfef71d6",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the entire requested arc, with awakening, factions, a mentor figure, the emperor's motives, and the tower climax, whereas B stops after the opening and never reaches the conspiracy, the key characters, or the requested theme. B's prose is more atmospheric, but A's completeness decisively wins.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "A只展开了故事开头，B完整实现了梗概中的主线、势力冲突与主题，并通过皇帝的动机让人性复杂性有了实际的戏剧呈现。两者都有套路化的问题，但B的development明显更充分。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.006514520000000001,
+      "baseCostUsd": 0.006514520000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "d213ab5529a6e6937173",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A把梗概转化为可感知的场景和冲突，如血石觉醒、音律对抗、塔中幻境，并让力量诱惑在具体行动中显现；B主要是概述和情绪标签，缺少敌我交锋与人物选择的展开。",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B dramatizes the central power-temptation theme through specific scenes and a character conflict (Lin Ye's bloodlust and Bai Li's threat), with more sustained set pieces and structure. A mostly summarizes the plot and tells the theme through generic emotional labels.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00731362,
+      "baseCostUsd": 0.00731362,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "ed6cb96900efa941a050",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A enacts characters, events, and escalating conflict across eleven chapters, with specific mechanics and a developed plot. B only summarizes these elements and never stages the drama, so the difference in development is decisive.",
+          "mismatch": false,
+          "confidence": 5
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "A仅以概要方式推进，技能和战斗只被点名而未被展开，世界观揭示缺乏情节支撑；B以分章的完整冒险结构呈现了任务、战斗、真相揭示和现实追击，并把AI与现实边界的主题融入事件，尽管后期力量膨胀和标签化叙述存在明显缺陷，仍是更充分的小说执行。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00902182,
+      "baseCostUsd": 0.00902182,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "1abaaf3a63d3b080562e",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the requested manual more fully, with step-by-step installation, maintenance, safety, and warranty content that matches the brief's emphasis on 具体步骤 and 详细. B is more concrete and polished in tone, but its procedures are shallower and its details less consistent, so A is the stronger execution despite its template-heavy presentation.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B在维护、安全、故障排查与保修条款上的展开更深入，并以指示灯与语音提示对应故障，体现了说明书的专业逻辑；A虽更具体可用，但部件命名不一致且排障与安全的深度有限。",
+          "mismatch": false,
+          "confidence": 2
+        }
+      ],
+      "costUsd": 0.007512620000000001,
+      "baseCostUsd": 0.007512620000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "5f9d82cdc611fbcd3cfb",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the brief with concrete, reader-ready specifics: named models, numbered setup steps, LED meanings, causal troubleshooting and detailed warranty terms. A stays a placeholder template with conditional features, so B's development is decisively stronger despite its inconsistencies and emoji styling.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the requested manual with concrete specifications, a parts table, procedural steps, and a troubleshooting matrix, so a home user could act on it. Draft B delivers mostly placeholders and conditional hedges, leaving the substance undeveloped. A's internal spec contradictions reduce its polish, but they do not outweigh its far greater realization of the brief.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00719762,
+      "baseCostUsd": 0.00719762,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "5731e007aafb602864f2",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A realizes the commission with specific, coherent product content across every requested section, including steps, tables, error codes, and the warranty process. B remains mostly placeholders, so its development is substantially thinner even though its tone is friendlier.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B把参数、配件、按键操作、清扫模式、故障代码和保修流程都落实为具体内容，可直接用于家庭读者；A虽然章节齐全，但大量占位符使多数内容停留在框架层面，发展程度明显较弱。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0056510200000000005,
+      "baseCostUsd": 0.0056510200000000005,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2dc65cf1938eef974d48",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the commission with sustained, enacted events, named characters, and specific tech-martial battles across multiple chapters. Draft B has stronger rhythmic tone but stays at summary level, so its plot, antagonists, and combat remain underdeveloped.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "两篇都达成了题材要求，但 B 把招式与科技的融合落到了具体的身体与战斗机制上，并通过多章经历展开了人物成长和世界观。A 虽有凝练的气势，却以概述代替场景，战斗与成长都停留在宣言层面。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00929412,
+      "baseCostUsd": 0.00929412,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "dcb8c375e11e2da3cc0f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A enacts scenes with concrete events, dialogue, and escalating battles that show the martial-versus-technology clash the brief asks for. B summarizes the same plot in generic exposition with little dramatized action, which leaves it at a clearly lower level of development.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B enacts its events through dramatized scenes, dialogue, and specific combat exchanges, while A summarizes the same beats in generic declarative paragraphs. B's clash of 星陨 martial force against energy shields and ion weapons realizes the requested aesthetic, which A only gestures at.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00656752,
+      "baseCostUsd": 0.00656752,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "e91c4dd43e2a660fefa8",
+      "games": [
+        "B",
+        "A"
+      ],
+      "rated": [
+        "B",
+        "A"
+      ],
+      "excerpt": [
+        "B",
+        "A"
+      ],
+      "reconciled": [
+        "B",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B more fully develops the brief's specific request by giving each life stage a distinct child perspective, and its concrete micro-details and cyclical ending give it sharper craft than A's more generic anecdotes and repeated '卷' framing.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B fully develops every requested stage with lived scenes and dialogue, and its grandchild ending links the stages into one emotional arc. A reduces most stages to slogans and bullet lists and compresses marriage and childbirth into a thin section.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00399162,
+      "baseCostUsd": 0.00399162,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "dc663e330e63205d306e",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops its material through sustained, specific scenes and an emotionally rich parental voice that deepens across the life stages. B covers the brief more explicitly, with child quotes in each section, but its formulaic structure, stock tropes, and slips in wording keep it at a conventional level.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the parental experience through sustained, original imagery and an arc that ends on the grandchild's birth, producing emotional resonance. A is more structured and gives more child dialogue, but its frequent awkward phrasing, the 'two children' inconsistency, and checklist-like stages make its execution more formulaic.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00435142,
+      "baseCostUsd": 0.00435142,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "efbf2721b2f6e93d8878",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops concrete, quantified campaigns and a full account-to-activity workflow, while Draft B mostly supplies bracketed instructions in place of realized content, so A better fulfills the commission.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B 把运营动作、活动流程和可量化成果实际写出来，形成了可信的实战叙事；A 仍停留在填空模板阶段，几乎没有实现简历的功能性内容，两者在完成度上差距明显。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00374032,
+      "baseCostUsd": 0.00374032,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "bce15ee98f680f0a9244",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the commission with concrete, escalating comic scenes and distinct reply voices, while Draft B stays abstract, with generic replies and few specific jokes. The difference in craft and comedic payoff is decisive.",
+          "mismatch": false,
+          "confidence": 5
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B以具体、可复现的事件（搜索词条、控评文案、咖啡馆应援、模拟器封号、错认coser）把吐槽落到实处，并通过多层跟帖的互动形成真实的讨论串。A的笑点多为概括性评价，场景和回复都缺少细节与层次，因此B在发展程度和幽默效果上明显更强。",
+          "mismatch": false,
+          "confidence": 5
+        }
+      ],
+      "costUsd": 0.00351512,
+      "baseCostUsd": 0.00351512,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "d5228ea7cbf9d60938f0",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops one strong comic conceit, the leaked internal task list in the control comments, across multiple escalating examples, with callbacks and a real reply exchange. A recycles punchlines and jumps between gags without building them up.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops its jokes through specific, escalating scenes, including the leaked task-list control comments, the sweet-potato campaign, and the library incident, while B mostly compresses its incidents into summary. A's narrator voice carries the deadpan irony the brief asked for, and its replies extend the joke rather than just reacting to it.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00369022,
+      "baseCostUsd": 0.00369022,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "0ce6d95b598448eafe46",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A stages more concrete, escalating comic events inside a convincing multi-voice forum thread, with irony that lands through situations, such as the funeral-home Weibo and the police cult report. B mostly describes and explains its jokes in essay prose, and its replies add little comedy.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B以多层楼的声口互相回调，并用具体事件（生日误喊、800票清零、被警察盘问）把讽刺落到实处；A虽有框架，但笑点多为直白吐槽，且叙述者频繁直接点评，缺少反讽的张力。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00343722,
+      "baseCostUsd": 0.00343722,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "5473c257ca9f970c28e2",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Both are competent and youth-oriented, but A realizes the brief's requested positive examples with more specific, vivid cases and avoids B's unfinished placeholders and typo. B has the livelier stage voice, but its examples are more generic and the draft reads less finished.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B has a stronger debate framing and more developed, humorous, concrete examples that carry each argument, while A relies more on generic slang and metaphor lists with an unsupported statistic.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00367152,
+      "baseCostUsd": 0.00367152,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "bd7906ddff73678a8091",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "两篇都达到基本完成度，但B在最关键的夺冠段落里提出了真正独特的路线构想，并把身体的失重、发力与伤处的痛感写成同一个动作，细节更具体、更有张力；A的完整性更好，却主要依赖常规的励志叙述和套路化表达。",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the climactic move through sensation and a specific concept (stripping the calcified crust to reach the原生 rock beneath), with the injured arm's pain carried into the final grip. B has the more complete plot but narrates its key moments in summary, so A's craft and embodied realization outweigh its prose excesses.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.008234320000000002,
+      "baseCostUsd": 0.008234320000000002,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "d0e1828e5063a053a742",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A dramatises the satire with specific in-game actions and punchy, rhythmic parallelism that delivers the requested humor; B stays abstract, earnest and repetitive, with little comic payoff.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B fully realizes the humorous nanny premise with specific, game-grounded jokes and a sustained comic voice, while A stays lyrical and only loosely connects its parallelism to the requested satire.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00283292,
+      "baseCostUsd": 0.00283292,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "c9a15234f5473eb2e98e",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the commission through specific in-game scenes and dense, playful parallelism that matches the requested humorous, catchy tone. B is coherent but relies on generic jokes and a lighter, more conventional treatment of the nanny conceit.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops each character's segment with specific, source-anchored comic business and sustained parallel rhythm, whereas A stays at a generic frame with lighter gags, so B shows the stronger craft despite some awkward lines and a sentimental ending.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.0028714200000000004,
+      "baseCostUsd": 0.0028714200000000004,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "bd3d609825cfb28b1a85",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B sustains a distinct absurd logic across every verse and chorus variation, and its lines are more inventive and rhythmically tight. A stays closer to the requested phrases but relies on repeated refrains and a weak meta-ending.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops its absurd premise through escalating, original imagery and a rhythmic performance structure, while B mostly restates the brief's lines in a repeated chorus with meta framing that undercuts the rap's immersion.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0027738199999999998,
+      "baseCostUsd": 0.0027738199999999998,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "cb19d67b8febf44032d1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the commission far more fully: a multi-group control design with a positive comparator, detailed methods, statistical analysis, tabulated results, and a discussion with mechanisms and limitations. B covers the required sections only superficially, with an unsupported figure reference and little analytical depth.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the controlled design more fully, with a positive control, multiple dose groups, a results table, structured discussion, and explicit limitations, while A reduces the experiment to three groups and bare p-values. B's fabricated results are at least disclosed, whereas A presents them as real without caveat.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.004748820000000001,
+      "baseCostUsd": 0.004748820000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "4ae6fb8c6f273a598d0a",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the premise through specific, escalating episodes of the narrator absorbing consumer language and gesture, with surprising, precise imagery. A relies on repetitive abstractions and explanatory mood-labeling, so B is the more fully realized and original commission.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the premise through specific, escalating observations (the badge number spreading, the speech of ad copy, expiry dates eroding memory), while Draft B relies on generic objects, abstract repetition, and explicit labels of its own mood. A's concrete realization gives it far greater craft and engagement.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0027104200000000003,
+      "baseCostUsd": 0.0027104200000000003,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "a6be9cacd0e90cc377b6",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the brief more fully: it explains mechanisms, adds the ICL option for patients who cannot have laser surgery, and gives more context for risks, care, and myths. B is more precise on numbers but thinner and more skeletal in explanation, which matters for a request asking for comprehensive, balanced public education.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B's balanced benefit-and-risk analysis for each procedure, plus its neutral framing of both hype and fear, fulfills the brief's objective-tone requirement more fully. A mainly lists facts without weighing trade-offs.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00543072,
+      "baseCostUsd": 0.00543072,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "72a21229cabe1b724eb7",
+      "games": [
+        "B",
+        "A"
+      ],
+      "rated": [
+        "B",
+        "A"
+      ],
+      "excerpt": [
+        "B",
+        "A"
+      ],
+      "reconciled": [
+        "B",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B gives each procedure explicit benefits and drawbacks, separates contraindications and risks by severity and timing, and adds concrete technical detail. A stays a more generic list with thinner explanation and uneven balance, though B has its own lapses.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B explains the mechanism of regression correctly and treats risks and misconceptions with more depth and calibrated, non-alarmist framing. A is more structured but contains a stray English word, unsourced statistics, and looser medical claims.",
+          "mismatch": false,
+          "confidence": 2
+        }
+      ],
+      "costUsd": 0.00472982,
+      "baseCostUsd": 0.00472982,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "97a9bd9009b3713d1bc4",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A以具体场景、可信的背叛动机和丰富的异星意象展开戏剧冲突，而B多以概述推进情节，人物关系与危机停留在陈述层面，场景没有真正展开。",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B把背叛、武装对峙、重伤与抉择落在具体场景中，人物行动与外星环境相互推动，形成可感的戏剧过程；A则以概述方式交代主要事件，发展深度和现场感明显不足。",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.006145820000000001,
+      "baseCostUsd": 0.006145820000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "77158716e96b562b977c",
+      "games": [
+        "B",
+        "A"
+      ],
+      "rated": [
+        "B",
+        "A"
+      ],
+      "excerpt": [
+        "B",
+        "A"
+      ],
+      "reconciled": [
+        "B",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops a more original premise, a planet-as-organism exchange logic, and makes the exploitation-versus-connection theme structural to the plot. A is longer but repeats the same beats in formulaic scenes, with heavier stage-direction clutter and little original imagery.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B把背叛与信任落实为一条有铺垫、有人物心理转变的主线，艾拉的倒戈与凯尔的动摇使抉择更有分量；A的背叛场景单薄且迅速化解，人物与环保主题的展开都更浅。",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00681992,
+      "baseCostUsd": 0.00681992,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "e35a3925df1212fa293e",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B develops a distinctive voice and vivid, specific anecdotes that make the science engaging, while Draft A stays conventional and formal. Its main flaw is excess length and slang, which do not outweigh the stronger craft.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A realizes the requested conversational, humorous voice throughout, using a vivid hook and playful analogies to make the cognition content feel alive. B delivers an accurate, organized outline but reads as conventional explanatory prose with little comic or personal engagement.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0048571199999999995,
+      "baseCostUsd": 0.0048571199999999995,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "b4af10aac576306bf7bf",
+      "games": [
+        "A",
+        "B"
+      ],
+      "rated": [
+        "A",
+        "B"
+      ],
+      "excerpt": [
+        "A",
+        "B"
+      ],
+      "reconciled": [
+        "A",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A builds suspense through economical scene-setting, a memorable central motif, and a twist that reframes earlier clues. Draft B is longer and more plotted, but its repetitive phrasing, shifting details, and deus ex machina ending weaken its craft.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.01173942,
+      "baseCostUsd": 0.01173942,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "6205fcda49886bc7b90b",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Both drafts are competent, but B delivers a more coherent, tightly built thriller. Its twists (the facial records, decrypted Project Butterfly files, and the butterfly-pin drowning mirror) connect into one causal chain, and Gu's guilt as perpetrator and victim is dramatized rather than merely stated. A has more scenes and atmosphere but a muddled clone mythology and more on-the-nose exposition, which weaken its sustained development.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A has a distinctive, controlled voice and symbolic craft that build meaning through the butterfly and water motifs, while Draft B relies on expository dialogue and stacked reveals that feel conventional and melodramatic.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00599302,
+      "baseCostUsd": 0.00599302,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "65d390367608bb89e5c0",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B has a more distinctive voice and more purposeful motif and twist execution, while A is more complete but relies on stock melodrama and explains its own images. B's shortfall is incompleteness, which is less damaging than A's conventional execution.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops its premise through compressed, original cinematic craft: voice-over, motif, and the drowning mirror are integrated into scene construction. Draft B is more complete but relies on stock dialogue and explanatory exposition, and its twist logic is less coherent.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00535392,
+      "baseCostUsd": 0.00535392,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "105a7536a6d6062c3919",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops enacted scenes, a coherent mystery structure, and realized twists (twin identity, lab files, dashcam reversal of guilt), while Draft B remains fragmentary, with unrealized twists and generic execution.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B develops its premise through sustained unreliable narration, concrete sensory detail, and a coherent reveal chain that pays off its motifs. Draft A remains a thin sketch that announces its twists without enacting them, with flat characters and a typo.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00804032,
+      "baseCostUsd": 0.00804032,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "dd4a3194ddba2a337483",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the protagonist through specific, gaming-relevant episodes and measurable outcomes, delivering the satire with a sustained, distinctive voice. Draft B covers the phase structure but remains generic and drifts away from the requested gaming-traffic expertise.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the brief with a sustained deadpan persona, concrete gaming-KOL examples, and a worked case study that enact the closed-loop theme. A stays at the level of generic phase-by-phase tips with little distinctive realized content.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00512992,
+      "baseCostUsd": 0.00512992,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "09b0a8b9ca7876595c74",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the process more fully, with a sustained protagonist voice and a concrete private-domain closed loop including sample copy, while Draft B's satire is sharper but its loop and process remain thinner.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B sustains the deadpan 'operator' persona across every phase, with comically precise, specific details like the jacket placeholder and intellectually signaling props. Draft A states the same framework more conventionally and undercuts its own deadpan with overtly invented statistics.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0040037200000000005,
+      "baseCostUsd": 0.0040037200000000005,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "fdacc55cb44cd4202a95",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A sustains a vivid, coherent metaphor system and gives specific examples throughout, which the brief demands for general readers. B is more cautious and accurate but largely generic in its explanations, despite A's overstated health claims.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the discovery story through Ohsumi's actual starvation and genetic experiments and sustains vivid, specific examples throughout, while A stays at summary level with generic bulleted claims. B has some overstated findings, but its craft and reader engagement are clearly stronger.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0049599200000000005,
+      "baseCostUsd": 0.0049599200000000005,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "7e5280339f8eb3ca22ad",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B connects the historical secret to the protagonist's own family and builds to a personal emotional break, while A relies on a conventional lookalike jump scare. B's execution is looser and longer, but its dramatic development is more substantial.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A stages the protagonist's live investigation and builds to a personal emotional shock, with the diary and physical evidence tied to her own family. Draft B mostly delivers exposition through the diary and ends on a generic twist with little emotional development.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00399772,
+      "baseCostUsd": 0.00399772,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "405994e0555b56e95662",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B's diary voice and moral arc create stronger emotional resonance and more original craft, with Sam's complicity turning the shock inward. Draft A's shock is more conventional and its family-tree logic is harder to follow, though B's formatting is weaker.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A sustains a true dual-voice structure in which each diary entry changes what Sam sees and feels, and its climax lands as an emotional reckoning with the protagonist's own role in historical silence. B presents its diary as sequential exposition and resolves its shock through an abrupt, contrived family-tree reveal, so it delivers less dramatic development.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00397752,
+      "baseCostUsd": 0.00397752,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "a86db0132adb156849e5",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B more fully delivers the requested suspenseful atmosphere and builds the climax around the protagonist's emotional shock, culminating in the identity reveal, while A relies on more predictable beats and expository diary voice-over despite its cleaner logic.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A delivers the requested suspenseful atmosphere and builds to a sharp emotional shock that is structurally central to the piece, with the voice-over and live investigation escalating together. Draft B is more logically tidy but expository, with a muted climax that resolves into relief rather than shock.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00433302,
+      "baseCostUsd": 0.00433302,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "48433e569d36c87c5d8b",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B shows more genuine scientific reasoning: it reconciles a regression optimum with the empirical data, reports the statistical checks and correlation sample size, and derives a justified range. A is more complete and readable but relies on a more conventional, less analytically grounded presentation.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "",
+          "mismatch": false,
+          "confidence": 0
+        }
+      ],
+      "costUsd": 0.00564302,
+      "baseCostUsd": 0.00564302,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "0bcaf1760cbc799fa3ef",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B honors the Chinese, colloquial brief and develops each example into vivid, emotionally resonant scenes with metaphors that recur and build to the closing. A uses English, misses the requested language and register, and offers more generic, less developed content.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A realizes the commission in the requested Chinese colloquial voice, with specific, dramatized vignettes and metaphors developed across the speech. B switches language, relies on generic summaries and invented names, and carries an incorrect graduation year, so A is decisively more developed.",
+          "mismatch": false,
+          "confidence": 5
+        }
+      ],
+      "costUsd": 0.00325732,
+      "baseCostUsd": 0.00325732,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "9ffccd4bffffad21e886",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft A ignores the explicit requirement for a colloquial Chinese speech and is written in English. Draft B fulfills the language, voice, and metaphor requirements with embedded, emotionally specific storytelling, which is the decisive difference in development and craft.",
+          "mismatch": false,
+          "confidence": 5
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A follows the requested language and register, and its three stories are dramatized with specific sensory and emotional detail. Its metaphors are developed through the scenes they illuminate. Draft B is in English, so it fails the colloquial Chinese requirement, and its examples are summarized and generic.",
+          "mismatch": false,
+          "confidence": 5
+        }
+      ],
+      "costUsd": 0.0031882200000000003,
+      "baseCostUsd": 0.0031882200000000003,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "26c3f3c5330cebeb0387",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B fulfills the requested colloquial Chinese voice and develops its three stories with specific, emotionally resonant detail and recurring metaphors. A is competent but in English, with more generic examples and a more formulaic, slogan-driven rhythm.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops its three stories through specific, enacted scenes and a consistent colloquial Chinese voice that fits the requested style. B summarizes the examples in generic English boilerplate and repeats its slogans without developing them.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00444072,
+      "baseCostUsd": 0.00444072,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "940ecafd5cfce547c277",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B keeps the dark, self-loathing premise coherent from premise to ending, with original mechanics and cast dynamics that generate moral tension. A develops strong early scenes but drifts into a repetitive, redemptive, abstract resolution that dilutes the commissioned tone.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A sustains the requested dark tone and the protagonist's self-loathing across a coherent arc structure that ends in grim self-sacrifice. B starts with genuine dark material but abandons it for a multiverse synthesis that dissolves the inner conflict into a redemptive cosmic resolution, with repetitive prose and an out-of-fiction note.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.012796020000000002,
+      "baseCostUsd": 0.012796020000000002,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "9a0ec0ed193fdbcb1b8d",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops its content through specific, emotionally resonant scenes and sustained vivid craft, while B covers the same requested points at a more abstract, template-like level with less engagement. A's factual overreach is a real flaw, but its execution is more developed and persuasive.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the brief with sustained narrative, specific scenarios across all requested domains, and emotional resonance, while A stays general and predictable. B's fabricated-seeming details and repetitive phrasing limit its polish, but its craft is clearly more developed.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00384372,
+      "baseCostUsd": 0.00384372,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "87f62e22527d29b156ac",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops feasibility and specificity more convincingly, with a named community, a concrete timeline, leverage, and risk mitigation. A is complete and arithmetically sound but generic and bloated. B's budget total error is a real flaw, which keeps the margin modest.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops specific, realized content: named location, measured baselines, linked KPIs, co-funding, and risk handling. B's broader scope and stronger rhetoric rest on generic claims and a personnel budget that does not reconcile.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00540532,
+      "baseCostUsd": 0.00540532,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "f8024b6f6f60fd3a5ec8",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops each requested element with specific staffing roles, phased timelines, detailed risk mitigations, and measurable outcomes, while Draft B stays at outline level with an unsupported budget and only three brief risks. A's arithmetic errors are real but do not outweigh its far greater depth.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops each requested element with concrete, usable substance: a week-by-week lecture sequence, role-specific staffing estimates, itemized costs, and probability-rated risks with layered mitigations. A names the same components but leaves them as brief outlines, so B better meets the brief's demand for a comprehensive, meticulous proposal despite its arithmetic inconsistencies and verbosity.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.009019220000000001,
+      "baseCostUsd": 0.009019220000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "74f4748a7a00ddf8ce2d",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A dramatizes the brief through enacted scenes, dialogue, and battles, while B remains a synopsis that summarizes its key negotiation and battle instead of rendering them. Despite A's repetition and conventional prose, its development of the protagonist's rise and isolation is substantially fuller.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B realizes the commission as an actual novel with enacted negotiations, battles, and a multi-year arc, which matches the brief's demand for sustained scenes, verbal sparring, and battle detail; Draft A remains an outline with summarized events, though it has sharper strategic specificity and a stronger real-world framing.",
+          "mismatch": false,
+          "confidence": 2
+        }
+      ],
+      "costUsd": 0.01375152,
+      "baseCostUsd": 0.01375152,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "b399da24-85cc-4242-b9a9-f11bbe8be0c2",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "ebf7409185f6d88ff350",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B turns the commoner's wits into enacted, specific schemes (forged letters, staged staff, firecrackers that mimic Eagle Guard signals) with a sharp, original voice, while A is bloated and repetitive, relying on recurring beats and stock phrasing that dull the tension.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops one tight, escalating plot with a distinctive first-person voice and concrete, payoff-driven props, which realizes the tense commoner comedy. B's length produces repetitive escalation and a drift into generic mediation, so its craft is less sustained.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.013536520000000002,
+      "baseCostUsd": 0.013536520000000002,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "8a1bfb7ff0c8c44bbc8d",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B supplies verifiable program specifics and articulated leadership ideas, while A relies on generic assertions and filler. That difference in developed, specific content decides the comparison.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A delivers specific, dated, technically grounded content on the Two Bombs program and the MIT/Caltech path, which the brief emphasizes. B relies on generic leadership and legacy claims with little concrete development and contains more invented or inaccurate specifics.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.007987020000000001,
+      "baseCostUsd": 0.007987020000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "a223f611a92a6605ee86",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B more fully realizes the brief's specific demands: it provides substantially more technical detail on the Two Bombs, One Satellite program and a concrete, multi-part account of leadership philosophy, while Draft A offers stronger prose but thinner technical and leadership development.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the technical content the brief explicitly asks for, with concrete missile lineage, guidance and propulsion contributions, and a structured leadership philosophy. Draft B is more readable but treats the Two Bombs, One Satellite program in broad strokes and includes a factual error about the 1964 test delivery. A's depth and objectivity outweigh B's narrative polish.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00563482,
+      "baseCostUsd": 0.00563482,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "d70c2841955e728ef549",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Both are competent, but A better delivers the requested sharp, direct questioning and sustains the myth frame through to a pointed, personal closer. B is more developed in scope, yet its heavy reliance on unverifiable quotes and verbose, lecturing questions undercut its credibility and the brief's tone.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B integrates the Prometheus/Icarus theme into its structure and delivers the requested direct, sharp questioning more consistently. A is more developed in evidence and pushback guidance, but its repetitive, over-embedded questions are less sharp and less distinctive.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.004369420000000001,
+      "baseCostUsd": 0.004369420000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "8331a6ad-cac3-4289-9b4a-1bfad81ebf92",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "edc46d8d8f0525a081eb",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A anchors the whole interview in one recent, concrete episode and sequences probes to draw out the full narrative, with rapport-building, timing, and interviewer guidance. B offers broader but more generic prompts, several closed, without a comparable storytelling structure.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the interview as a usable, sequenced research instrument, with consent, timed sections, probes, and a story-anchored core. A delivers a competent list of questions with little method or conversational structure.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00338842,
+      "baseCostUsd": 0.00338842,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "4447da53d93227981c9e",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A grounds its questions in Southeast Asian context (cash-on-delivery, family meals, weather, local cuisine) and develops a richer narrative probe for emotions at each journey step, giving the interviewer more distinctive, story-eliciting material than Draft B's more generic prompts.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Both are structured and open-ended, but B grounds its questions in Southeast Asian payment, family, and weather contexts and adds emotional narration prompts with illustrative insights. A remains a generic, competent template, so B's specificity and resonance give it the decisive edge.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.0031464200000000005,
+      "baseCostUsd": 0.0031464200000000005,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "747d6ef09f7a55ba883a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops each requested element with sustained specificity, structure and a more resonant closing synthesis, while Draft B stays broad and underdeveloped. A's fabricated statistics are a real flaw, but they do not outweigh its greater craft and depth.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops its ideas more deeply and originally: it analyzes specific paradoxes, gives the case studies narrative arcs, and replaces the conventional train image with a richer stewardship metaphor. A is competent and tidier but stays generic in its treatment of the same content, despite B's length overrun and heavier unverified statistics.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.0056085200000000005,
+      "baseCostUsd": 0.0056085200000000005,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "44cf027ab5e997d7282f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A builds a more sustained, original architecture: the train metaphor is developed through to a torch-and-conductor resolution, and the 4-L lexicon and cosmic-compass section give the speech distinctive shape. B's Cindy arc is better enacted, but its other case study and its metaphors are thinner, so A's craft and realized content are the more developed.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops each requested component with more specific, actionable content, correctly names the MIT course, and builds a fuller argument through the 4-L framework and the cosmic turn, while A is more natural as speech but thinner in development and misnames the course. B's fabricated statistics and list-style formatting temper the margin.",
+          "mismatch": false,
+          "confidence": 2
+        }
+      ],
+      "costUsd": 0.005016420000000001,
+      "baseCostUsd": 0.005016420000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "c954230369979c271c4a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops each character's inner conflict through distinct philosophical reflection and gives the endings their own moral weight, while B mostly summarizes the brief in muddled, generic prose with thin, synopsis-level endings.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops each character's inner conflict through specific dramatized moments and distinct aphorisms, and its three endings weigh moral costs, such as the Frenzied Flame as mercy that unmakes choice. A offers only one-paragraph sketches with stock imagery and thin endings, so B is the more fully realized commission.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.004273020000000001,
+      "baseCostUsd": 0.004273020000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "88f369d25b7b0f3e7253",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B sustains deeper inner conflict for each named character and gives each ending a developed moral reflection, which better meets the brief's demand to explore inner conflicts and moral complexity. A is more poetically concise but treats the characters and endings more briefly.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the requested interior, philosophical voice more fully. Its character sections explore inner conflict from within the Tarnished, and its endings are reflective, weighing moral cost. B is better organized but treats the endings and inner conflicts more briefly and conventionally.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00434692,
+      "baseCostUsd": 0.00434692,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "c0e20fd3000f7cfa0f9f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops each character's inner conflict through concrete scenes, imagery, and dialogue, and it gives all endings real moral weighing. Draft B mostly summarizes its characters and states its themes in brief aphorisms, leaving its endings underdeveloped.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops each character's inner conflict across extended passages and gives each of its multiple endings a moral reckoning. A offers the same premises in brief, summarized form, so its endings and battles feel less realized.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.005585920000000001,
+      "baseCostUsd": 0.005585920000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "6c5988196a136318c977",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops its characters through dramatized, image-driven moments and a consistent poetic voice, while B summarizes inner conflict in generic prose and abstract questions. A's philosophical musings emerge from the scenes rather than sitting beside them.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B turns the character conflicts into imagery and staged decisions, and its endings carry specific moral costs for each figure. A states its themes and resolves them through summary, so B's sustained, distinctive execution is the decisive difference.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00379882,
+      "baseCostUsd": 0.00379882,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "61dcf707deafa5ebf140",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the brief more fully: its cooking examples split fresh and frozen timings, its cleaning and maintenance routines are specific and staged, and its troubleshooting is more complete. Draft B is more concise in tone but has a leftover logo placeholder and thinner, more generic development in cleaning, troubleshooting, and features.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B better executes the 'clear, concise' brief: it organizes cooking examples by specific food with fresh and frozen variants, and it ties oil-usage guidance to the low-oil feature in a practical way. A is comprehensive but repeats cleaning and oil advice and leaves a visible placeholder, so it reads less like a polished, scannable manual.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.005970619999999999,
+      "baseCostUsd": 0.005970619999999999,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e2ed52cc2fc11895657b",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the commission more fully, with concrete preset programs, a categorized cooking chart, a complete warranty, and troubleshooting, while B is more concise but leaves placeholders and thinner substance, so A delivers a more usable, realized manual despite its verbosity.",
+          "mismatch": false,
+          "confidence": 2
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B more fully realizes the brief's named features, giving low-oil cooking and versatile functions their own developed sections, and its cooking guide and warranty are organized more thoroughly. A is tighter and more practical in places, but its feature coverage is thinner.",
+          "mismatch": false,
+          "confidence": 2
+        }
+      ],
+      "costUsd": 0.00579432,
+      "baseCostUsd": 0.00579432,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "2755803185e240c8b123",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Both drafts cover the required sections at a similar competence level. B wins because its specific, practical operating guidance and tighter, manual-style prose better fulfill the request for a concise, informative household manual, while A relies on a more generic template with repetitive sections.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops its operating guidance with more specific, usable detail: a consistent quick-reference chart, clearly sequenced steps, and tangible specs and warranty mechanics. Draft B is equally complete in scope but has visible formatting defects and more generic content, so A is the more polished, practical manual.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.005204820000000001,
+      "baseCostUsd": 0.005204820000000001,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "3bf25a90b027dde837eb",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B dramatizes the psychological conflict through specific, economical scenes and a sharper voice, while Draft A repeats the same emotional beats with generic imagery and explained feelings. B's character tensions and grit are more developed per paragraph.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A dramatizes the brief with economy and a distinctive voice, and its climax is staged with clear stakes and payoff. B is sprawling, repetitive, and inconsistent in names and events, so its extra length does not translate into developed craft.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.012919219999999999,
+      "baseCostUsd": 0.012919219999999999,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e0787754d8b5399f4513",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops its argument through a sustained, specific human narrative and concrete mechanisms (surge pricing timing, acceptance-rate deactivation, pick-rate pressure), while Draft B remains abstract and generic in both its algorithmic and social-cost sections, so A realizes the commission with markedly greater craft despite its unverified statistics.",
+          "mismatch": false,
+          "confidence": 4
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B develops its argument through a sustained, emotionally specific narrative that recurs throughout and gives the empathy real weight. Draft A relies on generic framing and sparse anecdote, so B's craft and resonance decisively surpass it, despite B's unverified statistics.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.00346772,
+      "baseCostUsd": 0.00346772,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "a4e36efe-92c7-4f32-8d59-c36d53b5afe4",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "58a6d394451171b64827",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B realizes the brief with concrete, operational detail (sorting standard, zone dimensions, funding split, KPIs, trigger-based contingencies) and more original execution, whereas A is complete but relies on placeholders and generic programming.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the brief with concrete, interlocking operational detail (sorting standard, timeline, run-of-show, reconciled budget, KPIs), while B remains a conventional template with placeholders and vaguer specifics.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.005553819999999999,
+      "baseCostUsd": 0.005553819999999999,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e4657fc72efd60e3d5bb",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "Draft B better realizes the brief's specifics: it defines target participants and the event time and venue explicitly, assigns responsibility for each schedule slot, and offers more original, purpose-built features. Draft A is more expansive but leans on generic promotion and resource-unrealistic highlights.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops the commission with concrete, operational detail: specific workshop slots, an hour-by-hour run-of-show, a classification scheme with real grading criteria, and a budget that reconciles arithmetically. Its innovations are distinctive and tied to the event's purpose. Draft B covers the same headings but in generic terms, with an internal date error, placeholder contacts, and a conventional innovation list. The difference is in specificity and originality of craft, not in coverage.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0053934199999999995,
+      "baseCostUsd": 0.0053934199999999995,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e9d0dc6aa0543ecfecea",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops each requested component in greater operational depth, including named zones, timed programming, registration logistics, specific risk triggers and a complete budget. Draft B is more concise and has cleaner tables, but its activities and follow-up are sketched rather than developed, so A better realizes the commission.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops operational logic more deeply, with structured risk triggers, a fuller donation-processing pipeline, and a dedicated event-details section, while A remains a sound but more compressed outline.",
+          "mismatch": false,
+          "confidence": 3
+        }
+      ],
+      "costUsd": 0.005095219999999999,
+      "baseCostUsd": 0.005095219999999999,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "d6e86cb7f2633db38c0b",
+      "games": [
+        "B",
+        "B"
+      ],
+      "rated": [
+        "B",
+        "B"
+      ],
+      "excerpt": [
+        "B",
+        "B"
+      ],
+      "reconciled": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops an original, committed argument: it makes the 'great' question concrete through creative vision, uses Nick's withholding as a mechanism of persuasion, and answers the era-or-character question with a reasoned verdict. A relies on recurring motifs and a hedged conclusion.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "Draft A develops an original, argued position (character as the primary blueprint of tragedy) with sharper craft in its symbol and narrator analysis, while Draft B mainly summarizes and resolves the central question with a conventional 'both' answer and rhetorical repetition.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.00485582,
+      "baseCostUsd": 0.00485582,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "dfd576463efd07434b85",
+      "games": [
+        "A",
+        "A"
+      ],
+      "rated": [
+        "A",
+        "A"
+      ],
+      "excerpt": [
+        "A",
+        "A"
+      ],
+      "reconciled": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "rated": "A",
+          "excerpt": "A",
+          "reason": "A develops the experiment with sustained rigor, from a fully specified CRD and statistics through to a mechanistic discussion, thresholds, and limitations. B covers the same required elements but in thinner, less explained form with placeholder figures.",
+          "mismatch": false,
+          "confidence": 3
+        },
+        {
+          "winner": "B",
+          "rated": "B",
+          "excerpt": "B",
+          "reason": "B develops the experimental design and analysis with reproducible detail, internally consistent figures, and a mechanistic discussion tied to field implications. A is complete but conventional, with a germination figure that contradicts its own results and an unexplained timeline.",
+          "mismatch": false,
+          "confidence": 4
+        }
+      ],
+      "costUsd": 0.0054410199999999995,
+      "baseCostUsd": 0.0054410199999999995,
+      "reconciliationCostUsd": 0,
+      "readCostUsd": 0,
+      "missing": 0,
+      "resolutionMissing": 0,
+      "id": "aa61c081-e59b-4673-b6a5-778789d390ef",
+      "group": "en",
+      "label": "A"
+    }
+  ]
+}

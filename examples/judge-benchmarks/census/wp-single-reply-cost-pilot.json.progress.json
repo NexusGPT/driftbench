@@ -1,0 +1,29 @@
+{
+  "completed": 10,
+  "target": 10,
+  "newSpendUsd": 0.09084872000000002,
+  "newCalls": 27,
+  "latest": "ebf7409185f6d88ff350",
+  "summary": {
+    "metric": "accuracy (LongJudgeBench, over games)",
+    "value": {
+      "estimate": 0.3,
+      "lower": 0.1454772448676043,
+      "upper": 0.5189728183535235
+    },
+    "n": 10,
+    "byGroup": {
+      "en": {
+        "n": 10,
+        "value": 0
+      },
+      "zh": {
+        "n": 10,
+        "value": 0.6
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.9
+  },
+  "costPer100": 0.9084872000000003
+}

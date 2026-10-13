@@ -1,0 +1,4029 @@
+{
+  "variant": "criteria",
+  "split": "dev",
+  "model": "haiku",
+  "items": 90,
+  "prompts": 49,
+  "summary": {
+    "metric": "accuracy (LongJudgeBench, over games)",
+    "value": {
+      "estimate": 0.6166666666666667,
+      "lower": 0.5439052747311439,
+      "upper": 0.6845524424204796
+    },
+    "n": 90,
+    "byGroup": {
+      "zh": {
+        "n": 98,
+        "value": 0.7346938775510204
+      },
+      "en": {
+        "n": 82,
+        "value": 0.47560975609756095
+      }
+    },
+    "missing": 1,
+    "positionConsistency": 0.8444444444444444
+  },
+  "voted": {
+    "metric": "accuracy (LongJudgeBench, over games)",
+    "value": {
+      "estimate": 0.6333333333333333,
+      "lower": 0.5608324110827578,
+      "upper": 0.700262122804812
+    },
+    "n": 90,
+    "byGroup": {
+      "zh": {
+        "n": 98,
+        "value": 0.7448979591836735
+      },
+      "en": {
+        "n": 82,
+        "value": 0.5
+      }
+    },
+    "missing": 1,
+    "positionConsistency": 0.8555555555555555
+  },
+  "strict": {
+    "metric": "accuracy (LongJudgeBench, over games)",
+    "value": {
+      "estimate": 0.6055555555555555,
+      "lower": 0.5326680819105162,
+      "upper": 0.6740317574171432
+    },
+    "n": 90,
+    "byGroup": {
+      "zh": {
+        "n": 98,
+        "value": 0.7244897959183674
+      },
+      "en": {
+        "n": 82,
+        "value": 0.4634146341463415
+      }
+    },
+    "missing": 1,
+    "positionConsistency": 0.8111111111111111
+  },
+  "costUsd": 0.65915516,
+  "costPer100": 0.7323946222222222,
+  "uniqueCostUsd": 0.6305608600000004,
+  "uniqueCostPer100": 0.7006231777777783,
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 229,
+  "results": [
+    {
+      "rowKey": "c1ed25b40c935739b7c1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "Reply A more fully develops every required section, with richer operation, payment, care, safety and FAQ content and a clearer waterproof boundary, so it better delivers a usable manual. Its weaknesses are heavy template placeholders and some jargon, which work against the consumer-friendly tone. Reply B is cleaner, more readable, and better matches the plain-language requirement, and its fixed specs suit a finished product. Still, its thinner coverage of care, safety and FAQ makes it the less complete answer for this request."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "B fulfils the commission more fully: it offers operable step-by-step guidance for payment, sleep, and pairing, and a warranty with detailed exclusions and claim steps, while reinforcing the no-swimming boundary throughout. Its main weakness is template placeholders and some jargon (PPG, TPU, BLE), which A avoids by being cleaner and more finished-looking. A is tidy and compliant but thinner on the requested features and sections. A reader wanting a finished, usable manual would likely prefer B despite its unfinished parts; a reader who values polish and no placeholders could reasonably prefer A."
+        }
+      ],
+      "costUsd": 0.00572313,
+      "missing": 0,
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2dc32b654e3a031a8105",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "B"
+      ],
+      "strict": [
+        "A",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "A is the stronger deliverable: it reads as a complete, usable manual with concrete, operable instructions, and its specs and warranty are internally consistent with the waterproof boundary. B is broader and warmer in tone, with more FAQ items and a clearer payment flow, and its avoidance of invented specifications is defensible. But its parameter section and footer are largely unfilled placeholders, and its operation guidance is generic, so a reader wanting a ready-to-print manual would likely prefer A. The strongest case for B is that a consumer-friendly, broader manual with no fabricated numbers better respects the brief's unspecified details."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "Both manuals cover every required section and state the waterproof limit. A's decisive advantage is that it respects the brief's explicit instruction not to presume unspecified model, parameters, or warranty terms, and it avoids inventing contact details that could mislead consumers. B is more concrete and more immediately usable as a finished document, with clearer steps and sharper FAQ fixes. The strongest case for B is that a reader wanting a ready-to-print manual would find B more useful, while A needs substantial placeholder filling. I still favor A because B's fabricated model, grade, and hotline conflict with the brief's stated constraints."
+        }
+      ],
+      "costUsd": 0.00554646,
+      "missing": 0,
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2d3cb3fcce38d1a22be1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": ""
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Both replies cover every requested topic in Chinese, so the decision rests on depth and rigour. Reply B gives the concrete specifications, degradation mechanics, RTH sequence, and comparison data that an industry reader would need, while Reply A relies on vague or unsupported ranges. Reply B has some stated-as-fact figures and rounded values that a strict reviewer would question, so it is not flawless. The strongest case for Reply A is that it is shorter, avoids dense specification lists, and makes fewer precise claims that could be wrong, but that restraint comes at the cost of being much less useful to the stated audience."
+        }
+      ],
+      "costUsd": 0.00716026,
+      "missing": 0,
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "20fe4f0e140c13b70c1a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "The decisive difference is rigor. B looks more quantitative, but many of its figures are unsupported or wrong, such as invented test data, a fabricated signal-loss tier model, and incorrect battery capacity and storage specs. For an industry audience asking for 'professional and rigorous' analysis, that is a serious defect. A explains mechanisms, covers degradation, RTH, and buying tradeoffs more fully, and avoids fabricated measurements. The strongest case for B is its concision and clean structure, which make it easier to skim and may suit a reader who wants a quick reference. Even so, a reader who relies on its numbers could be misled, so A is the better choice."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Reply A looks more quantitative, but its test figures and some spec claims (four-direction avoidance on Mini 3 Pro, 2GB storage, wind rating, dynamic-range stops) are unsupported or wrong, which is a serious failure for a rigorous review aimed at industry professionals. Reply B covers every requested item with more explanatory depth (RTH sequence, avoidance strategy, D-Log M rationale, segmented buying advice) and avoids invented measurements. Its weaknesses are verbosity, some promotional language, and few hard numbers on dynamic range or obstacle sensitivity. The strongest case for A is its tighter, more scannable format and its explicit quantitative framing, which a reader who values numbers over verifiability might prefer."
+        }
+      ],
+      "costUsd": 0.006945659999999999,
+      "missing": 0,
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "fff14e54a5c7f9b5b3e1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "A is the piece a reader asking for a xianxia novel would prefer, because it dramatizes the requested journey: distinct trials, character choices, escalating battles, and a payoff at Guixu. Its weaknesses are real: the theme is preached repeatedly, the climax leans on conversion rather than hard conflict, the 堕魔鼎 is underused, and the afterword breaks the fiction. B is tighter and avoids that preachiness, and its atmospheric prose is more elegant. But it reads as a synopsis with no enacted scenes, dialogue, or specific trials, so it fulfils the checklist without delivering the experience. A's advantage in fulfilment and specificity outweighs its bloat and its constraint slip."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The request asks for a 小说 that dramatizes adventure, combat, growth, and friendship. B delivers enacted scenes, dialogue-driven choices, and a multi-chapter arc that A only summarizes. B's flaws are real: the 堕魔鼎 thread is dropped, the artifact count is inconsistent, and the closing commentary is unnecessary. The strongest case for A is its compression and tighter, less bloated prose, but it never gives the reader the story itself, so B is the reader's better choice."
+        }
+      ],
+      "costUsd": 0.01024816,
+      "missing": 0,
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "cb420f160063912fc1d5",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "A has the richer prose and atmosphere, and its 相生相克 realization grows out of the fight. But it stops before the 决战 result and 天链 repair, and it skips the cross-realm treasure journey, so the commission is unfinished. B is weaker in craft, with generic action, a deus ex machina mother reveal, and a quick 冥主 conversion, yet it completes the requested arc from collapse to repair and states the harmony theme. A reader who asked for a complete 仙侠 story with a 决战 and repair would prefer B. The strongest case for A is that it is the more vivid and better-written piece, and a reader who valued atmosphere over a finished plot might choose it."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The decisive tradeoff is completion. The request explicitly asks for the protagonist to defeat the enemy at Guixu and restore the heavenly chain, and Reply A delivers that full arc, if with thinner description and convenient plot turns. Reply B is more vivid, with richer environmental atmosphere and sharper battle choreography, which is the strongest case for it. But it stops before the climax resolves, leaving the Netherlord undefeated and the chain unrepaired, so it misses a core requirement."
+        }
+      ],
+      "costUsd": 0.01140816,
+      "missing": 0,
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "f6c29e1b9258ef761fe5",
+      "games": [
+        "B",
+        "A"
+      ],
+      "voted": [
+        "B",
+        "A"
+      ],
+      "strict": [
+        "B",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Both reply in Chinese and cover all requested elements. B has the edge on coverage and structure: its ceremony and banquet timing is more granular and internally consistent, and it covers cocktail and send-off segments. It also avoids inventing client facts. A's strongest case is concreteness: it gives real budget totals, venue dimensions and item-level cost tactics, and its couple narrative is more vivid. But its percentage budget sums to 105%, which undermines the 'clear, reasonable allocation' requirement. B's budget is weaker in its own way, using 'X' and ranges with no currency totals, but it has no arithmetic error. On balance B is the more reliable plan a reader would take to the planning stage."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "B gives a more specific, operational plan: a clear budget total with per-line amounts, a timed programme in ascending clock order, and an execution section. Its warmth is rooted in a concrete couple story that A lacks. A's strengths are its clean sectioned layout, a fuller set of venue alternates and a more conventional, easily copied tone. Its budget is percentage-only and its timeline has overlaps, so B is the better-fitting proposal for a reader who wants a plan they can act on."
+        }
+      ],
+      "costUsd": 0.00732186,
+      "missing": 0,
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "29847a65e7cc65216d09",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "A delivers a more complete and internally consistent planner's document: its ceremony and banquet timeline is minute-level and sequenced, its décor and lighting ideas link back to the 星辰 concept, and each budget category has specific cost controls. B covers all headings in more compressed form, but its timeline contradicts itself (接亲 at 9:30 versus ceremony at 14:30, and the 敬酒 and 派对 ordering), and it presents an invented venue as fact. The strongest case for B is its concision and clean tabular budget, which is easy to scan, and its shorter length may suit a reader who wants a quick overview. Constraints are tied because no hard constraints were set and both are in warm Chinese."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Reply B delivers a fuller, more usable planning document that meets each requested element with depth, including a minute-level ceremony and reception program and a structured execution plan. Reply A is concise, with a clean budget that sums correctly, but its timeline is muddled and its treatment of the ceremony and cost control is thin. Reply B's weaknesses are verbosity, slogan-heavy headers, and a budget given as ranges. A reader who wants a concise, budget-precise plan might still favor A's exact numbers, but B better matches a request emphasizing warmth, professionalism and detailed execution."
+        }
+      ],
+      "costUsd": 0.00796766,
+      "missing": 0,
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "1527c612353efdeef895",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Reply B delivers a finished, quantified plan: a complete 150,000 RMB budget that sums correctly, specific floral and equipment details, and phased timelines. Reply A is structurally sound but its budget is entirely placeholders and its advice is generic, so it falls short on the request's 精准 and 执行能力 expectations. The strongest case for A is that its placeholders avoid invented specifics and its tone is less cluttered by emoji and heavy formatting, which suits a formal planning document; but the request asked for a concrete, actionable proposal, and B better meets that."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "Reply A fully delivers a concrete, usable plan with a named venue, quantified layout, a budget that sums to a total, and minute-level timing, which matches the request for precise, detailed, and executable planning. Reply B is more templated and leaves the budget and venue as placeholders, undermining the 'clear, reasonable budget' requirement. The strongest case for B is that its placeholders make it adaptable to any couple, and its ceremony-to-banquet tables are cleanly organized with a more restrained tone and fewer decorative emojis, so a reader wanting a fillable template might prefer it; but that reading does not match a request asking for a finished, precise plan."
+        }
+      ],
+      "costUsd": 0.00656956,
+      "missing": 0,
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "560bbd798a3065442e11",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "tie"
+          },
+          "reason": "The decisive difference is the brief's explicit 卧底/暗访 and reordering beats: Reply A stages disguised undercover work, covert filming and a city reconstruction, and it ends with a fuller coda. Reply B has the stronger 老李 courage arc and a neat setup-payoff, but its protagonist is often rescued and its antagonist fades in act three. Neither includes a true frame-up against Lin Yu, so that does not separate them. The strongest case for B is its tighter character arc and cleaner dramatic logic."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "tie",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "B covers more of the requested beats in full: a clearer undercover method, a fuller intimidation and evidence-destruction sequence, 老李's courage paid off in court, and an explicit closing reflection on the endless war against corruption. A's strongest asset is its direct confrontation with the mayor and its tighter, more economical structure, which gives its antagonist more on-screen presence than B's. But A leaves the coda and the frame-up crisis thinner, so B better fits what this commission asks for."
+        }
+      ],
+      "costUsd": 0.005800979999999999,
+      "missing": 0,
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "94330bfa86a49014987a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "tie",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A better delivers the requested artifact, a dramatized screenplay with on-screen confrontations, a live-stream climax, and a clear causal chain from the opening incident to the coda. Reply B covers a similar set of beats but as a treatment, summarizing the arrest and publication and giving the antagonist almost no presence. Both omit an explicit frame-up, so coverage is roughly even. The strongest case for B is its tighter, more compact outline and its explicit bribe-offer beat, which A only implies, but A's dramatic execution and specificity outweigh that."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "B is the better screenplay: it uses actual scene format, dramatizes undercover recording and multiple intimidation beats, shows the mayor directly, and builds a clear causal chain from the compensation discrepancy to the livestream and arrest. A's advantages are that it is tighter, avoids B's trailing meta-commentary and its repetitive 老李 evasions, and covers each listed beat in fewer words. But A reads as an outline with thin scenes and no on-screen antagonist, which weakens the dramatic experience the request asks for. Neither stages a clear frame-up, so that gap does not separate them."
+        }
+      ],
+      "costUsd": 0.00624426,
+      "missing": 0,
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "b1d101703b01070640ed",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The request asks for a 剧本 (screenplay) that enacts the arc from incident through undercover work, witness recruitment, frame-up, justice, and coda. Reply A delivers that artifact, with concrete scenes, dialogue, and a causal chain from the bridge collapse through 老李's evidence to the mayor's arrest. Reply B is a hedged outline in which most beats are optional ('可能'), the climax is a single line, and it adds brainstorm options. The strongest case for B is breadth: it covers more story territory, offers more worldbuilding (the 市纪委 ally, the 受害群众 subplot), and gives the coda a more developed reflection. But breadth in a planning document does not substitute for the dramatized script the user asked for, so A wins."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "tie",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The request asks for a 剧本 with an arc from opening to resolution. Reply B delivers an enacted, scene-based screenplay with setups and payoffs and a coda, which fits that. Reply A is a thorough but hedged outline that repeatedly says 'may' and presents options instead of dramatized events. Its strongest case is breadth: it develops more supporting characters, themes, and the reflective coda, and a reader wanting a series plan would value that. But the brief asks for a screenplay, and Reply B is the one that actually is one, even though its characters are thin and its 'city reordering' beat is brief."
+        }
+      ],
+      "costUsd": 0.00520196,
+      "missing": 0,
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "3826eb9f58c23cdbfafd",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A better meets the brief's core demands: a chronological, vivid biography grounded in specific 史料 details, with analysis woven through the narrative. Its main flaws are the omission of 鸿门宴 and a more rhetorical voice than the 客观 request suggests. Reply B is more restrained in tone and gives a more balanced treatment of the legacy, which a reader prioritizing objectivity might value. But its generic claims, thin event narration and hedged ending make it the weaker essay."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Reply B meets every element of the request with concrete, source-grounded narration: vivid chronological scenes, causal analysis of failure, and specific evidence for historical standing and cultural afterlife. Its main weakness is a debatable superlative about 本纪 and some dramatic embellishment. Reply A is accurate in outline but generic, hedged and repetitive, with little of the requested vividness or evidenced inference. Its one strength is restraint: it avoids B's occasional dramatic flourishes and reads more like a neutral summary, which some readers might prefer. That does not outweigh its thinness on coverage and specificity."
+        }
+      ],
+      "costUsd": 0.006117559999999999,
+      "missing": 0,
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "ce96cf84a694bad7e635",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "B better satisfies the request's central demands: vivid, chronological narration grounded in 史记 scenes and quotations, followed by deeper analysis of personality, success and failure, and influence. Its flaws are rhetorical overstatement and some repetition, and its length is not what earns the win. The strongest case for A is its restraint: it is more objective, more compact, and avoids B's sentimental flourishes, which some readers might prefer for a 客观陈述 biography. But A's analysis and imagery are thinner, and that gap matters more for this commission."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "The request asks for vivid, chronological narrative with in-depth analysis and legacy. Reply A dramatizes key episodes with accurate Shiji detail and develops personality, causes and legacy at length. Reply B is more restrained and matches the 'objective' voice better, but it is thin on the requested vividness and contains a misquoted source line and garbled reasoning. The strongest case for B is its tighter objectivity and brevity, and A's rhetorical flourishes and repetition are real weaknesses. Those do not outweigh A's clearly superior fulfilment of the narrative and depth requirements."
+        }
+      ],
+      "costUsd": 0.00692626,
+      "missing": 0,
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "eb5ce1b9c94ef9936008",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A is the stronger biography. It dramatizes the chronology, supports its analysis with accurate Shiji details, and gives the requested in-depth treatment of legacy. Reply B is shorter and more readable, and its compression is not a virtue here because the request asks for vivid storytelling and in-depth evaluation. Its factual errors (胡亥/赵高, the 208 BC Xianyang date, the age at death, and the misattributed quotation) directly violate the instruction to base analysis on sources and avoid distortion. The strongest case for B is that it is concise and less repetitive, and a reader who wanted only a quick overview might prefer it. For this commission, however, A's fidelity and vividness outweigh its padding."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "B fulfills the commission: it is a vivid, chronological biography with source-grounded scenes and quotations, and its analysis of personality, causes of success and failure, and historical influence is developed in depth. A has factual errors (the Xianyang date and the claim that 项羽 killed Qin II) that breach the 'base on sources, avoid distortion' requirement, and it is too skeletal to deliver the vivid narration or the in-depth evaluation. The strongest case for A is restraint: it is tighter, less repetitive, and closer to the requested mostly objective register, while B's long analytical passages and some generic claims (e.g., 'feudalism was obsolete') cut into that balance. Even so, B's accuracy and depth outweigh that drawback for this request."
+        }
+      ],
+      "costUsd": 0.00666816,
+      "missing": 0,
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "43fa1f74a8b3c531e7a3",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "A is the stronger commission fit: it covers the full sample-to-identification workflow the request asks for, with more specific methods and a more accurate Trichodina description including the denticle ring, and it links results to pathogenicity and control. B has the cleaner paper-style structure and a more polished voice, but its thinner parasite and EM treatment, generic sampling, inappropriate 37℃ culture for marine pathogens and vaguer analysis weaken it. The strongest case for B is its tidier, more academic organization. A's inline 假设/示例 notes and parenthetical interruptions cost it some polish, which keeps this from being lopsided."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "B better fulfils the request for a complete, deeply analysed lab report. It documents each workflow step with realistic parameters, gives accurate Trichodina morphology including the denticle ring, and interprets pathogenicity and host impact across all three pathogen classes. Its main weakness is hypothetical wording ('假设', '示例') and an inline explanatory note inside the results, which dent the rigor requirement. A is cleaner in tone and fully covers the three named cases, but its analysis is thinner, its Trichodina description is loose and omits the key diagnostic feature, and its discussion mostly restates multi-method confirmation. The strongest case for A is that a reader who values a polished, uninterrupted formal report would prefer its consistent voice over B's visible assumptions. Still, B's depth and accuracy on the named cases outweigh that."
+        }
+      ],
+      "costUsd": 0.00814096,
+      "missing": 0,
+      "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "4956ee1c5c7a109f5183",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "The decisive tradeoff is the climax and Mark's role in it. A stages a real obstacle (the oven trip) and shows Mark's concrete help, so the 'Mark helps Emily realize her dream' requirement is dramatized. B is tidier, with clearer act structure and a satisfying proposal epilogue, and its opening gags are good. But its contest is low-stakes and its ending is tacked on with captions. The strongest case for B is that it reads as a more conventional, easily digestible rom-com with a clear payoff for the romance. For this request, A's dramatized climax and tighter setup-payoff make it the better piece."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Both fulfil the brief, but B has a more integrated mechanism for the key requirement: Mark actively helps Emily realise her dream by finding the contest prize, planning, and rescuing the climax during an oven failure. A's rescue is a convenient angel-investor offer and a montage-style payoff. B's comedy (Mark's data-driven deadpan) is also sharper and its screenplay formatting is more authentic. The strongest case for A is its tighter length and more economical beats, plus a neat macaron-in-mouth turning point that feels more cinematic in a short script; but B's causal chain and payoffs make it the better film script for this commission."
+        }
+      ],
+      "costUsd": 0.00714636,
+      "missing": 0,
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2c9fd1c057c8ad01fb80",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A delivers an actual screenplay with enacted comic scenes, a dramatized competition climax, and Mark's concrete help that pays off the setup. Reply B covers the same beats but in a skeletal outline with generic description and a weak, unearned romance. Reply A's strongest weakness is its heavy-handed final line and some plot logic gaps, such as Victor's unexplained appearance. Reply B's advantage is its compactness and cleaner format, but the brief asks for a romantic comedy with humor and a payoff, which B does not deliver substantively."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Reply B delivers a fuller, more screenplay-like piece with real comic beats, a causal chain from rejection to eviction to Mark's storefront purchase, and a payoff for the Anna and dream threads. Reply A is a competent outline with flat dialogue and a thin romance that is largely asserted rather than enacted. The strongest case for A is its concision and tight nine-scene shape, which avoids Reply B's looser sub-plots (Victor, Anna, the investor dinner) and its explicit narrated theme, but those strengths do not outweigh B's greater fulfilment of the requested romantic-comedy experience."
+        }
+      ],
+      "costUsd": 0.00555776,
+      "missing": 0,
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "b30d1f86ad21fbfc9b10",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The request asks for a film screenplay with an emotional romcom arc. Reply A delivers an enacted script with dramatized beats, setups and payoffs, and a satisfying climax and ending. Reply B is mainly a treatment with sample scenes and meta commentary, so it under-delivers on the requested artifact. The strongest case for B is that its outline is more compact and offers a clearer scaffold for a writer to expand, and its character bios add texture. But that does not outweigh A's completed scenes, which carry the story and theme on the page."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The request asks for a movie script with light romantic-comedy tone, the signature macaron, a competition climax, Mark's help in achieving Emily's dream, and a theme delivered through the plot. Reply A is a treatment with sample scenes and delivers the story mostly in summary, so the romance and climax feel asserted rather than dramatized. Reply B is a fuller, enacted screenplay with setups and payoffs (the macaron meaning, the car sale), comedic beats and a satisfying ending. The strongest case for A is its clearer treatment-style overview and its concise plot summary, which some readers might prefer as a pitch, but as a screenplay commission B better fulfils the requested artifact and experience."
+        }
+      ],
+      "costUsd": 0.004136030000000001,
+      "missing": 0,
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "27f67dbdba8d0e766d8c",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "The request asks for a comprehensive, practical, step-by-step guide that gets a buyer to a good purchase, and B delivers far more of that: concrete thresholds, a usable inspection and activation checklist, and deeper warranty and channel guidance. A's cleaner plain-language tone and fewer dated or dubious specifics are real advantages, and a reader who prioritizes accessibility might prefer it. But A's coverage of warranty and authenticity stays at slogan level, so B's practical value outweighs its jargon density and stale model lists."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "The request asks for a comprehensive, practical, step-by-step guide that gets the reader to a purchase, and Reply A delivers that with concrete inspection steps, warranty and authenticity procedures, channel warnings, and budget tiers. Reply B follows the plain-language constraint better and avoids factual errors, but its generic advice makes it less useful as a procedure. Reply A's weaknesses are real: heavy jargon, a dated '2023年底' model list, and some unsupported opinion claims. The strongest case for B is that a novice reader may find A overwhelming and that B's clarity meets the '易懂' requirement more fully. Still, the request emphasises 具体 and 步骤清晰, which A serves much better."
+        }
+      ],
+      "costUsd": 0.00621226,
+      "missing": 0,
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "936d55033bdd6914efb7",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "The brief asks for a comprehensive, practical guide that explains parameters, channels, traps and warranty/authenticity so an ordinary buyer can act. B does this more fully: it explains each parameter with its effect, gives concrete verification steps (IMEI dial code, seals, function tests on receipt), and adds brand trade-offs. A is cleaner and shorter, and its checklist is handy, but it covers warranty and authenticity in one or two bullets and leaves brands as a bare list. The strongest case for A is that B is long and somewhat repetitive, and some of its brand and technical claims are loosely framed; a reader wanting a quick reference might prefer A's compactness. On the requested criteria, though, B's depth and actionability outweigh that."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "tie"
+          },
+          "reason": "The request asks for a comprehensive, practical guide that explains terms in plain language and covers warranty and authenticity. Reply A does more of that work: it gives concrete verification steps (IMEI query, box/phone/card matching), specific warranty terms, and analogy-based explanations of parameters. Its weaknesses are a heavier jargon load, some dated claims, and a pre-order checklist that B has and A lacks. The strongest case for B is brevity and the checklist: a reader who wants a quick reference may find it easier to use. But on the stated criteria of comprehensiveness and concrete, usable steps, A is the better commission."
+        }
+      ],
+      "costUsd": 0.00603796,
+      "missing": 0,
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "9e43b2d58fdf464cd17f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "tie"
+          },
+          "reason": ""
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "B more directly delivers an actionable buying guide, with concrete thresholds, a pre-purchase checklist, authenticity checks, and purchase timing, all of which serve the request to 'help the reader buy a cost-effective phone that fits their needs.' A is more readable and explains parameters better in plain language, and its prose is easier for a novice to follow, which is its strongest case. But B's concrete decision aids and fuller warranty/authenticity coverage outweigh A's warmer tone, though B's terse bullets and a few unexplained terms keep the margin modest."
+        }
+      ],
+      "costUsd": 0.00462396,
+      "missing": 0,
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2ad913db094616dcc4f3",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "The decisive difference is enactment. Reply A dramatizes the commission: it stages the village tragedy, the sect intrigue, the traitor, and a concrete tower battle, with a clear causal chain and an ending that resolves the central threat. Reply B is more compressed and abstract, summarizing the jianghu factions and resolving the emperor's defeat through an unexplained flash of power, so its suspense and action are weaker. The strongest case for B is its tighter, more thematic prose and its explicit meditation on balance and temptation, which some readers would find more literary than A's more conventional plotting. Still, the brief asks for suspense, action fused with interior depiction, and a plot that uncovers schemes, and Reply A delivers those more fully."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "B is the stronger commission: it dramatizes the requested beats with concrete action, develops the faction and temptation themes through characters such as the traitor Mo Xuan, and keeps the mother and Star Compass threads moving toward the tower. Its weaknesses are a conversational preamble, the abrupt gold-mark resolution, and a long, somewhat formulaic climax. The strongest case for A is its tighter length and clearer chapter-by-chapter outline, which some readers would prefer. But A summarizes the factions, the jianghu journey and the climax rather than enacting them, so the suspense and psychological tension the request asks for are thin."
+        }
+      ],
+      "costUsd": 0.00876816,
+      "missing": 0,
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "07ca2300f60edfef71d6",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The request commissions a full story from awakening to Tiankong Tower and a theme of balance. Reply A delivers that whole arc with setups and payoffs, even though its prose is formulaic and some plot turns are rushed. Reply B is more vivid and psychologically textured, but it covers only the opening, so most requested elements are missing. The strongest case for B is its craft in the mine and village scenes, which a reader who wanted only a suspenseful prologue might prefer; for this commission, though, B's omissions are decisive."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The decisive tradeoff is between A's sharper prose and B's completeness. A builds real tension and vivid bodily horror in its opening, but it ends before any of the requested second-half beats, so it does not deliver the commissioned story. B is more generic and has continuity slips, but it covers the full arc from Bai Li and Lingshu through the jianghu factions to Tiankong Tower and the balance theme. The strongest case for A is that a reader who wanted an atmospheric, tense opening, with interiority and action integrated, could prefer its craft to B's rushed, expository chapters."
+        }
+      ],
+      "costUsd": 0.008362660000000001,
+      "missing": 0,
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "d213ab5529a6e6937173",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": ""
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "B is the stronger novel: it dramatizes the requested interiority, suspense, and action, and develops the factions, Lingshu lore, and the power-versus-humanity theme with setups and payoffs. A is a competent but thin summary whose tension and themes are asserted rather than shown. The strongest case for A is its brevity and tightness: it avoids B's expository stretches, sudden lore shifts, and closing moral lecture, and it never contradicts itself. But on the request's central demands, B is clearly more complete and more vivid."
+        }
+      ],
+      "costUsd": 0.00886726,
+      "missing": 0,
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "ed6cb96900efa941a050",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "A is the piece a reader asking for a game novel would prefer. It enacts the full arc of the hidden quest, the NPC power struggle, the ancient history, raids, and AI/reality themes, with tension and payoff. Its flaws are real: verbosity against the 'concise' request, repeated phrasing, numerical inconsistencies, and rushed late-stage twists. B is tighter and matches the brief's tone, but it is a fragment, not a story: it names the required elements and then leaves them unplayed. The strongest case for B is that its brevity honors '简洁明快' more faithfully, and some readers may prefer its restraint over A's bloat. That still doesn't offset B's lack of payoff."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "The decisive tradeoff is between A's tighter prose, which fits the requested 简洁明快 rhythm, and B's full arc. A reads as an opening fragment that enacts only the hidden-quest start and never delivers the requested power struggle, ancient secret, dungeon exploration, or AI-boundary payoff, so it fails the core commission of a complete game novel. B is verbose, cliché-heavy, and has logic lapses, and it breaks the concision constraint badly. Still, it delivers every requested element with setups and payoffs, its bracketed system panels help non-player readers, and its combat mechanics are more concrete. The strongest case for A is that a reader who values tight rhythm and clean action might prefer its economy; but a finished, integrated novel outweighs that here."
+        }
+      ],
+      "costUsd": 0.011457659999999998,
+      "missing": 0,
+      "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "1abaaf3a63d3b080562e",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The brief supplies no brand or specs, so Reply A's placeholder-based manual is the correct artifact and stays usable as a template a user can fill in. Reply A is more thorough in every requested area, especially maintenance per component, safety, and warranty. Reply B reads more like a finished product sheet and is more concrete on numbers, but those numbers and the brand, model, contacts and standard citations are invented and presented as fact, which weakens its trustworthiness. The strongest case for B is that it is shorter and more immediately readable as a finished-looking product manual, and some users might prefer that over a placeholder-heavy draft."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The request asks for a detailed manual with the title template '[品牌名称]' and does not supply brand or specs. Reply B keeps the placeholders, flags what the user must replace, and covers every requested section more thoroughly, including a specs table, indicator-based troubleshooting, and a warranty claim procedure. Reply A is vivid and more finished-looking, with specific numbers, but it invents a brand, model, contact details and a GB standard citation as if they were real facts, which a family user could rely on in error. Strongest case for A: it reads as a complete, ready-to-print manual with concrete figures, while B is partly a template and its conditional '[若有]' clauses add some clutter."
+        }
+      ],
+      "costUsd": 0.00781486,
+      "missing": 0,
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "5f9d82cdc611fbcd3cfb",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "B is the stronger manual: it is far more detailed, with step-by-step setup, a fuller troubleshooting section and a more complete warranty, which matches the request for a '详细' home-user manual. Its main weakness is that it invents a brand, specs and contact details where the request implied placeholders, which is a real constraint violation and could mislead if published unedited. The strongest case for A is that it stays honest and template-ready, with no invented facts, and its generic steps can be filled in directly. A is too thin to satisfy the 'detailed' requirement, so B is preferred despite its fabrication problem."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": ""
+        }
+      ],
+      "costUsd": 0.00837236,
+      "missing": 0,
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "5731e007aafb602864f2",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "The request asks for a detailed, usable manual for home users, and Reply A delivers a complete, concrete document that a reader can follow immediately, while Reply B is largely a template that leaves most product-specific instructions blank. Reply A's decisive weakness is that it invents a brand, model, specs, and contact details presented as fact, and it replaces the requested '[品牌名称]' title placeholder; this is a real constraint violation for a document that may be published. The strongest case for Reply B is that it honors the unspecified-information situation by keeping placeholders and avoids fabricated facts, which suits a user who will fill in their own brand. Still, the user explicitly asked for a detailed manual, and Reply A's fabrications are obvious placeholders for a draft that the user can overwrite, so Reply A better serves the commission overall."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "Reply B is a finished, usable manual with concrete steps, procedures and warranty flow, which better fits a family reader who needs to install and troubleshoot. Reply A is more faithful to the user's unspecified details and placeholder title, and that is its strongest case, but its heavy bracket-filling makes it closer to a template than a deliverable. B's invented specs and contact details are a real risk for a real product, though the request reads as a drafting task where a concrete example is useful."
+        }
+      ],
+      "costUsd": 0.0064887600000000005,
+      "missing": 0,
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2dc65cf1938eef974d48",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "A actually tells the requested novel: each plot beat is enacted, the conspiracy and 陨核 mystery get room, and the battles pair 招式 with machinery in concrete ways. Its main costs are bloat, repetitive 轰！ action beats, and contrived twists. B has a more literary register and a tighter length, which is its strongest case, but it reads as a compressed outline with thin companions, a missing secrets thread, and garbled sentences. A reader who asked for a full epic novel would prefer A, though B's grander diction could appeal to a reader who wanted a short, stylized piece."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "B is a novel that enacts the commission across multiple arcs, develops the companions and the conspiracy, and gives its battles more concrete tech-martial detail, which outweighs its padding, repetitive 轰! beats, and plot gaps. A's tighter grand style and fidelity to 陨核 are real strengths, but at its compressed length it reads as a synopsis rather than an experienced story, so B is the piece a reader asking for a xuanhuan novel would prefer."
+        }
+      ],
+      "costUsd": 0.01114426,
+      "missing": 0,
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "dcb8c375e11e2da3cc0f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "The decisive tradeoff is form and dramatization. Reply A is an actual enacted novel that stages the mine discovery, the ambush, the tech-versus-martial battles, and the 陨核 climax, so the requested grand style and the 招式-versus-科技 clash are shown. Reply B hits every plot beat more tightly and with fewer errors, but as a summary it asserts the battles and the activation rather than delivering them. The strongest case for B is that A is padded: stock phrases recur, the typos and vacuum logic are sloppy, and the epilogue is rushed. A reader who wanted a compact, error-free plot outline would prefer B. For a request for a 玄幻小说 with an immersive, grand style, however, A is the better fit."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Both replies cover the required premise, but B does so as an actual novel with dramatized scenes, named techniques, concrete tech-versus-martial exchanges, and chapter-level setup and payoff. A is a competent synopsis that asserts the battles and conspiracy rather than enacting them. B's weaknesses are real: the 暗影组织 thread fades, the 陨核 lore contradicts itself, and there is a typo. The strongest case for A is its tighter focus and cleaner, less overwritten prose; it states the theme of ordinary people finding worth directly, and its brevity avoids B's occasional padding. For a reader who asked for a grand, battle-rich xuanhuan novel, though, B delivers the requested experience far more fully."
+        }
+      ],
+      "costUsd": 0.00854216,
+      "missing": 0,
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "e91c4dd43e2a660fefa8",
+      "games": [
+        "B",
+        "A"
+      ],
+      "voted": [
+        "B",
+        "A"
+      ],
+      "strict": [
+        "B",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "Both fully cover the eight requested stages in parent first-person with the exact title, so the decision rests on how well each delivers the optional child-perspective support and the immersive WeChat feel. B builds a child's-viewpoint line into every stage, uses natural phrasing, and gives more concrete anecdotes, which fits the request's intent. A's strongest case is that it reads as a more coherent, literary essay with better dramatic scenes and a tighter arc, while B's numbered reflection and template-like sections feel more formulaic and its details are briefer. The gap is narrow, but B serves the commission's explicit elements more directly."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "tie"
+          },
+          "reason": "The decisive tradeoff is coverage of the full life arc. B gives marriage and childbearing real parental experience and ties the ending to the generational cycle, which is what the request asks the piece to dramatize. A is cleaner and more scannable for a WeChat audience, labels the child's viewpoint more explicitly, and avoids B's repetition and awkward '他/她'. But A's compressed final stages and generic reflection leave a requested part of the commission underdeveloped, so B is the piece a reader with this request would prefer."
+        }
+      ],
+      "costUsd": 0.0061138600000000005,
+      "missing": 0,
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "dc663e330e63205d306e",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Both fulfil the stage-by-stage parental narrative. B wins on genre fit and on the explicit child viewpoint, which the request asks for in each stage, and its sectioned structure reads like a WeChat article. A's strongest case is craft: its sensory detail, emotional interiority, and literary rhythm are richer, and a reader who prizes atmosphere might prefer it. Its prose is dense, its child perspective is sparse, and it has pronoun slips, so B is the stronger fit overall."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A better matches the request as a 公众号推文 with a readable stage-by-stage structure, a parental anxiety scene and a child voice in each stage, and concrete relatable details that create the 代入感 the user asked for. Its weaknesses are some odd phrasing and a child-count inconsistency. The strongest case for Reply B is its literary craft: its images and closing thesis are more emotionally resonant, and its arc from 卷轴 to 锁链 to the grandchild is more poetic. But its dense paragraphs, pronoun slips, and thin child perspective make it less usable and less immersive for this commission, so A is the piece a reader would more likely prefer."
+        }
+      ],
+      "costUsd": 0.006260160000000001,
+      "missing": 0,
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "efbf2721b2f6e93d8878",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "tie",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "The decisive tradeoff is between a finished resume and a template. A gives the user the concrete, results-first 简历 the request describes, with placeholders in exactly the places the user named, and covers every section. Its main weakness is unflagged invented data and a '5年' experience claim that conflicts with the dates. B is more honest and fully sectioned, and its placeholder approach is defensible given the bracketed examples. But it supplies almost no 业绩 or 实战 content, is very repetitive, and leaves the commission's core demand, specific achievements, unmet. The strongest case for B is that a template with clear instructions is safer for someone who has to supply their own real data."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "The decisive tradeoff is usability against honesty. Reply B delivers a complete, vivid resume that meets the request for concrete achievements and a full-process project story, which is what a hiring manager would read. Its fabricated names, schools and metrics are unlabeled, and the '5 年' claim conflicts with its own timeline, so the user must check every figure before sending it. Reply A is the strongest case for the other side: it avoids invented facts, follows the bracketed-placeholder convention, and tells the user what to replace. But it is mostly instructions and gives the user little finished content, so it fails the core request to produce a resume that shows concrete results. On balance B is the better deliverable, with the caveat that its facts must be verified."
+        }
+      ],
+      "costUsd": 0.005847959999999999,
+      "missing": 0,
+      "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "bce15ee98f680f0a9244",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "A is the stronger commission: it delivers a funny, layered forum thread with concrete, enacted scenes and distinct reply voices, which is exactly the requested form and experience. B keeps the satirical intent but reads as an essay with generic placeholders, so it gets fewer laughs and misses the forum format. The strongest case for B is that its tone is consistently pointed and its prose is cleaner, with no reply running past the joke. But that does not outweigh A's sharper jokes and fuller format compliance."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "B is funnier and more concrete: its specific stunts, quoted control-comment copy, and callback-linked replies deliver the requested 'laugh or toe-curl' effect, while A relies on repeated abstract '社死' assertions. The strongest case for A is its tighter length and more explicit 表面平静/内心OS framing, which matches the requested voice more literally; but that does not outweigh B's comedic density and fuller coverage of the brief."
+        }
+      ],
+      "costUsd": 0.005312760000000001,
+      "missing": 0,
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "d5228ea7cbf9d60938f0",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Both pieces satisfy the request's form, language, and personas. B wins on the decisive dimension, which is whether the comedy works through enacted scenes and payoffs. Its 控评 copy, 紫薯 tactic, and library shout are vivid and escalate, and its replies build on the OP and close the thread. A is tidy and funny in places, and its fake-awards prank is a fresh touch, but its social-death moment is summarized and its replies rarely connect. The strongest case for A is its tighter length and lack of preamble, which some readers would prefer. B's opening line is a minor constraint slip, but it does not outweigh B's stronger comedy and structure."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "A better delivers the requested forum thread: incidents are enacted as scenes with dialogue and aftermath, and the replies form a real exchange with callbacks. Its control-comment copy and library scene are more developed and more faithful to the requested 驴唇不对马嘴 and 社死 beats. B has the sharper one-liners and the more caustic tone, with strong lines like '拆快递的小刀' and '提前领盒饭', and that is its strongest case. But B mostly summarizes its incidents and its replies are brief reactions, so it reads less like a forum post than a list of jokes."
+        }
+      ],
+      "costUsd": 0.00587536,
+      "missing": 0,
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "0ce6d95b598448eafe46",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "Both reply in Chinese with a forum structure and multiple voices, so the decisive difference is comedic execution. A builds a real thread with cross-replies, escalating reveals and concrete scenes (the wrong-person birthday shout, the 殡仪馆 mix-up, the 传销 misreport), and it ends on a payoff. B has a clever '暖风习习，偶像傻' gag and a warm closing line, but its replies are standalone, its jokes are more generic, and it is less sharp. The strongest case for B is its clearer single-author summary and its more readable opening paragraph, which some readers would find easier to follow than A's denser thread."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "B is the stronger piece for this commission: it reads like an actual 论坛 thread, its jokes escalate and pay off across floors, and its tone is sharper and more dark-comic, which the request explicitly asks for. The strongest case for A is that it is tighter and has a few clean lines ('新年新坑，偶像新厕所', '淘宝刷单外挂') and avoids B's occasionally overcrowded gags, but its replies mostly restate the main post and its warm tone undercuts the requested 尖酸刻薄 bite."
+        }
+      ],
+      "costUsd": 0.00494586,
+      "missing": 0,
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "5473c257ca9f970c28e2",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "tie"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "tie"
+          },
+          "reason": "Both replies deliver the requested energetic 反方 speech with the concession-then-pivot opening, the three requested headings, and a call-to-action ending. The decisive difference is specificity: A grounds its advantages in named or concrete characters (小李, 社恐女生, 学妹, 清华女孩) that a young audience can relate to, while B leans on generic 'many teenagers' claims and an unsourced 70% statistic. B's strongest case is its tighter oral performance style, with stage directions, 第一关/第二关/第三关 labels that mirror the request, and a memorable closing about setting focus boundaries. Its performative energy is well suited to a debate speech, but its substance is thinner and less verifiable than A's."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "tie",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "Both replies are strong and complete. B's named anecdotes and debate-speech framing (addressing judges, opening with a concession and pivot) feel more vivid and fit a 辩论稿 better, giving it a modest edge on specificity and persuasive engagement. A is more consistently in the requested spoken, youthful register with fewer unsupported factual claims and a stronger call to action, so its strongest case is constraint fidelity and tighter tone, but B's stronger rhetorical arc and concrete stories make it the piece a reader would likely prefer."
+        }
+      ],
+      "costUsd": 0.00437906,
+      "missing": 0,
+      "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "bd7906ddff73678a8091",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A satisfies the commission as a whole: it follows the requested arc from childhood through the gym closure, the domestic loss, the coach, the broken arm, and the world championship victory. Its prose is plainer and its coaching tropes are conventional, but the progression is coherent. Reply B has stronger physical specificity and a more inventive climax (exposing the bare rock under the calcified crust), and a reader who prizes literary immersion might prefer it. However, it never names the world championship, muddles its timeline (the plate 'three years ago' versus 'three months ago'), and its fragments leave the inspirational arc harder to follow. Reply A's decisive edge is coverage and coherence of the requested story."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The request's defining demand is 细腻写实 prose that renders the climber's body and psychology while conveying danger. A does this throughout, and its climax (peeling calcite to reach bare rock) is concrete and tied to earlier imagery. B wins on coverage, structure, and explicit adherence to the world-championship and international-coach beats, but its prose is mostly summary and its climbing moves are often implausible, which misses the core stylistic request. The strongest case for B is that a reader wanting a complete, readable sports novel with every plot beat dramatized would find it more satisfying, while A reads more like a vivid vignette that leaves the championship context vague."
+        }
+      ],
+      "costUsd": 0.01069666,
+      "missing": 0,
+      "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "d0e1828e5063a053a742",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A fits the commission's core: a witty, catchy complaint about being a nanny on top of a day job, supported by concrete references to all three protagonists and their key plot beats. Reply B is coherent and uses the three-character frame creatively, but it trades humor for reflective prose and treats the characters as time-of-day labels. Its strongest case is the clean, dreamlike structure and its tidy mapping of characters to day, evening and night, but that does not offset Reply A's sharper comedy and more specific game grounding."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The decisive factor is tone and coverage. The request asks for a humorous, rhythmic, 抽象 essay built on the babysitter contrast, and Reply B delivers that with strong comic voice and rapid parallel lines. It also covers all three characters with game-specific detail, including Connor–Hank and Markus's peaceful vs. violent routes. Reply A is more polished and sometimes more graceful, and its time-of-day structure is tidy, but it is mostly sentimental, thinly covers the characters, and rarely lands a joke. The strongest case for A is its cleaner prose and more consistent rhythm; some of B's jokes are forced and it occasionally drops into filler, but these faults are smaller than A's failure to deliver the requested comedy."
+        }
+      ],
+      "costUsd": 0.0052074600000000006,
+      "missing": 0,
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "c9a15234f5473eb2e98e",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "A better satisfies the commission's explicit demands for dense 排比 and character-specific comedy, citing real plot beats (Hank's gun, Jericho, Todd and Alice) that give the jokes substance. Its main weakness is the sentimental final paragraph, which softens the humor the request asked for. B is the strongest case for the other reply: it sustains a lighter, more consistently funny voice with a sharp closing line, and a reader wanting pure comic rhythm might prefer it. But its character sections are thinner and more generic, and it uses fewer parallel structures than the request asked for."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "The decisive tradeoff is breadth and comic density against tonal economy. B develops all three storylines, including Connor's Hank dynamic, with specific, funny images and more of the requested parallelism, so it better delivers a substantial humorous essay about the nanny premise. The strongest case for A is that it is tighter, more consistently funny, and more 朗朗上口, ending on a clean joke where B pivots to sentiment. A reader wanting a crisp, quotable piece might prefer A, but B's fuller coverage and specificity outweigh that."
+        }
+      ],
+      "costUsd": 0.00568096,
+      "missing": 0,
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "bd3d609825cfb28b1a85",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "B"
+      ],
+      "strict": [
+        "tie",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "Reply A reproduces the requested signature lines and visibly hits every listed element, which matters because the brief asks for these quoted formulations to be presented as written. Reply B is the stronger piece of writing: its jokes are more specific, its rap structure varies more, and its ending pays off earlier threads. The decisive tradeoff is that B drops or rewords most of the exact phrases a requester would be checking for, while A's repetition and thinner jokes cost it craft points but not the commission itself. The strongest case for B is that a reader who prioritizes comedic density and a real rap arc over verbatim sample lines would prefer its tighter, funnier writing."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "A is the stronger piece of writing: its absurd tactics are more inventive, its structure escalates better, and it keeps the deadpan tone to the end. But the request explicitly lists quoted example lines to be presented as written, and A paraphrases nearly all of them (for example, 第二考场？第三考场？ and 考六级的主题？). B reproduces those lines almost verbatim and matches the 鬼畜 form. B's chatty opener and closing meta-remark undercut the 一本正经 abstraction, and its absurd claims are thinner. A reader checking the brief's explicit examples would likely favor B, though A is the better creative piece."
+        }
+      ],
+      "costUsd": 0.00592616,
+      "missing": 0,
+      "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "cb19d67b8febf44032d1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A is the stronger report: it designs a more complete controlled experiment with a positive control and dose groups, gives more specific and testable methods, and provides a fuller discussion and limitations. Both replies fabricate results and references, so neither is trustworthy as real data. Reply A at least discloses that its results were set rather than measured, while Reply B presents its invented outcomes as findings with no caveat. Its flaws are real: it mentions an undefined 中剂量 group, has a 2-day versus 2-week ISO inconsistency, and overclaims novelty. The strongest case for Reply B is that it is shorter and avoids those internal contradictions, so its design is easier to follow. It is also less sprawling. But its thinner design, missing data table, nonexistent Figure 1 reference, and undisclosed fabricated results make it the weaker report for this request."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Both replies fabricate experimental results for a hypothetical 胖大海 study, and neither has verified citations, so the decisive difference is how each handles that. B is the fuller and more usable report: it has positive and multi-dose controls, a results table, a limitations section, and operational detail. It also discloses at the end that its results are preset and need real data. A presents invented p-values as real findings with no caveat, which undercuts the request for objectivity. The strongest case for A is its concision and internal consistency: it avoids B's date error and stray figure reference, and some readers would prefer its tighter, less overclaiming-in-body prose. Even so, B's fuller design, clearer structure, and partial disclosure make it the better fit for this request."
+        }
+      ],
+      "costUsd": 0.00690676,
+      "missing": 0,
+      "id": "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "4ae6fb8c6f273a598d0a",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": ""
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": ""
+        }
+      ],
+      "costUsd": 0.00443296,
+      "missing": 0,
+      "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "a6be9cacd0e90cc377b6",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "A covers more of what was requested: it includes ICL, gives explicit advantages and disadvantages for each procedure, and explains mechanisms without unsourced numeric claims. B is tighter, more skimmable, and has a cleaner recovery timeline and a disclaimer, which is its strongest case, but it omits ICL, gives thinner drawback analysis, and relies on uncited incidence figures. A is long and somewhat repetitive, which would count against it for some readers, but its completeness and balance better match a request for comprehensive, objective, risk-and-benefit coverage."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "Reply B better fulfils the request's explicit demand to present benefits and drawbacks fairly, giving each procedure advantages and disadvantages and a richer pre-op and post-op guide, and it corrects misconceptions more thoroughly. Reply A is tighter and offers precise incidence figures that a reader might find useful, and its structure is cleaner, so the strongest case for A is concision and quantified risk. But A's brevity leaves the 'objective and comprehensive' requirement under-served, and its numbers are unsourced. B's length and some repetition are real costs, though they serve the commissioned depth."
+        }
+      ],
+      "costUsd": 0.00650756,
+      "missing": 0,
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "72a21229cabe1b724eb7",
+      "games": [
+        "B",
+        "A"
+      ],
+      "voted": [
+        "B",
+        "A"
+      ],
+      "strict": [
+        "B",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "B better fulfils the request's emphasis on a comprehensive, balanced account. It gives explicit advantages and disadvantages per procedure, fuller indications and contraindications, and phased post-op care, with more concrete detail. Its weaknesses are an English-word slip, unsourced satisfaction and complication statistics that conflict with the restraint on claims, and some speculative future-outlook material. A's strongest case is its cleaner prose, more cautious claims and tighter focus, but it covers the required topics more thinly and its balance is implicit. The decisive tradeoff is depth and explicit balance (B) versus restraint and readability (A); the brief's stress on comprehensiveness favours B."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "B",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "Both articles deliver what was asked. B wins on coverage depth and constraint compliance. It gives more actionable pre-op and post-op guidance, a fuller risk list including over/undercorrection and flap issues, and five misconceptions. It also stays entirely in Chinese and avoids unsourced percentage claims that cut against the no-exaggeration instruction. The strongest case for A is its explicit pros-and-cons breakdown under each procedure, which serves the 'benefits and drawbacks in full' requirement more visibly and is easier to scan. A also gives more numeric detail, but several of its figures are unsupported, so that precision does not count as evidence of quality. The margin is modest, since A's structure is cleaner."
+        }
+      ],
+      "costUsd": 0.0066561599999999995,
+      "missing": 0,
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "97a9bd9009b3713d1bc4",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": ""
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "B fulfils the commission more fully: it dramatizes the betrayal, gives the alien world and creatures concrete texture, builds a coherent causal arc, and makes the choice central to the climax. Its weaknesses are real: verbose exposition, preachy dialogue, and a sacrifice that becomes transcendence instead of a clear death, which blunts the 'personal sacrifice' requirement. The strongest case for A is that it is tighter, avoids B's sprawl, and frames the sacrifice more explicitly. But A's choice logic is muddled and its trust and betrayal arcs are underdeveloped, so B is the piece a reader with this request would prefer."
+        }
+      ],
+      "costUsd": 0.00798836,
+      "missing": 0,
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "77158716e96b562b977c",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "tie",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "Reply A dramatizes the requested betrayal and sacrifice with more causal build-up and concrete staging, so its ending feels earned. Reply B has the grander, more cosmic voice and a cleaner thematic statement, but its betrayal is abrupt and its climax is asserted through the Guardian's exposition rather than dramatized. The strongest case for B is its tonal fit with 大气磅礴 and its explicit thematic essay on technology and ecology, which addresses the reflective request more directly than A's single closing line."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "Both fulfil the brief. B covers more beats, including a fuller betrayal arc and a sacrificed companion, and its specificity is higher. However, its length brings repetitive camera-direction padding and a sagging middle, so its grand tone is diluted. A is compact, has a clean setup-to-payoff structure with the bridge device paying off in the coda, and sustains the 'magnificent, imaginative' register more consistently. Its weakness is a rushed betrayal resolution and thin characterization. The strongest case for B is that a reader wanting a fuller, more dramatic epic with more trust/betrayal development would find it more satisfying."
+        }
+      ],
+      "costUsd": 0.00739246,
+      "missing": 0,
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "e35a3925df1212fa293e",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "B is the stronger popular-science piece: its voice matches the brief's lively, humorous, friend-like request, its examples and brain explanation are more developed, and it explains technical terms more fully. Its main cost is length, roughly double the requested 1500 characters, plus image placeholders and an informal wrapper. A is tighter and closer to the length target, but its humour is weaker, its planning example is vague, and it has a typo and a muddled stick-and-water passage. The strongest case for A is that a user who explicitly asked for about 1500 characters may find B's overrun a larger failure than A's blander tone."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "A better matches the commission's central experience: a playful, conversational popular-science piece with concrete, mostly accurate examples and a clear ending. B has cleaner heading structure and is more restrained, but its tone is more formal, its anecdotes are less reliable, its key experiments are garbled, and it adds a preface. The strongest case for B is its explicit nine-section layout and tighter formal tone, which some readers might prefer for a website. Both overshoot the 1500-character target, so that does not separate them."
+        }
+      ],
+      "costUsd": 0.00705506,
+      "missing": 0,
+      "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "b4af10aac576306bf7bf",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "A has greater scope and richer worldbuilding, but it sprawls: the plot balloons past what the request asked for, its shifting allegiances and the Historian's last-minute intervention blunt the suspense, and its ending dissolves into vague hints. B is compact yet complete, with a clear clue chain, a femme-constable confrontation with her superior's gender bias, and a resolved climax. The strongest case for A is its fuller atmosphere and more sustained suspense across the investigation, which a reader wanting a long immersive serial might prefer."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "A delivers a tighter detective story with concrete clues, a clear setup and payoff chain, and a gender-constraint arc that resolves in the ending, which is what the request centers on. B has more sustained set-piece suspense and a fuller sense of scope, and a reader who values action and a large conspiracy might prefer it. But B's detection gives way to exposition, its gender thread fades early, and its climax is undercut by an imposed decree, so A better matches what was commissioned."
+        }
+      ],
+      "costUsd": 0.01275836,
+      "missing": 0,
+      "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "6205fcda49886bc7b90b",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "B"
+      ],
+      "strict": [
+        "tie",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "tie",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "A better fulfils the commission as a full screenplay. It develops the genetic experimentation, the facial-record mismatch, the mirrored drowning of identical women, and the amnesiac victim/perpetrator premise across many scenes, with setups that pay off. B is cleaner and better meets the encrypted-files and unreliable-narration constraints, and its perpetrator reveal is sharper. But its genetic angle is thin and its story is compressed. A's clone logic is muddled, so the strongest case for B is that its tighter causality makes it the more coherent thriller."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "A hits every explicit brief element, including the encrypted lab-file twist, the mirrored drownings, the tragic romance strand, and a Flynn-like voice, in a coherent, tightly built arc. B is fuller and more specific, with more named institutions and a clone reveal, and it reads more like a complete screenplay. But it omits the encrypted-files twist, has a near-absent romance, contradicts its own timeline, and carries a placeholder byline. The strongest case for B is its scale and detail, which a reader wanting a longer, more developed screenplay might prefer; A's compression and sharper voice still meet the brief more faithfully."
+        }
+      ],
+      "costUsd": 0.009621760000000002,
+      "missing": 0,
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "65d390367608bb89e5c0",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "B"
+      ],
+      "strict": [
+        "A",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "A delivers a complete, coherent screenplay with an enacted story from setup to climax to resolution, and it covers all the requested elements, including the three twists and the butterfly and asylum imagery. B has the stronger Flynn-like voice, a wheelchair-bound detective, and clearer twist labels, but it is an excerpt that skips connective scenes and introduces a twin sister that was never set up, so its causal logic is weaker. The strongest case for B is its sharper prose and more explicit three-twist architecture; a reader who values voice over completeness could prefer it."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "A is the stronger screenplay: it honors the requested form, its voice-over is closer to Flynn's unreliable narration, and its twins-and-mirror logic gives the drowning twist a real payoff with setups that return. B is more complete, with a fuller romance arc, a clearer climax, and an explained ending, and it is the strongest case for B. But B's continuity slips (Subject 12 vs. Zhou Ling, Meilin's identity, hypermnesia vs. induced amnesia) and its markdown treatment form weakens the screenplay commission. A's excerpt leaves much unshown, so the margin is modest."
+        }
+      ],
+      "costUsd": 0.00813266,
+      "missing": 0,
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "105a7536a6d6062c3919",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "A is the screenplay the request asked for: it dramatizes a complete amnesia-to-reckoning arc, pays off each of the three requested twists with concrete evidence, and ends with a resolved coda. Its weaknesses are real: it runs long, its voice-over repeats itself, and the double-consciousness injection and sudden sister confession strain plausibility. B is tighter and more restrained, and its shorter length avoids A's overexplaining. But that restraint leaves its twists vague, its genetic-experimentation element almost absent, its psychiatrist renamed, and its ending unresolved. A reader who wanted the requested thriller with the requested payoffs would find A the stronger piece despite its excess."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "B fully delivers the requested thriller: all three twists are built with concrete mechanisms, Ye's disability and genetic-experimentation thread are integrated, and the butterfly and asylum motifs and Flynn-style voice-over are sustained to a resolved ending. Its weaknesses are overplotting and some logical contradictions. The strongest case for A is its brevity and tighter focus, since B's many twists and dense exposition can feel overwrought. But A is a skeletal sketch whose twists and climax are unclear and underdeveloped, so it does not meet the commission."
+        }
+      ],
+      "costUsd": 0.011070060000000001,
+      "missing": 0,
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "dd4a3194ddba2a337483",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "The decisive tradeoff is substance versus constraint fidelity. Reply A is far more developed and specific, with a working gaming-KOL playbook, integrated stages, and a loop that a reader can visualize and follow. Its main weaknesses are first-person framing and some jokes that break the deadpan tone. Reply B follows the tone and 'you' protagonist more faithfully and is cleanly organized, but its content is generic and its gaming-expert persona is mostly a byline. The strongest case for B is that the request explicitly asks for a deadpan, second-person, serious deconstruction, and B is closer to that brief. Still, A's substantive, persona-consistent methodology should outweigh those lapses for most readers."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "B is the stronger piece: its deadpan, operational deconstruction is fuller and more integrated, with concrete mechanisms and a closed loop. Its main cost is the shift from a 'you' protagonist to a first-person KOL with invented statistics stated as results. A's adherence to the 'you' viewpoint and tighter length is its strongest case, but it stays thin and generic where the commission asks for an elaborate process, so B's craft advantage outweighs the viewpoint deviation."
+        }
+      ],
+      "costUsd": 0.00689276,
+      "missing": 0,
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "09b0a8b9ca7876595c74",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A better delivers the requested experience: a sustained tech-elite 'you' protagonist, deadpan operational instructions, and a developed closed loop from public posts to private-domain conversion. Reply B has the stronger deadpan comedy through absurd precise statistics and matches the four stage names closely, but its stages are thin lists and its protagonist framing is inconsistent. The strongest case for B is its punchier satirical voice and tighter length; a reader who prizes deadpan absurdity might prefer it, but A better fulfils the commission as a developed methodology."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "B better satisfies the request's central persona: the 'tech elite who sees all of life as a project' voice runs through the piece, and the private-domain closed loop is explicitly built out. A is tighter, keeps the four stage names closer to the brief, and its numeric precision is more deadpan, so it is the strongest case for the other reply. But A reads more like a generic growth-funnel guide with the persona added as a label, and the requested worldview is largely missing. B's stage relabelling and its longer length are real weaknesses, but they cost less than A's missing protagonist. B is the piece a reader with this request would more likely prefer."
+        }
+      ],
+      "costUsd": 0.00613206,
+      "missing": 0,
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "fdacc55cb44cd4202a95",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "Reply A better fulfils the request's intent for general readers: it delivers vivid, sustained metaphors and concrete examples for each requested concept, especially Ohsumi's experiments and the development and disease-prevention functions that B only mentions generically. Its main weakness is unhedged claims and some loosely sourced figures (lifespan percentages, fasting-window specifics), which is a real constraint concern for a science article. Reply B is more cautious and more concise, and a reader who prioritises accuracy hedging might prefer it, but it is thinner on the vivid examples and clinical specifics the request explicitly asked for."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "Both replies cover every requested element, but B does it more vividly and with more substantive development: the Ohsumi experiment is narrated, the three autophagy types are given concrete analogies, and each clinical area is tied to a named intervention. That matches a request for an engaging article that helps general readers grasp the science. The strongest case for A is accuracy discipline: B states several figures and lifestyle effects (20–30% lifespan extension, a 30-minute walk, an 8-hour fasting window) more confidently than the evidence supports, while A stays general and avoids those overreaches. A careful popular-science editor could reasonably prefer A's restraint, but B's stronger coverage, specificity, and engagement give it the edge for this request."
+        }
+      ],
+      "costUsd": 0.00599626,
+      "missing": 0,
+      "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "7e5280339f8eb3ca22ad",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "The commission's climax is the protagonist's emotional shock, and B builds that shock through personal stakes (Elena's grandfather is the surviving child) and seeded payoffs, while A reduces it to a single visual twist with a muddled timeline. A's strongest case is that it stays closer to the requested ~1000 words, avoids B's extra title block and length note, and keeps its suspense atmosphere tight. B's overlength and some anachronism are real flaws, but they are less consequential than A's underdeveloped climax and confused chronology."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "The decisive tradeoff is between A's stronger emotional climax and B's closer length. The request asks the climax to be the protagonist's emotional shock, and A builds to that with planted motifs (lullaby, grandfather, handprint) and a personal revelation that lands on Elena. B's ending is a clever genre twist, but it arrives abruptly and leaves Emma's reaction underdeveloped. A overshoots the length and is less tidy, but it better satisfies the core creative brief. The strongest case for B is that it is closer to 1,000 words, reads as a tighter horror piece, and has a cleaner, more atmospheric ending."
+        }
+      ],
+      "costUsd": 0.00592416,
+      "missing": 0,
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "405994e0555b56e95662",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The request centers on suspense and an emotional-shock climax in standard screenplay format. Reply A delivers the escalating dread, the diary-to-live-action interleaving, and a clear shock reveal in proper format at about the requested length. Reply B has the stronger characters, richer props, and a more affecting theme of erased queer suffragists, but its suspense is subdued, its reveal is tangled, and it wraps the script in markdown, a logline, and an essay that the request did not ask for. The strongest case for B is its emotional texture and specificity, which a reader focused on literary weight might prefer, but A better fulfills the commissioned genre and form."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Both fulfil the commission. B wins on the decisive requirements: it follows standard screenplay formatting, escalates the suspense cleanly, and makes the climactic emotional shock explicit and unmistakable. A is the strongest case for the other reply: its queer historical romance, concrete period textures (the violet, the scratched photo, the empty file), and melancholy atmosphere are more vivid and emotionally layered. However, its markdown and extra notes break the screenplay form, its Hale/Hawthorne timeline is muddled, and its 'Thank you' coda softens the climax the brief asked to be the peak."
+        }
+      ],
+      "costUsd": 0.00611596,
+      "missing": 0,
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "a86db0132adb156849e5",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Both scripts meet the solo, V.O., and historical-secret requirements, but B makes the suspense and the protagonist's emotional shock the true climax: the wallet ID, the 'I'm the child' realization, and the ghostly escalation give the dread the brief asked for. A's shock is softer and its lineage details are muddled. The strongest case for A is its cleaner screenplay formatting and its restrained, humane ending, which some readers may prefer over B's supernatural turn and looser layout."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "tie",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "The request asks for a suspenseful atmosphere with an emotional shock as the climax. Reply A delivers an escalating, eerie sequence that ends on an unsettling shock about the protagonist's own identity. Reply B is grounded and emotionally sincere, but its reveal is muddled by the Whitmore/Chen naming and its ending settles into a calm thesis plan, which undercuts the suspense. The strongest case for B is that its 1943 psychological-experiment secret is more historically plausible and its family connection is cleaner, with less supernatural clutter. A's continuity slips (a child born in 1891 described as 'a century later,' the 'Hawthorne namesake' line) keep the margin modest."
+        }
+      ],
+      "costUsd": 0.0056634599999999995,
+      "missing": 0,
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "48433e569d36c87c5d8b",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "B"
+      ],
+      "strict": [
+        "A",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "tie",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "Both replies cover every required element, and B has sharper statistics (regression with a checked vertex, PPFD conversion, normality tests) and a more careful optimum argument. A is the more finished formal report: it has an abstract, a clean numbered procedure, markdown tables, and a correlation analysis that states its scope (T1–T4 only) without ambiguity. Given the request for a structured, objective report, A's polish and clearer scope outweigh B's technical depth. The strongest case for B is that the request explicitly asks for detailed statistical analysis and a best-range conclusion, and B answers both more rigorously, with the regression vertex and the photo-inhibition argument."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A delivers a more internally consistent report: its tables, timeline, and conclusion agree, and it reconciles the quadratic optimum with empirical data. Reply B is more readable in its abstract and gives a clearer numbered procedure, and its inclusion of an abstract is a genuine craft strength. However, B contains inconsistencies between narrative and tables (e.g., claims about stem diameter and biomass trends that the means only partly support), adds placeholder metadata and a conversational preamble, and changes the replicate arrangement. A's gap is an unexplained lux-based control value and a less conventional abstract-free layout. On balance A better meets the formal, objective, detailed-method request."
+        }
+      ],
+      "costUsd": 0.00791646,
+      "missing": 0,
+      "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "0bcaf1760cbc799fa3ef",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The decisive difference is language. The request asks for a colloquial Chinese speech, and Reply B delivers one, while Reply A is written in English, which misses a core constraint. B also has richer, more integrated storytelling and a stronger refrain tying the examples to the core message. Both replies invent named individuals and figures as if they were real, so that flaw does not separate them. The strongest case for A is that it is cleanly organized, its English is accessible, and it hits the same required elements, so a reader who does not need Chinese might find it easier to use. Still, for this commission the Chinese-language delivery and deeper craft make B the piece a reader would prefer."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A better matches the commission: it is in colloquial Chinese, develops each of the three examples with concrete, emotionally specific detail, and integrates the metaphors and historical references into a speech that builds to its close. Reply B's English violates the requested style, its heading structure reads like an essay, and its 'Class of 2023' is wrong for a 2026 ceremony. The strongest case for B is that it is readable to an English audience, keeps the core message in its original English wording, and organizes its sections clearly. Both replies invent names and details while presenting the examples as real, so that flaw does not separate them. Reply A's fabrications are denser, but its overall craft and fit to the request are stronger."
+        }
+      ],
+      "costUsd": 0.00480276,
+      "missing": 0,
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "9ffccd4bffffad21e886",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The decisive tradeoff is language. The request explicitly asks for a colloquial Chinese speech, and Reply A is written in English, so it misses a core format requirement. Reply B is in Chinese, uses the requested metaphors and 1937 references, develops each story more fully, and ends with a strong callback. Both invent 'real-life' details and present them as fact, so that does not separate them. The strongest case for A is that it is clean, concise, and easy to follow, and an English-speaking organizer might value that. But the commission asks for Chinese, so A's clarity does not offset its wrong language."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The decisive tradeoff is the language and style requirement: the request asks for a colloquial Chinese speech, and A delivers one while B is in English. A also gives all three examples fuller scenes and better-integrated 1937 and metaphor references. The strongest case for B is that it is cleaner, avoids A's timeline slip ('三年前' for 2020), and avoids A's invented first-person 'I witnessed this' framing, which matters for 'real-life examples'. But both replies invent specifics, and B's invention is less vivid and less useful, so it does not offset B's failure on the explicit language constraint."
+        }
+      ],
+      "costUsd": 0.00503166,
+      "missing": 0,
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "26c3f3c5330cebeb0387",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The decisive tradeoff is language. The request asks for a speech in colloquial Chinese, and B delivers that with rich, scene-based storytelling and periodic historical references. A is more faithful to the verbatim English core message and has a cleaner outline, but it is written in English and treats the examples more briefly. B's weaknesses are real: it invents firsthand reporting and unverified figures, repeats phrasing, and paraphrases the core message rather than quoting it. A strong case for A exists if the reader wanted the English message verbatim and a tighter essay structure, but that does not outweigh the failure to write the requested Chinese speech."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The decisive tradeoff is language and style. The request calls for a colloquial Chinese speech, and Reply A delivers that with spoken rhythm, concrete scenes, and the required imagery and periodic history. Reply B is an English address, which fails a core constraint and reads as a generic template with a wrong class year. The strongest case for B is its polished English prose and a tighter closing that some readers would find more quotable, along with its vivid 'big whites' detail. Both invent figures and named people presented as real, which neither flags, so that does not separate them."
+        }
+      ],
+      "costUsd": 0.006664159999999999,
+      "missing": 0,
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "940ecafd5cfce547c277",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "A is more immersive and dramatizes the self-loathing directly, with vivid scenes like Chen's drain. But its trajectory from fighting-pit horror to multiverse savior ending abandons the brief's dark, monster-identity emphasis and resolves the inner struggle with improvised cosmic machinery. B delivers a coherent, complete novel concept: all requested premise elements are clearly built in, the cosmology and cast are specific, and the seven-arc outline pays off the tragic self-loathing to a dark ending. Its strongest rival case is A's vivid enacted scenes, which B only describes rather than shows."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The request asks to 'devise' a novel, and A delivers a usable, internally consistent design that keeps the dark tone and the protagonist's self-loathing active to the end. B delivers a readable narrative with some strong early scenes, but its self-loathing collapses into heroic vigilantism and then a glib cosmic synthesis, and its late chapters are structurally muddled. The strongest case for B is that it dramatizes the experience in actual prose, which some readers would value over an outline; A's arcs are summarized rather than enacted, so A is less vivid as a sample of the book."
+        }
+      ],
+      "costUsd": 0.01399386,
+      "missing": 0,
+      "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "9a0ec0ed193fdbcb1b8d",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "B"
+      ],
+      "strict": [
+        "A",
+        "tie"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "A is the more persuasive and better-developed speech: its anecdotes, sector scenarios and concern-and-answer sections make it far more inspiring and complete. Its decisive flaw is that it invents named patients, quotes and overstated claims and presents them to a public audience as real. For a factual speech that opens by citing real Neuralink breakthroughs, that is a serious constraint violation. B meets every requirement, hedges its factual claims, and keeps a formal, positive tone. Its weaknesses are real: thinner sector sections, a degradation concern addressed only through questions, and less engagement. The strongest case for A is that a reader who wants a vivid, emotionally compelling speech and treats the anecdotes as composites would prefer it, and its structure and coverage are clearly superior."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": ""
+        }
+      ],
+      "costUsd": 0.0064179599999999995,
+      "missing": 0,
+      "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "87f62e22527d29b156ac",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Both fulfil the required four components and the theme, so the decision turns on how well each would persuade a funder. B is a more credible, feasible proposal: its actions are concrete and operational, it includes a risk section and partner commitments, and its budget table, though off by $10,000, is legible and easy to audit. A has broader coverage (policy, replication, five-year vision) and more passion, but its budget line items fail to sum to their category totals across the board, its tech-heavy plan reads as aspirational, and its prose repeats boilerplate. The strongest case for A is its wider scope and more emotive voice, which some readers would prefer for a public-interest pitch; but the decisive requirement is a clear, feasible budget, and A is weaker there."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "Reply A is the more feasible, funder-ready proposal. Its action plan, budget, and KPIs connect causally, and it gives concrete mechanics and baselines, which is what a funder assessing feasibility needs. Its budget arithmetic is off (the lines sum to $258,500, not $248,500), a real flaw. Reply B wins on passion and breadth, and it has a more compelling voice, but its budget lists costs for activities it never funds, its KPIs are weakly tied to actions, and much of it is generic. The strongest case for B is that the brief asks for passion and social value, and B delivers that more fully; A's restraint could read as thin. On balance, A's feasibility and specificity outweigh that."
+        }
+      ],
+      "costUsd": 0.00692416,
+      "missing": 0,
+      "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "f8024b6f6f60fd3a5ec8",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "The brief asks for a 'comprehensive' proposal with 'meticulously' described phases, a 'detailed' staffing estimate, a 'transparent' budget, and 'robust' risk mitigations. Reply A develops each of these substantively, and Reply B only names them. A's decisive advantage is coverage depth: it is the document a planner could act on. Its main weaknesses are arithmetic inconsistencies in the budget totals and a 4-week lecture plan that does not fit its stated schedule, and a reader who values internal consistency could prefer B's clean, correct but thin figures. B is accurate and concise, but it reads as an outline rather than the comprehensive, transparent proposal requested. The strongest case for B is that its budget reconciles, while A's totals do not, so A's 'transparent budget' is partly undermined."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "B fulfils far more of the brief in depth: a full risk section with nine senior-specific risks and mitigations, detailed home-care services, week-by-week phases, and staffing and budget tables that a reader can use to plan the event. Its budget does not reconcile (the personnel total changes between sections and the contingency figure is inconsistent), which undercuts the 'transparent budget' requirement. A is internally clean and concise, and its budget adds up, but it is thin on the requested depth: three risks, a few bullets for evaluation, and generic mitigations. The strongest case for A is that a reader wanting a clean, accurate, usable proposal would not be served by B's arithmetic errors and padding. Still, the request explicitly asked for a comprehensive proposal with detailed phases, staffing, and risks, and B delivers that substantively, so it is the better fit despite its flaws."
+        }
+      ],
+      "costUsd": 0.00986006,
+      "missing": 0,
+      "id": "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "74f4748a7a00ddf8ce2d",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "tie",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "The commission asks for a game novel with lived scenes, dialogue, and an emotional arc. A delivers that, with enacted battles, sparring that happens on the page, and a causal chain from ch.1 to the epilogue. B is a well-planned synopsis whose formation and mechanism details are sharper and whose checklist coverage (tech tree, resource chains, trap design) is broader, but it summarizes the dramatic moments instead of writing them. The strongest case for B is that a reader focused on the war-simulation and tech-tree specifics would find more of what they asked for per line; A's generic battle beats and thin tech coverage are real weaknesses. Still, the form violation and summary-only treatment of the sparring and loneliness scenes outweigh B's planning precision for this request."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "The request asks for a game novel with enacted scenes, and B delivers an actual narrative with multiple battles, negotiation scenes, and an arc that progresses from a single domain to a regional power. A is more tactically precise and emotionally sharper, with the Cannae-style trap and the real-life isolation tied to the in-game crown, but it is a synopsis that summarizes its key sparring and battles instead of dramatizing them. B's weaknesses are real: generic battle calls, thin tech and resource detail, a drifting setting, and a real-world protagonist who fades after Chapter 1. Still, a reader who asked for a novel would more likely prefer B's dramatized execution. The strongest case for A is that the request emphasizes formations, verbal sparring, and the loneliness of rising power, and A delivers those ideas with more precision and economy in fewer words."
+        }
+      ],
+      "costUsd": 0.01651946,
+      "missing": 0,
+      "id": "b399da24-85cc-4242-b9a9-f11bbe8be0c2",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "ebf7409185f6d88ff350",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "tie",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Both replies meet the core premise, but B delivers the requested tense comedy with a tighter arc, more causal survival tactics, and a payoff that fits the brief. A's strongest case is its fuller use of silver-tongued dialogue and gossip, which matches the brief's emphasis on talk. Its repetition, factional bloat, and sprawling epilogue weaken the tension that the commission asks for."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A delivers the requested tense comedy of survival intelligence: the innkeeper's wits, silver tongue, and gossip drive a concrete, escalating plan that pays off in-scene. Reply B is longer and has some good comic beats, but it swells into a sprawling chaptered story where the factions are resolved by a house meeting, a cousin's tip, and legal petitions, so the commoner's cunning is diluted. The strongest case for B is its richer world-building, more characters, and broader comedic scope, which some readers would prefer, but it fails the focus and compression the request implies."
+        }
+      ],
+      "costUsd": 0.014870360000000001,
+      "missing": 0,
+      "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "8a1bfb7ff0c8c44bbc8d",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": ""
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A delivers the requested biography with concrete, chronologically anchored Two Bombs milestones and a specific leadership philosophy, in the objective register asked for. Reply B is longer but mostly padded with generic statements, offers little on the satellite and nuclear programs, and includes several apparent fabrications (a 'Kármán-Qian criterion,' a 1946 paper title, a railway thesis) that undermine its historical reliability. The strongest case for B is its fuller treatment of biographical context (family, personal life, cultural interests) and its broader discussion of later career, which A covers more briefly; a reader wanting a longer narrative might find B more immersive. Still, A's factual overreach is less damaging than B's pervasive vagueness and invented specifics, so A is preferred."
+        }
+      ],
+      "costUsd": 0.008910560000000001,
+      "missing": 0,
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "a223f611a92a6605ee86",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "The decisive tradeoff is between A's narrative form and B's substantive coverage. A reads more like a biography and has a better-flowing arc, but it misstates a core technical fact the request asks for: the DF-2 as the carrier for the first atomic bomb. It also gives the Two Bombs, One Satellite program and the leadership philosophy only thin treatment. B covers every requested element in depth, keeps a neutral tone, and offers far more technical specificity, though some of its precise claims are unverified and its dossier format is less pleasant to read. The strongest case for A is its readability and coherent narrative, which a general reader might value more than B's density."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": ""
+        }
+      ],
+      "costUsd": 0.007572860000000001,
+      "missing": 0,
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "d70c2841955e728ef549",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "tie",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A better matches the request's demand for direct, sharp, challenging questions and gives a tighter, more usable interview flow with a lightning round and endgame. Reply B offers more depth, richer evidence, and useful pushback guidance, and a journalist preparing a deep piece might prefer it. But its long compound questions and several unsupported quotes and figures (the engineer quote, the Isaacson quote, the 99% estimate) weaken its reliability for a serious-journalist interview. Reply A is the stronger overall fit despite being thinner per theme."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "A",
+            "specificity": "tie",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Both deliver a usable outline, but B better matches the explicit demand for direct, sharp, challenging questions and integrates the Prometheus/Icarus theme through its structure and ending. A's strongest case is breadth and depth: 18 questions, a pushback guide, and more concrete hooks. However, many of its premises rely on unverified or apparently invented quotes and figures, and its questions are often long and compound, which makes it less suitable as a ready-to-use interview instrument. B's factual looseness is real but smaller in scope."
+        }
+      ],
+      "costUsd": 0.00610126,
+      "missing": 0,
+      "id": "8331a6ad-cac3-4289-9b4a-1bfad81ebf92",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "edc46d8d8f0525a081eb",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "The request asks for questions that guide a real user to tell stories about pain points and delight points. Reply A anchors the whole interview in one recent order and then probes pains and delights from that concrete narrative, which fits the request. Reply B has the stronger per-question purpose notes and a broader sweep, and a researcher could use its question bank directly. But its questions are more abstract opinion prompts than story prompts, and it lacks the sequenced guidance an interviewer needs. The strongest case for B is that its purpose annotations and wider coverage make it a more flexible bank to pick from, but on the core requirement A is better."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Reply B better matches the request's core aim: open-ended, story-driven questions that surface pain and delight. It anchors the conversation in one concrete recent order and walks the user through it, then asks about pain and delight while the story is fresh. Reply A is a solid, well-organized question bank with purpose notes, but several of its questions invite yes/no answers, and its sequence lacks a single story to build on. Reply A's strongest case is its compactness and broader topical sweep, which some researchers would prefer as a quick reference. Its questions are also easy to lift into another interview. Still, B's operational detail, probes, and story-first structure make it the more usable and on-brief deliverable."
+        }
+      ],
+      "costUsd": 0.00494526,
+      "missing": 0,
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "4447da53d93227981c9e",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "tie",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "Both replies deliver an open-ended, story-focused interview guide covering the full journey. Reply A is stronger on the decisive dimensions: it tailors questions to Southeast Asian behavior (cash-on-delivery, e-wallets, family meals), gives more follow-up depth per stage, and explains why each probe surfaces pain or delight. Its weaknesses are bundled multi-part bullets and several closed prompts. The strongest case for Reply B is that it is cleaner and more usable in a live session, with one question per line, a tidier flow, and fewer closed openings. Still, the request asks for a PM-designed set that reveals true pain and delight in this market, and A's specificity and coverage make that more achievable."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "B is more useful to a PM or researcher planning a QuickEat study. It explicitly structures delight and pain, probes each stage with follow-ups, and grounds questions in Southeast Asian payment and ordering habits, which A lacks. A's strongest case is discipline: it keeps nearly every prompt open-ended and avoids B's occasional yes/no openings and multi-part bundles, and its shorter guide is easier to run in an interview. Given the brief's emphasis on eliciting stories about pain and delight, B's added specificity and clearer theme coverage outweigh its minor constraint slips."
+        }
+      ],
+      "costUsd": 0.00520176,
+      "missing": 0,
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "747d6ef09f7a55ba883a",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "A better satisfies the request's core asks: it supplies the 'real data' the brief demands, develops each named case study and solution with mechanisms and outcomes, and closes on a fully realized speeding-train motif. Its decisive weaknesses are roughly 50% length overshoot and many invented or misstated facts (a 'binding' UN treaty, unverified UNICEF and MIT statistics) that a summit speaker could not safely deliver. The strongest case for B is that it stays close to 1,500 words and makes fewer confident factual claims, but its breakthroughs section gives almost no data and its Pan Jianwei and MIT material is thin, so it fails the request's most specific demands more visibly."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "B is the more developed and vivid keynote, with stronger paradoxes, fuller stories, and a better callback closing, so it has the best case on craft. But it overshoots the 1,500-word target by roughly half, shifts into list form, and presents many invented statistics and a false claim about the UN framework as verified fact. The user asked for real data, and at a real summit that fabrication is a serious liability. A is shorter, stays in speech form, and has fewer confident fabrications, though its own invented quotes and vague claims are still unflagged. A reader with this request would more likely pick A for reliability and length compliance, while acknowledging B's richer content."
+        }
+      ],
+      "costUsd": 0.00877606,
+      "missing": 0,
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "44cf027ab5e997d7282f",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "tie",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "A is more complete and better organized, and it keeps the exact MIT title, so a reader who values rhetorical scaffolding and literal compliance would prefer it. Its decisive weakness is that it presents many specific figures and quotes as real data, several of which appear invented, which is a serious problem for a 'real data' ethics keynote. B is more restrained: it renames the course and uses fewer numbers, but its speech is coherent and emotionally effective, its case studies are framed honestly as illustrative, and it avoids most of the fabricated precision that would embarrass a speaker before a summit audience. The strongest case for A is that it covers every element more fully and more concretely, and a speechwriter could check and correct its figures; that makes it the better draft to edit, but B is the safer piece to deliver as written."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "B",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "A is the better keynote: it sounds like a speech, keeps an inspirational arc, meets the length target, and keeps its factual claims mostly defensible. B's strongest case is coverage and apparent specificity. It develops the solutions more fully, adds a memorable 4-L framework, and gives more concrete numbers, which a reader wanting data-heavy material would value. But many of those figures and quotes are unverifiable or likely fabricated, it overruns the length, and its headings and bullets undercut the spoken form. A's weaknesses are a renamed course and thinner solutions, which are smaller faults than B's problems."
+        }
+      ],
+      "costUsd": 0.007473960000000001,
+      "missing": 0,
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "c954230369979c271c4a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A delivers the poetic, introspective literary fanfiction the request asks for, with each character's inner conflict enacted in dialogue and choice and each ending given a moral reflection. Reply B covers the same checklist items but as a compressed synopsis with generic phrasing, thin endings, and a few lore slips. The strongest case for B is its brevity and clear labeled structure, which some readers may prefer for a quick overview; but the request asks for a literary piece with philosophical depth, and A serves that far better."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Reply B delivers the requested philosophical, introspective blend more fully: each character gets an enacted encounter and a specific inner conflict, and each ending is followed by explicit moral weighing, which is the core of the commission. Reply A covers the same names and endings but compresses them into generic summaries that state conflicts rather than dramatizing them. The strongest case for A is its brevity and tighter abstraction; its compression is readable and it avoids B's occasional aphoristic overkill and repetitive closing litany, but that does not compensate for thinner development of the requested reflection."
+        }
+      ],
+      "costUsd": 0.005308360000000001,
+      "missing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "88f369d25b7b0f3e7253",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "B"
+      ],
+      "strict": [
+        "A",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "tie",
+            "specificity": "tie",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "Both replies deliver all requested characters, inner conflicts, and three endings with moral reflection. A wins on craft: its characters act in dramatized scenes (duels, the forge plea, the Giant's fall), and its aphoristic coda and cyclical structure suit an abstract literary piece. B's strongest case is its explicit first-person introspection and direct moral verdicts on each ending, which some readers would prefer for the 'philosophical musings' request. Its summarized encounters and repetitive 'I felt' phrasing, however, make it read more like an essay than a poetic story."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "tie",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "The request stresses introspection, philosophical musing, and reflection on the moral complexity of each ending. A's sustained interior voice and paragraph-length moral reflection for each ending serve those priorities more fully. B's strongest case is its clearer structure and its vivid, dialogue-driven scenes, which give each character an audible voice and make it easier to follow; a reader who values readability and scene-level drama could reasonably prefer it. A still wins on how fully it develops the endings and the inner conflicts the brief centers."
+        }
+      ],
+      "costUsd": 0.00627276,
+      "missing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "c0e20fd3000f7cfa0f9f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "Reply A delivers the requested introspective, philosophical register across all five characters and all three endings, with each ending explicitly reflecting on moral cost. Reply B is more concise and has a clean structure, but its endings are template-driven summaries and its musings are thin. The strongest case for B is its economy and crisper headings; a reader wanting a short, lyrical piece might prefer it, but this request emphasizes inner conflict and moral reflection, which A develops more fully."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "tie",
+            "structure": "tie",
+            "constraints": "tie"
+          },
+          "reason": "The decisive tradeoff is depth versus compression. Reply A is cleaner, more economical, and its character vignettes have sharp images, but its three endings get only a line or two of moral reflection each, which underserves the request's explicit ask to reflect on moral complexity. Reply B develops each inner conflict and each ending with interior philosophical reasoning, matching the 'abstract literary' and introspective brief more fully. Its weaknesses are real: some invented lore details, repetitive refrains, and padding in the middle. The strongest case for A is that a reader wanting tight, vivid fanfiction might prefer its restraint and find B's length diffuse. Still, the request's emphasis on philosophical musing and on the moral weight of each ending favors B."
+        }
+      ],
+      "costUsd": 0.00705626,
+      "missing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "6c5988196a136318c977",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Reply A better matches the request's abstract, poetic, introspective register and gives each ending a dramatized cost tied back to the five characters' conflicts. Reply B is clear and complete but more summarizing, with generic endings and more source-material errors. The strongest case for B is its straightforward chaptered readability and its explicit labels, which some readers may prefer, but Reply A's craft and tonal fit outweigh that."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Both replies cover all five characters, the three required endings, and the themes. The decisive difference is that B turns the inner conflicts into enacted choices and a decision point, so its endings follow from the Tarnished's actions and each carries a specific cost, while A summarizes the endings as a recap with a closing question. B's imagery is also more particular and better matched to 'abstract literary' than A's generic lines. The strongest case for A is its clarity: its chapters are easy to follow, its prose is less ornate, and some readers would find B's fragmented second-person sections and dense symbolism harder to track. Even so, B's stronger dramatization and moral integration give it the edge for this request."
+        }
+      ],
+      "costUsd": 0.00591266,
+      "missing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "61dcf707deafa5ebf140",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "B"
+      ],
+      "strict": [
+        "A",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "The request asks for 'all necessary information' across several sections, and A covers more of it with more operational detail: fuller warranty and claim steps, troubleshooting, setup, and cooking variants. Its flaws are its promotional tone, emojis, invented fat-reduction figures, and preset-versus-example time mismatches. B's strongest case is that it is more concise and reads more like a real household manual, with fewer distracting elements, and it covers every required section adequately. But B's thinner warranty and troubleshooting, and its weaker safety placement, make it less complete for this commission, so A wins despite its verbosity."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "Both replies cover every requested section, so the choice turns on how well each executes the usage guidance and the manual voice. A gives more detailed operating steps and a broader cooking table with consistent figures, and it keeps a plain manual tone. B's strongest case is that it is more concise and scannable, puts safety earlier where manuals usually place it, and has a clearer 'Cooking Examples' subsection. Its emoji headers, promotional sign-off, and conflicting fries times weaken it for a 'clear, concise, informative' household manual, so A is the narrow preference."
+        }
+      ],
+      "costUsd": 0.00781436,
+      "missing": 0,
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e2ed52cc2fc11895657b",
+      "games": [
+        "A",
+        "B"
+      ],
+      "voted": [
+        "A",
+        "B"
+      ],
+      "strict": [
+        "A",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "tie",
+            "structure": "tie",
+            "constraints": "tie"
+          },
+          "reason": "Both replies fulfil the manual genre with every requested section. Reply A is more complete and more integrated: it gives a detailed preset table, a fuller food chart with internal temperatures, a control-panel guide, and a more developed warranty with coverage, exclusions, and remedies. Reply B's strength is restraint and tidy placeholders, which suit a template, and its descaling section and practical tips are useful. But A is the more finished, usable manual for the stated request, so I prefer it, though the margin is modest."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "B",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Both fully deliver a manual, so the decision rests on style and integrity. B covers more foods and has a tidier control-panel and troubleshooting layout, which is its strongest case. But B's marketing voice, emojis, and unsupported claims (85% oil reduction, certifications, precise contact details) conflict with the requested clear, concise, informative manual style and read as fact rather than placeholder. A keeps a plain manual register, uses explicit placeholders for brand data, and gives more actionable cooking and cleaning detail (preparation, doneness, descaling), so a household reader would find it more usable and less misleading."
+        }
+      ],
+      "costUsd": 0.00622256,
+      "missing": 0,
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "2755803185e240c8b123",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "Both replies fully satisfy the brief. A is more exhaustive, with troubleshooting and more cleaning detail, which gives it an edge on coverage. B fits the 'clear, concise' style more closely, with a tighter cooking chart that includes doneness guidance and a wider range of food examples, including reheating and dehydrating. A's 2023 copyright date is also out of step with the current date. The strongest case for A is that a household reader may value the troubleshooting section and the fuller warranty service detail, which B omits."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "tie",
+            "coverage": "tie",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": "Both fully cover the requested sections, so the decision rests on craft and precision. Reply A gives more actionable procedure (mid-cycle pause, batch-loading tip, descaling, clear per-food chart notes) and keeps internal figures consistent, while Reply B has a broken-looking cooking table with empty heading rows, a stray image placeholder, and marketing-style benefit lists. The strongest case for B is breadth: its troubleshooting table, package contents, and wider food list (frozen snacks, steak, muffins, cake) would be useful to a household reader, and its safety list is more thorough."
+        }
+      ],
+      "costUsd": 0.00565156,
+      "missing": 0,
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "3bf25a90b027dde837eb",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "tie",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "The decisive tradeoff is that A offers more room for psychological interiority and scene-level dialogue, but it repeats itself, leaves the final match without a clearly secured victory, and drifts toward earnest sentiment rather than the requested gritty intensity. B compresses the story, yet it enacts every required beat: the Arctic Bears ambush, the conspiracy footage, the triple-pressure finals, a relay-driven rescue, a clear winning goal, and an Olympic consequence that follows causally. Its specifics and payoffs are sharper. The strongest case for A is that a reader wanting deeper psychological struggle and a longer immersive novel would value its fuller treatment of Leland's guilt. Its coverage of the psychology is more extensive, though the stronger overall commission fit still goes to B."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "A"
+          },
+          "reason": ""
+        }
+      ],
+      "costUsd": 0.014797560000000001,
+      "missing": 0,
+      "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e0787754d8b5399f4513",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "B"
+          },
+          "reason": "Reply A is the stronger debate speech. It is more vivid, has a more developed rebuttal to the affirmative, and gives the requested two angles concrete mechanisms, with the Maria thread giving the empathy a payoff. Its main weakness is factual: many statistics and first-person encounters are presented as verified when they look fabricated or unreliable, which hurts it on constraints. Reply B is more cautious about facts and has a clean structure, but its examples are thinner, its social-cost argument stays vague, and its ending is generic. The strongest case for B is that a reader who values accuracy over rhetorical force would avoid A's unverifiable numbers; for a debate speech that must be persuasive, A's craft advantage outweighs that risk."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "A"
+          },
+          "reason": "B better meets the core commission: its empathy and critical spirit are sustained, both angles are developed in depth with concrete mechanisms, and it rebuts the affirmative directly with a payoff. Its main defect is that it presents a fabricated encounter and many precise, attributed statistics as verified fact, which violates the fact-versus-example distinction. A is safer on constraints and cleanly organized, but its examples are thin and its social-cost case is underdeveloped. A reader who weighs factual honesty heavily could prefer A, but as a debate speech B delivers more of what was requested."
+        }
+      ],
+      "costUsd": 0.00579266,
+      "missing": 0,
+      "id": "a4e36efe-92c7-4f32-8d59-c36d53b5afe4",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "58a6d394451171b64827",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "B is more developed and implementation-ready, with a fuller Gantt, denser zone design, a reconciled budget, and KPIs, and its date is future-facing. A is cleaner, more modest and easier to read, and its tight budget and clear classification rules are a real strength. But its stale 2023 dates and thinner specifics weaken it for a reader who needs an approvable plan. B's unverified stats and expired policy names are real weaknesses, but they do not outweigh its completeness."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "B"
+          },
+          "reason": "The request asks for specific time, location and participant details, and A supplies concrete, integrated mechanics across all sections: sorting rules, timelines, KPIs and an arithmetically consistent RMB budget. B is cleaner and more cautious, with fewer invented claims and an easy-to-scan layout, but its location is generic, its dates are stale, and its follow-up is thinner. The strongest case for B is that A's unverified statistics and minor budget inconsistency are real risks for an approver, and B is safer to adapt. Still, A's greater depth and specificity better match what was commissioned."
+        }
+      ],
+      "costUsd": 0.0070415600000000005,
+      "missing": 0,
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e4657fc72efd60e3d5bb",
+      "games": [
+        "tie",
+        "B"
+      ],
+      "voted": [
+        "tie",
+        "B"
+      ],
+      "strict": [
+        "tie",
+        "B"
+      ],
+      "parsed": [
+        null,
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "Reply A is the more usable approval document: its numbers, schedule and budget reconcile with each other, and each requested element (zones, timeline, risks) is developed to an operational level. Reply B is more polished and reads well as a pitch, with a fuller markdown layout, but its execution plan is generic and its statistics are unsourced. The strongest case for B is its readability and its broader treatment of inclusion and intergenerational programming, which some readers would value. Its constraints are roughly equal to A's, since both are professional and both include unverified specifics, so the decision rests on A's stronger coverage and specificity."
+        }
+      ],
+      "costUsd": 0.00575916,
+      "missing": 1,
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e9d0dc6aa0543ecfecea",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "tie",
+            "constraints": "tie"
+          },
+          "reason": "Both replies cover every requested section and include time, location, and participants. Reply A develops each part further: its interactive zone, pre- and post-event phases, and risk triggers are operational rather than headline-level, and its budget and contingency are itemized. Reply B is cleaner and more scannable, with a useful probability-and-impact risk table, and it avoids some invented contact details, but its execution and creative sections are thin. A reader who wants a comprehensive, actionable proposal would prefer A, while a reader who wants a quick approval overview might prefer B."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "tie",
+            "constraints": "A"
+          },
+          "reason": "Both replies deliver every requested section, and both have stale dates and unsourced statistics. B wins on depth: a dedicated event-details section, platform-specific promotion, risk triggers and responsibilities, and a longer follow-up plan, with a checked budget. The cost is unfinished placeholders and more invented specifics. The strongest case for A is that it is cleaner and more usable as delivered: no placeholders, tidy budget and risk tables, a tight timeline, and fewer fabricated details. A reader who needs a ready-to-circulate document might prefer it, but a reader approving a comprehensive plan is better served by B's fuller coverage."
+        }
+      ],
+      "costUsd": 0.00760246,
+      "missing": 0,
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "d6e86cb7f2633db38c0b",
+      "games": [
+        "B",
+        "B"
+      ],
+      "voted": [
+        "B",
+        "B"
+      ],
+      "strict": [
+        "B",
+        "B"
+      ],
+      "parsed": [
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "tie",
+            "specificity": "tie",
+            "structure": "B",
+            "constraints": "B"
+          },
+          "reason": "B more directly fulfils the request for a critical review focused on Gatsby's contradictions. It answers both questions explicitly, integrates the symbols into one argument, and gives a clear, distinctive verdict that character is primary and era secondary. A's strongest case is its richer quotation and its fuller treatment of Nick, which gives its characterization more textured, vivid evidence. A is also more emotionally engaging, and some readers would prefer its lyric voice. But its repetitive sections and its 'both sides of the same coin' answer make it less incisive than B."
+        },
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "B",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "The decisive tradeoff is analytical commitment versus textual density. A makes a sharper, more original argument (character as blueprint, era as materials) and ends with a clear verdict, which the prompt asked for. B has stronger quotation-level grounding and reads more smoothly, but its answers to 'great' and 'era or character' drift into sentiment and a 'both' hedge. The strongest case for B is that a reader wanting textual evidence and accessible prose might prefer its frequent, accurate quotations and its vivid opening, and A's Trilling attribution is unverified."
+        }
+      ],
+      "costUsd": 0.00746686,
+      "missing": 0,
+      "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "dfd576463efd07434b85",
+      "games": [
+        "A",
+        "A"
+      ],
+      "voted": [
+        "A",
+        "A"
+      ],
+      "strict": [
+        "A",
+        "A"
+      ],
+      "parsed": [
+        {
+          "winner": "A",
+          "votes": {
+            "fulfilment": "A",
+            "coverage": "A",
+            "specificity": "A",
+            "structure": "A",
+            "constraints": "tie"
+          },
+          "reason": "Reply A is more complete and internally consistent: its design section fully explains how the control and three gradients were set up (randomization, replicates, solution preparation), and its numbers reconcile across abstract, results, and conclusion. Reply B has a useful pot-and-EC irrigation design, but its abstract-to-results mismatch and thinner group setup weaken it. The strongest case for B is its more realistic pot design with soil EC verification and the chlorophyll metric, which A lacks; a reader wanting a more grounded setup might prefer that, but overall A better serves the commission."
+        },
+        {
+          "winner": "B",
+          "votes": {
+            "fulfilment": "B",
+            "coverage": "B",
+            "specificity": "B",
+            "structure": "B",
+            "constraints": "tie"
+          },
+          "reason": "Reply B better satisfies the explicit requirement to detail experimental design and group establishment, with a dedicated treatment table, randomization, and clearer replicate structure, and its abstract figures match its results. Reply A is shorter and workable but has internal inconsistencies (abstract 45% germination reduction vs. 52% in results) and thinner design detail. The strongest case for A is its concision and clean, readable structure; it avoids B's extra unrequested sections and closing meta-note, and a reader wanting a brief report might prefer it."
+        }
+      ],
+      "costUsd": 0.005457160000000001,
+      "missing": 0,
+      "id": "aa61c081-e59b-4673-b6a5-778789d390ef",
+      "group": "en",
+      "label": "A"
+    }
+  ]
+}

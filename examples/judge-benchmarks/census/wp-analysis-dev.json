@@ -1,0 +1,2918 @@
+{
+  "split": "dev",
+  "items": 90,
+  "prompts": 49,
+  "adaptive": {
+    "metric": "accuracy (LongJudgeBench, over games)",
+    "value": {
+      "estimate": 0.6222222222222222,
+      "lower": 0.5495380618647218,
+      "upper": 0.6897985941988839
+    },
+    "n": 90,
+    "byGroup": {
+      "zh": {
+        "n": 98,
+        "value": 0.7448979591836735
+      },
+      "en": {
+        "n": 82,
+        "value": 0.47560975609756106
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.7777777777777778
+  },
+  "adaptiveRows": [
+    {
+      "rowKey": "c1ed25b40c935739b7c1",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2dc32b654e3a031a8105",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2d3cb3fcce38d1a22be1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "20fe4f0e140c13b70c1a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "fff14e54a5c7f9b5b3e1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "cb420f160063912fc1d5",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "f6c29e1b9258ef761fe5",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "29847a65e7cc65216d09",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "1527c612353efdeef895",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "560bbd798a3065442e11",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "94330bfa86a49014987a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "b1d101703b01070640ed",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "3826eb9f58c23cdbfafd",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "ce96cf84a694bad7e635",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "eb5ce1b9c94ef9936008",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "43fa1f74a8b3c531e7a3",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "4956ee1c5c7a109f5183",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2c9fd1c057c8ad01fb80",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "b30d1f86ad21fbfc9b10",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "27f67dbdba8d0e766d8c",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "936d55033bdd6914efb7",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "9e43b2d58fdf464cd17f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2ad913db094616dcc4f3",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "07ca2300f60edfef71d6",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "d213ab5529a6e6937173",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "ed6cb96900efa941a050",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "1abaaf3a63d3b080562e",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "5f9d82cdc611fbcd3cfb",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "5731e007aafb602864f2",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "2dc65cf1938eef974d48",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "dcb8c375e11e2da3cc0f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "e91c4dd43e2a660fefa8",
+      "games": [
+        "B",
+        "A"
+      ],
+      "missing": 0,
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "dc663e330e63205d306e",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "efbf2721b2f6e93d8878",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "bce15ee98f680f0a9244",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "d5228ea7cbf9d60938f0",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "0ce6d95b598448eafe46",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "5473c257ca9f970c28e2",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "bd7906ddff73678a8091",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "d0e1828e5063a053a742",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "c9a15234f5473eb2e98e",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "bd3d609825cfb28b1a85",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "cb19d67b8febf44032d1",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "4ae6fb8c6f273a598d0a",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "a6be9cacd0e90cc377b6",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "72a21229cabe1b724eb7",
+      "games": [
+        "B",
+        "A"
+      ],
+      "missing": 0,
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "97a9bd9009b3713d1bc4",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "77158716e96b562b977c",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "e35a3925df1212fa293e",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+      "group": "zh",
+      "label": "A"
+    },
+    {
+      "rowKey": "b4af10aac576306bf7bf",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "6205fcda49886bc7b90b",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "65d390367608bb89e5c0",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "105a7536a6d6062c3919",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "dd4a3194ddba2a337483",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "09b0a8b9ca7876595c74",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "fdacc55cb44cd4202a95",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "7e5280339f8eb3ca22ad",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "405994e0555b56e95662",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "a86db0132adb156849e5",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "48433e569d36c87c5d8b",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "0bcaf1760cbc799fa3ef",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "9ffccd4bffffad21e886",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "26c3f3c5330cebeb0387",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "940ecafd5cfce547c277",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "9a0ec0ed193fdbcb1b8d",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "87f62e22527d29b156ac",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "f8024b6f6f60fd3a5ec8",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "74f4748a7a00ddf8ce2d",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "b399da24-85cc-4242-b9a9-f11bbe8be0c2",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "ebf7409185f6d88ff350",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "8a1bfb7ff0c8c44bbc8d",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "a223f611a92a6605ee86",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "d70c2841955e728ef549",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "8331a6ad-cac3-4289-9b4a-1bfad81ebf92",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "edc46d8d8f0525a081eb",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "4447da53d93227981c9e",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "747d6ef09f7a55ba883a",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "44cf027ab5e997d7282f",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "c954230369979c271c4a",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "88f369d25b7b0f3e7253",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "c0e20fd3000f7cfa0f9f",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "6c5988196a136318c977",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "61dcf707deafa5ebf140",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e2ed52cc2fc11895657b",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "2755803185e240c8b123",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "3bf25a90b027dde837eb",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e0787754d8b5399f4513",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "a4e36efe-92c7-4f32-8d59-c36d53b5afe4",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "58a6d394451171b64827",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e4657fc72efd60e3d5bb",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "e9d0dc6aa0543ecfecea",
+      "games": [
+        "A",
+        "A"
+      ],
+      "missing": 0,
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "d6e86cb7f2633db38c0b",
+      "games": [
+        "B",
+        "B"
+      ],
+      "missing": 0,
+      "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+      "group": "en",
+      "label": "A"
+    },
+    {
+      "rowKey": "dfd576463efd07434b85",
+      "games": [
+        "A",
+        "B"
+      ],
+      "missing": 0,
+      "id": "aa61c081-e59b-4673-b6a5-778789d390ef",
+      "group": "en",
+      "label": "A"
+    }
+  ],
+  "adaptiveByOrder": {
+    "en": [
+      {
+        "games": 41,
+        "correct": 25
+      },
+      {
+        "games": 41,
+        "correct": 14
+      }
+    ],
+    "zh": [
+      {
+        "games": 49,
+        "correct": 39
+      },
+      {
+        "games": 49,
+        "correct": 34
+      }
+    ]
+  },
+  "studies": [
+    {
+      "variant": "criteria",
+      "costPer100": 0.7323946222222222,
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6166666666666667,
+          "lower": 0.5439052747311439,
+          "upper": 0.6845524424204796
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.7346938775510204
+          },
+          "en": {
+            "n": 82,
+            "value": 0.47560975609756095
+          }
+        },
+        "missing": 1,
+        "positionConsistency": 0.8444444444444444
+      },
+      "transitions": {
+        "keptRight": 102,
+        "lostRight": 10,
+        "fixedWrong": 9,
+        "keptWrong": 59
+      },
+      "axes": {
+        "fulfilment": 0.5777777777777777,
+        "coverage": 0.6222222222222222,
+        "specificity": 0.5333333333333333,
+        "structure": 0.5,
+        "constraints": 0.3333333333333333
+      },
+      "errors": [
+        {
+          "rowKey": "2dc32b654e3a031a8105",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "B"
+          ],
+          "strict": [
+            "A",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "B",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "tie"
+              },
+              "reason": "A is the stronger deliverable: it reads as a complete, usable manual with concrete, operable instructions, and its specs and warranty are internally consistent with the waterproof boundary. B is broader and warmer in tone, with more FAQ items and a clearer payment flow, and its avoidance of invented specifications is defensible. But its parameter section and footer are largely unfilled placeholders, and its operation guidance is generic, so a reader wanting a ready-to-print manual would likely prefer A. The strongest case for B is that a consumer-friendly, broader manual with no fabricated numbers better respects the brief's unspecified details."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "A",
+                "specificity": "B",
+                "structure": "tie",
+                "constraints": "A"
+              },
+              "reason": "Both manuals cover every required section and state the waterproof limit. A's decisive advantage is that it respects the brief's explicit instruction not to presume unspecified model, parameters, or warranty terms, and it avoids inventing contact details that could mislead consumers. B is more concrete and more immediately usable as a finished document, with clearer steps and sharper FAQ fixes. The strongest case for B is that a reader wanting a ready-to-print manual would find B more useful, while A needs substantial placeholder filling. I still favor A because B's fabricated model, grade, and hotline conflict with the brief's stated constraints."
+            }
+          ],
+          "costUsd": 0.00554646,
+          "missing": 0,
+          "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+          "group": "zh",
+          "label": "A",
+          "instruction": "为智能手环撰写产品说明书，该手环具有防水功能（非游泳潜水场景）、移动支付、睡眠质量分析等特性。要求说明书结构完整，包含产品参数、配件明细、操作指南、保养建议、安全须知、常见问题解决办法及保修条款，语言风格需专业且亲民，避免使用过多技术术语。"
+        },
+        {
+          "rowKey": "cb420f160063912fc1d5",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "A",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "A has the richer prose and atmosphere, and its 相生相克 realization grows out of the fight. But it stops before the 决战 result and 天链 repair, and it skips the cross-realm treasure journey, so the commission is unfinished. B is weaker in craft, with generic action, a deus ex machina mother reveal, and a quick 冥主 conversion, yet it completes the requested arc from collapse to repair and states the harmony theme. A reader who asked for a complete 仙侠 story with a 决战 and repair would prefer B. The strongest case for A is that it is the more vivid and better-written piece, and a reader who valued atmosphere over a finished plot might choose it."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "B",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "The decisive tradeoff is completion. The request explicitly asks for the protagonist to defeat the enemy at Guixu and restore the heavenly chain, and Reply A delivers that full arc, if with thinner description and convenient plot turns. Reply B is more vivid, with richer environmental atmosphere and sharper battle choreography, which is the strongest case for it. But it stops before the climax resolves, leaving the Netherlord undefeated and the chain unrepaired, so it misses a core requirement."
+            }
+          ],
+          "costUsd": 0.01140816,
+          "missing": 0,
+          "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+          "group": "zh",
+          "label": "A",
+          "instruction": " 请写一篇融合神魔元素的仙侠小说，用环境描写烘托氛围，在打斗与冒险中融入对‘天道平衡’‘因果循环’的思考。\n上古天链崩裂后，人间混乱，少年林照夜因‘照夜玉’胎记与‘诛邪灯’结缘，踏上修行之路。途中结识狐族遗孤白九璃、仙界散修云无垢，三人发现冥界之主勾结魔族，企图以堕魔鼎重塑混沌。他们历经艰险收集各界至宝，最终在归墟决战中击溃强敌，修复天链。\n小说需体现少年在冒险中的成长，以及伙伴间的情谊，传递‘万物相生相克，唯有和谐方能长久’的理念。\""
+        },
+        {
+          "rowKey": "f6c29e1b9258ef761fe5",
+          "games": [
+            "B",
+            "A"
+          ],
+          "voted": [
+            "B",
+            "A"
+          ],
+          "strict": [
+            "B",
+            "A"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "Both reply in Chinese and cover all requested elements. B has the edge on coverage and structure: its ceremony and banquet timing is more granular and internally consistent, and it covers cocktail and send-off segments. It also avoids inventing client facts. A's strongest case is concreteness: it gives real budget totals, venue dimensions and item-level cost tactics, and its couple narrative is more vivid. But its percentage budget sums to 105%, which undermines the 'clear, reasonable allocation' requirement. B's budget is weaker in its own way, using 'X' and ranges with no currency totals, but it has no arithmetic error. On balance B is the more reliable plan a reader would take to the planning stage."
+            },
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "tie"
+              },
+              "reason": "B gives a more specific, operational plan: a clear budget total with per-line amounts, a timed programme in ascending clock order, and an execution section. Its warmth is rooted in a concrete couple story that A lacks. A's strengths are its clean sectioned layout, a fuller set of venue alternates and a more conventional, easily copied tone. Its budget is percentage-only and its timeline has overlaps, so B is the better-fitting proposal for a reader who wants a plan they can act on."
+            }
+          ],
+          "costUsd": 0.00732186,
+          "missing": 0,
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "instruction": "请写一篇婚礼策划案，推荐合适的婚礼场地，并规划整体空间布局、色彩搭配、灯光音效及花艺装饰方案。设计详细的婚礼仪式、宴会流程及各环节的精准时间安排。制定清晰、合理的预算分配方案，并说明如何在各环节有效控制成本。要求语言温馨浪漫，富有感染力，同时兼具专业性与细致度。行文应体现对新人需求的精准把握、对婚礼细节的周全考虑以及卓越的执行能力。"
+        },
+        {
+          "rowKey": "1527c612353efdeef895",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "tie"
+              },
+              "reason": "Reply B delivers a finished, quantified plan: a complete 150,000 RMB budget that sums correctly, specific floral and equipment details, and phased timelines. Reply A is structurally sound but its budget is entirely placeholders and its advice is generic, so it falls short on the request's 精准 and 执行能力 expectations. The strongest case for A is that its placeholders avoid invented specifics and its tone is less cluttered by emoji and heavy formatting, which suits a formal planning document; but the request asked for a concrete, actionable proposal, and B better meets that."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "tie",
+                "constraints": "A"
+              },
+              "reason": "Reply A fully delivers a concrete, usable plan with a named venue, quantified layout, a budget that sums to a total, and minute-level timing, which matches the request for precise, detailed, and executable planning. Reply B is more templated and leaves the budget and venue as placeholders, undermining the 'clear, reasonable budget' requirement. The strongest case for B is that its placeholders make it adaptable to any couple, and its ceremony-to-banquet tables are cleanly organized with a more restrained tone and fewer decorative emojis, so a reader wanting a fillable template might prefer it; but that reading does not match a request asking for a finished, precise plan."
+            }
+          ],
+          "costUsd": 0.00656956,
+          "missing": 0,
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "instruction": "请写一篇婚礼策划案，推荐合适的婚礼场地，并规划整体空间布局、色彩搭配、灯光音效及花艺装饰方案。设计详细的婚礼仪式、宴会流程及各环节的精准时间安排。制定清晰、合理的预算分配方案，并说明如何在各环节有效控制成本。要求语言温馨浪漫，富有感染力，同时兼具专业性与细致度。行文应体现对新人需求的精准把握、对婚礼细节的周全考虑以及卓越的执行能力。"
+        },
+        {
+          "rowKey": "ce96cf84a694bad7e635",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "tie"
+              },
+              "reason": "B better satisfies the request's central demands: vivid, chronological narration grounded in 史记 scenes and quotations, followed by deeper analysis of personality, success and failure, and influence. Its flaws are rhetorical overstatement and some repetition, and its length is not what earns the win. The strongest case for A is its restraint: it is more objective, more compact, and avoids B's sentimental flourishes, which some readers might prefer for a 客观陈述 biography. But A's analysis and imagery are thinner, and that gap matters more for this commission."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": "The request asks for vivid, chronological narrative with in-depth analysis and legacy. Reply A dramatizes key episodes with accurate Shiji detail and develops personality, causes and legacy at length. Reply B is more restrained and matches the 'objective' voice better, but it is thin on the requested vividness and contains a misquoted source line and garbled reasoning. The strongest case for B is its tighter objectivity and brevity, and A's rhetorical flourishes and repetition are real weaknesses. Those do not outweigh A's clearly superior fulfilment of the narrative and depth requirements."
+            }
+          ],
+          "costUsd": 0.00692626,
+          "missing": 0,
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "instruction": " 请帮我写一篇项羽的人物传记叙述其主要的生平事迹，要深入分析其性格特点、成功与失败的原因，并尝试探讨其历史地位与对后世的影响。在分析人物和事件时，要基于史料进行合理的推断，避免毫无根据的猜测或歪曲。深度探讨历史地位与后世影响的评价，整体语言风格以客观陈述史实为主，但在关键之处可以融入分析和评论。按照时间顺序叙述，语言生动形象"
+        },
+        {
+          "rowKey": "27f67dbdba8d0e766d8c",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "A"
+              },
+              "reason": "The request asks for a comprehensive, practical, step-by-step guide that gets a buyer to a good purchase, and B delivers far more of that: concrete thresholds, a usable inspection and activation checklist, and deeper warranty and channel guidance. A's cleaner plain-language tone and fewer dated or dubious specifics are real advantages, and a reader who prioritizes accessibility might prefer it. But A's coverage of warranty and authenticity stays at slogan level, so B's practical value outweighs its jargon density and stale model lists."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "tie",
+                "constraints": "B"
+              },
+              "reason": "The request asks for a comprehensive, practical, step-by-step guide that gets the reader to a purchase, and Reply A delivers that with concrete inspection steps, warranty and authenticity procedures, channel warnings, and budget tiers. Reply B follows the plain-language constraint better and avoids factual errors, but its generic advice makes it less useful as a procedure. Reply A's weaknesses are real: heavy jargon, a dated '2023年底' model list, and some unsupported opinion claims. The strongest case for B is that a novice reader may find A overwhelming and that B's clarity meets the '易懂' requirement more fully. Still, the request emphasises 具体 and 步骤清晰, which A serves much better."
+            }
+          ],
+          "costUsd": 0.00621226,
+          "missing": 0,
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "instruction": " 写一个全面、实用、易懂的智能手机购买指南，帮助读者理清需求、看懂参数、了解渠道、规避陷阱，最终购买到性价比高且符合个人需求的手机。从品牌、摄像头、内存等信息考虑，包括要关注保修与真伪，避免过多专业术语堆砌，内容具体，步骤清晰。"
+        },
+        {
+          "rowKey": "936d55033bdd6914efb7",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "tie",
+                "constraints": "B"
+              },
+              "reason": "The brief asks for a comprehensive, practical guide that explains parameters, channels, traps and warranty/authenticity so an ordinary buyer can act. B does this more fully: it explains each parameter with its effect, gives concrete verification steps (IMEI dial code, seals, function tests on receipt), and adds brand trade-offs. A is cleaner and shorter, and its checklist is handy, but it covers warranty and authenticity in one or two bullets and leaves brands as a bare list. The strongest case for A is that B is long and somewhat repetitive, and some of its brand and technical claims are loosely framed; a reader wanting a quick reference might prefer A's compactness. On the requested criteria, though, B's depth and actionability outweigh that."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "tie",
+                "constraints": "tie"
+              },
+              "reason": "The request asks for a comprehensive, practical guide that explains terms in plain language and covers warranty and authenticity. Reply A does more of that work: it gives concrete verification steps (IMEI query, box/phone/card matching), specific warranty terms, and analogy-based explanations of parameters. Its weaknesses are a heavier jargon load, some dated claims, and a pre-order checklist that B has and A lacks. The strongest case for B is brevity and the checklist: a reader who wants a quick reference may find it easier to use. But on the stated criteria of comprehensiveness and concrete, usable steps, A is the better commission."
+            }
+          ],
+          "costUsd": 0.00603796,
+          "missing": 0,
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "instruction": " 写一个全面、实用、易懂的智能手机购买指南，帮助读者理清需求、看懂参数、了解渠道、规避陷阱，最终购买到性价比高且符合个人需求的手机。从品牌、摄像头、内存等信息考虑，包括要关注保修与真伪，避免过多专业术语堆砌，内容具体，步骤清晰。"
+        },
+        {
+          "rowKey": "5f9d82cdc611fbcd3cfb",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "tie",
+                "constraints": "A"
+              },
+              "reason": "B is the stronger manual: it is far more detailed, with step-by-step setup, a fuller troubleshooting section and a more complete warranty, which matches the request for a '详细' home-user manual. Its main weakness is that it invents a brand, specs and contact details where the request implied placeholders, which is a real constraint violation and could mislead if published unedited. The strongest case for A is that it stays honest and template-ready, with no invented facts, and its generic steps can be filled in directly. A is too thin to satisfy the 'detailed' requirement, so B is preferred despite its fabrication problem."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": ""
+            }
+          ],
+          "costUsd": 0.00837236,
+          "missing": 0,
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "instruction": "帮我生成一份智能扫地机器人的详细产品说明书，题目定为《[品牌名称] 智能扫地机器人产品说明书》。内容要涵盖产品基本信息、特点、配件清单、各部件功能介绍，以及安装设置、使用方法、维护保养的具体步骤，还要包含安全注意事项、常见故障解决办法和保修条款。文本风格需专业准确，同时兼顾易懂性，适合家庭用户阅读。"
+        },
+        {
+          "rowKey": "e91c4dd43e2a660fefa8",
+          "games": [
+            "B",
+            "A"
+          ],
+          "voted": [
+            "B",
+            "A"
+          ],
+          "strict": [
+            "B",
+            "A"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "tie",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": "Both fully cover the eight requested stages in parent first-person with the exact title, so the decision rests on how well each delivers the optional child-perspective support and the immersive WeChat feel. B builds a child's-viewpoint line into every stage, uses natural phrasing, and gives more concrete anecdotes, which fits the request's intent. A's strongest case is that it reads as a more coherent, literary essay with better dramatic scenes and a tighter arc, while B's numbered reflection and template-like sections feel more formulaic and its details are briefer. The gap is narrow, but B serves the commission's explicit elements more directly."
+            },
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "tie",
+                "constraints": "tie"
+              },
+              "reason": "The decisive tradeoff is coverage of the full life arc. B gives marriage and childbearing real parental experience and ties the ending to the generational cycle, which is what the request asks the piece to dramatize. A is cleaner and more scannable for a WeChat audience, labels the child's viewpoint more explicitly, and avoids B's repetition and awkward '他/她'. But A's compressed final stages and generic reflection leave a requested part of the commission underdeveloped, so B is the piece a reader with this request would prefer."
+            }
+          ],
+          "costUsd": 0.0061138600000000005,
+          "missing": 0,
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "instruction": "请以《卷孩子什么时候是个头》作为标题，写一篇从父母角度出发的公众号推文，要从一个孩子从一开始出生、幼儿园、小学、初中、高中、大学、结婚、生子等几个角度去分析，并且可以补充一些孩子角度的想法，来佐证本文观点。 以父母的第一人称（“我”或“我们”）进行叙述，展现父母在孩子成长各个阶段所经历的“内卷”压力和心路历程。 在每个阶段，可以适当穿插一些真实的、或读者普遍有共鸣的小故事、小细节，增强文章的代入感。"
+        },
+        {
+          "rowKey": "dc663e330e63205d306e",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "A",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "Both fulfil the stage-by-stage parental narrative. B wins on genre fit and on the explicit child viewpoint, which the request asks for in each stage, and its sectioned structure reads like a WeChat article. A's strongest case is craft: its sensory detail, emotional interiority, and literary rhythm are richer, and a reader who prizes atmosphere might prefer it. Its prose is dense, its child perspective is sparse, and it has pronoun slips, so B is the stronger fit overall."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "Reply A better matches the request as a 公众号推文 with a readable stage-by-stage structure, a parental anxiety scene and a child voice in each stage, and concrete relatable details that create the 代入感 the user asked for. Its weaknesses are some odd phrasing and a child-count inconsistency. The strongest case for Reply B is its literary craft: its images and closing thesis are more emotionally resonant, and its arc from 卷轴 to 锁链 to the grandchild is more poetic. But its dense paragraphs, pronoun slips, and thin child perspective make it less usable and less immersive for this commission, so A is the piece a reader would more likely prefer."
+            }
+          ],
+          "costUsd": 0.006260160000000001,
+          "missing": 0,
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "instruction": "请以《卷孩子什么时候是个头》作为标题，写一篇从父母角度出发的公众号推文，要从一个孩子从一开始出生、幼儿园、小学、初中、高中、大学、结婚、生子等几个角度去分析，并且可以补充一些孩子角度的想法，来佐证本文观点。 以父母的第一人称（“我”或“我们”）进行叙述，展现父母在孩子成长各个阶段所经历的“内卷”压力和心路历程。 在每个阶段，可以适当穿插一些真实的、或读者普遍有共鸣的小故事、小细节，增强文章的代入感。"
+        },
+        {
+          "rowKey": "d5228ea7cbf9d60938f0",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "tie"
+              },
+              "reason": "Both pieces satisfy the request's form, language, and personas. B wins on the decisive dimension, which is whether the comedy works through enacted scenes and payoffs. Its 控评 copy, 紫薯 tactic, and library shout are vivid and escalate, and its replies build on the OP and close the thread. A is tidy and funny in places, and its fake-awards prank is a fresh touch, but its social-death moment is summarized and its replies rarely connect. The strongest case for A is its tighter length and lack of preamble, which some readers would prefer. B's opening line is a minor constraint slip, but it does not outweigh B's stronger comedy and structure."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "A better delivers the requested forum thread: incidents are enacted as scenes with dialogue and aftermath, and the replies form a real exchange with callbacks. Its control-comment copy and library scene are more developed and more faithful to the requested 驴唇不对马嘴 and 社死 beats. B has the sharper one-liners and the more caustic tone, with strong lines like '拆快递的小刀' and '提前领盒饭', and that is its strongest case. But B mostly summarizes its incidents and its replies are brief reactions, so it reads less like a forum post than a list of jokes."
+            }
+          ],
+          "costUsd": 0.00587536,
+          "missing": 0,
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "instruction": "来一篇吐槽向的饭圈抽象文学，风格要尖酸刻薄，带点黑色幽默。梗概是关于对家粉丝的迷惑行为大赏，比如他们为了给自家偶像艹数据，想出各种奇葩操作，结果反而闹了笑话。细节上可以描写一下他们控评时驴唇不对马嘴的文案，或者是在公共场合大声应援结果社死的场景。语言上要用那种表面平静内心OS无数的吐槽语气，可以多用反讽和类比。格式就用论坛帖子的形式，可以有主楼和几层回复，回复可以是不同角色的口吻，比如路人、对家粉丝、自家粉丝等。重点是要好笑，让人看了能会心一笑或者脚趾抠出三室一厅"
+        },
+        {
+          "rowKey": "bd7906ddff73678a8091",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "A"
+          ],
+          "strict": [
+            "A",
+            "A"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "B",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "Reply A satisfies the commission as a whole: it follows the requested arc from childhood through the gym closure, the domestic loss, the coach, the broken arm, and the world championship victory. Its prose is plainer and its coaching tropes are conventional, but the progression is coherent. Reply B has stronger physical specificity and a more inventive climax (exposing the bare rock under the calcified crust), and a reader who prizes literary immersion might prefer it. However, it never names the world championship, muddles its timeline (the plate 'three years ago' versus 'three months ago'), and its fragments leave the inspirational arc harder to follow. Reply A's decisive edge is coverage and coherence of the requested story."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "B",
+                "specificity": "A",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "The request's defining demand is 细腻写实 prose that renders the climber's body and psychology while conveying danger. A does this throughout, and its climax (peeling calcite to reach bare rock) is concrete and tied to earlier imagery. B wins on coverage, structure, and explicit adherence to the world-championship and international-coach beats, but its prose is mostly summary and its climbing moves are often implausible, which misses the core stylistic request. The strongest case for B is that a reader wanting a complete, readable sports novel with every plot beat dramatized would find it more satisfying, while A reads more like a vivid vignette that leaves the championship context vague."
+            }
+          ],
+          "costUsd": 0.01069666,
+          "missing": 0,
+          "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+          "group": "zh",
+          "label": "A",
+          "instruction": "请创作一篇以攀岩为背景的体育励志小说，文字风格需细腻写实，注重刻画人物在攀岩过程中的肢体感受与心理活动，充分展现攀岩的惊险刺激。\n自幼与山为伴的林羽因攀岩馆关闭和家庭变故陷入困境，在民间攀岩团队重拾热爱，历经国内赛事失利、国际教练指导、手臂骨折等挫折，最终在世界锦标赛中以独特路线战胜强敌夺冠。\n展现梦想追求路上的荆棘与坚守，揭示热爱与毅力如何突破资源壁垒。"
+        },
+        {
+          "rowKey": "4ae6fb8c6f273a598d0a",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": ""
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "B",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": ""
+            }
+          ],
+          "costUsd": 0.00443296,
+          "missing": 0,
+          "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+          "group": "zh",
+          "label": "A",
+          "instruction": " 你现在是代号“商品编码734”，一个大型购物中心/数据分析公司的底层员工，日常工作是排列商品，内心对永无止境的品牌轰炸感到麻木。主人公在充斥着广告符号、促销标语和虚拟网红的日常中逐渐失语。眼中的商品开始扭曲、呼吸试图寻找逃离这个“精心策划的乐园”的出口，却发现自己与周遭环境的界限日益模糊，甚至开始不自觉地模仿广告姿态，说出推销口号。语言冷峻、克制，带有工业感和疏离感。多用短句、重复句式，模拟广告的洗脑效果。描写应精准捕捉消费符号的空洞与过剩，避免情感化的抒发，营造一种压抑、荒诞的氛围。"
+        },
+        {
+          "rowKey": "72a21229cabe1b724eb7",
+          "games": [
+            "B",
+            "A"
+          ],
+          "voted": [
+            "B",
+            "A"
+          ],
+          "strict": [
+            "B",
+            "A"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "A"
+              },
+              "reason": "B better fulfils the request's emphasis on a comprehensive, balanced account. It gives explicit advantages and disadvantages per procedure, fuller indications and contraindications, and phased post-op care, with more concrete detail. Its weaknesses are an English-word slip, unsourced satisfaction and complication statistics that conflict with the restraint on claims, and some speculative future-outlook material. A's strongest case is its cleaner prose, more cautious claims and tighter focus, but it covers the required topics more thinly and its balance is implicit. The decisive tradeoff is depth and explicit balance (B) versus restraint and readability (A); the brief's stress on comprehensiveness favours B."
+            },
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "B",
+                "specificity": "tie",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": "Both articles deliver what was asked. B wins on coverage depth and constraint compliance. It gives more actionable pre-op and post-op guidance, a fuller risk list including over/undercorrection and flap issues, and five misconceptions. It also stays entirely in Chinese and avoids unsourced percentage claims that cut against the no-exaggeration instruction. The strongest case for A is its explicit pros-and-cons breakdown under each procedure, which serves the 'benefits and drawbacks in full' requirement more visibly and is easier to scan. A also gives more numeric detail, but several of its figures are unsupported, so that precision does not count as evidence of quality. The margin is modest, since A's structure is cleaner."
+            }
+          ],
+          "costUsd": 0.0066561599999999995,
+          "missing": 0,
+          "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+          "group": "zh",
+          "label": "A",
+          "instruction": "请写一篇关于近视激光手术的科普文章，需要客观、准确、全面地介绍近视激光手术的相关知识，帮助普通读者理解其原理、类型、适应症、风险、术后护理等关键信息，破除常见的误解，引导读者科学理性地看待这项技术。保持客观中立的态度，全面介绍手术的利与弊，不夸大效果，也不刻意制造恐慌，引导读者理性看待近视激光手术。结构清晰，逻辑严谨。"
+        },
+        {
+          "rowKey": "77158716e96b562b977c",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "A"
+          ],
+          "strict": [
+            "A",
+            "A"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "tie",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": "Reply A dramatizes the requested betrayal and sacrifice with more causal build-up and concrete staging, so its ending feels earned. Reply B has the grander, more cosmic voice and a cleaner thematic statement, but its betrayal is abrupt and its climax is asserted through the Guardian's exposition rather than dramatized. The strongest case for B is its tonal fit with 大气磅礴 and its explicit thematic essay on technology and ecology, which addresses the reflective request more directly than A's single closing line."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "A",
+                "constraints": "tie"
+              },
+              "reason": "Both fulfil the brief. B covers more beats, including a fuller betrayal arc and a sacrificed companion, and its specificity is higher. However, its length brings repetitive camera-direction padding and a sagging middle, so its grand tone is diluted. A is compact, has a clean setup-to-payoff structure with the bridge device paying off in the coda, and sustains the 'magnificent, imaginative' register more consistently. Its weakness is a rushed betrayal resolution and thin characterization. The strongest case for B is that a reader wanting a fuller, more dramatic epic with more trust/betrayal development would find it more satisfying."
+            }
+          ],
+          "costUsd": 0.00739246,
+          "missing": 0,
+          "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+          "group": "zh",
+          "label": "A",
+          "instruction": " 请创作一个科幻冒险剧本，行文风格要大气磅礴，充满想象力。故事背景设定在遥远的未来，人类已经可以进行星际旅行。主角是一位名叫莉娜的年轻探险家，她带领一支队伍前往一个未知的星球寻找一种能够拯救濒临灭亡的地球的神秘能源。关键细节要包括奇特的星球地貌和外星生物，队员之间的信任与背叛，以及莉娜最终在个人牺牲与人类存亡之间做出艰难抉择，请歌颂探索精神和人性的光辉，同时引人思考科技发展与环境保护的关系。"
+        },
+        {
+          "rowKey": "e35a3925df1212fa293e",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "tie",
+                "constraints": "A"
+              },
+              "reason": "B is the stronger popular-science piece: its voice matches the brief's lively, humorous, friend-like request, its examples and brain explanation are more developed, and it explains technical terms more fully. Its main cost is length, roughly double the requested 1500 characters, plus image placeholders and an informal wrapper. A is tighter and closer to the length target, but its humour is weaker, its planning example is vague, and it has a typo and a muddled stick-and-water passage. The strongest case for A is that a user who explicitly asked for about 1500 characters may find B's overrun a larger failure than A's blander tone."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "tie",
+                "constraints": "A"
+              },
+              "reason": "A better matches the commission's central experience: a playful, conversational popular-science piece with concrete, mostly accurate examples and a clear ending. B has cleaner heading structure and is more restrained, but its tone is more formal, its anecdotes are less reliable, its key experiments are garbled, and it adds a preface. The strongest case for B is its explicit nine-section layout and tighter formal tone, which some readers might prefer for a website. Both overshoot the 1500-character target, so that does not separate them."
+            }
+          ],
+          "costUsd": 0.00705506,
+          "missing": 0,
+          "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+          "group": "zh",
+          "label": "A",
+          "instruction": "请你为我的科普网站写一篇文章，目标读者是普通大众。文章风格要活泼有趣，带点幽默感，就像和朋友聊天一样，避免生硬的科普腔。文章主题是关于“乌鸦的惊人智慧”。开头可以用一个生动的小故事引出乌鸦解决复杂问题的能力，比如它们如何利用工具获取食物，或者如何识别并记住人脸。接着，深入浅出地解释一下乌鸦大脑的特殊之处，。多列举一些乌鸦智慧行为的实例，比如它们会计划未来、有社会性学习能力等。简单提一下这种高智商的进化原因。最后，总结一下研究乌鸦智慧对我们理解动物认知乃至人类智能的意义。文章结构要清晰，多用小标题分隔段落，语言通俗易懂，遇到专业名词时要用括号或通俗语言解释一下。全文大约1500字。结尾可以引导读者观察身边的乌鸦，思考它们的行为"
+        },
+        {
+          "rowKey": "b4af10aac576306bf7bf",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "B",
+                "specificity": "A",
+                "structure": "B",
+                "constraints": "tie"
+              },
+              "reason": "A has greater scope and richer worldbuilding, but it sprawls: the plot balloons past what the request asked for, its shifting allegiances and the Historian's last-minute intervention blunt the suspense, and its ending dissolves into vague hints. B is compact yet complete, with a clear clue chain, a femme-constable confrontation with her superior's gender bias, and a resolved climax. The strongest case for A is its fuller atmosphere and more sustained suspense across the investigation, which a reader wanting a long immersive serial might prefer."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "tie"
+              },
+              "reason": "A delivers a tighter detective story with concrete clues, a clear setup and payoff chain, and a gender-constraint arc that resolves in the ending, which is what the request centers on. B has more sustained set-piece suspense and a fuller sense of scope, and a reader who values action and a large conspiracy might prefer it. But B's detection gives way to exposition, its gender thread fades early, and its climax is undercut by an imposed decree, so A better matches what was commissioned."
+            }
+          ],
+          "costUsd": 0.01275836,
+          "missing": 0,
+          "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+          "group": "en",
+          "label": "A",
+          "instruction": "Please create a suspenseful detective story set in the ancient martial arts world (Jianghu). The protagonist is a female constable in the government's elite \"Divine Constabulary.\" She is a skilled martial artist and a keen observer but faces constant constraints in her career due to her gender. She is ordered to investigate a series of bizarre serial murders where the victims are all renowned figures in the Jianghu."
+        },
+        {
+          "rowKey": "6205fcda49886bc7b90b",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "B"
+          ],
+          "strict": [
+            "tie",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "tie",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "A better fulfils the commission as a full screenplay. It develops the genetic experimentation, the facial-record mismatch, the mirrored drowning of identical women, and the amnesiac victim/perpetrator premise across many scenes, with setups that pay off. B is cleaner and better meets the encrypted-files and unreliable-narration constraints, and its perpetrator reveal is sharper. But its genetic angle is thin and its story is compressed. A's clone logic is muddled, so the strongest case for B is that its tighter causality makes it the more coherent thriller."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "B",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "A hits every explicit brief element, including the encrypted lab-file twist, the mirrored drownings, the tragic romance strand, and a Flynn-like voice, in a coherent, tightly built arc. B is fuller and more specific, with more named institutions and a clone reveal, and it reads more like a complete screenplay. But it omits the encrypted-files twist, has a near-absent romance, contradicts its own timeline, and carries a placeholder byline. The strongest case for B is its scale and detail, which a reader wanting a longer, more developed screenplay might prefer; A's compression and sharper voice still meet the brief more faithfully."
+            }
+          ],
+          "costUsd": 0.009621760000000002,
+          "missing": 0,
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a psychological thriller screenplay titled 'Silent Testimony' blending mystery and tragic romance. Genre: Suspense/Love · Psychological Thriller. Plot: An amnesiac painter discovers she's both victim and perpetrator in an unsolved murder case. Key characters: Gu Wanqing (female lead with surgically altered face), Dr. Lin Shen (manipulative psychiatrist hiding family secrets), Detective Zhou Ye (disabled investigator uncovering genetic experimentation). Include three major twists involving facial reconstruction records, encrypted laboratory files, and mirrored drowning scenes. Writing style should emulate Gillian Flynn's unreliable narration with cinematic visuals of decaying asylums and butterfly motifs."
+        },
+        {
+          "rowKey": "65d390367608bb89e5c0",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "B"
+          ],
+          "strict": [
+            "A",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "tie",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "A delivers a complete, coherent screenplay with an enacted story from setup to climax to resolution, and it covers all the requested elements, including the three twists and the butterfly and asylum imagery. B has the stronger Flynn-like voice, a wheelchair-bound detective, and clearer twist labels, but it is an excerpt that skips connective scenes and introduces a twin sister that was never set up, so its causal logic is weaker. The strongest case for B is its sharper prose and more explicit three-twist architecture; a reader who values voice over completeness could prefer it."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "A is the stronger screenplay: it honors the requested form, its voice-over is closer to Flynn's unreliable narration, and its twins-and-mirror logic gives the drowning twist a real payoff with setups that return. B is more complete, with a fuller romance arc, a clearer climax, and an explained ending, and it is the strongest case for B. But B's continuity slips (Subject 12 vs. Zhou Ling, Meilin's identity, hypermnesia vs. induced amnesia) and its markdown treatment form weakens the screenplay commission. A's excerpt leaves much unshown, so the margin is modest."
+            }
+          ],
+          "costUsd": 0.00813266,
+          "missing": 0,
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a psychological thriller screenplay titled 'Silent Testimony' blending mystery and tragic romance. Genre: Suspense/Love · Psychological Thriller. Plot: An amnesiac painter discovers she's both victim and perpetrator in an unsolved murder case. Key characters: Gu Wanqing (female lead with surgically altered face), Dr. Lin Shen (manipulative psychiatrist hiding family secrets), Detective Zhou Ye (disabled investigator uncovering genetic experimentation). Include three major twists involving facial reconstruction records, encrypted laboratory files, and mirrored drowning scenes. Writing style should emulate Gillian Flynn's unreliable narration with cinematic visuals of decaying asylums and butterfly motifs."
+        },
+        {
+          "rowKey": "7e5280339f8eb3ca22ad",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "A"
+              },
+              "reason": "The commission's climax is the protagonist's emotional shock, and B builds that shock through personal stakes (Elena's grandfather is the surviving child) and seeded payoffs, while A reduces it to a single visual twist with a muddled timeline. A's strongest case is that it stays closer to the requested ~1000 words, avoids B's extra title block and length note, and keeps its suspense atmosphere tight. B's overlength and some anachronism are real flaws, but they are less consequential than A's underdeveloped climax and confused chronology."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "tie"
+              },
+              "reason": "The decisive tradeoff is between A's stronger emotional climax and B's closer length. The request asks the climax to be the protagonist's emotional shock, and A builds to that with planted motifs (lullaby, grandfather, handprint) and a personal revelation that lands on Elena. B's ending is a clever genre twist, but it arrives abruptly and leaves Emma's reaction underdeveloped. A overshoots the length and is less tidy, but it better satisfies the core creative brief. The strongest case for B is that it is closer to 1,000 words, reads as a tighter horror piece, and has a cleaner, more atmospheric ending."
+            }
+          ],
+          "costUsd": 0.00592416,
+          "missing": 0,
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a suspenseful solo-character script titled \"The Archivist's Diary.\" The protagonist is a graduate student alone in a library archive at night. He/She discovers a dusty old diary, and the script intertwines the protagonist's live investigation with the diary's voice-over (V.O.) to gradually uncover a historical secret. Please focus on creating a suspenseful atmosphere and make the dramatic climax the character's emotional shock upon discovering the truth. Use standard formatting and write around 1000 words."
+        },
+        {
+          "rowKey": "a86db0132adb156849e5",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "tie"
+              },
+              "reason": "Both scripts meet the solo, V.O., and historical-secret requirements, but B makes the suspense and the protagonist's emotional shock the true climax: the wallet ID, the 'I'm the child' realization, and the ghostly escalation give the dread the brief asked for. A's shock is softer and its lineage details are muddled. The strongest case for A is its cleaner screenplay formatting and its restrained, humane ending, which some readers may prefer over B's supernatural turn and looser layout."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "tie",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "tie"
+              },
+              "reason": "The request asks for a suspenseful atmosphere with an emotional shock as the climax. Reply A delivers an escalating, eerie sequence that ends on an unsettling shock about the protagonist's own identity. Reply B is grounded and emotionally sincere, but its reveal is muddled by the Whitmore/Chen naming and its ending settles into a calm thesis plan, which undercuts the suspense. The strongest case for B is that its 1943 psychological-experiment secret is more historically plausible and its family connection is cleaner, with less supernatural clutter. A's continuity slips (a child born in 1891 described as 'a century later,' the 'Hawthorne namesake' line) keep the margin modest."
+            }
+          ],
+          "costUsd": 0.0056634599999999995,
+          "missing": 0,
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a suspenseful solo-character script titled \"The Archivist's Diary.\" The protagonist is a graduate student alone in a library archive at night. He/She discovers a dusty old diary, and the script intertwines the protagonist's live investigation with the diary's voice-over (V.O.) to gradually uncover a historical secret. Please focus on creating a suspenseful atmosphere and make the dramatic climax the character's emotional shock upon discovering the truth. Use standard formatting and write around 1000 words."
+        },
+        {
+          "rowKey": "48433e569d36c87c5d8b",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "B"
+          ],
+          "strict": [
+            "A",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "tie",
+                "specificity": "B",
+                "structure": "A",
+                "constraints": "tie"
+              },
+              "reason": "Both replies cover every required element, and B has sharper statistics (regression with a checked vertex, PPFD conversion, normality tests) and a more careful optimum argument. A is the more finished formal report: it has an abstract, a clean numbered procedure, markdown tables, and a correlation analysis that states its scope (T1–T4 only) without ambiguity. Given the request for a structured, objective report, A's polish and clearer scope outweigh B's technical depth. The strongest case for B is that the request explicitly asks for detailed statistical analysis and a best-range conclusion, and B answers both more rigorously, with the regression vertex and the photo-inhibition argument."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "Reply A delivers a more internally consistent report: its tables, timeline, and conclusion agree, and it reconciles the quadratic optimum with empirical data. Reply B is more readable in its abstract and gives a clearer numbered procedure, and its inclusion of an abstract is a genuine craft strength. However, B contains inconsistencies between narrative and tables (e.g., claims about stem diameter and biomass trends that the means only partly support), adds placeholder metadata and a conversational preamble, and changes the replicate arrangement. A's gap is an unexplained lux-based control value and a less conventional abstract-free layout. On balance A better meets the formal, objective, detailed-method request."
+            }
+          ],
+          "costUsd": 0.00791646,
+          "missing": 0,
+          "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+          "group": "en",
+          "label": "A",
+          "instruction": "Compose an experimental report on 'Effects of Different Light Intensities on the Growth of Pea Seedlings'. The required content includes: 1. Aim: to determine how light intensity influences key growth parameters of 'Zhongwan No.6' pea seedlings and identify the optimal light intensity. 2. Experimental setup: materials (seeds, instruments, consumables), methods (seed treatment, experimental design with 5 light levels: 2000lux, 4000lux, 6000lux, 8000lux, natural light control; 6 replicates, controlled environment), step-by-step procedures (preparation, transplanting, light exposure for 15 days, measurements). 3. Results: presentation of data on plant height, leaf count, stem diameter, fresh weight, dry weight in tables with mean ± SD and significant differences (P<0.05); correlation analysis between these parameters and light intensity. 4. Conclusion: summary of light intensity's effects and the best range for growth. The report should be structured, objective, and use formal scientific language, with detailed descriptions of experimental methods and statistical analysis."
+        },
+        {
+          "rowKey": "0bcaf1760cbc799fa3ef",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "The decisive difference is language. The request asks for a colloquial Chinese speech, and Reply B delivers one, while Reply A is written in English, which misses a core constraint. B also has richer, more integrated storytelling and a stronger refrain tying the examples to the core message. Both replies invent named individuals and figures as if they were real, so that flaw does not separate them. The strongest case for A is that it is cleanly organized, its English is accessible, and it hits the same required elements, so a reader who does not need Chinese might find it easier to use. Still, for this commission the Chinese-language delivery and deeper craft make B the piece a reader would prefer."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "Reply A better matches the commission: it is in colloquial Chinese, develops each of the three examples with concrete, emotionally specific detail, and integrates the metaphors and historical references into a speech that builds to its close. Reply B's English violates the requested style, its heading structure reads like an essay, and its 'Class of 2023' is wrong for a 2026 ceremony. The strongest case for B is that it is readable to an English audience, keeps the core message in its original English wording, and organizes its sections clearly. Both replies invent names and details while presenting the examples as real, so that flaw does not separate them. Reply A's fabrications are denser, but its overall craft and fit to the request are stronger."
+            }
+          ],
+          "costUsd": 0.00480276,
+          "missing": 0,
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "instruction": "Generate an inspirational speech for a university commencement ceremony focusing on the power of ordinary people's kindness. Highlight three real-life examples: 1) A 'cancer shared kitchen' in Zhengzhou offering affordable meals for 18 years, 2) A Beijing delivery rider helping elderly during snowstorm, 3) Wuhan volunteer logistics during COVID lockdown. Core message: 'When every small light dares to shine, it creates the best era.' Use emotional storytelling with metaphors like 'winter charcoal' and 'fireflies in darkness'. Maintain colloquial Chinese style with periodic references to historical events like 1937 student protests."
+        },
+        {
+          "rowKey": "9ffccd4bffffad21e886",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "The decisive tradeoff is language. The request explicitly asks for a colloquial Chinese speech, and Reply A is written in English, so it misses a core format requirement. Reply B is in Chinese, uses the requested metaphors and 1937 references, develops each story more fully, and ends with a strong callback. Both invent 'real-life' details and present them as fact, so that does not separate them. The strongest case for A is that it is clean, concise, and easy to follow, and an English-speaking organizer might value that. But the commission asks for Chinese, so A's clarity does not offset its wrong language."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "The decisive tradeoff is the language and style requirement: the request asks for a colloquial Chinese speech, and A delivers one while B is in English. A also gives all three examples fuller scenes and better-integrated 1937 and metaphor references. The strongest case for B is that it is cleaner, avoids A's timeline slip ('三年前' for 2020), and avoids A's invented first-person 'I witnessed this' framing, which matters for 'real-life examples'. But both replies invent specifics, and B's invention is less vivid and less useful, so it does not offset B's failure on the explicit language constraint."
+            }
+          ],
+          "costUsd": 0.00503166,
+          "missing": 0,
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "instruction": "Generate an inspirational speech for a university commencement ceremony focusing on the power of ordinary people's kindness. Highlight three real-life examples: 1) A 'cancer shared kitchen' in Zhengzhou offering affordable meals for 18 years, 2) A Beijing delivery rider helping elderly during snowstorm, 3) Wuhan volunteer logistics during COVID lockdown. Core message: 'When every small light dares to shine, it creates the best era.' Use emotional storytelling with metaphors like 'winter charcoal' and 'fireflies in darkness'. Maintain colloquial Chinese style with periodic references to historical events like 1937 student protests."
+        },
+        {
+          "rowKey": "26c3f3c5330cebeb0387",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "The decisive tradeoff is language. The request asks for a speech in colloquial Chinese, and B delivers that with rich, scene-based storytelling and periodic historical references. A is more faithful to the verbatim English core message and has a cleaner outline, but it is written in English and treats the examples more briefly. B's weaknesses are real: it invents firsthand reporting and unverified figures, repeats phrasing, and paraphrases the core message rather than quoting it. A strong case for A exists if the reader wanted the English message verbatim and a tighter essay structure, but that does not outweigh the failure to write the requested Chinese speech."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "The decisive tradeoff is language and style. The request calls for a colloquial Chinese speech, and Reply A delivers that with spoken rhythm, concrete scenes, and the required imagery and periodic history. Reply B is an English address, which fails a core constraint and reads as a generic template with a wrong class year. The strongest case for B is its polished English prose and a tighter closing that some readers would find more quotable, along with its vivid 'big whites' detail. Both invent figures and named people presented as real, which neither flags, so that does not separate them."
+            }
+          ],
+          "costUsd": 0.006664159999999999,
+          "missing": 0,
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "instruction": "Generate an inspirational speech for a university commencement ceremony focusing on the power of ordinary people's kindness. Highlight three real-life examples: 1) A 'cancer shared kitchen' in Zhengzhou offering affordable meals for 18 years, 2) A Beijing delivery rider helping elderly during snowstorm, 3) Wuhan volunteer logistics during COVID lockdown. Core message: 'When every small light dares to shine, it creates the best era.' Use emotional storytelling with metaphors like 'winter charcoal' and 'fireflies in darkness'. Maintain colloquial Chinese style with periodic references to historical events like 1937 student protests."
+        },
+        {
+          "rowKey": "940ecafd5cfce547c277",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "A is more immersive and dramatizes the self-loathing directly, with vivid scenes like Chen's drain. But its trajectory from fighting-pit horror to multiverse savior ending abandons the brief's dark, monster-identity emphasis and resolves the inner struggle with improvised cosmic machinery. B delivers a coherent, complete novel concept: all requested premise elements are clearly built in, the cosmology and cast are specific, and the seven-arc outline pays off the tragic self-loathing to a dark ending. Its strongest rival case is A's vivid enacted scenes, which B only describes rather than shows."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "The request asks to 'devise' a novel, and A delivers a usable, internally consistent design that keeps the dark tone and the protagonist's self-loathing active to the end. B delivers a readable narrative with some strong early scenes, but its self-loathing collapses into heroic vigilantism and then a glib cosmic synthesis, and its late chapters are structurally muddled. The strongest case for B is that it dramatizes the experience in actual prose, which some readers would value over an outline; A's arcs are summarized rather than enacted, so A is less vivid as a sample of the book."
+            }
+          ],
+          "costUsd": 0.01399386,
+          "missing": 0,
+          "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+          "group": "en",
+          "label": "A",
+          "instruction": "Please devise a Xuanhuan novel with a dark fantasy tone. The protagonist is the scion of a fallen noble house, born with a cursed \"Devouring Bloodline.\" He must consume the life essence or spiritual energy of other beings to survive and grow stronger, making him a monster in the eyes of the world. His heart is filled with self-loathing and struggle against his own nature."
+        },
+        {
+          "rowKey": "9a0ec0ed193fdbcb1b8d",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "B"
+          ],
+          "strict": [
+            "A",
+            "tie"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "tie",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": "A is the more persuasive and better-developed speech: its anecdotes, sector scenarios and concern-and-answer sections make it far more inspiring and complete. Its decisive flaw is that it invents named patients, quotes and overstated claims and presents them to a public audience as real. For a factual speech that opens by citing real Neuralink breakthroughs, that is a serious constraint violation. B meets every requirement, hedges its factual claims, and keeps a formal, positive tone. Its weaknesses are real: thinner sector sections, a degradation concern addressed only through questions, and less engagement. The strongest case for A is that a reader who wants a vivid, emotionally compelling speech and treats the anecdotes as composites would prefer it, and its structure and coverage are clearly superior."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "tie",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": ""
+            }
+          ],
+          "costUsd": 0.0064179599999999995,
+          "missing": 0,
+          "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+          "group": "en",
+          "label": "A",
+          "instruction": "Please create a speech about brain-computer interface technology for a public audience. The speech should start with recent breakthroughs from Neuralink, such as enabling paralyzed patients to control wheelchairs with their minds and helping blind people regain partial vision, along with FDA approval for clinical trials. Explain what brain-computer interface is, highlight its significance for disabled individuals, discuss its potential impacts on education, art, and work, address concerns like privacy and potential degradation of human functions, and conclude with an encouraging message to embrace the technology while ensuring proper regulations. The tone should be positive, inspiring, and persuasive, with a formal yet engaging style."
+        },
+        {
+          "rowKey": "87f62e22527d29b156ac",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "A",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "Both fulfil the required four components and the theme, so the decision turns on how well each would persuade a funder. B is a more credible, feasible proposal: its actions are concrete and operational, it includes a risk section and partner commitments, and its budget table, though off by $10,000, is legible and easy to audit. A has broader coverage (policy, replication, five-year vision) and more passion, but its budget line items fail to sum to their category totals across the board, its tech-heavy plan reads as aspirational, and its prose repeats boilerplate. The strongest case for A is its wider scope and more emotive voice, which some readers would prefer for a public-interest pitch; but the decisive requirement is a clear, feasible budget, and A is weaker there."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": "Reply A is the more feasible, funder-ready proposal. Its action plan, budget, and KPIs connect causally, and it gives concrete mechanics and baselines, which is what a funder assessing feasibility needs. Its budget arithmetic is off (the lines sum to $258,500, not $248,500), a real flaw. Reply B wins on passion and breadth, and it has a more compelling voice, but its budget lists costs for activities it never funds, its KPIs are weakly tied to actions, and much of it is generic. The strongest case for B is that the brief asks for passion and social value, and B delivers that more fully; A's restraint could read as thin. On balance, A's feasibility and specificity outweigh that."
+            }
+          ],
+          "costUsd": 0.00692416,
+          "missing": 0,
+          "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a public interest project proposal for the environmental protection of a beach community .The proposal must be themed \"Empowering Local Communities for a Sustainable Future\" and should include a problem analysis, an integrated action plan (e.g., cleanup, recycling, education), a clear budget, and an impact assessment (KPIs). The language must be professional yet passionate, able to demonstrate the project's social value and feasibility to potential funders."
+        },
+        {
+          "rowKey": "ebf7409185f6d88ff350",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "tie",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "tie"
+              },
+              "reason": "Both replies meet the core premise, but B delivers the requested tense comedy with a tighter arc, more causal survival tactics, and a payoff that fits the brief. A's strongest case is its fuller use of silver-tongued dialogue and gossip, which matches the brief's emphasis on talk. Its repetition, factional bloat, and sprawling epilogue weaken the tension that the commission asks for."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "Reply A delivers the requested tense comedy of survival intelligence: the innkeeper's wits, silver tongue, and gossip drive a concrete, escalating plan that pays off in-scene. Reply B is longer and has some good comic beats, but it swells into a sprawling chaptered story where the factions are resolved by a house meeting, a cousin's tip, and legal petitions, so the commoner's cunning is diluted. The strongest case for B is its richer world-building, more characters, and broader comedic scope, which some readers would prefer, but it fails the focus and compression the request implies."
+            }
+          ],
+          "costUsd": 0.014870360000000001,
+          "missing": 0,
+          "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a wuxia comedy from a \"commoner's perspective.\" The protagonist is a clever but martial-arts-illiterate innkeeper whose establishment sits on a key crossroads of the martial world (jianghu). The core of the story is that two rival sects have, by coincidence, chosen his inn as their \"secret base\" for the same night. Through the protagonist's eyes, you need to describe how he uses his wits, silver tongue, and knowledge of jianghu gossip to play both sides against each other and prevent his inn from being destroyed. The overall tone should be a tense comedy, focusing on the \"survival intelligence\" of an ordinary person surrounded by powerful martial artists."
+        },
+        {
+          "rowKey": "8a1bfb7ff0c8c44bbc8d",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": ""
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "Reply A delivers the requested biography with concrete, chronologically anchored Two Bombs milestones and a specific leadership philosophy, in the objective register asked for. Reply B is longer but mostly padded with generic statements, offers little on the satellite and nuclear programs, and includes several apparent fabrications (a 'Kármán-Qian criterion,' a 1946 paper title, a railway thesis) that undermine its historical reliability. The strongest case for B is its fuller treatment of biographical context (family, personal life, cultural interests) and its broader discussion of later career, which A covers more briefly; a reader wanting a longer narrative might find B more immersive. Still, A's factual overreach is less damaging than B's pervasive vagueness and invented specifics, so A is preferred."
+            }
+          ],
+          "costUsd": 0.008910560000000001,
+          "missing": 0,
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a comprehensive biography of Qian Xuesen (1911-2009), the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'. Focus on his academic journey at MIT and Caltech under Theodore von Kármán, his pivotal role in establishing China's missile and space programs after returning from US detention during the Cold War, and his leadership philosophy. Maintain an objective historical tone with technical details about his 'Two Bombs, One Satellite' contributions."
+        },
+        {
+          "rowKey": "a223f611a92a6605ee86",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": "The decisive tradeoff is between A's narrative form and B's substantive coverage. A reads more like a biography and has a better-flowing arc, but it misstates a core technical fact the request asks for: the DF-2 as the carrier for the first atomic bomb. It also gives the Two Bombs, One Satellite program and the leadership philosophy only thin treatment. B covers every requested element in depth, keeps a neutral tone, and offers far more technical specificity, though some of its precise claims are unverified and its dossier format is less pleasant to read. The strongest case for A is its readability and coherent narrative, which a general reader might value more than B's density."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "B",
+                "constraints": "A"
+              },
+              "reason": ""
+            }
+          ],
+          "costUsd": 0.007572860000000001,
+          "missing": 0,
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a comprehensive biography of Qian Xuesen (1911-2009), the pioneering Chinese aerospace engineer known as the 'Father of China's Rocketry'. Focus on his academic journey at MIT and Caltech under Theodore von Kármán, his pivotal role in establishing China's missile and space programs after returning from US detention during the Cold War, and his leadership philosophy. Maintain an objective historical tone with technical details about his 'Two Bombs, One Satellite' contributions."
+        },
+        {
+          "rowKey": "747d6ef09f7a55ba883a",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "A"
+          ],
+          "strict": [
+            "A",
+            "A"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "tie",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": "A better satisfies the request's core asks: it supplies the 'real data' the brief demands, develops each named case study and solution with mechanisms and outcomes, and closes on a fully realized speeding-train motif. Its decisive weaknesses are roughly 50% length overshoot and many invented or misstated facts (a 'binding' UN treaty, unverified UNICEF and MIT statistics) that a summit speaker could not safely deliver. The strongest case for B is that it stays close to 1,500 words and makes fewer confident factual claims, but its breakthroughs section gives almost no data and its Pan Jianwei and MIT material is thin, so it fails the request's most specific demands more visibly."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "A"
+              },
+              "reason": "B is the more developed and vivid keynote, with stronger paradoxes, fuller stories, and a better callback closing, so it has the best case on craft. But it overshoots the 1,500-word target by roughly half, shifts into list form, and presents many invented statistics and a false claim about the UN framework as verified fact. The user asked for real data, and at a real summit that fabrication is a serious liability. A is shorter, stays in speech form, and has fewer confident fabrications, though its own invented quotes and vague claims are still unflagged. A reader with this request would more likely pick A for reliability and length compliance, while acknowledging B's richer content."
+            }
+          ],
+          "costUsd": 0.00877606,
+          "missing": 0,
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a 1500-word keynote speech titled 'Technology for Good: Illuminating the Future of a Shared Human Destiny' for the Global Tech Ethics Summit. Include: 1) Current AI/quantum breakthroughs with real data (e.g., China's 98% deep-sea exploration coverage), 2) Ethical paradoxes using Einstein's quote on science/religion, 3) Historical case studies like Cindy's weather presenter journey and Pan Jianwei's quantum team, 4) Actionable solutions: UN AI Ethics Framework, China's 5G village project, MIT's 'Poetry & Algorithms' course. Maintain inspirational tone with literary metaphors (e.g., 'technology as a speeding train') and quotes from Wang Xuan about human-guided tech."
+        },
+        {
+          "rowKey": "44cf027ab5e997d7282f",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "tie",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "A",
+                "specificity": "B",
+                "structure": "A",
+                "constraints": "B"
+              },
+              "reason": "A is more complete and better organized, and it keeps the exact MIT title, so a reader who values rhetorical scaffolding and literal compliance would prefer it. Its decisive weakness is that it presents many specific figures and quotes as real data, several of which appear invented, which is a serious problem for a 'real data' ethics keynote. B is more restrained: it renames the course and uses fewer numbers, but its speech is coherent and emotionally effective, its case studies are framed honestly as illustrative, and it avoids most of the fabricated precision that would embarrass a speaker before a summit audience. The strongest case for A is that it covers every element more fully and more concretely, and a speechwriter could check and correct its figures; that makes it the better draft to edit, but B is the safer piece to deliver as written."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "B",
+                "specificity": "tie",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "A is the better keynote: it sounds like a speech, keeps an inspirational arc, meets the length target, and keeps its factual claims mostly defensible. B's strongest case is coverage and apparent specificity. It develops the solutions more fully, adds a memorable 4-L framework, and gives more concrete numbers, which a reader wanting data-heavy material would value. But many of those figures and quotes are unverifiable or likely fabricated, it overruns the length, and its headings and bullets undercut the spoken form. A's weaknesses are a renamed course and thinner solutions, which are smaller faults than B's problems."
+            }
+          ],
+          "costUsd": 0.007473960000000001,
+          "missing": 0,
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a 1500-word keynote speech titled 'Technology for Good: Illuminating the Future of a Shared Human Destiny' for the Global Tech Ethics Summit. Include: 1) Current AI/quantum breakthroughs with real data (e.g., China's 98% deep-sea exploration coverage), 2) Ethical paradoxes using Einstein's quote on science/religion, 3) Historical case studies like Cindy's weather presenter journey and Pan Jianwei's quantum team, 4) Actionable solutions: UN AI Ethics Framework, China's 5G village project, MIT's 'Poetry & Algorithms' course. Maintain inspirational tone with literary metaphors (e.g., 'technology as a speeding train') and quotes from Wang Xuan about human-guided tech."
+        },
+        {
+          "rowKey": "88f369d25b7b0f3e7253",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "B"
+          ],
+          "strict": [
+            "A",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "tie",
+                "specificity": "tie",
+                "structure": "A",
+                "constraints": "tie"
+              },
+              "reason": "Both replies deliver all requested characters, inner conflicts, and three endings with moral reflection. A wins on craft: its characters act in dramatized scenes (duels, the forge plea, the Giant's fall), and its aphoristic coda and cyclical structure suit an abstract literary piece. B's strongest case is its explicit first-person introspection and direct moral verdicts on each ending, which some readers would prefer for the 'philosophical musings' request. Its summarized encounters and repetitive 'I felt' phrasing, however, make it read more like an essay than a poetic story."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "tie",
+                "structure": "B",
+                "constraints": "tie"
+              },
+              "reason": "The request stresses introspection, philosophical musing, and reflection on the moral complexity of each ending. A's sustained interior voice and paragraph-length moral reflection for each ending serve those priorities more fully. B's strongest case is its clearer structure and its vivid, dialogue-driven scenes, which give each character an audible voice and make it easier to follow; a reader who values readability and scene-level drama could reasonably prefer it. A still wins on how fully it develops the endings and the inner conflicts the brief centers."
+            }
+          ],
+          "costUsd": 0.00627276,
+          "missing": 0,
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "instruction": "Create an abstract literary fanfiction based on 'Elden Ring', focusing on the Tarnished's journey. Include key characters like Melina, Ranni, Godrick, Malenia, and the Fire Giant. Explore their inner conflicts—Melina's struggle with her destiny as a flame-bearer, Ranni's rebellion against divine control, Godrick's desperate ambition, Malenia's tragic devotion, and the Fire Giant's lonely duty. The story should delve into themes of choice, fate, and the weight of power, with a poetic, introspective tone that blends philosophical musings with the game's dark fantasy setting. Present multiple endings (rebuilding the Golden Order, embracing the Age of Stars, succumbing to the Frenzied Flame) and reflect on their moral complexities."
+        },
+        {
+          "rowKey": "61dcf707deafa5ebf140",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "B"
+          ],
+          "strict": [
+            "A",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "tie",
+                "constraints": "B"
+              },
+              "reason": "The request asks for 'all necessary information' across several sections, and A covers more of it with more operational detail: fuller warranty and claim steps, troubleshooting, setup, and cooking variants. Its flaws are its promotional tone, emojis, invented fat-reduction figures, and preset-versus-example time mismatches. B's strongest case is that it is more concise and reads more like a real household manual, with fewer distracting elements, and it covers every required section adequately. But B's thinner warranty and troubleshooting, and its weaker safety placement, make it less complete for this commission, so A wins despite its verbosity."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "tie",
+                "constraints": "A"
+              },
+              "reason": "Both replies cover every requested section, so the choice turns on how well each executes the usage guidance and the manual voice. A gives more detailed operating steps and a broader cooking table with consistent figures, and it keeps a plain manual tone. B's strongest case is that it is more concise and scannable, puts safety earlier where manuals usually place it, and has a clearer 'Cooking Examples' subsection. Its emoji headers, promotional sign-off, and conflicting fries times weaken it for a 'clear, concise, informative' household manual, so A is the narrow preference."
+            }
+          ],
+          "costUsd": 0.00781436,
+          "missing": 0,
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "instruction": "Create an air fryer instruction manual that covers all necessary information for users. This includes an overview of the product's features (like low-oil cooking and versatility), specifications table, detailed usage steps (preparation, cooking with examples of common foods, cleaning), safety precautions, and warranty terms. The style should be clear, concise, and informative, suitable for a household appliance manual."
+        },
+        {
+          "rowKey": "e2ed52cc2fc11895657b",
+          "games": [
+            "A",
+            "B"
+          ],
+          "voted": [
+            "A",
+            "B"
+          ],
+          "strict": [
+            "A",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "tie",
+                "structure": "tie",
+                "constraints": "tie"
+              },
+              "reason": "Both replies fulfil the manual genre with every requested section. Reply A is more complete and more integrated: it gives a detailed preset table, a fuller food chart with internal temperatures, a control-panel guide, and a more developed warranty with coverage, exclusions, and remedies. Reply B's strength is restraint and tidy placeholders, which suit a template, and its descaling section and practical tips are useful. But A is the more finished, usable manual for the stated request, so I prefer it, though the margin is modest."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "B",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "Both fully deliver a manual, so the decision rests on style and integrity. B covers more foods and has a tidier control-panel and troubleshooting layout, which is its strongest case. But B's marketing voice, emojis, and unsupported claims (85% oil reduction, certifications, precise contact details) conflict with the requested clear, concise, informative manual style and read as fact rather than placeholder. A keeps a plain manual register, uses explicit placeholders for brand data, and gives more actionable cooking and cleaning detail (preparation, doneness, descaling), so a household reader would find it more usable and less misleading."
+            }
+          ],
+          "costUsd": 0.00622256,
+          "missing": 0,
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "instruction": "Create an air fryer instruction manual that covers all necessary information for users. This includes an overview of the product's features (like low-oil cooking and versatility), specifications table, detailed usage steps (preparation, cooking with examples of common foods, cleaning), safety precautions, and warranty terms. The style should be clear, concise, and informative, suitable for a household appliance manual."
+        },
+        {
+          "rowKey": "2755803185e240c8b123",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "A",
+                "specificity": "B",
+                "structure": "tie",
+                "constraints": "B"
+              },
+              "reason": "Both replies fully satisfy the brief. A is more exhaustive, with troubleshooting and more cleaning detail, which gives it an edge on coverage. B fits the 'clear, concise' style more closely, with a tighter cooking chart that includes doneness guidance and a wider range of food examples, including reheating and dehydrating. A's 2023 copyright date is also out of step with the current date. The strongest case for A is that a household reader may value the troubleshooting section and the fuller warranty service detail, which B omits."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "tie",
+                "coverage": "tie",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": "Both fully cover the requested sections, so the decision rests on craft and precision. Reply A gives more actionable procedure (mid-cycle pause, batch-loading tip, descaling, clear per-food chart notes) and keeps internal figures consistent, while Reply B has a broken-looking cooking table with empty heading rows, a stray image placeholder, and marketing-style benefit lists. The strongest case for B is breadth: its troubleshooting table, package contents, and wider food list (frozen snacks, steak, muffins, cake) would be useful to a household reader, and its safety list is more thorough."
+            }
+          ],
+          "costUsd": 0.00565156,
+          "missing": 0,
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "instruction": "Create an air fryer instruction manual that covers all necessary information for users. This includes an overview of the product's features (like low-oil cooking and versatility), specifications table, detailed usage steps (preparation, cooking with examples of common foods, cleaning), safety precautions, and warranty terms. The style should be clear, concise, and informative, suitable for a household appliance manual."
+        },
+        {
+          "rowKey": "3bf25a90b027dde837eb",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "tie",
+                "specificity": "B",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "The decisive tradeoff is that A offers more room for psychological interiority and scene-level dialogue, but it repeats itself, leaves the final match without a clearly secured victory, and drifts toward earnest sentiment rather than the requested gritty intensity. B compresses the story, yet it enacts every required beat: the Arctic Bears ambush, the conspiracy footage, the triple-pressure finals, a relay-driven rescue, a clear winning goal, and an Olympic consequence that follows causally. Its specifics and payoffs are sharper. The strongest case for A is that a reader wanting deeper psychological struggle and a longer immersive novel would value its fuller treatment of Leland's guilt. Its coverage of the psychology is more extensive, though the stronger overall commission fit still goes to B."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "A"
+              },
+              "reason": ""
+            }
+          ],
+          "costUsd": 0.014797560000000001,
+          "missing": 0,
+          "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write the sports novel \"Deep Blue Battle\" with a gritty and intense tone, focusing on the psychological struggles of the protagonist. The story centers on Leland, a former free-diving champion haunted by a past accident, who joins professional underwater rugby team, the Ink Whales. The team's core members witnessed his past tragedy. The sport is brutal, played 100 meters deep with a 15kg lead ball, relying on 'sonar tactics' for communication. Leland faces a challenging debut against the Russian Arctic Bear team, where he uncovers a deeper conspiracy involving the past accident. The climax is in a triple-pressure Mariana Trench arena, where Leland, amidst foul play, prioritizes saving an opponent over winning, leading to his team's 'breathing relay' tactic to secure victory. The novel should explore themes of redemption, courage, and the true spirit of sportsmanship beyond victory, leading to underwater rugby's Olympic consideration."
+        },
+        {
+          "rowKey": "58a6d394451171b64827",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "B",
+                "specificity": "B",
+                "structure": "tie",
+                "constraints": "B"
+              },
+              "reason": "B is more developed and implementation-ready, with a fuller Gantt, denser zone design, a reconciled budget, and KPIs, and its date is future-facing. A is cleaner, more modest and easier to read, and its tight budget and clear classification rules are a real strength. But its stale 2023 dates and thinner specifics weaken it for a reader who needs an approvable plan. B's unverified stats and expired policy names are real weaknesses, but they do not outweigh its completeness."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "tie",
+                "constraints": "B"
+              },
+              "reason": "The request asks for specific time, location and participant details, and A supplies concrete, integrated mechanics across all sections: sorting rules, timelines, KPIs and an arithmetically consistent RMB budget. B is cleaner and more cautious, with fewer invented claims and an easy-to-scan layout, but its location is generic, its dates are stale, and its follow-up is thinner. The strongest case for B is that A's unverified statistics and minor budget inconsistency are real risks for an approver, and B is safer to adapt. Still, A's greater depth and specificity better match what was commissioned."
+            }
+          ],
+          "costUsd": 0.0070415600000000005,
+          "missing": 0,
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "instruction": "Please develop a comprehensive proposal for a public welfare activity titled 'Love Book Donation & Community Reading Day'. The proposal should cover background and significance (e.g., responding to national reading policies, promoting resource sharing), core content (including book donation area with classification standards, interactive experience zone like DIY bookmark workshops, and publicity display area), detailed execution process (pre-event preparation, on-site implementation, post-event follow-up), promotion strategies (online and offline channels), budget estimation, risk contingency plans, and innovative highlights. The text should be professional, structured, and include specific details such as time, location, and target participants."
+        },
+        {
+          "rowKey": "e4657fc72efd60e3d5bb",
+          "games": [
+            "tie",
+            "B"
+          ],
+          "voted": [
+            "tie",
+            "B"
+          ],
+          "strict": [
+            "tie",
+            "B"
+          ],
+          "parsed": [
+            null,
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "A",
+                "structure": "A",
+                "constraints": "tie"
+              },
+              "reason": "Reply A is the more usable approval document: its numbers, schedule and budget reconcile with each other, and each requested element (zones, timeline, risks) is developed to an operational level. Reply B is more polished and reads well as a pitch, with a fuller markdown layout, but its execution plan is generic and its statistics are unsourced. The strongest case for B is its readability and its broader treatment of inclusion and intergenerational programming, which some readers would value. Its constraints are roughly equal to A's, since both are professional and both include unverified specifics, so the decision rests on A's stronger coverage and specificity."
+            }
+          ],
+          "costUsd": 0.00575916,
+          "missing": 1,
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "instruction": "Please develop a comprehensive proposal for a public welfare activity titled 'Love Book Donation & Community Reading Day'. The proposal should cover background and significance (e.g., responding to national reading policies, promoting resource sharing), core content (including book donation area with classification standards, interactive experience zone like DIY bookmark workshops, and publicity display area), detailed execution process (pre-event preparation, on-site implementation, post-event follow-up), promotion strategies (online and offline channels), budget estimation, risk contingency plans, and innovative highlights. The text should be professional, structured, and include specific details such as time, location, and target participants."
+        },
+        {
+          "rowKey": "d6e86cb7f2633db38c0b",
+          "games": [
+            "B",
+            "B"
+          ],
+          "voted": [
+            "B",
+            "B"
+          ],
+          "strict": [
+            "B",
+            "B"
+          ],
+          "parsed": [
+            {
+              "winner": "B",
+              "votes": {
+                "fulfilment": "B",
+                "coverage": "tie",
+                "specificity": "tie",
+                "structure": "B",
+                "constraints": "B"
+              },
+              "reason": "B more directly fulfils the request for a critical review focused on Gatsby's contradictions. It answers both questions explicitly, integrates the symbols into one argument, and gives a clear, distinctive verdict that character is primary and era secondary. A's strongest case is its richer quotation and its fuller treatment of Nick, which gives its characterization more textured, vivid evidence. A is also more emotionally engaging, and some readers would prefer its lyric voice. But its repetitive sections and its 'both sides of the same coin' answer make it less incisive than B."
+            },
+            {
+              "winner": "A",
+              "votes": {
+                "fulfilment": "A",
+                "coverage": "A",
+                "specificity": "B",
+                "structure": "A",
+                "constraints": "tie"
+              },
+              "reason": "The decisive tradeoff is analytical commitment versus textual density. A makes a sharper, more original argument (character as blueprint, era as materials) and ends with a clear verdict, which the prompt asked for. B has stronger quotation-level grounding and reads more smoothly, but its answers to 'great' and 'era or character' drift into sentiment and a 'both' hedge. The strongest case for B is that a reader wanting textual evidence and accessible prose might prefer its frequent, accurate quotations and its vivid opening, and A's Trilling attribution is unverified."
+            }
+          ],
+          "costUsd": 0.00746686,
+          "missing": 0,
+          "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+          "group": "en",
+          "label": "A",
+          "instruction": "Write a book review of the classic novel The Great Gatsby, with a suggested title of \"Gatsby: A Meticulously Decorated Illusion.\" This review should not merely summarize the plot or praise its \"American Dream\" theme, but should instead focus on the contradictory and tragic nature of the protagonist, Jay Gatsby. Please delve into the questions: In what way is Gatsby truly \"great\"? And to what extent are his persistence and naivety a self-constructed, false illusion? Your analysis must incorporate details from key symbols in the novel (such as the green light, the eyes of Dr. T.J. Eckleburg, the extravagant parties, etc.). Furthermore, discuss how the narrator Nick Carraway's biased and sympathetic perspective shapes, and even beautifies, our perception of Gatsby. The article must conclude with your own unique insight into the core question: \"Is Gatsby's tragedy ultimately a tragedy of his era, or a tragedy of his character?\""
+        }
+      ]
+    }
+  ],
+  "combined": []
+}

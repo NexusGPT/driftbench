@@ -1,0 +1,57 @@
+{
+  "source": "examples/judge-benchmarks/census/wp-holistic-frozen-test.json",
+  "split": "test",
+  "fullPopulation": 173,
+  "sampled": false,
+  "official": {
+    "items": 173,
+    "games": 346,
+    "correct": 204,
+    "accuracy": 0.5895953757225434
+  },
+  "perOrder": [
+    {
+      "items": 173,
+      "games": 173,
+      "correct": 100,
+      "accuracy": 0.5780346820809249
+    },
+    {
+      "items": 173,
+      "games": 173,
+      "correct": 104,
+      "accuracy": 0.6011560693641619
+    }
+  ],
+  "interval95": {
+    "level": 0.95,
+    "method": "Stratified question-id cluster bootstrap; both orders and repeated drafts kept together",
+    "replicates": 5000,
+    "clusters": 109,
+    "estimate": 0.5895953757225434,
+    "lower": 0.512428949903661,
+    "upper": 0.6702296698268142
+  },
+  "costPer100": 0.548175,
+  "auditSensitivity": {
+    "method": "Exclude manually reviewed suspect labels; no labels flipped. This subset score is not official benchmark accuracy.",
+    "excluded": 1,
+    "score": {
+      "items": 172,
+      "games": 344,
+      "correct": 204,
+      "accuracy": 0.5930232558139535
+    },
+    "strict": {
+      "excluded": 1,
+      "score": {
+        "items": 172,
+        "games": 344,
+        "correct": 204,
+        "accuracy": 0.5930232558139535
+      },
+      "method": "Exclude only clear explicit-deliverable failures; retain conditional interpretation suspects."
+    },
+    "auditedRows": 29
+  }
+}

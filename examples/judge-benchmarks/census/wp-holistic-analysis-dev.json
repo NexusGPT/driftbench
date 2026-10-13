@@ -1,0 +1,4190 @@
+{
+  "split": "dev",
+  "items": 90,
+  "candidates": [
+    {
+      "name": "anchor/games",
+      "costPer100": 0.5718106555555555,
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6333333333333333,
+          "lower": 0.5608324110827578,
+          "upper": 0.700262122804812
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.7551020408163265
+          },
+          "en": {
+            "n": 82,
+            "value": 0.4878048780487805
+          }
+        },
+        "missing": 3,
+        "positionConsistency": 0.9222222222222223
+      },
+      "clusteredInterval": {
+        "lower": 0.5176470588235295,
+        "upper": 0.7422680412371134,
+        "clusters": 49,
+        "resamples": 5000
+      },
+      "byOrder": {
+        "en": [
+          {
+            "n": 41,
+            "correct": 20
+          },
+          {
+            "n": 41,
+            "correct": 20
+          }
+        ],
+        "zh": [
+          {
+            "n": 49,
+            "correct": 36
+          },
+          {
+            "n": 49,
+            "correct": 38
+          }
+        ]
+      },
+      "unresolved": 3,
+      "rows": [
+        {
+          "rowKey": "c1ed25b40c935739b7c1",
+          "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2dc32b654e3a031a8105",
+          "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2d3cb3fcce38d1a22be1",
+          "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "20fe4f0e140c13b70c1a",
+          "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "fff14e54a5c7f9b5b3e1",
+          "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "cb420f160063912fc1d5",
+          "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "f6c29e1b9258ef761fe5",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "29847a65e7cc65216d09",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "1527c612353efdeef895",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "560bbd798a3065442e11",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "94330bfa86a49014987a",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b1d101703b01070640ed",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "3826eb9f58c23cdbfafd",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ce96cf84a694bad7e635",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "eb5ce1b9c94ef9936008",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "tie"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "43fa1f74a8b3c531e7a3",
+          "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4956ee1c5c7a109f5183",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2c9fd1c057c8ad01fb80",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b30d1f86ad21fbfc9b10",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "27f67dbdba8d0e766d8c",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "936d55033bdd6914efb7",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9e43b2d58fdf464cd17f",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2ad913db094616dcc4f3",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "07ca2300f60edfef71d6",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d213ab5529a6e6937173",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ed6cb96900efa941a050",
+          "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "1abaaf3a63d3b080562e",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5f9d82cdc611fbcd3cfb",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5731e007aafb602864f2",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2dc65cf1938eef974d48",
+          "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dcb8c375e11e2da3cc0f",
+          "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e91c4dd43e2a660fefa8",
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dc663e330e63205d306e",
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "efbf2721b2f6e93d8878",
+          "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bce15ee98f680f0a9244",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d5228ea7cbf9d60938f0",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "0ce6d95b598448eafe46",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5473c257ca9f970c28e2",
+          "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bd7906ddff73678a8091",
+          "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d0e1828e5063a053a742",
+          "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c9a15234f5473eb2e98e",
+          "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bd3d609825cfb28b1a85",
+          "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "cb19d67b8febf44032d1",
+          "id": "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4ae6fb8c6f273a598d0a",
+          "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a6be9cacd0e90cc377b6",
+          "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "72a21229cabe1b724eb7",
+          "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "97a9bd9009b3713d1bc4",
+          "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "77158716e96b562b977c",
+          "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e35a3925df1212fa293e",
+          "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b4af10aac576306bf7bf",
+          "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "6205fcda49886bc7b90b",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "65d390367608bb89e5c0",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "105a7536a6d6062c3919",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dd4a3194ddba2a337483",
+          "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "09b0a8b9ca7876595c74",
+          "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "fdacc55cb44cd4202a95",
+          "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "7e5280339f8eb3ca22ad",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "405994e0555b56e95662",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a86db0132adb156849e5",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "48433e569d36c87c5d8b",
+          "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "0bcaf1760cbc799fa3ef",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9ffccd4bffffad21e886",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "26c3f3c5330cebeb0387",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "940ecafd5cfce547c277",
+          "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9a0ec0ed193fdbcb1b8d",
+          "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "87f62e22527d29b156ac",
+          "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "f8024b6f6f60fd3a5ec8",
+          "id": "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "74f4748a7a00ddf8ce2d",
+          "id": "b399da24-85cc-4242-b9a9-f11bbe8be0c2",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ebf7409185f6d88ff350",
+          "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "8a1bfb7ff0c8c44bbc8d",
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a223f611a92a6605ee86",
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "tie"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "d70c2841955e728ef549",
+          "id": "8331a6ad-cac3-4289-9b4a-1bfad81ebf92",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "edc46d8d8f0525a081eb",
+          "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4447da53d93227981c9e",
+          "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "747d6ef09f7a55ba883a",
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "44cf027ab5e997d7282f",
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c954230369979c271c4a",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "88f369d25b7b0f3e7253",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c0e20fd3000f7cfa0f9f",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "6c5988196a136318c977",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "61dcf707deafa5ebf140",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e2ed52cc2fc11895657b",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2755803185e240c8b123",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "3bf25a90b027dde837eb",
+          "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e0787754d8b5399f4513",
+          "id": "a4e36efe-92c7-4f32-8d59-c36d53b5afe4",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "tie",
+            "A"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "58a6d394451171b64827",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e4657fc72efd60e3d5bb",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e9d0dc6aa0543ecfecea",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d6e86cb7f2633db38c0b",
+          "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dfd576463efd07434b85",
+          "id": "aa61c081-e59b-4673-b6a5-778789d390ef",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "name": "anchor/rated",
+      "costPer100": 0.5718106555555555,
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6333333333333333,
+          "lower": 0.5608324110827578,
+          "upper": 0.700262122804812
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.7551020408163265
+          },
+          "en": {
+            "n": 82,
+            "value": 0.4878048780487805
+          }
+        },
+        "missing": 3,
+        "positionConsistency": 0.9222222222222223
+      },
+      "clusteredInterval": {
+        "lower": 0.5176470588235295,
+        "upper": 0.7422680412371134,
+        "clusters": 49,
+        "resamples": 5000
+      },
+      "byOrder": {
+        "en": [
+          {
+            "n": 41,
+            "correct": 20
+          },
+          {
+            "n": 41,
+            "correct": 20
+          }
+        ],
+        "zh": [
+          {
+            "n": 49,
+            "correct": 36
+          },
+          {
+            "n": 49,
+            "correct": 38
+          }
+        ]
+      },
+      "unresolved": 3,
+      "rows": [
+        {
+          "rowKey": "c1ed25b40c935739b7c1",
+          "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2dc32b654e3a031a8105",
+          "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2d3cb3fcce38d1a22be1",
+          "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "20fe4f0e140c13b70c1a",
+          "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "fff14e54a5c7f9b5b3e1",
+          "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "cb420f160063912fc1d5",
+          "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "f6c29e1b9258ef761fe5",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "29847a65e7cc65216d09",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "1527c612353efdeef895",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "560bbd798a3065442e11",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "94330bfa86a49014987a",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b1d101703b01070640ed",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "3826eb9f58c23cdbfafd",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ce96cf84a694bad7e635",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "eb5ce1b9c94ef9936008",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "tie"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "43fa1f74a8b3c531e7a3",
+          "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4956ee1c5c7a109f5183",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2c9fd1c057c8ad01fb80",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b30d1f86ad21fbfc9b10",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "27f67dbdba8d0e766d8c",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "936d55033bdd6914efb7",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9e43b2d58fdf464cd17f",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2ad913db094616dcc4f3",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "07ca2300f60edfef71d6",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d213ab5529a6e6937173",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ed6cb96900efa941a050",
+          "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "1abaaf3a63d3b080562e",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5f9d82cdc611fbcd3cfb",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5731e007aafb602864f2",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2dc65cf1938eef974d48",
+          "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dcb8c375e11e2da3cc0f",
+          "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e91c4dd43e2a660fefa8",
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dc663e330e63205d306e",
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "efbf2721b2f6e93d8878",
+          "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bce15ee98f680f0a9244",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d5228ea7cbf9d60938f0",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "0ce6d95b598448eafe46",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5473c257ca9f970c28e2",
+          "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bd7906ddff73678a8091",
+          "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d0e1828e5063a053a742",
+          "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c9a15234f5473eb2e98e",
+          "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bd3d609825cfb28b1a85",
+          "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "cb19d67b8febf44032d1",
+          "id": "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4ae6fb8c6f273a598d0a",
+          "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a6be9cacd0e90cc377b6",
+          "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "72a21229cabe1b724eb7",
+          "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "97a9bd9009b3713d1bc4",
+          "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "77158716e96b562b977c",
+          "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e35a3925df1212fa293e",
+          "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b4af10aac576306bf7bf",
+          "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "6205fcda49886bc7b90b",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "65d390367608bb89e5c0",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "105a7536a6d6062c3919",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dd4a3194ddba2a337483",
+          "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "09b0a8b9ca7876595c74",
+          "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "fdacc55cb44cd4202a95",
+          "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "7e5280339f8eb3ca22ad",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "405994e0555b56e95662",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a86db0132adb156849e5",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "48433e569d36c87c5d8b",
+          "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "0bcaf1760cbc799fa3ef",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9ffccd4bffffad21e886",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "26c3f3c5330cebeb0387",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "940ecafd5cfce547c277",
+          "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9a0ec0ed193fdbcb1b8d",
+          "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "87f62e22527d29b156ac",
+          "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "f8024b6f6f60fd3a5ec8",
+          "id": "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "74f4748a7a00ddf8ce2d",
+          "id": "b399da24-85cc-4242-b9a9-f11bbe8be0c2",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ebf7409185f6d88ff350",
+          "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "8a1bfb7ff0c8c44bbc8d",
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a223f611a92a6605ee86",
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "tie"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "d70c2841955e728ef549",
+          "id": "8331a6ad-cac3-4289-9b4a-1bfad81ebf92",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "edc46d8d8f0525a081eb",
+          "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4447da53d93227981c9e",
+          "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "747d6ef09f7a55ba883a",
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "44cf027ab5e997d7282f",
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c954230369979c271c4a",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "88f369d25b7b0f3e7253",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c0e20fd3000f7cfa0f9f",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "6c5988196a136318c977",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "61dcf707deafa5ebf140",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e2ed52cc2fc11895657b",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2755803185e240c8b123",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "3bf25a90b027dde837eb",
+          "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e0787754d8b5399f4513",
+          "id": "a4e36efe-92c7-4f32-8d59-c36d53b5afe4",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "tie",
+            "A"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "58a6d394451171b64827",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e4657fc72efd60e3d5bb",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e9d0dc6aa0543ecfecea",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d6e86cb7f2633db38c0b",
+          "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dfd576463efd07434b85",
+          "id": "aa61c081-e59b-4673-b6a5-778789d390ef",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "name": "anchor/excerpt",
+      "costPer100": 0.5718106555555555,
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6333333333333333,
+          "lower": 0.5608324110827578,
+          "upper": 0.700262122804812
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.7551020408163265
+          },
+          "en": {
+            "n": 82,
+            "value": 0.4878048780487805
+          }
+        },
+        "missing": 3,
+        "positionConsistency": 0.9222222222222223
+      },
+      "clusteredInterval": {
+        "lower": 0.5176470588235295,
+        "upper": 0.7422680412371134,
+        "clusters": 49,
+        "resamples": 5000
+      },
+      "byOrder": {
+        "en": [
+          {
+            "n": 41,
+            "correct": 20
+          },
+          {
+            "n": 41,
+            "correct": 20
+          }
+        ],
+        "zh": [
+          {
+            "n": 49,
+            "correct": 36
+          },
+          {
+            "n": 49,
+            "correct": 38
+          }
+        ]
+      },
+      "unresolved": 3,
+      "rows": [
+        {
+          "rowKey": "c1ed25b40c935739b7c1",
+          "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2dc32b654e3a031a8105",
+          "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2d3cb3fcce38d1a22be1",
+          "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "20fe4f0e140c13b70c1a",
+          "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "fff14e54a5c7f9b5b3e1",
+          "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "cb420f160063912fc1d5",
+          "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "f6c29e1b9258ef761fe5",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "29847a65e7cc65216d09",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "1527c612353efdeef895",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "560bbd798a3065442e11",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "94330bfa86a49014987a",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b1d101703b01070640ed",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "3826eb9f58c23cdbfafd",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ce96cf84a694bad7e635",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "eb5ce1b9c94ef9936008",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "tie"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "43fa1f74a8b3c531e7a3",
+          "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4956ee1c5c7a109f5183",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2c9fd1c057c8ad01fb80",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b30d1f86ad21fbfc9b10",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "27f67dbdba8d0e766d8c",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "936d55033bdd6914efb7",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9e43b2d58fdf464cd17f",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2ad913db094616dcc4f3",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "07ca2300f60edfef71d6",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d213ab5529a6e6937173",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ed6cb96900efa941a050",
+          "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "1abaaf3a63d3b080562e",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5f9d82cdc611fbcd3cfb",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5731e007aafb602864f2",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2dc65cf1938eef974d48",
+          "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dcb8c375e11e2da3cc0f",
+          "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e91c4dd43e2a660fefa8",
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dc663e330e63205d306e",
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "efbf2721b2f6e93d8878",
+          "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bce15ee98f680f0a9244",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d5228ea7cbf9d60938f0",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "0ce6d95b598448eafe46",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5473c257ca9f970c28e2",
+          "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bd7906ddff73678a8091",
+          "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d0e1828e5063a053a742",
+          "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c9a15234f5473eb2e98e",
+          "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bd3d609825cfb28b1a85",
+          "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "cb19d67b8febf44032d1",
+          "id": "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4ae6fb8c6f273a598d0a",
+          "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a6be9cacd0e90cc377b6",
+          "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "72a21229cabe1b724eb7",
+          "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "97a9bd9009b3713d1bc4",
+          "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "77158716e96b562b977c",
+          "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e35a3925df1212fa293e",
+          "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b4af10aac576306bf7bf",
+          "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "6205fcda49886bc7b90b",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "65d390367608bb89e5c0",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "105a7536a6d6062c3919",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dd4a3194ddba2a337483",
+          "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "09b0a8b9ca7876595c74",
+          "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "fdacc55cb44cd4202a95",
+          "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "7e5280339f8eb3ca22ad",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "405994e0555b56e95662",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a86db0132adb156849e5",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "48433e569d36c87c5d8b",
+          "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "0bcaf1760cbc799fa3ef",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9ffccd4bffffad21e886",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "26c3f3c5330cebeb0387",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "940ecafd5cfce547c277",
+          "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9a0ec0ed193fdbcb1b8d",
+          "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "87f62e22527d29b156ac",
+          "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "f8024b6f6f60fd3a5ec8",
+          "id": "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "74f4748a7a00ddf8ce2d",
+          "id": "b399da24-85cc-4242-b9a9-f11bbe8be0c2",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ebf7409185f6d88ff350",
+          "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "8a1bfb7ff0c8c44bbc8d",
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a223f611a92a6605ee86",
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "tie"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "d70c2841955e728ef549",
+          "id": "8331a6ad-cac3-4289-9b4a-1bfad81ebf92",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "edc46d8d8f0525a081eb",
+          "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4447da53d93227981c9e",
+          "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "747d6ef09f7a55ba883a",
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "44cf027ab5e997d7282f",
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c954230369979c271c4a",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "88f369d25b7b0f3e7253",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c0e20fd3000f7cfa0f9f",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "6c5988196a136318c977",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "61dcf707deafa5ebf140",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e2ed52cc2fc11895657b",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2755803185e240c8b123",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "3bf25a90b027dde837eb",
+          "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e0787754d8b5399f4513",
+          "id": "a4e36efe-92c7-4f32-8d59-c36d53b5afe4",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "tie",
+            "A"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "58a6d394451171b64827",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e4657fc72efd60e3d5bb",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e9d0dc6aa0543ecfecea",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d6e86cb7f2633db38c0b",
+          "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dfd576463efd07434b85",
+          "id": "aa61c081-e59b-4673-b6a5-778789d390ef",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "name": "anchor/reconciled",
+      "costPer100": 0.5843437000000001,
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6333333333333333,
+          "lower": 0.5608324110827578,
+          "upper": 0.700262122804812
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.7448979591836735
+          },
+          "en": {
+            "n": 82,
+            "value": 0.5
+          }
+        },
+        "missing": 3,
+        "positionConsistency": 0.9666666666666667
+      },
+      "clusteredInterval": {
+        "lower": 0.5172413793103449,
+        "upper": 0.7445652173913043,
+        "clusters": 49,
+        "resamples": 5000
+      },
+      "byOrder": {
+        "en": [
+          {
+            "n": 41,
+            "correct": 20
+          },
+          {
+            "n": 41,
+            "correct": 21
+          }
+        ],
+        "zh": [
+          {
+            "n": 49,
+            "correct": 37
+          },
+          {
+            "n": 49,
+            "correct": 36
+          }
+        ]
+      },
+      "unresolved": 3,
+      "rows": [
+        {
+          "rowKey": "c1ed25b40c935739b7c1",
+          "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2dc32b654e3a031a8105",
+          "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2d3cb3fcce38d1a22be1",
+          "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "20fe4f0e140c13b70c1a",
+          "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "fff14e54a5c7f9b5b3e1",
+          "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "cb420f160063912fc1d5",
+          "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "f6c29e1b9258ef761fe5",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "29847a65e7cc65216d09",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "1527c612353efdeef895",
+          "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "560bbd798a3065442e11",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "94330bfa86a49014987a",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b1d101703b01070640ed",
+          "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "3826eb9f58c23cdbfafd",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ce96cf84a694bad7e635",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "eb5ce1b9c94ef9936008",
+          "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "tie"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "43fa1f74a8b3c531e7a3",
+          "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4956ee1c5c7a109f5183",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2c9fd1c057c8ad01fb80",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b30d1f86ad21fbfc9b10",
+          "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "27f67dbdba8d0e766d8c",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "936d55033bdd6914efb7",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9e43b2d58fdf464cd17f",
+          "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2ad913db094616dcc4f3",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "07ca2300f60edfef71d6",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d213ab5529a6e6937173",
+          "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ed6cb96900efa941a050",
+          "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "1abaaf3a63d3b080562e",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5f9d82cdc611fbcd3cfb",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5731e007aafb602864f2",
+          "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2dc65cf1938eef974d48",
+          "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dcb8c375e11e2da3cc0f",
+          "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e91c4dd43e2a660fefa8",
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dc663e330e63205d306e",
+          "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "efbf2721b2f6e93d8878",
+          "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bce15ee98f680f0a9244",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d5228ea7cbf9d60938f0",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "0ce6d95b598448eafe46",
+          "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "5473c257ca9f970c28e2",
+          "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bd7906ddff73678a8091",
+          "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d0e1828e5063a053a742",
+          "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c9a15234f5473eb2e98e",
+          "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "bd3d609825cfb28b1a85",
+          "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "cb19d67b8febf44032d1",
+          "id": "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4ae6fb8c6f273a598d0a",
+          "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a6be9cacd0e90cc377b6",
+          "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "72a21229cabe1b724eb7",
+          "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "97a9bd9009b3713d1bc4",
+          "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "77158716e96b562b977c",
+          "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e35a3925df1212fa293e",
+          "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+          "group": "zh",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "b4af10aac576306bf7bf",
+          "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "6205fcda49886bc7b90b",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "65d390367608bb89e5c0",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "105a7536a6d6062c3919",
+          "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dd4a3194ddba2a337483",
+          "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "09b0a8b9ca7876595c74",
+          "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "fdacc55cb44cd4202a95",
+          "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "7e5280339f8eb3ca22ad",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "405994e0555b56e95662",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a86db0132adb156849e5",
+          "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "48433e569d36c87c5d8b",
+          "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "0bcaf1760cbc799fa3ef",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9ffccd4bffffad21e886",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "26c3f3c5330cebeb0387",
+          "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "940ecafd5cfce547c277",
+          "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "9a0ec0ed193fdbcb1b8d",
+          "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "87f62e22527d29b156ac",
+          "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "f8024b6f6f60fd3a5ec8",
+          "id": "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "74f4748a7a00ddf8ce2d",
+          "id": "b399da24-85cc-4242-b9a9-f11bbe8be0c2",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "ebf7409185f6d88ff350",
+          "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "8a1bfb7ff0c8c44bbc8d",
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "a223f611a92a6605ee86",
+          "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "tie"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "d70c2841955e728ef549",
+          "id": "8331a6ad-cac3-4289-9b4a-1bfad81ebf92",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "edc46d8d8f0525a081eb",
+          "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "4447da53d93227981c9e",
+          "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "747d6ef09f7a55ba883a",
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "44cf027ab5e997d7282f",
+          "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c954230369979c271c4a",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "88f369d25b7b0f3e7253",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "c0e20fd3000f7cfa0f9f",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "6c5988196a136318c977",
+          "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "61dcf707deafa5ebf140",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e2ed52cc2fc11895657b",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "2755803185e240c8b123",
+          "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "3bf25a90b027dde837eb",
+          "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e0787754d8b5399f4513",
+          "id": "a4e36efe-92c7-4f32-8d59-c36d53b5afe4",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "tie",
+            "A"
+          ],
+          "missing": 1
+        },
+        {
+          "rowKey": "58a6d394451171b64827",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e4657fc72efd60e3d5bb",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "e9d0dc6aa0543ecfecea",
+          "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "d6e86cb7f2633db38c0b",
+          "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "B",
+            "B"
+          ],
+          "missing": 0
+        },
+        {
+          "rowKey": "dfd576463efd07434b85",
+          "id": "aa61c081-e59b-4673-b6a5-778789d390ef",
+          "group": "en",
+          "label": "A",
+          "games": [
+            "A",
+            "A"
+          ],
+          "missing": 0
+        }
+      ]
+    }
+  ]
+}

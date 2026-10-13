@@ -1,6 +1,6 @@
 {
   "split": "dev",
-  "selectionRule": "At least two of adaptive, criteria equal-vote, and holistic-anchor oppose the human label in both orders, with no ties.",
+  "selectionRule": "At least two distinct design families oppose the label in both orders, with no ties. Selection does not itself establish a label error.",
   "selected": 26,
   "population": 90,
   "items": [
@@ -13,23 +13,34 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "A",
             "A"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
+          "games": [
+            "B",
+            "B"
           ]
         }
       ],
@@ -59,20 +70,31 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
           "games": [
             "B",
             "B"
@@ -106,23 +128,34 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
+          "games": [
+            "A",
+            "A"
           ]
         }
       ],
@@ -158,20 +191,31 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "A",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
           "games": [
             "B",
             "B"
@@ -210,20 +254,31 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
           "games": [
             "B",
             "B"
@@ -262,23 +317,34 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
+          "games": [
+            "A",
+            "A"
           ]
         }
       ],
@@ -312,20 +378,31 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
           "games": [
             "B",
             "B"
@@ -358,20 +435,31 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "A",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
           "games": [
             "B",
             "B"
@@ -404,23 +492,34 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "A",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
+          "games": [
+            "A",
+            "A"
           ]
         }
       ],
@@ -454,20 +553,31 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
+          "games": [
+            "B",
+            "B"
+          ]
+        },
+        {
+          "design": "criterion-v3-stopped",
+          "family": "decomposed",
           "games": [
             "B",
             "B"
@@ -503,20 +613,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -549,20 +662,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -595,20 +711,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -643,20 +762,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -691,20 +813,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -739,20 +864,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -785,20 +913,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -831,20 +962,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -877,20 +1011,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -923,20 +1060,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -973,20 +1113,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "A",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -1019,20 +1162,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -1065,20 +1211,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -1111,20 +1260,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -1157,20 +1309,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "tie",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -1203,20 +1358,23 @@
       "judges": [
         {
           "design": "adaptive",
+          "family": "adaptive",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "criteria",
+          "design": "criteria-vote",
+          "family": "criteria",
           "games": [
             "B",
             "B"
           ]
         },
         {
-          "design": "holistic-anchor",
+          "design": "holistic",
+          "family": "holistic",
           "games": [
             "B",
             "B"
@@ -1249,5 +1407,13 @@
     "conditionalInstructionCeiling": 0.9555555555555556,
     "universalCeilingEstablished": false,
     "note": "These are audit-based instruction ceilings under stated interpretations, not a proved ceiling of subjective human preference. Only the 26 jointly disputed rows were audited; the other 64 remain unaudited."
-  }
+  },
+  "designCoverage": {
+    "adaptive": 90,
+    "criteria_equal_vote": 90,
+    "holistic": 90,
+    "decomposed_v3": 50
+  },
+  "expandedSelection": "wp-audit-expanded-selection-dev.json",
+  "newRowsAfterV3Stop": 0
 }

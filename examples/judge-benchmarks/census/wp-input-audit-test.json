@@ -1,0 +1,10 @@
+{
+  "scope": "One audited TEST request; no population-wide truncation claim",
+  "id": "6dd1948b-61e5-48f7-917e-449363e77f2b",
+  "sourceUrl": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/wp_bench.jsonl",
+  "sourceSnapshotSha256": "a47a50c8359c6d64b027d018e8cc48707189cf6bf2c5e39ddba2a1eb55750257",
+  "sourceEndsMidWord": true,
+  "sourceTail": "man philosophical theories and legal texts as evidence, yet it should subtly reveal the profound lon",
+  "normalization": "parseLongJudgeWp copies instruction without clipping",
+  "changedAfterFreeze": false
+}

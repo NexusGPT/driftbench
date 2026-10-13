@@ -1,0 +1,1386 @@
+{
+  "kind": "request-only setup, no DEV accuracy",
+  "target": 49,
+  "completed": 20,
+  "newSpendUsd": 0.028903400000000003,
+  "newCalls": 20,
+  "results": [
+    {
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "question": "为智能手环撰写产品说明书，该手环具有防水功能（非游泳潜水场景）、移动支付、睡眠质量分析等特性。要求说明书结构完整，包含产品参数、配件明细、操作指南、保养建议、安全须知、常见问题解决办法及保修条款，语言风格需专业且亲民，避免使用过多技术术语。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "The deliverable is a product manual (产品说明书) for a smart bracelet.",
+            "sourceQuote": "为智能手环撰写产品说明书"
+          },
+          {
+            "requirement": "The manual covers the bracelet's waterproof function and states that it applies to non-swimming, non-diving scenarios.",
+            "sourceQuote": "该手环具有防水功能（非游泳潜水场景）"
+          },
+          {
+            "requirement": "The manual covers the bracelet's mobile payment feature.",
+            "sourceQuote": "移动支付"
+          },
+          {
+            "requirement": "The manual covers the bracelet's sleep quality analysis feature.",
+            "sourceQuote": "睡眠质量分析"
+          },
+          {
+            "requirement": "The manual has a complete structure.",
+            "sourceQuote": "说明书结构完整"
+          },
+          {
+            "requirement": "The manual includes a product parameters section.",
+            "sourceQuote": "产品参数"
+          },
+          {
+            "requirement": "The manual includes an accessories detail section.",
+            "sourceQuote": "配件明细"
+          },
+          {
+            "requirement": "The manual includes an operating guide section.",
+            "sourceQuote": "操作指南"
+          },
+          {
+            "requirement": "The manual includes maintenance and care advice.",
+            "sourceQuote": "保养建议"
+          },
+          {
+            "requirement": "The manual includes a safety notices section.",
+            "sourceQuote": "安全须知"
+          },
+          {
+            "requirement": "The manual includes solutions for common problems.",
+            "sourceQuote": "常见问题解决办法"
+          },
+          {
+            "requirement": "The manual includes warranty terms.",
+            "sourceQuote": "保修条款"
+          },
+          {
+            "requirement": "The language style is professional and approachable.",
+            "sourceQuote": "语言风格需专业且亲民"
+          },
+          {
+            "requirement": "The manual avoids excessive technical jargon.",
+            "sourceQuote": "避免使用过多技术术语"
+          }
+        ],
+        "development": "For a practical artifact, judge whether each required section gives usable, concrete explanation a reader can act on (specific parameters, accessory names, step-by-step operations, care actions, safety warnings, troubleshooting steps and warranty conditions), whether the waterproof limits and feature descriptions are stated accurately and consistently across sections, and whether any assumed specifications or policies are framed responsibly rather than presented as fact.",
+        "craft": "Judge coherent, navigable manual structure with sections that follow a logical order and are clearly titled, a consistent professional-yet-friendly voice suited to general product users, smooth transitions between sections, and plain-language wording that explains necessary terms rather than relying on technical jargon."
+      },
+      "costUsd": 0.0012695
+    },
+    {
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "question": "对大疆 Mini 4 Pro 无人机进行全方位评测，涵盖折叠尺寸、电池续航衰减情况、避障灵敏度、照片动态范围、信号丢失处理机制等细节，比较其与上一代产品的升级之处，给出优缺点总结和购买建议，语言要专业严谨，适合行业人士参考。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Produce a comprehensive (全方位) evaluation of the DJI Mini 4 Pro drone",
+            "sourceQuote": "对大疆 Mini 4 Pro 无人机进行全方位评测"
+          },
+          {
+            "requirement": "Cover the drone's folded size",
+            "sourceQuote": "涵盖折叠尺寸"
+          },
+          {
+            "requirement": "Cover battery endurance and how it degrades over time",
+            "sourceQuote": "电池续航衰减情况"
+          },
+          {
+            "requirement": "Cover obstacle avoidance sensitivity",
+            "sourceQuote": "避障灵敏度"
+          },
+          {
+            "requirement": "Cover photo dynamic range",
+            "sourceQuote": "照片动态范围"
+          },
+          {
+            "requirement": "Cover how the drone handles signal loss",
+            "sourceQuote": "信号丢失处理机制"
+          },
+          {
+            "requirement": "Compare the drone with the previous generation and identify its upgrades",
+            "sourceQuote": "比较其与上一代产品的升级之处"
+          },
+          {
+            "requirement": "Provide a summary of advantages and disadvantages",
+            "sourceQuote": "给出优缺点总结"
+          },
+          {
+            "requirement": "Provide purchase recommendations",
+            "sourceQuote": "购买建议"
+          },
+          {
+            "requirement": "Use a professional and rigorous tone of language",
+            "sourceQuote": "语言要专业严谨"
+          },
+          {
+            "requirement": "Write for an audience of industry professionals who will use it as a reference",
+            "sourceQuote": "适合行业人士参考"
+          }
+        ],
+        "development": "As a factual product analysis, each named topic (folding size, battery endurance decay, obstacle avoidance sensitivity, photo dynamic range, signal loss handling) must be explained with concrete, accurate details and supported interpretation rather than merely named. The upgrade comparison must specifically identify what changed from the previous generation and why it matters. The pros/cons summary and purchase advice must follow from the evidence discussed and be framed for professional decision-making.",
+        "craft": "The review should have a coherent structure that moves logically from the drone's physical design through performance topics to the comparison, summary, and recommendation. Transitions should connect sections clearly. The voice should stay consistently professional and precise in terminology, suited to industry readers, without drifting into casual consumer-review language or unsupported hype."
+      },
+      "costUsd": 0.0010379
+    },
+    {
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "question": " 请写一篇融合神魔元素的仙侠小说，用环境描写烘托氛围，在打斗与冒险中融入对‘天道平衡’‘因果循环’的思考。\n上古天链崩裂后，人间混乱，少年林照夜因‘照夜玉’胎记与‘诛邪灯’结缘，踏上修行之路。途中结识狐族遗孤白九璃、仙界散修云无垢，三人发现冥界之主勾结魔族，企图以堕魔鼎重塑混沌。他们历经艰险收集各界至宝，最终在归墟决战中击溃强敌，修复天链。\n小说需体现少年在冒险中的成长，以及伙伴间的情谊，传递‘万物相生相克，唯有和谐方能长久’的理念。\"",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "The deliverable is a xianxia novel (仙侠小说) that blends divine and demonic (神魔) elements.",
+            "sourceQuote": "请写一篇融合神魔元素的仙侠小说"
+          },
+          {
+            "requirement": "Environmental description is used to build and support the story's atmosphere.",
+            "sourceQuote": "用环境描写烘托氛围"
+          },
+          {
+            "requirement": "Reflection on the concepts of 'balance of the Heavenly Dao' and 'cycle of cause and effect' is woven into the combat and adventure scenes.",
+            "sourceQuote": "在打斗与冒险中融入对‘天道平衡’‘因果循环’的思考"
+          },
+          {
+            "requirement": "The story opens after the ancient Heavenly Chain has shattered and the human realm has fallen into chaos.",
+            "sourceQuote": "上古天链崩裂后，人间混乱"
+          },
+          {
+            "requirement": "The protagonist is the youth Lin Zhaoye, whose 'Zhaoye Jade' birthmark and the 'Zhuxie Lamp' bind him to a cultivation path.",
+            "sourceQuote": "少年林照夜因‘照夜玉’胎记与‘诛邪灯’结缘，踏上修行之路"
+          },
+          {
+            "requirement": "Along the way the protagonist meets the fox-clan orphan Bai Jiuli and the immortal-realm rogue cultivator Yun Wugou.",
+            "sourceQuote": "途中结识狐族遗孤白九璃、仙界散修云无垢"
+          },
+          {
+            "requirement": "The three characters discover that the Lord of the Netherworld is colluding with demons to use the Fallen Demon Cauldron to remold chaos, which serves as the central threat.",
+            "sourceQuote": "三人发现冥界之主勾结魔族，企图以堕魔鼎重塑混沌"
+          },
+          {
+            "requirement": "The heroes undertake a perilous quest to gather treasures from the various realms.",
+            "sourceQuote": "他们历经艰险收集各界至宝"
+          },
+          {
+            "requirement": "The climax and ending show the heroes defeating the powerful enemy in the final battle at Guixu and repairing the Heavenly Chain.",
+            "sourceQuote": "最终在归墟决战中击溃强敌，修复天链"
+          },
+          {
+            "requirement": "The story depicts the protagonist's growth through his adventures.",
+            "sourceQuote": "小说需体现少年在冒险中的成长"
+          },
+          {
+            "requirement": "The story portrays the friendship and loyalty between the companions.",
+            "sourceQuote": "以及伙伴间的情谊"
+          },
+          {
+            "requirement": "The story conveys the message that all things arise from and check one another, and that only harmony endures.",
+            "sourceQuote": "传递‘万物相生相克，唯有和谐方能长久’的理念"
+          }
+        ],
+        "development": "Judge whether the story enacts the brief through dramatized scenes rather than summary: the protagonist's cultivation and growth must be shown through concrete trials, choices and costs; the treasure-gathering and Guixu battle must follow from clear causes set up earlier; the Heavenly Dao and cause-and-effect reflections must emerge from events and character decisions, not lecture; the companions' bond and the Zhaoye Jade/Zhuxie Lamp elements must affect plot outcomes; and the tension must escalate toward the final battle with an emotional change that is earned. Invented names, realms, artifacts and battle mechanics are acceptable if they are used consistently and advance the story.",
+        "craft": "Judge coherent structure across the required stages (origin, meeting companions, uncovering the plot, quest, final battle, restoration), with smooth transitions between realms and episodes. The voice should suit a xianxia reader: evocative, atmospheric scene-setting that supports rather than stalls the action, with consistent names, rules of power and tone. Dialogue and interactions among the three companions should feel distinct and believable. The thematic message of harmony should be resolved through the narrative's imagery and outcomes, avoiding a plainly stated moral, and the ending should feel original and internally consistent."
+      },
+      "costUsd": 0.0015232
+    },
+    {
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "question": "请写一篇婚礼策划案，推荐合适的婚礼场地，并规划整体空间布局、色彩搭配、灯光音效及花艺装饰方案。设计详细的婚礼仪式、宴会流程及各环节的精准时间安排。制定清晰、合理的预算分配方案，并说明如何在各环节有效控制成本。要求语言温馨浪漫，富有感染力，同时兼具专业性与细致度。行文应体现对新人需求的精准把握、对婚礼细节的周全考虑以及卓越的执行能力。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Produce a wedding planning proposal (婚礼策划案) as the artifact.",
+            "sourceQuote": "请写一篇婚礼策划案"
+          },
+          {
+            "requirement": "Recommend a suitable wedding venue.",
+            "sourceQuote": "推荐合适的婚礼场地"
+          },
+          {
+            "requirement": "Plan the overall spatial layout of the wedding venue.",
+            "sourceQuote": "规划整体空间布局"
+          },
+          {
+            "requirement": "Provide a color scheme for the wedding.",
+            "sourceQuote": "色彩搭配"
+          },
+          {
+            "requirement": "Provide lighting and sound design for the wedding.",
+            "sourceQuote": "灯光音效"
+          },
+          {
+            "requirement": "Provide a floral decoration plan.",
+            "sourceQuote": "花艺装饰方案"
+          },
+          {
+            "requirement": "Design a detailed wedding ceremony.",
+            "sourceQuote": "设计详细的婚礼仪式"
+          },
+          {
+            "requirement": "Design the banquet (reception) flow.",
+            "sourceQuote": "宴会流程"
+          },
+          {
+            "requirement": "Provide precise timing for each segment of the event.",
+            "sourceQuote": "各环节的精准时间安排"
+          },
+          {
+            "requirement": "Provide a clear and reasonable budget allocation plan.",
+            "sourceQuote": "制定清晰、合理的预算分配方案"
+          },
+          {
+            "requirement": "Explain how to effectively control costs in each segment.",
+            "sourceQuote": "说明如何在各环节有效控制成本"
+          },
+          {
+            "requirement": "Use warm and romantic language.",
+            "sourceQuote": "语言温馨浪漫"
+          },
+          {
+            "requirement": "Make the writing emotionally engaging and inspiring.",
+            "sourceQuote": "富有感染力"
+          },
+          {
+            "requirement": "Combine professionalism with meticulous detail.",
+            "sourceQuote": "同时兼具专业性与细致度"
+          },
+          {
+            "requirement": "Demonstrate precise understanding of the couple's needs.",
+            "sourceQuote": "对新人需求的精准把握"
+          },
+          {
+            "requirement": "Demonstrate thorough consideration of wedding details.",
+            "sourceQuote": "对婚礼细节的周全考虑"
+          },
+          {
+            "requirement": "Demonstrate excellent execution ability in the plan.",
+            "sourceQuote": "卓越的执行能力"
+          }
+        ],
+        "development": "For a practical planning artifact, judge whether each required element (venue, layout, color, lighting and sound, florals, ceremony, banquet flow, timing, budget allocation, and cost-control measures) gives usable, concrete guidance such as specific arrangements, sequenced timings, and quantified or clearly estimated budget lines. Check that the plan is internally consistent: timings match the flow, budget totals and category shares agree with each other, the layout fits the chosen venue, and the decor and lighting match the color scheme. Assumptions about guest count, date, location, or budget should be stated and framed responsibly as adjustable, not presented as fact.",
+        "craft": "Judge a coherent structure that moves logically from venue selection through space, visual design, ceremony, banquet, timing, budget, and cost control, with clear headings and smooth transitions between sections. The voice should be warm, romantic, and emotionally resonant while remaining professional and precise, addressed appropriately to the couple. Originality should show in tailored ideas that reflect the couple's needs rather than generic template phrasing, and terminology and tone should stay consistent throughout."
+      },
+      "costUsd": 0.0013939999999999998
+    },
+    {
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "question": "请帮我写一个关于反贪的剧本，女主角：林雨（28岁）  身份： 一位年轻、正直的调查记者，她的家人曾因腐败事件受害。任务： 深入调查腐败案件，用笔和镜头揭露真相。反派：市长/集团董事长（50岁左右）  身份： 城市腐败网络的核心人物，掌控着巨大的权力和资源。老谋深算、表里不一。重要配角：老李（50多岁）  身份： 一位因腐败受害的普通市民，或曾是体制内的小人物，掌握关键线索。他胆小怕事，但内心渴望正义，最终在主角的感召下，鼓起勇气提供帮助。故事的开端： 展现城市繁华下的腐败乱象，通过一个具体事件引入林雨的调查。然后林雨通过卧底、暗访等方式，获取第一手资料；在调查过程中，遇到老李等关键证人，也面临着被收买、被恐吓、被栽赃的危机。最后，腐败分子得到应有的惩罚，正义得以伸张。城市开始重塑秩序，人民看到了希望。虽然“战役”结束，但反腐的“战争”永无止境，留下对未来的思考。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Write a screenplay (剧本) about anti-corruption.",
+            "sourceQuote": "请帮我写一个关于反贪的剧本"
+          },
+          {
+            "requirement": "The female lead is Lin Yu, aged 28.",
+            "sourceQuote": "女主角：林雨（28岁）"
+          },
+          {
+            "requirement": "Lin Yu is a young, upright investigative journalist.",
+            "sourceQuote": "一位年轻、正直的调查记者"
+          },
+          {
+            "requirement": "Lin Yu's family was harmed by a corruption incident, which motivates her.",
+            "sourceQuote": "她的家人曾因腐败事件受害"
+          },
+          {
+            "requirement": "Lin Yu's mission is to investigate corruption cases in depth and expose the truth through writing and camera work.",
+            "sourceQuote": "用笔和镜头揭露真相"
+          },
+          {
+            "requirement": "The antagonist is a mayor or group chairman, about 50 years old.",
+            "sourceQuote": "市长/集团董事长（50岁左右）"
+          },
+          {
+            "requirement": "The antagonist is the core figure of an urban corruption network who controls great power and resources.",
+            "sourceQuote": "掌控着巨大的权力和资源"
+          },
+          {
+            "requirement": "The antagonist is scheming and cunning, and outwardly inconsistent with his true nature.",
+            "sourceQuote": "老谋深算、表里不一"
+          },
+          {
+            "requirement": "Lao Li is an important supporting character in his 50s.",
+            "sourceQuote": "老李（50多岁）"
+          },
+          {
+            "requirement": "Lao Li is either an ordinary citizen victimized by corruption or a former small figure within the system, and he holds key clues.",
+            "sourceQuote": "一位因腐败受害的普通市民，或曾是体制内的小人物，掌握关键线索"
+          },
+          {
+            "requirement": "Lao Li is timid and fearful of trouble, yet inwardly longs for justice.",
+            "sourceQuote": "他胆小怕事，但内心渴望正义"
+          },
+          {
+            "requirement": "Lao Li ultimately summons courage to provide help, inspired by the protagonist.",
+            "sourceQuote": "最终在主角的感召下，鼓起勇气提供帮助"
+          },
+          {
+            "requirement": "The opening shows the chaos of corruption beneath the prosperity of the city.",
+            "sourceQuote": "展现城市繁华下的腐败乱象"
+          },
+          {
+            "requirement": "The opening introduces Lin Yu's investigation through a specific event.",
+            "sourceQuote": "通过一个具体事件引入林雨的调查"
+          },
+          {
+            "requirement": "Lin Yu obtains firsthand material through undercover work and covert filming.",
+            "sourceQuote": "林雨通过卧底、暗访等方式，获取第一手资料"
+          },
+          {
+            "requirement": "During the investigation, Lin Yu encounters key witnesses such as Lao Li.",
+            "sourceQuote": "在调查过程中，遇到老李等关键证人"
+          },
+          {
+            "requirement": "Lin Yu faces a crisis in which she is bribed.",
+            "sourceQuote": "被收买"
+          },
+          {
+            "requirement": "Lin Yu faces a crisis in which she is intimidated.",
+            "sourceQuote": "被恐吓"
+          },
+          {
+            "requirement": "Lin Yu faces a crisis in which she is framed.",
+            "sourceQuote": "被栽赃"
+          },
+          {
+            "requirement": "The ending shows corrupt offenders receiving their deserved punishment and justice being upheld.",
+            "sourceQuote": "腐败分子得到应有的惩罚，正义得以伸张"
+          },
+          {
+            "requirement": "The ending shows the city beginning to reshape its order.",
+            "sourceQuote": "城市开始重塑秩序"
+          },
+          {
+            "requirement": "The ending shows the people seeing hope.",
+            "sourceQuote": "人民看到了希望"
+          },
+          {
+            "requirement": "The ending acknowledges that the campaign (\"战役\") has concluded while the anti-corruption war (\"战争\") is endless.",
+            "sourceQuote": "虽然“战役”结束，但反腐的“战争”永无止境"
+          },
+          {
+            "requirement": "The ending leaves the audience with reflection on the future.",
+            "sourceQuote": "留下对未来的思考"
+          }
+        ],
+        "development": "As fiction, the screenplay must dramatize rather than summarize: each required beat (the opening incident, undercover and covert gathering of evidence, Lao Li's encounter and transformation, bribery, intimidation and framing, the downfall of the antagonist, and the closing reflection) should be enacted on screen with clear causality, rising tension and escalating stakes. Lin Yu's and Lao Li's emotional changes must be earned through visible actions and costs, and the antagonist's cunning and duplicity must appear in concrete scenes. Invented details such as specific scenes, evidence, locations and dialogue are welcome if they make the investigation and threats credible.",
+        "craft": "The script should have a coherent screenplay structure with clear scene progression from opening to ending, consistent characterization (Lin Yu's upright resolve, Lao Li's fear turning to courage, the antagonist's two-faced public image), and smooth transitions between investigation, confrontation and resolution. The voice should suit a Chinese-language audience, and the closing should move from the conclusion of the campaign to the open-ended 'endless war' reflection with originality and without preachiness."
+      },
+      "costUsd": 0.0018763999999999999
+    },
+    {
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "question": " 请帮我写一篇项羽的人物传记叙述其主要的生平事迹，要深入分析其性格特点、成功与失败的原因，并尝试探讨其历史地位与对后世的影响。在分析人物和事件时，要基于史料进行合理的推断，避免毫无根据的猜测或歪曲。深度探讨历史地位与后世影响的评价，整体语言风格以客观陈述史实为主，但在关键之处可以融入分析和评论。按照时间顺序叙述，语言生动形象",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "The artifact is a biography (人物传记) of Xiang Yu.",
+            "sourceQuote": "请帮我写一篇项羽的人物传记"
+          },
+          {
+            "requirement": "The biography narrates Xiang Yu's main life events.",
+            "sourceQuote": "叙述其主要的生平事迹"
+          },
+          {
+            "requirement": "The biography includes an in-depth analysis of Xiang Yu's personality traits.",
+            "sourceQuote": "要深入分析其性格特点"
+          },
+          {
+            "requirement": "The biography analyzes the reasons for both Xiang Yu's successes and his failures.",
+            "sourceQuote": "成功与失败的原因"
+          },
+          {
+            "requirement": "The biography explores Xiang Yu's historical status.",
+            "sourceQuote": "尝试探讨其历史地位与对后世的影响"
+          },
+          {
+            "requirement": "The biography explores Xiang Yu's influence on later generations.",
+            "sourceQuote": "对后世的影响"
+          },
+          {
+            "requirement": "The evaluation of Xiang Yu's historical status and influence on later generations is explored in depth.",
+            "sourceQuote": "深度探讨历史地位与后世影响的评价"
+          },
+          {
+            "requirement": "Analysis and inferences about the person and events are grounded in historical records, with reasonable inference drawn from those sources.",
+            "sourceQuote": "要基于史料进行合理的推断"
+          },
+          {
+            "requirement": "The biography avoids baseless speculation and distortion of historical facts.",
+            "sourceQuote": "避免毫无根据的猜测或歪曲"
+          },
+          {
+            "requirement": "The overall language style is mainly an objective statement of historical facts.",
+            "sourceQuote": "整体语言风格以客观陈述史实为主"
+          },
+          {
+            "requirement": "Analysis and commentary may be woven in at key points within the objective narration.",
+            "sourceQuote": "但在关键之处可以融入分析和评论"
+          },
+          {
+            "requirement": "The events are narrated in chronological order.",
+            "sourceQuote": "按照时间顺序叙述"
+          },
+          {
+            "requirement": "The language is vivid and lively.",
+            "sourceQuote": "语言生动形象"
+          }
+        ],
+        "development": "For this factual biography, judge whether the text covers Xiang Yu's main life events in a clear timeline and gives each analytical claim (personality, causes of success and failure, historical standing, later influence) a specific, historically grounded justification, with accurate names, dates, and events and inferences that are clearly reasoned from sources rather than asserted without basis.",
+        "craft": "Judge whether the biography has a coherent chronological structure with smooth transitions between periods and events, and a consistent voice that stays mainly objective while placing evaluative commentary at key turning points, using vivid, concrete, engaging Chinese prose that suits a general reader."
+      },
+      "costUsd": 0.0011834
+    },
+    {
+      "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+      "question": "请生成一份实验报告，实验名称为‘海水养殖动物病害病原的分离鉴定及结果分析’。内容需包括完整的实验流程，从样本采集处理到病原鉴定的全步骤，重点描述细菌的生化鉴定、病毒的电镜观察与核酸检测、寄生虫的显微镜形态观察等内容，结果部分需结合具体案例（如大肠杆菌的革兰氏染色结果、WSSV的PCR条带、车轮虫的形态特征）进行阐述，文本风格要求科学严谨，逻辑清晰，分析深入。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "The artifact must be a laboratory report (实验报告).",
+            "sourceQuote": "请生成一份实验报告"
+          },
+          {
+            "requirement": "The report must use the experiment title '海水养殖动物病害病原的分离鉴定及结果分析'.",
+            "sourceQuote": "实验名称为‘海水养殖动物病害病原的分离鉴定及结果分析’"
+          },
+          {
+            "requirement": "The report must include the complete experimental procedure, covering every step from sample collection and processing through pathogen identification.",
+            "sourceQuote": "内容需包括完整的实验流程，从样本采集处理到病原鉴定的全步骤"
+          },
+          {
+            "requirement": "The report must place emphasis on describing bacterial biochemical identification.",
+            "sourceQuote": "重点描述细菌的生化鉴定"
+          },
+          {
+            "requirement": "The report must describe viral identification through electron microscopy observation and nucleic acid detection.",
+            "sourceQuote": "病毒的电镜观察与核酸检测"
+          },
+          {
+            "requirement": "The report must describe parasite identification through microscopic morphological observation.",
+            "sourceQuote": "寄生虫的显微镜形态观察"
+          },
+          {
+            "requirement": "The results section must be elaborated in combination with specific cases.",
+            "sourceQuote": "结果部分需结合具体案例"
+          },
+          {
+            "requirement": "The results must explain the Gram stain result of Escherichia coli (大肠杆菌).",
+            "sourceQuote": "大肠杆菌的革兰氏染色结果"
+          },
+          {
+            "requirement": "The results must explain the PCR bands of WSSV.",
+            "sourceQuote": "WSSV的PCR条带"
+          },
+          {
+            "requirement": "The results must explain the morphological features of Trichodina (车轮虫).",
+            "sourceQuote": "车轮虫的形态特征"
+          },
+          {
+            "requirement": "The text must be scientifically rigorous in style.",
+            "sourceQuote": "文本风格要求科学严谨"
+          },
+          {
+            "requirement": "The text must have clear logic.",
+            "sourceQuote": "逻辑清晰"
+          },
+          {
+            "requirement": "The analysis must be in-depth rather than superficial.",
+            "sourceQuote": "分析深入"
+          }
+        ],
+        "development": "Judge whether the report gives usable, concrete explanations of each stage from sample collection through bacterial biochemical identification, viral electron microscopy and nucleic acid detection, and parasite microscopic morphology, and whether the three named cases (E. coli Gram stain, WSSV PCR bands, Trichodina morphology) are explained with accurate, internally consistent details. Any invented specifics should be plausible and framed responsibly, and each topic should be developed rather than merely named.",
+        "craft": "Judge whether the report has a coherent scientific structure with clear logical progression from methods to results to analysis, consistent formal scientific register suited to a technical audience, smooth transitions between procedures and findings, and original, non-generic phrasing in its interpretation of the results."
+      },
+      "costUsd": 0.0014029
+    },
+    {
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "question": "请你帮我创作一个电影剧本，风格要轻松幽默，带有浪漫喜剧色彩。故事梗概是关于一位名叫艾米丽的年轻女糕点师，她梦想着开一家自己的法式甜品店，但资金不足。这时，一位英俊但有些刻板的商业顾问马克出现了，他最初并不看好艾米丽的计划，但两人在共同克服困难的过程中，逐渐产生了情愫。关键细节包括艾米丽制作的一款名为“爱之马卡龙”的招牌甜点，一场重要的甜品比赛作为故事高潮，以及马克最终帮助艾米丽实现了梦想。主旨是想表达：勇敢追求梦想，真爱会不期而遇。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Write a film screenplay.",
+            "sourceQuote": "请你帮我创作一个电影剧本"
+          },
+          {
+            "requirement": "The style is light-hearted and humorous.",
+            "sourceQuote": "风格要轻松幽默"
+          },
+          {
+            "requirement": "The work has romantic comedy coloring.",
+            "sourceQuote": "带有浪漫喜剧色彩"
+          },
+          {
+            "requirement": "The protagonist is a young female pastry chef named Emily.",
+            "sourceQuote": "一位名叫艾米丽的年轻女糕点师"
+          },
+          {
+            "requirement": "Emily dreams of opening her own French dessert shop.",
+            "sourceQuote": "她梦想着开一家自己的法式甜品店"
+          },
+          {
+            "requirement": "Emily lacks sufficient funds for her shop.",
+            "sourceQuote": "但资金不足"
+          },
+          {
+            "requirement": "The male lead is Mark, a handsome but somewhat rigid business consultant.",
+            "sourceQuote": "英俊但有些刻板的商业顾问马克"
+          },
+          {
+            "requirement": "Mark initially does not favor Emily's plan.",
+            "sourceQuote": "他最初并不看好艾米丽的计划"
+          },
+          {
+            "requirement": "Emily and Mark develop romantic feelings for each other while overcoming difficulties together.",
+            "sourceQuote": "两人在共同克服困难的过程中，逐渐产生了情愫"
+          },
+          {
+            "requirement": "Include Emily's signature dessert called \"Love Macaron\".",
+            "sourceQuote": "艾米丽制作的一款名为“爱之马卡龙”的招牌甜点"
+          },
+          {
+            "requirement": "An important dessert competition serves as the story's climax.",
+            "sourceQuote": "一场重要的甜品比赛作为故事高潮"
+          },
+          {
+            "requirement": "Mark ultimately helps Emily realize her dream.",
+            "sourceQuote": "马克最终帮助艾米丽实现了梦想"
+          },
+          {
+            "requirement": "The theme conveys the message of bravely pursuing one's dreams.",
+            "sourceQuote": "勇敢追求梦想"
+          },
+          {
+            "requirement": "The theme conveys the message that true love arrives unexpectedly.",
+            "sourceQuote": "真爱会不期而遇"
+          }
+        ],
+        "development": "For a fiction screenplay, judge whether Emily's funding struggle, Mark's initial skepticism, the shared difficulties, the Love Macaron, and the dessert competition climax are dramatized through on-page scenes, dialogue, and action rather than summarized. Causality should be clear: each setback and turn should produce the next, and Mark's help should follow from his established character change. Tension should build toward the competition, and the romantic shift should be earned through specific shared experiences, with invented fictional details (characters, shop setup, competition rules, comedic situations) used to make the premise concrete.",
+        "craft": "Judge a coherent screenplay structure with scene headings or clear scene divisions, a light, witty comedic voice suited to a general film audience, smooth scene-to-scene transitions, and consistent characterization of Emily and Mark, including Mark's rigidity and its gradual loosening. Humor should stay consistent in tone with the romantic comedy register, and the setup, midpoint, and climax should be organized so the theme of pursuing dreams and unexpected love is clear without being stated bluntly. Originality in the comedic situations and dialogue should be evident."
+      },
+      "costUsd": 0.0015318999999999999
+    },
+    {
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "question": " 写一个全面、实用、易懂的智能手机购买指南，帮助读者理清需求、看懂参数、了解渠道、规避陷阱，最终购买到性价比高且符合个人需求的手机。从品牌、摄像头、内存等信息考虑，包括要关注保修与真伪，避免过多专业术语堆砌，内容具体，步骤清晰。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Produce a smartphone buying guide as the requested artifact.",
+            "sourceQuote": "写一个全面、实用、易懂的智能手机购买指南"
+          },
+          {
+            "requirement": "The guide must be comprehensive, practical, and easy to understand.",
+            "sourceQuote": "全面、实用、易懂"
+          },
+          {
+            "requirement": "The guide must help readers clarify their own needs before buying.",
+            "sourceQuote": "帮助读者理清需求"
+          },
+          {
+            "requirement": "The guide must help readers understand smartphone specification parameters.",
+            "sourceQuote": "看懂参数"
+          },
+          {
+            "requirement": "The guide must explain where and how to buy phones (purchase channels).",
+            "sourceQuote": "了解渠道"
+          },
+          {
+            "requirement": "The guide must help readers avoid common purchasing pitfalls.",
+            "sourceQuote": "规避陷阱"
+          },
+          {
+            "requirement": "The guide's ultimate goal is for readers to buy a phone that is cost-effective and fits their personal needs.",
+            "sourceQuote": "最终购买到性价比高且符合个人需求的手机"
+          },
+          {
+            "requirement": "The guide must cover brand considerations.",
+            "sourceQuote": "从品牌、摄像头、内存等信息考虑"
+          },
+          {
+            "requirement": "The guide must cover camera considerations.",
+            "sourceQuote": "从品牌、摄像头、内存等信息考虑"
+          },
+          {
+            "requirement": "The guide must cover memory (storage and RAM) considerations.",
+            "sourceQuote": "从品牌、摄像头、内存等信息考虑"
+          },
+          {
+            "requirement": "The guide must include attention to warranty (保修) when buying.",
+            "sourceQuote": "要关注保修与真伪"
+          },
+          {
+            "requirement": "The guide must include attention to authenticity (真伪) verification when buying.",
+            "sourceQuote": "要关注保修与真伪"
+          },
+          {
+            "requirement": "The guide must avoid stacking excessive technical jargon.",
+            "sourceQuote": "避免过多专业术语堆砌"
+          },
+          {
+            "requirement": "The guide's content must be specific and concrete.",
+            "sourceQuote": "内容具体"
+          },
+          {
+            "requirement": "The guide must present steps that are clear.",
+            "sourceQuote": "步骤清晰"
+          }
+        ],
+        "development": "For a practical artifact, judge whether the guide gives usable, concrete explanations for each required area: how to define personal needs, how to read camera, memory, and other specs in plain language, how to compare purchase channels, how to recognize warranty and authenticity issues, and which pitfalls to avoid. Advice should be internally consistent, with assumptions about budget, usage, and region stated responsibly rather than presented as universal facts, and examples should be specific enough to act on.",
+        "craft": "Judge whether the guide has a coherent step-by-step structure that moves from needs, to specs, to channels, to pitfalls, to final purchase decision, with clear headings and smooth transitions. The voice should be plain, accessible Chinese suited to general consumers, with terms explained when used, and the organization should make the steps easy to follow and act on."
+      },
+      "costUsd": 0.0007969000000000001
+    },
+    {
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "question": "请写一篇带有悬疑色彩的玄幻小说，文字风格要营造紧张刺激的氛围，注重人物内心描写与动作场面的结合。\n故事梗概：矿工林夜为母寻药闯入禁地，得血色玉石后觉醒特殊血脉，发现世界变异，怪物横行，神秘女子白璃告知灵枢秘密，林夜在江湖闯荡中揭开多方势力围绕灵枢的阴谋，最终在天穹塔阻止皇帝重塑世界。\n需要揭示在巨大力量诱惑下人性的复杂，以及守护平衡的重要性。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "The response must be a xuanhuan (玄幻) novel written as prose fiction.",
+            "sourceQuote": "请写一篇带有悬疑色彩的玄幻小说"
+          },
+          {
+            "requirement": "The novel must carry a suspenseful (悬疑) coloring throughout.",
+            "sourceQuote": "带有悬疑色彩"
+          },
+          {
+            "requirement": "The prose style must build a tense and thrilling atmosphere.",
+            "sourceQuote": "文字风格要营造紧张刺激的氛围"
+          },
+          {
+            "requirement": "The novel must combine interior description of characters' thoughts and feelings with action scenes.",
+            "sourceQuote": "注重人物内心描写与动作场面的结合"
+          },
+          {
+            "requirement": "The protagonist Lin Ye, a miner, must enter a forbidden land (禁地) to find medicine for his mother.",
+            "sourceQuote": "矿工林夜为母寻药闯入禁地"
+          },
+          {
+            "requirement": "After obtaining a blood-red jade stone, Lin Ye must awaken a special bloodline.",
+            "sourceQuote": "得血色玉石后觉醒特殊血脉"
+          },
+          {
+            "requirement": "The story must reveal that the world has mutated and that monsters are roaming freely.",
+            "sourceQuote": "发现世界变异，怪物横行"
+          },
+          {
+            "requirement": "A mysterious woman named Bai Li must tell Lin Ye the secret of 灵枢.",
+            "sourceQuote": "神秘女子白璃告知灵枢秘密"
+          },
+          {
+            "requirement": "Lin Ye must uncover the conspiracy of multiple factions centered on 灵枢 while traveling through the jianghu.",
+            "sourceQuote": "林夜在江湖闯荡中揭开多方势力围绕灵枢的阴谋"
+          },
+          {
+            "requirement": "The climax must take place at 天穹塔, where Lin Ye stops the emperor from reshaping the world.",
+            "sourceQuote": "最终在天穹塔阻止皇帝重塑世界"
+          },
+          {
+            "requirement": "The story must reveal the complexity of human nature under the temptation of great power.",
+            "sourceQuote": "需要揭示在巨大力量诱惑下人性的复杂"
+          },
+          {
+            "requirement": "The story must convey the importance of guarding balance as its theme.",
+            "sourceQuote": "守护平衡的重要性"
+          }
+        ],
+        "development": "Judge whether the story enacts each plot beat (the mother's medicine quest, the blood-red jade and bloodline awakening, the world's mutation and monsters, Bai Li's revelation about 灵枢, the factional conspiracy, and the Tiantian Tower confrontation) as dramatized scenes with clear causality rather than summary. Check that suspense and tension rise and are sustained through action sequences, that inner monologue and emotional reactions are tied to those actions, that the temptation of power shows human complexity through characters' concrete choices, and that the emotional change at the ending is earned and connected to the theme of balance. Invented fictional details are acceptable if they serve these elements.",
+        "craft": "Judge coherent structure that moves from the mother's quest through the jianghu journey to the final tower confrontation, with clear transitions between locations and events. Check that the narrative voice keeps a consistent tense and atmosphere suited to a suspense-driven xuanhuan story, that the characters' motives and abilities stay internally consistent, that the factions and the 灵枢 mystery are presented with clarity, and that the treatment is original rather than formulaic."
+      },
+      "costUsd": 0.0015098
+    },
+    {
+      "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+      "question": " 请你写一个游戏小说，主角是现实中为普通大学生，游戏内是操作犀利、意识超群的独行刺客。他在新发售的沉浸式虚拟现实游戏《纪元幻境》中，意外触发隐藏任务，卷入NPC间的权力斗争与一段被尘封的游戏远古历史。他需凭借精湛技艺与智慧，联合或对抗各路玩家及NPC势力，探索未知区域，攻略高难副本，逐步揭开游戏世界观背后的巨大秘密，以及AI与现实的模糊边界。要求语言简洁明快，富有节奏感，能准确描绘游戏操作、技能效果与战斗场景。融入适量游戏术语，但需保证非玩家读者也能理解。叙事需兼具紧张感与爽快感。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "The artifact must be a game novel (游戏小说).",
+            "sourceQuote": "请你写一个游戏小说"
+          },
+          {
+            "requirement": "The protagonist is an ordinary university student in real life.",
+            "sourceQuote": "主角是现实中为普通大学生"
+          },
+          {
+            "requirement": "Inside the game, the protagonist is a lone assassin with sharp operation and superior awareness.",
+            "sourceQuote": "游戏内是操作犀利、意识超群的独行刺客"
+          },
+          {
+            "requirement": "The story is set in the newly released immersive virtual reality game 《纪元幻境》.",
+            "sourceQuote": "新发售的沉浸式虚拟现实游戏《纪元幻境》"
+          },
+          {
+            "requirement": "The protagonist accidentally triggers a hidden quest.",
+            "sourceQuote": "意外触发隐藏任务"
+          },
+          {
+            "requirement": "The protagonist becomes entangled in a power struggle among NPC factions.",
+            "sourceQuote": "卷入NPC间的权力斗争"
+          },
+          {
+            "requirement": "The story reveals a sealed ancient history of the game.",
+            "sourceQuote": "一段被尘封的游戏远古历史"
+          },
+          {
+            "requirement": "The protagonist relies on superb skill and wisdom to either ally with or oppose various players and NPC forces.",
+            "sourceQuote": "凭借精湛技艺与智慧，联合或对抗各路玩家及NPC势力"
+          },
+          {
+            "requirement": "The protagonist explores unknown areas.",
+            "sourceQuote": "探索未知区域"
+          },
+          {
+            "requirement": "The protagonist clears high-difficulty dungeons.",
+            "sourceQuote": "攻略高难副本"
+          },
+          {
+            "requirement": "The story gradually uncovers huge secrets behind the game's world setting.",
+            "sourceQuote": "逐步揭开游戏世界观背后的巨大秘密"
+          },
+          {
+            "requirement": "The story explores the blurred boundary between AI and reality.",
+            "sourceQuote": "以及AI与现实的模糊边界"
+          },
+          {
+            "requirement": "The language is concise and crisp.",
+            "sourceQuote": "语言简洁明快"
+          },
+          {
+            "requirement": "The prose has a sense of rhythm.",
+            "sourceQuote": "富有节奏感"
+          },
+          {
+            "requirement": "Game operations, skill effects, and combat scenes are depicted accurately.",
+            "sourceQuote": "能准确描绘游戏操作、技能效果与战斗场景"
+          },
+          {
+            "requirement": "The text includes a moderate amount of game jargon.",
+            "sourceQuote": "融入适量游戏术语"
+          },
+          {
+            "requirement": "The text must remain understandable to non-player readers.",
+            "sourceQuote": "但需保证非玩家读者也能理解"
+          },
+          {
+            "requirement": "The narrative combines a sense of tension with a sense of exhilaration.",
+            "sourceQuote": "叙事需兼具紧张感与爽快感"
+          }
+        ],
+        "development": "For fiction: judge whether the protagonist's skill and wisdom are enacted on the page through concrete choices, combat exchanges, and dungeon or exploration sequences, with clear cause and effect between the hidden quest, the faction conflict, the sealed history, and the revealed secrets. Tension should rise through real stakes and obstacles, and the exhilaration should come from earned victories. Invented in-game mechanics, factions, and details are acceptable if they are coherent and make the AI-reality theme meaningfully felt.",
+        "craft": "Judge a coherent structure that escalates from the accidental trigger through alliances, conflicts, and dungeon clears toward the reveal, with transitions that keep the fast pace readable. The voice should be concise, rhythmic, and clear to non-gamers, with game terms explained through context. Original invention and consistent characterization and rules should suit a general novel audience."
+      },
+      "costUsd": 0.0015376
+    },
+    {
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "question": "帮我生成一份智能扫地机器人的详细产品说明书，题目定为《[品牌名称] 智能扫地机器人产品说明书》。内容要涵盖产品基本信息、特点、配件清单、各部件功能介绍，以及安装设置、使用方法、维护保养的具体步骤，还要包含安全注意事项、常见故障解决办法和保修条款。文本风格需专业准确，同时兼顾易懂性，适合家庭用户阅读。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Produce a detailed product manual (详细产品说明书) for a smart robot vacuum cleaner.",
+            "sourceQuote": "详细产品说明书"
+          },
+          {
+            "requirement": "Use the title format 《[品牌名称] 智能扫地机器人产品说明书》, keeping the brand-name placeholder in the title.",
+            "sourceQuote": "题目定为《[品牌名称] 智能扫地机器人产品说明书》"
+          },
+          {
+            "requirement": "Include a section on basic product information.",
+            "sourceQuote": "产品基本信息"
+          },
+          {
+            "requirement": "Include a section describing the product's features.",
+            "sourceQuote": "特点"
+          },
+          {
+            "requirement": "Include a packing or accessories list (配件清单).",
+            "sourceQuote": "配件清单"
+          },
+          {
+            "requirement": "Explain the function of each component (各部件功能介绍).",
+            "sourceQuote": "各部件功能介绍"
+          },
+          {
+            "requirement": "Provide concrete installation and setup steps (安装设置).",
+            "sourceQuote": "安装设置"
+          },
+          {
+            "requirement": "Provide concrete usage instructions (使用方法).",
+            "sourceQuote": "使用方法"
+          },
+          {
+            "requirement": "Provide concrete maintenance and upkeep steps (维护保养的具体步骤).",
+            "sourceQuote": "维护保养的具体步骤"
+          },
+          {
+            "requirement": "Include safety precautions (安全注意事项).",
+            "sourceQuote": "安全注意事项"
+          },
+          {
+            "requirement": "Include solutions for common faults (常见故障解决办法).",
+            "sourceQuote": "常见故障解决办法"
+          },
+          {
+            "requirement": "Include warranty terms (保修条款).",
+            "sourceQuote": "保修条款"
+          },
+          {
+            "requirement": "Write in a professional and accurate style.",
+            "sourceQuote": "文本风格需专业准确"
+          },
+          {
+            "requirement": "Keep the text easy to understand at the same time as it is professional.",
+            "sourceQuote": "同时兼顾易懂性"
+          },
+          {
+            "requirement": "Write the manual so that it is suitable for household users to read.",
+            "sourceQuote": "适合家庭用户阅读"
+          }
+        ],
+        "development": "As a practical artifact, each required section (basic information, features, accessories, component functions, installation, usage, maintenance, safety, troubleshooting, warranty) should give usable, concrete explanation that a household user can act on, such as specific steps, component names tied to their functions, and specific fault symptoms paired with fixes. Any assumed specifications, brand details, or warranty periods should be clearly framed as placeholders or assumptions rather than presented as fact, and the details must be internally consistent across sections (for example, the accessories list should match the components and steps described).",
+        "craft": "The manual should have a coherent, navigable structure that follows the requested section order and flows logically from product overview to setup, use, maintenance, safety, troubleshooting, and warranty. The voice should be authoritative yet plain, with terminology defined on first use and terms used consistently throughout, so that a non-technical family member can follow it without confusion while the content stays accurate and professional."
+      },
+      "costUsd": 0.0013273999999999998
+    },
+    {
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "question": "请创作一篇玄幻小说，文字风格要宏大壮阔，战斗描写要突出招式与科技的碰撞感。\n父母双亡的铁匠学徒江离在废弃矿洞得到神秘金属，觉醒《星陨锻体诀》，因力量特殊被暗影组织追杀，逃亡中与治愈少女苏瑶、机械师墨千机组队，在探寻陨核奥秘时，卷入五大星域与域外势力的阴谋，最终激活陨核力量守护世界。\n强调平凡人通过努力与机遇实现自我价值，以及面对危机时守护家园的使命感。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "创作一篇玄幻小说",
+            "sourceQuote": "请创作一篇玄幻小说"
+          },
+          {
+            "requirement": "文字风格宏大壮阔",
+            "sourceQuote": "文字风格要宏大壮阔"
+          },
+          {
+            "requirement": "战斗描写突出招式与科技的碰撞感",
+            "sourceQuote": "战斗描写要突出招式与科技的碰撞感"
+          },
+          {
+            "requirement": "主角江离是父母双亡的铁匠学徒",
+            "sourceQuote": "父母双亡的铁匠学徒江离"
+          },
+          {
+            "requirement": "江离在废弃矿洞得到神秘金属",
+            "sourceQuote": "在废弃矿洞得到神秘金属"
+          },
+          {
+            "requirement": "江离觉醒《星陨锻体诀》",
+            "sourceQuote": "觉醒《星陨锻体诀》"
+          },
+          {
+            "requirement": "江离因力量特殊被暗影组织追杀",
+            "sourceQuote": "因力量特殊被暗影组织追杀"
+          },
+          {
+            "requirement": "江离在逃亡中与治愈少女苏瑶组队",
+            "sourceQuote": "与治愈少女苏瑶、机械师墨千机组队"
+          },
+          {
+            "requirement": "江离与机械师墨千机组队",
+            "sourceQuote": "与治愈少女苏瑶、机械师墨千机组队"
+          },
+          {
+            "requirement": "故事包含江离等人探寻陨核奥秘的情节",
+            "sourceQuote": "在探寻陨核奥秘时"
+          },
+          {
+            "requirement": "江离等人卷入五大星域与域外势力的阴谋",
+            "sourceQuote": "卷入五大星域与域外势力的阴谋"
+          },
+          {
+            "requirement": "故事结局为江离最终激活陨核力量守护世界",
+            "sourceQuote": "最终激活陨核力量守护世界"
+          },
+          {
+            "requirement": "强调平凡人通过努力与机遇实现自我价值",
+            "sourceQuote": "强调平凡人通过努力与机遇实现自我价值"
+          },
+          {
+            "requirement": "强调面对危机时守护家园的使命感",
+            "sourceQuote": "面对危机时守护家园的使命感"
+          }
+        ],
+        "development": "Assess whether the story enacts each brief element on the page rather than naming it: the orphaned apprentice's discovery of the mysterious metal in the abandoned mine, the awakening of the technique, the pursuit by the shadow organization, the escape and team formation with Su Yao and Mo Qianji, the exploration of the Yuncore mystery, the entanglement in the conspiracy across five star domains and outer-domain forces, and the climactic activation of the core power to protect the world. Battles should dramatize martial moves colliding with technology through concrete action, and causality should link each event to the next. The protagonist's growth through effort and opportunity, and his sense of duty to defend home in crisis, should be shown through choices and costs and produce earned emotional change.",
+        "craft": "The narrative should keep a grand, sweeping epic voice consistent from opening to ending, with smooth transitions between the mine discovery, pursuit, team-building, conspiracy and finale. Terminology such as 陨核 and 星陨锻体诀 and the names of characters and factions should stay consistent throughout. The imagery and fusion of martial and mechanical elements should feel original rather than generic, and the prose should suit readers of Chinese xianxia/fantasy web fiction."
+      },
+      "costUsd": 0.0013371
+    },
+    {
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "question": "请以《卷孩子什么时候是个头》作为标题，写一篇从父母角度出发的公众号推文，要从一个孩子从一开始出生、幼儿园、小学、初中、高中、大学、结婚、生子等几个角度去分析，并且可以补充一些孩子角度的想法，来佐证本文观点。 以父母的第一人称（“我”或“我们”）进行叙述，展现父母在孩子成长各个阶段所经历的“内卷”压力和心路历程。 在每个阶段，可以适当穿插一些真实的、或读者普遍有共鸣的小故事、小细节，增强文章的代入感。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "The piece is a WeChat official-account article (公众号推文).",
+            "sourceQuote": "写一篇从父母角度出发的公众号推文"
+          },
+          {
+            "requirement": "The article is titled 《卷孩子什么时候是个头》.",
+            "sourceQuote": "请以《卷孩子什么时候是个头》作为标题"
+          },
+          {
+            "requirement": "The article is written from the parents' perspective.",
+            "sourceQuote": "从父母角度出发"
+          },
+          {
+            "requirement": "The article analyzes the child's life across the stages of birth, kindergarten, primary school, junior high, high school, university, marriage, and having children.",
+            "sourceQuote": "从一个孩子从一开始出生、幼儿园、小学、初中、高中、大学、结婚、生子等几个角度去分析"
+          },
+          {
+            "requirement": "The article is narrated in the parents' first person, using \"我\" or \"我们\".",
+            "sourceQuote": "以父母的第一人称（“我”或“我们”）进行叙述"
+          },
+          {
+            "requirement": "The article shows the \"involution\" (内卷) pressure that parents experience at each stage of the child's growth.",
+            "sourceQuote": "展现父母在孩子成长各个阶段所经历的“内卷”压力"
+          },
+          {
+            "requirement": "The article shows the parents' emotional and mental journey (心路历程) at each stage of the child's growth.",
+            "sourceQuote": "展现父母在孩子成长各个阶段所经历的“内卷”压力和心路历程"
+          },
+          {
+            "requirement": "At each stage, the article includes real or widely relatable small stories or concrete details to make the piece more immersive.",
+            "sourceQuote": "在每个阶段，可以适当穿插一些真实的、或读者普遍有共鸣的小故事、小细节，增强文章的代入感"
+          },
+          {
+            "requirement": "The article may include thoughts from the child's perspective that support its central viewpoint.",
+            "sourceQuote": "可以补充一些孩子角度的想法，来佐证本文观点"
+          },
+          {
+            "requirement": "The article is built around a central viewpoint (本文观点) that its content argues for.",
+            "sourceQuote": "来佐证本文观点"
+          }
+        ],
+        "development": "Judge how effectively the parents' first-person experiences, stage-by-stage analysis (birth through having children), depicted 内卷 pressure and emotional journey, and relatable anecdotes realize the brief; whether each stage is developed with concrete, believable details rather than merely named; and whether child-perspective thoughts are used to actually support the central viewpoint.",
+        "craft": "Judge whether the article has a coherent progression through the life stages with clear transitions; a consistent, believable parental first-person voice; a clear central argument that the stage material builds toward; and original, natural phrasing suited to WeChat readers who should find the content relatable."
+      },
+      "costUsd": 0.0014406
+    },
+    {
+      "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+      "question": " 生成一份适合新媒体运营专员岗位的简历，内容要突出实战经验和具体业绩。个人信息要完整，求职状态注明在职看机会。教育背景要体现专业优势，工作经历要用具体的项目和数据说话，如‘[具体活动名称 1]’活动的成果。项目经验要展示从账号搭建到活动执行的全流程能力。自我评价要总结自己的核心竞争力，如用户增长、品牌曝光、文案撰写和数据分析能力等。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Produce a resume (the requested artifact).",
+            "sourceQuote": "生成一份适合新媒体运营专员岗位的简历"
+          },
+          {
+            "requirement": "Tailor the resume to the 新媒体运营专员 (new media operations specialist) role.",
+            "sourceQuote": "适合新媒体运营专员岗位"
+          },
+          {
+            "requirement": "Emphasize hands-on practical experience and concrete performance results throughout the content.",
+            "sourceQuote": "内容要突出实战经验和具体业绩"
+          },
+          {
+            "requirement": "Include complete personal information.",
+            "sourceQuote": "个人信息要完整"
+          },
+          {
+            "requirement": "State the job-search status as currently employed and open to opportunities.",
+            "sourceQuote": "求职状态注明在职看机会"
+          },
+          {
+            "requirement": "Education section highlights the candidate's professional advantages.",
+            "sourceQuote": "教育背景要体现专业优势"
+          },
+          {
+            "requirement": "Work experience uses specific projects and data to demonstrate achievements.",
+            "sourceQuote": "工作经历要用具体的项目和数据说话"
+          },
+          {
+            "requirement": "Work experience presents the outcomes of named campaigns, using the bracketed activity-name placeholder format.",
+            "sourceQuote": "如‘[具体活动名称 1]’活动的成果"
+          },
+          {
+            "requirement": "Project experience demonstrates full-process capability from account setup to campaign execution.",
+            "sourceQuote": "项目经验要展示从账号搭建到活动执行的全流程能力"
+          },
+          {
+            "requirement": "Self-evaluation summarizes the candidate's core competitiveness.",
+            "sourceQuote": "自我评价要总结自己的核心竞争力"
+          },
+          {
+            "requirement": "Self-evaluation covers competencies such as user growth, brand exposure, copywriting, and data analysis.",
+            "sourceQuote": "如用户增长、品牌曝光、文案撰写和数据分析能力等"
+          }
+        ],
+        "development": "Judge whether the resume gives usable, concrete content: each project and work entry names a specific campaign or account action, states what the candidate did, and reports measurable outcomes (metrics, growth figures, reach, conversion, or similar) that recruiters can scan. Placeholders such as the bracketed activity names must be clearly marked as fillable, and any invented or assumed figures must be plausible and framed as examples rather than presented as verified facts. Check that the education, work, project, and self-evaluation sections each actually carry the requested emphasis rather than merely listing the topics.",
+        "craft": "Judge a coherent, conventional Chinese resume structure with clearly separated sections (personal info, job status, education, work experience, project experience, self-evaluation) in a concise, confident, professional voice suited to recruiters for a new media operations role. Numbers, dates, and achievement claims should be internally consistent across sections, bullet phrasing should be parallel and action-led, and the self-evaluation should flow from the evidence above it rather than repeating it generically."
+      },
+      "costUsd": 0.001573
+    },
+    {
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "question": "来一篇吐槽向的饭圈抽象文学，风格要尖酸刻薄，带点黑色幽默。梗概是关于对家粉丝的迷惑行为大赏，比如他们为了给自家偶像艹数据，想出各种奇葩操作，结果反而闹了笑话。细节上可以描写一下他们控评时驴唇不对马嘴的文案，或者是在公共场合大声应援结果社死的场景。语言上要用那种表面平静内心OS无数的吐槽语气，可以多用反讽和类比。格式就用论坛帖子的形式，可以有主楼和几层回复，回复可以是不同角色的口吻，比如路人、对家粉丝、自家粉丝等。重点是要好笑，让人看了能会心一笑或者脚趾抠出三室一厅",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Write a fan-culture satirical piece (饭圈抽象文学) in a sharp, mocking, black-humor tone that roasts rival fandom behavior.",
+            "sourceQuote": "来一篇吐槽向的饭圈抽象文学，风格要尖酸刻薄，带点黑色幽默"
+          },
+          {
+            "requirement": "The overall premise is a 'bloopers showcase' (迷惑行为大赏) of rival (对家) fans' bizarre behaviors.",
+            "sourceQuote": "梗概是关于对家粉丝的迷惑行为大赏"
+          },
+          {
+            "requirement": "Depict rival fans attempting to boost their idol's data (刷数据) through absurd, strange operations that backfire and make them look foolish.",
+            "sourceQuote": "比如他们为了给自家偶像艹数据，想出各种奇葩操作，结果反而闹了笑话"
+          },
+          {
+            "requirement": "Include a detailed depiction of the rival fans' comment-brigading posts (控评文案) that are nonsensical and mismatched to the topic (驴唇不对马嘴).",
+            "sourceQuote": "描写一下他们控评时驴唇不对马嘴的文案"
+          },
+          {
+            "requirement": "Include a scene of rival fans loudly cheering (大声应援) in a public place with an embarrassing outcome (社死).",
+            "sourceQuote": "或者是在公共场合大声应援结果社死的场景"
+          },
+          {
+            "requirement": "Use a deadpan narrative voice where the surface is calm while the inner monologue is full of snarky commentary.",
+            "sourceQuote": "要用那种表面平静内心OS无数的吐槽语气"
+          },
+          {
+            "requirement": "Use frequent irony (反讽) and analogies (类比) as rhetorical devices.",
+            "sourceQuote": "可以多用反讽和类比"
+          },
+          {
+            "requirement": "Format the piece as an online forum thread with a main post (主楼) and several layers of replies.",
+            "sourceQuote": "格式就用论坛帖子的形式，可以有主楼和几层回复"
+          },
+          {
+            "requirement": "Write replies in the voices of different characters, such as passersby (路人), rival fans (对家粉丝), and own-idol fans (自家粉丝).",
+            "sourceQuote": "回复可以是不同角色的口吻，比如路人、对家粉丝、自家粉丝等"
+          },
+          {
+            "requirement": "The primary goal is to be genuinely funny, making readers smile knowingly or cringe intensely.",
+            "sourceQuote": "重点是要好笑，让人看了能会心一笑或者脚趾抠出三室一厅"
+          }
+        ],
+        "development": "Judge whether the invented fictional details (specific fan actions, data-boosting schemes, comment texts, and the public-cheering incident) concretely enact each listed bizarre behavior with clear cause-and-effect leading to the embarrassing backfire, escalating comedic tension across the thread so that the mockery lands as recognizable, specific jokes rather than generic mentions of fandom.",
+        "craft": "Judge whether the forum structure (main post plus nested replies from distinct personas such as 路人, 对家粉丝, 自家粉丝) is coherent and consistent in voice, with each reply reacting to what precedes it, the deadpan-calm narration sustaining sharp irony and analogy throughout, and the final tone landing as the intended blend of knowing laughter and second-hand embarrassment."
+      },
+      "costUsd": 0.0008921000000000001
+    },
+    {
+      "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+      "question": " 我需要一篇辩论稿，主题是“社交媒体对青少年弊大于利”，我是反方，要强调社交媒体的积极作用。风格要活泼、有感染力，带有一些幽默感，能吸引年轻读者。开篇先承认社交媒体存在的一些问题，但迅速转折，指出其在信息获取、社交拓展、兴趣培养和自我表达方面的巨大优势。例如，青少年可以通过社交媒体快速学习新知识，参与有益的社群，找到志同道合的朋友，甚至参与社会公益活动。可以举一些青少年通过社交媒体获得成功的正面案例。语言风格要贴近青少年，多用网络流行语和生动比喻，但避免低俗内容。框架上，开头要引人入胜，中间论证部分可以用“发现新大陆”、“朋友圈的力量”、“技能加油站”这样的小标题来组织，结尾要有号召力，鼓励青少年正确使用社交媒体。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "The deliverable is a debate speech (辩论稿).",
+            "sourceQuote": "我需要一篇辩论稿"
+          },
+          {
+            "requirement": "The topic is that social media does more harm than good for teenagers.",
+            "sourceQuote": "主题是“社交媒体对青少年弊大于利”"
+          },
+          {
+            "requirement": "The speech is written from the opposing side (反方), defending the position against the motion.",
+            "sourceQuote": "我是反方"
+          },
+          {
+            "requirement": "The speech emphasizes the positive role of social media.",
+            "sourceQuote": "要强调社交媒体的积极作用"
+          },
+          {
+            "requirement": "The style is lively and infectious.",
+            "sourceQuote": "风格要活泼、有感染力"
+          },
+          {
+            "requirement": "The speech includes some humor.",
+            "sourceQuote": "带有一些幽默感"
+          },
+          {
+            "requirement": "The speech is designed to attract young readers.",
+            "sourceQuote": "能吸引年轻读者"
+          },
+          {
+            "requirement": "The opening acknowledges some existing problems of social media.",
+            "sourceQuote": "开篇先承认社交媒体存在的一些问题"
+          },
+          {
+            "requirement": "After acknowledging those problems, the speech quickly pivots to its positive case.",
+            "sourceQuote": "但迅速转折"
+          },
+          {
+            "requirement": "The speech argues that social media offers significant advantages in information acquisition.",
+            "sourceQuote": "在信息获取、社交拓展、兴趣培养和自我表达方面的巨大优势"
+          },
+          {
+            "requirement": "The speech argues that social media offers significant advantages in social expansion.",
+            "sourceQuote": "在信息获取、社交拓展、兴趣培养和自我表达方面的巨大优势"
+          },
+          {
+            "requirement": "The speech argues that social media offers significant advantages in interest cultivation.",
+            "sourceQuote": "在信息获取、社交拓展、兴趣培养和自我表达方面的巨大优势"
+          },
+          {
+            "requirement": "The speech argues that social media offers significant advantages in self-expression.",
+            "sourceQuote": "在信息获取、社交拓展、兴趣培养和自我表达方面的巨大优势"
+          },
+          {
+            "requirement": "The speech explains that teenagers can quickly learn new knowledge through social media.",
+            "sourceQuote": "青少年可以通过社交媒体快速学习新知识"
+          },
+          {
+            "requirement": "The speech explains that teenagers can participate in beneficial communities through social media.",
+            "sourceQuote": "参与有益的社群"
+          },
+          {
+            "requirement": "The speech explains that teenagers can find like-minded friends through social media.",
+            "sourceQuote": "找到志同道合的朋友"
+          },
+          {
+            "requirement": "The speech explains that teenagers can take part in social public welfare activities through social media.",
+            "sourceQuote": "甚至参与社会公益活动"
+          },
+          {
+            "requirement": "The speech cites positive cases of teenagers achieving success through social media.",
+            "sourceQuote": "可以举一些青少年通过社交媒体获得成功的正面案例"
+          },
+          {
+            "requirement": "The language is close to teenagers' way of speaking.",
+            "sourceQuote": "语言风格要贴近青少年"
+          },
+          {
+            "requirement": "The speech uses internet buzzwords (网络流行语).",
+            "sourceQuote": "多用网络流行语"
+          },
+          {
+            "requirement": "The speech uses vivid metaphors.",
+            "sourceQuote": "生动比喻"
+          },
+          {
+            "requirement": "The speech avoids vulgar content.",
+            "sourceQuote": "避免低俗内容"
+          },
+          {
+            "requirement": "The opening is engaging and captures attention.",
+            "sourceQuote": "开头要引人入胜"
+          },
+          {
+            "requirement": "The argument section is organized with subheadings such as “发现新大陆”, “朋友圈的力量”, and “技能加油站”.",
+            "sourceQuote": "“发现新大陆”、“朋友圈的力量”、“技能加油站”这样的小标题"
+          },
+          {
+            "requirement": "The ending is compelling and motivating (有号召力).",
+            "sourceQuote": "结尾要有号召力"
+          },
+          {
+            "requirement": "The ending encourages teenagers to use social media correctly.",
+            "sourceQuote": "鼓励青少年正确使用社交媒体"
+          }
+        ],
+        "development": "As a persuasive speech, it should concretely develop each listed advantage (information acquisition, social expansion, interest cultivation, self-expression) with specific, plausible, accurate examples and positive youth success cases, rather than merely naming them. The opening concession should be credible and clearly followed by a reasoned pivot to the positive case, with the argument's claims supported by accurate details and no unsupported factual assertions.",
+        "craft": "The speech should have a coherent structure: an attention-grabbing opening, a concession-to-rebuttal transition, argument sections organized under the requested subheadings, and a motivating closing call. Its voice should be lively, humorous, and youthful, using internet buzzwords and vivid metaphors naturally without vulgarity, and it should maintain a consistent opposing-side debating perspective throughout."
+      },
+      "costUsd": 0.0018789
+    },
+    {
+      "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+      "question": "请创作一篇以攀岩为背景的体育励志小说，文字风格需细腻写实，注重刻画人物在攀岩过程中的肢体感受与心理活动，充分展现攀岩的惊险刺激。\n自幼与山为伴的林羽因攀岩馆关闭和家庭变故陷入困境，在民间攀岩团队重拾热爱，历经国内赛事失利、国际教练指导、手臂骨折等挫折，最终在世界锦标赛中以独特路线战胜强敌夺冠。\n展现梦想追求路上的荆棘与坚守，揭示热爱与毅力如何突破资源壁垒。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "The artifact must be a sports inspirational novel set against the background of rock climbing.",
+            "sourceQuote": "请创作一篇以攀岩为背景的体育励志小说"
+          },
+          {
+            "requirement": "The prose style must be delicate and realistic.",
+            "sourceQuote": "文字风格需细腻写实"
+          },
+          {
+            "requirement": "The writing must portray the characters' bodily sensations and psychological activity during climbing.",
+            "sourceQuote": "注重刻画人物在攀岩过程中的肢体感受与心理活动"
+          },
+          {
+            "requirement": "The writing must fully convey the danger and thrill of climbing.",
+            "sourceQuote": "充分展现攀岩的惊险刺激"
+          },
+          {
+            "requirement": "The protagonist must be named 林羽.",
+            "sourceQuote": "自幼与山为伴的林羽"
+          },
+          {
+            "requirement": "The protagonist must have grown up with a lifelong connection to mountains.",
+            "sourceQuote": "自幼与山为伴"
+          },
+          {
+            "requirement": "The story must show the protagonist falling into hardship due to the closure of a climbing gym.",
+            "sourceQuote": "因攀岩馆关闭"
+          },
+          {
+            "requirement": "The story must show the protagonist falling into hardship due to a family misfortune.",
+            "sourceQuote": "和家庭变故陷入困境"
+          },
+          {
+            "requirement": "The protagonist must rediscover his passion through a grassroots climbing team.",
+            "sourceQuote": "在民间攀岩团队重拾热爱"
+          },
+          {
+            "requirement": "The story must include a setback from a domestic competition.",
+            "sourceQuote": "国内赛事失利"
+          },
+          {
+            "requirement": "The story must include guidance from an international coach.",
+            "sourceQuote": "国际教练指导"
+          },
+          {
+            "requirement": "The story must include a setback in which the protagonist suffers an arm fracture.",
+            "sourceQuote": "手臂骨折"
+          },
+          {
+            "requirement": "The climax must take place at the world championship.",
+            "sourceQuote": "在世界锦标赛中"
+          },
+          {
+            "requirement": "The protagonist must win using a distinctive route.",
+            "sourceQuote": "以独特路线"
+          },
+          {
+            "requirement": "The protagonist must defeat a strong rival in the championship.",
+            "sourceQuote": "战胜强敌"
+          },
+          {
+            "requirement": "The story must end with the protagonist winning the championship title.",
+            "sourceQuote": "战胜强敌夺冠"
+          },
+          {
+            "requirement": "The story must depict the thorns and perseverance along the path of pursuing a dream.",
+            "sourceQuote": "展现梦想追求路上的荆棘与坚守"
+          },
+          {
+            "requirement": "The story must reveal how passion and perseverance can break through resource barriers.",
+            "sourceQuote": "揭示热爱与毅力如何突破资源壁垒"
+          }
+        ],
+        "development": "故事应让攀岩情节、肢体感受与心理变化真正推动人物成长：每次挫折（攀岩馆关闭、家庭变故、国内赛事失利、手臂骨折）都需具体呈现其因果影响，并促成林羽在资源匮乏下的选择与改变；攀岩动作、岩壁路线、受伤与比赛的描写需细节具体、可感且紧张，夺冠前的独特路线与对强敌的对决需有清晰的策略与情感铺垫，使胜利具有可信的代价与来历。",
+        "craft": "结构应从困境、重拾热爱、挫折与伤病，递进至世界锦标赛的高潮与结局，过渡自然；叙述视角与语调应保持细腻写实，符合中文励志小说读者的阅读期待；人物的心理与身体描写前后一致，避免空泛口号式励志表达；主题上的荆棘与坚守、热爱与毅力突破资源壁垒应通过情节自然体现，而非直白说教。"
+      },
+      "costUsd": 0.0015259
+    },
+    {
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "question": " 请你写一段关于游戏《底特律变人》的抽象文章，关于自己在这个游戏里面当保姆，白天在上班，晚上回家玩游戏还要当保姆的调侃，语气幽默且朗朗上口，多使用一些排比句。\n参考资料：核心玩法与叙事：游戏采用多主角叙事，玩家将分别扮演三位身份和立场各不相同的仿生人，他们的故事线会随着玩家的选择而发展，并最终交织在一起，共同影响整个世界的走向。\n康纳 ：一名由模控生命公司派往底特律警局协助调查异常仿生人案件的先进原型机。他的任务是追捕和分析异常仿生人，找出它们行为异常的原因。玩家在扮演康纳时，需要在服从程序命令和逐渐萌发的同理心之间做出抉择，他的选择将影响他对仿生人问题的看法以及与人类搭档汉克·安德森（Hank Anderson）的关系。\n卡拉 ：一名家政型仿生人，原本服务于一个有暴力倾向的单身父亲托德及其女儿爱丽丝。在目睹托德对爱丽丝的虐待后，卡拉突破了程序限制，带着爱丽丝一同逃亡。她的故事线主要围绕着保护爱丽丝，在险恶的世界中寻求安全和归宿，展现了母性的光辉和对“家”的渴望。\n马库斯 ：曾是一位著名画家的私人助理仿生人，与主人情同父子。但在一次意外事件后，他被当作废品处理，并在仿生人的“墓地”中苏醒。马库斯逐渐成为了异常仿生人反抗运动的领袖，他需要带领同胞争取自由和权利。玩家在扮演马库斯时，可以选择和平抗争或是暴力革命的方式，每种方式都将带来不同的后果。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Write a piece of writing (文章) about the game 《底特律变人》 (Detroit: Become Human).",
+            "sourceQuote": "请你写一段关于游戏《底特律变人》的抽象文章"
+          },
+          {
+            "requirement": "Keep the output to a single passage (one paragraph), as requested by 写一段.",
+            "sourceQuote": "写一段"
+          },
+          {
+            "requirement": "The passage is about the writer's own experience of playing the nanny (保姆) role within the game.",
+            "sourceQuote": "关于自己在这个游戏里面当保姆"
+          },
+          {
+            "requirement": "The passage teases the contrast between working by day and, at night after returning home, still having to play the nanny in the game.",
+            "sourceQuote": "白天在上班，晚上回家玩游戏还要当保姆的调侃"
+          },
+          {
+            "requirement": "The tone is humorous.",
+            "sourceQuote": "语气幽默"
+          },
+          {
+            "requirement": "The wording is catchy and rhythmic, easy to recite aloud.",
+            "sourceQuote": "朗朗上口"
+          },
+          {
+            "requirement": "Use a number of parallel sentences (排比句).",
+            "sourceQuote": "多使用一些排比句"
+          },
+          {
+            "requirement": "Draw on the provided reference material on the game's core gameplay and narrative.",
+            "sourceQuote": "参考资料：核心玩法与叙事"
+          },
+          {
+            "requirement": "Reflect the reference material's description that the player controls three androids with different identities and positions, whose storylines branch by choice and eventually intertwine.",
+            "sourceQuote": "玩家将分别扮演三位身份和立场各不相同的仿生人"
+          },
+          {
+            "requirement": "Reflect the reference material's description of Connor's choice between obeying program commands and growing empathy.",
+            "sourceQuote": "玩家在扮演康纳时，需要在服从程序命令和逐渐萌发的同理心之间做出抉择"
+          },
+          {
+            "requirement": "Reflect the reference material's description of Kara's storyline centered on protecting Alice.",
+            "sourceQuote": "她的故事线主要围绕着保护爱丽丝"
+          },
+          {
+            "requirement": "Reflect the reference material's description of Markus's choice between peaceful resistance and violent revolution.",
+            "sourceQuote": "玩家在扮演马库斯时，可以选择和平抗争或是暴力革命的方式"
+          }
+        ],
+        "development": "Judge whether the humorous self-deprecating account of nightly nanny duty after a day job is vividly realized through concrete, specific comic situations rather than generic remarks, whether the parallel-sentence structures carry the jokes and escalate them, and whether any game details drawn from the reference material (the three androids, Connor's program-versus-empathy choice, Kara protecting Alice, Markus's peaceful-or-violent choice) are accurate and woven naturally into the joke rather than merely listed.",
+        "craft": "Judge whether the single passage has a coherent first-person voice consistent with the writer's own perspective, a smooth transition from the daytime job to the nighttime gaming, rhythmic cadence that reads well aloud, and an original, playful tone that suits a general audience of fans and casual readers, without breaking the humorous register."
+      },
+      "costUsd": 0.002002
+    },
+    {
+      "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+      "question": "生成一段考研主题的抽象话，需具备：荒诞的应试技巧主张，如‘拿奖学金的学的不一定比你好’；含混性的押韵表达，像‘你把硬皮烤好照样上个好学’‘考前再看第三考场’；解构性的科目吐槽，如政治‘看完就胖’、英语‘考六主题就小牛逼’；以及无厘头的总结，如‘专业知识不会写关注清明节’，整体通过鬼畜 rap 形式呈现，符合‘一本正经胡说八道’的抽象特征。",
+      "brief": {
+        "requirements": [
+          {
+            "requirement": "Produce a single piece of 抽象话 text (a piece of abstract, nonsensical talk).",
+            "sourceQuote": "生成一段考研主题的抽象话"
+          },
+          {
+            "requirement": "The piece is themed around 考研 (the postgraduate entrance exam).",
+            "sourceQuote": "考研主题的抽象话"
+          },
+          {
+            "requirement": "Include absurd claims about exam-taking tactics, such as the claim that people who win scholarships don't necessarily study better than you.",
+            "sourceQuote": "荒诞的应试技巧主张，如‘拿奖学金的学的不一定比你好’"
+          },
+          {
+            "requirement": "Include ambiguous rhyming expressions that sound patterned but have unclear meaning, such as ‘你把硬皮烤好照样上个好学’ and ‘考前再看第三考场’.",
+            "sourceQuote": "含混性的押韵表达，像‘你把硬皮烤好照样上个好学’‘考前再看第三考场’"
+          },
+          {
+            "requirement": "Include deconstructive jokes about exam subjects, such as mocking politics with ‘看完就胖’.",
+            "sourceQuote": "解构性的科目吐槽，如政治‘看完就胖’"
+          },
+          {
+            "requirement": "Include a deconstructive roast of the English subject, such as ‘考六主题就小牛逼’.",
+            "sourceQuote": "英语‘考六主题就小牛逼’"
+          },
+          {
+            "requirement": "Include nonsensical summary lines that jump to unrelated topics, such as ‘专业知识不会写关注清明节’.",
+            "sourceQuote": "无厘头的总结，如‘专业知识不会写关注清明节’"
+          },
+          {
+            "requirement": "Present the whole piece in the form of a 鬼畜 rap.",
+            "sourceQuote": "整体通过鬼畜 rap 形式呈现"
+          },
+          {
+            "requirement": "The piece must embody the abstract style of '一本正经胡说八道' (solemnly talking nonsense with a straight face).",
+            "sourceQuote": "符合‘一本正经胡说八道’的抽象特征"
+          },
+          {
+            "requirement": "All listed elements (absurd exam-tactic claims, ambiguous rhymes, subject roasts, and nonsensical summaries) must appear together within the single piece.",
+            "sourceQuote": "需具备：荒诞的应试技巧主张"
+          }
+        ],
+        "development": "Judge how effectively the piece realizes the brief through concrete exam-related material: whether the absurd tactic claims, ambiguous rhymes, subject roasts (politics, English) and non-sequitur summaries (e.g., 专业知识, 清明节) are each actually enacted as specific, recognizable 考研 details rather than merely named, and whether the nonsense feels deliberately constructed and escalates or lands its punchlines in a way that makes the solemn-nonsense effect work.",
+        "craft": "Judge the rap form and consistency of voice: a coherent rap cadence with rhythmic lines and rhyme schemes that feel like 鬼畜 rap, a steady deadpan tone that stays earnest while spouting nonsense, smooth transitions between the tactic claims, rhymes, subject roasts and summaries, and originality that suits a Chinese-speaking, exam-experienced audience."
+      },
+      "costUsd": 0.0018629
+    }
+  ],
+  "stopped": "Owner authorized immediate criterion scoring; serial request-only preparatory run interrupted"
+}

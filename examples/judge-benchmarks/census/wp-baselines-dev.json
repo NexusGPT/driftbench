@@ -1,0 +1,151 @@
+{
+  "bench": "longjudge-wp",
+  "model": "haiku",
+  "items": 90,
+  "contestants": [
+    {
+      "contestant": "driftbench-adaptive",
+      "source": "the shipped prompt with reasoning, solve-first and symmetric pairwise rules, three judgements, and a reference answer when the question is checkable (tuned on dev)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6222222222222222,
+          "lower": 0.5495380618647218,
+          "upper": 0.6897985941988839
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.7448979591836735
+          },
+          "en": {
+            "n": 82,
+            "value": 0.47560975609756106
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.7777777777777778
+      },
+      "costUsd": 1.390388599999999,
+      "calls": 589
+    },
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6,
+          "lower": 0.5270635327059384,
+          "upper": 0.6687573677097388
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.7551020408163265
+          },
+          "en": {
+            "n": 82,
+            "value": 0.4146341463414634
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.6666666666666666
+      },
+      "costUsd": 0.4419876999999999,
+      "calls": 180
+    },
+    {
+      "contestant": "deepeval",
+      "source": "DeepEval 4598fe8: ArenaGEval (pairs) and GEval (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6222222222222222,
+          "lower": 0.5495380618647218,
+          "upper": 0.6897985941988839
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.7244897959183672
+          },
+          "en": {
+            "n": 82,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.7555555555555555
+      },
+      "costUsd": 0.5615318000000004,
+      "calls": 181
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6,
+          "lower": 0.5270635327059384,
+          "upper": 0.6687573677097388
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.683673469387755
+          },
+          "en": {
+            "n": 82,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.7333333333333333
+      },
+      "costUsd": 0.3792252999999998,
+      "calls": 180
+    },
+    {
+      "contestant": "driftbench-pooled",
+      "source": "driftbench-adaptive, with the three judgements of each order pooled into one verdict for the pair (tuned on dev)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.5666666666666667,
+          "lower": 0.4936290513862009,
+          "upper": 0.6369182155575839
+        },
+        "n": 90,
+        "byGroup": {
+          "zh": {
+            "n": 98,
+            "value": 0.693877551020408
+          },
+          "en": {
+            "n": 82,
+            "value": 0.4146341463414634
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9222222222222223
+      },
+      "costUsd": 1.390388599999999,
+      "calls": 589
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 1719,
+  "failedCalls": 0
+}

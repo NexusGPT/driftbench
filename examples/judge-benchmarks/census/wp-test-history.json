@@ -1,0 +1,28 @@
+{
+  "ledger": "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/spend-ledger.md",
+  "ledgerRows": [
+    101,
+    124,
+    146
+  ],
+  "date": "2026-10-12",
+  "historicalScoresSource": "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/reports/judges-census.md",
+  "priorLog": "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/wp.log",
+  "logLines": [
+    211,
+    214,
+    4115,
+    4160
+  ],
+  "adaptive": {
+    "correct": 213,
+    "games": 346,
+    "score": 0.615606936416185
+  },
+  "promptfoo": {
+    "correct": 217,
+    "games": 346,
+    "score": 0.6271676300578035
+  },
+  "qualification": "Tonight is confirmation on a previously evaluated split; this is not a fresh holdout."
+}

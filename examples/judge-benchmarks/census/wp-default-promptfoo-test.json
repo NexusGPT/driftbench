@@ -1,0 +1,42 @@
+{
+  "bench": "longjudge-wp",
+  "model": "haiku",
+  "items": 173,
+  "contestants": [
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench, over games)",
+        "value": {
+          "estimate": 0.6271676300578035,
+          "lower": 0.5750808334310266,
+          "upper": 0.676461680416948
+        },
+        "n": 173,
+        "byGroup": {
+          "zh": {
+            "n": 144,
+            "value": 0.6041666666666665
+          },
+          "en": {
+            "n": 202,
+            "value": 0.6435643564356436
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.7052023121387283
+      },
+      "costUsd": 0.7032339000000006,
+      "calls": 346
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 346,
+  "failedCalls": 0,
+  "split": "test",
+  "purpose": "Historical default-template replay only; no tuning and no new model calls.",
+  "costPer100": 0.40649358381502926
+}
