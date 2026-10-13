@@ -78,7 +78,9 @@ The unchanged bank is packages/validators/src/ladders/system/bank. Its manifest 
 
 These changes exist only in the local codex/system-v3 worktree at this handover update. The untracked tests appear only there. A fresh checkout has none of these changes. They are not accepted measurements or committed regression coverage.
 
-* packages/store/test/registry-ref.test.ts: local, not pushed prefix 456042, numeric-version priority and ambiguous-prefix cases. No associated store fix is committed on this branch.
+* packages/store/src/store.ts: local, not pushed numeric-ref fallback after a missing version-number lookup. The full seed-1 measurement is in flight; no associated store fix is committed on this branch.
+* packages/store/test/registry-ref.test.ts: local, not pushed prefix 456042, full digit-only dataset and prompt hashes, numeric-version priority and ambiguous-prefix cases. Four cases fail before the local fix; all five pass afterward.
+* validators/system/research.md: local, not pushed digit-only registry-prefix research entry, naming the code and doc sources, red-first evidence and proposed fallback.
 
 ## Pull requests, as of
 
