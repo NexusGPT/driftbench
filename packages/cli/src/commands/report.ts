@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
-import type { RunMode } from '@driftbench/core';
+import type { RunMode } from '@agent-nexus/driftbench-core';
 import {
   buildScorecard,
   type CampaignData,
@@ -11,10 +11,12 @@ import {
   readPilotReport,
   renderHtml,
   renderJunit,
-} from '@driftbench/report';
+} from '@agent-nexus/driftbench-report';
 import type { Command } from 'commander';
 import { criteriaFromConfig } from '../aggregate-config';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { noStoreAt } from '../store-path';
 import {
   compareJson,
   defaultReportDeps,
@@ -104,7 +106,7 @@ export async function reportCommand(
   deps: ReportDeps,
 ): Promise<number> {
   const gate = parseGate(options, io);
-  const maxRuns = Number(options.maxRuns);
+  const maxRuns = optionNumber(options.maxRuns);
   if (!Number.isInteger(maxRuns) || maxRuns < 0) {
     io.err(`--max-runs takes a whole number of 0 or more, not "${options.maxRuns}".\n`);
     return 2;
@@ -141,6 +143,7 @@ export async function reportCommand(
     .map((part) => part.trim())
     .filter((part) => part !== '');
 
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   let data: CampaignData | undefined;

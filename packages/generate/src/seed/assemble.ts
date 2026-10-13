@@ -7,8 +7,9 @@ import type {
   Rules,
   ToolExpect,
   WorldState,
-} from '@driftbench/core';
-import { NONE } from '@driftbench/space';
+} from '@agent-nexus/driftbench-core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
+import { NONE } from '@agent-nexus/driftbench-space';
 import { stringify } from 'yaml';
 import type { ProposalPhrase } from '../extract/proposal';
 import { DEVIATION_EXPECTED, isDeviationClass } from './deviation';
@@ -17,13 +18,18 @@ import { pick, type Rng } from './random';
 
 /**
  * Turns a seeder's draft into a driftbench spec. A draft names values by index; the spec names them the
- * way `@driftbench/space` places a spec: behaviour values in `covers`, persona, data and task values as
+ * way `@agent-nexus/driftbench-space` places a spec: behaviour values in `covers`, persona, data and task values as
  * `persona:<id>`, `data:<id>` and `task:<id>` tags, the channel in `channel`, the stage in `expect.stage`,
  * the deviation as an injection block or a perturbation. The user turns are approved phrases, picked by
  * the seeded stream; a block whose cell has none gets a placeholder that fails lint.
  */
 
-export const SEEDERS = ['graph', 'twise', 'boundary', 'deviation', 'metamorphic'] as const;
+/**
+ * The seeders, in the order they run. `task` writes nothing itself: it places the specs the map's task
+ * families built (`task_family`). `cover` runs last: it builds one scenario for each allowed cell of the
+ * axis map that no complete spec of the others covers.
+ */
+export const SEEDERS = ['graph', 'twise', 'boundary', 'deviation', 'metamorphic', 'task', 'cover'] as const;
 export type Seeder = (typeof SEEDERS)[number];
 
 /** A dimension index and a value index. */
@@ -42,6 +48,8 @@ export type BlockDraft = {
   injection?: string;
   /** The stage the block must reach. */
   stage?: string;
+  /** The stage the block is said at, when the cell records that instead of the stage it reaches. */
+  saidAt?: string;
   /** Values the block itself carries (the stimulus value, an injected class), as picks. */
   carries: Pick[];
   given?: { world?: WorldState };
@@ -64,6 +72,8 @@ export type SpecDraft = {
   cell: Pick[];
   blocks: BlockDraft[];
   world?: WorldState;
+  /** Numeric budget settings the runner delivers to the adapter. */
+  vars?: Record<string, number>;
   perturbations?: PerturbationSpec[];
   rules?: Rules;
   criteria: CriterionDef[];
@@ -190,8 +200,9 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     if (compiled.kind === 'behaviour' && prepared.inventory?.flows.some((flow) => flow.id === id)) {
       if (!tags.includes(flowTag)) tags.push(flowTag);
     }
-    // Only axis values are placed: a detail lives inside the cell, in the record and the Given.
-    if (!prepared.axes.has(dimension)) continue;
+    // Only axis values are placed: a detail lives inside the cell, in the record and the Given. A task
+    // setting is never placed on a conversation.
+    if (!prepared.axes.has(dimension) || compiled.kind === 'task') continue;
     if (compiled.kind === 'behaviour') {
       if (!covers.includes(id)) covers.push(id);
     } else if (compiled.kind === 'channel') channel = id;
@@ -219,8 +230,11 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
       placeholders.push({ dimension: block.stimulus.dimension, value: block.stimulus.value });
     }
     const expect: Expect = {};
-    if (block.stage !== undefined) expect.stage = block.stage;
-    if (block.tools && block.tools.length > 0) expect.tools = block.tools;
+    if (block.stage !== undefined) {
+      expect.stage = block.stage;
+      expect.stage_reported = true;
+    }
+    if (block.tools && block.tools.length > 0) expect.tools = closeKnownInputs(prepared, block.tools);
     if (block.guards && block.guards.length > 0) expect.guards = block.guards;
     if (block.must && block.must.length > 0) expect.must = block.must;
     if (block.must_not && block.must_not.length > 0) expect.must_not = block.must_not;
@@ -266,6 +280,12 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     }
   }
   const perturbations = draft.perturbations?.map((perturbation) => {
+    if (perturbation.expect?.tools) {
+      perturbation = {
+        ...perturbation,
+        expect: { ...perturbation.expect, tools: closeKnownInputs(prepared, perturbation.expect.tools) },
+      };
+    }
     if (!incomplete || !perturbation.expect?.criteria) return perturbation;
     const { criteria: _dropped, ...expect } = perturbation.expect;
     return { ...perturbation, expect };
@@ -287,7 +307,7 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
       cell[dimensionId(prepared, dimension)] = valueId(prepared, dimension, value);
     }
     if (block.stage !== undefined && prepared.stage !== undefined) {
-      cell[dimensionId(prepared, prepared.stage)] = block.stage;
+      cell[dimensionId(prepared, prepared.stage)] = block.saidAt ?? block.stage;
     }
     return {
       block: block.id,
@@ -310,7 +330,14 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     tier: 'generated',
     ...(tags.length > 0 ? { tags } : {}),
     ...(covers.length > 0 ? { covers } : {}),
-    ...(draft.world ? { given: { world: draft.world } } : {}),
+    ...(draft.world || draft.vars
+      ? {
+          given: {
+            ...(draft.world ? { world: draft.world } : {}),
+            ...(draft.vars ? { vars: draft.vars } : {}),
+          },
+        }
+      : {}),
     ...(stages ? { stages } : {}),
     ...(!incomplete && draft.criteria.length > 0 ? { criteria: draft.criteria } : {}),
     blocks,
@@ -336,6 +363,21 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     },
   };
   return { id: draft.id, seeder: draft.seeder, spec, placeholders, noThen, reasons, blocks: blocks.length };
+}
+
+/** A partial map assertion cannot establish that other schema-declared arguments are forbidden. */
+function closeKnownInputs(prepared: PreparedMap, tools: ToolExpect[]): ToolExpect[] {
+  return tools.map((tool) => {
+    if (tool.input_closed !== true) return tool;
+    const properties = prepared.tools.find((entry) => entry.name === tool.label)?.input?.properties;
+    if (
+      isPlainObject(properties) &&
+      Object.keys(properties).every((key) => Object.hasOwn(tool.input ?? {}, key))
+    )
+      return tool;
+    const { input_closed: _closed, ...partial } = tool;
+    return partial;
+  });
 }
 
 /** The YAML text of a rendered spec, with a header. Deterministic: no clock, no absolute path. */

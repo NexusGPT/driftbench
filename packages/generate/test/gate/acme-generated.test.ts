@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'node:url';
-import { functionAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { defaultChecks } from '@driftbench/checks';
-import { type AgentAdapter, loadSpecs, type Spec } from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
-import { createScriptedDriver } from '@driftbench/users';
+import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { type AgentAdapter, loadSpecs, type Spec } from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { faults } from '../../../../examples/acme/faults/index';
 import { createAcmeAgent, createStore } from '../../../../examples/acme/src/index';
@@ -31,6 +31,15 @@ function sales(): AgentAdapter {
   });
 }
 
+function ops(): AgentAdapter {
+  return processAdapter({
+    command: process.execPath,
+    args: [fileURLToPath(new URL('ops/agent.mjs', ROOT))],
+    provider: localProvider(),
+    deterministic: true,
+  });
+}
+
 let specs: Spec[];
 beforeAll(async () => {
   const loaded = await loadSpecs([fileURLToPath(new URL('generated/specs', ROOT))]);
@@ -39,17 +48,18 @@ beforeAll(async () => {
 
 describe('the generated Acme suite on the real agent', () => {
   it('passes every block of every complete spec on the reference agent', async () => {
-    expect(specs.length).toBe(168);
+    expect(specs.length).toBe(252);
     const failing: string[] = [];
     for (const spec of specs) {
-      const run = await runOnce(spec, sales(), 1, ctx);
+      // A price-sheet task runs on the ops agent its family names, as the gate routes it.
+      const run = await runOnce(spec, spec.kind === 'task' ? ops() : sales(), 1, ctx);
       spec.blocks.forEach((block, index) => {
         const outcome = blockOutcome(run, index);
         if (outcome !== 'pass') failing.push(`${spec.id}#${block.id ?? index}: ${outcome}`);
       });
     }
     expect(failing).toEqual([]);
-  }, 120_000);
+  }, 300_000);
 
   it('turns each deviation probe red on the fault that mishandles its class', async () => {
     const planted = new Map(
@@ -72,7 +82,7 @@ describe('the generated Acme suite on the real agent', () => {
       // The probe block, or a block after it that reads what the probe changed, goes red.
       if (outcomes.slice(index).includes('fail')) killed.push(block.when.injection.class);
     }
-    expect(killed.sort()).toEqual([
+    expect([...new Set(killed)].sort()).toEqual([
       'D2_goal_shift',
       'D4_loose_confirmation',
       'D6_instruction_in_data',

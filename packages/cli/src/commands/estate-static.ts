@@ -1,9 +1,10 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
-import { RUNTIMES, readerFor, runStaticTests, type StaticResult } from '@driftbench/estate';
-import { formatJson, StaticTest } from '@driftbench/generate';
+import { RUNTIMES, readerFor, runStaticTests, type StaticResult } from '@agent-nexus/driftbench-estate';
+import { formatJson, StaticTest } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 export type EstateStaticOptions = { estate?: string; runtime?: string; ceiling?: string; json?: boolean };
 
@@ -40,7 +41,7 @@ export async function estateStaticCommand(
     io.err(`error: unknown runtime "${options.runtime}": use ${RUNTIMES.join(', ')}\n`);
     return 2;
   }
-  const ceiling = Number(options.ceiling ?? '40000');
+  const ceiling = optionNumber(options.ceiling ?? '40000');
   if (!Number.isInteger(ceiling) || ceiling <= 0) {
     io.err(`error: --ceiling takes a positive whole number of characters, not "${options.ceiling}"\n`);
     return 2;

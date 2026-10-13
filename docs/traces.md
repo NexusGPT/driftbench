@@ -32,7 +32,7 @@ A recorded Claude Code session keeps the same tree from its transcript: each lin
 
 Nexus traces carry no tree and have no observations. A workflow that gates a suite built from traces is in [running](running.md#project-config-and-the-pull-request-gate).
 
-`rollUp(observations)` (package `@driftbench/adapters`) rolls the tree up: for each line, the cost, input and output tokens, and span count of the line and everything under it, and the time from the earliest start to the latest end of that subtree. It also returns the slowest path: from the root that finishes last, the child that finishes last at each step, down to a leaf. Lines without a figure count as zero.
+`rollUp(observations)` (package `@agent-nexus/driftbench-adapters`) rolls the tree up: for each line, the cost, input and output tokens, and span count of the line and everything under it, and the time from the earliest start to the latest end of that subtree. It also returns the slowest path: from the root that finishes last, the child that finishes last at each step, down to a leaf. Lines without a figure count as zero.
 
 A conversation with no chat span gives no trace and is named in a note. The fixtures, fictional, are in `packages/adapters/test/traces/fixtures`: `otel-semconv.json` (current conventions, two traces of one conversation) and `otel-flat.jsonl` (flat attributes, one trace per turn joined by session id).
 
@@ -52,7 +52,7 @@ driftbench import approve <path> [--all]
 
 `--select <ids>` drafts only the traces named by a comma-separated list of trace ids. An id that names no trace in the input stops the run with exit 2 and writes nothing.
 
-`--dataset <name> --store <file>` pushes the drafts as the next version of that dataset in the store, the same push as `driftbench dataset push`. Each import with `--dataset` makes a new version, because the drafts carry their import time. `--dataset` without `--store` exits 2.
+`--dataset <name> --store <file>` pushes the drafts as the next version of that dataset in the store, the same push as `driftbench dataset push`. The drafts take their time from the traces, never the clock, so the same traces draft the same bytes: importing unchanged traces again pushes no new version and prints that the dataset already holds them. Traces that changed make the next version. `--dataset` without `--store` exits 2.
 
 Personal data is redacted by default with the [intake](generating.md) privacy rules: checksum detectors for emails, phones, IBANs, national ids, card numbers and addresses, then the independent second pass. One value keeps one placeholder across the whole conversation (`[ADDRESS_1]` in the user message and in the tool input). `--no-redact` keeps the data; do not commit such drafts to a public repository.
 

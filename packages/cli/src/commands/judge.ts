@@ -27,9 +27,10 @@ import {
   recordingClient,
   saveCassette,
   writeAssignmentTable,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 const MODES: readonly CouncilMode[] = ['system1', 'hybrid', 'llm'];
 
@@ -282,7 +283,7 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     );
     return 2;
   }
-  const cap = options.spendCapUsd === undefined ? undefined : Number(options.spendCapUsd);
+  const cap = options.spendCapUsd === undefined ? undefined : optionNumber(options.spendCapUsd);
   if (cap !== undefined && !(Number.isFinite(cap) && cap > 0)) {
     io.err(`--spend-cap-usd takes a positive number, not "${options.spendCapUsd}".\n`);
     return 2;
@@ -295,7 +296,7 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     io.err(`--assign takes council or cheapest, not "${options.assign}".\n`);
     return 2;
   }
-  const repeats = Number(options.repeats);
+  const repeats = optionNumber(options.repeats);
   if (!Number.isInteger(repeats) || repeats < 1) {
     io.err(`--repeats takes a whole number from 1, not "${options.repeats}".\n`);
     return 2;

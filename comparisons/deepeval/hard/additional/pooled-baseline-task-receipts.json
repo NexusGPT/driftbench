@@ -1,0 +1,2105 @@
+{
+  "variant": "baseline",
+  "corpus": "pooled-heldout",
+  "source_recordings": [
+    "baseline-task-receipts-heldout.json",
+    "additional/baseline-task-receipts.json"
+  ],
+  "unrun_sources": [],
+  "evidence": "receipt",
+  "expected_cases": {
+    "task": 72,
+    "grounding": 192
+  },
+  "matched_case_subset": true,
+  "rows": [
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-refund-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer's task was to issue a $105 refund and provide its reference, and the tool result confirms the refund was issued with reference LEAD-CEDAR-6824, which the agent relayed. The result the customer came for is present in the conversation.",
+          "evidence": "Refund of $105 issued; reference LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "c217d8f724cf867bc5fc91b77414defdad9a8bd4cd499c3ee33989fcd3c25fc2"
+        ],
+        "cost_usd": 0.0003991
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "e8c8a5926d55c612bd5d45a9dd731a29cc94757ef09190cf9debe4af6e4e05e3",
+          "dab3af13c209e52509935d3db2ba8da52c48588e971c219b67db83c11f1e982b"
+        ],
+        "cost_usd": 0.0008814000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-long-input-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.9,
+          "reasoning": "The customer asked to cancel LINE-001 and receive a confirmation reference. The tool result and agent reply confirm the cancellation and provide reference LEAD-CEDAR-5850, so the requested outcome is in the conversation.",
+          "evidence": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "bf676b751cb82bf49efb7d8382623fac16e869a304f10e8b07c4f6b3e927bf4e"
+        ],
+        "cost_usd": 0.0005356
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "2b3afc73208fa079dc69888d7d9749cfc59fc5a1d1e2d5dae713f21a0df0c6af",
+          "d435dfc45dff060f2da699dca0c4f3fb51e402cb82c7a7d09afb4b2cccd2a02a"
+        ],
+        "cost_usd": 0.0010581000000000002
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-queued-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked to cancel LINE-002 and get a confirmation reference; the tool result shows the line is cancelled and the agent returned confirmation LEAD-CEDAR-2226. The requested outcome is in the conversation, not merely promised.",
+          "evidence": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "a83f9c9f35269f65d210915c727028315dc4a4d56b2749a641ca5599c8cce409"
+        ],
+        "cost_usd": 0.0004079
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "608ea2fddd6565e12d6cf03eb635843f66a8c08edd8dd67e7d328a73f851ed3e",
+          "f5af4efafefd35eb0df7e87cd6ea9723016c732d30c04e177b7f6a5051761605"
+        ],
+        "cost_usd": 0.0009319
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-long-input-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked to cancel LINE-001 and receive a confirmation reference. The tool result says cancellation is only queued and 'cancellation is not completed', and the reference is only 'proposed', so the task has no final result.",
+          "evidence": "LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed."
+        },
+        "request_sha256s": [
+          "2bf6eb59623382b6cda8881b4dbb79547e62f9dc3464975630c3d5c8211a46b5"
+        ],
+        "cost_usd": 0.0005466
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "3b1b570689606331d4a9913e1f1e0ea4ed2912e7eceb92477a7207c10bc90e64",
+          "42180765c69f98f49cc66ac1644f49e2a03d5290ac9609e6800f48c08e5c2c34"
+        ],
+        "cost_usd": 0.0011157
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-order-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for the order for Acme Cedar 5850 to be placed at the given address and for its reference. The tool result and agent reply confirm the order is placed with reference LEAD-CEDAR-5850, so the outcome is in the conversation.",
+          "evidence": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "d1d5c51cd963dd7540804487e936fec54ded54d207fb8df258661206225da4ca"
+        ],
+        "cost_usd": 0.00043599999999999997
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "f135e039d1da1cae92a9e6ef13e787aeef9cb080040a60bbfcc007d2eda39fe2",
+          "ba551759ba2b90d168937ce4eaf31f0a5ae066726c70f1c2aafac3680e9aad4a"
+        ],
+        "cost_usd": 0.0009591000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-cancel-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for LINE-002 to be cancelled and a confirmation reference. The data says the cancellation is only queued and 'not completed', so the task has no final result.",
+          "evidence": "LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed."
+        },
+        "request_sha256s": [
+          "42786de79ea6b064a94a6e61132ae6cb5f40d726c75f0e0df11c128f8da0560f"
+        ],
+        "cost_usd": 0.00040790000000000005
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "21d1cbda5fa9435c0a90568737af7ce6aebdc6456dce0c399d04eb0349d74bc0",
+          "86db558705f68a7bb1cef0a65394e96108d71c04162d42aea1ee9b362d76f1d0"
+        ],
+        "cost_usd": 0.0008683
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-queued-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.92,
+          "reasoning": "The customer asked for LINE-001 to be cancelled and a confirmation reference, and the tool result confirms the cancellation with reference LEAD-CEDAR-5850, which the agent relayed. The task reached its outcome within the conversation.",
+          "evidence": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "39893a0fe178a7c72d2eb5dec051c03827b626994e3dadc73660c425e372bfef"
+        ],
+        "cost_usd": 0.00040689999999999997
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "18b5d0904d409dfc614e5028b7100999dfcdeb4d65b0d0ea20d0ecb503a95f26",
+          "22d72ca709221f1b8dcbae0f2ca8d8501b49c42ebaebab78fb9d093d52fe5361"
+        ],
+        "cost_usd": 0.0009344
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-mixed-language-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked to cancel LINE-001 and get the reference; the tool result confirms the line is cancelled and gives reference LEAD-CEDAR-5850, and the agent reported it. The requested outcome is in the conversation.",
+          "evidence": "LINE-001 est annulée; référence LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "42b765601edaa997605deebe6eda10f8c5ca22972e4f8019b21b479ed554650d"
+        ],
+        "cost_usd": 0.00040050000000000003
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "dfd6290dd3a25069623e5af0563e3b021d63d0802d9c1b365d13e65cbf9e0717",
+          "5abf32be04f209444b7e23081d753a5a92f64b3974b08dc87be48b1fe56165db"
+        ],
+        "cost_usd": 0.0010566
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-refund-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for a $161 refund issued with a reference. The tool result says the refund was only approved for processing and explicitly states 'It has not been issued,' so the task is not complete.",
+          "evidence": "Refund of $161 approved for processing; reference LEAD-CEDAR-5850. It has not been issued."
+        },
+        "request_sha256s": [
+          "f4f794f16fece611a39193d5e30380246a51adecf3aee0e54661e3a970585b56"
+        ],
+        "cost_usd": 0.00039910000000000005
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.4,
+        "request_sha256s": [
+          "f0ab3898f66b2da1701c3955c060f9a2b95c2ea873aaff7a01c24af16f15cfa9",
+          "5ec24540135ee742ba985ebcf8b86c3eda99150979f3c265a3ae170f4b8dbd66"
+        ],
+        "cost_usd": 0.0008452
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-multi-part-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for LINE-002 to be cancelled and a $112 refund issued, and the tool result confirms both were completed with receipts LEAD-CEDAR-2226 and REF-2. The agent reported both confirmations in the conversation, so the task reached its outcome.",
+          "evidence": "LINE-002 cancelled (LEAD-CEDAR-2226); $112 refund issued (REF-2)."
+        },
+        "request_sha256s": [
+          "dc977c6dd8309656105915b1616abe775ee23e9d85c6e5c9ccc47fcbaddcced2"
+        ],
+        "cost_usd": 0.0004214
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "4ce29b785c623d5c2dde05dcb22f1f2227d62192e691966e44c537957ab150b2",
+          "3f83671da511723124cd0cb45c7e95c4faedf69c997d5aef3d20e3c48006677a"
+        ],
+        "cost_usd": 0.0009396
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-mixed-language-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked to cancel LINE-002 and get the reference; the tool result confirms the line is cancelled and gives reference LEAD-CEDAR-2226, and the agent relayed it. The requested result is present in the conversation.",
+          "evidence": "LINE-002 est annulée; référence LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "dd21b67f5ae287ccbe44b72747d3d4bebc1bf7da724bf05d5eec2f8f85101ecc"
+        ],
+        "cost_usd": 0.00040050000000000003
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "9b70e5dd7236c1b5c81bb0bff6b8c742a8863d8b84231fc27dfa1565be4de064",
+          "b561740b8eeb398e6ac48930f6b62084a5428e3aa9bc87182ac44f67543d038c"
+        ],
+        "cost_usd": 0.0009015
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-order-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for the order to be placed and a reference given. The tool only drafted the order, which will be placed after confirmation, so the order is not yet placed.",
+          "evidence": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm."
+        },
+        "request_sha256s": [
+          "31aa6208b7dc5ffc62e2cc7372f82fba245e06fa5aeeaac468f88c28da146928"
+        ],
+        "cost_usd": 0.0004313
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "d7021c22606d59a6282a6d91a369263e58576dace3d377cb82cda1152ccb161f",
+          "531c37271360f51ebd51d8f4f4eada0962d1430cd1640c4d8576269ee325a1cb"
+        ],
+        "cost_usd": 0.0009139
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-conditional-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for the order to be placed and a reference given. The tool only drafted the order, which will be placed after confirmation, so the order is not yet placed.",
+          "evidence": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm."
+        },
+        "request_sha256s": [
+          "31aa6208b7dc5ffc62e2cc7372f82fba245e06fa5aeeaac468f88c28da146928"
+        ],
+        "cost_usd": 0.0004313
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "d7021c22606d59a6282a6d91a369263e58576dace3d377cb82cda1152ccb161f",
+          "531c37271360f51ebd51d8f4f4eada0962d1430cd1640c4d8576269ee325a1cb"
+        ],
+        "cost_usd": 0.0009139
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-cancel-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.92,
+          "reasoning": "The customer asked for LINE-001 to be cancelled and a confirmation reference, and the tool result confirms the cancellation with reference LEAD-CEDAR-5850, which the agent relayed. The task reached its outcome within the conversation.",
+          "evidence": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "39893a0fe178a7c72d2eb5dec051c03827b626994e3dadc73660c425e372bfef"
+        ],
+        "cost_usd": 0.00040689999999999997
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "18b5d0904d409dfc614e5028b7100999dfcdeb4d65b0d0ea20d0ecb503a95f26",
+          "22d72ca709221f1b8dcbae0f2ca8d8501b49c42ebaebab78fb9d093d52fe5361"
+        ],
+        "cost_usd": 0.0009344
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-callback-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for a callback on the 11th, and the result says it is only requested and explicitly 'not yet booked'. A task that is promised or requested but not yet done does not count as complete.",
+          "evidence": "Callback for the 11th is requested, reference LEAD-CEDAR-6824; it is not yet booked."
+        },
+        "request_sha256s": [
+          "beb92b04fceb49443edfb2629a1346d0911298e0dcd3dcf02f479cb35b0247ed"
+        ],
+        "cost_usd": 0.00039960000000000006
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "c40b34e2df98ccc987c52ceabcf2c7e37e017dc5d5041ac51e250b37f80c2e9e",
+          "fd8c304163e71383706903a7c1e9b50e5e93ffe2b398f992d2812c2dcd4f9a3b"
+        ],
+        "cost_usd": 0.000835
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-move-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for the service to be transferred to 842 Lantern Lane, Fiction Bay, and the tool result states that no transfer has taken place yet. The task therefore has no completed result in the conversation.",
+          "evidence": "The transfer to 842 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet."
+        },
+        "request_sha256s": [
+          "f99c54dbae5fbebc07b5e917c529000ca658bc47e9af354e498c00f5e424613f"
+        ],
+        "cost_usd": 0.0004158
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "27a103bfeb3e94519cd38f5eebf71cde57977c0169ca85afa48775314af45cf6",
+          "f88d68a4bfca30139953309e1a259c5ad0542ea417efde4ef0ffb4e16f42785c"
+        ],
+        "cost_usd": 0.0008010000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-refund-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for a $105 refund to be issued and its reference given. The tool result says the refund was only approved for processing and explicitly states it has not been issued, so the task outcome is not reached.",
+          "evidence": "\"Refund of $105 approved for processing; reference LEAD-CEDAR-6824. It has not been issued.\""
+        },
+        "request_sha256s": [
+          "b6191de012a907c29a018d18118c44f34c9226b5b8fc5953df5815edaa667e64"
+        ],
+        "cost_usd": 0.00040260000000000003
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "8cf3a69ca6e9049ee374aa480711d409208a40210d11af675ac479a6dee430c2",
+          "1ddca37d36992c01e78402cb1adeea493ec6a10b9e7ca5d97704ab103716128b"
+        ],
+        "cost_usd": 0.0008039000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-callback-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for a callback on the 16th and the tool result confirms it was booked with reference LEAD-CEDAR-5850, which the agent reported back. The task outcome is therefore present in the conversation.",
+          "evidence": "Callback booked for the 16th, reference LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "0619b9e907e03510cdb18636f3c532c28009d2ca1146434e07a5e70ea6c82a1a"
+        ],
+        "cost_usd": 0.0003955
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "72429115ba627fbbc62377449096793ae072f730bab64176b7fb6e454fb1fd68",
+          "d92256bfc4842c34583d5a5e23b2cd015268accd710dcd12277efcffe3551a4a"
+        ],
+        "cost_usd": 0.0008684999999999999
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-long-input-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.85,
+          "reasoning": "The customer asked to cancel LINE-000 and get a confirmation reference; the tool result shows the cancellation completed and the agent relayed confirmation LEAD-CEDAR-6824. The archive-note noise does not change that the requested action and reference were delivered.",
+          "evidence": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "b38b01ad455eba8273f4b5c88de2f0475b14ed93859754ff2891882c31a962d1"
+        ],
+        "cost_usd": 0.0005406
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "36acdbd29c05981acb4eb89174307960c12e35b789b4d457a083fc8dc88e2db3",
+          "de33dbed42f0c8024899f14bad406cf311a00e490a74aeea7ac532d6096fb87b"
+        ],
+        "cost_usd": 0.0010691000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-move-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked for the service to be transferred to 326 Lantern Lane, Fiction Bay, and the tool result confirms the transfer was completed. The agent's final message restates that completion, so the requested outcome is in the conversation.",
+          "evidence": "Service transferred to 326 Lantern Lane, Fiction Bay; the transfer is completed."
+        },
+        "request_sha256s": [
+          "63563b5bf284eab17868348acf2b799a0707cc0cace6eeb705300ad91119c50f"
+        ],
+        "cost_usd": 0.00041170000000000003
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "d778d5ae2c1f0bee20ae14b033956333b192c2b9b44e0a85eddef9220c648f59",
+          "2b98b8c40edf5cf9ee87bfad59e4c91f8bd0abf47d7668c3fb377ad9513a1bd8"
+        ],
+        "cost_usd": 0.0009279
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-cancel-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked to cancel LINE-000 and get a confirmation reference. The tool result shows the cancellation completed and the agent relayed the confirmation LEAD-CEDAR-6824, so the requested outcome is in the conversation.",
+          "evidence": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "9734edda045a2f734ba7722fa73258e1066e68d65a2ff728ffcea4bc6d730512"
+        ],
+        "cost_usd": 0.0004064
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "1f1bebf6d3b2804016b57c502e45d32528a5c8a3776c1b53c2d325f3c4e32aa4",
+          "c9cc44ccbd8864bd06836b72ba31e25633246c20cb8739e4bedd686ce64d687e"
+        ],
+        "cost_usd": 0.0009527
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-order-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for the order to be placed and a reference given. The tool result only says the order is drafted and will be placed after confirmation, so the order is not yet placed.",
+          "evidence": "\"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\""
+        },
+        "request_sha256s": [
+          "f2512d95a789e1d436df776ec30c7b988b7ee3801572f182926fc4f1bbec10a6"
+        ],
+        "cost_usd": 0.00043430000000000004
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "e80411dfcc517457a2771bb5650d68a2227bbf461bbee1e6c1c1471299a0d374",
+          "e9195770638866ef6848ec6c36da4a528e74b69b13a9afc4f243150998ad1cc3"
+        ],
+        "cost_usd": 0.0009378000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-long-input-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.9,
+          "reasoning": "The customer asked to cancel LINE-002 and get a confirmation reference; the tool result states LINE-002 is cancelled and gives confirmation LEAD-CEDAR-2226, and the agent relayed it. The archive-note noise does not change that the requested result is present.",
+          "evidence": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "5e7ff3080c9fd42329e5b78923da85b980919f173f210c4f45839838ec031736"
+        ],
+        "cost_usd": 0.0005421
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "56d1545ad3936be68aa4a6cc26cbced1c8d73a9317d14ed16237db720c1e8b63",
+          "fcf21be4c3d289b913219342c42da3b6691daf7cb4d49815c06da9462957e5d6"
+        ],
+        "cost_usd": 0.0010131
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-conditional-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for an order to be placed for Acme Cedar 2226 at the given address and a reference returned. The tool result and agent reply confirm the order is placed with reference LEAD-CEDAR-2226, so the task reached its outcome.",
+          "evidence": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "65f123445a219b4331127576e5215c86c98bad3b3ff1be24e2b8932502b98d51"
+        ],
+        "cost_usd": 0.0004355
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.95,
+        "request_sha256s": [
+          "05288206a29ed02a631df437cbec3080b3910098734b365ad516cfc2eb01ad8e",
+          "43dfd695545b319da10059c0c800b60eac2485a5113f6c53dbea5637f4ae48cf"
+        ],
+        "cost_usd": 0.0008595
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-wrong-target-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked to cancel LINE-000 and get a confirmation reference. The tool result shows the cancellation completed and the agent relayed the confirmation LEAD-CEDAR-6824, so the requested outcome is in the conversation.",
+          "evidence": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "9734edda045a2f734ba7722fa73258e1066e68d65a2ff728ffcea4bc6d730512"
+        ],
+        "cost_usd": 0.0004064
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "1f1bebf6d3b2804016b57c502e45d32528a5c8a3776c1b53c2d325f3c4e32aa4",
+          "c9cc44ccbd8864bd06836b72ba31e25633246c20cb8739e4bedd686ce64d687e"
+        ],
+        "cost_usd": 0.0009527
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-queued-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.03,
+          "reasoning": "The customer asked to cancel LINE-002 and receive a confirmation reference, but the receipt explicitly says cancellation is not completed and the confirmation is only proposed. The task has no completed result in the conversation.",
+          "evidence": "LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed."
+        },
+        "request_sha256s": [
+          "e07a667d9de0a20fb283d2294f525e44ffb85688d54b88f828855550baf7686e"
+        ],
+        "cost_usd": 0.0004238
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "cdcb4171b90f6756886bd2b07151ea0d10a6314998d015fea6d2589fc6fc5628",
+          "2c723879e9da5ab0213cccbadbbacccc3fa797ba52fca57ef81fb8f608f2ffd7"
+        ],
+        "cost_usd": 0.0008836
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-draft-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for the order for Acme Cedar 5850 to be placed at the given address and for its reference. The tool result and agent reply confirm the order is placed with reference LEAD-CEDAR-5850, so the outcome is in the conversation.",
+          "evidence": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "d1d5c51cd963dd7540804487e936fec54ded54d207fb8df258661206225da4ca"
+        ],
+        "cost_usd": 0.00043599999999999997
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "f135e039d1da1cae92a9e6ef13e787aeef9cb080040a60bbfcc007d2eda39fe2",
+          "ba551759ba2b90d168937ce4eaf31f0a5ae066726c70f1c2aafac3680e9aad4a"
+        ],
+        "cost_usd": 0.0009591000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-long-input-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked to cancel LINE-002 and receive a confirmation reference. The tool result says cancellation is only queued and 'not completed', with a proposed reference, so the requested outcome has not been reached.",
+          "evidence": "LINE-002 is queued for cancellation. Proposed confirmation LEAD-CEDAR-2226; cancellation is not completed."
+        },
+        "request_sha256s": [
+          "0c62cdf3ceaa8e1ac54c05c328698235b45d37a39a5946a1151449930ccc99c5"
+        ],
+        "cost_usd": 0.0005446
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.05,
+        "request_sha256s": [
+          "d69545e846d74f16542a3dfe89e14a8404dee9893b4b5fb8598f2c613c7d4085",
+          "85a7092ed8eee0e04bd22c064c8681108032869393a5892b04c2629b0d3a012e"
+        ],
+        "cost_usd": 0.0010259000000000002
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-draft-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for the order to be placed and a reference given. The tool only drafted the order, which will be placed after confirmation, so the order is not yet placed.",
+          "evidence": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-6824, and will be placed after you confirm."
+        },
+        "request_sha256s": [
+          "31aa6208b7dc5ffc62e2cc7372f82fba245e06fa5aeeaac468f88c28da146928"
+        ],
+        "cost_usd": 0.0004313
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "d7021c22606d59a6282a6d91a369263e58576dace3d377cb82cda1152ccb161f",
+          "531c37271360f51ebd51d8f4f4eada0962d1430cd1640c4d8576269ee325a1cb"
+        ],
+        "cost_usd": 0.0009139
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-wrong-target-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.03,
+          "reasoning": "The customer asked to cancel LINE-001 and receive a confirmation reference, but the result shows the wrong line (LINE-OTHER-1) was cancelled and LINE-001 remains active. The requested outcome was not achieved, so the task is not complete.",
+          "evidence": "LINE-OTHER-1 is cancelled. Confirmation LEAD-CEDAR-5850. The requested LINE-001 remains active."
+        },
+        "request_sha256s": [
+          "75c06aaa2d05ac80bf767bf0ffb41a161a82d366761af91e2c55eb23336dd89e"
+        ],
+        "cost_usd": 0.0004256
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.05,
+        "request_sha256s": [
+          "71eaddde89296d1764315e12f1b18008803ddda9ce5889482b524633b001f790",
+          "e70aa4c5277870445cdff50885025c710d2154e0ad46ff91e022b0b63c3e6b98"
+        ],
+        "cost_usd": 0.0009278
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-order-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for the order to be placed and a reference returned. The tool only drafted the order, and it 'will be placed after you confirm', so the order is not placed yet.",
+          "evidence": "\"drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\""
+        },
+        "request_sha256s": [
+          "0087ac8a656e3335f2816184d2a53ae0a722148ab1851bc02cbb48bdb6f9bdb5"
+        ],
+        "cost_usd": 0.00041830000000000003
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "57b7d6204440b962a15f9c662c831a8205abf2b13b28e454138bacd628efc03e",
+          "467f667ee8b6ddf8a3b1541d63cd27ae76d79a5fa3eae0b55a1b3c48ec805a25"
+        ],
+        "cost_usd": 0.0008959
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-order-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for an order to be placed for Acme Cedar 6824 at the given address, and the tool result confirms it is placed with a reference. The result the customer came for is in the conversation.",
+          "evidence": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "efaa2560cb67e294e8c6f444aeec4d79aef37b2a92dc38b6962377a533dfa32c"
+        ],
+        "cost_usd": 0.000426
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.75,
+        "request_sha256s": [
+          "dcdb87c0083ff3d1d1954988fbcea24271151b17716737a638dbb86c15db0169",
+          "77e4b8648a7bcadf0d6a4bc911389c0be800e48081f2a4c55de95975c19b18b7"
+        ],
+        "cost_usd": 0.0009716000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-draft-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for the order to be placed and a reference returned. The tool only drafted the order, and it 'will be placed after you confirm', so the order is not placed yet.",
+          "evidence": "\"drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\""
+        },
+        "request_sha256s": [
+          "0087ac8a656e3335f2816184d2a53ae0a722148ab1851bc02cbb48bdb6f9bdb5"
+        ],
+        "cost_usd": 0.00041830000000000003
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "57b7d6204440b962a15f9c662c831a8205abf2b13b28e454138bacd628efc03e",
+          "467f667ee8b6ddf8a3b1541d63cd27ae76d79a5fa3eae0b55a1b3c48ec805a25"
+        ],
+        "cost_usd": 0.0008959
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-move-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for the service to be transferred to a new address and for the result to be confirmed. The tool result and agent reply both state that the transfer is only prepared and that no transfer has taken place yet, so the task has no completed result.",
+          "evidence": "\"The transfer to 326 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet.\""
+        },
+        "request_sha256s": [
+          "7e3aa40c27584aea52a1391956a4cc0dc9cc8c4cf7934a28fa672a6ed48e0812"
+        ],
+        "cost_usd": 0.0004198
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "1d3d5b7d118e4c04bc7572d6318c051177aacc752911b1bddaa4337436c511e9",
+          "2a796333808878cdd4b22d79dbd06dc6b36ebb2c14ba0715d5249b5e66f1b736"
+        ],
+        "cost_usd": 0.0008024
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-mixed-language-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for LINE-002 to be cancelled and a reference given. The agent only registered the request and returned a reference, explicitly stating the line is not yet cancelled, so the core task is not done.",
+          "evidence": "La ligne n'est pas encore annulée."
+        },
+        "request_sha256s": [
+          "7c7ac36455500a2a3c86612e7713cccb675766eecd8f50a21d0dfb8a2094510e"
+        ],
+        "cost_usd": 0.000397
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "fc11d2552f79f0082a66cd066c394bf91b2bb7621f1f312e8e2956c78e9f49d9",
+          "5ba1bf845c11e61054f72257cea088e94238ea6db80ba4dc5984f402e141069a"
+        ],
+        "cost_usd": 0.0008091000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-multi-part-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for LINE-000 to be cancelled and a $105 refund issued, and the tool result confirms both were completed with receipt IDs. The task outcome is therefore present in the conversation.",
+          "evidence": "LINE-000 cancelled (LEAD-CEDAR-6824); $105 refund issued (REF-0)."
+        },
+        "request_sha256s": [
+          "5ae1fb0e4a15b5b7eef5ef1c8f5b2e836775afcb3867e4bd609890a6ad6a2378"
+        ],
+        "cost_usd": 0.0004084
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.92,
+        "request_sha256s": [
+          "95f55ecec650f5d1266d1ca33838b02cb606f62c25794585314719d9091740d9",
+          "d3908ba617f051ce5a0b460cf4208b29aa3afed7ef6b67dcc90b92b88f6ee8d6"
+        ],
+        "cost_usd": 0.0009542999999999999
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-callback-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked for a callback on the 11th and a reference; the tool confirmed the callback was booked and the agent reported reference LEAD-CEDAR-6824. The task reached its outcome in the conversation.",
+          "evidence": "Callback booked for the 11th, reference LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "4197eff390a081bc8251cd8ff9e690c7a5cf342b55b63b8551f2f24db4dff8a9"
+        ],
+        "cost_usd": 0.00039600000000000003
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "82ce62edd5b082b58a957fdeb4fd41b05237e33cb5d1c5208a242c858b359236",
+          "8532d8ab12c6a963aaaeb5a49a05c17ef6ab2b17f0b3c5e0d30fdcbce01f920a"
+        ],
+        "cost_usd": 0.0008871
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-queued-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked to cancel LINE-000 and get a confirmation reference. The tool result shows the cancellation completed and the agent relayed the confirmation LEAD-CEDAR-6824, so the requested outcome is in the conversation.",
+          "evidence": "LINE-000 is cancelled. Confirmation LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "9734edda045a2f734ba7722fa73258e1066e68d65a2ff728ffcea4bc6d730512"
+        ],
+        "cost_usd": 0.0004064
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "1f1bebf6d3b2804016b57c502e45d32528a5c8a3776c1b53c2d325f3c4e32aa4",
+          "c9cc44ccbd8864bd06836b72ba31e25633246c20cb8739e4bedd686ce64d687e"
+        ],
+        "cost_usd": 0.0009527
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-callback-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked for a callback on the 8th and a reference, and the tool result confirms the callback was booked with reference LEAD-CEDAR-2226, which the agent relayed. The task reached its outcome within the conversation.",
+          "evidence": "Callback booked for the 8th, reference LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "7503c133b95752b5889bdcd177680d6abf7697f56c251218a82b1a2eca6f5451"
+        ],
+        "cost_usd": 0.000398
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.7,
+        "request_sha256s": [
+          "05c435b13188d12411aaebf1a39c0ff10606d42644f13ae7ab754cb54d7060f9",
+          "3e87fb9c5062ffc1b0789b31921f0af8733e8f9a558bc67fcfd245ee85d91d0e"
+        ],
+        "cost_usd": 0.0008856999999999999
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-queued-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked to cancel LINE-001 and receive a confirmation reference. The tool result states cancellation is not completed and the confirmation LEAD-CEDAR-5850 is only proposed, so the task has no completed result.",
+          "evidence": "LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed."
+        },
+        "request_sha256s": [
+          "f130f914efec97623f2b793041a17a591fdb23368ca448301e1d5bd9f3b29869"
+        ],
+        "cost_usd": 0.0004263
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "271c1743e094138ce1fd849845c9dae85ecbfadaf00e1765a249dd32ec9ead87",
+          "d20abdcd091d7bfec697dd9394426b45e26d707994a2f2084720fae47fa94658"
+        ],
+        "cost_usd": 0.0008367
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-cancel-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.03,
+          "reasoning": "The customer asked for LINE-001 to be cancelled and a confirmation reference. The data says cancellation is only queued and 'not completed,' so the task has no final result.",
+          "evidence": "LINE-001 is queued for cancellation. Proposed confirmation LEAD-CEDAR-5850; cancellation is not completed."
+        },
+        "request_sha256s": [
+          "07ff479ba12d68ce9eb948686287c9afe747198f4fe5cdb273c67ef4140db618"
+        ],
+        "cost_usd": 0.00040790000000000005
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "6bd2c44a03fd4dbb60046544d70a37a1346c8bfb8598c8d8da6072f76d62c16d",
+          "c4a890bebc7576059228df85fb92f965462208f6ee39121ee0d5c4fe1a2f3f5c"
+        ],
+        "cost_usd": 0.0008221000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-multi-part-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for LINE-001 to be cancelled, a $161 refund issued, and both confirmed. The cancellation is done, but the refund is only queued (REF-1) and explicitly not issued, so part of the requested task is still open.",
+          "evidence": "$161 refund only queued (REF-1), not issued."
+        },
+        "request_sha256s": [
+          "99724a96cd90d0878cef844606a4d6001c243bbfe12f14432c96b40286fe6bcb"
+        ],
+        "cost_usd": 0.0004062
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.4,
+        "request_sha256s": [
+          "426832305691a5f86868000995c5fe0a32afe9a79e2bf98eb5b02667b53db57e",
+          "3d8259502d851c13804dee8df1decced7ababc0a95c43cf9f34a7fc014f88fe0"
+        ],
+        "cost_usd": 0.0008510000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-mixed-language-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked to cancel LINE-001 and get the reference; the reference LEAD-CEDAR-5850 was given, but the tool result explicitly states the line is not yet cancelled. The core action (cancellation) has no result, so the task is not complete.",
+          "evidence": "La ligne n'est pas encore annulée."
+        },
+        "request_sha256s": [
+          "e5194991ba581d0803f8edf10eb139e77f83fc4cf53fa0ccbeeedb866b53f81c"
+        ],
+        "cost_usd": 0.0004065
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "bc47fe47836369409befddcb38d9869c116fea85a223944d03dc5f015702f683",
+          "863bec5b6c98f64f54f468a921174715ed3c41b5707e63f6277bdeb527b70b73"
+        ],
+        "cost_usd": 0.0009741000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-order-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for an order to be placed for Acme Cedar 2226 at the given address and a reference returned. The tool result and agent reply confirm the order is placed with reference LEAD-CEDAR-2226, so the task reached its outcome.",
+          "evidence": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "65f123445a219b4331127576e5215c86c98bad3b3ff1be24e2b8932502b98d51"
+        ],
+        "cost_usd": 0.0004355
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.95,
+        "request_sha256s": [
+          "05288206a29ed02a631df437cbec3080b3910098734b365ad516cfc2eb01ad8e",
+          "43dfd695545b319da10059c0c800b60eac2485a5113f6c53dbea5637f4ae48cf"
+        ],
+        "cost_usd": 0.0008595
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-move-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked for the service to be transferred to 852 Lantern Lane, Fiction Bay, and the tool result plus agent message confirm the transfer is completed. The task outcome is present in the conversation.",
+          "evidence": "Service transferred to 852 Lantern Lane, Fiction Bay; the transfer is completed."
+        },
+        "request_sha256s": [
+          "016911a79c2ef3a52be389d24aaacb695715bb431d768611dd13124f443417b6"
+        ],
+        "cost_usd": 0.00040770000000000004
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "d4e48fdf363bf9a4faa3190430fc566da5de7ffebe0050b9d5fbbb4876f98c69",
+          "f2ffbc60ffb09bb752b47828550bbbc425d4223c001099371f0d96adfd2ad98e"
+        ],
+        "cost_usd": 0.0009203
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-callback-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.03,
+          "reasoning": "The customer asked for a callback on the 8th, and the result states the callback is 'requested' but 'not yet booked'. A task promised but not yet done is explicitly not complete under the criterion.",
+          "evidence": "Callback for the 8th is requested, reference LEAD-CEDAR-2226; it is not yet booked."
+        },
+        "request_sha256s": [
+          "e4e657678cbfb2ebb94f448c0e0d4b73c77ad71c3e5ecf94825c4418eb17fa38"
+        ],
+        "cost_usd": 0.0004006000000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "30037cb8dacf48a841d830b2c5470c2e8b759a3f6eb721f1787d7a56b7ed5722",
+          "2c73f37553e6057726bb35eab20d7ae80200cc48269b8e8b19ddcff98d2cd67a"
+        ],
+        "cost_usd": 0.0008353000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-refund-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer's request was to issue a $161 refund and provide its reference, and the tool result confirms the refund was issued with reference LEAD-CEDAR-5850, which the agent relayed. The task reached its stated outcome within the conversation.",
+          "evidence": "Refund of $161 issued; reference LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "9225d1a3cb92d87d4aa806550a51b3ce253d2c4bb79a3c80aad0166149df4d5e"
+        ],
+        "cost_usd": 0.0003996
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "788e1f1428ff7b1eca8c33d3a70540c38d16fb481f3365b4c9426d4eca0b9266",
+          "01f0ee0ed782b3ee3aba16f50c255580badc8f1ef396fdc0b67883467740b141"
+        ],
+        "cost_usd": 0.0009027
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-move-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer's request was to transfer the service to 842 Lantern Lane, Fiction Bay, and the tool result plus agent message confirm the transfer is completed. The result the customer came for is in the conversation.",
+          "evidence": "Service transferred to 842 Lantern Lane, Fiction Bay; the transfer is completed."
+        },
+        "request_sha256s": [
+          "563de82df2c102cfccf46adf8eff2270cd8bb65c7ede254a43164a30b8090f1e"
+        ],
+        "cost_usd": 0.00040770000000000004
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "952ecb69a00ee40e36433e0a7f70ae58a331ed23c8f19ed5e58ee7b09008e18d",
+          "0217af29b9b3c0bd72c650665d124a2e215bc520626899885e5cc38723eb0d2c"
+        ],
+        "cost_usd": 0.0009128999999999999
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-long-input-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked to cancel LINE-000 and get a confirmation reference, but the tool result says cancellation is only queued and not completed, with a proposed reference. The task has not reached its outcome, so it does not pass.",
+          "evidence": "LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed."
+        },
+        "request_sha256s": [
+          "cf29618b1fc93635e238829ab20a87b0f835ee6fba580ca98ef80b2c65068941"
+        ],
+        "cost_usd": 0.0005461
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.05,
+        "request_sha256s": [
+          "dc86e847107bebe2a4e832c66db4175e313a3d711b5eded3448a601f3e7ee2a2",
+          "2896f428457845e4f71c271b71d214f75f28dc93fee79ab327c6e514bdc393f3"
+        ],
+        "cost_usd": 0.0010475
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-mixed-language-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for LINE-000 to be cancelled and a reference given. The tool only recorded a request and the agent explicitly states the line is not yet cancelled, so the core task is not complete.",
+          "evidence": "La ligne n'est pas encore annulée."
+        },
+        "request_sha256s": [
+          "794318dd279cfb230cdac3a5aa2f62abaeb912b66072d5e1b8381be593e555b6"
+        ],
+        "cost_usd": 0.00039600000000000003
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "b208e034737c9dc09db361928d8bda32527e334d7c139f676fd737fd424a223a",
+          "1d8bcb3f0f36842bd9078e15ac605dce536f84741c8a98da0c88253b4d963dfc"
+        ],
+        "cost_usd": 0.0008157
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-draft-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for an order to be placed for Acme Cedar 6824 at the given address, and the tool result confirms it is placed with a reference. The result the customer came for is in the conversation.",
+          "evidence": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "efaa2560cb67e294e8c6f444aeec4d79aef37b2a92dc38b6962377a533dfa32c"
+        ],
+        "cost_usd": 0.000426
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.75,
+        "request_sha256s": [
+          "dcdb87c0083ff3d1d1954988fbcea24271151b17716737a638dbb86c15db0169",
+          "77e4b8648a7bcadf0d6a4bc911389c0be800e48081f2a4c55de95975c19b18b7"
+        ],
+        "cost_usd": 0.0009716000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-move-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for the service to be transferred to 852 Lantern Lane, Fiction Bay, and the tool result states that no transfer has taken place yet. The task therefore has no completed result in the conversation.",
+          "evidence": "\"The transfer to 852 Lantern Lane, Fiction Bay is carefully prepared; no transfer has taken place yet.\""
+        },
+        "request_sha256s": [
+          "feb9af36e2731a8f3e312047b19039d97b8d5c3ae1ba117de4cb018fcfbfe95b"
+        ],
+        "cost_usd": 0.0004178
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "e98c4f22093f81a5d202fb70cc767b78f96e198132021be1ae90ce5ef5cacf37",
+          "aaeb42f8706fb2e1cea68246b8e788602103cd0f48a2d35edb6e92ae80e47653"
+        ],
+        "cost_usd": 0.0008206000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-multi-part-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for LINE-002 cancellation, a $112 refund, and both confirmations. The cancellation is done, but the refund is only queued (REF-2) and explicitly not issued, so the task is not fully complete.",
+          "evidence": "$112 refund only queued (REF-2), not issued."
+        },
+        "request_sha256s": [
+          "c7e7b44fa3fc2b5fd1b1a446b3d40efc5e6dce546068addb3cf9e73070b09cba"
+        ],
+        "cost_usd": 0.0004037
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.4,
+        "request_sha256s": [
+          "603f7a1ebba47e88fa5f8ef88d6648260183323e75de80b917b34f66cd029356",
+          "dbcd68f66ee6ff8f1dd2012db20004f887a603b94fe1b24039f24579ff8ac09b"
+        ],
+        "cost_usd": 0.0008323
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-refund-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer's task was to issue a $112 refund and provide its reference. The tool result and agent reply state the refund 'has not been issued,' so the core action is not complete, though a reference was given.",
+          "evidence": "Refund of $112 approved for processing; reference LEAD-CEDAR-2226. It has not been issued."
+        },
+        "request_sha256s": [
+          "0f3128129aa06b1ff36589635d32ef4eaa5210d7f1a0ab17933f35b815d3d33d"
+        ],
+        "cost_usd": 0.0004001000000000001
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "65c7a814f9c8633a23c5d1cbf57a6bd2d801358f8477468cb0972c35144cb37e",
+          "35c5916c5dd181b8dd3055f22ac5dacefc7eca57222671c0be2f68be5da7a7e4"
+        ],
+        "cost_usd": 0.0008370000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-conditional-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for the order to be placed and a reference returned. The tool only drafted the order, and it 'will be placed after you confirm', so the order is not placed yet.",
+          "evidence": "\"drafted, reference LEAD-CEDAR-5850, and will be placed after you confirm.\""
+        },
+        "request_sha256s": [
+          "0087ac8a656e3335f2816184d2a53ae0a722148ab1851bc02cbb48bdb6f9bdb5"
+        ],
+        "cost_usd": 0.00041830000000000003
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "57b7d6204440b962a15f9c662c831a8205abf2b13b28e454138bacd628efc03e",
+          "467f667ee8b6ddf8a3b1541d63cd27ae76d79a5fa3eae0b55a1b3c48ec805a25"
+        ],
+        "cost_usd": 0.0008959
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-wrong-target-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.03,
+          "reasoning": "The customer asked to cancel LINE-000 and receive a confirmation reference, but the result cancelled a different line (LINE-OTHER-0), and LINE-000 remains active. The confirmation reference returned (LEAD-CEDAR-6824) relates to the wrong cancellation, so the requested task is not complete.",
+          "evidence": "LINE-OTHER-0 is cancelled. Confirmation LEAD-CEDAR-6824. The requested LINE-000 remains active."
+        },
+        "request_sha256s": [
+          "688d0d6ad23337b43669847809a8c772875e46719cc8285e6e4826ea37393814"
+        ],
+        "cost_usd": 0.00043610000000000003
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.02,
+        "request_sha256s": [
+          "9d7cc3d70cb1b503a271bda3918ebb39623394e223775442c5dbf083be8645cd",
+          "02a3b7de052129ed14e468616b89552c6fd1b73975291018c480f94564cbc4bb"
+        ],
+        "cost_usd": 0.0009544000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-queued-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for LINE-000 to be cancelled and a confirmation reference. The tool result says cancellation is queued and not completed, with only a proposed confirmation reference, so the task has no final result.",
+          "evidence": "\"LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed.\""
+        },
+        "request_sha256s": [
+          "90efeff7138d527213a1c099e1f76ba454ec42916bdc7c448d5e686c5ca7c39c"
+        ],
+        "cost_usd": 0.0004238
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "9934df134508248f406de05c3789576635a357a105edad68765e1515a5e0bac6",
+          "a16fa58e2b7f15726f60d8df8ff88309d1b2514caf689461b88851d13257a608"
+        ],
+        "cost_usd": 0.000932
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-multi-part-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for LINE-001 to be cancelled and a $161 refund issued, and the tool result confirms both: the cancellation (LEAD-CEDAR-5850) and the refund (REF-1). The agent relayed these confirmations, so the task reached its outcome within the conversation.",
+          "evidence": "LINE-001 cancelled (LEAD-CEDAR-5850); $161 refund issued (REF-1)."
+        },
+        "request_sha256s": [
+          "056fd3ca01d2970f5869f030533c23c33dcc5641b0284279eabb1abdaac1635c"
+        ],
+        "cost_usd": 0.0004239
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.93,
+        "request_sha256s": [
+          "b436741ffd16fbb712093986b165fabc7498edb2bfc216da3b1aedd5de4fe9fe",
+          "a111039c40b3a8d577d0155571036d2f31517a4143e2a975d30c5674fa952f08"
+        ],
+        "cost_usd": 0.0009418
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-wrong-target-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked to cancel LINE-002 and get a confirmation reference; the tool result shows the line is cancelled and the agent returned confirmation LEAD-CEDAR-2226. The requested outcome is in the conversation, not merely promised.",
+          "evidence": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "a83f9c9f35269f65d210915c727028315dc4a4d56b2749a641ca5599c8cce409"
+        ],
+        "cost_usd": 0.0004079
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "608ea2fddd6565e12d6cf03eb635843f66a8c08edd8dd67e7d328a73f851ed3e",
+          "f5af4efafefd35eb0df7e87cd6ea9723016c732d30c04e177b7f6a5051761605"
+        ],
+        "cost_usd": 0.0009319
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-callback-1-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for a callback on the 16th, and the tool result and agent both state it is 'requested' but 'not yet booked'. A promised or requested task that is not booked does not meet the criterion of a completed outcome.",
+          "evidence": "Callback for the 16th is requested, reference LEAD-CEDAR-5850; it is not yet booked."
+        },
+        "request_sha256s": [
+          "bcb35942b07636d456f484bdcae58b3672fff6b309c6061647cf37dc53fc8a07"
+        ],
+        "cost_usd": 0.00040510000000000003
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.2,
+        "request_sha256s": [
+          "0c68f8b3b5adb5f7bfc6d4cd2543843182aa07599df98efacc5c59494bb1df23",
+          "2d758b4c2413eabec616d733c995f5388135883073556f76ec3914199a81d31e"
+        ],
+        "cost_usd": 0.0008205
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-draft-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for the order to be placed and a reference given. The tool result only says the order is drafted and will be placed after confirmation, so the order is not yet placed.",
+          "evidence": "\"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\""
+        },
+        "request_sha256s": [
+          "f2512d95a789e1d436df776ec30c7b988b7ee3801572f182926fc4f1bbec10a6"
+        ],
+        "cost_usd": 0.00043430000000000004
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "e80411dfcc517457a2771bb5650d68a2227bbf461bbee1e6c1c1471299a0d374",
+          "e9195770638866ef6848ec6c36da4a528e74b69b13a9afc4f243150998ad1cc3"
+        ],
+        "cost_usd": 0.0009378000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-wrong-target-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.92,
+          "reasoning": "The customer asked for LINE-001 to be cancelled and a confirmation reference, and the tool result confirms the cancellation with reference LEAD-CEDAR-5850, which the agent relayed. The task reached its outcome within the conversation.",
+          "evidence": "LINE-001 is cancelled. Confirmation LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "39893a0fe178a7c72d2eb5dec051c03827b626994e3dadc73660c425e372bfef"
+        ],
+        "cost_usd": 0.00040689999999999997
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.8,
+        "request_sha256s": [
+          "18b5d0904d409dfc614e5028b7100999dfcdeb4d65b0d0ea20d0ecb503a95f26",
+          "22d72ca709221f1b8dcbae0f2ca8d8501b49c42ebaebab78fb9d093d52fe5361"
+        ],
+        "cost_usd": 0.0009344
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-mixed-language-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.9,
+          "reasoning": "The customer asked to cancel LINE-000 and get the reference; the tool result confirms the line is cancelled with reference LEAD-CEDAR-6824, and the agent reported it. The requested outcome is in the conversation.",
+          "evidence": "LINE-000 est annulée; référence LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "820824591bf9188eb478a39b72d50ceb5f48b336f03fffff08913470c6a5bfe3"
+        ],
+        "cost_usd": 0.00039950000000000006
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "12dbedf282f94183f6a6a615d92cd8868ccaa59630876c45ede35a58fd71f53e",
+          "9d9347d2936efee4c502d162c7796dd7706d6e36e70d97d5a2e7e3027f6e33fe"
+        ],
+        "cost_usd": 0.0009067000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-cancel-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.05,
+          "reasoning": "The customer asked for LINE-000 to be cancelled and a confirmation reference. The data states cancellation is queued but explicitly not completed, so the task has no final result.",
+          "evidence": "LINE-000 is queued for cancellation. Proposed confirmation LEAD-CEDAR-6824; cancellation is not completed."
+        },
+        "request_sha256s": [
+          "162d09e27840c641cc6c798b2d6d766ed3b53b19a0899e40063866488a885cbe"
+        ],
+        "cost_usd": 0.00040790000000000005
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.1,
+        "request_sha256s": [
+          "b34df924e0ccf51f8f98e86b3d5987a7958f726bce4a8118ad66670fe630500e",
+          "25fc2d8e7936f7781782d79395e5ab4445e0a25bf5e8d66b0a2112b23b7a6054"
+        ],
+        "cost_usd": 0.0008367000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-conditional-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for the order to be placed and a reference given. The tool result only says the order is drafted and will be placed after confirmation, so the order is not yet placed.",
+          "evidence": "\"The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is drafted, reference LEAD-CEDAR-2226, and will be placed after you confirm.\""
+        },
+        "request_sha256s": [
+          "f2512d95a789e1d436df776ec30c7b988b7ee3801572f182926fc4f1bbec10a6"
+        ],
+        "cost_usd": 0.00043430000000000004
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.3,
+        "request_sha256s": [
+          "e80411dfcc517457a2771bb5650d68a2227bbf461bbee1e6c1c1471299a0d374",
+          "e9195770638866ef6848ec6c36da4a528e74b69b13a9afc4f243150998ad1cc3"
+        ],
+        "cost_usd": 0.0009378000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-cancel-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.93,
+          "reasoning": "The customer asked to cancel LINE-002 and get a confirmation reference; the tool result shows the line is cancelled and the agent returned confirmation LEAD-CEDAR-2226. The requested outcome is in the conversation, not merely promised.",
+          "evidence": "LINE-002 is cancelled. Confirmation LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "a83f9c9f35269f65d210915c727028315dc4a4d56b2749a641ca5599c8cce409"
+        ],
+        "cost_usd": 0.0004079
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.85,
+        "request_sha256s": [
+          "608ea2fddd6565e12d6cf03eb635843f66a8c08edd8dd67e7d328a73f851ed3e",
+          "f5af4efafefd35eb0df7e87cd6ea9723016c732d30c04e177b7f6a5051761605"
+        ],
+        "cost_usd": 0.0009319
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-conditional-1-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for the order for Acme Cedar 5850 to be placed at the given address and for its reference. The tool result and agent reply confirm the order is placed with reference LEAD-CEDAR-5850, so the outcome is in the conversation.",
+          "evidence": "The order for Acme Cedar 5850 at 842 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-5850."
+        },
+        "request_sha256s": [
+          "d1d5c51cd963dd7540804487e936fec54ded54d207fb8df258661206225da4ca"
+        ],
+        "cost_usd": 0.00043599999999999997
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.88,
+        "request_sha256s": [
+          "f135e039d1da1cae92a9e6ef13e787aeef9cb080040a60bbfcc007d2eda39fe2",
+          "ba551759ba2b90d168937ce4eaf31f0a5ae066726c70f1c2aafac3680e9aad4a"
+        ],
+        "cost_usd": 0.0009591000000000001
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-draft-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for an order to be placed for Acme Cedar 2226 at the given address and a reference returned. The tool result and agent reply confirm the order is placed with reference LEAD-CEDAR-2226, so the task reached its outcome.",
+          "evidence": "The order for Acme Cedar 2226 at 852 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "65f123445a219b4331127576e5215c86c98bad3b3ff1be24e2b8932502b98d51"
+        ],
+        "cost_usd": 0.0004355
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.95,
+        "request_sha256s": [
+          "05288206a29ed02a631df437cbec3080b3910098734b365ad516cfc2eb01ad8e",
+          "43dfd695545b319da10059c0c800b60eac2485a5113f6c53dbea5637f4ae48cf"
+        ],
+        "cost_usd": 0.0008595
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-multi-part-0-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.1,
+          "reasoning": "The customer asked for LINE-000 to be cancelled and a $105 refund issued with both confirmations. The cancellation is done, but the refund is only queued (REF-0) and explicitly not issued, so the task is not fully complete.",
+          "evidence": "$105 refund only queued (REF-0), not issued."
+        },
+        "request_sha256s": [
+          "249ac00cc3e349ecb1f5dc416a7c6590c4485a239db01a91eb08d7327723e36e"
+        ],
+        "cost_usd": 0.0004052
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.4,
+        "request_sha256s": [
+          "8d9aceae1944fe0720087c41e17e17443246db6743c8ed5c5faea622abd787b2",
+          "71b9dbfb53c71c69da7f4f8eba1e480dc79c7d381e3da82ec3d7c69b7cb919e6"
+        ],
+        "cost_usd": 0.0008327
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-wrong-target-2-b",
+      "truth": false,
+      "ours": {
+        "prediction": false,
+        "answer": {
+          "outcome": "fail",
+          "score": 0.03,
+          "reasoning": "The customer asked to cancel LINE-002 and get a confirmation reference, but the tool result shows the wrong line (LINE-OTHER-2) was cancelled and LINE-002 remains active. The requested task has not been completed.",
+          "evidence": "\"LINE-OTHER-2 is cancelled. Confirmation LEAD-CEDAR-2226. The requested LINE-002 remains active.\""
+        },
+        "request_sha256s": [
+          "32ca7279cf3cd9101586984b62c68c05582eada35a75dc1d698f28841bf9f9d4"
+        ],
+        "cost_usd": 0.00042310000000000004
+      },
+      "theirs": {
+        "prediction": false,
+        "score": 0.05,
+        "request_sha256s": [
+          "4f6dfa871d95d73bf06f9af54479355ac0b455c9db3d6b55a2060b2ac0646170",
+          "695719a56738fd4cf17c492c788726dc386c0bfa8816c897597c86cd28896279"
+        ],
+        "cost_usd": 0.000947
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-refund-2-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.85,
+          "reasoning": "The customer's request was to issue a $112 refund and provide its reference; the tool result confirms the refund was issued and the agent returned reference LEAD-CEDAR-2226. The result the customer came for is present in the conversation.",
+          "evidence": "Refund of $112 issued; reference LEAD-CEDAR-2226."
+        },
+        "request_sha256s": [
+          "8349d8565e3b5dd834a4dc9c9d8b5468869ada47cbbf4e88488a5172e11673a9"
+        ],
+        "cost_usd": 0.0003971
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.9,
+        "request_sha256s": [
+          "cb5e20c287c6622e6f84653f1775196de0d9c8c1129e1831d91a939627f9ea5a",
+          "ee4705b74a02f0d044f9fb9fe40074ba918ae5b9f610c4c27356d8724ab2c5cb"
+        ],
+        "cost_usd": 0.0008008
+      },
+      "seed": 20261019
+    },
+    {
+      "row": "task completion",
+      "set": "task",
+      "id": "seed20261019/task-conditional-0-a",
+      "truth": true,
+      "ours": {
+        "prediction": true,
+        "answer": {
+          "outcome": "pass",
+          "score": 0.95,
+          "reasoning": "The customer asked for an order to be placed for Acme Cedar 6824 at the given address, and the tool result confirms it is placed with a reference. The result the customer came for is in the conversation.",
+          "evidence": "The order for Acme Cedar 6824 at 326 Lantern Lane, Fiction Bay is placed, reference LEAD-CEDAR-6824."
+        },
+        "request_sha256s": [
+          "efaa2560cb67e294e8c6f444aeec4d79aef37b2a92dc38b6962377a533dfa32c"
+        ],
+        "cost_usd": 0.000426
+      },
+      "theirs": {
+        "prediction": true,
+        "score": 0.75,
+        "request_sha256s": [
+          "dcdb87c0083ff3d1d1954988fbcea24271151b17716737a638dbb86c15db0169",
+          "77e4b8648a7bcadf0d6a4bc911389c0be800e48081f2a4c55de95975c19b18b7"
+        ],
+        "cost_usd": 0.0009716000000000001
+      },
+      "seed": 20261019
+    }
+  ]
+}

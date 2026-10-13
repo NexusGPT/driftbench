@@ -8,8 +8,8 @@ import {
   type RunResult,
   type Store,
   type TargetRef,
-} from '@driftbench/core';
-import { faultAdapter, importFaultSet } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-core';
+import { faultAdapter, importFaultSet } from '@agent-nexus/driftbench-generate';
 import {
   type AggregateResult,
   autoMargin,
@@ -21,9 +21,9 @@ import {
   loadCampaign,
   MIN_GOLDENS,
   unitsOf,
-} from '@driftbench/report';
-import { localProvider } from '@driftbench/sandbox';
-import { pairedRateDifference } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-report';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { pairedRateDifference } from '@agent-nexus/driftbench-stats';
 import type { Command } from 'commander';
 import { criteriaFromConfig } from '../aggregate-config';
 import type { Io } from '../io';
@@ -65,6 +65,7 @@ type CiCommandOptions = {
   config?: string;
   specs: string;
   target: string;
+  route?: string[];
   baseline: string;
   store: string;
   margin: string;
@@ -136,7 +137,8 @@ export type CiSummary = {
   rows: CiPair[];
 };
 
-export const COMPARATOR = 'compareCampaigns of @driftbench/report, the rule `driftbench compare` applies';
+export const COMPARATOR =
+  'compareCampaigns of @agent-nexus/driftbench-report, the rule `driftbench compare` applies';
 
 /**
  * Registers `driftbench ci`: run a candidate campaign, compare it with a baseline campaign by the rule of
@@ -156,6 +158,12 @@ export function registerCiCommand(
     )
     .requiredOption('--specs <path>', 'the spec file or folder the candidate runs')
     .requiredOption('--target <adapter[:agent]>', 'the candidate target, such as function:acme-sales')
+    .option(
+      '--route <tag=target>',
+      'run the specs a tag marks on this target in the candidate too, such as flow:price-sheet=process:acme-ops; repeat for several',
+      collect,
+      [],
+    )
     .requiredOption(
       '--baseline <campaign|store>',
       'the baseline: a store file (its latest campaign), or a campaign id held in --store',
@@ -220,10 +228,19 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   const flags = options.flag.length > 0 ? options.flag : [...DEFAULT_FLAGS];
   const storePath = resolve(io.cwd, options.store);
   const outPath = resolve(io.cwd, options.out ?? DEFAULT_SUMMARY);
+  // Refused before the candidate runs: a summary that cannot be written must leave the store unchanged.
+  if (existsSync(outPath) && statSync(outPath).isDirectory()) {
+    io.err(`--out ${options.out} is a folder; the summary is a file.\n`);
+    return 2;
+  }
 
   const target = parseTarget(options.target);
+  // A fault can be the candidate or the target of a route, such as a code-agent fault on the task specs.
+  const routedFault = (options.route ?? []).some((route) =>
+    route.slice(route.indexOf('=') + 1).startsWith('fault:'),
+  );
   let runDeps = deps;
-  if (target.adapter === 'fault') {
+  if (target.adapter === 'fault' || routedFault) {
     const withFaults = await faultDeps(deps, options.faults, io);
     if (!withFaults) return 2;
     runDeps = withFaults;
@@ -260,6 +277,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
     [options.specs],
     {
       target: [options.target],
+      route: options.route ?? [],
       mode: options.mode,
       repeats: options.repeats,
       store: storePath,
@@ -292,14 +310,18 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
     await store.close();
   }
 
-  let result: CompareResult;
+  const incompleteCells = report.summary.stoppedByBudget + report.summary.pending;
+  let result: CompareResult | undefined;
   try {
     result = compareCampaigns(baseline.data, candidate, { ...shared, margin });
   } catch (cause) {
-    io.err(
-      `The baseline campaign ${baseline.data.campaign.campaignId} and the candidate cannot be compared: ${message(cause)}.\n`,
-    );
-    return 2;
+    // A candidate the budget stopped before any golden ran is incomplete, exit 1, not bad input.
+    if (!(incompleteCells > 0)) {
+      io.err(
+        `The baseline campaign ${baseline.data.campaign.campaignId} and the candidate cannot be compared: ${message(cause)}.\n`,
+      );
+      return 2;
+    }
   }
   const summary = summarize({
     aggregates: evaluateAggregates(candidate, criteria),
@@ -314,8 +336,9 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
       store: storePath,
       target: options.target,
       cells: report.summary.cells,
-      incompleteCells: report.summary.stoppedByBudget + report.summary.pending,
+      incompleteCells,
     },
+    gate: { minGoldens: shared.minGoldens, strict: shared.strict },
   });
 
   try {
@@ -460,8 +483,48 @@ export function runPasses(run: RunResult): boolean {
   return outcomeOfRun(run).state === 'pass';
 }
 
+/** The comparison of no golden: what a summary reads when the budget stopped the candidate before any ran. */
+function noComparison(gate: { minGoldens: number; strict: boolean }): CompareResult {
+  const zero = { estimate: 0, lower: 0, upper: 0, method: 'newcombe' as const, n: 0 };
+  return {
+    baseline: { campaignId: '', targets: [] },
+    candidate: { campaignId: '', targets: [] },
+    margin: 0,
+    alpha: 0.05,
+    q: 0.05,
+    minGoldens: gate.minGoldens,
+    strict: gate.strict,
+    flagFamilies: [],
+    modes: [],
+    pairs: [],
+    unpaired: [],
+    allPass: {
+      baseline: { k: 0, n: 0, estimate: 0, lower: 0, upper: 1, method: 'wilson' },
+      candidate: { k: 0, n: 0, estimate: 0, lower: 0, upper: 1, method: 'wilson' },
+      table: { bothPass: 0, regressed: 0, improved: 0, bothFail: 0 },
+      mcnemar: { statistic: 0, pValue: 1, method: 'exact', discordant: 0 },
+      effect: zero,
+      nonInferior: false,
+      floor: 1,
+      detectable: null,
+      goldensFor10: 0,
+    },
+    drift: {
+      baselineMean: 0,
+      candidateMean: 0,
+      wilcoxon: { statistic: 0, pValue: 1, method: 'exact', n: 0 },
+    },
+    criteria: [],
+    newFlags: [],
+    verdict: 'unproven',
+    reasons: ['no golden of the candidate ran, so none is compared'],
+  } as unknown as CompareResult;
+}
+
 function summarize(input: {
-  result: CompareResult;
+  /** Undefined only for an incomplete candidate that shares no golden with the baseline. */
+  result: CompareResult | undefined;
+  gate: { minGoldens: number; strict: boolean };
   aggregates: AggregateResult[];
   candidateRuns: readonly RunResult[];
   flags: string[];
@@ -470,7 +533,8 @@ function summarize(input: {
   baseline: CiSummary['baseline'];
   candidate: CiSummary['candidate'];
 }): CiSummary {
-  const { result, candidate } = input;
+  const { candidate } = input;
+  const result = input.result ?? noComparison(input.gate);
   const failing = failingByUnit(input.candidateRuns, input.flags);
   const rows: CiPair[] = result.pairs.map((pair) => {
     const b = pair.baseline;
@@ -491,7 +555,10 @@ function summarize(input: {
       newFlags: [...c.flags].filter((family) => !b.flags.has(family)).sort(),
     };
   });
-  const smallest = pairedRateDifference({ bothPass: rows.length, regressed: 0, improved: 0, bothFail: 0 });
+  const smallest =
+    rows.length === 0
+      ? { upper: 1 }
+      : pairedRateDifference({ bothPass: rows.length, regressed: 0, improved: 0, bothFail: 0 });
   const verdict: CiVerdict = aggregateVerdict(
     candidate.incompleteCells > 0
       ? 'incomplete'

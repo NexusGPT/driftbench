@@ -16,8 +16,8 @@ import {
   type SandboxProvider,
   type Session,
   type Turn,
-} from '@driftbench/core';
-import { dockerProvider, localProvider, withApprovalPolicy } from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-core';
+import { dockerProvider, localProvider, withApprovalPolicy } from '@agent-nexus/driftbench-sandbox';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { type ProcessAdapterOptions, processAdapter, processProtocolFiles } from '../src/process';
 
@@ -213,6 +213,25 @@ describe('the process adapter', () => {
         processProtocolFiles.runtime,
       ]),
     );
+  });
+
+  it('strips only the final line break of stdout: a reply ending in a blank line keeps the earlier break', async () => {
+    const { adapter, open } = setup({
+      args: ['-e', "process.stdout.write('answer R-1\\n\\n')"],
+    });
+    const from = given();
+    const session = await open(from);
+    const observed = await runnerSend(adapter, session, turn(0, 'Say it.', from));
+    expect(observed.text).toBe('answer R-1\n');
+  });
+
+  it('copies the prefix into the session history: an edit of the history never reaches the Given', async () => {
+    const { open } = setup();
+    const from = { ...given(), prefix: [{ role: 'user' as const, content: 'earlier' }] };
+    const session = await open(from);
+    const first = session.history[0];
+    if (first) first.content = 'edited in the session';
+    expect(from.prefix[0]?.content).toBe('earlier');
   });
 
   it('reads a produced file through the contract, bounded, and refuses a path outside the workspace', async () => {

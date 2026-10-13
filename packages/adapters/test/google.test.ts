@@ -4,7 +4,7 @@ import {
   collectRetries,
   type Message,
   type Session,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { WireNames } from '../src/anthropic/common';
 import { GOOGLE_NAME, toGoogleContents } from '../src/google/contents';

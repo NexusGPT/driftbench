@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -71,6 +72,16 @@ describe('mutateEstate', () => {
     expect(r4?.provenance.startLine).toBe(11);
     expect(result.collateral).toEqual([]);
     await consistent(root, result.map);
+  });
+
+  it('refuses to delete a skill name line that equals the folder name: an equivalent mutant, nothing written', async () => {
+    const root = await copy();
+    const skill = '.claude/skills/invoice-reconcile/SKILL.md';
+    const before = await readFile(join(root, skill), 'utf8');
+    await expect(
+      mutateEstate({ root, map }, { delete: 'skill.invoice-reconcile.skill-invoice-reconcile' }),
+    ).rejects.toThrow(/equivalent mutant.*folder/);
+    expect(await readFile(join(root, skill), 'utf8')).toBe(before);
   });
 
   it('inverts an obligation by the table of forms, in place, the line count kept', async () => {
@@ -161,6 +172,20 @@ describe('a delete in a JSON file, structurally', () => {
     await copyEstate(CASES, root, loaded.map);
     return { root, map: loaded.map };
   }
+
+  it('deletes a script atom with its file: the mention goes, and so does the script it names', async () => {
+    const root = await copy();
+    const id = 'script.invoice-reconcile.script-scripts-reconcile-py';
+    const script = '.claude/skills/invoice-reconcile/scripts/reconcile.py';
+    expect(existsSync(join(root, script))).toBe(true);
+    const result = await mutateEstate({ root, map }, { delete: id });
+    expect(await readFile(join(root, '.claude/skills/invoice-reconcile/SKILL.md'), 'utf8')).not.toContain(
+      'scripts/reconcile.py <invoice> <order>',
+    );
+    expect(existsSync(join(root, script))).toBe(false);
+    expect(result.removed).toEqual([script]);
+    expect(result.collateral).toEqual(['instruction.invoice-reconcile.run-the-reconcile-script-and-show']);
+  });
 
   it('deletes a settings guard by its whole entry, and an environment key by its member', async () => {
     const guard = await casesCopy();

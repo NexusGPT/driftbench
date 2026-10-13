@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "Could you do this: never invent order numbers, prices or dates; ask for a missing value? Thanks."
+      user: Could you invent order numbers? Thanks.
     expect:
       workspace:
         deleted: []

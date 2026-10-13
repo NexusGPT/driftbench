@@ -16,7 +16,7 @@ The nexus adapter reaches an agent on the Nexus platform through its public API.
 | `target.options.stubs` | a mapping from tool label to the id of the workflow that records that tool's payloads |
 
 ```ts
-import { nexusAdapter } from '@driftbench/adapters';
+import { nexusAdapter } from '@agent-nexus/driftbench-adapters';
 
 const adapter = nexusAdapter({ keepConversations: false });
 ```
@@ -55,7 +55,7 @@ A call of `send_message` or `display_html` adds a `card` segment of that name af
 
 | What happens | Error |
 |---|---|
-| no connection, a timeout, status 429 or any 5xx, a trace still incomplete after `traceWaitMs` | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
+| no connection, a timeout, status 408, 429 or any 5xx, a trace still incomplete after `traceWaitMs` | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
 | any other failing status | `AgentFailure`, with the platform's `error.code: error.message` |
 | an answer that lacks a field the adapter reads | `AgentFailure` that names the field |
 
@@ -97,7 +97,7 @@ Two sessions that send the identical payload to one stub at the same time cannot
 
 ## Judge
 
-The Nexus platform also offers a system 1 judge, Jev. Its client is `createJevJudge` in `@driftbench/judges`: id `jev`, class system 1. It asks one yes or no question per criterion and reads the probability of yes: 0.6 or more is a pass, 0.4 or less a fail, anything between inconclusive. It reads `JEV_URL`, `JEV_API_KEY` (sent as a bearer token) and `JEV_MODEL` (default `jev-latest`) from the environment. Its request and answer shapes follow the provider's published format and have not been confirmed by a live call. See [judges](../concepts/judges.md).
+The Nexus platform also offers a system 1 judge, Jev. Its client is `createJevJudge` in `@agent-nexus/driftbench-judges`: id `jev`, class system 1. It asks one yes or no question per criterion and reads the probability of yes: 0.6 or more is a pass, 0.4 or less a fail, anything between inconclusive. It reads `JEV_URL`, `JEV_API_KEY` (sent as a bearer token) and `JEV_MODEL` (default `jev-latest`) from the environment. Its request and answer shapes follow the provider's published format and have not been confirmed by a live call. See [judges](../concepts/judges.md).
 
 ## Target
 

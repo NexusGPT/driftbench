@@ -3,9 +3,9 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { functionAdapter, processAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { classifyTool, defaultChecks } from '@driftbench/checks';
+import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
@@ -23,7 +23,7 @@ import {
   type LoadedSpec,
   loadSpecs,
   type MinimumDetectableEffect,
-  minimumDetectableEffect,
+  mdeLine,
   outcomeOf,
   type PlannedCell,
   type PlanOptions,
@@ -39,10 +39,10 @@ import {
   type TargetPrompt,
   TargetRef,
   type UserDriver,
-} from '@driftbench/core';
-import { portFromEnv } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
-import { bootstrapCI } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-core';
+import { portFromEnv } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import {
   openMemoryStore,
   openStore,
@@ -51,10 +51,16 @@ import {
   restoreFiles,
   type SqliteStore,
   StoreError,
-} from '@driftbench/store';
-import { createPerturbingDriver, createScriptedDriver, type UserModelPort } from '@driftbench/users';
+} from '@agent-nexus/driftbench-store';
+import {
+  createPerturbingDriver,
+  createScriptedDriver,
+  type UserModelPort,
+} from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { noStoreAt } from '../store-path';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
@@ -83,7 +89,7 @@ export type CampaignDeps = {
   consequential?: (label: string) => boolean;
   /**
    * The model port a simulated user speaks through with --model. Default: the port the environment
-   * configures (portFromEnv of @driftbench/generate). Tests pass a fake one.
+   * configures (portFromEnv of @agent-nexus/driftbench-generate). Tests pass a fake one.
    */
   modelPort?(): UserModelPort;
   /** The store at a path, or one held in memory without a path. A failure to open is reported, exit 2. */
@@ -95,7 +101,10 @@ const MODE_HELP =
   'the run mode: T teacher-forced, F free-running, P perturbed; several separated by commas, such as T,F';
 
 const TARGET_HELP =
-  'run every spec on this target; repeat for several. Without it, each spec runs on its own target';
+  'run every spec on this target (but the specs a --route marks); repeat for several. Without it, each spec runs on its own target';
+
+const ROUTE_HELP =
+  'with --target: run the specs a tag marks on this target instead, such as flow:price-sheet=process:acme-ops; repeat for several';
 
 const PROCESS_COMMAND_HELP =
   'the agent command for a process target other than process:acme-ops: a JSON list such as ["python3","agent.py"], or words split on spaces';
@@ -166,9 +175,9 @@ const KNOWN_TARGETS =
 /**
  * What the commands run with. `function:acme-sales`, the target the Acme conversation specs name, and its
  * short form `function:acme` are the Acme sales assistant behind the function adapter of
- * @driftbench/adapters. `process:acme-ops`, the target of the Acme task spec, is the Acme ops agent behind
- * the process adapter. The checks are `defaultChecks()` of @driftbench/checks with the readers of
- * @driftbench/artifacts, and the store is @driftbench/store, a SQLite file with `--store` and in memory
+ * @agent-nexus/driftbench-adapters. `process:acme-ops`, the target of the Acme task spec, is the Acme ops agent behind
+ * the process adapter. The checks are `defaultChecks()` of @agent-nexus/driftbench-checks with the readers of
+ * @agent-nexus/driftbench-artifacts, and the store is @agent-nexus/driftbench-store, a SQLite file with `--store` and in memory
  * without it.
  */
 export const defaultDeps: CampaignDeps = {
@@ -195,18 +204,22 @@ export const defaultDeps: CampaignDeps = {
 
 type PlanCommandOptions = {
   target: string[];
+  route?: string[];
   mode: string;
   repeats: string;
   budgetUsd?: string;
   baselineRate: string;
+  rho?: string;
   store?: string;
   json?: boolean;
 };
 
 type RunCommandOptions = {
   dataset?: string;
+  cacheSuite?: string;
   prompt?: string[];
   target: string[];
+  route?: string[];
   mode: string;
   repeats: string;
   campaign?: string;
@@ -230,6 +243,7 @@ type RetryFlags = { retryAttempts?: string; retryBaseMs?: string; retryMaxMs?: s
 type StoredCommandOptions = RetryFlags & {
   store: string;
   cache?: boolean;
+  cacheSuite?: string;
   concurrency?: string;
   budgetUsd?: string;
   processCommand?: string;
@@ -252,10 +266,12 @@ export function registerCampaignCommands(
     .description('Expand the cells, project their cost and print the minimum detectable effect.')
     .argument('<paths...>', 'spec files or folders')
     .option('--target <adapter[:agent]>', TARGET_HELP, collect, [])
+    .option('--route <tag=target>', ROUTE_HELP, collect, [])
     .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option('--budget-usd <usd>', 'compare the projected cost with this budget')
     .option('--baseline-rate <rate>', 'the pass rate the minimum detectable effect assumes', '0.5')
+    .option('--rho <rho>', 'the correlation of repeats of one spec, as icc measures it, from 0 to 1', '0')
     .option('--store <file>', 'read the measured unit costs from this store')
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: PlanCommandOptions) => {
@@ -274,11 +290,16 @@ export function registerCampaignCommands(
       [],
     )
     .option('--target <adapter[:agent]>', TARGET_HELP, collect, [])
+    .option('--route <tag=target>', ROUTE_HELP, collect, [])
     .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
+    .option(
+      '--cache-suite <name>',
+      'the cache suite of this campaign: a new name starts from an empty cache, the old entries stay',
+    )
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', 'a hard stop: no cell starts once the campaign has spent this much')
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
@@ -389,6 +410,7 @@ export async function campaignExportCommand(
   options: { store: string; out: string },
   io: Io,
 ): Promise<number> {
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   return withBundleStore(options.store, io, async (store) => {
     const folder = await store.exportCampaign(campaignId, resolve(io.cwd, options.out));
     const bundle = await readCampaignBundle(folder);
@@ -406,6 +428,14 @@ export async function campaignImportCommand(
   options: { store: string },
   io: Io,
 ): Promise<number> {
+  // The bundle is read before the store opens, so a bundle that does not read leaves no new store behind.
+  try {
+    await readCampaignBundle(resolve(io.cwd, folder));
+  } catch (cause) {
+    if (!(cause instanceof StoreError)) throw cause;
+    io.err(`${cause.message}\n`);
+    return 2;
+  }
   return withBundleStore(options.store, io, async (store) => {
     const bundle = await store.importCampaign(resolve(io.cwd, folder));
     io.out(
@@ -453,12 +483,22 @@ export async function campaignPlanCommand(
   const budget =
     options.budgetUsd === undefined ? undefined : parseNumber(options.budgetUsd, '--budget-usd', io);
   const baselineRate = parseRate(options.baselineRate, io);
-  if (!shape || budget === null || baselineRate === undefined) return 2;
+  const rho = parseRho(options.rho ?? '0', io);
+  if (!shape || budget === null || baselineRate === undefined || rho === undefined) return 2;
   const loaded = await loadValidSpecs(paths, io);
   if (!loaded) return 2;
-  const runs = specRuns(loaded, shape.targets, io);
+  const runs = specRuns(loaded, shape.targets, io, shape.routes);
   if (!runs) return 2;
-  if (!options.json) io.out(targetNotes(loaded, shape.targets));
+  if (tooManyCells(runs, shape, io)) return 2;
+  // A target no adapter is set up for is bad input here too (docs/running.md, "Exit codes"): the plan
+  // checks it the way run does, so a plan that prints is a plan that can run.
+  const scope = openScope();
+  try {
+    if (!(await adaptersFor(runs, deps, scope, io))) return 2;
+  } finally {
+    await closeScope(scope, io);
+  }
+  if (!options.json) io.out(targetNotes(loaded, shape.targets, shape.routes));
 
   let units: CostUnit[] = [];
   if (options.store) {
@@ -473,6 +513,7 @@ export async function campaignPlanCommand(
   const plan = planFor(runs, shape.modes, shape.repeats, {
     units,
     baselineRate,
+    rho,
     ...(budget === undefined ? {} : { budgetUsd: budget }),
   });
 
@@ -513,9 +554,14 @@ export async function campaignPlanCommand(
   );
   io.out(`${costLine(plan)}\n`);
   for (const line of plan.mde) {
-    const effect = line.effect === undefined ? 'no runs' : `${(line.effect * 100).toFixed(1)} points`;
+    const effect =
+      line.runsPerArm === 0
+        ? 'no runs'
+        : line.effect === undefined
+          ? 'none detectable'
+          : `${(line.effect * 100).toFixed(1)} points`;
     io.out(
-      `Minimum detectable effect, mode ${line.mode}: ${effect} on a ${(line.baselineRate * 100).toFixed(0)}% pass rate, with ${count(line.runsPerArm, 'run')} per arm (two-sided alpha ${line.alpha}, power ${line.power}).\n`,
+      `Minimum detectable effect, mode ${line.mode}: ${effect} on a ${(line.baselineRate * 100).toFixed(0)}% pass rate, with ${count(line.runsPerArm, 'run')} per arm over ${count(line.specs, 'spec')} (rho ${line.rho}, design effect ${line.designEffect.toFixed(2)}; two-sided alpha ${line.alpha}, power ${line.power}).\n`,
     );
   }
   return 0;
@@ -544,18 +590,19 @@ export async function campaignRunCommand(
     const withPrompt = (target: TargetRef): TargetRef =>
       registry.prompt === undefined ? target : { ...target, prompt: registry.prompt };
     const targets = shape.targets.map(withPrompt);
-    const runs = specRuns(loaded, targets, io)?.map((each) =>
+    const runs = specRuns(loaded, targets, io, shape.routes)?.map((each) =>
       each.pinned === undefined
         ? each
         : { ...each, targets: each.targets.map(withPrompt), pinned: withPrompt(each.pinned) },
     );
     if (!runs) return 2;
+    if (tooManyCells(runs, shape, io)) return 2;
     const driven = await driverDeps(options, runs, deps, io);
     if (!driven) return 2;
     deps = driven.deps;
     const adapters = await adaptersFor(runs, deps, scope, io);
     if (!adapters) return 2;
-    if (!options.json) io.out(targetNotes(loaded, shape.targets));
+    if (!options.json) io.out(targetNotes(loaded, shape.targets, shape.routes));
     if (!options.json && driven.note) io.out(driven.note);
 
     const store = await openReported(deps, options.store ? resolve(io.cwd, options.store) : undefined, io);
@@ -608,6 +655,7 @@ export async function campaignRunCommand(
       }
       return await executeCampaign(campaign, loaded, adapters, store, deps, io, {
         cache: options.cache,
+        ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
         json: options.json === true,
         kept: options.store !== undefined,
         ...pool,
@@ -726,6 +774,7 @@ export async function campaignResumeCommand(
   const withCommand = processDeps(deps, options.processCommand, io);
   if (!pool || !withCommand) return 2;
   deps = withCommand;
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   const scope = openScope();
@@ -738,6 +787,7 @@ export async function campaignResumeCommand(
       pool.budgetUsd ?? (stored.campaign.budgetUsd > 0 ? stored.campaign.budgetUsd : undefined);
     return await executeCampaign(stored.campaign, stored.specs, adapters, store, deps, io, {
       cache: options.cache !== false,
+      ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
       json: options.json === true,
       kept: true,
       concurrency: pool.concurrency,
@@ -758,6 +808,7 @@ export async function campaignStatusCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
@@ -793,6 +844,7 @@ async function executeCampaign(
   io: Io,
   flags: {
     cache: boolean;
+    cacheSuite?: string;
     json: boolean;
     kept: boolean;
     concurrency: number;
@@ -812,6 +864,7 @@ async function executeCampaign(
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
     cells: plan.cells,
+    recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
     driver: (cell, spec) => deps.driver(cell, spec),
@@ -821,6 +874,7 @@ async function executeCampaign(
     store,
     // The runner neither replays nor caches a run in a sandbox: a replay has no workspace to read.
     ...(flags.cache ? { cache: store } : {}),
+    ...(flags.cacheSuite === undefined ? {} : { cacheSuite: flags.cacheSuite }),
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
@@ -888,7 +942,10 @@ async function storedCampaign(
   return { campaign, specs };
 }
 
-type Shape = { targets: TargetRef[]; modes: RunMode[]; repeats: number };
+/** A tag and the target the specs it marks run on, whatever --target says. */
+export type Route = { tag: string; target: TargetRef };
+
+type Shape = { targets: TargetRef[]; routes: Route[]; modes: RunMode[]; repeats: number };
 
 type Pool = { concurrency: number; budgetUsd?: number; retry?: RetryOptions };
 
@@ -896,7 +953,7 @@ function parsePool(
   options: { concurrency: string; budgetUsd?: string | undefined } & RetryFlags,
   io: Io,
 ): Pool | undefined {
-  const concurrency = Number(options.concurrency);
+  const concurrency = optionNumber(options.concurrency);
   if (!Number.isInteger(concurrency) || concurrency < 1) {
     io.err(`--concurrency takes a whole number of at least 1, not "${options.concurrency}".\n`);
     return undefined;
@@ -913,7 +970,7 @@ function parsePool(
 function parseRetry(flags: RetryFlags, io: Io): RetryOptions | undefined | null {
   const read = (text: string | undefined, flag: string, min: number): number | undefined | null => {
     if (text === undefined) return undefined;
-    const value = Number(text);
+    const value = optionNumber(text);
     if (Number.isInteger(value) && value >= min) return value;
     io.err(`${flag} takes a whole number of at least ${min}, not "${text}".\n`);
     return null;
@@ -934,7 +991,10 @@ function parseRetry(flags: RetryFlags, io: Io): RetryOptions | undefined | null 
  * Modes, repeats and the `--target` list, which is empty when each spec runs on its own target. `--mode`
  * takes one mode or several separated by commas, such as `T,F,P`; the cells come in the order T, F, P.
  */
-function parseShape(options: { target: string[]; mode: string; repeats: string }, io: Io): Shape | undefined {
+function parseShape(
+  options: { target: string[]; route?: string[]; mode: string; repeats: string },
+  io: Io,
+): Shape | undefined {
   const named = options.mode.split(',').map((part) => part.trim());
   const modes: RunMode[] = [];
   for (const text of named) {
@@ -946,7 +1006,7 @@ function parseShape(options: { target: string[]; mode: string; repeats: string }
     if (!modes.includes(mode.data)) modes.push(mode.data);
   }
   modes.sort((a, b) => RunMode.options.indexOf(a) - RunMode.options.indexOf(b));
-  const repeats = Number(options.repeats);
+  const repeats = optionNumber(options.repeats);
   if (!Number.isInteger(repeats) || repeats < 1) {
     io.err(`--repeats takes a whole number of at least 1, not "${options.repeats}".\n`);
     return undefined;
@@ -960,13 +1020,52 @@ function parseShape(options: { target: string[]; mode: string; repeats: string }
     }
     if (!targets.some((known) => showTarget(known) === showTarget(target.data))) targets.push(target.data);
   }
-  return { targets, modes, repeats };
+  const routes: Route[] = [];
+  for (const text of options.route ?? []) {
+    const at = text.indexOf('=');
+    const target = at > 0 ? TargetRef.safeParse(parseTarget(text.slice(at + 1))) : undefined;
+    if (!target?.success) {
+      io.err(`--route takes tag=target, such as flow:price-sheet=process:acme-ops, not "${text}".\n`);
+      return undefined;
+    }
+    routes.push({ tag: text.slice(0, at), target: target.data });
+  }
+  if (routes.length > 0 && targets.length === 0) {
+    io.err('--route goes with --target: without it each spec already runs on its own target.\n');
+    return undefined;
+  }
+  return { targets, routes, modes, repeats };
+}
+
+/** The most cells a plan or a run expands: past it, the cell list alone would exhaust memory. */
+export const MAX_CELLS = 1_000_000;
+
+/**
+ * True, after printing why, when specs x targets x modes x repeats (each perturbation of a spec counted as a
+ * cell in mode P) exceeds MAX_CELLS. Counted before any cell is made.
+ */
+function tooManyCells(runs: readonly SpecRun[], shape: Shape, io: Io): boolean {
+  let cells = 0;
+  for (const run of runs) {
+    for (const mode of shape.modes) {
+      const variants = mode === 'P' ? Math.max(1, run.spec.perturbations?.length ?? 0) : 1;
+      cells += run.targets.length * variants * shape.repeats;
+    }
+  }
+  if (cells <= MAX_CELLS) return false;
+  io.err(`--repeats ${shape.repeats} makes ${cells} cells; a campaign holds at most ${MAX_CELLS}.\n`);
+  return true;
 }
 
 /** One line per spec whose own target names another adapter than a `--target`, which overrides it. */
-function targetNotes(loaded: readonly LoadedSpec[], targets: readonly TargetRef[]): string {
+function targetNotes(
+  loaded: readonly LoadedSpec[],
+  targets: readonly TargetRef[],
+  routes: readonly Route[] = [],
+): string {
   const notes: string[] = [];
   for (const { spec } of loaded) {
+    if (routeOf(spec, routes)) continue;
     const own = spec.target?.adapter;
     for (const target of targets) {
       if (own !== undefined && own !== target.adapter) {
@@ -1018,6 +1117,11 @@ export function noAdapter(target: TargetRef, specIds: readonly string[] = []): s
   return `No adapter is set up for ${showTarget(target)}${whose}. ${KNOWN_TARGETS}`;
 }
 
+/** The target of the first route whose tag the spec carries, if any. */
+function routeOf(spec: Spec, routes: readonly Route[]): TargetRef | undefined {
+  return routes.find((route) => (spec.tags ?? []).includes(route.tag))?.target;
+}
+
 /** One spec and the targets it runs on. `pinned` is set when the spec runs on its own target alone. */
 export type SpecRun = { spec: Spec; hash: string; targets: readonly TargetRef[]; pinned?: TargetRef };
 
@@ -1029,8 +1133,13 @@ export function specRuns(
   loaded: readonly LoadedSpec[],
   targets: readonly TargetRef[],
   io: Io,
+  routes: readonly Route[] = [],
 ): SpecRun[] | undefined {
-  if (targets.length > 0) return loaded.map(({ spec, hash }) => ({ spec, hash, targets }));
+  if (targets.length > 0)
+    return loaded.map(({ spec, hash }) => {
+      const route = routeOf(spec, routes);
+      return route ? { spec, hash, targets: [route], pinned: route } : { spec, hash, targets };
+    });
   const runs: SpecRun[] = [];
   const missing: string[] = [];
   for (const { spec, hash } of loaded) {
@@ -1113,15 +1222,7 @@ function planFor(
       : { budgetUsd: options.budgetUsd, withinBudget: usd <= options.budgetUsd }),
     mde: modes.map((mode, index): MinimumDetectableEffect => {
       const runsPerArm = parts.reduce((sum, part) => sum + (part.mde[index]?.runsPerArm ?? 0), 0);
-      const effect = minimumDetectableEffect(runsPerArm, baselineRate);
-      return {
-        mode,
-        runsPerArm,
-        baselineRate,
-        alpha: 0.05,
-        power: 0.8,
-        ...(effect === undefined ? {} : { effect }),
-      };
+      return mdeLine(mode, runs.length, runsPerArm, baselineRate, options.rho);
     }),
   };
 }
@@ -1307,7 +1408,7 @@ export type CampaignDetail = {
 
 /**
  * The detail of a campaign: the compounding index of every spec run in T and F, with the clustered
- * bootstrap interval of @driftbench/stats (blocks resampled within a spec, specs across the campaign);
+ * bootstrap interval of @agent-nexus/driftbench-stats (blocks resampled within a spec, specs across the campaign);
  * the succession metrics and drift classes of every run; the recovery of every perturbed run.
  */
 export function detailOf(outcomes: readonly CellOutcome[], specs: readonly LoadedSpec[]): CampaignDetail {
@@ -1492,7 +1593,7 @@ function count(n: number, noun: string): string {
 }
 
 function parseNumber(text: string, flag: string, io: Io): number | null {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value < 0) {
     io.err(`${flag} takes a number of at least 0, not "${text}".\n`);
     return null;
@@ -1501,9 +1602,18 @@ function parseNumber(text: string, flag: string, io: Io): number | null {
 }
 
 function parseRate(text: string, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 1) {
     io.err(`--baseline-rate takes a number between 0 and 1, not "${text}".\n`);
+    return undefined;
+  }
+  return value;
+}
+
+function parseRho(text: string, io: Io): number | undefined {
+  const value = optionNumber(text);
+  if (!Number.isFinite(value) || value < 0 || value > 1) {
+    io.err(`--rho takes a number from 0 to 1, not "${text}".\n`);
     return undefined;
   }
   return value;
@@ -1586,7 +1696,7 @@ export function acmeOpsAgent(): string | undefined {
 function cliPackageRoot(from: string): string | undefined {
   for (let dir = from; ; dir = dirname(dir)) {
     const manifest = join(dir, 'package.json');
-    if (existsSync(manifest) && packageName(manifest) === '@driftbench/cli') return dir;
+    if (existsSync(manifest) && packageName(manifest) === '@agent-nexus/driftbench') return dir;
     if (dirname(dir) === dir) return undefined;
   }
 }

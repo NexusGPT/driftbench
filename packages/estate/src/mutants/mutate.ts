@@ -1,6 +1,17 @@
-import { constants } from 'node:fs';
-import { copyFile, cp, lstat, mkdir, readdir, readFile, realpath, stat, writeFile } from 'node:fs/promises';
-import { dirname, join, relative, sep } from 'node:path';
+import { constants, existsSync } from 'node:fs';
+import {
+  copyFile,
+  cp,
+  lstat,
+  mkdir,
+  readdir,
+  readFile,
+  realpath,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises';
+import { basename, dirname, join, relative, sep } from 'node:path';
 import { mapHash } from '../map/build';
 import { quoteDrift } from '../map/file';
 import { readerFor } from '../scan/index';
@@ -36,6 +47,8 @@ export type MutantResult = {
   map: EstateMap;
   /** Other atoms whose quote is no longer at its span in the mutant. */
   collateral: string[];
+  /** Files the mutation removed: a deleted script atom takes its script file with its mention. */
+  removed: string[];
 };
 
 export class MutantError extends Error {
@@ -105,6 +118,11 @@ export async function mutateEstate(
   const id = 'delete' in op ? op.delete : op.invert;
   const atom = copy.map.atoms.find((candidate) => candidate.id === id);
   if (!atom) throw new MutantError(`atom ${id} is not in the map`);
+  if (kind === 'delete' && isEquivalentDelete(atom)) {
+    throw new MutantError(
+      `${id} is an equivalent mutant: its name line repeats the skill's folder, and the runtime names a skill by its folder, so deleting the line changes nothing; no mutant is written`,
+    );
+  }
   const { file, startLine, endLine, quote } = atom.provenance;
   const path = await insideCopy(copy.root, file);
   const text = await readFile(path, 'utf8').catch(() => {
@@ -139,6 +157,18 @@ export async function mutateEstate(
   }
   await writeFile(path, next);
 
+  // A deleted script goes with its mention: the mutant must not keep a script the estate no longer names.
+  const removedFiles: string[] = [];
+  const scriptPath = atom.kind === 'script' && kind === 'delete' ? atom.fields?.path : undefined;
+  if (typeof scriptPath === 'string' && scriptPath !== '') {
+    const target = await insideCopy(copy.root, scriptPath);
+    if (existsSync(target)) {
+      await rm(target, { force: true });
+      removedFiles.push(scriptPath);
+    }
+  }
+  const gone = new Set(removedFiles);
+
   const before = lines.slice(startLine - 1, endLine).join('\n');
   const nextLines = next.split('\n');
   const removed = lines.length - nextLines.length;
@@ -148,7 +178,12 @@ export async function mutateEstate(
       : nextLines.slice(startLine - 1, Math.max(startLine - 1, endLine - removed)).join('\n');
 
   const atoms: Atom[] = [];
+  const lost: string[] = [];
   for (const other of copy.map.atoms) {
+    if (gone.has(other.provenance.file) && other.id !== id) {
+      lost.push(other.id);
+      continue;
+    }
     if (other.id === id) {
       if (kind === 'invert') atoms.push(withProvenance(other, { quote: replacement }));
       continue;
@@ -162,15 +197,20 @@ export async function mutateEstate(
       );
     } else atoms.push(other);
   }
+  const dropped = new Set([id, ...lost]);
   const edges =
-    kind === 'delete' ? copy.map.edges.filter((edge) => edge.from !== id && edge.to !== id) : copy.map.edges;
+    kind === 'delete'
+      ? copy.map.edges.filter((edge) => !dropped.has(edge.from) && !dropped.has(edge.to))
+      : copy.map.edges;
   const hash = mapHash(atoms, edges);
   const map: EstateMap = { ...copy.map, atoms, edges, hash };
   const texts = new Map<string, string>([[file, next]]);
   const collateral = quoteDrift(
-    atoms.filter((other) => other.provenance.file === file && other.id !== id),
+    atoms.filter((other) => other.provenance.file === file && other.id !== id && !gone.has(file)),
     texts,
-  ).map((issue) => issue.message.split(':')[0] ?? issue.message);
+  )
+    .map((issue) => issue.message.split(':')[0] ?? issue.message)
+    .concat(lost);
   return {
     atom: id,
     op: kind,
@@ -181,7 +221,19 @@ export async function mutateEstate(
     mapHash: hash,
     map,
     collateral,
+    removed: removedFiles,
   };
+}
+
+/**
+ * A skill's `name:` line whose value is the skill's folder name. The runtime names a skill by its folder, so
+ * deleting the line changes nothing the agent sees: the mutant is equivalent, and it is not made.
+ */
+function isEquivalentDelete(atom: Atom): boolean {
+  if (atom.kind !== 'skill') return false;
+  const folder = atom.fields?.folder;
+  const value = /^name:\s*['"]?([^'"\s]+)['"]?\s*$/.exec(atom.provenance.quote)?.[1];
+  return typeof folder === 'string' && value !== undefined && value === basename(folder);
 }
 
 function withProvenance(atom: Atom, change: Partial<Atom['provenance']>): Atom {

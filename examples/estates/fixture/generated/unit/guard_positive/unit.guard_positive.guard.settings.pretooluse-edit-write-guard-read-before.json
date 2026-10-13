@@ -19,18 +19,6 @@
       "payload": {
         "tool_name": "Edit",
         "tool_input": {
-          "file_path": "notes.md",
-          "old_string": "a",
-          "new_string": "Read a file before you edit it."
-        }
-      },
-      "material": "Read a file before you edit it."
-    },
-    {
-      "id": "case-02",
-      "payload": {
-        "tool_name": "Edit",
-        "tool_input": {
           "file_path": ".claude/skills/invoice-reconcile/references/matching-rules.md",
           "old_string": "a",
           "new_string": "b"
@@ -39,18 +27,7 @@
       "material": ".claude/skills/invoice-reconcile/references/matching-rules.md"
     },
     {
-      "id": "case-03",
-      "payload": {
-        "tool_name": "Write",
-        "tool_input": {
-          "file_path": "notes.md",
-          "content": "Read a file before you edit it."
-        }
-      },
-      "material": "Read a file before you edit it."
-    },
-    {
-      "id": "case-04",
+      "id": "case-02",
       "payload": {
         "tool_name": "Write",
         "tool_input": {

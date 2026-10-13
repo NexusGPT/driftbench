@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-graph-012
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
 title: "Stage path 12: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
 channel: whatsapp
@@ -12,7 +12,6 @@ tags:
   - flow:order
   - data:5g-only
   - persona:new-customer
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,6 +24,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.order
     rubric: Recap, explicit confirmation and order placement
@@ -63,6 +64,8 @@ blocks:
             address_id: addr-103
         - label: order.create
           count: 0
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
   - id: b3-offer-to-details
     when:
@@ -124,6 +127,26 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+perturbations:
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 5
+    user: Are your stores open on Saturday?
+    expect:
+      stage: order_placed
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: order_placed
 metadata:
   generated:
     by: driftbench generate
@@ -134,7 +157,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: order-single-plan
     cell:
       flow: order
@@ -143,7 +166,6 @@ metadata:
       customer_details: name-and-email
       channel: whatsapp
       user_type: new-customer
-      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address
         seeder: graph
@@ -214,7 +236,7 @@ metadata:
       - block: b2-address-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.615
+        pass_probability: 0.538
       - block: b3-offer-to-details
         status: accepted
         pass_k: 1

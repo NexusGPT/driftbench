@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FakeModelPort, loadProposal } from '@driftbench/generate';
+import { FakeModelPort, loadProposal } from '@agent-nexus/driftbench-generate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { extractCommand } from '../src/commands/extract';
 import { type Io, main } from '../src/index';
@@ -277,7 +277,7 @@ describe('driftbench extract: the proposal', () => {
     );
     expect(code).toBe(0);
     expect(out).toMatch(
-      /^Wrote proposal\.yaml: 29 dimensions, 86 values, 3 constraints, 0 phrases, 7 relations, none approved\./,
+      /^Wrote proposal\.yaml: 34 dimensions, 91 values, 55 constraints, 0 phrases, 7 relations, none approved\./,
     );
     const loaded = await loadProposal(join(dir, 'proposal.yaml'));
     expect(loaded.ok && loaded.proposal.agent).toBe('acme');
@@ -419,6 +419,16 @@ describe('driftbench extract map', () => {
     );
   });
 
+  it('pins docs/reference/cli.md: a proposal is not a space map, the space commands read it through extract map', async () => {
+    const dir = await project();
+    await run([...base(), '--no-model', '--agent', 'zed'], dir);
+    const direct = await run(['space', 'coverage', '--map', 'map/proposal.yaml', 'map', '--t', '2'], dir);
+    expect(direct.code).toBe(2);
+    const doc = await readFile(join(ACME, '../../docs/reference/cli.md'), 'utf8');
+    expect(doc).toContain('The proposal is not a space map');
+    expect(doc).not.toContain('The proposal is a valid space map');
+  });
+
   it('runs space coverage on the Acme approved map without a grid refusal', async () => {
     const { code, out, err } = await run(
       ['space', 'coverage', '--map', join(ACME, 'map/space.yaml'), join(ACME, 'specs'), '--t', '2'],
@@ -427,7 +437,7 @@ describe('driftbench extract map', () => {
     expect(err).not.toContain('over the limit');
     expect(code).toBe(1);
     expect(out.split('\n')[0]).toBe(
-      'Map acme, version 1: 7 dimensions, 81312 cells, 28 constraints, prior uniform (no weight declared)',
+      'Map acme, version 1: 7 dimensions, 180180 cells, 374 constraints, prior uniform (no weight declared)',
     );
   });
 });

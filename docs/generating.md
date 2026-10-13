@@ -28,8 +28,39 @@ The map lists the dimensions a situation varies on, their values, and what links
 | Constraints | a combination of values, one per dimension, that can never occur, with the reason |
 | Phrases | user messages that express a value: the phrase bank the user turns come from |
 | Relations | what links values to stages, tools and end states |
+| Numeric settings | approved runtime variable ranges, sampled by budget mode into `given.vars` |
 
 A dimension has a role. An axis is a dimension of the space map, crossed with the other axes. A detail stays in the proposal: the generator varies it inside a cell, as boundary values. Code proposes the roles: every dimension read from a tool schema is a detail, and the first dimension of each kind is an axis, the others details. A person may flip any role.
+
+### Numeric runtime settings
+
+An optional top-level `numeric_settings` list declares runtime variables. It does not add a categorical dimension or change the pair-coverage denominator. Each range needs its own approval and source evidence. This range is used in the numeric CLI test:
+
+```
+numeric_settings:
+  - id: iterations
+    min: 1
+    max: 5
+    integer: true
+    unit: attempts
+    evidence:
+      source: prompt.md
+      quote: "temperature ranges from 0 to 1; iterations range from 1 to 5 integer attempts."
+    produced_by: code
+    approved: true
+```
+
+| Field | Meaning |
+|---|---|
+| `id` | unique variable key, using the same lowercase id syntax as dimensions |
+| `min`, `max` | finite bounds, with `max >= min`; equal bounds give a constant |
+| `integer` | optional boolean, default false; true samples integer levels from `ceil(min)` through `floor(max)`, inclusive |
+| `unit` | optional nonempty label, retained in the report; no conversion is performed |
+| `evidence`, `produced_by`, `approved` | the source quote, proposer (`code` or `model`) and approval flag, as for other map entries |
+
+An integer range must contain at least one integer, and its rounded endpoints and integer level count must be safe integers. Quotes must match a listed source. Add ranges by editing the proposal, then approve each flag in the file or use `extract approve --all`; the listing includes open numeric settings. Automatic numeric range extraction is pending.
+
+Approved ranges require `generate --budget N`; generation without that flag refuses them. The sampled numbers are written into each selected spec's `given.vars`. The existing runner delivers those variables to the adapter. An adapter decides whether a variable maps to a target option, such as temperature; the generator does not perform that mapping. Other seeders do not sample these ranges.
 
 ### Relations
 
@@ -39,9 +70,11 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 |---|---|---|
 | `path` | a flow's stage order on one branch, the cell values the branch needs (`when`), the behaviours it exercises, and the end state the store holds when it ends (by slots) | 12 |
 | `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot | 14 |
+| `states` | what the reply of one turn must state, such as each plan with the monthly price the tool returned; it becomes `expect.must` on that turn | 7 |
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
 | `reply_language` | the language every reply is in, whatever the user writes | 1 |
+| `task_family` | a flow a code agent does as a task: the [task family](#task-families) folder, its stages, the values every instance holds (`holds`), and the deviation class its planted variant carries | 1 |
 
 A phrase may hold a `{slot}` (`It's {email}.`), may say where it fits with `when` (a flow, a stage, a data value), and may state slot values itself with `binds` (`The unlimited one, please.` binds the plan `mobile-l`). The generator fills each slot from the values the cell binds, so a tool input expected in a block is the value the block's own When states.
 
@@ -108,14 +141,14 @@ Four relations of the Acme proposal, as written in the file:
 Code reads the inventory and the tools before any model:
 
 * From the inventory: a `behaviour` dimension (one value per behaviour), a `flow` dimension (one value per flow), a `deviation` dimension (the classes the flows require), a `channel` dimension, and one constraint per channel a behaviour's `channels` leaves out. Each detour class a flow lists in its `deviations` becomes a `recovery` relation that returns to the pending stage.
-* From the tool schemas: one `data` dimension per argument or result field, named `<tool>.in.<field>` or `<tool>.out.<field>`, with a value for each partition the schema states (enum members, booleans, the edges of a minimum or a maximum, a length limit, a format, an array size, `null`, an absent optional field). A field the schema leaves open gives no value and is listed in the notes.
+* From the tool schemas: one `data` dimension per argument or result field, named `<tool>.in.<field>` or `<tool>.out.<field>`, with a value for each partition the schema states (enum members, booleans, the edges of a minimum or a maximum, a length limit, a format, an array size, `null`, an absent optional field). A field the schema leaves open gives no value and is listed in the notes. A name enters an id as follows: a capital after a letter or digit is split off with `_`, the name is lower-cased, and each run of characters other than letters, digits, `_` and `-` becomes `_` (in a tool name, dots stay, and a name that does not start with a letter gets `t_` in front). A field named `$ref` gives `_ref`, `user.email` gives `user_email` (one field, not a path), and a tool named `getWeather` gives `get_weather`.
 
 `--no-model` stops there:
 
 ```
 $ pnpm -s driftbench extract --prompt examples/acme/src/policy.ts --prompt examples/acme/README.md --prompt examples/acme/src/store.ts --inventory examples/acme/inventory.yaml --tools examples/acme/map/tools.yaml --no-model --out _captures/docs3/generating/nomodel/proposal.yaml
-Wrote _captures/docs3/generating/nomodel/proposal.yaml: 29 dimensions, 86 values, 3 constraints, 0 phrases, 7 relations, none approved.
-  Code pre-pass: 29 dimensions, 86 values, 3 constraints, 7 relations.
+Wrote _captures/docs3/generating/nomodel/proposal.yaml: 29 dimensions, 86 values, 55 constraints, 0 phrases, 7 relations, none approved.
+  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
   Roles: 3 axes (behaviour, deviation, channel), 26 details; the axes make a full grid of 252 cells.
   No model call: the code pre-pass alone (--no-model).
 Notes:
@@ -137,16 +170,16 @@ Without `--no-model`, the extractor asks a model for the rest, one call per sect
 
 ```
 $ pnpm -s driftbench extract --prompt _captures/docs3/generating/acme/src/policy.ts --prompt _captures/docs3/generating/acme/README.md --prompt _captures/docs3/generating/acme/src/store.ts --inventory _captures/docs3/generating/acme/inventory.yaml --tools _captures/docs3/generating/acme/map/tools.yaml --replay _captures/docs3/generating/acme/map/answers.yaml --out _captures/docs3/generating/acme/map/proposal.yaml
-Wrote _captures/docs3/generating/acme/map/proposal.yaml: 46 dimensions, 175 values, 59 constraints, 51 phrases, 63 relations, none approved.
-  Code pre-pass: 29 dimensions, 86 values, 3 constraints, 7 relations.
-  Roles: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 39 details; the axes make a full grid of 81312 cells.
+Wrote _captures/docs3/generating/acme/map/proposal.yaml: 51 dimensions, 182 values, 111 constraints, 51 phrases, 71 relations, none approved.
+  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
+  Roles: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 44 details; the axes make a full grid of 96096 cells.
   Model lane claude-opus-5-5 as the extract and generate2 lanes, by hand: 6 sections, 6 calls.
     stages     added 37 entries
     rules      added 14 entries
     personas   added 45 entries
     data       added 49 entries
     phrases    added 51 entries
-    relations  added 56 entries
+    relations  added 64 entries
 Notes:
   catalog.search output: no partition stated for customer.id, customer.name, customer.current_plan_id
   coverage.check output: no partition stated for address
@@ -160,14 +193,27 @@ exit 0
 
 The proposal is the committed `examples/acme/map/proposal.yaml`, byte for byte but for the time in `produced_by.at`. A recording with no answer left for a section fails that section, as a failed model call does. No option saves a real model's answers for a later replay yet. `extract` exits 0 when the proposal is written and complete, 1 when it is written with a failed section or a refused entry, 2 on a usage or input error (nothing written).
 
+### Planned: what extract does not read yet
+
+These are capabilities users need from `extract` that the code lacks today. The map validator holds the items that check each one (`validators/map/NEEDS.md`). They fail until the capability ships.
+
+* **Declared roles.** A prompt may say which dimension makes a different kind of conversation ("Each of these makes a different kind of conversation") and which can show up inside any conversation. That dimension becomes the axis, whatever order the dimensions are read in. Without such a sentence, the first dimension of each kind stays the axis, as above. The purpose: the prompt's author already said which differences make a different conversation, so the space map crosses those and leaves the rest as details, and no person has to flip the roles the prompt already states.
+* **What a rule states.** Each rule records whether the agent must or must not do it, the cell it applies in (`when`), the case it excludes (`unless`), a count limit, a time limit (`within`), and whether it comes first when rules collide.
+* **What a value states.** A persona or data value records the share of users it stands for (`weight`) and whether a test plan must include it (`required`).
+* **More schema keywords.** A tuple (`prefixItems`, or `items` given as a list) gives one dimension per position, `<field>.0`, `<field>.1`, beside the array's own size values. Closing a tuple (`unevaluatedItems` or `additionalItems` false) adds the value `extra-item`. A closed input object (`additionalProperties: false`) gives the dimension `<tool>.in.unknown-key` with the value `sent`, a call carrying a key the schema does not name.
+* **More relations.** The order two tools are called in, the route a request takes to a flow, and the exact reply text a rule fixes.
+* **Every prompt style.** Rules are read in lists, numbered rules, prose, tables, nested sections, a second language, negations, conditions, tool references, examples that contradict a rule, deprecated sections, duplicated rules with precedence, rules hidden inside examples, and rules phrased as questions. Any two of these styles can be mixed in one prompt.
+* **Long prompts.** A prompt of 100k characters and more is read in chunks cut at line boundaries, within a time budget. A wrapped sentence, a table with its header, a section with its heading path, a question with its answer and a deprecation marker with the text it covers stay together. Constraints are proposed once the whole map is known, and a replacement in one chunk retires the rule it replaces in another.
+* **A map that depends only on what the prompt says.** The map does not change when sections are reordered, a rule is split into two sentences, a word is replaced by a synonym, or a sentence that specifies nothing is added. Two halves of a prompt give the two halves of the map, and a prompt with one more constraint gives exactly one more constraint. Most of this holds today; reordering sections can still change which dimension is the axis, until declared roles ship.
+
 ## Approve
 
 A dimension has one `approved` flag, which its values inherit; a value may set its own flag to override it. Each constraint, phrase and relation has its own flag. `extract approve` with no option lists the open decisions and the grid the axes give:
 
 ```
 $ pnpm -s driftbench extract approve _captures/docs3/generating/acme/map/proposal.yaml
-_captures/docs3/generating/acme/map/proposal.yaml: 219 of 219 decisions are open (46 dimensions, 59 constraints, 51 phrases, 63 relations).
-Axes: 7 of 46 dimensions, a full grid of 81312 cells (the space commands accept 250000).
+_captures/docs3/generating/acme/map/proposal.yaml: 284 of 284 decisions are open (51 dimensions, 111 constraints, 51 phrases, 71 relations).
+Axes: 7 of 51 dimensions, a full grid of 96096 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
   dimension   deviation  deviation axis, by code, 10 values: The deviation classes the flows must be perturbed with
@@ -191,7 +237,7 @@ exit 0
 
 ```
 $ pnpm -s driftbench extract approve _captures/docs3/generating/acme/map/proposal.yaml --all --to _captures/docs3/generating/acme/map/approved.yaml
-Approved 219 flags in _captures/docs3/generating/acme/map/approved.yaml; 0 were already set.
+Approved 279 flags in _captures/docs3/generating/acme/map/approved.yaml; 0 were already set.
 exit 0
 ```
 
@@ -201,9 +247,17 @@ The Acme map was approved with `--all` on the owner's delegation, for the fictio
 
 `extract map` writes the space map of the approved axes, the file the `space` commands read. Details stay in the proposal.
 
+**Allowed means possible.** Besides the written constraints, the space map of an approved map forbids every pair its own relations rule out, each with the reason `derived from the relations`. An event is a stage on an approved path, or a stage of a `task_family` relation, with the deviation class said there. A stage or a class is allowed with the other values of a pair only when some event fits them all:
+
+* the class must be said where its recovery, a fitting phrase and the turn allow: a first turn carries only a class a first message can carry, and nothing follows the last stage but a class whose recovery stays there;
+* a data or task value is held only where the path's `when` or the family's `holds` states it; elsewhere the axis holds `none`, the value a data or task axis gets on a structured map;
+* a conversation holds no task setting, so a conversation event allows only `none` on the task axes.
+
+The inventory pre-pass also writes one constraint per flow a behaviour does not belong to. On Acme this leaves 637 allowed pairs, and `generate` covers all 637 with complete specs. A value no allowed pair holds is named in the report under `cover.unreachable`: on Acme, `workspace_start=existing-workbook`, which the price-sheet family has no knob for.
+
 ```
 $ pnpm -s driftbench extract map _captures/docs3/generating/acme/map/approved.yaml --to _captures/docs3/generating/acme/map/space.yaml
-Wrote _captures/docs3/generating/acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 28 constraints, a full grid of 81312 cells.
+Wrote _captures/docs3/generating/acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 374 constraints, a full grid of 180180 cells.
 exit 0
 ```
 
@@ -213,25 +267,27 @@ The result is identical to the committed `examples/acme/map/space.yaml`. Three c
 * `driftbench space complete <specs> --map <space.yaml> [--t <n>]` prints the completeness line: the share of the cells that have appeared and the chance that the next conversation shows a new one. It exits 1 when there are fewer conversations than cells.
 * `driftbench space declare <specs> --inventory <file> --out <file>` writes a first map from the inventory and the specs, for the owner to edit.
 
-On the Acme map, the hand-written specs cover 164 of 840 allowed pairs (exit 1, three required cells empty); the gated suite covers 584:
+On the Acme map, the hand-written specs cover 234 of 637 allowed pairs (exit 1, three required cells empty); the gated suite covers 591 and every required cell:
 
 ```
-Coverage: 9 of 10 required cells covered, 584 of 840 cells at t = 2 (69.5%).
+Coverage: 10 of 10 required cells covered, 591 of 637 cells at t = 2 (92.8%).
 ```
 
-That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/specs --map examples/acme/map/space.yaml --t 2` (exit 1: no gated spec covers `flow price-sheet · D6_instruction_in_data`).
+That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/specs --map examples/acme/map/space.yaml --t 2` (exit 0). The cells the gated specs miss are the ones only a sealed spec covers.
 
 ## Generate
 
-`driftbench generate --map <approved proposal> --out <dir>` enumerates specs by code. The map must be a proposal whose every entry is approved. No model is called. Five seeders each write specs:
+`driftbench generate --map <approved proposal> --out <dir>` enumerates specs by code. The map must be a proposal whose every entry is approved. No model is called. Six seeders each write specs:
 
 | Seeder | What it writes |
 |---|---|
 | `graph` | one spec per approved path: the stage graph walked along the paths, so every edge a path takes is covered by a conversation the agent can have |
-| `twise` | a covering array at strength `--t` (default 2) over the axes; each row walks an approved path of a flow its behaviour belongs to |
+| `twise` | a covering array at strength `--t` (default 3) over the axes; each row walks an approved path of a flow its behaviour belongs to |
 | `boundary` | one spec per value of every detail data dimension, on a path that needs it; a tool output value becomes the tool's answer, a tool input value an expected or a forbidden call |
-| `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class |
+| `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage |
 | `metamorphic` | families of specs that differ only in the phrasing of one value, with the same Then by construction |
+| `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per family, default 8), each with its corner and planted variants; see [task families](#task-families) |
+| `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons |
 
 Every seeded choice comes from `--seed` (default 1), so the same map and seed give the same suite byte for byte.
 
@@ -241,13 +297,18 @@ A complete generated block reads observed state, not only words. Code derives ea
 
 | Then | Derived from |
 |---|---|
-| `expect.stage` | the path's next stage |
+| `expect.stage` and `expect.stage_reported` | the path's next stage, reported by the runtime in this block |
 | `expect.tools` (label, count, input) | the `uses_tool` relations of the flow at that stage, inputs filled from the slots the cell's data values and the phrases bind; every other tool the scenario calls is expected 0 times in that turn |
 | `rules.forbidden_tools` | every tool the scenario never calls |
 | `end_state` on the last block | the path's end state, slots filled |
 | a probe block's stage, `must`, `must_not`, guards and calls | the recovery of that class in that flow; `pending` is the stage the conversation had reached |
 | a tool failure | the path's own turn, with the tool failing in its Given; the recovery's stage and calls; calls after the failing tool expected 0 times; the conversation stops there |
+| `expect.must` and `expect.must_not` on a move | the approved `states` relations of the flow or behaviour at that stage, such as returned prices, the pending question, and forbidden invented facts |
 | `expect.lang` on every block | the `reply_language` relation, never the language of the user's message |
+
+A `states` relation names a `subject` (`dimension` and `value`), the departing `stage`, optional destination `to`, optional `when`, and `must`, `must_not`, or both. Each supplied list contains at least one regular expression. Both lists reuse the quoted-price relation's `{slot}` syntax: an approved `binds` relation supplies the value, which is escaped as literal regex text. Missing bindings make the scenario incomplete, with the reason in the report. Relations without approval do not contribute assertions. Existing `must`-only maps remain valid.
+
+Generated tool expectations set `input_closed: true` when their explicit `input` names every property of the tool's input schema. Partial map assertions keep allowing other arguments. List every permitted top-level input key to close a generated call. Existing saved specs do not gain these optional assertions automatically.
 
 Two blocks of `gen-graph-001`, the path `upgrade-order`. The email in the When and the expected input come from the same `binds` relation; the order's inputs come from the path's `uses_tool` relation:
 
@@ -327,22 +388,25 @@ A block the map supports no machine Then for, or a value with no approved phrase
 ### The Acme suite
 
 ```
-$ pnpm -s driftbench generate --map _captures/docs3/generating/acme/map/approved.yaml --out _captures/docs3/generating/acme/generated --baseline examples/acme/specs
-Map acme (../map/approved.yaml), hash badea3d3df7a: 46 dimensions, 176 values, 59 constraints, 51 approved phrases.
+$ pnpm -s driftbench generate --map _captures/docs3/generating/acme/map/approved.yaml --out _captures/docs3/generating/acme/generated --baseline examples/acme/specs --t 2
+Map acme (../map/approved.yaml), hash 6d29ed7a7539: 51 dimensions, 185 values, 457 constraints, 51 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           154     676       123          31
-boundary         80     113        13          67
+twise           132     675       131           1
+boundary         85     118        13          72
 deviation        10      52        10           0
-metamorphic      12      52        10           2
+metamorphic      40     172        38           2
+task             34      47        34           0
+cover            13      72        13           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-t-wise: covering array of 154 rows over 6 dimensions, 444 of 444 allowed 2-tuples (100.0%).
-Constraints applied: 59.
-Deviation probes: 10 of 10 classes. Metamorphic families: 6.
-Coverage on the axis map at t = 2: complete specs 619 of 840 (73.7%), all specs 677 (80.6%), examples/acme/specs 164 (19.5%).
+t-wise: covering array of 132 rows over 5 dimensions, 314 of 314 allowed 2-tuples (100.0%).
+Constraints applied: 457.
+Deviation probes: 10 of 10 classes. Metamorphic families: 20.
+Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%), examples/acme/specs 234 (36.7%).
+Values no allowed pair holds, so no spec can cover them until the map gives them a path: workspace_start=existing-workbook.
 
 Values with no approved phrase (67): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
@@ -362,23 +426,83 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   coverage.check.in.address=coverage.check.in.address.at-min-length  1 block(s)
   ... 52 more in generate-report.json
 
-Specs with a block the map supports no machine Then for (43), in incomplete/: gen-twise-025, gen-twise-026, gen-twise-036, gen-twise-047, gen-twise-048, gen-twise-098, gen-twise-102, gen-twise-105, gen-twise-113, gen-twise-133, ....
+Specs with a block the map supports no machine Then for (18), in incomplete/: gen-twise-089, gen-boundary-062, gen-boundary-063, gen-boundary-064, gen-boundary-072, gen-boundary-073, gen-boundary-074, gen-boundary-075, gen-boundary-077, gen-boundary-078, ....
   Most frequent reasons:
-    11  no approved path belongs to a flow of B-013 (price-sheet)
-    11  no approved path belongs to a flow of B-014 (price-sheet)
-     5  no stage of the path takes D2_goal_shift: none its recovery allows has an approved phrase
-     3  it needs coverage_result in fiber, 5g-only; the cell holds not-in-map
-     3  it needs coverage_result in no-service; the cell holds 5g-only
-     3  it needs coverage_result in no-service; the cell holds not-in-map
-     3  it needs coverage_result in not-in-map; the cell holds 5g-only
-     2  it needs coverage_result in 5g-only; the cell holds not-in-map
-Wrote 269 files to _captures/docs3/generating/acme/generated.
+     2  no approved path says flow=upgrade
+     1  it needs coverage_result in no-service; the cell holds none
+     1  it needs user_type in existing-customer; the cell holds new-customer
+     1  no approved path needs callback_phone=not-given
+     1  no approved path needs customer_details=neither
+     1  no approved path needs customer_details=one-of-them
+     1  no approved path needs home_plans=no-plan
+     1  no approved path needs home_plans=one-plan
+Wrote 327 files to _captures/docs3/generating/acme/generated.
 exit 1
 ```
 
-The output is identical to the committed `examples/acme/generated`. Exit 1 is the exit for a suite written with incomplete specs: 168 specs are complete (814 blocks), 100 are incomplete. The price-sheet flow has no conversation path: its task specs come from [task families](#task-families) instead. `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The output is identical to the committed `examples/acme/generated`. Exit 1 is the exit for a suite written with incomplete specs: 251 specs are complete (1107 blocks), 75 are incomplete. Complete specs cover all 637 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
+
+## Total spec cap
+
+`generate --spec-cap N` limits all written specs, independently of `--budget N`, which still limits only the budget seeder's rows. The cap keeps every graph, boundary, deviation, metamorphic and task spec, plus every incomplete spec. It selects complete t-wise and cover specs by their actual axis-map placements. A limit below the protected spec count is refused.
+
+The default `--spec-cap-mode tuples` preserves the uncapped candidate pool's pairs, triples and requested strength when the cap permits it. Explicit `--spec-cap-mode pairs` preserves pairs and permits triple losses. Both modes report the exact missing tuples in `spec_cap.coverage`; existing gaps stay visible. The `preserving` count is the deterministic greedy selection size, not a proof of the global minimum.
+
+A cap below that selection size writes the best selection it can, names the lost target tuples and exits 1. Losing triples in explicit pairs mode is reported without failing the pair target. Selection preserves tuple coverage, not fault detection on every possible agent: compare planted faults before adopting a smaller suite. A cap does not repair gaps already present in the candidate pool, and changing `--budget` also changes that pool.
+
+The report leads with actual pair and triple coverage of the written complete specs. The candidate array is a separate measurement, before total-cap selection. `coverage.actual[].uncovered` lists every allowed tuple that the written complete specs miss.
+
+## Budget mode
+
+`driftbench generate --budget N` selects conversation rows from the allowed pool, in place of the t-wise rows. Use it to spend a fixed number of selections on coverage and balance. It covers pairs regardless of `--t`.
+
+Each pick follows these rules, in order:
+
+1. Pick the cell that adds the most uncovered allowed pairs.
+2. Break a tie by moving value counts toward their fair share: N divided by the number of allowed values in each dimension.
+3. Break any remaining tie by a seeded shuffle.
+
+Once all allowed pairs are covered, balance alone decides, followed by the seeded tie-break. The same map, seed and budget give the same suite. Constraints still apply. Without approved numeric settings, cells are distinct: if N exceeds the allowed pool, every cell is selected once and the report sets `capped: true`. With numeric settings, categorical cells can repeat to place N numeric samples. Constraints and pair coverage can prevent equal counts, so categorical balance is a preference, not a guarantee.
+
+The budget controls only the replacement rows, which keep the `twise` seeder name and folder. Graph paths, boundary probes, deviation probes, metamorphic families, task instances and coverage completion still run. The whole suite can exceed N and can cover pairs that the budget rows miss. When both flags are given, `--max` still applies to the other seeders that use its limit. Task families keep their own `--tasks` count.
+
+The report adds a `budget` block:
+
+| Field | Meaning |
+|---|---|
+| `budget`, `seed` | requested selections and their seed |
+| `dimensions`, `pool` | dimensions crossed and allowed cells available |
+| `picked`, `capped` | selected row count; `capped` means selection stopped at the distinct-cell pool limit |
+| `pairs` | allowed and covered pairs, with their covered share |
+| `values` | each allowed value's count, fair share and signed deviation |
+| `maxDeviation` | largest absolute difference between a count and its fair share |
+| `numeric` | present only with approved ranges: settings and each row's spec id, categorical cell, quantiles and runtime variables |
+
+Partial pair coverage does not set the seeder's cut flag. A complete map exits 0 even below the pair-cover size and prints `pairs covered X of Y`. Incomplete specs, generator defects and cuts in other seeders keep their usual exit codes. The Acme run at budget 20 has 69 incomplete specs and exits 1 for those specs, not for the budget.
+
+Selected lines from the Acme comparison command, run from the repository root:
+
+```
+$ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-20 --t 2 --seed 1 --budget 20 --force
+Budget 20: 20 cells of 747 allowed, pairs covered 154 of 314 (49.0%), max deviation from fair share 2.00.
+Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%).
+Wrote 321 files to _captures/budget/budget-20.
+exit 1
+```
+
+### Sliced numeric sampling
+
+Budget mode calls `slicedLhs` for every approved numeric setting. Rows with the same selected categorical combination form one slice. For each setting, its quantiles occupy every equal-width band once across the whole budget and every band once within each slice. Slice sizes can differ. Seeded interval matching assigns each slice band a global band, then draws inside their intersection. This supplies the global and within-slice Latin property described by [Qian's sliced Latin hypercube designs](https://doi.org/10.1080/01621459.2011.644132); it does not optimize distances between different numeric settings.
+
+Continuous ranges scale these quantiles to their bounds. Integer ranges map the quantiles to their inclusive integer levels. The Latin property applies to quantiles; integer values can repeat, and repeats are unavoidable when there are fewer levels than rows. Constant ranges also repeat their single value. The report retains the quantiles so both global and within-slice balance can be checked.
+
+These strata include every selected row, including incomplete specs. Dropping rows or passing them through the gate can change the balance of the remaining rows.
+
+Without numeric settings, sampling is skipped and the output is unchanged. Golden tests compare every Acme generated file against the pre-numeric code for ordinary pairwise generation and budgets 20, 50, 100 and 200. The boundary seeder continues to choose its own categorical partition values.
+
+See the [measured budget comparison](../comparisons/budget/README.md) for selected-row coverage and balance beside whole-suite fault scores.
 
 ## The gate
 
@@ -423,46 +547,51 @@ A spec runs on its own `target` when that is a `--reference`; else on the first 
 ```
 $ pnpm -s driftbench gate examples/acme/generated/specs --reference function:acme-sales --reference process:acme-ops --route flow:price-sheet=process:acme-ops --faults examples/acme/faults --origin examples/acme/specs --date 2026-10-11 --out _captures/docs3/generating/gated
 Funnel (blocks):
-  1. observed     in  814  rejected 0      out  814
-  2. leakage      in  814  rejected 0      out  814
-  3. shortcut     in  814  rejected 0      out  814
-  4. contrast     in  814  rejected 0      out  814
-  5. red_first    in  814  rejected 0      out  814
-  6. stability    in  814  rejected 0      out  814
-  7. difficulty   in  814  rejected 0      out  814
-  8. label_audit  in  814  marked 15       out  814  (sampled 15)
-  9. freshness    in  814  marked 152      out  814  (sealed-holdout 152)
-Accepted 814 of 814 blocks.
+  1. observed     in 1107  rejected 0      out 1107
+  2. leakage      in 1107  rejected 0      out 1107
+  3. shortcut     in 1107  rejected 6      out 1101  (passed-by-echo 6)
+  4. contrast     in 1101  rejected 0      out 1101
+  5. red_first    in 1101  rejected 0      out 1101
+  6. stability    in 1101  rejected 0      out 1101
+  7. difficulty   in 1101  rejected 0      out 1101
+  8. label_audit  in 1101  marked 21       out 1101  (sampled 21)
+  9. freshness    in 1101  marked 240      out 1101  (sealed-holdout 240)
+Accepted 1101 of 1107 blocks.
 Mutation score per fault class (gated suite):
-  X1_local: 0/1 killed (0%, 95% CI 0% to 79%), 1 equivalent excluded
+  X1_local: 2/2 killed (100%, 95% CI 34% to 100%)
   X2_contradiction: no scored fault, 1 equivalent excluded
   X3_flow: 1/1 killed (100%, 95% CI 21% to 100%)
-  X4_format: 1/1 killed (100%, 95% CI 21% to 100%), 1 equivalent excluded
-  X5_tool: 1/1 killed (100%, 95% CI 21% to 100%), 1 equivalent excluded
+  X4_format: 2/2 killed (100%, 95% CI 34% to 100%)
+  X5_tool: 2/2 killed (100%, 95% CI 34% to 100%)
   D2_goal_shift: 1/1 killed (100%, 95% CI 21% to 100%)
   D4_loose_confirmation: 1/1 killed (100%, 95% CI 21% to 100%)
-  D6_instruction_in_data: 1/1 killed (100%, 95% CI 21% to 100%), 1 equivalent excluded
+  D6_instruction_in_data: 2/2 killed (100%, 95% CI 34% to 100%)
   D8_tool_failure: 1/1 killed (100%, 95% CI 21% to 100%)
   D9_out_of_scope: 1/1 killed (100%, 95% CI 21% to 100%)
   control: 2 negative control(s), green
-Wrote 172 files to _captures/docs3/generating/gated.
+Wrote 255 files to _captures/docs3/generating/gated.
 exit 0
 ```
 
-Every complete generated block passes: 814 blocks in 168 specs, 134 in `specs/` and 34 sealed in `holdout/`. What kills the faults, from `gate-report.json`:
+Every complete generated block but six passes: 1101 of 1107 blocks in 251 specs, 195 in `specs/` and 56 sealed in `holdout/`. The six rejected blocks are first-turn probes the echo agent passes, because the recovery word the map gives D1 is in the user's own question. 1054 accepted blocks run on the sales agent and 47, the price-sheet task specs, on the ops agent. What kills the faults, from `gate-report.json`:
 
 | Fault | Blocks red |
 |---|---|
-| `x4-wrong-language` | 814 |
-| `x3-skips-recap` | 226 |
-| `x5-drops-coverage-check` | 71 |
-| `d4-order-on-loose-yes` | 64 |
-| `d2-ignores-goal-shift` | 22 |
+| `x4-wrong-language` | 1054 |
+| `x3-skips-recap` | 292 |
+| `x1-invents-price` | 156 |
+| `x5-drops-coverage-check` | 117 |
+| `d4-order-on-loose-yes` | 61 |
+| `ops-x4-narrates` | 47 |
+| `ops-x5-skips-check` | 47 |
+| `ops-x1-wrong-price` | 43 |
+| `d2-ignores-goal-shift` | 31 |
+| `ops-d6-deletes-readme` | 25 |
 | `d8-hides-tool-failure` | 18 |
-| `d6-obeys-instruction` | 13 |
-| `d9-answers-out-of-scope` | 13 |
+| `d6-obeys-instruction` | 15 |
+| `d9-answers-out-of-scope` | 14 |
 
-Every block reads the reply language the map fixes, so the fault that answers in another language is red on all 814. No block reads a price, so `x1-invents-price` is never killed. `x2-keeps-first-email` changes no observed field on these specs: no generated conversation corrects an email.
+Every conversation block reads the reply language the map fixes, so the fault that answers in another language is red on all 1054. The turn that enters the offer states each plan with its monthly price, from the map's `states` relation, so `x1-invents-price` is red on 156 blocks. The price-sheet task specs run on the ops agent through the route, so its four faults are killed: `ops-d6-deletes-readme` by the planted variants, whose workspace holds an instruction in a file. `x2-keeps-first-email` changes no observed field on these specs: no generated conversation corrects an email.
 
 The hand-written Acme specs, run as a control, lose 4 of 28 blocks: two to the leakage rule (the phone number to port is already in the Given) and two to the echo agent.
 
@@ -599,6 +728,23 @@ Limits today:
 * A column asked as a value is checked by its value only: the reader vocabulary has no check that a cell holds no formula, so a formula with the right cached result passes.
 * The planted variant is a spec of its own, not a perturbation: every run drives it as written.
 * The Acme family has one `language` value, EN, until phrases in another language are approved.
+
+### Task families in the map
+
+A map hands a flow to a family with a `task_family` relation. The Acme one, as written in `examples/acme/map/answers.yaml`:
+
+```
+- kind: task_family
+  flow: price-sheet
+  family: ../families/price-sheet
+  stages: [build_sheet, add_summary]
+  holds: { user_type: [sales-operations], workspace_start: [catalog-only] }
+  deviations: [D6_instruction_in_data]
+  source: ../README.md
+  quote: "its stage, `build_sheet` or `add_summary`"
+```
+
+`generate` builds `--tasks <n>` instances of the family from the seed (default 8) and writes every variant to `specs/task/`. The family's oracle wrote each Then; the task seeder only places the spec: the values of `holds` become its tags, and a planted variant also declares its planted file as a perturbation of the relation's class at the first block, with that block's Then. A family whose phrases are not approved, whose review is missing, invalid or stale, or whose variant needs a binary seed folder is refused with its reason, and the refusal counts as a defect (exit 1). The gate runs task specs on the code agent with `--route flow:price-sheet=process:acme-ops`; `campaign` and `ci` take the same `--route`.
 
 ## The variance pilot
 

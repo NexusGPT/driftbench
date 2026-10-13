@@ -2,13 +2,13 @@
 
 Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode, on a fake proxy that plays the Acme example agent, and on the real `openai` client (7.32.0) pointed at that fake proxy through its `fetch`. It has not run against a live LiteLLM proxy yet.
 
-The litellm adapter runs an agent whose model sits behind a [LiteLLM](https://docs.litellm.ai/) proxy, or any endpoint that speaks the OpenAI chat completions shape. You hand it a client: the `openai` package's client with its `baseURL` on the proxy, or any object with `chat.completions.create`. `openai` is an optional peer dependency of `@driftbench/adapters`; driftbench does not depend on it.
+The litellm adapter runs an agent whose model sits behind a [LiteLLM](https://docs.litellm.ai/) proxy, or any endpoint that speaks the OpenAI chat completions shape. You hand it a client: the `openai` package's client with its `baseURL` on the proxy, or any object with `chat.completions.create`. `openai` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; driftbench does not depend on it.
 
 ## Options
 
 ```ts
 import OpenAI from 'openai';
-import { litellmAdapter } from '@driftbench/adapters';
+import { litellmAdapter } from '@agent-nexus/driftbench-adapters';
 import { salesPrompt, salesTools } from './agent'; // your prompt, and a function that returns SdkTool[]
 
 const adapter = litellmAdapter({
@@ -50,7 +50,7 @@ Text and tool calls in order, each tool call followed by its result. Tokens come
 
 | Error | Becomes |
 |---|---|
-| a 429 or a 5xx, or a connection or timeout error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
+| a 408, a 429 or a 5xx, or a connection or timeout error, after the policy's attempts | `AdapterTransportError`, marked exhausted |
 | any other status, such as a 400 for a bad tool name or a 401 | `AgentFailure` |
 | a completion with no `choices[0].message`, or tool calls at the step cap | `AgentFailure` |
 

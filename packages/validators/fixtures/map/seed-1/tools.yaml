@@ -1,0 +1,85 @@
+# The tools of desk-1 as JSON Schema. Every name in it is fictional.
+tools:
+  - name: account.find
+    description: Finds an account by its reference.
+    input_schema:
+      type: object
+      required: [name, attempts]
+      properties:
+        name: { type: string }
+        attempts: { type: integer, minimum: 0, maximum: 77 }
+    output_schema:
+      type: object
+      required: [owner]
+      properties:
+        owner:
+          type: [object, 'null']
+          required: []
+          properties:
+            lines: { type: array, items: { type: string }, maxItems: 7 }
+        eligible: { type: boolean }
+  - name: order.place
+    description: Places an order for a plan.
+    input_schema:
+      type: object
+      required: [contact_email, queued, slot]
+      properties:
+        contact_email: { type: string, format: email }
+        queued: { type: boolean }
+        owner:
+          type: object
+          required: [amount]
+          properties:
+            amount: { type: integer, minimum: 0 }
+        slot:
+          type: object
+          required: []
+          properties:
+            comment: { type: string }
+    output_schema:
+      type: object
+      required: [term_months, slot]
+      properties:
+        term_months: { type: integer, maximum: 27 }
+        contact_email: { type: string, format: email }
+        slot:
+          type: object
+          required: [contact_email]
+          properties:
+            postcode: { type: string, maxLength: 48 }
+            contact_email: { type: string, format: email }
+  - name: refund.request
+    description: Opens a refund request.
+    input_schema:
+      type: object
+      required: [priority, note]
+      properties:
+        priority: { type: string, enum: [basic, plus, max] }
+        urgent: { type: boolean }
+        note: { type: string, maxLength: 117 }
+    output_schema:
+      type: object
+      required: []
+      properties:
+        label: { type: string }
+  - name: ticket.open
+    description: Hands a case to a person.
+    input_schema:
+      type: object
+      required: [count, customer, reference, reason_code]
+      properties:
+        count: { type: integer, minimum: 0 }
+        customer:
+          type: [object, 'null']
+          required: [amount]
+          properties:
+            amount: { type: integer, minimum: 1, maximum: 33 }
+        reference: { type: string, minLength: 2 }
+        reason_code: { type: string, enum: [basic, plus, max] }
+    output_schema:
+      type: object
+      required: [priority, note]
+      properties:
+        priority: { type: string, enum: [moved, unhappy, duplicate, other] }
+        note: { type: string, minLength: 2, maxLength: 116 }
+        postcode: { type: string, minLength: 2 }

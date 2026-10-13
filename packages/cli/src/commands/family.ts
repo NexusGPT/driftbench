@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { defaultReaders } from '@driftbench/artifacts';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import {
   buildInstances,
   earlierOutput,
@@ -20,9 +20,10 @@ import {
   verifyInstances,
   writeInstances,
   writePendingReview,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { type CampaignDeps, defaultDeps, noAdapter, parseTarget, showTarget } from './campaign';
 
 type InstancesOptions = { n: string; seed: string; out: string; force?: boolean; json?: boolean };
@@ -325,7 +326,7 @@ function where(issue: FamilyIssue): string {
 
 function whole(text: string | undefined, name: string, minimum: number): number | string | undefined {
   if (text === undefined) return undefined;
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!/^\d+$/.test(text.trim()) || !Number.isSafeInteger(value) || value < minimum) {
     return `--${name} must be a whole number of at least ${minimum}, got "${text}".`;
   }

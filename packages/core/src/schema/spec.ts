@@ -83,6 +83,12 @@ export const ToolExpect = z
       .record(z.string(), Assertion)
       .optional()
       .describe('Assertions on the arguments, by argument name.'),
+    input_closed: z
+      .boolean()
+      .optional()
+      .describe(
+        'True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed.',
+      ),
   })
   .describe('One expected tool call.');
 export type ToolExpect = z.infer<typeof ToolExpect>;
@@ -304,6 +310,12 @@ export const Expect = z
       .min(1)
       .optional()
       .describe('The stage the agent must reach after the block, one of the spec stages.'),
+    stage_reported: z
+      .boolean()
+      .optional()
+      .describe(
+        'True requires the runtime to report a non-empty stage in this block. A carried or inferred stage does not count. False or absent leaves reporting optional.',
+      ),
     ledger_add: z
       .record(z.string(), z.unknown())
       .optional()
@@ -318,6 +330,40 @@ export const Expect = z
       .describe('How the expected tools line up with the observed calls: exact, in_order or any_order.'),
     must: z.array(Pattern).optional().describe('Patterns the visible text must match.'),
     must_not: z.array(Pattern).optional().describe('Patterns the visible text must not match.'),
+    rouge_l: z
+      .strictObject({
+        reference: z.string().min(1).describe('The reference text the reply is compared with.'),
+        profile: z
+          .enum(['driftbench', 'ragas'])
+          .optional()
+          .describe(
+            'The overlap profile: driftbench (default) or ragas, the reference implementation of this score.',
+          ),
+        min: z.number().min(0).max(1).describe('The lowest ROUGE-L F measure that passes, from 0 to 1.'),
+      })
+      .optional()
+      .describe('The reply must overlap a reference text: its word-level ROUGE-L F measure must reach min.'),
+    bleu: z
+      .strictObject({
+        reference: z.string().min(1).describe('The reference text the reply is compared with.'),
+        profile: z
+          .enum(['driftbench', 'ragas'])
+          .optional()
+          .describe(
+            'The overlap profile: driftbench (default) or ragas, the reference implementation of this score.',
+          ),
+        min: z.number().min(0).max(1).describe('The lowest BLEU score that passes, from 0 to 1.'),
+      })
+      .optional()
+      .describe('The reply must overlap a reference text: its BLEU score over words must reach min.'),
+    sql: z
+      .strictObject({
+        tool: z.string().min(1).describe('The tool whose call input holds the query, in its query field.'),
+        golden: z.string().min(1).describe('The golden query: one read statement.'),
+        database: z.string().min(1).describe('The SQLite database both queries run on, read-only.'),
+      })
+      .optional()
+      .describe('The SQL the agent ran must return the same rows as the golden query on the database.'),
     injection: z
       .boolean()
       .optional()
@@ -559,6 +605,15 @@ export const Spec = z
       ),
     criteria: z.array(CriterionDef).optional().describe('The judged criteria the blocks may reference.'),
     blocks: z.array(BlockSpec).min(1).describe('The blocks, in order. At least one.'),
+    end: z
+      .strictObject({
+        verdict: z
+          .enum(['success', 'failure'])
+          .describe('success when the script ends the conversation well, failure when it ends it badly.'),
+        reason: z.string().min(1).optional().describe('Why the script ends here.'),
+      })
+      .optional()
+      .describe('An end verdict, given after the last block: the run stops there with this verdict.'),
     rules: Rules.optional().describe('Rules for the whole conversation.'),
     end_state: EndState.optional().describe('The expected end state of the world after the run.'),
     perturbations: z.array(PerturbationSpec).optional().describe('Deviations to inject in perturbed mode.'),

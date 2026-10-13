@@ -1,10 +1,10 @@
-import type { CompiledSpace } from '@driftbench/space';
+import type { CompiledSpace } from '@agent-nexus/driftbench-space';
 import { type Rng, range, shuffle } from './random';
 
 /**
  * Which partial cells the constraint list allows. A partial cell (some dimensions fixed) is allowed when
  * at least one allowed cell of the full grid holds it: the definition of an allowed t-tuple in
- * constrained combinatorial testing (NIST SP 800-142), the one `@driftbench/space` counts coverage with.
+ * constrained combinatorial testing (NIST SP 800-142), the one `@agent-nexus/driftbench-space` counts coverage with.
  * The full grid is never enumerated: a depth-first search fixes the given values, then tries the values of
  * every other dimension, and drops a branch as soon as a constraint matches. A map with 46 dimensions has
  * a grid far larger than any enumeration; the search touches one cell per answer.
@@ -75,8 +75,11 @@ export class Feasibility {
       return this.consistent(cell, dimension) && this.search(cell, visit, position + 1, rng);
     }
     const size = this.sizes[dimension] ?? 0;
-    const values = rng ? shuffle(rng, range(size)) : range(size);
-    for (const value of values) {
+    // An unseeded search usually accepts the first value. Do not allocate the whole dimension's
+    // range for every recursive visit. Seeded searches keep the same shuffle and random draws.
+    const values = rng ? shuffle(rng, range(size)) : undefined;
+    for (let index = 0; index < size; index += 1) {
+      const value = values?.[index] ?? index;
       cell[dimension] = value;
       if (this.consistent(cell, dimension) && this.search(cell, visit, position + 1, rng)) return true;
     }

@@ -10,7 +10,7 @@ import {
   type Segment,
   type Session,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   newUsage,
@@ -122,7 +122,7 @@ export function crewaiAdapter(options: CrewaiAdapterOptions): AgentAdapter {
       (run.tools ?? []).forEach((use, index) => {
         const label = labels.label(use.tool);
         const callId = `crew-${turn.index}-${index + 1}`;
-        segments.push({ type: 'tool_call', id: callId, label, input: use.input ?? {} });
+        segments.push({ type: 'tool_call', id: callId, label, input: use.input ?? null });
         if (use.error !== undefined) {
           segments.push({ type: 'tool_result', id: callId, label, output: null, error: use.error });
         } else {

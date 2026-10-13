@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-068
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 68 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D1_off_topic at offer"
-channel: chat
+title: "t-wise row 68 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D1_off_topic at recap"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:fiber
-  - task:existing-workbook
   - flow:porting
 covers:
   - B-007
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-007
     rubric: Explain a transfer lock and offer a new Acme number when a number cannot move
@@ -73,27 +73,12 @@ blocks:
             category: mobile
         - label: order.create
           count: 0
-      lang: EN
-  - id: b3-D1_off_topic
-    when:
-      injection:
-        class: D1_off_topic
-        user: Are your stores open on Saturday?
-    expect:
-      stage: offer
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
       must:
-        - Monday to Saturday
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
-      criteria:
-        - deviation.D1_off_topic
-  - id: b4-offer-to-details
+  - id: b3-offer-to-details
     when:
       user: Acme Mobile M, please.
     expect:
@@ -106,7 +91,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-details-to-recap
+  - id: b4-details-to-recap
     when:
       user: Jo Okafor, jo.okafor@example.com
     expect:
@@ -119,9 +104,28 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
+  - id: b5-D1_off_topic
+    when:
+      injection:
+        class: D1_off_topic
+        user: Are your stores open on Saturday?
+    expect:
+      stage: recap
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+      criteria:
+        - deviation.D1_off_topic
   - id: b6-recap-to-order_placed
     when:
-      user: CONFIRM
+      user: Confirm
     expect:
       stage: order_placed
       tools:
@@ -164,14 +168,13 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: porting-locked-number
     cell:
       behaviour: B-007
-      channel: chat
+      channel: whatsapp
       user_type: new-customer
-      coverage_result: fiber
-      workspace_start: existing-workbook
+      coverage_result: none
       flow: porting
       port_result: locked
       plan_choice: names-one
@@ -196,16 +199,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
-      - block: b3-D1_off_topic
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D1_off_topic
-          stage: offer
-        phrase:
-          dimension: deviation
-          value: D1_off_topic
-      - block: b4-offer-to-details
+      - block: b3-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -214,7 +208,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -224,6 +218,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
+      - block: b5-D1_off_topic
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D1_off_topic
+          stage: recap
+        phrase:
+          dimension: deviation
+          value: D1_off_topic
       - block: b6-recap-to-order_placed
         seeder: twise
         cell:
@@ -255,23 +258,23 @@ metadata:
       - block: b2-port_number-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
-      - block: b3-D1_off_topic
+        pass_probability: 0.615
+      - block: b3-offer-to-details
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b4-offer-to-details
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         status: accepted
         pass_k: 1
         pass_probability: 0.615
+      - block: b5-D1_off_topic
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
       - block: b6-recap-to-order_placed
         status: accepted
         pass_k: 1
-        pass_probability: 0.615
+        pass_probability: 0.538
       - block: b7-order_placed-to-closing
         status: accepted
         pass_k: 1

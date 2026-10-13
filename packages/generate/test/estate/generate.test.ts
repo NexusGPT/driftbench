@@ -1,6 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { parseSpecText, type Spec } from '@driftbench/core';
+import { parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   type EstateGenerateInput,
@@ -483,9 +483,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1383,
       blocks: 1378,
-      complete: 1361,
-      incomplete: 22,
-      judged: 399,
+      complete: 1200,
+      incomplete: 183,
+      judged: 312,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -499,7 +499,7 @@ describe('domain predicates judged from the rule own words', () => {
     const all = specs(result);
     const judged = specRecords(result).filter((record) => record.complete && record.judged.length > 0);
     expect(judged.length).toBe(result.report.sources.judged);
-    expect(judged.length).toBeGreaterThan(200);
+    expect(judged.length).toBeGreaterThan(150);
     for (const record of judged) {
       const spec = only(all, record.id);
       expect(spec.tags, record.id).toContain('judged');

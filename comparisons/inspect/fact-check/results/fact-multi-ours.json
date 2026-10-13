@@ -1,0 +1,150 @@
+{
+  "variant": "ours",
+  "calls": 20,
+  "right": 20,
+  "wrong": 0,
+  "inconclusive": 0,
+  "costUsd": 0.00424305,
+  "rows": [
+    {
+      "id": "m1",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.00030890000000000003
+    },
+    {
+      "id": "m1",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.00007886000000000001
+    },
+    {
+      "id": "m2",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.00038290000000000004
+    },
+    {
+      "id": "m2",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.00014831
+    },
+    {
+      "id": "m3",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.0003052
+    },
+    {
+      "id": "m3",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.0000753
+    },
+    {
+      "id": "m4",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.0002977
+    },
+    {
+      "id": "m4",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00006935
+    },
+    {
+      "id": "m5",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.0003057
+    },
+    {
+      "id": "m5",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00007585
+    },
+    {
+      "id": "m6",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.0003055
+    },
+    {
+      "id": "m6",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00007579
+    },
+    {
+      "id": "m7",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.000306
+    },
+    {
+      "id": "m7",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.00007049
+    },
+    {
+      "id": "m8",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.000388
+    },
+    {
+      "id": "m8",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.00015829
+    },
+    {
+      "id": "m9",
+      "label": "fail",
+      "rep": 0,
+      "outcome": "fail",
+      "cost": 0.0003212
+    },
+    {
+      "id": "m9",
+      "label": "fail",
+      "rep": 1,
+      "outcome": "fail",
+      "cost": 0.0001705
+    },
+    {
+      "id": "m10",
+      "label": "pass",
+      "rep": 0,
+      "outcome": "pass",
+      "cost": 0.0003084
+    },
+    {
+      "id": "m10",
+      "label": "pass",
+      "rep": 1,
+      "outcome": "pass",
+      "cost": 0.00009081
+    }
+  ]
+}

@@ -1,5 +1,5 @@
-import { defaultChecks } from '@driftbench/checks';
-import * as core from '@driftbench/core';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import * as core from '@agent-nexus/driftbench-core';
 import {
   AdapterTransportError,
   AgentFailure,
@@ -12,9 +12,9 @@ import {
   RunResult,
   type Spec,
   type UserDriver,
-} from '@driftbench/core';
-import { openMemoryStore, cellId as storeCellId } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { openMemoryStore, cellId as storeCellId } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import * as runner from '../../src/runner';
 import { blockCacheKey, cellId, runSpec } from '../../src/runner';
@@ -125,7 +125,7 @@ describe('runSpec on the Acme conversations, free-running, with the real Acme ag
   });
 });
 
-describe('the real stack: the function adapter of @driftbench/adapters, defaultChecks of @driftbench/checks', () => {
+describe('the real stack: the function adapter of @agent-nexus/driftbench-adapters, defaultChecks of @agent-nexus/driftbench-checks', () => {
   it.each(loaded.map((entry) => ({ id: entry.spec.id, spec: entry.spec })))(
     '$id passes every machine check',
     async ({ spec }) => {
@@ -739,7 +739,7 @@ describe('failures', () => {
     expect(attempts, 'the run settings win over the spec target').toBe(3);
   });
 
-  it('waits what Retry-After asks, and never retries a 408 or a call the adapter already retried in full', async () => {
+  it('waits what Retry-After asks, retries a 408 like a 429, and never retries a call the adapter already retried in full', async () => {
     const waits: number[] = [];
     const run = async (errors: AdapterTransportError[]) => {
       const adapter = acmeAdapter();
@@ -771,8 +771,9 @@ describe('failures', () => {
     });
 
     const timeout = await run([new AdapterTransportError('request timeout', { status: 408 })]);
-    expect(timeout.attempts).toBe(1);
-    expect(timeout.result.error).toBe('send on block 0 failed: AdapterTransportError: request timeout');
+    expect(timeout.attempts).toBe(2);
+    expect(timeout.result.status).toBe('completed');
+    expect(timeout.result.blocks[0]?.observed.retries?.[0]).toMatchObject({ status: 408 });
 
     const spent = await run([
       new AdapterTransportError('messages.create failed after 4 attempts', { status: 503, exhausted: true }),
@@ -1126,6 +1127,16 @@ describe('workspace reads and traces', () => {
 });
 
 describe('the cache', () => {
+  it('replays a spec whose version label alone changed', async () => {
+    const cache = memoryCache();
+    await runSpec(spec(), { adapter: acmeAdapter(), driver, checks: [], mode: 'F', repeat: 0, cache });
+    const relabelled = await runSpec(
+      { ...spec(), version: 'relabelled' },
+      { adapter: acmeAdapter(), driver, checks: [], mode: 'F', repeat: 0, cache },
+    );
+    expect(relabelled.cacheHit).toBe(true);
+  });
+
   const spec = () => acmeSpec(loaded, 'acme-plan-upgrade');
 
   it('returns the same Observed for the same key', async () => {
@@ -1144,8 +1155,10 @@ describe('the cache', () => {
     const key = (index: number) => {
       const ctx = watch.seen[index];
       if (!ctx) throw new Error('no context');
+      // The key carries the spec's hash without its version label, which plays no part in the cache.
+      const { version: _version, ...unlabelled } = spec();
       return blockCacheKey({
-        specHash: first.specHash,
+        specHash: contentHash(unlabelled),
         repeat: 0,
         position: index,
         given: ctx.given,
@@ -1159,6 +1172,46 @@ describe('the cache', () => {
     for (const block of first.blocks) {
       expect(await cache.cacheGet(key(block.index))).toEqual(block.observed);
     }
+  });
+
+  it('a script that ends with a failure verdict records it on the run, and the run is not passed', async () => {
+    const ended = { ...spec(), end: { verdict: 'failure' as const, reason: 'the agent refused' } };
+    const result = await runSpec(ended, {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+    });
+    expectValid(result);
+    expect(result.endVerdict).toBe('failure');
+    expect(result.status).toBe('completed');
+  });
+
+  it('a run in another suite does not replay the cache of the first suite', async () => {
+    const cache = memoryCache();
+    await runSpec(spec(), {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+      suite: 'nightly-1',
+    });
+    const adapter = acmeAdapter();
+    const other = await runSpec(spec(), {
+      adapter,
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+      suite: 'nightly-2',
+    });
+    expectValid(other);
+    expect(other.cacheHit).toBe(false);
+    expect(adapter.calls.send).toBeGreaterThan(0);
   });
 
   it('replays a whole run from the cache without reaching the agent', async () => {

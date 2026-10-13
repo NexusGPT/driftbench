@@ -1,8 +1,8 @@
 /**
- * @driftbench/validators: code that proves the framework works. A validator plants a truth it knows, runs one
+ * @agent-nexus/driftbench-validators: code that proves the framework works. A validator plants a truth it knows, runs one
  * part of driftbench, and scores a ladder of levels with named failing items. Design: docs/validators.md.
  */
-export const packageName = '@driftbench/validators';
+export const packageName = '@agent-nexus/driftbench-validators';
 
 export {
   allFailingItems,
@@ -62,6 +62,7 @@ export {
   BANK_MIN_SIZE,
   BLIND_SLOWDOWN,
   formatHardness,
+  type GateBar,
   HARDNESS_MAX_SCORE,
   HARDNESS_MIN_CAUSES,
   HARDNESS_MIN_FORECAST,
@@ -69,6 +70,7 @@ export {
   measureHardness,
   type PilotMeasure,
   parseAudit,
+  parseGate,
 } from './hardness';
 export {
   appendJournal,

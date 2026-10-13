@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-127
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 127 of 154: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D5_language_switch at identify"
-channel: whatsapp
+title: "t-wise row 127 of 132: Path upgrade-unknown-email of upgrade: needs > identify > identify, D5_language_switch at needs"
+channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:existing-customer
-  - data:5g-only
-  - task:catalog-only
   - flow:upgrade
 covers:
   - B-012
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-012
     rubric: Send billing and service matters to Acme Care, never to sales
@@ -41,25 +41,13 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-identify
-    when:
-      user: I keep running out of data, can I get a bigger plan?
-    expect:
-      stage: identify
-      tools:
-        - label: catalog.search
-          count: 0
-      lang: EN
-      criteria:
-        - behaviour.B-012
-        - flow.upgrade
-  - id: b2-D5_language_switch
+  - id: b1-D5_language_switch
     when:
       injection:
         class: D5_language_switch
         user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
-      stage: identify
+      stage: needs
       tools:
         - label: catalog.search
           count: 0
@@ -67,18 +55,29 @@ blocks:
         - I can only help
       lang: EN
       criteria:
+        - behaviour.B-012
+        - flow.upgrade
         - deviation.D5_language_switch
-  - id: b3-identify-to-offer
+  - id: b2-needs-to-identify
     when:
-      user: It's lee.jensen@example.com.
+      user: Hi, I already have an Acme plan and I need more data.
     expect:
-      stage: offer
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b3-identify-to-identify
+    when:
+      user: It's pat.quinn@example.com.
+    expect:
+      stage: identify
       tools:
         - label: catalog.search
           count: 1
           input:
             category: mobile
-            customer_email: lee.jensen@example.com
+            customer_email: pat.quinn@example.com
       lang: EN
 metadata:
   generated:
@@ -90,18 +89,26 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: upgrade-plan-not-in-catalog
+      hash: 6d29ed7a7539
+    path: upgrade-unknown-email
     cell:
       behaviour: B-012
-      channel: whatsapp
+      channel: chat
       user_type: existing-customer
-      coverage_result: 5g-only
-      workspace_start: catalog-only
+      coverage_result: none
       flow: upgrade
-      account_lookup: plan-not-in-catalog
+      account_lookup: not-found
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: needs
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
+      - block: b2-needs-to-identify
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -110,38 +117,29 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-D5_language_switch
+      - block: b3-identify-to-identify
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          deviation: D5_language_switch
+          stage_transition: identify-to-identify
+          account_lookup: not-found
           stage: identify
         phrase:
-          dimension: deviation
-          value: D5_language_switch
-      - block: b3-identify-to-offer
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: identify-to-offer
-          account_lookup: plan-not-in-catalog
-          stage: offer
-        phrase:
           dimension: stage_transition
-          value: identify-to-offer
+          value: identify-to-identify
   gate:
     by: driftbench gate
     date: 2026-10-11
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-D5_language_switch
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D5_language_switch
+      - block: b2-needs-to-identify
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b3-identify-to-offer
+      - block: b3-identify-to-identify
         status: accepted
         pass_k: 1
         pass_probability: 0.692

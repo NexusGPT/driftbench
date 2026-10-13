@@ -1,5 +1,5 @@
-import type { Assertion, EndStateSpec, GuardExpect, ToolExpect } from '@driftbench/core';
-import { isPlainObject } from '@driftbench/core';
+import type { Assertion, EndStateSpec, GuardExpect, ToolExpect } from '@agent-nexus/driftbench-core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
 import {
   type PathRelation,
   PENDING_STAGE,
@@ -8,6 +8,8 @@ import {
   type RecoveryRelation,
   type RecoveryTool,
   type Slots,
+  type StatesRelation,
+  type TaskFamilyRelation,
   type UsesToolRelation,
   type When,
 } from '../extract/proposal';
@@ -21,6 +23,10 @@ import {
 export type Relations = {
   paths: PathRelation[];
   usesTools: UsesToolRelation[];
+  /** What the reply of a turn must state. */
+  states: StatesRelation[];
+  /** The task families that write a flow's specs. */
+  taskFamilies: TaskFamilyRelation[];
   /** Slot values by `dimension=value`. */
   binds: ReadonlyMap<string, Slots>;
   recoveries: RecoveryRelation[];
@@ -31,6 +37,8 @@ export type Relations = {
 export const EMPTY_RELATIONS: Relations = {
   paths: [],
   usesTools: [],
+  states: [],
+  taskFamilies: [],
   binds: new Map(),
   recoveries: [],
   replyLanguage: undefined,
@@ -59,6 +67,16 @@ export function readRelations(
       ? [relation]
       : [],
   );
+  const states = relations.flatMap((relation) =>
+    relation.kind === 'states' &&
+    approvedValue(relation.subject.dimension, relation.subject.value) &&
+    whenOk(relation.when)
+      ? [relation]
+      : [],
+  );
+  const taskFamilies = relations.flatMap((relation) =>
+    relation.kind === 'task_family' && approvedValue('flow', relation.flow) ? [relation] : [],
+  );
   const binds = new Map<string, Slots>();
   for (const relation of relations) {
     if (relation.kind !== 'binds') continue;
@@ -76,6 +94,8 @@ export function readRelations(
   return {
     paths,
     usesTools,
+    states,
+    taskFamilies,
     binds,
     recoveries,
     replyLanguage: language?.kind === 'reply_language' ? language.lang.toUpperCase() : undefined,
@@ -225,7 +245,7 @@ export function toolExpect(
     value: {
       label,
       count: count ?? 1,
-      ...(filled?.ok ? { input: filled.value } : {}),
+      ...(filled?.ok ? { input: filled.value, input_closed: true } : {}),
     },
   };
 }

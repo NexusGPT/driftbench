@@ -1,8 +1,8 @@
 /**
- * @driftbench/generate: the map extraction proposal, the deterministic block generator, the validity gate,
+ * @agent-nexus/driftbench-generate: the map extraction proposal, the deterministic block generator, the validity gate,
  * the reference set intake, selection and the holdout. Phase G.
  */
-export const packageName = '@driftbench/generate';
+export const packageName = '@agent-nexus/driftbench-generate';
 
 export * from './drafts';
 export * from './enumerate';
@@ -14,4 +14,5 @@ export * from './intake';
 export * from './model';
 export * from './pilot';
 export * from './propose';
+export { buildTaskInputs, type TaskInput, type TaskVariant, taskSpecs } from './seed/tasks';
 export * from './select';

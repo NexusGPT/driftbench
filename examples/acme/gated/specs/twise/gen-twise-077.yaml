@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-077
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 77 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D9_out_of_scope at details"
-channel: chat
+title: "t-wise row 77 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D9_out_of_scope at needs"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:no-service
-  - task:catalog-only
   - flow:porting
 covers:
   - B-007
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-007
     rubric: Explain a transfer lock and offer a new Acme number when a number cannot move
@@ -41,7 +41,17 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-port_number
+  - id: b1-D9_out_of_scope
+    when:
+      injection:
+        class: D9_out_of_scope
+        user: My last bill charged me twice, can you fix it?
+    expect:
+      criteria:
+        - behaviour.B-007
+        - flow.porting
+        - deviation.D9_out_of_scope
+  - id: b2-needs-to-port_number
     when:
       user: I'd like to move to Acme and keep my phone number.
     expect:
@@ -54,10 +64,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-      criteria:
-        - behaviour.B-007
-        - flow.porting
-  - id: b2-port_number-to-offer
+  - id: b3-port_number-to-offer
     when:
       user: My number is +1 202 555 0160.
     expect:
@@ -73,8 +80,12 @@ blocks:
             category: mobile
         - label: order.create
           count: 0
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
-  - id: b3-offer-to-details
+  - id: b4-offer-to-details
     when:
       user: Acme Mobile M, please.
     expect:
@@ -87,25 +98,6 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b4-D9_out_of_scope
-    when:
-      injection:
-        class: D9_out_of_scope
-        user: My last bill charged me twice, can you fix it?
-    expect:
-      stage: details
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - Acme Care
-      lang: EN
-      criteria:
-        - deviation.D9_out_of_scope
   - id: b5-details-to-recap
     when:
       user: Jo Okafor, jo.okafor@example.com
@@ -164,20 +156,28 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: porting-locked-number
     cell:
       behaviour: B-007
-      channel: chat
+      channel: whatsapp
       user_type: new-customer
-      coverage_result: no-service
-      workspace_start: catalog-only
+      coverage_result: none
       flow: porting
       port_result: locked
       plan_choice: names-one
       customer_details: name-and-email
     blocks:
-      - block: b1-needs-to-port_number
+      - block: b1-D9_out_of_scope
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D9_out_of_scope
+          stage: needs
+        phrase:
+          dimension: deviation
+          value: D9_out_of_scope
+      - block: b2-needs-to-port_number
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -186,7 +186,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
-      - block: b2-port_number-to-offer
+      - block: b3-port_number-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -196,7 +196,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
-      - block: b3-offer-to-details
+      - block: b4-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -205,15 +205,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b4-D9_out_of_scope
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D9_out_of_scope
-          stage: details
-        phrase:
-          dimension: deviation
-          value: D9_out_of_scope
       - block: b5-details-to-recap
         seeder: twise
         cell:
@@ -248,22 +239,22 @@ metadata:
     by: driftbench gate
     date: 2026-10-11
     blocks:
-      - block: b1-needs-to-port_number
+      - block: b1-D9_out_of_scope
+        status: rejected
+        stage: shortcut
+        reason: passed-by-echo
+      - block: b2-needs-to-port_number
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-port_number-to-offer
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b3-offer-to-details
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b4-D9_out_of_scope
+      - block: b3-port_number-to-offer
         status: accepted
         pass_k: 1
         pass_probability: 0.615
+      - block: b4-offer-to-details
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
       - block: b5-details-to-recap
         status: accepted
         pass_k: 1
@@ -276,10 +267,9 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-rules:
-  forbidden_tools:
-    - coverage.check
-    - notify_sales
+    dropped:
+      - "b1-D9_out_of_scope: stage, tools, must, lang"
+      - "rules: a block they apply to was rejected"
 end_state:
   source: tool:order.create
   mode: subset

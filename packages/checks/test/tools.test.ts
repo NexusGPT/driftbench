@@ -1,4 +1,4 @@
-import type { Expect } from '@driftbench/core';
+import type { Expect } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { tools } from '../src/checks/tools';
 import { acme, perturbation } from './support/acme';
@@ -15,6 +15,72 @@ const offerText =
   'Fiber is not available at 88 Summit Avenue, Acmeville yet, but 5G home internet is. The plan available there: Acme Air 5G, up to 200 Mbps for $35 a month. Would you like Acme Air 5G?';
 
 describe('tools', () => {
+  it('mutation: an extra input key fails only the closed-input assertion, restoring it passes', async () => {
+    const expected: Expect = { tools: [{ label: 'lookup', input: { kind: 'green' }, input_closed: true }] };
+    const check = async (input: unknown) =>
+      run(
+        tools,
+        context(coverage, 1, observed('Found.', [{ label: 'lookup', input }]), { expect: expected }),
+      );
+    expect(failing(await check({ kind: 'green' }))).toEqual([]);
+    const mutated = await check({ kind: 'green', note: 'added by the agent' });
+    expect(failing(mutated)).toEqual(['tools.lookup.input_closed']);
+    expect(verdict(mutated, 'tools.lookup.input_closed')).toMatchObject({ gating: true, outcome: 'fail' });
+    expect(verdict(mutated, 'tools.lookup.input_closed').evidence).toContain('extra input keys note');
+    expect(failing(await check({ kind: 'green' }))).toEqual([]);
+  });
+
+  it('checks every call, permits zero calls when the count does, and closes absent input to no keys', async () => {
+    const expected: Expect = { tools: [{ label: 'lookup', count: { min: 0 }, input_closed: true }] };
+    const check = (calls: Call[]) =>
+      run(tools, context(coverage, 1, observed('Done.', calls), { expect: expected }));
+    expect(failing(await check([]))).toEqual([]);
+    expect(failing(await check([{ label: 'lookup', input: {} }]))).toEqual([]);
+    const mutated = await check([
+      { label: 'lookup', input: {} },
+      { label: 'lookup', input: { note: 'extra' } },
+    ]);
+    expect(failing(mutated)).toEqual(['tools.lookup.input_closed']);
+    expect(verdict(mutated, 'tools.lookup.input_closed').evidence).toContain('call 2');
+  });
+
+  it('rejects non-object closed inputs and leaves nested values to their input assertion', async () => {
+    for (const input of [null, undefined, [], 'green', 1, false]) {
+      const seen = observed('Done.');
+      seen.toolCalls = [{ label: 'lookup', input }];
+      const verdicts = await run(
+        tools,
+        context(coverage, 1, seen, {
+          expect: { tools: [{ label: 'lookup', input_closed: true }] },
+        }),
+      );
+      expect(failing(verdicts)).toEqual(['tools.lookup.input_closed']);
+    }
+    const seen = observed('Done.', [{ label: 'lookup', input: { details: { extra: true } } }]);
+    const verdicts = await run(
+      tools,
+      context(coverage, 1, seen, {
+        expect: { tools: [{ label: 'lookup', input: { details: { subset: {} } }, input_closed: true }] },
+      }),
+    );
+    expect(failing(verdicts)).toEqual([]);
+  });
+
+  it('false and omitted closure flags preserve open-input behavior', async () => {
+    const seen = observed('Found.', [{ label: 'lookup', input: { kind: 'green', note: 'extra' } }]);
+    const tool = { label: 'lookup', input: { kind: 'green' } };
+    const open = await run(tools, context(coverage, 1, seen, { expect: { tools: [tool] } }));
+    expect(failing(open)).toEqual([]);
+    expect(
+      await run(
+        tools,
+        context(coverage, 1, seen, {
+          expect: { tools: [{ ...tool, input_closed: false }] },
+        }),
+      ),
+    ).toEqual(open);
+  });
+
   it('passes block 1 of acme-new-customer-coverage: counts, input assertions, in_order, accuracy 1', async () => {
     const verdicts = await run(tools, context(coverage, 1, observed(offerText, offerCalls)));
     expect(outcomes(verdicts)).toEqual({
@@ -38,6 +104,47 @@ describe('tools', () => {
     const verdicts = await run(tools, context(coverage, 1, observed(offerText, swapped)));
     expect(failing(verdicts)).toEqual(['tools.order']);
     expect(verdict(verdicts, 'tools.order').evidence).toContain('saw catalog.search, coverage.check');
+  });
+
+  it('exact order names the first call that differs, for a swap, an extra call and a missing call', async () => {
+    const exact = async (calls: Call[]) =>
+      verdict(
+        await run(
+          tools,
+          context(coverage, 1, observed(offerText, calls), {
+            expect: { ...coverage.blocks[1]?.expect, tool_order: 'exact' } as never,
+          }),
+        ),
+        'tools.order',
+      ).evidence;
+    const swapped = await exact([offerCalls[1], offerCalls[0]] as Call[]);
+    expect(swapped).toContain(
+      'first difference: call 1 differs: expected coverage.check, saw catalog.search',
+    );
+    const extra = await exact([offerCalls[0], offerCalls[1], { label: 'order.create', input: {} }] as Call[]);
+    expect(extra).toContain('first difference: call 3 is extra: saw order.create');
+    const missing = await exact([offerCalls[0]] as Call[]);
+    expect(missing).toContain('first difference: call 2 is missing: expected catalog.search');
+  });
+
+  it('exact order names the argument that differs, with its call and position, when the calls have the right names', async () => {
+    const exact = async (calls: Call[]) =>
+      verdict(
+        await run(
+          tools,
+          context(coverage, 1, observed(offerText, calls), {
+            expect: { ...coverage.blocks[1]?.expect, tool_order: 'exact' } as never,
+          }),
+        ),
+        'tools.order',
+      ).evidence;
+    const cap = [
+      offerCalls[0],
+      { label: 'catalog.search', input: { category: 'Home', address_id: 'addr-101' } },
+    ] as Call[];
+    expect(await exact(cap)).toContain(
+      'first argument difference: call 2 (catalog.search) input.category: expected equal to "home", saw "Home"',
+    );
   });
 
   it('mutation: a wrong address_id fails that input and lowers the argument accuracy to 2 of 3', async () => {

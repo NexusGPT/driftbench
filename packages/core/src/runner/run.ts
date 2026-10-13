@@ -6,9 +6,17 @@ import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
-import { type BlockResult, Observed, type RetryEvent, type RunMode, RunResult, Verdict } from '../schema/run';
+import {
+  type BlockResult,
+  Observed,
+  type RetryEvent,
+  type RunEvent,
+  type RunMode,
+  RunResult,
+  Verdict,
+} from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
-import { contentHash } from '../spec/hash';
+import { cloneJson, contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { cellId } from './cell';
@@ -33,29 +41,15 @@ import { succession } from './succession';
  * a block ending with its verdict, and the run ending. An observer writes these as they arrive, so an interrupted run keeps the
  * events up to the interruption.
  */
-export type RunEvent =
-  | { type: 'block_start'; index: number; at: string }
-  | {
-      type: 'model_call';
-      index: number;
-      inputTokens?: number;
-      outputTokens?: number;
-      usd?: number;
-      latencyMs?: number;
-      /** When the call began: the reply time less its latency. */
-      startedAt: string;
-      at: string;
-    }
-  | { type: 'tool_call'; index: number; label: string; error?: string; at: string }
-  | { type: 'retry'; index: number; at: string }
-  | { type: 'block_end'; index: number; pass: boolean; at: string }
-  | { type: 'run_end'; status: RunResult['status']; at: string };
+export type { RunEvent };
 
 export type RunOptions = {
   /** Receives each event as it happens. Absent: no events are reported. */
   onEvent?: (event: RunEvent) => void;
+  /** Keeps the events on the run record (its events field), in order. Off by default: a run record stays as it was. */
+  recordEvents?: boolean;
   adapter: AgentAdapter;
-  /** Decides each block's stimulus. The scripted driver of `@driftbench/users` replays the spec's blocks. */
+  /** Decides each block's stimulus. The scripted driver of `@agent-nexus/driftbench-users` replays the spec's blocks. */
   driver: UserDriver;
   /** Applied to every block, in order. */
   checks: CheckSet;
@@ -79,6 +73,8 @@ export type RunOptions = {
    *  whose capabilities say `sandbox` never uses it: a replay has no workspace to read files from. */
   cache?: ObservedCache;
   cacheTtlMs?: number;
+  /** Names the suite a run belongs to. Its cache keys differ from another suite's, so a new name starts from an empty cache. */
+  suite?: string;
   /** Readers for the artifact checks, passed to every CheckContext. */
   artifacts?: ArtifactReaderRegistry;
   retry?: RetryOptions;
@@ -118,6 +114,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   }
   const now = options.now ?? (() => new Date());
   const specHash = contentHash(spec);
+  // The cache key leaves out the spec's version: a free label that plays no part (docs/running.md, "The
+  // cache and replay"), so relabelling a spec still replays its runs.
+  const { version: _version, ...unlabelled } = spec;
+  const cacheSpecHash = contentHash(unlabelled);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
   // In P mode the spec's end state describes the unperturbed run, so it is neither read nor compared, as
   // the Acme light runner and the end_state check do; phase 3 decides what a perturbed run should leave.
@@ -126,9 +126,19 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   // A run in a sandbox is neither replayed nor cached: a replay opens no workspace, so the artifact
   // checks could not read the files its blocks made. It goes live every time.
   const cache = capabilities.sandbox ? undefined : options.cache;
+  // The events go to the observer as they happen, and to the record when asked for.
+  const recorded: RunEvent[] | undefined = options.recordEvents ? [] : undefined;
+  const reportEvent =
+    recorded || options.onEvent
+      ? (event: RunEvent) => {
+          recorded?.push(event);
+          options.onEvent?.(event);
+        }
+      : undefined;
   const run: RunContext = {
     spec,
     specHash,
+    cacheSpecHash,
     target,
     mode: options.mode,
     repeat: options.repeat,
@@ -138,9 +148,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     driver: options.driver,
     checks: options.checks,
     toolPolicy: options.toolPolicy,
-    onEvent: options.onEvent,
+    onEvent: reportEvent,
     cache,
     cacheTtlMs: options.cacheTtlMs,
+    suite: options.suite,
     artifacts: options.artifacts,
     retry: options.retry,
     // The spec target's retry settings, the run's own (the command line) over them.
@@ -173,9 +184,11 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     replayed ??
     (await execute(run, cache ? resumeChannel(cache, liveChannel(run), run.toolPolicy) : liveChannel(run)));
   if (!result) throw new Error('runSpec: a live run always gives a result');
-  options.onEvent?.({ type: 'run_end', status: result.status, at: new Date().toISOString() });
+  reportEvent?.({ type: 'run_end', status: result.status, at: new Date().toISOString() });
   // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
-  const parsed = RunResult.parse(JSON.parse(JSON.stringify(result)));
+  const parsed = RunResult.parse(
+    JSON.parse(JSON.stringify(recorded ? { ...result, events: recorded } : result)),
+  );
   if (options.store && options.campaignId !== undefined)
     await options.store.putRun(options.campaignId, parsed);
   return parsed;
@@ -184,6 +197,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 type RunContext = {
   spec: Spec;
   specHash: string;
+  /** The hash the cache key carries: the spec's, without its version label. */
+  cacheSpecHash: string;
   target: TargetRef;
   mode: RunMode;
   repeat: number;
@@ -196,6 +211,7 @@ type RunContext = {
   checks: CheckSet;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
+  suite: string | undefined;
   artifacts: ArtifactReaderRegistry | undefined;
   retry: RetryOptions | undefined;
   policy: RetryPolicy;
@@ -260,6 +276,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   /** In mode T, the end state composed before the open session opened. */
   let sessionBase: unknown[] | undefined;
   let status: RunResult['status'] = 'completed';
+  let endVerdict: 'success' | 'failure' | undefined;
   let error: string | undefined;
 
   try {
@@ -270,7 +287,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         break;
       }
       const step = await nextStep(run, nextBlock, blocks);
-      if (step.kind === 'stop') break;
+      if (step.kind === 'stop') {
+        endVerdict = step.verdict;
+        break;
+      }
       const planned = planStep(spec, step);
       if (step.kind === 'block') nextBlock = step.blockIndex + 1;
 
@@ -309,7 +329,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         retry: run.policy,
       };
       const key = blockCacheKey({
-        specHash: run.specHash,
+        specHash: run.cacheSpecHash,
         repeat: run.repeat,
         position,
         given,
@@ -317,6 +337,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         target: run.target,
         adapter: run.adapter.id,
         adapterVersion: run.adapter.version,
+        ...(run.suite === undefined ? {} : { suite: run.suite }),
       });
       run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
       const observed = await channel.observe(turn, user, key);
@@ -325,6 +346,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       // the call began latencyMs earlier.
       for (const segment of observed.segments) {
         if (segment.cost === undefined && segment.latencyMs === undefined) continue;
+        // One clock reading gives both times, so the end minus the start is exactly the latency.
+        const reportedAt = Date.now();
         run.onEvent?.({
           type: 'model_call',
           index: position,
@@ -332,8 +355,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           ...(segment.cost?.outputTokens === undefined ? {} : { outputTokens: segment.cost.outputTokens }),
           ...(segment.cost?.usd === undefined ? {} : { usd: segment.cost.usd }),
           ...(segment.latencyMs === undefined ? {} : { latencyMs: segment.latencyMs }),
-          startedAt: new Date(Date.now() - (segment.latencyMs ?? 0)).toISOString(),
-          at: new Date().toISOString(),
+          startedAt: new Date(reportedAt - (segment.latencyMs ?? 0)).toISOString(),
+          at: new Date(reportedAt).toISOString(),
         });
       }
       for (const call of observed.toolCalls) {
@@ -348,7 +371,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       for (let r = 0; r < (observed.retries?.length ?? 0); r += 1) {
         run.onEvent?.({ type: 'retry', index: position, at: new Date().toISOString() });
       }
-      history = [...history, ...user, assistantMessage(observed)];
+      history = [...history, ...cloneJson(user), cloneJson(assistantMessage(observed))];
       lastKey = key;
 
       const facts = addFacts(state.ledger, planned.expect.ledger_add);
@@ -467,6 +490,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     repeat: run.repeat,
     ...(run.perturbationId !== undefined ? { perturbationId: run.perturbationId } : {}),
     status,
+    ...(endVerdict ? { endVerdict } : {}),
     ...(message ? { error: message } : {}),
     blocks,
     succession: succession(blocks),

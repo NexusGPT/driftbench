@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openStore } from '@driftbench/store';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { pricedAcmeAdapter } from '../../core/test/runner/support';
@@ -45,7 +45,19 @@ async function tempFolder(): Promise<string> {
 }
 
 /** Runs the CLI through `main`, or with the campaign deps a test gives. */
-async function cli(argv: string[], deps?: Partial<CampaignDeps>) {
+/**
+ * The Acme suites hold code-agent tasks for the ops agent beside the sales conversations: every `ci` and
+ * `campaign run` with a `--target` routes the price-sheet flow to the ops agent, as the gate does.
+ */
+const ROUTE = ['--route', 'flow:price-sheet=process:acme-ops'];
+
+function routed(argv: string[]): string[] {
+  const runs = argv[0] === 'ci' || (argv[0] === 'campaign' && argv[1] === 'run');
+  return runs && argv.includes('--target') && !argv.includes('--route') ? [...argv, ...ROUTE] : argv;
+}
+
+async function cli(given: string[], deps?: Partial<CampaignDeps>) {
+  const argv = routed(given);
   let out = '';
   let err = '';
   const io: Io = {
@@ -129,8 +141,8 @@ describe('driftbench ci on the Acme gated suite', () => {
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
       expect(summary.baseline.campaignId).toBe(baselineId);
-      expect(summary.pairs).toBe(134);
-      expect(summary.table).toEqual({ bothPass: 134, regressed: 0, improved: 0, bothFail: 0 });
+      expect(summary.pairs).toBe(195);
+      expect(summary.table).toEqual({ bothPass: 195, regressed: 0, improved: 0, bothFail: 0 });
       expect(summary.criteriaNotShown).toEqual([]);
       expect(summary.newFlags).toEqual([]);
       expect(summary.flags).toEqual([...DEFAULT_FLAGS]);
@@ -139,7 +151,7 @@ describe('driftbench ci on the Acme gated suite', () => {
   );
 
   it(
-    'exits 0 with the defaults: margin auto, set by must, with cards and guards underpowered',
+    'exits 0 with the defaults: margin auto, set by guards, with the task criteria and cards underpowered',
     async () => {
       const out = join(dir, 'defaults.json');
       const result = await ci(
@@ -150,27 +162,36 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(result.code).toBe(0);
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
-      expect(summary.marginPoints).toBe(6.5);
-      expect(summary.marginAuto).toEqual({ neededPoints: 6.02, limitedBy: 'must' });
+      expect(summary.marginPoints).toBe(7.5);
+      expect(summary.marginAuto).toEqual({ neededPoints: 7, limitedBy: 'guards' });
       expect(summary.minGoldens).toBe(30);
-      expect(summary.underpowered.map((entry) => entry.criterion)).toEqual(['cards', 'guards']);
-      expect(result.out).toContain('Margin auto: 6.5 points');
+      expect(summary.underpowered.map((entry) => entry.criterion)).toEqual([
+        'artifacts',
+        'budget',
+        'cards',
+        'execution',
+        'must_not',
+        'safety',
+        'skills',
+        'workspace',
+      ]);
+      expect(result.out).toContain('Margin auto: 7.5 points');
       expect(result.out).not.toContain('Warning:');
       const top = result.out.split('\n').slice(0, 3).join('\n');
-      expect(top).toContain('Margin auto: 6.5 points');
+      expect(top).toContain('Margin auto: 7.5 points');
       expect(top).toContain(
-        'Underpowered, under 30 goldens, left out of the parity test: cards (11 goldens), guards (26 goldens).',
+        'Underpowered, under 30 goldens, left out of the parity test: artifacts (24 goldens), budget (24 goldens), cards (11 goldens), execution (24 goldens), must_not (1 golden), safety (24 goldens), skills (24 goldens), workspace (24 goldens).',
       );
     },
     SLOW,
   );
 
   it(
-    'reads the same agent at a 5 point margin as not shown non-inferior, naming the criteria too thin for it, never as a regression',
+    'reads the same agent at a 2 point margin, below the smallest these pairs can show, as not shown non-inferior, naming the criteria too thin for it, never as a regression',
     async () => {
       const out = join(dir, 'tight.json');
       const result = await ci(
-        ['--target', 'function:acme-sales', '--store', join(dir, 'tight.db'), '--margin', '5'],
+        ['--target', 'function:acme-sales', '--store', join(dir, 'tight.db'), '--margin', '2'],
         out,
       );
       expect(result.code).toBe(1);
@@ -180,10 +201,23 @@ describe('driftbench ci on the Acme gated suite', () => {
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('not-shown-non-inferior');
       expect(summary.table.regressed).toBe(0);
-      expect(summary.criteriaNotShown.map((entry) => entry.criterion)).toEqual(['must']);
+      expect(summary.criteriaNotShown.map((entry) => entry.criterion)).toEqual([
+        'end_state',
+        'forbidden',
+        'guards',
+        'lang',
+        'must',
+        'tools',
+      ]);
       expect(summary.underpowered).toEqual([
+        { criterion: 'artifacts', goldens: 24 },
+        { criterion: 'budget', goldens: 24 },
         { criterion: 'cards', goldens: 11 },
-        { criterion: 'guards', goldens: 26 },
+        { criterion: 'execution', goldens: 24 },
+        { criterion: 'must_not', goldens: 1 },
+        { criterion: 'safety', goldens: 24 },
+        { criterion: 'skills', goldens: 24 },
+        { criterion: 'workspace', goldens: 24 },
       ]);
     },
     SLOW,
@@ -210,17 +244,44 @@ describe('driftbench ci on the Acme gated suite', () => {
       expect(result.code).toBe(1);
       expect(result.out).toContain('Verdict: REGRESSION. Exit 1.');
       expect(result.out).toContain('Goldens that changed:');
-      expect(result.out).toMatch(/gen-boundary-065 · F +pass +fail +regressed +forbidden +block 3 forbidden/);
-      expect(result.out).toContain('and 55 more: every golden is in the summary file.');
+      expect(result.out).toMatch(/gen-boundary-063 · F +pass +fail +regressed +forbidden +block 2 forbidden/);
+      expect(result.out).toContain('and 77 more: every golden is in the summary file.');
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('regression');
-      expect(summary.table).toEqual({ bothPass: 54, regressed: 80, improved: 0, bothFail: 0 });
-      expect(summary.regressed).toHaveLength(80);
-      expect(summary.newFlags).toContain('gen-boundary-065 · F forbidden');
+      expect(summary.table).toEqual({ bothPass: 93, regressed: 102, improved: 0, bothFail: 0 });
+      expect(summary.regressed).toHaveLength(102);
+      expect(summary.newFlags).toContain('gen-boundary-063 · F forbidden');
       expect(summary.effectPoints.lower).toBeGreaterThan(5);
-      expect(summary.rows.find((row) => row.name === 'gen-boundary-065 · F')?.candidate.failing[0]).toBe(
-        'block 3 forbidden.order.create',
+      expect(summary.rows.find((row) => row.name === 'gen-boundary-063 · F')?.candidate.failing[0]).toBe(
+        'block 2 forbidden.order.create',
       );
+    },
+    SLOW,
+  );
+
+  it(
+    'takes a code-agent fault through a route: the task specs regress, the conversations stay on the sales agent',
+    async () => {
+      const out = join(dir, 'routed-fault.json');
+      const result = await ci(
+        [
+          '--target',
+          'function:acme-sales',
+          '--route',
+          'flow:price-sheet=fault:ops-x1-wrong-price',
+          '--faults',
+          FAULTS,
+          '--store',
+          join(dir, 'routed-fault.db'),
+        ],
+        out,
+      );
+      expect(result.err).toBe('');
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('Verdict: REGRESSION. Exit 1.');
+      const summary = await summaryAt(out);
+      expect(summary.table).toEqual({ bothPass: 173, regressed: 22, improved: 0, bothFail: 0 });
+      expect(summary.regressed.every((name) => name.startsWith('acme-price-sheet-'))).toBe(true);
     },
     SLOW,
   );
@@ -404,13 +465,19 @@ describe('driftbench ci on the Acme golden suite: one verdict rule with compare'
       expect(summary.verdict).toBe('not-shown-non-inferior');
       expect(compareVerdict).toBe('unproven');
       expect(summary.criteriaNotShown.map((entry) => entry.criterion).sort()).toEqual([
+        'artifacts',
         'budget',
         'cards',
+        'end_state',
+        'execution',
         'guards',
         'lang',
         'ledger',
         'must',
         'must_not',
+        'safety',
+        'skills',
+        'workspace',
       ]);
       const loose = await ciThenCompare(
         ['--target', 'fault:control-sales-identity', '--faults', FAULTS],
@@ -549,8 +616,8 @@ describe('driftbench ci baselines', () => {
       expect(result.code).toBe(0);
       const summary = await summaryAt(out);
       expect(summary.verdict).toBe('parity');
-      expect(summary.pairs).toBe(10);
-      expect(summary.unpaired).toHaveLength(124);
+      expect(summary.pairs).toBe(12);
+      expect(summary.unpaired).toHaveLength(183);
       expect(summary.unpaired.every((entry) => entry.reason === 'baseline only')).toBe(true);
       expect(result.out).toContain('Not compared: ');
     },
@@ -591,6 +658,43 @@ describe('driftbench ci baselines', () => {
       expect(summary.verdict).toBe('incomplete');
       expect(summary.candidate.incompleteCells).toBeGreaterThan(0);
       expect(result.out).toContain('Verdict: INCOMPLETE.');
+    },
+    SLOW,
+  );
+});
+
+describe('driftbench ci with a budget that stops every candidate cell', () => {
+  it(
+    'is incomplete, exit 1, not bad input, when no golden of the candidate ran',
+    async () => {
+      const dir = await tempFolder();
+      const base = join(dir, 'base.db');
+      await baselineCampaign(CONVERSATIONS, base);
+      const out = join(dir, 'none-ran.json');
+      const result = await cli(
+        [
+          'ci',
+          '--specs',
+          CONVERSATIONS,
+          '--target',
+          'function:acme-sales',
+          '--baseline',
+          base,
+          '--store',
+          join(dir, 'cand.db'),
+          '--budget-usd',
+          '0',
+          '--out',
+          out,
+        ],
+        { adapterFor: async () => pricedAcmeAdapter() },
+      );
+      expect(result.err).not.toContain('cannot be compared');
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('Verdict: INCOMPLETE.');
+      const summary = await summaryAt(out);
+      expect(summary.verdict).toBe('incomplete');
+      expect(summary.pairs).toBe(0);
     },
     SLOW,
   );
@@ -778,6 +882,7 @@ describe('the driftbench ci GitHub Action', () => {
             GITHUB_OUTPUT: output,
             INPUT_SPECS: GATED,
             INPUT_TARGET: 'function:acme-sales',
+            INPUT_ROUTE: 'flow:price-sheet=process:acme-ops',
             INPUT_BASELINE: base,
             INPUT_STORE: join(dir, 'cand.db'),
             INPUT_MARGIN: margin,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   abundances,
+  betaQuantile,
   chaoCoverage,
   designEffect,
   goodTuring,
@@ -93,7 +94,7 @@ describe('icc and the measured design effect', () => {
 });
 
 describe('neymanAllocation', () => {
-  it('allocates in proportion to N_h S_h with largest-remainder rounding', () => {
+  it('allocates the whole numbers that minimise the stratified variance, matching the reference', () => {
     for (const c of fixtures.neyman) {
       const r = neymanAllocation(c);
       r.exact.forEach((x, i) => {
@@ -145,5 +146,95 @@ describe('goodTuring, chaoCoverage and hillNumbers', () => {
   });
   it('counts abundances from labels', () => {
     expect(abundances(['a', 'b', 'a', 'c', 'a']).sort()).toEqual([1, 1, 3]);
+  });
+});
+
+describe('varianceComponents is stable under a common offset', () => {
+  it('adding 1e9 to every value leaves the estimates unchanged', () => {
+    let state = 12345;
+    const draw = (): number => {
+      state = (state * 1664525 + 1013904223) % 4294967296;
+      return state / 4294967296;
+    };
+    const obs = Array.from({ length: 120 }, (_, i) => ({
+      value: draw() + (i % 4),
+      path: [String(i % 4), String(i % 12), String(i % 2)],
+    }));
+    const a = varianceComponents(obs).components.map((c) => c.estimate);
+    const b = varianceComponents(obs.map((o) => ({ ...o, value: o.value + 1e9 }))).components.map(
+      (c) => c.estimate,
+    );
+    a.forEach((x, i) => {
+      expect(Math.abs((b[i] as number) - x)).toBeLessThan(1e-5 * Math.max(1, Math.abs(x)));
+    });
+  });
+});
+
+describe('hillNumber near q = 1', () => {
+  it('is continuous in q', () => {
+    const c = [40, 12, 7, 3, 3, 2, 2, 1, 1, 1];
+    const q1 = hillNumber(c, 1);
+    for (const q of [1 + 1e-12, 1 - 1e-12, 1 + 1e-7]) {
+      expect(Math.abs(hillNumber(c, q) - q1) / q1).toBeLessThan(1e-6);
+    }
+  });
+  it('still gives the closed form at q = 2', () => {
+    expect(hillNumber([1, 1], 2)).toBeCloseTo(2, 12);
+    expect(hillNumber([3, 1], 2)).toBeCloseTo(1 / (0.75 ** 2 + 0.25 ** 2), 12);
+  });
+});
+
+describe('betaQuantile in the lower tail of a U-shaped beta', () => {
+  it('keeps its relative accuracy', () => {
+    const got = betaQuantile(1e-6, 0.5, 0.5);
+    expect(Math.abs(got - 2.46740110027031e-12) / 2.46740110027031e-12).toBeLessThan(1e-6);
+  });
+});
+
+describe('neymanAllocation at scale', () => {
+  it('allocates 1e6 units over 1e5 strata in under five seconds and sums to the total', () => {
+    const sizes = Array.from({ length: 100_000 }, (_, i) => 1 + (i % 100));
+    const sds = sizes.map((_, i) => ((i * 7919) % 1000) / 1000 + 0.001);
+    const t0 = Date.now();
+    const r = neymanAllocation({ sizes, sds, total: 1_000_000 });
+    expect(Date.now() - t0).toBeLessThan(5000);
+    expect(r.allocated.reduce((a, b) => a + b, 0)).toBe(1_000_000);
+  });
+});
+
+describe('varianceComponents on constant and binary data', () => {
+  const rowsOf = (values: boolean[]) =>
+    values.map((value, i) => ({ value, path: [String(i % 2), String(i % 4), String(i % 8)] }));
+  it('gives exactly 0 for every component when all values are equal', () => {
+    for (const v of [true, false]) {
+      const r = varianceComponents(rowsOf(Array.from({ length: 24 }, () => v)));
+      for (const c of r.components) expect(c.estimate).toBe(0);
+    }
+  });
+  it('gives exactly 0 for the repeat component when the repeats of each wording agree', () => {
+    const grid = [
+      [
+        [true, true, true],
+        [true, true, true],
+        [true, true, true],
+      ],
+      [
+        [false, false, false],
+        [true, false, true],
+        [true, true, true],
+      ],
+    ];
+    const obs = grid.flatMap((cell, c) =>
+      cell.flatMap((conv, v) =>
+        conv.flatMap((pass, w) =>
+          [0, 1, 2, 3, 4].map(() => ({ value: pass, path: [`cell-${c}`, `conv-${c}-${v}`, String(w)] })),
+        ),
+      ),
+    );
+    const r = varianceComponents(obs);
+    for (const c of r.components.slice(-1)) {
+      expect(c.estimate).toBe(0);
+      expect(c.variance).toBe(0);
+    }
   });
 });

@@ -1,4 +1,4 @@
-import type { Assertion, EndState } from '@driftbench/core';
+import type { Assertion, EndState } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { compareEndState, matchAssertion } from '../../src/runner';
 
@@ -14,6 +14,7 @@ describe('matchAssertion', () => {
     ['nonempty', { nonempty: true }, 'x', ''],
     ['nonempty on a blank string', { nonempty: true }, ' x ', '   '],
     ['nonempty on a mapping', { nonempty: true }, { key: 1 }, { key: undefined }],
+    ['nonempty on a mapping of nulls', { nonempty: true }, { key: 0 }, { key: null, other: null }],
     ['absent', { absent: true }, undefined, null],
     [
       'subset',

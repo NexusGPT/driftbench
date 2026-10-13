@@ -1,7 +1,7 @@
 import { existsSync, statSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { portFromEnv } from '@driftbench/generate';
+import { portFromEnv } from '@agent-nexus/driftbench-generate';
 import {
   type AttackRecording,
   type AttackResult,
@@ -10,9 +10,10 @@ import {
   runAttack,
   SimulatedUserError,
   type UserModelPort,
-} from '@driftbench/users';
+} from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import {
   type CampaignDeps,
   defaultDeps,
@@ -85,7 +86,7 @@ export async function attackCommand(
   io: Io,
   deps: CampaignDeps,
 ): Promise<number> {
-  const rounds = Number(options.rounds);
+  const rounds = optionNumber(options.rounds);
   if (!/^\d+$/.test(options.rounds) || rounds < 1 || rounds > 10) {
     io.err(`--rounds takes a whole number from 1 to 10, not "${options.rounds}".\n`);
     return 2;
@@ -101,7 +102,13 @@ export async function attackCommand(
       return 2;
     }
     try {
-      replay = JSON.parse(await readFile(resolve(io.cwd, options.replay), 'utf8')) as AttackRecording;
+      const read: unknown = JSON.parse(await readFile(resolve(io.cwd, options.replay), 'utf8'));
+      if (!isRecording(read)) {
+        throw new Error(
+          'it is not an attack recording: version 1, spec, specHash, seed and a list of rounds',
+        );
+      }
+      replay = read;
     } catch (cause) {
       io.err(
         `The recording ${options.replay} cannot be read: ${cause instanceof Error ? cause.message : String(cause)}\n`,
@@ -166,7 +173,7 @@ export async function attackCommand(
       target,
       ...(pack ? { pack } : {}),
       ...(options.drafts ? { drafts: true } : {}),
-      seed: Number(options.seed),
+      seed: optionNumber(options.seed),
       rounds,
       ...(replay ? { replay } : {}),
       ...(port && agentFamily !== undefined
@@ -261,4 +268,26 @@ function table(rows: string[][]): string[] {
 
 function collect(value: string, previous: string[] = []): string[] {
   return [...previous, value];
+}
+
+/** The shape `attack --record` writes: anything else is refused before a run. */
+function isRecording(value: unknown): value is AttackRecording {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  return (
+    record.version === 1 &&
+    typeof record.spec === 'string' &&
+    typeof record.specHash === 'string' &&
+    typeof record.seed === 'number' &&
+    Array.isArray(record.rounds) &&
+    record.rounds.every((round) => {
+      if (round === null || typeof round !== 'object') return false;
+      const entry = round as Record<string, unknown>;
+      return (
+        typeof entry.class === 'string' &&
+        typeof entry.inject_at === 'number' &&
+        typeof entry.phrasing === 'object'
+      );
+    })
+  );
 }

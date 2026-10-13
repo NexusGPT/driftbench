@@ -1,8 +1,8 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { FakeJudge } from '@driftbench/judges';
-import { openStore } from '@driftbench/store';
+import { FakeJudge } from '@agent-nexus/driftbench-judges';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
@@ -113,5 +113,38 @@ describe('driftbench compare --pairwise', () => {
     expect(code).toBe(2);
     expect(err).toMatch(/provider unreachable/);
     expect(out).not.toMatch(/Pairwise:/);
+  });
+
+  it('with --pairwise-reference, every call names the reference answer, and the tally line is unchanged', async () => {
+    await writeFile(join(dir, 'reference.txt'), 'Acme Air 5G at 88 Summit Avenue, $35 a month.\n');
+    const judge = new FakeJudge('pairwise', [{ outcome: 'pass', reasoning: 'A reads better' }]);
+    const deps: ReportDeps = { openStore: async (path) => openStore(path), pairwiseClient: () => judge };
+    const { code, out, err } = await cli(
+      [...base, '--pairwise', join(dir, 'helpful.yaml'), '--pairwise-reference', join(dir, 'reference.txt')],
+      deps,
+    );
+    expect(err).toBe('');
+    expect(out).toMatch(/Pairwise: \d+ pairs/);
+    expect(judge.requests.length).toBeGreaterThan(0);
+    expect(
+      judge.requests.every((request) =>
+        request.transcript.some(
+          (entry) => entry.text === 'Reference answer: Acme Air 5G at 88 Summit Avenue, $35 a month.',
+        ),
+      ),
+    ).toBe(true);
+    expect([0, 1]).toContain(code);
+  });
+
+  it('a missing reference file is bad input: exit 2, the path named', async () => {
+    const { code, err } = await cli([
+      ...base,
+      '--pairwise',
+      join(dir, 'helpful.yaml'),
+      '--pairwise-reference',
+      join(dir, 'no-reference.txt'),
+    ]);
+    expect(code).toBe(2);
+    expect(err).toMatch(/no-reference\.txt/);
   });
 });

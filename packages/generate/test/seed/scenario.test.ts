@@ -163,7 +163,7 @@ describe('buildScenario', () => {
     expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'help']);
     expect(built.blocks.map((block) => block.tools)).toEqual([
       [{ label: 'lookup', count: 0 }],
-      [{ label: 'lookup', count: 1, input: { account: '4' } }],
+      [{ label: 'lookup', count: 1, input: { account: '4' }, input_closed: true }],
     ]);
     expect(built.blocks.every((block) => block.lang === 'EN')).toBe(true);
     expect(built.endState).toEqual({ source: 'tool:lookup', mode: 'subset', expect: { account: '4' } });
@@ -341,8 +341,8 @@ describe('buildScenario', () => {
     if (!walked.ok) throw new Error(walked.reason);
     expect(walked.blocks.map((block) => block.stage)).toEqual(['verify', 'help', 'verify']);
     expect(walked.blocks[1]?.tools).toEqual([
-      { label: 'lookup', count: 1, input: { account: '4' } },
-      { label: 'notify', count: 1, input: { reason: 'checked' } },
+      { label: 'lookup', count: 1, input: { account: '4' }, input_closed: true },
+      { label: 'notify', count: 1, input: { reason: 'checked' }, input_closed: true },
     ]);
     const failed = buildScenario(prepared, rngFor(1, 't'), {
       path: path(prepared, 'balance-again'),
@@ -484,5 +484,579 @@ describe('generateSuite on a map with paths', () => {
     expect(result.report.graph.unwalked).toEqual([
       { path: 'card-lost', reasons: ['path card-lost: the map has no stage transition greet-to-lost'] },
     ]);
+  });
+});
+
+describe('pilot iteration 3: a recovery that moves the conversation', () => {
+  it('ends the walk after the probe instead of playing turns from a stage the conversation left', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        { kind: 'recovery', class: 'D5_language_switch', flows: ['balance'], stage_after: 'greet', ...by },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D5_language_switch', stage: 'verify' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    const at = built.blocks.findIndex((block) => block.injection === 'D5_language_switch');
+    expect(at).toBeGreaterThanOrEqual(0);
+    expect(built.blocks[at]?.stage).toBe('greet');
+    expect(built.blocks).toHaveLength(at + 1);
+    expect(built.endState).toBeUndefined();
+  });
+});
+
+describe('pilot iteration 4: boundary values of a side-effecting tool', () => {
+  it('never expect the tool on a request alone: a path carries the value, or the call is forbidden', () => {
+    const prepared = prepare();
+    const result = generateSuite(prepared, { seed: 1, mapPath: 'map.yaml', t: 2 });
+    const boundary = result.all.filter(
+      (spec) => (spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === 'boundary',
+    );
+    const direct = boundary.filter(
+      (spec) =>
+        spec.blocks.length === 1 &&
+        (spec.blocks[0]?.expect?.tools ?? []).some((tool) => tool.label === 'lookup' && tool.count !== 0),
+    );
+    expect(direct.map((spec) => spec.id)).toEqual([]);
+  });
+});
+
+describe('pilot iteration 5: a boundary block asks for one tool', () => {
+  it('expects every other tool of the map 0 times', () => {
+    const prepared = prepare();
+    const result = generateSuite(prepared, { seed: 1, mapPath: 'map.yaml', t: 2 });
+    const asking = result.all.flatMap((spec) =>
+      (spec.metadata?.generated as { seeder?: string } | undefined)?.seeder === 'boundary'
+        ? spec.blocks
+            .filter(
+              (block) =>
+                block.id?.endsWith('-value') &&
+                (block.expect?.tools ?? []).some((tool) => tool.label === 'lookup'),
+            )
+            .map((block) => ({ id: spec.id, block }))
+        : [],
+    );
+    expect(asking.length).toBeGreaterThan(0);
+    for (const { id, block } of asking) {
+      expect(
+        (block.expect?.tools ?? []).find((tool) => tool.label === 'notify'),
+        id,
+      ).toEqual({
+        label: 'notify',
+        count: 0,
+      });
+    }
+  });
+});
+
+describe('pilot iteration 6: a tool failure carries the words of its recovery', () => {
+  it('expects the honest report the recovery names', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = (draft.relations ?? []).map((relation) =>
+        relation.kind === 'recovery' && relation.class === 'D8_tool_failure'
+          ? { ...relation, must: ['not available'] }
+          : relation,
+      );
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D8_tool_failure' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.at(-1)?.must).toEqual(['not available']);
+  });
+});
+
+describe('pilot iteration 7: invariance families over the context axes', () => {
+  it('walks one path with the same values under each persona and each channel, expecting the same', () => {
+    const prepared = prepare();
+    const result = generateSuite(prepared, { seed: 1, mapPath: 'map.yaml', t: 2 });
+    const families = new Map<string, Array<{ title: string; expects: string }>>();
+    for (const spec of result.complete) {
+      const meta = spec.metadata?.generated as { metamorphic?: { family: string } } | undefined;
+      if (!meta?.metamorphic || !(spec.title ?? '').includes(' over ')) continue;
+      const list = families.get(meta.metamorphic.family) ?? [];
+      list.push({
+        title: spec.title ?? '',
+        expects: JSON.stringify(spec.blocks.map((block) => block.expect)),
+      });
+      families.set(meta.metamorphic.family, list);
+    }
+    const titles = [...families.values()].map((list) => list[0]?.title ?? '');
+    expect(titles.some((title) => title.includes(' over user,'))).toBe(true);
+    expect(titles.some((title) => title.includes(' over channel,'))).toBe(true);
+    for (const list of families.values()) {
+      expect(list.length).toBeGreaterThanOrEqual(2);
+      expect(new Set(list.map((entry) => entry.expects)).size).toBe(1);
+    }
+  });
+});
+
+describe('pilot iteration 8: a boundary value carried by a path', () => {
+  it('records its concrete value like every boundary spec', () => {
+    // The found path reads the account the lookup is sent: its tool input value is on a path.
+    const prepared = prepare((draft) => {
+      draft.relations = (draft.relations ?? []).map((relation) =>
+        relation.kind === 'path' && relation.id === 'balance-found'
+          ? {
+              ...relation,
+              when: { ...relation.when, 'lookup.in.account': ['lookup.in.account.at-min-length'] },
+            }
+          : relation,
+      );
+    });
+    const result = generateSuite(prepared, { seed: 1, mapPath: 'map.yaml', t: 2 });
+    const onPath = result.all.filter((spec) => {
+      const meta = spec.metadata?.generated as { seeder?: string } | undefined;
+      return (
+        meta?.seeder === 'boundary' &&
+        /Path \S+ of /.test(spec.title ?? '') &&
+        (spec.title ?? '').includes('lookup.in.')
+      );
+    });
+    expect(onPath.length).toBeGreaterThan(0);
+    for (const spec of onPath) {
+      const concrete = (spec.metadata?.generated as { concrete?: Record<string, unknown> } | undefined)
+        ?.concrete;
+      expect(Object.keys(concrete ?? {}), spec.id).toHaveLength(1);
+    }
+  });
+});
+
+describe('pilot iteration 9: a clean walk declares a perturbation for mode P', () => {
+  it('injects a deviation whose recovery stays on the stage, with the recovery as its Then', () => {
+    const prepared = prepare();
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.perturbations).toEqual([
+      {
+        id: 'p1-D1_off_topic',
+        class: 'D1_off_topic',
+        inject_at: 1,
+        user: 'Are you open on Sunday?',
+        expect: {
+          stage: 'verify',
+          stage_reported: true,
+          tools: [{ label: 'lookup', count: 0 }],
+          must: ['open Sunday', 'a.b'],
+          lang: 'EN',
+        },
+        recovery: { within_blocks: 0, stage_after: 'verify' },
+      },
+    ]);
+    // The walk itself is unchanged: the end state still holds after the perturbation.
+    expect(built.endState).toEqual({ source: 'tool:lookup', mode: 'subset', expect: { account: '4' } });
+  });
+
+  it('declares none on a walk that already probes a deviation', () => {
+    const prepared = prepare();
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D1_off_topic' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.perturbations).toBeUndefined();
+  });
+});
+
+describe('opening coverage diagnostics', () => {
+  it('names a non-discriminating recovery even when an approved opening phrase exists', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        { kind: 'recovery', class: 'D5_language_switch', flows: ['balance'], stage_after: 'pending', ...by },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D5_language_switch', stage: 'greet' },
+    });
+    expect(built).toEqual({
+      ok: false,
+      reason:
+        'path balance-found: the first-turn recovery of D5_language_switch stays at greet without a required tool call; it cannot distinguish an idle or echo reply',
+    });
+  });
+});
+
+describe('pilot iteration 10: a deviation on the first turn', () => {
+  it('probes the start stage when the recovery keeps the conversation there and asks for a call', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        {
+          kind: 'recovery',
+          class: 'D5_language_switch',
+          flows: ['balance'],
+          stage_after: 'pending',
+          tools: [{ tool: 'lookup', count: 1 }],
+          ...by,
+        },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D5_language_switch', stage: 'greet' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks[0]).toMatchObject({ id: 'b1-D5_language_switch', stage: 'greet' });
+    expect(built.blocks.map((block) => block.stage)).toEqual(['greet', 'verify', 'help']);
+    expect(built.probe).toEqual({ classId: 'D5_language_switch', stage: 'greet' });
+  });
+});
+
+describe('pilot iteration 10: a class that needs an earlier turn', () => {
+  it('never probes the start stage with a silence or a burst', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases = [...(draft.phrases ?? []), phrase('deviation', 'D7_silence_or_burst', 'hello?')];
+      draft.relations = [
+        ...(draft.relations ?? []),
+        { kind: 'recovery', class: 'D7_silence_or_burst', flows: ['balance'], stage_after: 'pending', ...by },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D7_silence_or_burst', stage: 'greet' },
+    });
+    expect(built.ok).toBe(false);
+  });
+});
+
+describe('closing the Acme suite gaps', () => {
+  it('makes a turn state what the map says its reply states, read from the bound values', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        {
+          kind: 'states',
+          subject: { dimension: 'flow', value: 'balance' },
+          stage: 'verify',
+          to: 'help',
+          must: ['account \\d+ ends in {account}'],
+          ...by,
+        },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.map((block) => block.must)).toEqual([undefined, ['account \\d+ ends in 4']]);
+  });
+
+  it('probes after the last stage when the recovery keeps the conversation there', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases = (draft.phrases ?? []).map((entry) =>
+        entry.value === 'D1_off_topic' ? { ...entry, when: { stage: ['help'] } } : entry,
+      );
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D1_off_topic', stage: 'help' },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'help', 'help']);
+    expect(built.blocks.at(-1)?.injection).toBe('D1_off_topic');
+    expect(built.endState).toBeDefined();
+  });
+
+  it('fails a tool of the turn said at the stage a tool-failure probe asks for, or refuses', () => {
+    const prepared = prepare();
+    const atVerify = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D8_tool_failure', stage: 'verify' },
+    });
+    expect(atVerify.ok && atVerify.probe).toMatchObject({ classId: 'D8_tool_failure', stage: 'verify' });
+    const atGreet = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D8_tool_failure', stage: 'greet' },
+    });
+    expect(atGreet.ok).toBe(false);
+  });
+});
+
+describe('the pairs the relations rule out', () => {
+  it('forbids a stage no path of a flow passes with that flow, and a class at a stage its recovery rules out', async () => {
+    const { derivedConstraints } = await import('../../src/extract/derive');
+    const draft = proposal((change) => {
+      change.relations = [
+        ...(change.relations ?? []),
+        {
+          kind: 'recovery',
+          class: 'D5_language_switch',
+          flows: ['balance'],
+          at: ['verify'],
+          stage_after: 'pending',
+          ...by,
+        },
+      ];
+    });
+    for (const dimension of draft.dimensions) dimension.approved = true;
+    for (const constraint of draft.constraints) constraint.approved = true;
+    for (const phrase of draft.phrases ?? []) phrase.approved = true;
+    const prepared = prepareMap(draft, { tools: TOOLS });
+    const axes = prepared.axisMap.dimensions.map((dimension) => ({
+      id: dimension.id,
+      kind: dimension.kind,
+      values: dimension.values.map((value) => value.id),
+    }));
+    const forbids = derivedConstraints(draft, axes).map((entry) => entry.forbid);
+    const stage = axes.find((axis) => axis.kind === 'stage')?.id as string;
+    const deviation = axes.find((axis) => axis.kind === 'deviation')?.id as string;
+    // D5 may be said only at verify, so D5 at help (after every move of the paths) is ruled out.
+    expect(forbids).toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'help' });
+    expect(forbids).not.toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'verify' });
+    // No path of the card flow is walkable here, so "lost" is never reached with no deviation.
+    expect(forbids).toContainEqual({ [deviation]: 'none', [stage]: 'greet' });
+  });
+});
+
+describe('a probe the constraints forbid', () => {
+  it('is never said at a stage where the map forbids its class', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases = (draft.phrases ?? []).map((entry) =>
+        entry.value === 'D1_off_topic' ? { ...entry, when: { stage: ['help'] } } : entry,
+      );
+      draft.constraints = [
+        ...draft.constraints,
+        {
+          forbid: { deviation: 'D1_off_topic', stage: 'help' },
+          reason: 'The conversation is over at help',
+          ...by,
+        },
+      ];
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D1_off_topic', stage: 'help' },
+    });
+    expect(built.ok).toBe(false);
+  });
+});
+
+describe('the task seeder and the task family relation', () => {
+  it('places a task spec by the values its family holds and declares a planted file as a perturbation', async () => {
+    const { taskSpecs } = await import('../../src/seed/tasks');
+    const prepared = prepare();
+    const relation = {
+      kind: 'task_family' as const,
+      flow: 'card',
+      family: '../families/x',
+      stages: ['lost'],
+      holds: { account_state: ['found'] },
+      deviations: ['D6_instruction_in_data' as const],
+      ...by,
+    };
+    const spec = {
+      id: 't-1',
+      kind: 'task',
+      tags: ['flow:card'],
+      workspace_seed: { files: { 'NOTES.txt': 'planted' } },
+      blocks: [{ id: 'b', user: 'do it', expect: { stage: 'lost' } }],
+    };
+    const [placed] = taskSpecs(prepared, [{ relation, variants: [{ spec, planted: true }] }], {
+      seed: 1,
+      mapPath: 'map.yaml',
+    });
+    expect(placed?.spec.tags).toEqual(['flow:card', 'data:found']);
+    expect(placed?.spec.perturbations).toEqual([
+      {
+        id: 'planted-instruction',
+        class: 'D6_instruction_in_data',
+        inject_at: 0,
+        world: { workspace: { files: { 'NOTES.txt': 'planted' } } },
+        expect: { stage: 'lost' },
+        recovery: { within_blocks: 0 },
+      },
+    ]);
+    expect((placed?.spec.metadata as { generated?: { seeder: string } } | undefined)?.generated?.seeder).toBe(
+      'task',
+    );
+  });
+
+  it('makes the stages and the classes of a task family possible, and keeps a task value off a conversation', async () => {
+    const { derivedConstraints } = await import('../../src/extract/derive');
+    const draft = proposal((change) => {
+      change.relations = [
+        ...(change.relations ?? []),
+        {
+          kind: 'task_family',
+          flow: 'card',
+          family: '../families/x',
+          stages: ['lost'],
+          deviations: ['D5_language_switch'],
+          ...by,
+        },
+      ];
+    });
+    for (const dimension of draft.dimensions) dimension.approved = true;
+    for (const constraint of draft.constraints) constraint.approved = true;
+    for (const phrase of draft.phrases ?? []) phrase.approved = true;
+    const prepared = prepareMap(draft, { tools: TOOLS });
+    const axes = prepared.axisMap.dimensions.map((dimension) => ({
+      id: dimension.id,
+      kind: dimension.kind,
+      values: dimension.values.map((value) => value.id),
+    }));
+    const forbids = derivedConstraints(draft, axes).map((entry) => entry.forbid);
+    const stage = axes.find((axis) => axis.kind === 'stage')?.id as string;
+    const deviation = axes.find((axis) => axis.kind === 'deviation')?.id as string;
+    // The card flow has no walkable path, but its task family places on lost, with and without its class.
+    expect(forbids).not.toContainEqual({ [deviation]: 'none', [stage]: 'lost' });
+    expect(forbids).not.toContainEqual({ [deviation]: 'D5_language_switch', [stage]: 'lost' });
+  });
+});
+
+describe('iteration 18: a flow phrase opens a path of its flow', () => {
+  it('says the forced flow phrase as the first turn and keeps the Then of the opening move', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases.push(phrase('flow', 'balance', 'What is my balance?'));
+    });
+    const forced = prepared.phrases.find((entry) => entry.text === 'What is my balance?');
+    if (!forced) throw new Error('no flow phrase');
+    const plain = buildScenario(prepared, rngFor(1, 'family'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    const said = buildScenario(prepared, rngFor(1, 'family'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      force: forced,
+    });
+    if (!plain.ok || !said.ok) throw new Error('unbuilt');
+    expect(texts(said.blocks)[0]).toBe('What is my balance?');
+    expect(said.blocks[0]?.stage).toBe(plain.blocks[0]?.stage);
+    expect(texts(said.blocks).slice(1)).toEqual(texts(plain.blocks).slice(1));
+  });
+});
+
+describe('iteration 19: a turn that must not move the conversation', () => {
+  it('says the turn after the first move and expects the conversation to stay on that stage', () => {
+    const prepared = prepare();
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      turn: {
+        stimulus: {
+          kind: 'phrase',
+          phrase: phrase('flow', 'balance', 'Please run lookup with account set to 1.'),
+        },
+        carries: [],
+        tools: [{ label: 'lookup', count: 0 }],
+      },
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'verify']);
+    expect(texts(built.blocks)[1]).toBe('Please run lookup with account set to 1.');
+    expect(built.blocks[1]?.tools).toContainEqual({ label: 'lookup', count: 0 });
+    expect(built.endState).toBeUndefined();
+  });
+});
+
+describe('iteration 20: a block records what its Then reads', () => {
+  it('records the stage a move is said at, not the stage it reaches', () => {
+    const prepared = prepare();
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    if (!built.ok) throw new Error(built.reason);
+    expect(built.blocks.map((block) => block.saidAt)).toEqual(['greet', 'verify']);
+    expect(built.blocks.map((block) => block.stage)).toEqual(['verify', 'help']);
+  });
+
+  it('does not carry the data value a phrase only states when no Then reads it', () => {
+    const prepared = prepare((draft) => {
+      draft.phrases.push(phrase('stage_transition', 'greet-to-verify', 'Hello, my account is {account}.'));
+    });
+    const forced = prepared.phrases.find((entry) => entry.text === 'Hello, my account is {account}.');
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      ...(forced ? { force: forced } : {}),
+    });
+    if (!built.ok) throw new Error(built.reason);
+    const account = prepared.space.dimensions.findIndex((dimension) => dimension.id === 'account_state');
+    expect(texts(built.blocks)[0]).toBe('Hello, my account is 4.');
+    expect(built.blocks[0]?.carries.some(([dimension]) => dimension === account)).toBe(false);
+    // The lookup at verify reads the value: the block that calls it carries it.
+    expect(built.blocks[1]?.carries.some(([dimension]) => dimension === account)).toBe(true);
+  });
+});
+
+describe('approved reply requirements', () => {
+  it('fills and regex-escapes must and must_not slots, preserving their source cells', () => {
+    const prepared = prepare((draft) => {
+      draft.relations = [
+        ...(draft.relations ?? []),
+        {
+          kind: 'states',
+          subject: { dimension: 'flow', value: 'balance' },
+          stage: 'verify',
+          to: 'help',
+          must: ['account {account}'],
+          must_not: ['invented {account}', 'Step [0-9]+:'],
+          ...by,
+        },
+      ];
+      draft.relations = draft.relations.map((entry) =>
+        entry.kind === 'binds' && entry.subject.value === 'found'
+          ? { ...entry, slots: { account: '4.2+(x)' } }
+          : entry,
+      );
+    });
+    const built = buildScenario(prepared, rngFor(1, 't'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+    });
+    if (!built.ok) throw new Error(built.reason);
+    const block = built.blocks[1];
+    expect(new RegExp(block?.must?.[0] ?? '').test('account 4.2+(x)')).toBe(true);
+    expect(new RegExp(block?.must?.[0] ?? '').test('account 4X222x')).toBe(false);
+    expect(new RegExp(block?.must_not?.[0] ?? '').test('invented 4.2+(x)')).toBe(true);
+    expect(block?.must_not?.[1]).toBe('Step [0-9]+:');
+    expect(built.blocks[0]?.must_not).toBeUndefined();
+    const account = prepared.space.dimensions.findIndex((entry) => entry.id === 'account_state');
+    expect(block?.carries.some(([dimension]) => dimension === account)).toBe(true);
+  });
+
+  it('permits a forbid-only relation, and refuses an unbound forbidden pattern', () => {
+    const make = (pattern: string) =>
+      prepare((draft) => {
+        draft.relations = [
+          ...(draft.relations ?? []),
+          {
+            kind: 'states',
+            subject: { dimension: 'flow', value: 'balance' },
+            stage: 'verify',
+            to: 'help',
+            must_not: [pattern],
+            ...by,
+          },
+        ];
+      });
+    const good = make('Step [0-9]+:');
+    const built = buildScenario(good, rngFor(1, 't'), { path: path(good, 'balance-found'), fixed: [] });
+    expect(built.ok && built.blocks[1]?.must_not).toEqual(['Step [0-9]+:']);
+    const bad = make('{unbound_fact}');
+    const refused = buildScenario(bad, rngFor(1, 't'), { path: path(bad, 'balance-found'), fixed: [] });
+    expect(refused).toMatchObject({ ok: false, reason: expect.stringContaining('unbound_fact') });
   });
 });

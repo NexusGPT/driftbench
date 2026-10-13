@@ -2,9 +2,9 @@ import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { findSpecFiles, loadSpecs } from '@driftbench/core';
-import { faultAdapter, importFaultSet } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
+import { findSpecFiles, loadSpecs } from '@agent-nexus/driftbench-core';
+import { faultAdapter, importFaultSet } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   defaultHoldoutDeps,
@@ -103,7 +103,7 @@ describe('driftbench holdout seal', () => {
       expect(result.err).toBe('');
       expect(result.code).toBe(0);
       expect(result.out).toContain('the gate sealed its split at seed 1, share 0.2; that split is kept');
-      expect(result.out).toContain("Sealed 36 of 175 gated specs: the gate's split (seed 1, share 0.2)");
+      expect(result.out).toContain("Sealed 58 of 258 gated specs: the gate's split (seed 1, share 0.2)");
 
       const bundle = await json<Bundle>(join(out, 'sealed.json'));
       expect(bundle).toMatchObject({ split: 'gate', seed: 1, share: 0.2 });
@@ -281,7 +281,7 @@ describe('driftbench holdout score', () => {
       expect(scored.output.err).toBe('');
       expect(code).toBe(0);
       // Every gated block reads the reply language, so the fault that answers in French fails all 35.
-      expect(scored.output.out).toMatch(/\n\s+35\s+0\s+0\.0%\s+0\.0% to 9\.9%/);
+      expect(scored.output.out).toMatch(/\n\s+47\s+0\s+0\.0%\s+0\.0% to 7\.6%/);
     },
     SLOW,
   );

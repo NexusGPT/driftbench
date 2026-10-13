@@ -1,0 +1,133 @@
+# Gated by driftbench gate from metamorphic/gen-metamorphic-009-1.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-metamorphic-009-1
+version: 6d29ed7a7539
+kind: conversation
+title: "Metamorphic upgrade-most-data over channel, value 1 of 2: : Path upgrade-most-data of upgrade: needs > identify > closing"
+channel: chat
+lang: EN
+tier: generated
+tags:
+  - persona:existing-customer
+  - flow:upgrade
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
+criteria:
+  - name: flow.upgrade
+    rubric: An existing customer moves to a plan with more data
+    gating: false
+    scope: conversation
+blocks:
+  - id: b1-needs-to-identify
+    when:
+      user: Hi, I already have an Acme plan and I need more data.
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+      criteria:
+        - flow.upgrade
+  - id: b2-identify-to-closing
+    when:
+      user: It's morgan.diaz@example.com.
+    expect:
+      stage: closing
+      tools:
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
+            customer_email: morgan.diaz@example.com
+      lang: EN
+perturbations:
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 1
+    user: Are your stores open on Saturday?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: identify
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: metamorphic
+    seed: 1
+    stream: 2943005006
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    path: upgrade-most-data
+    cell:
+      user_type: existing-customer
+      account_lookup: most-data
+      channel: chat
+      flow: upgrade
+      coverage_result: none
+    blocks:
+      - block: b1-needs-to-identify
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: identify
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-identify-to-closing
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: identify-to-closing
+          account_lookup: most-data
+          stage: closing
+        phrase:
+          dimension: stage_transition
+          value: identify-to-closing
+    metamorphic:
+      family: gen-metamorphic-009
+      variant: 1
+      of: 2
+      relation: same observed outcome
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-identify
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-identify-to-closing
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+rules:
+  forbidden_tools:
+    - coverage.check
+    - port.check
+    - order.create
+    - notify_sales

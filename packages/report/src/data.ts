@@ -10,7 +10,7 @@ import {
   type Store,
   specBlocks,
   type TargetRef,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 
 /** A report input that cannot be read: a missing campaign, a missing spec. The CLI exits 2 on it. */
 export class ReportInputError extends Error {
@@ -97,6 +97,7 @@ function sortRuns(
 export function runPassed(run: RunResult): boolean {
   return (
     run.status === 'completed' &&
+    run.endVerdict !== 'failure' &&
     run.blocks.length > 0 &&
     run.blocks.every((block) => block.pass) &&
     run.endState?.match !== false

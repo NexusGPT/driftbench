@@ -3,8 +3,13 @@ import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AdapterTransportError, type AgentAdapter, AgentFailure, type Check } from '@driftbench/core';
-import { openStore } from '@driftbench/store';
+import {
+  AdapterTransportError,
+  type AgentAdapter,
+  AgentFailure,
+  type Check,
+} from '@agent-nexus/driftbench-core';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
@@ -123,7 +128,7 @@ describe('driftbench campaign plan', () => {
     expect(out).toMatch(/ {2}[0-9a-f]{16} {2}acme-plan-upgrade {14}function:acme {2}F {5}2 {7}5\n/);
     expect(out).toContain('Projected cost: $0.00 (function: no unit measured).');
     expect(out).toContain(
-      'Minimum detectable effect, mode F: 46.7 points on a 50% pass rate, with 18 runs per arm (two-sided alpha 0.05, power 0.8).',
+      'Minimum detectable effect, mode F: 41.2 points on a 50% pass rate, with 18 runs per arm over 6 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).',
     );
   });
 
@@ -154,7 +159,7 @@ describe('driftbench campaign plan', () => {
     ]);
     expect(code).toBe(0);
     expect(out).toContain('Projected cost: $0.78 (function: 78 blocks at $0.01). Over the budget of $0.50.');
-    expect(out).toContain('Minimum detectable effect, mode F: 28.0 points on a 90% pass rate');
+    expect(out).toContain('Minimum detectable effect, mode F: 41.7 points on a 90% pass rate');
   });
 
   it('counts a target named twice once', async () => {
@@ -174,10 +179,42 @@ describe('driftbench campaign plan', () => {
   it('prints one JSON document with --json', async () => {
     const { code, out } = await cli(['campaign', 'plan', SPECS, '--target', 'function:acme', '--json']);
     expect(code).toBe(0);
-    const plan = JSON.parse(out) as { cells: unknown[]; blocks: number; mde: Array<{ effect: number }> };
+    const plan = JSON.parse(out) as {
+      cells: unknown[];
+      blocks: number;
+      mde: Array<{ effect?: number; specs: number; rho: number }>;
+    };
     expect(plan.cells).toHaveLength(6);
     expect(plan.blocks).toBe(26);
-    expect(plan.mde[0]?.effect).toBeCloseTo(0.808748, 5);
+    // Six specs of one run each at a 50% baseline: no drop below the baseline is detectable.
+    expect(plan.mde[0]).toMatchObject({ specs: 6, rho: 0 });
+    expect(plan.mde[0]?.effect).toBeUndefined();
+  });
+
+  it('prints none detectable when no drop below the baseline can be seen', async () => {
+    const { code, out } = await cli(['campaign', 'plan', SPECS, '--target', 'function:acme']);
+    expect(code).toBe(0);
+    expect(out).toContain('Minimum detectable effect, mode F: none detectable on a 50% pass rate');
+  });
+
+  it('takes the correlation of repeats with --rho and prints the design effect', async () => {
+    const { code, out } = await cli([
+      'campaign',
+      'plan',
+      SPECS,
+      '--target',
+      'function:acme',
+      '--repeats',
+      '5',
+      '--baseline-rate',
+      '0.9',
+      '--rho',
+      '0.3',
+    ]);
+    expect(code).toBe(0);
+    // 6 specs x 5 repeats, design effect 1 + 4 x 0.3 = 2.2: 13.6 effective runs.
+    expect(out).toContain('(rho 0.3, design effect 2.20;');
+    expect(out).toMatch(/Minimum detectable effect, mode F: (\d+\.\d) points on a 90% pass rate/);
   });
 
   it.each([
@@ -188,6 +225,7 @@ describe('driftbench campaign plan', () => {
       '--repeats takes a whole number of at least 1, not "0".',
     ],
     [['--target', 'function:acme', '--baseline-rate', '1'], '--baseline-rate takes a number between 0 and 1'],
+    [['--target', 'function:acme', '--rho', '1.5'], '--rho takes a number from 0 to 1, not "1.5".'],
     [['--target', 'function:'], '"function:" is not a target. Write <adapter> or <adapter>:<agent>'],
   ])('exits 2 on %j', async (options, message) => {
     const { code, err } = await cli(['campaign', 'plan', SPECS, ...options]);
@@ -368,7 +406,7 @@ describe('driftbench campaign run', () => {
     ]);
     expect(code).toBe(0);
     expect(out).toContain(
-      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
     );
     expect(out).toContain('✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks');
     expect(out).toContain('6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.');
@@ -428,6 +466,13 @@ describe('driftbench campaign run', () => {
     });
   });
 
+  it('plan exits 2 on a target no adapter is set up for, as run does, and prints no plan', async () => {
+    const target = await cli(['campaign', 'plan', SPECS, '--target', 'http:acme']);
+    expect(target.code).toBe(2);
+    expect(target.err).toContain('No adapter is set up for http:acme.');
+    expect(target.out).not.toContain('Plan:');
+  });
+
   it('exits 2 on an unknown target, an invalid spec, or a campaign id already in the store', async () => {
     const target = await cli(['campaign', 'run', SPECS, '--target', 'http:acme']);
     expect(target.code).toBe(2);
@@ -462,6 +507,24 @@ describe('driftbench campaign run', () => {
     expect(again.err).toContain(
       'Campaign c-twice already exists. Resume it with: driftbench campaign resume c-twice',
     );
+  });
+
+  it('--cache-suite with a new name does not replay a cell from another suite, and the same name does', async () => {
+    const path = await storePath();
+    const base = [
+      'campaign',
+      'run',
+      'examples/acme/specs/conversations/plan-upgrade.yaml',
+      '--target',
+      'function:acme',
+      '--store',
+      path,
+    ];
+    await cli([...base, '--campaign', 'c-s1', '--cache-suite', 'nightly-1']);
+    const other = await cli([...base, '--campaign', 'c-s2', '--cache-suite', 'nightly-2']);
+    expect(other.out).not.toContain('replayed from the cache');
+    const same = await cli([...base, '--campaign', 'c-s3', '--cache-suite', 'nightly-1']);
+    expect(same.out).toContain('replayed from the cache');
   });
 
   it('replays a cell from the cache in a later campaign on the same store, unless --no-cache', async () => {
@@ -604,6 +667,7 @@ describe('driftbench campaign status and resume', () => {
 
   it('takes the latest campaign of the store, by its creation time, when status or resume names none', async () => {
     const path = await storePath();
+    await openStore(path).close();
     const empty = await cli(['campaign', 'status', '--store', path]);
     expect(empty.code).toBe(2);
     expect(empty.err).toContain(`The store at ${path} holds no campaign.`);
@@ -648,6 +712,7 @@ describe('driftbench campaign status and resume', () => {
 
   it('exits 2 for a campaign the store does not hold, and needs --store', async () => {
     const path = await storePath();
+    await openStore(path).close();
     const unknown = await cli(['campaign', 'status', 'c-none', '--store', path]);
     expect(unknown.code).toBe(2);
     expect(unknown.err).toContain(`No campaign c-none in ${path}.`);
@@ -672,7 +737,7 @@ describe('each spec on its own target, without --target', () => {
     expect(out).not.toContain('Note: ');
     expect(out).toContain('Projected cost: $0.00 (function: no unit measured; process: no unit measured).');
     expect(out).toContain(
-      'Minimum detectable effect, mode F: 52.9 points on a 50% pass rate, with 14 runs per arm',
+      'Minimum detectable effect, mode F: 45.3 points on a 50% pass rate, with 14 runs per arm over 7 specs',
     );
   });
 
@@ -705,7 +770,7 @@ describe('each spec on its own target, without --target', () => {
       ]);
       expect(code, out).toBe(0);
       expect(out).toContain(
-        'Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+        'Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
       );
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks');
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 1  pass  2 blocks');
@@ -960,5 +1025,46 @@ describe('driftbench campaign retries', () => {
     ]);
     expect(code).toBe(2);
     expect(err).toContain('--retry-attempts takes a whole number of at least 1, not "0".');
+  });
+});
+
+describe('campaign --route', () => {
+  it('runs the specs a tag marks on the route target, every other spec on --target', async () => {
+    const { out, code } = await cli([
+      'campaign',
+      'plan',
+      'examples/acme/specs',
+      '--target',
+      'function:acme',
+      '--route',
+      'flow:price-sheet=process:acme-ops',
+    ]);
+    expect(code).toBe(0);
+    // The price-sheet task is routed, so --target no longer overrides it and no note says so.
+    expect(out).not.toContain('Note: acme-price-sheet names the process adapter');
+    expect(out).toMatch(/acme-price-sheet +process:acme-ops/);
+  });
+
+  it('refuses a route that is not tag=target, and a route without --target', async () => {
+    const bad = await cli([
+      'campaign',
+      'plan',
+      'examples/acme/specs',
+      '--target',
+      'function:acme',
+      '--route',
+      'nothing',
+    ]);
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--route takes tag=target');
+    const alone = await cli([
+      'campaign',
+      'plan',
+      'examples/acme/specs',
+      '--route',
+      'flow:price-sheet=process:acme-ops',
+    ]);
+    expect(alone.code).toBe(2);
+    expect(alone.err).toContain('--route goes with --target');
   });
 });

@@ -31,7 +31,8 @@ import {
   type Stimulus,
   type Turn,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
+import { reapFolder } from '@agent-nexus/driftbench-sandbox';
 import { shellLine, shellQuote } from '../../process/shell';
 import { isRecord, parseJsonl } from '../format';
 import { mapSession } from '../session';
@@ -104,7 +105,7 @@ export type ClaudeCodeLiveOptions = {
   library?: StateLibrary;
   /** More operations before a turn, chosen by the caller. */
   ops?: (turn: Turn) => readonly LiveOp[];
-  /** Where sandboxes come from: `localProvider()` of @driftbench/sandbox. */
+  /** Where sandboxes come from: `localProvider()` of @agent-nexus/driftbench-sandbox. */
   provider: SandboxProvider;
   /** The estate map hashes this copy answers to; a spec pinned to another (`vars.estate.map_hash`) fails. */
   pins?: readonly string[];
@@ -162,6 +163,14 @@ export const RUNTIME_FLAGS = [
 ] as const;
 
 export const DEFAULT_ESTATE_FILES = ['CLAUDE.md', 'CLAUDE.local.md', '.claude', '.mcp.json'] as const;
+
+/**
+ * True for a file the runtime loads into its context by itself: a CLAUDE.md or CLAUDE.local.md, at the root
+ * or in a folder (loaded when the agent works there). No Read call ever shows it, so a test never expects one.
+ */
+export function loadedByRuntime(path: string): boolean {
+  return /(^|\/)CLAUDE(\.local)?\.md$/.test(path.replace(/^\.?\/+/, ''));
+}
 
 type LiveState = {
   sandbox: Sandbox;
@@ -388,6 +397,23 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         throw new AgentFailure(`the turn mapped to ${mapped.blocks.length} blocks; one is expected`);
       }
       if (parsed.sessionId !== undefined) state.resumeId = parsed.sessionId;
+      // A compaction the runner planted in the session file before the turn: the runtime does not stream a
+      // boundary it found in the file it resumed (seen on the Cue bench), so the trace marks it at the turn's
+      // start, where a hazard check reads it.
+      const planted = notes.includes('compact: a compaction boundary and its summary were appended')
+        ? ops
+            .filter((op) => op.op === 'compact')
+            .slice(-1)
+            .map((op) => ({
+              kind: 'compaction' as const,
+              line: 0,
+              afterToolCalls: 0,
+              planted: true,
+              at: startedAt,
+              ...(op.op === 'compact' && op.trigger !== undefined ? { trigger: op.trigger } : {}),
+              ...(op.op === 'compact' && op.preTokens !== undefined ? { preTokens: op.preTokens } : {}),
+            }))
+        : [];
       const findings = outsideWrites(block.observed.toolCalls, cwd);
       if (findings.length > 0) {
         const runtime = block.observed.runtime ?? {};
@@ -439,6 +465,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         latencyMs: Math.max(0, Date.now() - Date.parse(startedAt)),
         raw: {
           ...(isRecord(block.observed.raw) ? block.observed.raw : {}),
+          markers: [...planted, ...markersOf(block.observed.raw)],
           live: {
             sessionId: parsed.sessionId ?? null,
             ...(parsed.tools === undefined ? {} : { tools: parsed.tools }),
@@ -479,6 +506,9 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         }
       }
       const project = join(state.configDir, 'projects', projectFolderName(state.sandbox.root));
+      // A daemon an estate guard starts can leave the run's process group and keep running from the copy
+      // or with the run's home: what still names or stands in either folder ends now, kept or not.
+      await reapFolder([state.sandbox.root, state.stateFolder]);
       await state.sandbox.destroy();
       if (options.keep) return;
       await rm(state.stateFolder, { recursive: true, force: true });
@@ -833,4 +863,8 @@ function resolvedPath(path: string): string {
       head = parent;
     }
   }
+}
+
+function markersOf(raw: unknown): unknown[] {
+  return isRecord(raw) && Array.isArray(raw.markers) ? raw.markers : [];
 }

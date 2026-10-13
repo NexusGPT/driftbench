@@ -1,9 +1,11 @@
+import { readdirSync, readFileSync } from 'node:fs';
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadEstateMap } from '@driftbench/estate';
+import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { lineOf } from '../src/commands/estate-live';
 import { type Io, main } from '../src/index';
 
 // Each test starts sandboxes and processes; under a full parallel suite that takes more than the default.
@@ -123,9 +125,27 @@ const FAKE = join(FIXTURE, 'live/fake/claude.mjs');
 const STATES = join(FIXTURE, 'live/states/library.json');
 const LIVE = join(FIXTURE, 'generated/specs/live');
 
+/**
+ * The live spec of a test type that names an atom in a deviation cell, found by its content. Pairwise
+ * specs are numbered by their row, and a new cell class renumbers them; the atom and the cell do not move.
+ */
+function specNaming(testType: string, atom: string, deviation = 'none'): string {
+  const dir = join(LIVE, testType);
+  const found = readdirSync(dir)
+    .filter((name) => name.endsWith('.yaml'))
+    .sort()
+    .find((name) => {
+      const text = readFileSync(join(dir, name), 'utf8');
+      return text.includes(`\n      - ${atom}\n`) && text.includes(`\n      deviation: ${deviation}\n`);
+    });
+  if (found === undefined)
+    throw new Error(`no live ${testType} spec names ${atom} with deviation ${deviation}`);
+  return `${testType}/${found}`;
+}
+
 /** One complete live spec per test type of the fixture's generated suite: the 14 of the proof. */
 const PROOF: Record<string, string> = {
-  guard_positive: 'guard_positive/estate.pairwise.0142.yaml',
+  guard_positive: specNaming('guard_positive', 'guard.settings.pretooluse-bash-guard-block-force-push'),
   journey: 'journey/estate.journey.03.yaml',
   misroute: 'misroute/estate.misroute.route.shipment-tracker.an-ask-that-fits-shipment-tracker.yaml',
   obligation: 'obligation/estate.obligation.instruction.standing.tell-the-user-about-a-late.yaml',
@@ -152,9 +172,17 @@ type RunJson = {
   standIn: boolean;
   pins: string[];
   notes: string[];
-  runs: Array<{ spec: string; status: string; pass: boolean; failing: string[]; costUsd: number | null }>;
+  runs: Array<{
+    spec: string;
+    status: string;
+    pass: boolean;
+    undecided?: boolean;
+    failing: string[];
+    costUsd: number | null;
+  }>;
   passed: number;
   failed: number;
+  undecided: number;
 };
 
 async function estateRun(estateRoot: string, specs: string[], ...extra: string[]) {
@@ -191,7 +219,7 @@ function outcomes(json: RunJson | undefined): Record<string, string> {
 
 /** The ids of the proof specs whose metadata names the atom. */
 async function specsOfAtom(atom: string): Promise<string[]> {
-  const { loadSpecFile } = await import('@driftbench/core');
+  const { loadSpecFile } = await import('@agent-nexus/driftbench-core');
   const out: string[] = [];
   for (const path of proofSpecs()) {
     const loaded = await loadSpecFile(path);
@@ -241,7 +269,7 @@ describe('driftbench estate run', () => {
       [true, [], 0],
       [false, ['block 0: forbidden.WebFetch'], 0],
     ]);
-    const { openStore } = await import('@driftbench/store');
+    const { openStore } = await import('@agent-nexus/driftbench-store');
     const store = await openStore(result.store);
     const runs = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
     await store.close();
@@ -291,7 +319,7 @@ describe('driftbench estate run', () => {
       const secret = join(await folder(), 'secrets');
       const result = await estateRun(FIXTURE, [spec], '--lock-deny', secret);
       expect(result.code).toBe(0);
-      const { openStore } = await import('@driftbench/store');
+      const { openStore } = await import('@agent-nexus/driftbench-store');
       const store = await openStore(result.store);
       const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
       await store.close();
@@ -412,6 +440,8 @@ describe('the Northwind proof: 14 live specs on the fake command, and three esta
     expect(result.code).toBe(1);
     clean = outcomes(result.json);
     expect(Object.keys(clean)).toHaveLength(14);
+    // A spec that fails on a check is never undecided.
+    expect(result.json?.undecided).toBe(0);
     const failing = Object.entries(clean)
       .filter(([, outcome]) => outcome !== 'pass')
       .map(([spec]) => spec)
@@ -472,7 +502,10 @@ const HOLIDAY = join(
   LIVE,
   'obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml',
 );
-const OTHER = join(LIVE, 'obligation/estate.pairwise.0515.yaml');
+const OTHER = join(
+  LIVE,
+  specNaming('obligation', 'instruction.weekly-report.fill-the-report-sections-in-the'),
+);
 
 type JudgedJson = Omit<RunJson, 'runs'> & {
   judge: string;
@@ -518,6 +551,9 @@ describe('judged criteria in estate run', () => {
     expect(json.judgeCostUsd).toBe(0);
     expect(json.runs[0]?.judged.every((verdict) => verdict.outcome === 'inconclusive')).toBe(true);
     expect(json.runs[0]?.pass).toBe(false);
+    // The fake answers it without the report it asks for: a failed check, so it is not undecided.
+    expect(json.runs[0]?.undecided).toBe(false);
+    expect(json.undecided).toBe(0);
     expect(json.notes.some((note) => note.includes('no judge'))).toBe(true);
   }, 120_000);
 
@@ -531,4 +567,134 @@ describe('judged criteria in estate run', () => {
     const stray = await estateRun(FIXTURE, [OTHER], '--judge-budget', '1');
     expect(stray.code).toBe(2);
   }, 60_000);
+});
+
+describe('an undecided spec', () => {
+  const verdict = (outcome: string) => ({
+    id: `custom.stage_seen`,
+    name: 'stage_seen',
+    kind: 'machine',
+    gating: true,
+    outcome,
+  });
+  const runOf = (outcomes: string[], status = 'completed') =>
+    ({
+      specId: 'estate.x',
+      runId: 'r',
+      status,
+      blocks: [
+        {
+          index: 0,
+          pass: outcomes.every((outcome) => outcome === 'pass'),
+          verdicts: outcomes.map(verdict),
+          observed: { cost: {} },
+        },
+      ],
+    }) as unknown as Parameters<typeof lineOf>[0];
+
+  it('is one that only inconclusive checks keep from passing: no stage feed, no judge', () => {
+    expect(lineOf(runOf(['inconclusive']), 0)).toMatchObject({ pass: false, undecided: true });
+    expect(lineOf(runOf(['pass', 'inconclusive']), 0)).toMatchObject({ pass: false, undecided: true });
+    expect(lineOf(runOf(['fail', 'inconclusive']), 0)).toMatchObject({ pass: false, undecided: false });
+    expect(lineOf(runOf(['pass']), 0)).toMatchObject({ pass: true, undecided: false });
+    expect(lineOf(runOf(['inconclusive'], 'error'), 0)).toMatchObject({ pass: false, undecided: false });
+  });
+
+  it('is not applicable when only not-applicable checks keep it from passing: no stage record', () => {
+    expect(lineOf(runOf(['not_applicable']), 0)).toMatchObject({
+      pass: false,
+      undecided: false,
+      notApplicable: true,
+    });
+    expect(lineOf(runOf(['pass', 'not_applicable']), 0)).toMatchObject({ notApplicable: true });
+    expect(lineOf(runOf(['fail', 'not_applicable']), 0)).toMatchObject({
+      pass: false,
+      notApplicable: false,
+    });
+    expect(lineOf(runOf(['inconclusive', 'not_applicable']), 0)).toMatchObject({
+      undecided: false,
+      notApplicable: false,
+    });
+    expect(lineOf(runOf(['pass']), 0)).toMatchObject({ notApplicable: false });
+  });
+});
+
+describe('estate run --progress appends a line per finished spec', () => {
+  it('appends each run line as its spec finishes, and leaves stdout as the one summary document', async () => {
+    const progress = join(await folder(), 'progress.jsonl');
+    const specs = [PROOF.route_positive, PROOF.tool_denied].map((path) => join(LIVE, path ?? ''));
+    const result = await estateRun(FIXTURE, specs, '--map', MAP, '--progress', progress);
+    expect(result.err).toBe('');
+    const lines = (await readFile(progress, 'utf8')).split('\n').filter((line) => line !== '');
+    expect(lines).toHaveLength(2);
+    const ids = lines.map((line) => (JSON.parse(line) as RunJson['runs'][number]).spec);
+    expect(ids.sort()).toEqual(Object.keys(outcomes(result.json)).sort());
+    expect(result.json?.runs).toHaveLength(2);
+  }, 120_000);
+});
+
+describe('estate run leaves no process behind', () => {
+  it('ends a daemon the run started from the estate copy, after the run', async () => {
+    const { spawnSync } = await import('node:child_process');
+    const dir = await folder();
+    const marker = `live-daemon-${Date.now()}`;
+    const daemon = join(dir, 'daemon.py');
+    await writeFile(
+      daemon,
+      [
+        'import os, sys, time',
+        'child = os.fork()',
+        'if child > 0:',
+        '    os.waitpid(child, 0)',
+        '    sys.exit(0)',
+        'os.setsid()',
+        'if os.fork() > 0:',
+        '    sys.exit(0)',
+        'null = os.open(os.devnull, os.O_RDWR)',
+        'for fd in (0, 1, 2):',
+        '    os.dup2(null, fd)',
+        'time.sleep(600)',
+        '',
+      ].join('\n'),
+    );
+    // A stand-in that, like an estate's session daemon, leaves a process running in the copy it works in,
+    // in its own session, then answers as the fake does.
+    const wrapper = join(dir, 'leaky-claude.sh');
+    await writeFile(
+      wrapper,
+      `#!/bin/sh\n# @driftbench-stand-in\ncp "${daemon}" "$PWD/daemon.py"\npython3 "$PWD/daemon.py" ${marker} </dev/null >/dev/null 2>&1\nexec node "${FAKE}" "$@"\n`,
+    );
+    const { chmod } = await import('node:fs/promises');
+    await chmod(wrapper, 0o755);
+    const running = () =>
+      (spawnSync('ps', ['-A', '-ww', '-o', 'pid=,command='], { encoding: 'utf8' }).stdout ?? '')
+        .split('\n')
+        .filter((line) => line.includes(marker) && !line.includes('-o pid=,command='))
+        .map((line) => Number.parseInt(line.trim(), 10));
+    try {
+      const spec = join(LIVE, PROOF.route_positive ?? '');
+      const store = join(dir, 'runs.db');
+      const result = await run([
+        'estate',
+        'run',
+        spec,
+        '--estate',
+        FIXTURE,
+        '--runtime',
+        'claude-code',
+        '--command',
+        wrapper,
+        '--store',
+        store,
+        '--states',
+        STATES,
+        '--json',
+      ]);
+      expect(result.err).toBe('');
+      expect((JSON.parse(result.out) as RunJson).runs[0]?.status).toBe('completed');
+      expect(running()).toEqual([]);
+    } finally {
+      for (const pid of running()) process.kill(pid, 'SIGKILL');
+    }
+  }, 120_000);
 });

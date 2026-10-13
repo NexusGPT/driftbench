@@ -6,7 +6,7 @@ import {
   type LoadResult,
   loadInventory,
   loadSpecs,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   COMPLETENESS_ASSUMPTION,
   type Completeness,
@@ -22,9 +22,10 @@ import {
   type SpaceMap,
   type SpaceMapIssue,
   validateSpaceMap,
-} from '@driftbench/space';
+} from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 /** `driftbench space declare|coverage|complete`: the declared map of situations, and the coverage counted on it. */
 export function registerSpaceCommands(program: Command, io: Io, setExit: (code: number) => void): void {
@@ -210,7 +211,7 @@ async function readInputs(
   const k = map.dimensions.length;
   let t: number | undefined;
   if (options.t !== undefined) {
-    t = /^\d+$/.test(options.t) ? Number(options.t) : Number.NaN;
+    t = /^\d+$/.test(options.t) ? optionNumber(options.t) : Number.NaN;
     if (!(t >= 1 && t <= k)) {
       io.err(
         `Unknown t "${options.t}". The map has ${k} dimensions, so t is a whole number from 1 to ${k}.\n`,

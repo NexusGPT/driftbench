@@ -8,10 +8,11 @@ Only a transient failure:
 
 | Failure | Retried |
 |---|---|
+| HTTP 408 (Request Timeout) | yes |
 | HTTP 429 | yes |
 | any HTTP 5xx, an overloaded 529 included | yes |
 | a network error: refused, reset, unreachable, timed out, aborted, `fetch failed` | yes |
-| any other status, 408 and 409 included | no |
+| any other status, 409 included | no |
 | an `AgentFailure`: the agent itself failed | no |
 | a transport error an adapter already retried in full (`exhausted`) | no: the runner does not retry it again |
 
@@ -58,7 +59,7 @@ The judge clients take `retry` in their options (`createAnthropicJudge({ retry: 
 | the runner | each `open`, `send` and `trace` call of any adapter, when it throws an `AdapterTransportError` |
 | anthropic, google, litellm | each model call inside the agent loop, so a retry never runs the block's tools again; the SDK client's own retries are turned off for the call where the SDK allows it (`maxRetries: 0`) |
 | vercel-ai | each `doGenerate` of the model, through a wrapper; `generateText` runs with `maxRetries: 0` |
-| http, nexus | the runner retries their 429, 5xx and network failures |
+| http, nexus | the runner retries their 408, 429, 5xx and network failures |
 | openai-agents, langgraph, crewai, pydantic-ai | the runner retries the block when the framework's failure is transient; the framework's own retries stay as configured |
 | the judge clients | each provider call |
 
@@ -96,6 +97,6 @@ The first wait is the server's Retry-After, longer than the 500 ms backoff; the 
 
 ## In code
 
-`@driftbench/core` exports the policy for any client: `retrying(call, run, { policy })` runs a call under it, `retryPolicy(...layers)` builds a policy, `retryDecision(error)` says whether an error is retried, `collectRetries(work)` gathers the retries made inside `work`, and `RetryEvent` is the record's schema.
+`@agent-nexus/driftbench-core` exports the policy for any client: `retrying(call, run, { policy })` runs a call under it, `retryPolicy(...layers)` builds a policy, `retryDecision(error)` says whether an error is retried, `collectRetries(work)` gathers the retries made inside `work`, and `RetryEvent` is the record's schema.
 
 Not covered yet: the model port that `driftbench generate` and `extract` use keeps its own retry loop (two retries, 408 and 409 included).

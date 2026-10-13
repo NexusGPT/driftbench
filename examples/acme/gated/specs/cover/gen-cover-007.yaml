@@ -1,0 +1,228 @@
+# Gated by driftbench gate from cover/gen-cover-007.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-cover-007
+version: 6d29ed7a7539
+kind: conversation
+title: "Cell deviation=D5_language_switch, stage=handover: Path home-callback of new-home: needs > address > offer > callback > handover, D5_language_switch at handover"
+channel: whatsapp
+lang: EN
+tier: generated
+tags:
+  - flow:new-home
+  - persona:new-customer
+  - data:5g-only
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
+criteria:
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
+    gating: false
+    scope: conversation
+  - name: deviation.D5_language_switch
+    rubric: Replies stay in the user's declared language, with no mixing.
+    gating: false
+    scope: block
+blocks:
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+      criteria:
+        - flow.new-home
+  - id: b2-address-to-offer
+    when:
+      user: The address is 88 Summit Avenue, Acmeville.
+    expect:
+      stage: offer
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 88 Summit Avenue, Acmeville
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-103
+        - label: notify_sales
+          count: 0
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-offer-to-callback
+    when:
+      user: Can someone just call me back?
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b4-callback-to-handover
+    when:
+      user: You can reach me on +1 202 555 0131.
+    expect:
+      stage: handover
+      tools:
+        - label: notify_sales
+          count: 1
+          input:
+            reason: callback
+            customer:
+              subset:
+                phone: "+12025550131"
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b5-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: handover
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: cover
+    seed: 1
+    stream: 1062392290
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    path: home-callback
+    cell:
+      flow: new-home
+      user_type: new-customer
+      coverage_result: 5g-only
+      plan_choice: asks-for-callback
+      callback_phone: given
+      channel: whatsapp
+    blocks:
+      - block: b1-needs-to-address
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-address-to-offer
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: 5g-only
+          stage: offer
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-offer-to-callback
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: offer-to-callback
+          stage: callback
+        phrase:
+          dimension: stage_transition
+          value: offer-to-callback
+      - block: b4-callback-to-handover
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: callback-to-handover
+          callback_phone: given
+          coverage_result: 5g-only
+          plan_choice: asks-for-callback
+          stage: handover
+        phrase:
+          dimension: stage_transition
+          value: callback-to-handover
+      - block: b5-D5_language_switch
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: handover
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-address-to-offer
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
+      - block: b3-offer-to-callback
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b4-callback-to-handover
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b5-D5_language_switch
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+rules:
+  forbidden_tools:
+    - port.check
+    - order.create
+end_state:
+  source: tool:notify_sales
+  mode: subset
+  expect:
+    reason: callback
+    customer:
+      subset:
+        phone: "+12025550131"

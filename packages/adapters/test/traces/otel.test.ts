@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { Observed } from '@driftbench/core';
+import { Observed } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { anyValue, parseOtlp, tracesFromOtel } from '../../src/traces';
 
@@ -155,7 +155,13 @@ describe('tracesFromOtel: edge cases', () => {
     );
     const [trace, other] = traces;
     expect(trace?.turns[0]?.observed.toolCalls).toEqual([
-      { label: 'lookup', input: {}, error: 'timeout', startedAt: '1970-01-01T00:00:10.500Z', latencyMs: 100 },
+      {
+        label: 'lookup',
+        input: null,
+        error: 'timeout',
+        startedAt: '1970-01-01T00:00:10.500Z',
+        latencyMs: 100,
+      },
     ]);
     expect(other).toBeUndefined();
     expect(trace?.issues).toEqual([]);

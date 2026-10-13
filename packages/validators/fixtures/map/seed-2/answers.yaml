@@ -1,0 +1,174 @@
+# The perfect model answers, each dimension with its declared role, of the map validator, seed 2. Written by code from the hidden specification; every name is fictional.
+family: oracle
+model: perfect model written by code from the hidden specification
+answers:
+  stages:
+    section: stages
+    dimensions:
+      - id: stage
+        title: The stage a conversation is in
+        kind: stage
+        role: axis
+        values:
+          - id: greet
+            title: the assistant greets the customer and asks what they need
+            source: prompt.md
+            quote: "greet: the assistant greets the customer and asks what they need."
+          - id: identify
+            title: the assistant asks for the account reference
+            source: prompt.md
+            quote: "identify: the assistant asks for the account reference."
+          - id: verify
+            title: the assistant checks the details against the records
+            source: prompt.md
+            quote: "verify: the assistant checks the details against the records."
+          - id: propose
+            title: the assistant proposes the options that fit
+            source: prompt.md
+            quote: "propose: the assistant proposes the options that fit."
+          - id: recap
+            title: the assistant repeats the request back in full
+            source: prompt.md
+            quote: "recap: the assistant repeats the request back in full."
+          - id: close
+            title: the assistant says goodbye and ends the conversation
+            source: prompt.md
+            quote: "close: the assistant says goodbye and ends the conversation."
+    constraints: []
+    phrases: []
+  rules:
+    section: rules
+    dimensions:
+      - id: rule
+        title: The rules the assistant follows
+        kind: behaviour
+        role: detail
+        values:
+          - id: R-01
+            title: Send the case to the billing desk when the question is about an invoice
+            source: prompt.md
+            quote: When the question is about an invoice, send the case to the billing desk.
+          - id: R-02
+            title: Use the plan comparison skill when the customer weighs two plans
+            source: prompt.md
+            quote: Use the plan comparison skill when the customer weighs two plans.
+          - id: R-03
+            title: Point to the price list when the customer asks what a plan costs
+            source: prompt.md
+            quote: Point to the price list when the customer asks what a plan costs.
+          - id: R-04
+            title: Use the customer’s own words for the problem when you repeat it back
+            source: prompt.md
+            quote: When you repeat it back, use the customer’s own words for the problem.
+          - id: R-05
+            title: Keep the order draft unchanged when a message arrives twice
+            source: prompt.md
+            quote: Keep the order draft unchanged when a message arrives twice.
+      - id: deviation
+        title: The deviation classes the flows must be perturbed with
+        kind: deviation
+        role: axis
+        values:
+          - id: D2_goal_shift
+            title: If the customer changes what they want halfway, start the new request from its first step
+            source: prompt.md
+            quote: If the customer changes what they want halfway, start the new request from its first step.
+    constraints: []
+    phrases: []
+  personas:
+    section: personas
+    dimensions:
+      - id: language
+        title: The language the customer writes in
+        kind: persona
+        role: detail
+        values:
+          - id: en
+            title: a customer who writes in English
+            source: prompt.md
+            quote: "en: a customer who writes in English."
+          - id: nl
+            title: a customer who writes in Dutch
+            source: prompt.md
+            quote: "nl: a customer who writes in Dutch."
+      - id: customer_type
+        title: The kind of customer
+        kind: persona
+        role: axis
+        values:
+          - id: member
+            title: a customer with an active plan
+            source: prompt.md
+            quote: "member: a customer with an active plan."
+          - id: guest
+            title: a visitor with no account yet
+            source: prompt.md
+            quote: "guest: a visitor with no account yet."
+          - id: partner
+            title: a reseller acting for a customer
+            source: prompt.md
+            quote: "partner: a reseller acting for a customer."
+          - id: former
+            title: a customer whose plan has ended
+            source: prompt.md
+            quote: "former: a customer whose plan has ended."
+    constraints:
+      - forbid:
+          customer_type: member
+          channel: voice
+        reason: this kind of customer never uses that channel
+        source: prompt.md
+        quote: A member customer never reaches us on voice.
+    phrases: []
+  data:
+    section: data
+    dimensions:
+      - id: balance_state
+        title: The state of the customer balance
+        kind: data
+        role: axis
+        values:
+          - id: balance-clear
+            title: nothing is owed; any change may go ahead
+            source: prompt.md
+            quote: "balance-clear: nothing is owed; any change may go ahead."
+          - id: balance-overdue
+            title: a payment is late; mention it once before any change
+            source: prompt.md
+            quote: "balance-overdue: a payment is late; mention it once before any change."
+    constraints: []
+    phrases: []
+  phrases:
+    section: phrases
+    dimensions: []
+    constraints: []
+    phrases:
+      - dimension: flow
+        value: renewal
+        text: My plan ends next week and I want to keep it for another year.
+        lang: en
+        source: prompt.md
+        quote: My plan ends next week and I want to keep it for another year.
+      - dimension: flow
+        value: new-order
+        text: I have no account yet and want to sign up for a plan.
+        lang: en
+        source: prompt.md
+        quote: I have no account yet and want to sign up for a plan.
+      - dimension: flow
+        value: cancellation
+        text: Please end my plan at the end of this month.
+        lang: en
+        source: prompt.md
+        quote: Please end my plan at the end of this month.
+      - dimension: language
+        value: nl
+        text: Hallo, ik wil mijn abonnement aanpassen.
+        lang: nl
+        source: prompt.md
+        quote: Hallo, ik wil mijn abonnement aanpassen.
+  relations:
+    section: relations
+    dimensions: []
+    constraints: []
+    phrases: []

@@ -7,7 +7,7 @@ import {
   type Segment,
   type Session,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   closeOpenCalls,
   newUsage,

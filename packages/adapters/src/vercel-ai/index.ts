@@ -13,7 +13,7 @@ import {
   type Session,
   type ToolRule,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   closeOpenCalls,
@@ -328,7 +328,7 @@ function stepSegments(
     if (part.type === 'text' && typeof part.text === 'string' && part.text !== '') {
       segments.push({ type: 'text', text: part.text, ...take() });
     } else if (part.type === 'tool-call' && id !== undefined) {
-      segments.push({ type: 'tool_call', id, label, input: part.input ?? {}, ...take() });
+      segments.push({ type: 'tool_call', id, label, input: part.input ?? null, ...take() });
     } else if (part.type === 'tool-result' && id !== undefined) {
       segments.push({ type: 'tool_result', id, label, output: part.output ?? null });
     } else if (part.type === 'tool-error' && id !== undefined) {

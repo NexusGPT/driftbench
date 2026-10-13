@@ -1,9 +1,9 @@
-import { copyFile, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseSpecText } from '@driftbench/core';
-import { REPLAY_CUSTOM_CHECKS } from '@driftbench/generate';
+import { parseSpecText } from '@agent-nexus/driftbench-core';
+import { REPLAY_CUSTOM_CHECKS } from '@agent-nexus/driftbench-generate';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { replayRegistry } from '../src/commands/replay';
 import { type Io, main } from '../src/index';
@@ -138,9 +138,12 @@ describe('driftbench estate generate', () => {
     expect(again.code).toBe(2);
     expect(again.err).toMatch(/already exists: an earlier run wrote this folder/);
     await writeFile(join(out, 'keep.txt'), 'not ours');
+    await mkdir(join(out, 'unit', 'guard_positive'), { recursive: true });
+    await writeFile(join(out, 'unit', 'guard_positive', 'unit.stale.json'), '{}');
     const forced = await generate(out, '--force');
     expect(forced.code).toBe(0);
     expect(await files(out)).toContain('keep.txt');
+    expect(await files(out)).not.toContain('unit/guard_positive/unit.stale.json');
   });
 
   it('refuses a plan made from another map and writes nothing', async () => {

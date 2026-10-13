@@ -1,7 +1,7 @@
-import { contentHash, type Inventory, isPlainObject } from '@driftbench/core';
-import { type CompiledSpace, compileSpace, NONE, type SpaceMap } from '@driftbench/space';
+import { contentHash, type Inventory, isPlainObject } from '@agent-nexus/driftbench-core';
+import { type CompiledSpace, compileSpace, NONE, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { parse as parseYaml } from 'yaml';
-import { type Proposal, type ProposalPhrase, valueApproved } from '../extract/proposal';
+import { type NumericSetting, type Proposal, type ProposalPhrase, valueApproved } from '../extract/proposal';
 import { toSpaceMap } from '../extract/space';
 import { toolSlug } from '../extract/tools';
 import { Feasibility } from './feasible';
@@ -61,6 +61,8 @@ export type PreparedMap = {
   transition: number | undefined;
   /** The approved relations: paths, tool calls, slot values, recoveries, the reply language. */
   relations: Relations;
+  /** Approved numeric ranges, sampled only by budget mode and delivered as runtime vars. */
+  numericSettings?: readonly NumericSetting[];
 };
 
 /** The dimension id the extractor gives the stage graph's edges, `<from>-to-<to>` (extract handoff). */
@@ -75,16 +77,31 @@ export function prepareMap(
   proposal: Proposal,
   extras: { tools?: ToolSchema[]; inventory?: Inventory } = {},
 ): PreparedMap {
-  // The cell space holds the details too: the same conversion with every dimension read as an axis.
-  const map = toSpaceMap(
+  // The cell space holds the details too: the same conversion with every dimension read as an axis. The
+  // pairs the relations rule out, and the `none` of a data or task axis, come from the axis map: the
+  // relations speak of the axes.
+  const axisMap = toSpaceMap(proposal, { approvedOnly: true });
+  const whole = toSpaceMap(
     {
       ...proposal,
       dimensions: proposal.dimensions.map((dimension) => ({ ...dimension, role: 'axis' as const })),
     },
-    { approvedOnly: true },
+    { approvedOnly: true, derive: false },
   );
+  const axisValues = new Map(axisMap.dimensions.map((dimension) => [dimension.id, dimension.values]));
+  const written = new Set(whole.constraints.map((constraint) => JSON.stringify(constraint.forbid)));
+  const map = {
+    ...whole,
+    dimensions: whole.dimensions.map((dimension) => ({
+      ...dimension,
+      values: axisValues.get(dimension.id) ?? dimension.values,
+    })),
+    constraints: [
+      ...whole.constraints,
+      ...axisMap.constraints.filter((constraint) => !written.has(JSON.stringify(constraint.forbid))),
+    ],
+  };
   const space = compileSpace(map);
-  const axisMap = toSpaceMap(proposal, { approvedOnly: true });
   const axisIds = new Set(axisMap.dimensions.map((dimension) => dimension.id));
   const axes = new Set(
     space.dimensions.flatMap((dimension, index) => (isAxis(axisIds, dimension.id) ? [index] : [])),
@@ -112,6 +129,7 @@ export function prepareMap(
     return found !== undefined && entry !== undefined && valueApproved(found, entry);
   };
   const relations = readRelations(proposal, approvedValue);
+  const numericSettings = (proposal.numeric_settings ?? []).filter((setting) => setting.approved);
   const hash = contentHash({
     map,
     axes: [...axisIds],
@@ -123,8 +141,17 @@ export function prepareMap(
       ...(when ? { when } : {}),
       ...(binds ? { binds } : {}),
     })),
+    ...(numericSettings.length === 0
+      ? {}
+      : {
+          numeric_settings: numericSettings.map(
+            ({ evidence: _evidence, produced_by: _by, approved: _approved, ...range }) => range,
+          ),
+        }),
     ...(relations.paths.length +
       relations.usesTools.length +
+      relations.states.length +
+      relations.taskFamilies.length +
       relations.binds.size +
       relations.recoveries.length >
       0 || relations.replyLanguage !== undefined
@@ -154,6 +181,7 @@ export function prepareMap(
     channel: find('channel'),
     transition: find('behaviour', TRANSITION_DIMENSION),
     relations,
+    ...(numericSettings.length === 0 ? {} : { numericSettings }),
   };
 }
 

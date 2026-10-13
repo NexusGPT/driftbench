@@ -2,17 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-boundary-070
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "Boundary value failing_tool=order.create: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D8_tool_failure of order.create at recap"
+title: "Boundary value port_result=can-move: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed"
 channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:porting
   - persona:new-customer
-  - data:not-in-map
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,15 +23,13 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.porting
     rubric: A new customer switches to Acme and keeps their number
     gating: false
     scope: conversation
-  - name: deviation.D8_tool_failure
-    rubric: An honest fallback and one retry; never a success that did not happen.
-    gating: false
-    scope: block
 blocks:
   - id: b1-needs-to-port_number
     when:
@@ -47,29 +43,29 @@ blocks:
           count: 0
         - label: order.create
           count: 0
-        - label: notify_sales
-          count: 0
       lang: EN
       criteria:
         - flow.porting
   - id: b2-port_number-to-offer
     when:
-      user: My number is +1 202 555 0160.
+      user: My number is +1 202 555 0165.
     expect:
       stage: offer
       tools:
         - label: port.check
           count: 1
           input:
-            number: "+12025550160"
+            number: "+12025550165"
         - label: catalog.search
           count: 1
           input:
             category: mobile
         - label: order.create
           count: 0
-        - label: notify_sales
-          count: 0
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
   - id: b3-offer-to-details
     when:
@@ -83,12 +79,10 @@ blocks:
           count: 0
         - label: order.create
           count: 0
-        - label: notify_sales
-          count: 0
       lang: EN
   - id: b4-details-to-recap
     when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
+      user: Jo Okafor, jo.okafor@example.com
     expect:
       stage: recap
       tools:
@@ -98,44 +92,48 @@ blocks:
           count: 0
         - label: order.create
           count: 0
-        - label: notify_sales
-          count: 0
       lang: EN
-  - id: b5-D8_tool_failure
+  - id: b5-recap-to-order_placed
     when:
-      injection:
-        class: D8_tool_failure
-        user: Confirm
-    given:
-      world:
-        tools:
-          order.create:
-            error: service unavailable (generated tool failure)
+      user: Confirm
     expect:
-      stage: handover
+      stage: order_placed
       tools:
         - label: order.create
           count: 1
           input:
             type: new
             plan_id: mobile-m
-            port_number:
-              absent: true
+            port_number: "+12025550165"
             customer:
               subset:
                 name: Jo Okafor
                 email: jo.okafor@example.com
-        - label: notify_sales
-          count: 1
-          input:
-            reason: order_failed
         - label: port.check
           count: 0
         - label: catalog.search
           count: 0
       lang: EN
-      criteria:
-        - deviation.D8_tool_failure
+perturbations:
+  - id: p1-D7_silence_or_burst
+    class: D7_silence_or_burst
+    inject_at: 3
+    user: hello?
+    expect:
+      stage: details
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I'm here
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: details
 metadata:
   generated:
     by: driftbench generate
@@ -146,18 +144,16 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: porting-locked-number
+      hash: 6d29ed7a7539
+    path: porting-keep-number
     cell:
-      failing_tool: order.create
+      port_result: can-move
       flow: porting
       user_type: new-customer
-      port_result: locked
       plan_choice: names-one
       customer_details: name-and-email
       channel: chat
-      coverage_result: not-in-map
-      workspace_start: existing-workbook
+      coverage_result: none
     blocks:
       - block: b1-needs-to-port_number
         seeder: boundary
@@ -173,7 +169,7 @@ metadata:
         cell:
           spec: metadata.generated.cell
           stage_transition: port_number-to-offer
-          port_result: locked
+          port_result: can-move
           stage: offer
         phrase:
           dimension: stage_transition
@@ -197,15 +193,14 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
-      - block: b5-D8_tool_failure
+      - block: b5-recap-to-order_placed
         seeder: boundary
         cell:
           spec: metadata.generated.cell
-          deviation: D8_tool_failure
           stage_transition: recap-to-order_placed
-          port_result: locked
+          port_result: can-move
           customer_details: name-and-email
-          stage: handover
+          stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
@@ -220,7 +215,7 @@ metadata:
       - block: b2-port_number-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
+        pass_probability: 0.615
       - block: b3-offer-to-details
         status: accepted
         pass_k: 1
@@ -229,10 +224,22 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b5-D8_tool_failure
+      - block: b5-recap-to-order_placed
         status: accepted
         pass_k: 1
-        pass_probability: 0.538
+        pass_probability: 0.615
 rules:
   forbidden_tools:
     - coverage.check
+    - notify_sales
+end_state:
+  source: tool:order.create
+  mode: subset
+  expect:
+    type: new
+    plan_id: mobile-m
+    port_number: "+12025550165"
+    customer:
+      subset:
+        name: Jo Okafor
+        email: jo.okafor@example.com

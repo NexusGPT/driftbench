@@ -1,5 +1,5 @@
 /** Statistics: intervals, reliability, paired tests, multiple comparisons, power, non-inferiority, drift, agreement, variance components and coverage. */
-export const packageName = '@driftbench/stats';
+export const packageName = '@agent-nexus/driftbench-stats';
 
 export {
   type AlphaLevel,
@@ -10,7 +10,7 @@ export {
   krippendorffAlpha,
   type Label,
 } from './agreement';
-export { mean, mulberry32, quantile, quantileSorted, sampleVariance } from './basics';
+export { mean, mulberry32, quantile, quantileSorted, sampleVariance, weightedMean } from './basics';
 export {
   abundances,
   type ChaoResult,
@@ -38,9 +38,11 @@ export {
   type BootstrapOptions,
   bootstrapCI,
   clopperPearson,
+  clusteredMeanInterval,
   designEffect,
   effectiveSampleSize,
   type Interval,
+  kishEffectiveSize,
   wilson,
   Z95,
   zeroFailureBound,
@@ -54,6 +56,8 @@ export {
   type NonInferiorityInput,
   type NonInferiorityResult,
   nonInferiority,
+  type OneWayAnovaResult,
+  oneWayAnova,
   type PairedDifference,
   type PairedTable,
   pairedRateDifference,
@@ -78,7 +82,9 @@ export {
 } from './special';
 export {
   type Component,
+  designEffectFromData,
   icc,
+  iccOneWay,
   type LevelCorrelation,
   type NeymanInput,
   type NeymanResult,
@@ -87,6 +93,8 @@ export {
   type RepeatsForFloorInput,
   type RepeatsForFloorResult,
   repeatsForFloor,
+  type StratifiedMeanInput,
+  stratifiedMean,
   type VarianceComponentsOptions,
   type VarianceComponentsResult,
   varianceComponents,

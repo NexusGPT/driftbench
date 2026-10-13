@@ -30,7 +30,7 @@ The command runs until Ctrl+C. Exit 0 after a stop, 2 when the store is missing,
 |---|---|
 | `/` | every campaign of the store, newest first, with its modes, specs, runs and how many pass |
 | `/campaign/<id>` | the campaign's [scorecard](scorecards.md), spread view included; every run in the drilldown links to its own page |
-| `/campaign/<id>/run/<runId>` | one run, every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
+| `/campaign/<id>/run/<runId>` | one run: its timeline first, every event in order (a model call with its start, end, tokens and cost, when the adapter reports them; plain HTML, no script), then every block in full: what the user sent, the reply, the tool calls with their results, every verdict that did not pass and every judged verdict with its evidence and reasoning; a label form under each block |
 | `/compare` | two campaigns picked from the store and a margin; the result is the paired comparison of [`driftbench compare`](concepts/statistics.md#comparing-a-baseline-and-a-candidate) with its verdict |
 
 ## Review queue
@@ -81,4 +81,13 @@ blocks:
 
 `judge calibrate` needs at least one pass and one fail label per criterion, or kappa has nothing to measure. The labelling section says when a criterion still lacks one of the two.
 
-From code, `saveLabel(dir, criterion, block, labelledBy)` and `readLabelFile(dir, criterion)` of `@driftbench/judges` write and read the same files.
+From code, `saveLabel(dir, criterion, block, labelledBy)` and `readLabelFile(dir, criterion)` of `@agent-nexus/driftbench-judges` write and read the same files.
+
+## Anchors on a label
+
+The label form has an anchor select. Its options are each line of the block's transcript, by index, and each tool call, by name and occurrence. The label file keeps the chosen anchor, and `judge calibrate` reads it. An anchor the block does not have is refused with a 400 response, and no label is written. Choose no anchor to label the whole block.
+
+## Field, span and score
+
+The anchor select also offers a field of a tool output (`field:<tool>:<path>`, the dot path of a leaf of its JSON output) and a runtime event of the block (`span:<guard|skill>:<name>`). A span cannot be checked against the transcript, so its label stands as written. The label form has a score box, from 0 to 1, which is kept on the reviewer's vote when the label completes a queue item.
+

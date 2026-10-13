@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FakeModelPort } from '@driftbench/generate';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type GenerateDeps, registerGenerateCommand } from '../src/commands/generate';

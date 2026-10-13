@@ -156,3 +156,33 @@ describe('bootstrapCI', () => {
     expect(() => bootstrapCI([1, 2, 3], { clusters: ['a', 'b'] })).toThrow(RangeError);
   });
 });
+
+describe('design effect bound', () => {
+  it('throws below the bound rho = -1 / (m - 1), where the design effect is zero or less', () => {
+    expect(() => designEffect(10, -0.5)).toThrow(RangeError);
+    expect(() => designEffect(10, -1 / 9)).toThrow(RangeError);
+    expect(() => effectiveSampleSize(100, 10, -0.2)).toThrow(RangeError);
+    expect(designEffect(10, -0.1)).toBeCloseTo(0.1, 12);
+    expect(designEffect(1, -1)).toBe(1);
+  });
+});
+
+describe('zeroFailureBound at a tiny p', () => {
+  it('keeps the digits of ln(1 - p) for p = 1e-9', () => {
+    expect(zeroFailureBound(1e-9)).toBe(2995732273);
+    expect(zeroFailureBound(1e-12)).toBe(2995732273553);
+    expect(zeroFailureBound(0.05)).toBe(59);
+  });
+});
+
+describe('bootstrapCI on equal values', () => {
+  it('returns that value exactly for estimate and both limits', () => {
+    for (const x of [0.1, 0.3, 0.7, 0.9]) {
+      const r = bootstrapCI(
+        Array.from({ length: 7 }, () => x),
+        { iterations: 20, method: 'basic' },
+      );
+      expect([r.estimate, r.lower, r.upper]).toEqual([x, x, x]);
+    }
+  });
+});

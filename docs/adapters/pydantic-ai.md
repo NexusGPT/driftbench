@@ -7,7 +7,7 @@ The pydantic-ai adapter runs a [Pydantic AI](https://ai.pydantic.dev/) agent in 
 ## Options
 
 ```ts
-import { pydanticAiAdapter } from '@driftbench/adapters';
+import { pydanticAiAdapter } from '@agent-nexus/driftbench-adapters';
 
 const adapter = pydanticAiAdapter({
   agent: 'acme.agents:sales', // an Agent, or a function that returns one
@@ -50,7 +50,7 @@ The new messages, in order: a response's `text` parts are text, its `tool-call` 
 
 | What happens | Error |
 |---|---|
-| the bridge prints `driftbench-error` with a 429 or a 5xx (`ModelHTTPError.status_code`), or a connection or timeout error type | `AdapterTransportError`: the runner retries under the [shared policy](../retries.md) |
+| the bridge prints `driftbench-error` with a 408, a 429 or a 5xx (`ModelHTTPError.status_code`), or a connection or timeout error type | `AdapterTransportError`: the runner retries under the [shared policy](../retries.md) |
 | the interpreter cannot start | `AdapterTransportError`, marked exhausted: not retried |
 | the process gives no answer within `timeoutMs` | `AdapterTransportError` |
 | any other `driftbench-error`, or an exit without a result line | `AgentFailure`, with the error or the end of stderr |

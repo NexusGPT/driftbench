@@ -1,4 +1,4 @@
-import { type Assertion, isPlainObject } from '@driftbench/core';
+import { type Assertion, isPlainObject } from '@agent-nexus/driftbench-core';
 import type { JsonSchema, ToolSchema } from './map';
 
 /**
@@ -147,12 +147,20 @@ export function defaultFor(schema: JsonSchema, name = 'value'): unknown {
  */
 export function toolAnswer(
   tool: ToolSchema,
-  partitions: ReadonlyArray<{ path: string[]; schema: JsonSchema; partition: string }>,
+  partitions: ReadonlyArray<{
+    path: string[];
+    schema: JsonSchema;
+    partition: string;
+    bindings?: readonly string[];
+  }>,
 ): { answer: Record<string, unknown>; unsupported: string[] } {
   const answer = (tool.output ? defaultFor(tool.output) : {}) as Record<string, unknown>;
   const unsupported: string[] = [];
-  for (const { path, schema, partition } of partitions) {
-    const concrete = concreteValue(schema, partition, path[path.length - 1]);
+  for (const { path, schema, partition, bindings } of partitions) {
+    const concrete =
+      bindings === undefined
+        ? concreteValue(schema, partition, path[path.length - 1])
+        : boundReplyValue(schema, partition, bindings);
     if (concrete.kind === 'unsupported') {
       unsupported.push(`${path.join('.')}.${partition}: ${concrete.why}`);
       continue;
@@ -160,6 +168,65 @@ export function toolAnswer(
     setAt(answer, path, concrete);
   }
   return { answer, unsupported };
+}
+
+/** A reply reads the bound scalar exactly; a partition must not silently replace it with a default. */
+function boundReplyValue(schema: JsonSchema, partition: string, bindings: readonly string[]): Concrete {
+  const distinct = [...new Set(bindings)];
+  if (distinct.length !== 1)
+    return {
+      kind: 'unsupported',
+      why: distinct.length === 0 ? 'no bound reply value' : 'ambiguous bound reply values for this field',
+    };
+  const text = distinct[0] as string;
+  if (partition !== 'present') {
+    const concrete = concreteValue(schema, partition);
+    if (concrete.kind === 'unsupported') return concrete;
+    if (
+      concrete.kind !== 'value' ||
+      (concrete.value !== null && !['string', 'number', 'boolean'].includes(typeof concrete.value)) ||
+      String(concrete.value) !== text
+    ) {
+      return { kind: 'unsupported', why: `bound reply value does not match the ${partition} partition` };
+    }
+    return concrete;
+  }
+
+  const members = Array.isArray(schema.enum) ? schema.enum : 'const' in schema ? [schema.const] : undefined;
+  const types = typesOf(schema);
+  const candidates: Array<string | number | boolean | null> = [];
+  const permits = (type: string) => types.includes(type) || (types.length === 0 && members !== undefined);
+  if (permits('string')) candidates.push(text);
+  const numeric = Number(text);
+  if (
+    Number.isFinite(numeric) &&
+    String(numeric) === text &&
+    (permits('number') || (permits('integer') && Number.isInteger(numeric)))
+  )
+    candidates.push(numeric);
+  if (permits('boolean') && (text === 'true' || text === 'false')) candidates.push(text === 'true');
+  if (permits('null') && text === 'null') candidates.push(null);
+  const allowed = candidates.filter((value) => {
+    if (members && !members.includes(value)) return false;
+    if ('const' in schema && schema.const !== value) return false;
+    if (typeof value === 'number') {
+      if (typeof schema.minimum === 'number' && value < schema.minimum) return false;
+      if (typeof schema.maximum === 'number' && value > schema.maximum) return false;
+      if (typeof schema.exclusiveMinimum === 'number' && value <= schema.exclusiveMinimum) return false;
+      if (typeof schema.exclusiveMaximum === 'number' && value >= schema.exclusiveMaximum) return false;
+    }
+    if (typeof value === 'string') {
+      if (typeof schema.minLength === 'number' && [...value].length < schema.minLength) return false;
+      if (typeof schema.maxLength === 'number' && [...value].length > schema.maxLength) return false;
+    }
+    return true;
+  });
+  if (allowed.length !== 1)
+    return {
+      kind: 'unsupported',
+      why: 'bound reply value must identify one scalar matching the schema type and bounds',
+    };
+  return { kind: 'value', value: allowed[0] };
 }
 
 function setAt(target: Record<string, unknown>, path: string[], concrete: Concrete): void {

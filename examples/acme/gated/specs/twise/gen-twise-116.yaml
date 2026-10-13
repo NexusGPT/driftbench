@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-116
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 116 of 154: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D5_language_switch at recap"
+title: "t-wise row 116 of 132: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D5_language_switch at address"
 channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
   - data:5g-only
-  - task:existing-workbook
   - flow:new-home
 covers:
   - B-011
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-011
     rubric: Answer an off-topic question in one line and resume the pending step
@@ -57,7 +58,26 @@ blocks:
       criteria:
         - behaviour.B-011
         - flow.new-home
-  - id: b2-address-to-offer
+  - id: b2-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
+  - id: b3-address-to-offer
     when:
       user: The address is 88 Summit Avenue, Acmeville.
     expect:
@@ -74,8 +94,10 @@ blocks:
             address_id: addr-103
         - label: order.create
           count: 0
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
-  - id: b3-offer-to-details
+  - id: b4-offer-to-details
     when:
       user: I'll take Acme Air 5G.
     expect:
@@ -88,7 +110,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b4-details-to-recap
+  - id: b5-details-to-recap
     when:
       user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
@@ -101,28 +123,9 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: recap
-      tools:
-        - label: coverage.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-      criteria:
-        - deviation.D5_language_switch
   - id: b6-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
@@ -151,14 +154,13 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: home-order
     cell:
       behaviour: B-011
       channel: chat
       user_type: new-customer
       coverage_result: 5g-only
-      workspace_start: existing-workbook
       flow: new-home
       plan_choice: names-one
       customer_details: name-and-email
@@ -172,7 +174,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-offer
+      - block: b2-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: address
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
+      - block: b3-address-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -182,7 +193,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-offer
-      - block: b3-offer-to-details
+      - block: b4-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -191,7 +202,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b4-details-to-recap
+      - block: b5-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -201,15 +212,6 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
-      - block: b5-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: recap
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
       - block: b6-recap-to-order_placed
         seeder: twise
         cell:
@@ -229,26 +231,26 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-address-to-offer
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.615
-      - block: b3-offer-to-details
+      - block: b2-D5_language_switch
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b4-details-to-recap
+      - block: b3-address-to-offer
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
+      - block: b4-offer-to-details
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b5-details-to-recap
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b5-D5_language_switch
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.538
       - block: b6-recap-to-order_placed
         status: accepted
         pass_k: 1
-        pass_probability: 0.538
+        pass_probability: 0.615
 rules:
   forbidden_tools:
     - port.check

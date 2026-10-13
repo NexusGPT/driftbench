@@ -1,6 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { basename, extname, join } from 'node:path';
-import { DeviationClass, WorldState } from '@driftbench/core';
+import { DeviationClass, WorldState } from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { DEVIATIONS } from './deviations';

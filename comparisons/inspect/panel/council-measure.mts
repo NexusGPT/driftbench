@@ -7,11 +7,11 @@ import { fileURLToPath } from 'node:url';
 import { labelRequest, loadLabels } from '../../../packages/judges/src/calibration';
 import { type Cassette, cassettePlayers } from '../../../packages/judges/src/cassette';
 import { majority } from '../../../packages/judges/src/council';
-import { loadCriteria, parseCriterionFile } from '../../../packages/judges/src/criteria';
+import { loadCriteria } from '../../../packages/judges/src/criteria';
 import { type PanelVote, weightedPanel } from '../../../packages/judges/src/weighted-panel';
 
-const CASSETTE = process.env.CASSETTE;
-if (!CASSETTE) throw new Error('set CASSETTE to the council cassette path');
+const CASSETTE =
+  process.env.CASSETTE ?? fileURLToPath(new URL('./data/claude-council.cassette.json', import.meta.url));
 const cassette = JSON.parse(readFileSync(CASSETTE, 'utf8')) as Cassette;
 const criteriaDir = fileURLToPath(new URL('../../../examples/acme/criteria', import.meta.url));
 const labelsDir = fileURLToPath(new URL('../../../examples/acme/labels', import.meta.url));
@@ -65,7 +65,6 @@ for (const id of ids) {
   const pe = n ? (pTrue / n) * (pPred / n) + ((n - pTrue) / n) * ((n - pPred) / n) : 0;
   kappa[id] = pe === 1 ? 0 : Math.max(0, (po - pe) / (1 - pe));
 }
-const equal = Object.fromEntries(ids.map((id) => [id, 1]));
 
 function score(rule: (votes: PanelVote[]) => 'pass' | 'fail' | 'split') {
   let right = 0,

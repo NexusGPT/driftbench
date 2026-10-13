@@ -1,5 +1,5 @@
-import { coveringArray, Feasibility, rngFor } from '@driftbench/generate';
-import { compileSpace, type SpaceMap } from '@driftbench/space';
+import { coveringArray, Feasibility, rngFor } from '@agent-nexus/driftbench-generate';
+import { compileSpace, type SpaceMap } from '@agent-nexus/driftbench-space';
 
 /**
  * Pairwise cells (design section 4): t-wise combinations over the axis dimensions of the space map, under

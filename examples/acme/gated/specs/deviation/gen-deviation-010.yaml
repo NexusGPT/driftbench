@@ -2,17 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-deviation-010
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
 title: "Deviation probe D9_out_of_scope: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D9_out_of_scope at identify"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
   - flow:upgrade
   - persona:existing-customer
-  - data:fiber
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,6 +23,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.upgrade
     rubric: An existing customer moves to a plan with more data
@@ -72,6 +72,10 @@ blocks:
           input:
             category: mobile
             customer_email: lee.jensen@example.com
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
 metadata:
   generated:
@@ -83,15 +87,14 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: upgrade-plan-not-in-catalog
     cell:
       flow: upgrade
       user_type: existing-customer
       account_lookup: plan-not-in-catalog
-      channel: whatsapp
-      coverage_result: fiber
-      workspace_start: existing-workbook
+      channel: chat
+      coverage_result: none
     blocks:
       - block: b1-needs-to-identify
         seeder: deviation
@@ -136,7 +139,7 @@ metadata:
       - block: b3-identify-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
+        pass_probability: 0.615
 rules:
   forbidden_tools:
     - coverage.check

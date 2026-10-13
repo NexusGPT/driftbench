@@ -1,0 +1,811 @@
+{
+  "model": "haiku",
+  "sets": ["relevancy-hard2-vague"],
+  "cost_usd": 0.0,
+  "calls": 0,
+  "replays": 300,
+  "fails": 0,
+  "seconds": 0,
+  "rows": [
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H035",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H010",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H049",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H047",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H070",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H051",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H039",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H054",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H018",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H030",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H029",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H066",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H056",
+      "label": "irrelevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H071",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H100",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H099",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H036",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H079",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H096",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H077",
+      "label": "irrelevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H043",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H093",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H087",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H092",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H017",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H019",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H022",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H013",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H033",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H086",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H028",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H067",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H042",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H085",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H068",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H001",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H060",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H026",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H011",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H003",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H081",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H076",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H004",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H094",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H059",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H082",
+      "label": "irrelevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H090",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H075",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H064",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H084",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H044",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H016",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H091",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H007",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H078",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H083",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H015",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H023",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H058",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H006",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H065",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H080",
+      "label": "irrelevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H052",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H031",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H072",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H024",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H014",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H045",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H021",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H057",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H041",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H055",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "no",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H037",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H012",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H050",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H046",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H089",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H073",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H088",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H048",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H062",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H098",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H074",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H025",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H027",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H063",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H009",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H034",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H020",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H069",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H097",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H005",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H053",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H008",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H002",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H040",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H061",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H095",
+      "label": "irrelevant",
+      "ours": "fail",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "0"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H032",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    },
+    {
+      "set": "relevancy-hard2-vague",
+      "id": "H038",
+      "label": "relevant",
+      "ours": "pass",
+      "deepeval_turnrel": "yes",
+      "deepeval_geval": "1"
+    }
+  ]
+}

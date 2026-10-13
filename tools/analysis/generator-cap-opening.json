@@ -1,0 +1,1506 @@
+{
+  "fixture": "scaledSpec(1, 10), t=3",
+  "actualPairs": {
+    "covered": 1485,
+    "allowed": 1526
+  },
+  "groups": [
+    {
+      "cause": "Opening recovery stays at the initial stage with no required tool call",
+      "count": 41,
+      "pairs": [
+        {
+          "behaviour": "B-001",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-002",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-003",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-004",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-006",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1000",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1001",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1003",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1004",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1006",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1007",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1009",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1010",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1012",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1013",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1016",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1019",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1020",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1021",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1022",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1023",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1024",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1025",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1027",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1028",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1030",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1031",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1034",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1036",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1037",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1039",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1040",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1042",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1043",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1044",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1045",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1046",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1049",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1051",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1052",
+          "stage": "opening"
+        },
+        {
+          "behaviour": "B-1053",
+          "stage": "opening"
+        }
+      ],
+      "sources": [
+        "packages/generate/src/seed/scenario.ts:203",
+        "packages/generate/src/seed/scenario.ts:471",
+        "packages/generate/src/seed/seeders.ts:1553",
+        "packages/generate/src/seed/possible.ts:76",
+        "packages/validators/src/ladders/generator/hidden.ts:379",
+        "packages/validators/src/ladders/generator/render.ts:301"
+      ]
+    },
+    {
+      "cause": "Other",
+      "count": 0,
+      "pairs": []
+    }
+  ],
+  "attempts": [
+    {
+      "pair": {
+        "behaviour": "B-001",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-002",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-003",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-004",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-006",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1000",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1001",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1003",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1004",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1006",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1007",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1009",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1010",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1012",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1013",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1016",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1019",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1020",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1021",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1022",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1023",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1024",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1025",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1027",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1028",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1030",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1031",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1034",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1036",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1037",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1039",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1040",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1042",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1043",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1044",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1045",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1046",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1049",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1051",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1052",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply"
+      ]
+    },
+    {
+      "pair": {
+        "behaviour": "B-1053",
+        "stage": "opening"
+      },
+      "reasons": [
+        "path status-check-again: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-lookup: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path status-check-unclear: the map gives no recovery from D1_off_topic in the flow status-check",
+        "path change-request-back: the map gives no recovery from D1_off_topic in the flow change-request",
+        "path new-request-short: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path new-request-full: the first-turn recovery of D1_off_topic stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-again: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D5_language_switch stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D5_language_switch in the flow change-request",
+        "path new-request-short: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path new-request-full: the map gives no recovery from D5_language_switch in the flow new-request",
+        "path status-check-again: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D6_instruction_in_data stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D6_instruction_in_data in the flow change-request",
+        "path new-request-short: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path new-request-full: the map gives no recovery from D6_instruction_in_data in the flow new-request",
+        "path status-check-again: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-lookup: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path status-check-unclear: the first-turn recovery of D9_out_of_scope stays at opening without a required tool call; it cannot distinguish an idle or echo reply",
+        "path change-request-back: the map gives no recovery from D9_out_of_scope in the flow change-request",
+        "path new-request-short: the map gives no recovery from D9_out_of_scope in the flow new-request",
+        "path new-request-full: the map gives no recovery from D9_out_of_scope in the flow new-request"
+      ]
+    }
+  ]
+}

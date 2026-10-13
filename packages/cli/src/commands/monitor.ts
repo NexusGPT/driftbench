@@ -1,10 +1,17 @@
 import { readFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
-import { type PriceTable, readTraces, TRACE_SOURCES, type TraceSource } from '@driftbench/adapters';
-import { type Campaign, type RunResult, runsByCell, type Store } from '@driftbench/core';
-import { cusum, ksTest, mean, pageHinkley, sampleVariance } from '@driftbench/stats';
+import {
+  type PriceTable,
+  readTraces,
+  TRACE_SOURCES,
+  type TraceSource,
+} from '@agent-nexus/driftbench-adapters';
+import { type Campaign, type RunResult, runsByCell, type Store } from '@agent-nexus/driftbench-core';
+import { cusum, ksTest, mean, pageHinkley, sampleVariance } from '@agent-nexus/driftbench-stats';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { noStoreAt } from '../store-path';
 import { type CampaignDeps, defaultDeps } from './campaign';
 import { runPasses } from './ci';
 import { parseWindow, TRACE_METRICS, type TraceMetric, traceSeries } from './monitor-traces';
@@ -195,7 +202,7 @@ export async function monitorTracesCommand(
     io.err(`--every takes a whole number and a unit (s, m, h, d), such as 1h, not "${options.every}".\n`);
     return 2;
   }
-  const window = Number(options.window);
+  const window = optionNumber(options.window);
   if (!Number.isInteger(window) || window < 2) {
     io.err(`--window takes a whole number of at least 2, not "${options.window}".\n`);
     return 2;
@@ -263,12 +270,13 @@ export async function monitorCommand(
     return 2;
   }
   const metric = options.metric as Metric;
-  const window = Number(options.window);
+  const window = optionNumber(options.window);
   if (!Number.isInteger(window) || window < 2) {
     io.err(`--window takes a whole number of at least 2, not "${options.window}".\n`);
     return 2;
   }
   const path = resolve(io.cwd, storePath);
+  if (noStoreAt(path, display(path, io), io)) return 2;
   let store: Store;
   try {
     store = await deps.openStore(path);

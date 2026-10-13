@@ -1,6 +1,6 @@
 # Statistics
 
-One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. The functions on this page ship in `@driftbench/stats`. Each matches a reference value computed in Python with scipy and numpy and committed as a test fixture (`packages/stats/test/reference`).
+One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. The functions on this page ship in `@agent-nexus/driftbench-stats`. Each matches a reference value computed in Python with scipy and numpy and committed as a test fixture (`packages/stats/test/reference`).
 
 What is built and what is not:
 
@@ -12,7 +12,7 @@ What is built and what is not:
 The same statistics serve conversations and tasks. One conversation, or one task, is one cluster. An artifact check is a pass or a fail per repeat, so pass^k reads the same way for a workbook as for a reply.
 
 ```ts
-import { mde, nonInferiority, passK, repeatsForFloor, wilson, zeroFailureBound } from '@driftbench/stats';
+import { mde, nonInferiority, passK, repeatsForFloor, wilson, zeroFailureBound } from '@agent-nexus/driftbench-stats';
 
 console.log(wilson(18, 20));
 console.log(passK(4, 5, 2), zeroFailureBound(0.05));
@@ -76,6 +76,8 @@ A criterion can name a repeat reducer (`mode`, `median` or `at_least:<k>`). It r
 
 `bootstrapCI` takes one cluster key per value: every value of one conversation carries the conversation's key, so the blocks of a run are never treated as independent samples. Without keys every value is its own cluster. `iterations` defaults to 2000, `method` is `percentile` (the default) or `basic`, `alpha` defaults to 0.05, and `seed` defaults to 1: the same seed gives the same interval. `statistic` replaces the pooled mean with any function of the resampled values.
 
+The scorecard's pass rate over specs, with several repeats of each, does not use the percentile bootstrap: with five or six specs it holds the true rate in about 82 percent of draws. It prints the Wilson interval on the effective runs instead: the runs divided by the design effect that the spread of the spec rates implies, with the Student t quantile on the specs less one in place of z. On 6 specs of 5 repeats at `rho` 0.3 it holds the true rate in about 97 percent of draws, on 20 specs of 3 repeats in about 95 percent (planted designs, 4000 draws). Its method name in the report is `wilson, design effect`.
+
 ## Where results vary
 
 Two runs of the same spec can differ, and two wordings of the same situation can differ too. Before a difference between two versions means anything, it is read against that spread: the noise floor.
@@ -90,7 +92,7 @@ Two runs of the same spec can differ, and two wordings of the same situation can
 
 * `varianceComponents` reads observations, each a pass flag (true counts as 1) or a score, with its `path`: the group at each level, outermost first. The default levels are `cell`, `conversation` and `wording`, and each observation is one `repeat`, the residual. It uses the ANOVA estimator of a nested random-effects model: the classic nested ANOVA when the data is balanced, Henderson's method I otherwise. Each component reports its estimate, its variance truncated at 0, and its share of the total; a level with one child per parent is marked not estimable.
 * `icc` turns those components into the correlation of two observations that share a level. That correlation is the `rho` of the design effect: repeats of one conversation that agree with each other add less information than independent runs.
-* `neymanAllocation` gives each stratum a share proportional to its size times its spread, rounded to whole numbers that add up to `total`, so a stratum where results vary more gets more conversations.
+* `neymanAllocation` gives each stratum a share proportional to its size times its spread (`exact`), so a stratum where results vary more gets more conversations. `allocated` is the set of whole numbers adding up to `total` with the lowest stratified variance; rounding `exact` can miss it by one conversation.
 * `repeatsForFloor` solves the half-width `z sqrt(f variance / (r blocks))` for the repeats r, with `f` 2 for a difference between two versions (the default) and 1 otherwise. Give the run-to-run `variance`, or the `flipRate` of a pass flag, whose variance is `p (1 - p)`. `z` defaults to 1.96 and `blocks` to 1. It returns the repeats and the floor they reach.
 
 ## Comparing a baseline and a candidate
@@ -99,9 +101,9 @@ Both run on the same specs.
 
 | Function | Computes |
 |---|---|
-| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square |
+| `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square. `compare` (and so `ci`) always passes `exact: true`, at any count, and prints "McNemar exact" |
 | `wilcoxonSignedRank(x, y, { method })` | Wilcoxon's signed-rank test on paired values, such as the drift count per spec; `method` is `auto` (the default, which follows scipy's choice), `exact`, `permutation` or `asymptotic` |
-| `pairedRateDifference(table, alpha)` | the baseline pass rate minus the candidate's, with Newcombe's interval for paired data; `table` counts `bothPass`, `regressed`, `improved` and `bothFail` |
+| `pairedRateDifference(table, alpha)` | the baseline pass rate minus the candidate's, with Newcombe's method 10 interval for paired data: Wilson limits per arm and the corrected phi correlation; `table` counts `bothPass`, `regressed`, `improved` and `bothFail` |
 | `benjaminiHochberg(pvalues, q)` | false discovery rate control at `q` (default 0.05): adjusted p-values, the rejected hypotheses and the threshold |
 
 Many criteria are compared at once, so a report applies Benjamini-Hochberg across criteria before it says that a criterion regressed.
@@ -110,7 +112,7 @@ Many criteria are compared at once, so a report applies Benjamini-Hochberg acros
 
 `nonInferiority({ baseline, candidate, margin, pairs, alpha, gatingFlags })` judges one gating criterion. `baseline` and `candidate` hold the all-pass flag of each spec, in the same order. The candidate is non-inferior when the upper bound of the interval on the regression effect, at level `1 - alpha` (default 0.05), is below the `margin` set before the campaign, and no gating flag fires for the candidate where the baseline had none (`gatingFlags`, one flag per spec for each version). `pairs` names the specs, so the result lists the regressed ones and the new flags, with the discordant counts and the reason. Zero regressed pairs in one run is not parity: it is one draw.
 
-The function judges one criterion. `compareCampaigns` in `@driftbench/report` combines the criteria of a campaign into one verdict, below.
+The function judges one criterion. `compareCampaigns` in `@agent-nexus/driftbench-report` combines the criteria of a campaign into one verdict, below.
 
 ## The campaign verdict
 
@@ -134,10 +136,10 @@ The function judges one criterion. `compareCampaigns` in `@driftbench/report` co
 
 Measured on the Acme example (2026-10-12):
 
-| Suite | Auto margin | Set by | Identity control | The nine faults |
+| Suite | Auto margin | Set by | Identity control | The faults |
 |---|---|---|---|---|
-| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning | the all-pass flag (27.75) | parity | red: 3 regressed, 6 not shown non-inferior |
-| `examples/acme/gated/specs`, 134 goldens | 6.5 points | `must` (6.02, 60 goldens); `cards` (11) and `guards` (26) underpowered | parity | 8 red as regressions; `x1-invents-price` reads parity, because no gated golden catches a price raised by 5 dollars |
+| `examples/acme/golden/specs`, 10 goldens | 28 points, with the warning | the all-pass flag (27.75) | parity | of the 13 sales and ops faults the gate scores: 5 regressed, 7 not shown non-inferior; `ops-d6-deletes-readme` reads parity |
+| `examples/acme/gated/specs`, 193 goldens | 7.5 points | `guards` (7); `cards` (12) and the task-only criteria (24) underpowered | parity | all 13 red as regressions, the 4 ops faults included through `--route` |
 
 With `--strict` at 30 points the identity control on the 10-golden suite is not shown non-inferior, as before the minimum existed.
 
@@ -147,7 +149,7 @@ With `--strict` at 30 points the identity control on the 10-golden suite is not 
 
 `mde({ n, repeats, baselineRate, power, alpha, rho })` solves the two-proportion power equation for the smallest drop from the baseline rate that the campaign detects, with `n` specs per version, `repeats` per spec (default 1), `power` 0.8 and `alpha` 0.05 by default. The repeats count through the design effect: `n repeats / (1 + (repeats - 1) rho)` effective units per version. `rho` defaults to 0, which treats repeats as independent and so is optimistic; pass the `rho` that `icc` measures. It treats the two versions as independent samples, which is conservative for a paired campaign. The effect is `null` when no drop below the baseline rate is detectable.
 
-`campaign plan` uses the runner's own formula today, with runs counted as independent; using `mde` with a measured `rho` there is planned, phase 4. See [running](../running.md#the-minimum-detectable-effect).
+`campaign plan` prints the effect of `mde`, with the specs as `n` and the repeats of each spec as `repeats`. `--rho <rho>` passes the correlation that `icc` measures; the default 0 counts repeats as independent. See [running](../running.md#the-minimum-detectable-effect).
 
 ## Over time
 

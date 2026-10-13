@@ -7,7 +7,7 @@ import {
   type Observed,
   parseCriterionRef,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { taskArtifactText } from './artifacts';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import type { Council, CouncilResult } from './council';
@@ -75,9 +75,20 @@ export function judgeCheck(council: Council, options: JudgeCheckOptions = {}): C
               },
         );
       }
-      return verdicts;
+      return uniqueIds(verdicts);
     },
   };
+}
+
+/** Two criterion names can map to one safe id. The later verdict gets a numeric suffix that no earlier id uses. */
+function uniqueIds(verdicts: Verdict[]): Verdict[] {
+  const used = new Set<string>();
+  return verdicts.map((verdict) => {
+    let id = verdict.id;
+    for (let n = 2; used.has(id); n += 1) id = `${verdict.id}-${n}`;
+    used.add(id);
+    return id === verdict.id ? verdict : { ...verdict, id };
+  });
 }
 
 /** The request one criterion sends for one block. */
@@ -140,6 +151,7 @@ export function combineVerdicts(
   judged: readonly Verdict[],
 ): { verdicts: Verdict[]; pass: boolean } {
   const ids = new Set(machine.map((verdict) => verdict.id));
+  const judgeIds = new Set<string>();
   for (const verdict of judged) {
     if (verdict.kind !== 'judge') {
       throw new Error(`verdict ${verdict.id} is not a judge verdict: a judge cannot write a machine verdict`);
@@ -147,10 +159,16 @@ export function combineVerdicts(
     if (ids.has(verdict.id)) {
       throw new Error(`judge verdict ${verdict.id} reuses a machine verdict id: a judge cannot override it`);
     }
+    if (judgeIds.has(verdict.id))
+      throw new Error(`judge verdict ${verdict.id} appears twice: ids must be unique`);
+    judgeIds.add(verdict.id);
   }
   const verdicts = [...machine, ...judged];
   const machineFail = machine.some((verdict) => verdict.gating && verdict.outcome === 'fail');
-  const pass = !machineFail && verdicts.every((verdict) => !verdict.gating || verdict.outcome === 'pass');
+  const pass =
+    verdicts.length > 0 &&
+    !machineFail &&
+    verdicts.every((verdict) => !verdict.gating || verdict.outcome === 'pass');
   return { verdicts, pass };
 }
 

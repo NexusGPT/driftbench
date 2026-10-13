@@ -65,4 +65,4 @@ The real Acme agent comes back from all ten. On the Acme faults, from code (`pac
 
 ## From code
 
-`runAttack({ spec, adapter, checks, pack, rounds, seed })` of `@driftbench/users` returns the reference run, the rounds (class, block, cue, phrasing, perturbation, the runner's recovery record, the finding) and the recording; `replay: recording` runs it again. `cuesOf` lists the cues of one run.
+`runAttack({ spec, adapter, checks, pack, rounds, seed })` of `@agent-nexus/driftbench-users` returns the reference run, the rounds (class, block, cue, phrasing, perturbation, the runner's recovery record, the finding) and the recording; `replay: recording` runs it again. `cuesOf` lists the cues of one run.

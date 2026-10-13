@@ -1,5 +1,5 @@
-import type { PerturbationSpec, ToolExpect, WorldState } from '@driftbench/core';
-import { NONE } from '@driftbench/space';
+import type { PerturbationSpec, ToolExpect, WorldState } from '@agent-nexus/driftbench-core';
+import { NONE } from '@agent-nexus/driftbench-space';
 import type { PathRelation, ProposalPhrase } from '../extract/proposal';
 import {
   type BlockDraft,
@@ -10,12 +10,21 @@ import {
   pickOf,
   type SpecDraft,
 } from './assemble';
-import { DETOURS, MAX_CALLS_AFTER_FAILURE, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
+import { enumerateCells, selectBudget, slicedLhs } from './budget';
+import {
+  DETOURS,
+  MAX_CALLS_AFTER_FAILURE,
+  OPENING_CLASSES,
+  TOOL_FAILURE,
+  TOOL_FAILURE_ERROR,
+} from './deviation';
+import { Feasibility } from './feasible';
 import { type Edge, type StageGraph, stageGraph, walkGraph } from './graph';
 import { dimensionId, type PreparedMap, partitionOf, phraseKey, valueId } from './map';
-import { pick, type Rng, rngFor, shuffle, streamSeed } from './random';
-import { buildScenario, type ProbeRequest } from './scenario';
-import { coveringArray } from './twise';
+import { impossibleConstraints } from './possible';
+import { pick, type Rng, range, rngFor, shuffle, streamSeed } from './random';
+import { buildScenario, type ProbeRequest, type ScenarioRequest } from './scenario';
+import { type AllowedCheck, coveringArray } from './twise';
 import { concreteValue, INVALID_PARTITIONS, inputAssertion, toolAnswer } from './values';
 
 /**
@@ -67,7 +76,12 @@ function scenarioDraft(
   prefix: string,
   fixed: readonly Pick[],
   candidates: { preferred: PathRelation[]; others: PathRelation[] },
-  options: { probe?: ProbeRequest; force?: ProposalPhrase; rngLabel?: string } = {},
+  options: {
+    probe?: ProbeRequest;
+    force?: ProposalPhrase;
+    rngLabel?: string;
+    turn?: ScenarioRequest['turn'];
+  } = {},
 ): PathTry {
   const rng = rngFor(context.seed, options.rngLabel ?? id);
   const order = [...shuffle(rng, candidates.preferred), ...shuffle(rng, candidates.others)];
@@ -78,17 +92,37 @@ function scenarioDraft(
       fixed,
       ...(options.probe ? { probe: options.probe } : {}),
       ...(options.force ? { force: options.force } : {}),
+      ...(options.turn ? { turn: options.turn } : {}),
     });
     if (!built.ok) {
       reasons.push(built.reason);
       continue;
     }
-    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng)];
+    // The context is drawn with every stage the walk reaches: a value the walk's stages rule out (a coverage
+    // result on a flow that checks no coverage) is never drawn.
+    const reached: Pick[] =
+      prepared.stage === undefined
+        ? []
+        : built.blocks.flatMap((block): Pick[] => {
+            const at =
+              block.stage === undefined
+                ? undefined
+                : prepared.space.dimensions[prepared.stage as number]?.index.get(block.stage);
+            return at === undefined ? [] : [[prepared.stage as number, at]];
+          });
+    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng, reached)];
     const behaviours = cell.filter(
       ([dimension]) =>
         prepared.space.dimensions[dimension]?.kind === 'behaviour' && dimension !== prepared.transition,
     );
     const criteria = behaviours.map((entry) => draftCriterion(prepared, entry));
+    // Only reply-bound outputs need an injected answer. Other output partitions can describe
+    // a real fixture's business state without being synthetic JSON Schema partitions.
+    const world = worldFor(prepared, built.replyData, { useBindings: true });
+    if (world.unsupported.length > 0) {
+      reasons.push(...world.unsupported);
+      continue;
+    }
     const blocks = built.blocks;
     const first = blocks[0];
     if (first && criteria.length > 0) first.criteria = criteria.map((criterion) => criterion.name);
@@ -109,8 +143,10 @@ function scenarioDraft(
         blocks,
         criteria,
         path: path.id,
+        ...(world.world ? { world: world.world } : {}),
         ...(built.rules ? { rules: built.rules } : {}),
         ...(built.endState ? { end_state: built.endState } : {}),
+        ...(built.perturbations ? { perturbations: built.perturbations } : {}),
       },
     };
   }
@@ -318,6 +354,8 @@ export type TwiseSummary = {
   allowed: number;
   covered: number;
   share: number;
+  /** Pairs of the array's dimensions no path of the map reaches, so the target leaves them out. */
+  unreachable: string[];
 };
 
 /**
@@ -325,13 +363,16 @@ export type TwiseSummary = {
  * are chosen inside each row's cell, never crossed.
  */
 export function twiseDimensions(prepared: PreparedMap): number[] {
+  // A task setting (a task axis) belongs to a code-agent task, never to a conversation: its values come
+  // from the task families, not from the covering array.
   return [...prepared.axes]
     .sort((a, b) => a - b)
-    .filter((index) => index !== prepared.stage && index !== prepared.transition);
+    .filter((index) => index !== prepared.stage && index !== prepared.transition)
+    .filter((index) => prepared.space.dimensions[index]?.kind !== 'task');
 }
 
-/** Axis kinds that set the context of a conversation: who talks, on which channel, with which data and task. */
-const CONTEXT_KINDS: ReadonlySet<string> = new Set(['persona', 'channel', 'data', 'task']);
+/** Axis kinds that set the context of a conversation: who talks, on which channel, with which data. */
+const CONTEXT_KINDS: ReadonlySet<string> = new Set(['persona', 'channel', 'data']);
 
 /**
  * The context axes of a spec whose seeder fixes only some values (a graph path, a probe, a boundary value):
@@ -363,6 +404,13 @@ function contextAxes(
     !base.some(([at]) => at === prepared.deviation)
   ) {
     base.push([prepared.deviation, none]);
+  }
+  // A conversation holds no task setting: every task axis stays at its `none`, as the spec places it.
+  for (const index of prepared.axes) {
+    const dimension = prepared.space.dimensions[index];
+    const empty = dimension?.index.get(NONE);
+    if (dimension?.kind === 'task' && empty !== undefined && !base.some(([at]) => at === index))
+      base.push([index, empty]);
   }
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const full = prepared.feasibility.complete(base, rng);
@@ -396,26 +444,41 @@ function withDetails(prepared: PreparedMap, cell: readonly Pick[], rng: Rng): Pi
   return [...cell, ...details];
 }
 
-export function twiseSeeder(
+/**
+ * The feasibility the t-wise target is counted with: the written constraints plus the pairs no path of the
+ * map can reach, so the report counts only the tuples a possible cell holds.
+ */
+export function reachableFeasibility(prepared: PreparedMap): Feasibility {
+  const extra = unreachablePairs(prepared);
+  if (extra.length === 0) return prepared.feasibility;
+  return new Feasibility({ ...prepared.space, constraints: [...prepared.space.constraints, ...extra] });
+}
+
+const unreachableMemo = new WeakMap<PreparedMap, ReturnType<typeof impossibleConstraints>>();
+
+function unreachablePairs(prepared: PreparedMap): ReturnType<typeof impossibleConstraints> {
+  let known = unreachableMemo.get(prepared);
+  if (!known) {
+    known = impossibleConstraints(prepared, flowsOfBehaviour);
+    unreachableMemo.set(prepared, known);
+  }
+  return known;
+}
+
+/**
+ * The conversation drafts of a set of rows: one cell per row, its path (when the map holds approved
+ * paths), or a carrier when no path builds. `label` names the rows in their titles.
+ */
+export function rowDrafts(
   prepared: PreparedMap,
   context: SeedContext,
-): { drafts: SpecDraft[]; summary: TwiseSummary } {
-  const dimensions = twiseDimensions(prepared);
-  const sizes = prepared.space.dimensions.map((dimension) => dimension.values.length);
-  const t = Math.min(context.t, dimensions.length);
-  const array = coveringArray(
-    prepared.feasibility,
-    sizes,
-    dimensions,
-    t,
-    rngFor(context.seed, 'twise'),
-    context.max,
-  );
-  const drafts = array.rows.map((row, index) => {
+  cells: readonly (readonly Pick[])[],
+  label: string,
+): SpecDraft[] {
+  return cells.map((cell, index) => {
     const id = `gen-twise-${pad(index + 1)}`;
-    const cell: Pick[] = dimensions.map((dimension) => [dimension, row[dimension] ?? 0]);
-    const title = `t-wise row ${index + 1} of ${array.rows.length}`;
-    if (!hasPaths(prepared)) return carrierDraft(prepared, context, id, 'twise', title, cell);
+    const title = `${label} row ${index + 1} of ${cells.length}`;
+    if (!hasPaths(prepared)) return carrierDraft(prepared, context, id, 'twise', title, [...cell]);
     const behaviour = cell
       .filter(
         ([dimension]) =>
@@ -426,9 +489,20 @@ export function twiseSeeder(
     const paths = prepared.relations.paths.filter((path) => flows.includes(path.flow));
     const probe = probeOf(prepared, cell);
     const fixed = cell.filter(([dimension]) => dimension !== prepared.deviation);
-    const built = scenarioDraft(prepared, context, id, 'twise', title, fixed, preferring(paths, behaviour), {
-      ...(probe ? { probe } : {}),
-    });
+    // The behaviour's own paths first; when none of them builds (no path, or its flows give no recovery
+    // from the row's deviation), a path of another flow keeps the row's cell complete.
+    const own = preferring(paths, behaviour);
+    const elsewhere = prepared.relations.paths.filter((path) => !flows.includes(path.flow));
+    const built = scenarioDraft(
+      prepared,
+      context,
+      id,
+      'twise',
+      title,
+      fixed,
+      { preferred: own.preferred, others: [...own.others, ...elsewhere] },
+      { ...(probe ? { probe } : {}) },
+    );
     if ('draft' in built) {
       const deviation = cell.find(([dimension]) => dimension === prepared.deviation);
       if (deviation) built.draft.cell.push(deviation);
@@ -438,8 +512,43 @@ export function twiseSeeder(
       paths.length === 0
         ? [`no approved path belongs to a flow of ${behaviour ?? 'the row'} (${flows.join(', ') || 'none'})`]
         : built.reasons;
-    return withReasons(carrierDraft(prepared, context, id, 'twise', title, cell), reasons);
+    return withReasons(carrierDraft(prepared, context, id, 'twise', title, [...cell]), reasons);
   });
+}
+
+/** The conversation's cell of each row: the twise dimensions, the task axes held at their `none`. */
+function conversationOf(prepared: PreparedMap): {
+  dimensions: number[];
+  sizes: number[];
+  allowed: AllowedCheck;
+} {
+  const dimensions = twiseDimensions(prepared);
+  const sizes = prepared.space.dimensions.map((dimension) => dimension.values.length);
+  // A row is a conversation: it holds no task setting, so every task axis stays at its `none`.
+  const taskNones: Pick[] = [...prepared.axes].flatMap((index): Pick[] => {
+    const dimension = prepared.space.dimensions[index];
+    const empty = dimension?.index.get(NONE);
+    return dimension?.kind === 'task' && empty !== undefined ? [[index, empty]] : [];
+  });
+  const reachable = reachableFeasibility(prepared);
+  return {
+    dimensions,
+    sizes,
+    allowed: { allowed: (picks: readonly Pick[]) => reachable.allowed([...picks, ...taskNones]) },
+  };
+}
+
+export function twiseSeeder(
+  prepared: PreparedMap,
+  context: SeedContext,
+): { drafts: SpecDraft[]; summary: TwiseSummary } {
+  const { dimensions, sizes, allowed } = conversationOf(prepared);
+  const t = Math.min(context.t, dimensions.length);
+  const array = coveringArray(allowed, sizes, dimensions, t, rngFor(context.seed, 'twise'), context.max);
+  const cells = array.rows.map((row) =>
+    dimensions.map((dimension): Pick => [dimension, row[dimension] ?? 0]),
+  );
+  const drafts = rowDrafts(prepared, context, cells, 't-wise');
   const summary: TwiseSummary = {
     t,
     dimensions: dimensions.map((dimension) => dimensionId(prepared, dimension)),
@@ -447,8 +556,179 @@ export function twiseSeeder(
     allowed: array.allowed,
     covered: array.covered,
     share: array.allowed === 0 ? 0 : array.covered / array.allowed,
+    unreachable: unreachablePairs(prepared)
+      .filter((pair) => pair.every(([dimension]) => dimensions.includes(dimension)))
+      .map((pair) =>
+        pair
+          .map(
+            ([dimension, value]) =>
+              `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+          )
+          .join(' & '),
+      ),
   };
   return { drafts, summary };
+}
+
+/** The budget seeder's account of its picks: pair coverage and the value balance per dimension. */
+export type BudgetSummary = {
+  budget: number;
+  seed: number;
+  dimensions: string[];
+  /** Allowed cells of the pool. */
+  pool: number;
+  /** Rows picked: the budget, or the pool limit when numeric settings are absent. */
+  picked: number;
+  /** Selection stopped at the distinct-cell pool limit; always false with numeric settings. */
+  capped: boolean;
+  pairs: { allowed: number; covered: number; share: number };
+  values: Array<{
+    dimension: string;
+    allowed: number;
+    values: Array<{ value: string; count: number; fair: number; deviation: number }>;
+  }>;
+  /** The largest |count - fair share| over every value of every dimension. */
+  maxDeviation: number;
+  /** Numeric quantiles are Latin globally and within each categorical cell. Integer values may repeat. */
+  numeric?: {
+    settings: Array<{ id: string; min: number; max: number; integer: boolean; unit?: string }>;
+    rows: Array<{
+      spec: string;
+      cell: Record<string, string>;
+      quantiles: Record<string, number>;
+      vars: Record<string, number>;
+    }>;
+  };
+};
+
+/**
+ * Budget mode: N conversations placed by the budget rules (seed/budget.ts) over the twise dimensions. Pair
+ * coverage is the hard rule, the Latin hypercube balance breaks ties. Each picked cell is drafted as a
+ * twise row is, so the rest of the pipeline is the same.
+ */
+export function budgetSeeder(
+  prepared: PreparedMap,
+  context: SeedContext,
+  options: { budget: number },
+): { drafts: SpecDraft[]; summary: TwiseSummary; budget: BudgetSummary } {
+  const { dimensions, sizes, allowed } = conversationOf(prepared);
+  const settings = prepared.numericSettings ?? [];
+  const reuse = settings.length > 0;
+  const pool =
+    reuse && dimensions.length === 0 && allowed.allowed([])
+      ? [[]]
+      : enumerateCells(
+          sizes.filter((_, index) => dimensions.includes(index)),
+          (cell) =>
+            allowed.allowed(cell.map((value, index) => [dimensions[index] as number, value] as const)),
+        );
+  const selection = selectBudget(
+    pool,
+    dimensions.map((dimension) => sizes[dimension] ?? 0),
+    options.budget,
+    rngFor(context.seed, 'budget'),
+    reuse,
+  );
+  const cells = selection.picked.map((index) =>
+    dimensions.map((dimension, column): Pick => [dimension, pool[index]?.[column] ?? 0]),
+  );
+  const drafts = rowDrafts(prepared, context, cells, 'budget');
+  const picked = selection.picked.length;
+  let numeric: BudgetSummary['numeric'];
+  if (reuse) {
+    if (picked === 0) throw new RangeError('numeric budget has no allowed categorical cell');
+    const slices = selection.picked.map((index) => JSON.stringify(pool[index]));
+    const rows = drafts.map((draft, index) => ({
+      spec: draft.id,
+      cell: Object.fromEntries(
+        (cells[index] ?? []).map(([dimension, value]) => [
+          dimensionId(prepared, dimension),
+          valueId(prepared, dimension, value),
+        ]),
+      ),
+      quantiles: {} as Record<string, number>,
+      vars: {} as Record<string, number>,
+    }));
+    for (const setting of settings) {
+      const quantiles = slicedLhs(rngFor(context.seed, `budget:numeric:${setting.id}`), 0, 1, picked, slices);
+      quantiles.forEach((quantile, index) => {
+        const row = rows[index];
+        if (!row) return;
+        row.quantiles[setting.id] = quantile;
+        row.vars[setting.id] = setting.integer
+          ? Math.ceil(setting.min) +
+            Math.floor(quantile * (Math.floor(setting.max) - Math.ceil(setting.min) + 1))
+          : setting.min + quantile * (setting.max - setting.min);
+      });
+    }
+    drafts.forEach((draft, index) => {
+      draft.vars = rows[index]?.vars;
+    });
+    numeric = {
+      settings: settings.map(({ id, min, max, integer, unit }) => ({
+        id,
+        min,
+        max,
+        integer: integer ?? false,
+        ...(unit === undefined ? {} : { unit }),
+      })),
+      rows,
+    };
+  }
+  const share = selection.pairs.allowed === 0 ? 0 : selection.pairs.covered / selection.pairs.allowed;
+  const summary: TwiseSummary = {
+    t: 2,
+    dimensions: dimensions.map((dimension) => dimensionId(prepared, dimension)),
+    rows: picked,
+    allowed: selection.pairs.allowed,
+    covered: selection.pairs.covered,
+    share,
+    unreachable: unreachablePairs(prepared)
+      .filter((pair) => pair.every(([dimension]) => dimensions.includes(dimension)))
+      .map((pair) =>
+        pair
+          .map(
+            ([dimension, value]) =>
+              `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+          )
+          .join(' & '),
+      ),
+  };
+  const values = dimensions.map((dimension, column) => {
+    const allowedCount = selection.allowedValues[column] ?? 0;
+    const fair = allowedCount === 0 ? 0 : picked / allowedCount;
+    const present = (value: number) => (pool.some((row) => row[column] === value) ? value : -1);
+    const rows = range(sizes[dimension] ?? 0)
+      .map(present)
+      .filter((value) => value >= 0)
+      .map((value) => {
+        const count = selection.counts[column]?.[value] ?? 0;
+        return {
+          value: valueId(prepared, dimension, value),
+          count,
+          fair,
+          deviation: count - fair,
+        };
+      });
+    return { dimension: dimensionId(prepared, dimension), allowed: allowedCount, values: rows };
+  });
+  const maxDeviation = Math.max(
+    0,
+    ...values.flatMap((entry) => entry.values.map((value) => Math.abs(value.deviation))),
+  );
+  const budget: BudgetSummary = {
+    budget: options.budget,
+    seed: context.seed,
+    dimensions: summary.dimensions,
+    pool: pool.length,
+    picked,
+    capped: !reuse && options.budget > pool.length,
+    pairs: { ...selection.pairs, share },
+    values,
+    maxDeviation,
+    ...(numeric === undefined ? {} : { numeric }),
+  };
+  return { drafts, summary, budget };
 }
 
 /**
@@ -593,10 +873,11 @@ function failingTool(prepared: PreparedMap, rng: Rng, cell: Pick[]): string | un
 export function worldFor(
   prepared: PreparedMap,
   cell: readonly Pick[],
+  options: { useBindings?: boolean } = {},
 ): { world?: WorldState; unsupported: string[] } {
   const byTool = new Map<
     string,
-    Array<{ path: string[]; schema: Record<string, unknown>; partition: string }>
+    Array<{ path: string[]; schema: Record<string, unknown>; partition: string; bindings?: string[] }>
   >();
   for (const [dimension, value] of cell) {
     const found = prepared.toolDimensions.get(dimension);
@@ -604,7 +885,20 @@ export function worldFor(
     const partition = partitionOf(dimensionId(prepared, dimension), valueId(prepared, dimension, value));
     byTool.set(found.tool.name, [
       ...(byTool.get(found.tool.name) ?? []),
-      { path: found.path, schema: found.schema, partition },
+      {
+        path: found.path,
+        schema: found.schema,
+        partition,
+        ...(options.useBindings
+          ? {
+              bindings: Object.values(
+                prepared.relations.binds.get(
+                  `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+                ) ?? {},
+              ),
+            }
+          : {}),
+      },
     ]);
   }
   if (byTool.size === 0) return { unsupported: [] };
@@ -637,6 +931,13 @@ export function boundarySeeder(
   const drafts: SpecDraft[] = [];
   const unsupported: string[] = [];
   let toolValues = 0;
+  // A tool a path names as its end-state source changes the world: the map calls it on a move of a flow,
+  // never on a request alone.
+  const sideEffecting = new Set(
+    prepared.relations.paths.flatMap((path) =>
+      path.end_state ? [path.end_state.source.replace(/^tool:/, '')] : [],
+    ),
+  );
   prepared.space.dimensions.forEach((dimension, index) => {
     if (dimension.kind !== 'data' || prepared.axes.has(index)) return;
     dimension.values.forEach((value, position) => {
@@ -659,7 +960,29 @@ export function boundarySeeder(
       const cell: Pick[] = [target];
       const tools: ToolExpect[] = [];
       const concrete: Record<string, unknown> = {};
-      if (found) {
+      const effect = found !== undefined && sideEffecting.has(found.tool.name);
+      if (effect && hasPaths(prepared)) {
+        // The value on a path that calls the tool on its move, when a path reads it; the spec records the
+        // concrete value as every boundary spec does.
+        const built = boundaryScenario(prepared, context, id, dimension.id, value.id, target);
+        if ('draft' in built) {
+          const shown = concreteValue((found as NonNullable<typeof found>).schema, partition);
+          if (shown.kind === 'value') built.draft.concrete = { [value.id]: shown.value };
+          else if (shown.kind === 'absent') built.draft.concrete = { [value.id]: '(absent)' };
+          toolValues += 1;
+          drafts.push(built.draft);
+          return;
+        }
+      }
+      if (found && effect) {
+        toolValues += 1;
+        const shown = concreteValue(found.schema, partition);
+        if (shown.kind === 'value') concrete[value.id] = shown.value;
+        else if (shown.kind === 'absent') concrete[value.id] = '(absent)';
+        else unsupported.push(`${value.id}: ${shown.why}`);
+        // Asked for alone, the side-effecting tool never runs.
+        tools.push({ label: found.tool.name, count: 0 });
+      } else if (found) {
         toolValues += 1;
         const shown = concreteValue(found.schema, partition);
         if (shown.kind === 'value') concrete[value.id] = shown.value;
@@ -686,11 +1009,41 @@ export function boundarySeeder(
           });
         }
       }
+      // Every other tool of the map is expected 0 times: the turn asks for one tool and nothing else.
+      if (found) {
+        for (const other of prepared.tools) {
+          if (other.name !== found.tool.name) tools.push({ label: other.name, count: 0 });
+        }
+      }
       const world = worldFor(prepared, cell);
       cell.push(...contextAxes(prepared, cell, rng));
       unsupported.push(...world.unsupported.filter((entry) => !unsupported.includes(entry)));
       const criteria = found ? [] : [draftCriterion(prepared, target)];
-      drafts.push({
+      // A block whose every call count is 0 asserts nothing a reply that does nothing fails: a constant,
+      // an echo and a copy of the Given all pass it. The map supplies no word or stage for a refusal, so
+      // the spec has no machine Then and goes to incomplete/.
+      const forbidsOnly = found !== undefined && tools.length > 0 && tools.every((tool) => tool.count === 0);
+      if (forbidsOnly && hasPaths(prepared)) {
+        // A request that only forbids calls is passed by a reply that does nothing. Said after the walk's
+        // first move, the conversation must also stay on the stage it reached: a reply that does nothing
+        // for the walk fails.
+        const built = scenarioDraft(
+          prepared,
+          context,
+          id,
+          'boundary',
+          `Boundary value ${value.id}`,
+          [target],
+          { preferred: prepared.relations.paths.filter((path) => path.stages.length >= 3), others: [] },
+          { turn: { stimulus: choosePhrase(prepared, rng, [target]), carries: [target], tools } },
+        );
+        if ('draft' in built) {
+          if (Object.keys(concrete).length > 0) built.draft.concrete = concrete;
+          drafts.push(built.draft);
+          return;
+        }
+      }
+      const draft: SpecDraft = {
         id,
         seeder: 'boundary',
         title: `Boundary value ${value.id}: ${value.title}`,
@@ -702,13 +1055,23 @@ export function boundarySeeder(
             stimulus: choosePhrase(prepared, rng, [target]),
             carries: [target],
             ...(tools.length > 0 ? { tools } : {}),
+            ...(prepared.relations.replyLanguage === undefined
+              ? {}
+              : { lang: prepared.relations.replyLanguage }),
             ...(criteria.length > 0 ? { criteria: criteria.map((criterion) => criterion.name) } : {}),
           },
         ],
         ...(world.world ? { world: world.world } : {}),
         criteria,
         ...(Object.keys(concrete).length > 0 ? { concrete } : {}),
-      });
+      };
+      drafts.push(
+        forbidsOnly
+          ? withReasons(draft, [
+              `${value.id}: the block only forbids tool calls, which a reply that does nothing passes`,
+            ])
+          : draft,
+      );
     });
   });
   return { drafts, summary: { values: drafts.length, tools: toolValues, unsupported } };
@@ -867,12 +1230,32 @@ export function deviationSeeder(
         drafts.push(built.draft);
         const injected = built.draft.blocks.findIndex((block) => block.injection === value.id);
         const path = built.path.stages;
-        probes.push({
-          class: value.id,
-          stage: injected < 0 ? null : (path[injected] ?? null),
-          spec: id,
-          phrase,
-        });
+        const first = injected < 0 ? null : (path[injected] ?? null);
+        probes.push({ class: value.id, stage: first, spec: id, phrase });
+        // The class again at the latest other stage a path allows: a recovery that goes to the goal stage
+        // looks the same as staying when the probe is already at the goal, so one stage proves nothing.
+        const stages = prepared.space.dimensions[prepared.stage ?? -1]?.values.map((entry) => entry.id) ?? [];
+        for (const stage of [...stages].reverse()) {
+          if (stage === first || drafts.length >= context.max) continue;
+          const again = `gen-deviation-${pad(drafts.length + 1)}`;
+          const other = scenarioDraft(
+            prepared,
+            context,
+            again,
+            'deviation',
+            `Deviation probe ${value.id} at ${stage}`,
+            [],
+            {
+              preferred: prepared.relations.paths.filter((path) => required.has(path.flow)),
+              others: prepared.relations.paths.filter((path) => !required.has(path.flow)),
+            },
+            { probe: { classId: value.id, stage } },
+          );
+          if (!('draft' in other)) continue;
+          other.draft.cell.push(deviation);
+          drafts.push(other.draft);
+          break;
+        }
         continue;
       }
       const fallback = probeDraft(prepared, context, id, 'deviation', deviation, anchors);
@@ -1054,6 +1437,9 @@ function metamorphicOnPaths(
       } else if (first.dimension === deviationKey) {
         candidates = prepared.relations.paths;
         probe = { classId: first.value };
+      } else if (first.dimension === 'flow') {
+        // A flow phrase opens a path of its flow: the first turn says it in place of the opening move.
+        candidates = prepared.relations.paths.filter((path) => path.flow === first.value);
       }
       families += 1;
       values.push(key);
@@ -1091,5 +1477,169 @@ function metamorphicOnPaths(
       });
     }
   }
+  // Context families, CheckList's invariance over the context axes: one path walked with the same data
+  // values and each allowed value of a persona or channel axis. The relation: the same observed outcome.
+  const contextual = [...prepared.axes]
+    .sort((a, b) => a - b)
+    .filter((index) => ['persona', 'channel'].includes(prepared.space.dimensions[index]?.kind ?? ''));
+  const indexOf = (id: string) => prepared.space.dimensions.findIndex((dimension) => dimension.id === id);
+  for (const path of prepared.relations.paths) {
+    for (const axis of contextual) {
+      if (drafts.length >= context.max) break;
+      const dimension = prepared.space.dimensions[axis];
+      if (!dimension) continue;
+      const family = `gen-metamorphic-${pad(families + 1)}`;
+      const one = { preferred: [path], others: [] };
+      const base = scenarioDraft(prepared, context, `${family}-base`, 'metamorphic', '', [], one, {
+        rngLabel: family,
+      });
+      if (!('draft' in base)) continue;
+      const read = Object.keys(path.when ?? {}).map(indexOf);
+      const data = base.draft.cell.filter(([at]) => read.includes(at));
+      const members = dimension.values
+        .map((_, value) => value)
+        .filter((value) => prepared.feasibility.allowed([...data, [axis, value]]));
+      if (members.length < 2) continue;
+      const built = members.map((value, variant) =>
+        scenarioDraft(
+          prepared,
+          context,
+          `${family}-${variant + 1}`,
+          'metamorphic',
+          '',
+          [...data, [axis, value]],
+          one,
+          {
+            rngLabel: family,
+          },
+        ),
+      );
+      if (!built.every((entry) => 'draft' in entry)) continue;
+      families += 1;
+      values.push(`${path.id}@${dimension.id}`);
+      built.forEach((entry, variant) => {
+        if (!('draft' in entry)) return;
+        drafts.push({
+          ...entry.draft,
+          id: `${family}-${variant + 1}`,
+          title: `Metamorphic ${path.id} over ${dimension.id}, value ${variant + 1} of ${members.length}: ${entry.draft.title}`,
+          metamorphic: {
+            family,
+            variant: variant + 1,
+            of: members.length,
+            relation: 'same observed outcome',
+          },
+        });
+      });
+    }
+  }
   return { drafts, summary: { families, specs: drafts.length, values } };
+}
+
+/**
+ * One scenario aimed at one allowed cell of the axis map (a pair or a triple of values) that no complete spec
+ * covers. Every value of the cell is fixed in the scenario's cell except the stage and the deviation: a
+ * deviation is a probe, at the cell's stage when the cell names one; a stage alone is reached by a path that
+ * passes it. The start stage is placed only by an event said there, so a stage-only cell on a start stage
+ * takes a probe of a class a first message can carry. Returns the draft, or every reason no path fits.
+ */
+export function coverDraft(
+  prepared: PreparedMap,
+  context: SeedContext,
+  id: string,
+  values: Readonly<Record<string, string>>,
+): PathTry {
+  const fixed: Pick[] = [];
+  let stage: string | undefined;
+  let deviation: string | undefined;
+  let behaviour: string | undefined;
+  for (const [dimensionKey, value] of Object.entries(values)) {
+    const index = prepared.space.dimensions.findIndex((dimension) => dimension.id === dimensionKey);
+    const dimension = prepared.space.dimensions[index];
+    if (!dimension) return { reasons: [`${dimensionKey} is not a dimension of the map`] };
+    if (index === prepared.stage || dimension.kind === 'stage') {
+      stage = value;
+      continue;
+    }
+    if (index === prepared.deviation) {
+      if (value !== NONE) deviation = value;
+      continue;
+    }
+    const at = dimension.index.get(value);
+    if (at === undefined) return { reasons: [`${dimensionKey}=${value} is not a value of the map`] };
+    if (dimension.kind === 'behaviour') behaviour = value;
+    fixed.push([index, at]);
+  }
+  const key = Object.entries(values)
+    .map(([dimension, value]) => `${dimension}=${value}`)
+    .join(', ');
+  const paths = prepared.relations.paths.filter((path) => {
+    if (stage === undefined) return true;
+    const position = path.stages.indexOf(stage);
+    // A probe goes in before a move, so its stage is never the last of the path; a walk reaches any
+    // stage after the first.
+    if (deviation !== undefined) return position >= 0;
+    return position >= 0;
+  });
+  const startOnly =
+    stage !== undefined &&
+    deviation === undefined &&
+    paths.length > 0 &&
+    paths.every((path) => path.stages.indexOf(stage as string) === 0);
+  const classes =
+    deviation !== undefined
+      ? [deviation]
+      : startOnly
+        ? [...OPENING_CLASSES].filter((cls) =>
+            prepared.space.dimensions[prepared.deviation ?? -1]?.index.has(cls),
+          )
+        : [undefined];
+  const reasons: string[] = [];
+  /** The cell values a phrase of the class needs (its `when`, the stage and the flow left out), one set each. */
+  const needs = (classId: string | undefined): Pick[][] => {
+    if (classId === undefined || prepared.deviation === undefined) return [[]];
+    const phraseOf = phraseKey(dimensionId(prepared, prepared.deviation), classId);
+    const sets: Pick[][] = [[]];
+    for (const phrase of prepared.phrasesOf.get(phraseOf) ?? []) {
+      let options: Pick[][] = [[]];
+      for (const [dimensionKey, values] of Object.entries(phrase.when ?? {})) {
+        if (dimensionKey === 'stage' || dimensionKey === 'flow') continue;
+        const index = prepared.space.dimensions.findIndex((dimension) => dimension.id === dimensionKey);
+        if (index < 0 || fixed.some(([at]) => at === index)) continue;
+        options = options.flatMap((set) =>
+          values.flatMap((value) => {
+            const at = prepared.space.dimensions[index]?.index.get(value);
+            return at === undefined ? [] : [[...set, [index, at] as Pick]];
+          }),
+        );
+      }
+      for (const set of options) if (set.length > 0) sets.push(set);
+    }
+    return sets;
+  };
+  const attempts = classes.flatMap((classId) => needs(classId).map((extra) => ({ classId, extra })));
+  for (const { classId, extra } of attempts) {
+    const built = scenarioDraft(
+      prepared,
+      context,
+      id,
+      'cover',
+      `Cell ${key}`,
+      [...fixed, ...extra],
+      preferring(paths, behaviour),
+      {
+        ...(classId === undefined ? {} : { probe: { classId, ...(stage ? { stage } : {}) } }),
+      },
+    );
+    if ('draft' in built) {
+      if (classId !== undefined) {
+        const dimension = prepared.deviation as number;
+        built.draft.cell.push([dimension, prepared.space.dimensions[dimension]?.index.get(classId) ?? 0]);
+      }
+      return built;
+    }
+    reasons.push(...built.reasons);
+  }
+  if (paths.length === 0) reasons.push(`no approved path passes the stage ${stage}`);
+  return { reasons: reasons.length > 0 ? reasons : [`no approved path fits the cell ${key}`] };
 }

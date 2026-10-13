@@ -1,6 +1,6 @@
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import type { RunResult } from '@driftbench/core';
+import type { RunResult } from '@agent-nexus/driftbench-core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   BUNDLE_FORMAT,
@@ -47,6 +47,7 @@ describe('exportCampaign', () => {
       schemaVersion: SCHEMA_VERSION,
       campaignId: ID,
       counts: { runs: 3, blocks: 2 + 2 + 3 },
+      hashes: expect.any(Object),
     });
     expect(JSON.parse(await readFile(join(folder, 'campaign.json'), 'utf8'))).toStrictEqual(campaign());
   });
@@ -148,6 +149,20 @@ describe('readCampaignBundle', () => {
     const error = await storeError(() => readCampaignBundle(folder));
     expect(error.code).toBe('BUNDLE_INVALID');
     expect(error.message).toContain('holds campaign acme-other');
+  });
+});
+
+describe('the record hashes', () => {
+  it('refuses a run file edited after the export, naming it', async () => {
+    const folder = await store.exportCampaign(ID, dir);
+    const [file] = (await readdir(join(folder, 'runs'))).sort();
+    const path = join(folder, 'runs', file as string);
+    const edited = JSON.parse(await readFile(path, 'utf8'));
+    edited.cost += 1;
+    await writeFile(path, JSON.stringify(edited));
+    const error = await storeError(() => readCampaignBundle(folder));
+    expect(error.code).toBe('BUNDLE_INVALID');
+    expect(error.message).toContain(`runs/${file} does not match the hash its manifest records`);
   });
 });
 

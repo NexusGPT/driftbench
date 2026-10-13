@@ -1,4 +1,9 @@
-import { AgentFailure, type BlockResult, type CheckContext, type Observed } from '@driftbench/core';
+import {
+  AgentFailure,
+  type BlockResult,
+  type CheckContext,
+  type Observed,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { mapSession, orderedCheck, parseJsonl, replayAdapter } from '../../src/claude-code';
 

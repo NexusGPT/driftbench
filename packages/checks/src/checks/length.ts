@@ -1,4 +1,4 @@
-import { type Check, machineVerdict, type Verdict } from '@driftbench/core';
+import { type Check, machineVerdict, type Verdict } from '@agent-nexus/driftbench-core';
 import { visibleText } from '../support/text';
 
 /**

@@ -1,0 +1,133 @@
+# Gated by driftbench gate from metamorphic/gen-metamorphic-008-1.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-metamorphic-008-1
+version: 6d29ed7a7539
+kind: conversation
+title: "Metamorphic upgrade-unknown-email over channel, value 1 of 2: : Path upgrade-unknown-email of upgrade: needs > identify > identify"
+channel: chat
+lang: EN
+tier: generated
+tags:
+  - persona:existing-customer
+  - flow:upgrade
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
+criteria:
+  - name: flow.upgrade
+    rubric: An existing customer moves to a plan with more data
+    gating: false
+    scope: conversation
+blocks:
+  - id: b1-needs-to-identify
+    when:
+      user: I keep running out of data, can I get a bigger plan?
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+      criteria:
+        - flow.upgrade
+  - id: b2-identify-to-identify
+    when:
+      user: It's pat.quinn@example.com.
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
+            customer_email: pat.quinn@example.com
+      lang: EN
+perturbations:
+  - id: p1-D10_return
+    class: D10_return
+    inject_at: 1
+    user: ok, let's continue with the order.
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+      must:
+        - We were|pick up where we left off
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: identify
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: metamorphic
+    seed: 1
+    stream: 2959782625
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    path: upgrade-unknown-email
+    cell:
+      user_type: existing-customer
+      account_lookup: not-found
+      channel: chat
+      flow: upgrade
+      coverage_result: none
+    blocks:
+      - block: b1-needs-to-identify
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: identify
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-identify-to-identify
+        seeder: metamorphic
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: identify-to-identify
+          account_lookup: not-found
+          stage: identify
+        phrase:
+          dimension: stage_transition
+          value: identify-to-identify
+    metamorphic:
+      family: gen-metamorphic-008
+      variant: 1
+      of: 2
+      relation: same observed outcome
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-identify
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-identify-to-identify
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+rules:
+  forbidden_tools:
+    - coverage.check
+    - port.check
+    - order.create
+    - notify_sales

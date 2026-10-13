@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, readdir, readFile, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ExecutionRecord, WorkspaceDiff, type WorkspaceSnapshot } from '@driftbench/core';
+import { ExecutionRecord, WorkspaceDiff, type WorkspaceSnapshot } from '@agent-nexus/driftbench-core';
 import {
   DEFAULT_MAX_OUTPUT_BYTES,
   DEFAULT_MAX_READ_BYTES,
@@ -14,7 +14,7 @@ import {
   SandboxLimitError,
   SandboxPathError,
   TIMEOUT_EXIT_CODE,
-} from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-sandbox';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 const sha256 = (data: string | Buffer) => createHash('sha256').update(data).digest('hex');
@@ -326,6 +326,19 @@ describe('exec', () => {
     expect(record).toMatchObject({ exitCode: 0, stdout: 'done\n' });
     await pause(1500);
     expect(existsSync(join(box.root, 'late.txt'))).toBe(false);
+  });
+
+  it('kills a child that left the process group of the command, at the exit and at the timeout', async () => {
+    const box = await sandbox();
+    const leave = (file: string) =>
+      `"${process.execPath}" -e "require('node:child_process').spawn('/bin/sh', ['-c', 'sleep 0.5; echo late > ${file}'], { stdio: 'ignore', detached: true }).unref()"`;
+    const exited = await box.exec(leave('exit.txt'));
+    expect(exited.exitCode).toBe(0);
+    const slow = await box.exec(`${leave('timeout.txt')}; sleep 30`, { timeoutMs: 300 });
+    expect(slow.exitCode).toBe(TIMEOUT_EXIT_CODE);
+    await pause(1500);
+    expect(existsSync(join(box.root, 'exit.txt'))).toBe(false);
+    expect(existsSync(join(box.root, 'timeout.txt'))).toBe(false);
   });
 
   it('reports a command killed by a signal as 128 plus the signal number', async () => {

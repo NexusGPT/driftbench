@@ -1,4 +1,4 @@
-import { type Check, machineVerdict, type ToolExpect, type Verdict } from '@driftbench/core';
+import { type Check, machineVerdict, type ToolExpect, type Verdict } from '@agent-nexus/driftbench-core';
 import { checkAssertion } from '../support/assert';
 import { isRecord } from '../support/values';
 

@@ -2,17 +2,16 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-087
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 87 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D7_silence_or_burst at port_number"
+title: "t-wise row 87 of 132: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D7_silence_or_burst at recap"
 channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:not-in-map
-  - task:existing-workbook
-  - flow:porting
+  - data:fiber
+  - flow:order
 covers:
   - B-008
 stages:
@@ -27,13 +26,15 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-008
     rubric: Recap the order and place it only after an explicit CONFIRM
     gating: false
     scope: conversation
-  - name: flow.porting
-    rubric: A new customer switches to Acme and keeps their number
+  - name: flow.order
+    rubric: Recap, explicit confirmation and order placement
     gating: false
     scope: conversation
   - name: deviation.D7_silence_or_burst
@@ -41,13 +42,13 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-port_number
+  - id: b1-needs-to-address
     when:
-      user: I'd like to move to Acme and keep my phone number.
+      user: Do you have home internet where I live?
     expect:
-      stage: port_number
+      stage: address
       tools:
-        - label: port.check
+        - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
@@ -56,16 +57,64 @@ blocks:
       lang: EN
       criteria:
         - behaviour.B-008
-        - flow.porting
-  - id: b2-D7_silence_or_burst
+        - flow.order
+  - id: b2-address-to-offer
+    when:
+      user: The address is 14 Harbor Road, Acmeville.
+    expect:
+      stage: offer
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 14 Harbor Road, Acmeville
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-101
+        - label: order.create
+          count: 0
+      must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-offer-to-details
+    when:
+      user: I'll take Acme Fiber 1000.
+    expect:
+      stage: details
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b4-details-to-recap
+    when:
+      user: Jo Okafor, jo.okafor@example.com
+    expect:
+      stage: recap
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b5-D7_silence_or_burst
     when:
       injection:
         class: D7_silence_or_burst
         user: hello?
     expect:
-      stage: port_number
+      stage: recap
       tools:
-        - label: port.check
+        - label: coverage.check
           count: 0
         - label: catalog.search
           count: 0
@@ -76,52 +125,9 @@ blocks:
       lang: EN
       criteria:
         - deviation.D7_silence_or_burst
-  - id: b3-port_number-to-offer
-    when:
-      user: My number is +1 202 555 0160.
-    expect:
-      stage: offer
-      tools:
-        - label: port.check
-          count: 1
-          input:
-            number: "+12025550160"
-        - label: catalog.search
-          count: 1
-          input:
-            category: mobile
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b4-offer-to-details
-    when:
-      user: Acme Mobile M, please.
-    expect:
-      stage: details
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
-  - id: b5-details-to-recap
-    when:
-      user: I'm Jo Okafor and my email is jo.okafor@example.com.
-    expect:
-      stage: recap
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      lang: EN
   - id: b6-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
@@ -129,29 +135,15 @@ blocks:
           count: 1
           input:
             type: new
-            plan_id: mobile-m
-            port_number:
-              absent: true
+            plan_id: fiber-1000
+            address_id: addr-101
             customer:
               subset:
                 name: Jo Okafor
                 email: jo.okafor@example.com
-        - label: port.check
+        - label: coverage.check
           count: 0
         - label: catalog.search
-          count: 0
-      lang: EN
-  - id: b7-order_placed-to-closing
-    when:
-      user: No, that's all. Thanks!
-    expect:
-      stage: closing
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
           count: 0
       lang: EN
 metadata:
@@ -164,48 +156,37 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: porting-locked-number
+      hash: 6d29ed7a7539
+    path: order-named-plan
     cell:
       behaviour: B-008
       channel: chat
       user_type: new-customer
-      coverage_result: not-in-map
-      workspace_start: existing-workbook
-      flow: porting
-      port_result: locked
+      coverage_result: fiber
+      flow: order
       plan_choice: names-one
       customer_details: name-and-email
     blocks:
-      - block: b1-needs-to-port_number
+      - block: b1-needs-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-port_number
-          stage: port_number
+          stage_transition: needs-to-address
+          stage: address
         phrase:
           dimension: stage_transition
-          value: needs-to-port_number
-      - block: b2-D7_silence_or_burst
+          value: needs-to-address
+      - block: b2-address-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          deviation: D7_silence_or_burst
-          stage: port_number
-        phrase:
-          dimension: deviation
-          value: D7_silence_or_burst
-      - block: b3-port_number-to-offer
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: port_number-to-offer
-          port_result: locked
+          stage_transition: address-to-offer
+          coverage_result: fiber
           stage: offer
         phrase:
           dimension: stage_transition
-          value: port_number-to-offer
-      - block: b4-offer-to-details
+          value: address-to-offer
+      - block: b3-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -214,7 +195,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -224,61 +205,57 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
+      - block: b5-D7_silence_or_burst
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D7_silence_or_burst
+          stage: recap
+        phrase:
+          dimension: deviation
+          value: D7_silence_or_burst
       - block: b6-recap-to-order_placed
         seeder: twise
         cell:
           spec: metadata.generated.cell
           stage_transition: recap-to-order_placed
-          port_result: locked
+          coverage_result: fiber
           customer_details: name-and-email
           stage: order_placed
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
-      - block: b7-order_placed-to-closing
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          stage_transition: order_placed-to-closing
-          stage: closing
-        phrase:
-          dimension: stage_transition
-          value: order_placed-to-closing
   gate:
     by: driftbench gate
     date: 2026-10-11
     blocks:
-      - block: b1-needs-to-port_number
+      - block: b1-needs-to-address
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D7_silence_or_burst
+      - block: b2-address-to-offer
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
+      - block: b3-offer-to-details
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b3-port_number-to-offer
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b4-offer-to-details
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         status: accepted
         pass_k: 1
         pass_probability: 0.615
+      - block: b5-D7_silence_or_burst
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
       - block: b6-recap-to-order_placed
         status: accepted
         pass_k: 1
-        pass_probability: 0.615
-      - block: b7-order_placed-to-closing
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
+        pass_probability: 0.538
 rules:
   forbidden_tools:
-    - coverage.check
+    - port.check
     - notify_sales
   one_message_per_turn: true
 end_state:
@@ -286,9 +263,8 @@ end_state:
   mode: subset
   expect:
     type: new
-    plan_id: mobile-m
-    port_number:
-      absent: true
+    plan_id: fiber-1000
+    address_id: addr-101
     customer:
       subset:
         name: Jo Okafor

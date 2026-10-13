@@ -1,4 +1,4 @@
-import { FakeModelPort } from '@driftbench/generate';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { analyzeGraph, ClaudeCodeReader, declaredLabels, literals, scanEstate } from '../src/index';
 import { answer, estate, NOW, scanFixture } from './support';
@@ -60,6 +60,56 @@ describe('what a guard enforces', () => {
   it("by a message in the guard source that repeats the rule's words", async () => {
     const result = await oneRule('#!/bin/sh\necho "never touch the vault folder at all" >&2\nexit 2\n');
     expect(result.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'quote' }]);
+  });
+
+  it('by a rule id the guard source cites in the R#n form, against rules labelled R#n', async () => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n**R#1 — No vault.** Never touch the vault folder at all.\n\n**R#2 — Log.** Always log the run.\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "blocked: the vault is closed (R#1)" >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'No vault',
+          quote: 'No vault.** Never touch the vault folder at all.',
+          evidence: [{ type: 'custom', name: 'v' }],
+        },
+        {
+          kind: 'instruction',
+          title: 'Log',
+          quote: 'Log.** Always log the run.',
+          evidence: [{ type: 'custom', name: 'l' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const guardAtom = map.atoms.find((atom) => atom.kind === 'guard');
+    expect(guardAtom?.fields?.enforces).toEqual([{ atom: 'instruction.standing.no-vault', by: 'id' }]);
+  });
+
+  it('keeps on a rule the concrete spans of its whole source lines, beyond the words the model quoted', async () => {
+    const root = await estate({
+      'CLAUDE.md':
+        '# Rules\n\n**R#1 — Diagnostics.** Every failure reaches you, any spelling (e.g. `2>/dev/null`, `|| true`).\n',
+      '.claude/settings.json': SETTINGS('"$CLAUDE_PROJECT_DIR"/.claude/guards/g.sh'),
+      '.claude/guards/g.sh': '#!/bin/sh\necho "swallowed (R#1)" >&2\nexit 2\n',
+    });
+    const port = new FakeModelPort([
+      answer('CLAUDE.md', [
+        {
+          kind: 'instruction',
+          title: 'Failures reach you',
+          quote: 'Every failure reaches you, any spelling',
+          evidence: [{ type: 'custom', name: 'f' }],
+        },
+      ]),
+    ]);
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), port, now: NOW });
+    const rule = map.atoms.find((atom) => atom.kind === 'instruction');
+    expect(rule?.fields?.spans).toEqual(['2>/dev/null', '|| true']);
   });
 
   it('by nothing when the guard source names no label and repeats no rule', async () => {

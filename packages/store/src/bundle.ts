@@ -1,6 +1,13 @@
+import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
-import { Campaign, type LoadedSpec, RunResult, validateSpec } from '@driftbench/core';
+import {
+  Campaign,
+  canonicalJson,
+  type LoadedSpec,
+  RunResult,
+  validateSpec,
+} from '@agent-nexus/driftbench-core';
 import { describeCause, describeIssues, StoreError } from './errors';
 import {
   isVersionPath,
@@ -30,7 +37,24 @@ export type BundleManifest = {
   campaignId: string;
   /** `specs` and `sources` are there when the bundle carries any. */
   counts: { runs: number; blocks: number; specs?: number; sources?: number };
+  /**
+   * The SHA-256 of the canonical JSON of each record, by its path in the bundle. A record edited after the
+   * export no longer matches and the bundle is refused. Bundles written before this field read as before.
+   */
+  hashes?: Record<string, string>;
 };
+
+function recordHash(value: unknown): string {
+  return createHash('sha256').update(canonicalJson(value)).digest('hex');
+}
+
+function isHashes(value: unknown): value is Record<string, string> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.values(value).every((hash) => typeof hash === 'string' && /^[0-9a-f]{64}$/.test(hash))
+  );
+}
 
 /** A registry version the campaign ran, with the exact bytes of its files. */
 export type BundleSource = { version: RegistryVersion; files: RegistryFile[] };
@@ -104,6 +128,10 @@ export async function writeCampaignBundle(
     schemaVersion: SCHEMA_VERSION,
     campaignId: campaign.campaignId,
     counts,
+    hashes: Object.fromEntries([
+      [CAMPAIGN, recordHash(campaign)],
+      ...runs.map((run) => [`${RUNS}/${fileName(run.runId)}.json`, recordHash(run)] as const),
+    ]),
   };
   await writeJson(join(folder, MANIFEST), manifest);
   return folder;
@@ -130,6 +158,17 @@ export async function readCampaignBundle(folder: string): Promise<CampaignBundle
     );
   }
 
+  const expect = (path: string, value: unknown) => {
+    const want = manifest.hashes?.[path];
+    if (want !== undefined && want !== recordHash(value)) {
+      throw invalid(
+        folder,
+        `${path} does not match the hash its manifest records: it changed after the export`,
+      );
+    }
+  };
+  expect(CAMPAIGN, campaign.data);
+
   const files = (await listJsonFiles(join(folder, RUNS))).sort();
   const runs: RunResult[] = [];
   const seen = new Set<string>();
@@ -142,6 +181,7 @@ export async function readCampaignBundle(folder: string): Promise<CampaignBundle
       );
     }
     if (seen.has(parsed.data.runId)) throw invalid(folder, `run ${parsed.data.runId} appears in two files`);
+    expect(`${RUNS}/${file}`, parsed.data);
     seen.add(parsed.data.runId);
     runs.push(parsed.data);
   }
@@ -270,6 +310,7 @@ function checkManifest(value: unknown, folder: string): BundleManifest {
       ...(isCount(counts.specs) ? { specs: counts.specs } : {}),
       ...(isCount(counts.sources) ? { sources: counts.sources } : {}),
     },
+    ...(isHashes(manifest.hashes) ? { hashes: manifest.hashes } : {}),
   };
 }
 

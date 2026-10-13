@@ -10,7 +10,7 @@ import {
   type SandboxProvider,
   type Spec,
   type UserDriver,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   AUDIT_FILE,
   type Candidate,
@@ -26,10 +26,11 @@ import {
   REVIEW_FILE,
   renderFunnel,
   runGate,
-} from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { type CampaignScope, defaultDeps, parseTarget, showTarget } from './campaign';
 
 export type GateCommandOptions = {
@@ -393,7 +394,7 @@ function openScope(): CampaignScope & { close(io: Io): Promise<void> } {
 
 function whole(text: string | undefined, name: string, minimum: number, fallback: number): number | string {
   if (text === undefined) return fallback;
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!/^\d+$/.test(text.trim()) || !Number.isSafeInteger(value) || value < minimum) {
     return `--${name} must be a whole number of at least ${minimum}, got "${text}".`;
   }
@@ -402,7 +403,7 @@ function whole(text: string | undefined, name: string, minimum: number, fallback
 
 function share(text: string | undefined, name: string, fallback: number): number | string {
   if (text === undefined) return fallback;
-  const value = Number(text);
+  const value = optionNumber(text);
   if (text.trim() === '' || !Number.isFinite(value) || value < 0 || value > 1) {
     return `--${name} must be a number from 0 to 1, got "${text}".`;
   }

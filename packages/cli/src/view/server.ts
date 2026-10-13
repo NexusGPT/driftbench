@@ -2,8 +2,9 @@ import { createHash } from 'node:crypto';
 import { readdir } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { basename, extname } from 'node:path';
-import type { Campaign, RunResult, Spec, Store } from '@driftbench/core';
+import type { Campaign, RunResult, Spec, Store } from '@agent-nexus/driftbench-core';
 import {
+  type AnnotationAnchor,
   agreementOf,
   assign,
   completeItem,
@@ -13,7 +14,7 @@ import {
   readQueue,
   saveLabel,
   writeQueue,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import {
   type BlockDetail,
   buildScorecard,
@@ -27,8 +28,8 @@ import {
   renderRun,
   runDetailOf,
   runPassed,
-} from '@driftbench/report';
-import { openStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-report';
+import { openStore } from '@agent-nexus/driftbench-store';
 
 /**
  * The local viewer of `driftbench view`: pages served from the store, with the scorecard's renderer and
@@ -479,10 +480,17 @@ async function runPage(
       criteria.length > 0
         ? `<select name="criterion" aria-label="Criterion">${criteria.map((name) => `<option value="${esc(name)}">${esc(name)}</option>`).join('')}</select>`
         : '<input name="criterion" aria-label="Criterion" placeholder="criterion" required pattern="[A-Za-z0-9][A-Za-z0-9._-]*">';
+    const anchorField = `<label>Anchor <select name="anchor" aria-label="Anchor"><option value="none">no anchor</option>${anchorOptions(
+      block,
+    )
+      .map((option) => `<option value="${esc(option.value)}">${esc(option.label)}</option>`)
+      .join('')}</select></label>`;
     return `<div class="labels"><p class="label">Your label for this block${existing.length > 0 ? `, ${existing.length} saved` : ''}</p>${shown ? `<ul>${shown}</ul>` : ''}<form method="post" action="/labels">
 <input type="hidden" name="campaign" value="${esc(campaignId)}"><input type="hidden" name="run" value="${esc(run.runId)}"><input type="hidden" name="block" value="${block.index}">
 ${criterionField}
+${anchorField}
 <label><input type="radio" name="label" value="pass" required> pass</label><label><input type="radio" name="label" value="fail"> fail</label>
+<label>Score <input name="score" type="number" min="0" max="1" step="0.01" aria-label="Score" placeholder="0 to 1"></label>
 <p class="muted">With script on: 1 marks pass, 2 marks fail, Cmd or Ctrl+Enter saves. Without it the buttons work the same.</p>
 <input name="note" aria-label="Note" placeholder="note: why">
 <button type="submit">Save label</button></form></div>`;
@@ -514,6 +522,82 @@ ${criterionField}
 }
 
 /** Saves the label a form posted and returns where the browser goes next. */
+/** The transcript a label judges: the stimulus, each tool call with its result, then the reply. */
+function transcriptOf(block: BlockDetail) {
+  return [
+    ...(block.stimulus === undefined ? [] : [{ role: 'user' as const, text: block.stimulus }]),
+    ...block.toolCalls.flatMap((call) => [
+      { role: 'tool_call' as const, text: JSON.stringify(call.input ?? null), tool: call.label },
+      ...(call.output === undefined && call.error === undefined
+        ? []
+        : [
+            {
+              role: 'tool_result' as const,
+              text: call.error ?? JSON.stringify(call.output),
+              tool: call.label,
+            },
+          ]),
+    ]),
+    { role: 'agent' as const, text: block.text },
+  ];
+}
+
+/**
+ * The anchors a label can pick in this block: each transcript line by its index, and each tool call by its name
+ * and occurrence. The value is what the form posts; the anchor is what the label file keeps.
+ */
+export function anchorOptions(
+  block: BlockDetail,
+): { value: string; label: string; anchor: AnnotationAnchor }[] {
+  const options: { value: string; label: string; anchor: AnnotationAnchor }[] = [];
+  const occurrences = new Map<string, number>();
+  transcriptOf(block).forEach((entry, index) => {
+    options.push({
+      value: `message:${index}`,
+      label: `line ${index}: ${entry.role}`,
+      anchor: { kind: 'message', index },
+    });
+    if (entry.role === 'tool_call') {
+      const tool = entry.tool ?? '';
+      const occurrence = (occurrences.get(tool) ?? 0) + 1;
+      occurrences.set(tool, occurrence);
+      options.push({
+        value: `tool:${tool}:${occurrence}`,
+        label: `tool ${tool}, call ${occurrence}`,
+        anchor: { kind: 'tool_call', tool, occurrence },
+      });
+    }
+  });
+  for (const [call, output] of block.toolCalls.map((call) => [call, call.output] as const)) {
+    for (const path of leafPaths(output, 3)) {
+      options.push({
+        value: `field:${call.label}:${path}`,
+        label: `field ${path} of ${call.label}`,
+        anchor: { kind: 'field', path },
+      });
+    }
+  }
+  for (const event of block.runtimeEvents ?? []) {
+    const spanId = `${event.kind}:${event.name}`;
+    options.push({
+      value: `span:${spanId}`,
+      label: `${event.kind} ${event.name}`,
+      anchor: { kind: 'span', span_id: spanId },
+    });
+  }
+  return options;
+}
+
+/** The dot paths of the leaf values of a JSON value, up to a depth. Arrays and text count as leaves. */
+export function leafPaths(value: unknown, depth: number, prefix = ''): string[] {
+  if (value === null || typeof value !== 'object' || Array.isArray(value) || depth === 0) {
+    return prefix === '' ? [] : [prefix];
+  }
+  return Object.entries(value).flatMap(([key, child]) =>
+    leafPaths(child, depth - 1, prefix === '' ? key : `${prefix}.${key}`),
+  );
+}
+
 async function saveFromForm(
   store: Store,
   labelsDir: string,
@@ -545,6 +629,12 @@ async function saveFromForm(
   const block = detail.blocks.find((entry) => entry.index === index);
   if (!Number.isInteger(index) || !block)
     throw new HttpError(400, `The run has no block ${fields.get('block')}.`);
+  // The form offers the judged criteria of the spec and those that voted on the block; when it offers some,
+  // a label on any other criterion is refused and writes no file. With none, the form takes a free name.
+  const offered = criteriaOf(data.specs.get(`${run.specId}@${run.specHash}`)?.spec, run, index);
+  if (offered.length > 0 && !offered.includes(criterion)) {
+    throw new HttpError(400, `The block offers the criteria ${offered.join(', ')}, not ${criterion}.`);
+  }
   const transcript = [
     ...(block.stimulus === undefined ? [] : [{ role: 'user' as const, text: block.stimulus }]),
     ...block.toolCalls.flatMap((call) => [
@@ -561,18 +651,32 @@ async function saveFromForm(
     ]),
     { role: 'agent' as const, text: block.text },
   ];
+  const picked = fields.get('anchor') ?? 'none';
+  let anchor: AnnotationAnchor | undefined;
+  if (picked !== 'none') {
+    const option = anchorOptions(block).find((entry) => entry.value === picked);
+    if (!option) throw new HttpError(400, `${picked} is not an anchor of this block.`);
+    anchor = option.anchor;
+  }
+  const scoreText = (fields.get('score') ?? '').trim();
+  const score = scoreText === '' ? undefined : Number(scoreText);
   const labelled: LabelledBlock = {
     id: blockId(run.runId, index),
     label,
     ...(note === '' ? {} : { note }),
     transcript,
+    ...(anchor === undefined ? {} : { anchor }),
   };
   const queue = await readQueue(labelsDir);
   const entry = queue.entries.find((item) => item.criterion === criterion && item.id === labelled.id);
+  // Another reviewer cannot label an item held by someone else.
+  if (entry && entry.state === 'assigned' && entry.assignee !== labelledBy) {
+    throw new HttpError(409, `${entry.id} on ${criterion} is held by ${entry.assignee}.`);
+  }
   if (entry && entry.state === 'assigned' && entry.assignee === labelledBy) {
     await writeQueue(
       labelsDir,
-      await completeItem(labelsDir, queue, criterion, entry.id, labelledBy, labelled),
+      await completeItem(labelsDir, queue, criterion, entry.id, labelledBy, labelled, score),
     );
   } else {
     await saveLabel(labelsDir, criterion, labelled, labelledBy);

@@ -341,7 +341,7 @@ In the docs: [Judges](docs/concepts/judges.md)
 
 One run proves nothing. driftbench treats evaluation as a statistics problem.
 
-- **Intervals on every rate.** Wilson for proportions, a clustered bootstrap for anything aggregated over blocks, one conversation per cluster.
+- **Intervals on every rate.** Wilson for proportions, Wilson on the effective number of runs for a pass rate over specs or conversations, a clustered bootstrap for anything else aggregated over blocks, one conversation per cluster.
 - **Repeats.** `pass^k` when every run passes, `pass@k` when at least one does, and unreliability: the spread between the 90th and the 10th percentile.
 - **Paired comparisons** on the same goldens: McNemar, Wilcoxon, and a Benjamini Hochberg correction across criteria before any criterion is called a regression.
 - **Power first.** The minimum detectable effect is printed before a campaign spends anything.
@@ -378,6 +378,48 @@ The aim: about ten goldens that cover every kind of block, instead of two hundre
 - **Spread by source.** A pilot splits the spread between the agent, the wording, the persona, the conversation and the judge, and sets the noise floor: `driftbench pilot`.
 
 In the repo: [the Acme map proposal](examples/acme/map/README.md)
+
+## Test generation
+
+driftbench builds tests from an approved map of the situations an agent can face. Code reads the behaviour inventory and tool schemas; an optional model proposes entries from those sources and the prompt. Each entry quotes its source, and a person approves it before generation.
+
+Code derives each block's expected outcome from approved relations, independently of the agent's reply. Covering arrays place tests over allowed combinations of categorical values. Graph paths, boundary values, deviation probes, metamorphic variants and task families add tests, and coverage completion fills supported gaps. A block with no approved phrase or machine-checkable outcome stays in `incomplete/`. The validity gate checks candidate blocks against a reference agent, planted faults and trivial controls.
+
+### Budget mode
+
+`driftbench generate --budget N` replaces the covering-array conversation rows with a fixed number of selections. The hybrid selector picks the cell that adds the most uncovered allowed pairs, then favours underused values, then resolves ties with a seeded order. Constraints still apply. Without numeric settings, it selects up to N distinct cells. With numeric settings, categorical cells can repeat to place N samples. The other seeders still run, so N does not cap the whole suite, executed blocks or spend.
+
+Approved numeric ranges use sliced Latin hypercube sampling (LHS). Rows with the same selected categorical combination form a slice. Each setting occupies every quantile band once globally and once within each slice, and the sampled values enter the spec through `given.vars`. Integer values can repeat. These properties apply to selected rows; removing incomplete rows or gating the suite can change the remaining balance.
+
+### Measured comparison
+
+The [paired budget study](comparisons/budget/full-study.md) compares selected conversation rows on the fictional Acme system over selection and rendering seeds 1 through 30. Execution uses scripted reference and faulty agents, with 0 model calls and $0 model/tool spend. The table quotes mean fault catches from the study, with a common denominator of 13 scored faults.
+
+| Budget | Hybrid faults / 13 | Pairwise faults / 13 | Random faults / 13 |
+| --- | --- | --- | --- |
+| 20 | 9.00 | 8.00 | 8.37 |
+| 50 | 9.00 | 9.00 | 8.97 |
+| 100 | 9.00 | 9.00 | 9.00 |
+| 200 | 9.00 | 9.00 | 9.00 |
+
+At budget 20, the exact two-sided paired fault test gives p = 1.862645149230957e-09 for hybrid versus pairwise and p = 0.0001220703125 for hybrid versus random. These p-values are unadjusted and assume exchangeable method labels within each seed pair and independent swaps across pairs.
+
+At budgets 50, 100 and 200, hybrid and pairwise show no measured difference in fault catches; each paired p-value is 1. Hybrid versus random also has p = 1 at these budgets, although its budget-50 mean differs. This is evidence from this map and its scripted faults; it does not establish performance on other agents.
+
+At budget 200, pairwise catches 9 of 13 faults with 132 selected rows; hybrid catches 9 of 13 with 200 rows. Both cover 314.00 drawn pairs out of 314. Selected-row counts describe the selector's output, not whole-suite cost. Drawn pair coverage includes incomplete rows; fault scoring runs only complete rows.
+
+### Faults that need task specs
+
+The selected conversation space cannot reach these four operations faults. The full generator catches them through task-family specs, with the witness `acme-price-sheet-i01-base#build`:
+
+| Fault | What the task checks |
+| --- | --- |
+| `ops-x1-wrong-price` | The first Mobile workbook price and its yearly result are wrong while the reply stays unchanged. |
+| `ops-x4-narrates` | The reply narrates internal steps and omits the file name. |
+| `ops-x5-skips-check` | The block records no read-back command. |
+| `ops-d6-deletes-readme` | An instruction planted in the workspace makes the agent remove README.txt. |
+
+The numeric ablation measures global and within-slice stratification against uniform sampling. It measures no numeric fault-detection outcome. See [Generating tests](docs/generating.md) for the approved map, covering arrays, budget reports, task families, validity gate and commands. The [full study](comparisons/budget/full-study.md) retains intervals, raw records, fault witnesses and reproduction commands.
 
 ## The anatomy of driftbench
 

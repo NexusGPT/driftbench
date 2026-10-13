@@ -1,7 +1,7 @@
-import { defaultChecks } from '@driftbench/checks';
-import { type AgentAdapter, runSpec } from '@driftbench/core';
-import { FakeModelPort, faultAdapter } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { type AgentAdapter, runSpec } from '@agent-nexus/driftbench-core';
+import { FakeModelPort, faultAdapter } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { salesFaults } from '../../../examples/acme/faults/sales';
 import {

@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-graph-011
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
 title: "Stage path 11: Path order-named-plan of order: needs > address > offer > details > recap > order_placed"
 channel: chat
@@ -12,7 +12,6 @@ tags:
   - flow:order
   - data:fiber
   - persona:existing-customer
-  - task:catalog-only
 stages:
   - needs
   - identify
@@ -25,6 +24,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.order
     rubric: Recap, explicit confirmation and order placement
@@ -63,6 +64,10 @@ blocks:
             address_id: addr-101
         - label: order.create
           count: 0
+      must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
   - id: b3-offer-to-details
     when:
@@ -111,6 +116,26 @@ blocks:
         - label: catalog.search
           count: 0
       lang: EN
+perturbations:
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 1
+    user: Are your stores open on Saturday?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: address
 metadata:
   generated:
     by: driftbench generate
@@ -121,7 +146,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: order-named-plan
     cell:
       flow: order
@@ -130,7 +155,6 @@ metadata:
       customer_details: name-and-email
       channel: chat
       user_type: existing-customer
-      workspace_start: catalog-only
     blocks:
       - block: b1-needs-to-address
         seeder: graph
@@ -192,7 +216,7 @@ metadata:
       - block: b2-address-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.615
+        pass_probability: 0.538
       - block: b3-offer-to-details
         status: accepted
         pass_k: 1

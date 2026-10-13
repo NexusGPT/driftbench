@@ -75,7 +75,36 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
     await program.parseAsync(argv, { from: 'user' });
   } catch (cause) {
     if (cause instanceof CommanderError) return cause.exitCode === 0 ? 0 : 2;
+    // A path the user gave that cannot be used as asked (a file where a folder must go, a folder where a file
+    // must go, a missing file) is an input error: exit 2 with the reason, never a stack trace.
+    const path = pathError(cause);
+    if (path !== undefined) {
+      io.err(`driftbench: ${path}\n`);
+      return 2;
+    }
     throw cause;
   }
   return exitCode;
+}
+
+const PATH_CODES = new Set([
+  'ENOENT',
+  'ENOTDIR',
+  'EISDIR',
+  'EEXIST',
+  'EACCES',
+  'EPERM',
+  'ENAMETOOLONG',
+  'ELOOP',
+]);
+
+/** The message of a file system error on a path, or undefined for any other error. */
+function pathError(cause: unknown): string | undefined {
+  if (!(cause instanceof Error)) return undefined;
+  const { code, path } = cause as Error & { code?: unknown; path?: unknown };
+  if (typeof code !== 'string' || !PATH_CODES.has(code)) return undefined;
+  // A read that fails after the open (EISDIR on a folder) carries no path: the message names the cause.
+  return typeof path === 'string'
+    ? `cannot use ${path}: ${cause.message}`
+    : `cannot read the input: ${cause.message}`;
 }

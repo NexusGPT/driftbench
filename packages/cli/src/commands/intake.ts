@@ -24,10 +24,11 @@ import {
   SECOND_PASSES,
   type SecondPass,
   turnRecordingPort,
-} from '@driftbench/generate';
-import { aboutPercent } from '@driftbench/space';
+} from '@agent-nexus/driftbench-generate';
+import { aboutPercent } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 export type IntakeDeps = {
   /** The model to call instead of the one the environment configures. Tests pass a fake. */
@@ -610,12 +611,12 @@ async function exists(path: string): Promise<boolean> {
 }
 
 function whole(value: string, min: number): number | undefined {
-  const number = Number(value);
+  const number = optionNumber(value);
   return Number.isInteger(number) && number >= min ? number : undefined;
 }
 
 function share(value: string): number | undefined {
-  const number = Number(value);
+  const number = optionNumber(value);
   return Number.isFinite(number) && number >= 0 && number <= 1 ? number : undefined;
 }
 

@@ -1,0 +1,84 @@
+# The tools of desk-2 as JSON Schema. Every name in it is fictional.
+tools:
+  - name: order.place
+    description: Places an order for a plan.
+    input_schema:
+      type: object
+      required: [reference, quantity]
+      properties:
+        reference: { type: string, maxLength: 154 }
+        verified: { type: boolean }
+        quantity: { type: integer, minimum: 1, maximum: 95 }
+    output_schema:
+      type: object
+      required: [reason_code]
+      properties:
+        reason_code: { type: string, enum: [basic, plus, max] }
+        owner:
+          type: [object, 'null']
+          required: [lines]
+          properties:
+            reference: { type: string, minLength: 1 }
+            lines: { type: array, items: { type: string } }
+        comment: { type: string }
+  - name: address.check
+    description: Checks that an address is served.
+    input_schema:
+      type: object
+      required: [contact_email, reason_code]
+      properties:
+        contact_email: { type: string, format: email }
+        reason_code: { type: string, enum: [moved, unhappy, duplicate, other] }
+        tier: { type: string, enum: [basic, plus, max] }
+        count: { type: integer, minimum: 1, maximum: 48 }
+    output_schema:
+      type: object
+      required: [summary]
+      properties:
+        summary: { type: string, minLength: 1 }
+        slot:
+          type: [object, 'null']
+          required: [label]
+          properties:
+            label: { type: string }
+            queued: { type: boolean }
+  - name: visit.book
+    description: Books a technician visit.
+    input_schema:
+      type: object
+      required: [verified, urgent, slot, start_date]
+      properties:
+        verified: { type: boolean }
+        urgent: { type: boolean }
+        slot:
+          type: [object, 'null']
+          required: []
+          properties:
+            priority: { type: string, enum: [open, pending, closed] }
+        start_date: { type: string, format: date }
+    output_schema:
+      type: object
+      required: [tier]
+      properties:
+        tier: { type: string, enum: [moved, unhappy, duplicate, other] }
+  - name: ticket.open
+    description: Hands a case to a person.
+    input_schema:
+      type: object
+      required: [items, tier, term_months]
+      properties:
+        items: { type: array, items: { type: string } }
+        tier: { type: string, enum: [basic, plus, max] }
+        reference: { type: string, minLength: 0 }
+        term_months: { type: integer, minimum: 1 }
+    output_schema:
+      type: object
+      required: [slot, contact_email, term_months]
+      properties:
+        slot:
+          type: [object, 'null']
+          required: [reference]
+          properties:
+            reference: { type: string }
+        contact_email: { type: string, format: email }
+        term_months: { type: integer, maximum: 26 }

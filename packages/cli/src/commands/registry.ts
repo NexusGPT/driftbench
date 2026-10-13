@@ -1,5 +1,5 @@
 import { relative, resolve } from 'node:path';
-import { loadSpecs } from '@driftbench/core';
+import { loadSpecs } from '@agent-nexus/driftbench-core';
 import {
   diffFiles,
   openStore,
@@ -10,7 +10,7 @@ import {
   readTree,
   restoreFiles,
   type SqliteStore,
-} from '@driftbench/store';
+} from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 
@@ -141,6 +141,11 @@ export async function pushCommand(
 async function listCommand(kind: RegistryKind, name: string | undefined, options: StoreOption, io: Io) {
   return withStore(options.store, io, async (store) => {
     const versions = await store.listVersions(kind, name);
+    // A name the store does not hold is bad input, exit 2, as for diff and restore; an empty registry is not.
+    if (name !== undefined && versions.length === 0) {
+      io.err(`No ${kind} ${name} in ${options.store}.\n`);
+      return 2;
+    }
     if (options.json) {
       io.out(`${JSON.stringify(versions, null, 2)}\n`);
       return 0;

@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
-import { functionAdapter } from '@driftbench/adapters';
-import type { AgentAdapter, CostUnit, Store, TargetRef } from '@driftbench/core';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import type { AgentAdapter, CostUnit, Store, TargetRef } from '@agent-nexus/driftbench-core';
 import {
   analysePilot,
   designPilot,
@@ -18,9 +18,11 @@ import {
   planPilot,
   type Resample,
   runPilot,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { noStoreAt } from '../store-path';
 import { type CampaignDeps, defaultDeps, loadValidSpecs, parseTarget, showTarget } from './campaign';
 
 const RESAMPLE: readonly Resample[] = ['cells', 'conversations', 'both'];
@@ -258,6 +260,7 @@ export async function pilotAnalyseCommand(
 ): Promise<number> {
   const analysisOptions = parseAnalysis(options, io);
   if (!analysisOptions) return 2;
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await open(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
@@ -402,7 +405,7 @@ async function open(deps: CampaignDeps, path: string, io: Io): Promise<Store | u
 }
 
 function whole(text: string, flag: string, min: number, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isInteger(value) || value < min) {
     io.err(`${flag} takes a whole number of at least ${min}, not "${text}".\n`);
     return undefined;
@@ -411,7 +414,7 @@ function whole(text: string, flag: string, min: number, io: Io): number | undefi
 }
 
 function fraction(text: string, flag: string, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 1) {
     io.err(`${flag} takes a number between 0 and 1, not "${text}".\n`);
     return undefined;

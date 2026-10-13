@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-072
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 72 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D5_language_switch at port_number"
-channel: chat
+title: "t-wise row 72 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D5_language_switch at order_placed"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:5g-only
-  - task:catalog-only
   - flow:porting
 covers:
   - B-007
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-007
     rubric: Explain a transfer lock and offer a new Acme number when a number cannot move
@@ -57,26 +57,7 @@ blocks:
       criteria:
         - behaviour.B-007
         - flow.porting
-  - id: b2-D5_language_switch
-    when:
-      injection:
-        class: D5_language_switch
-        user: Kunt u dat ook in het Nederlands uitleggen?
-    expect:
-      stage: port_number
-      tools:
-        - label: port.check
-          count: 0
-        - label: catalog.search
-          count: 0
-        - label: order.create
-          count: 0
-      must:
-        - I can only help
-      lang: EN
-      criteria:
-        - deviation.D5_language_switch
-  - id: b3-port_number-to-offer
+  - id: b2-port_number-to-offer
     when:
       user: My number is +1 202 555 0160.
     expect:
@@ -92,8 +73,12 @@ blocks:
             category: mobile
         - label: order.create
           count: 0
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
-  - id: b4-offer-to-details
+  - id: b3-offer-to-details
     when:
       user: Acme Mobile M, please.
     expect:
@@ -106,7 +91,7 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b5-details-to-recap
+  - id: b4-details-to-recap
     when:
       user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
@@ -119,9 +104,9 @@ blocks:
         - label: order.create
           count: 0
       lang: EN
-  - id: b6-recap-to-order_placed
+  - id: b5-recap-to-order_placed
     when:
-      user: Confirm
+      user: CONFIRM
     expect:
       stage: order_placed
       tools:
@@ -141,6 +126,25 @@ blocks:
         - label: catalog.search
           count: 0
       lang: EN
+  - id: b6-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: order_placed
+      tools:
+        - label: port.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
   - id: b7-order_placed-to-closing
     when:
       user: No, that's all. Thanks!
@@ -164,14 +168,13 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: porting-locked-number
     cell:
       behaviour: B-007
-      channel: chat
+      channel: whatsapp
       user_type: new-customer
-      coverage_result: 5g-only
-      workspace_start: catalog-only
+      coverage_result: none
       flow: porting
       port_result: locked
       plan_choice: names-one
@@ -186,16 +189,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-port_number
-      - block: b2-D5_language_switch
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D5_language_switch
-          stage: port_number
-        phrase:
-          dimension: deviation
-          value: D5_language_switch
-      - block: b3-port_number-to-offer
+      - block: b2-port_number-to-offer
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -205,7 +199,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: port_number-to-offer
-      - block: b4-offer-to-details
+      - block: b3-offer-to-details
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -214,7 +208,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: offer-to-details
-      - block: b5-details-to-recap
+      - block: b4-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -224,7 +218,7 @@ metadata:
         phrase:
           dimension: stage_transition
           value: details-to-recap
-      - block: b6-recap-to-order_placed
+      - block: b5-recap-to-order_placed
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -235,6 +229,15 @@ metadata:
         phrase:
           dimension: stage_transition
           value: recap-to-order_placed
+      - block: b6-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: order_placed
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
       - block: b7-order_placed-to-closing
         seeder: twise
         cell:
@@ -252,26 +255,26 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D5_language_switch
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b3-port_number-to-offer
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b4-offer-to-details
-        status: accepted
-        pass_k: 1
-        pass_probability: 0.692
-      - block: b5-details-to-recap
+      - block: b2-port_number-to-offer
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b6-recap-to-order_placed
+      - block: b3-offer-to-details
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b4-details-to-recap
         status: accepted
         pass_k: 1
         pass_probability: 0.615
+      - block: b5-recap-to-order_placed
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b6-D5_language_switch
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
       - block: b7-order_placed-to-closing
         status: accepted
         pass_k: 1

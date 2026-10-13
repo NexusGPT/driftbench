@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { loadEstateMap, Plan, readerFor } from '@driftbench/estate';
+import { loadEstateMap, Plan, readerFor } from '@agent-nexus/driftbench-estate';
 import {
   ESTATE_COMPLETE_DIR,
   ESTATE_INCOMPLETE_DIR,
@@ -15,10 +15,12 @@ import {
   renderEstateSummary,
   SessionIndex,
   STATIC_DIR,
+  UNIT_DIR,
   type YamlSchema,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { mapCacheOptions } from './map-cache';
 
 export type EstateGenerateOptions = {
@@ -87,7 +89,7 @@ export function registerEstateGenerateCommand(
 export async function estateGenerateCommand(options: EstateGenerateOptions, io: Io): Promise<number> {
   let seed: number | undefined;
   if (options.seed !== undefined) {
-    const value = Number(options.seed);
+    const value = optionNumber(options.seed);
     if (!/^\d+$/.test(options.seed.trim()) || !Number.isSafeInteger(value)) {
       io.err(`--seed must be a whole number of at least 0, got "${options.seed}".\n`);
       return 2;
@@ -214,6 +216,7 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
       ESTATE_REPORT_FILE,
       ESTATE_ORDER_FILE,
       STATIC_DIR,
+      UNIT_DIR,
     ]) {
       await rm(join(outPath, entry), { recursive: true, force: true });
     }

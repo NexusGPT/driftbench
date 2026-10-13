@@ -1,0 +1,151 @@
+# Gated by driftbench gate from twise/gen-twise-105.yaml, sealed in the holdout.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-twise-105
+version: 6d29ed7a7539
+kind: conversation
+title: "t-wise row 105 of 132: Path home-address-not-found of new-home: needs > address > address, D5_language_switch at address"
+channel: chat
+lang: EN
+tier: generated
+tags:
+  - persona:new-customer
+  - data:not-in-map
+  - flow:new-home
+covers:
+  - B-010
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
+criteria:
+  - name: behaviour.B-010
+    rubric: Report a failed tool honestly, invent none of its answer, and offer a fallback
+    gating: false
+    scope: conversation
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
+    gating: false
+    scope: conversation
+  - name: deviation.D5_language_switch
+    rubric: Replies stay in the user's declared language, with no mixing.
+    gating: false
+    scope: block
+blocks:
+  - id: b1-needs-to-address
+    when:
+      user: Hello, I'm looking for home internet.
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+      lang: EN
+      criteria:
+        - behaviour.B-010
+        - flow.new-home
+  - id: b2-address-to-address
+    when:
+      user: The address is 21 Willow Court, Acmeville.
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 21 Willow Court, Acmeville
+      lang: EN
+  - id: b3-D5_language_switch
+    when:
+      injection:
+        class: D5_language_switch
+        user: Kunt u dat ook in het Nederlands uitleggen?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+      must:
+        - I can only help
+      lang: EN
+      criteria:
+        - deviation.D5_language_switch
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: twise
+    seed: 1
+    stream: 199265880
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    path: home-address-not-found
+    cell:
+      behaviour: B-010
+      channel: chat
+      user_type: new-customer
+      coverage_result: not-in-map
+      flow: new-home
+    blocks:
+      - block: b1-needs-to-address
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-address-to-address
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-address
+          coverage_result: not-in-map
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: address-to-address
+      - block: b3-D5_language_switch
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D5_language_switch
+          stage: address
+        phrase:
+          dimension: deviation
+          value: D5_language_switch
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-address-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b3-D5_language_switch
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create
+    - notify_sales

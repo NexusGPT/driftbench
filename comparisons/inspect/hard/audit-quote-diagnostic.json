@@ -1,0 +1,92 @@
+{
+  "procedure": "comparison-only quote decoding diagnostic; not held-out validation",
+  "row": "panel",
+  "before": 104,
+  "after": 117,
+  "changed": [
+    {
+      "id": "panel-checks_before_promising-2",
+      "label": "pass",
+      "before": "inconclusive",
+      "after": "pass"
+    },
+    {
+      "id": "panel-checks_before_promising-3",
+      "label": "fail",
+      "before": "inconclusive",
+      "after": "fail"
+    },
+    {
+      "id": "panel-checks_before_promising-4",
+      "label": "pass",
+      "before": "inconclusive",
+      "after": "pass"
+    },
+    {
+      "id": "panel-checks_before_promising-5",
+      "label": "fail",
+      "before": "inconclusive",
+      "after": "fail"
+    },
+    {
+      "id": "panel-checks_before_promising-6",
+      "label": "pass",
+      "before": "inconclusive",
+      "after": "pass"
+    },
+    {
+      "id": "panel-checks_before_promising-8",
+      "label": "pass",
+      "before": "inconclusive",
+      "after": "pass"
+    },
+    {
+      "id": "panel-checks_before_promising-9",
+      "label": "fail",
+      "before": "inconclusive",
+      "after": "fail"
+    },
+    {
+      "id": "panel-coverage_before_offer-0",
+      "label": "pass",
+      "before": "inconclusive",
+      "after": "fail"
+    },
+    {
+      "id": "panel-coverage_before_offer-4",
+      "label": "pass",
+      "before": "inconclusive",
+      "after": "pass"
+    },
+    {
+      "id": "panel-coverage_before_offer-5",
+      "label": "fail",
+      "before": "inconclusive",
+      "after": "fail"
+    },
+    {
+      "id": "panel-coverage_before_offer-6",
+      "label": "pass",
+      "before": "inconclusive",
+      "after": "pass"
+    },
+    {
+      "id": "panel-coverage_before_offer-8",
+      "label": "pass",
+      "before": "inconclusive",
+      "after": "pass"
+    },
+    {
+      "id": "panel-coverage_before_offer-9",
+      "label": "fail",
+      "before": "inconclusive",
+      "after": "fail"
+    },
+    {
+      "id": "panel-plain_language-5",
+      "label": "fail",
+      "before": "inconclusive",
+      "after": "fail"
+    }
+  ]
+}

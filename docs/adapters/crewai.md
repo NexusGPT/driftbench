@@ -12,7 +12,7 @@ Python and `crewai` are yours to install; driftbench depends on neither.
 ## Options
 
 ```ts
-import { crewaiAdapter, crewaiHttp, crewaiProcess } from '@driftbench/adapters';
+import { crewaiAdapter, crewaiHttp, crewaiProcess } from '@agent-nexus/driftbench-adapters';
 
 const local = crewaiAdapter({
   transport: crewaiProcess({ crew: 'acme.crews:build_sales', python: '.venv/bin/python', cwd: '/srv/acme' }),
@@ -59,7 +59,7 @@ Each tool use as a tool call followed by its result (an output that is JSON text
 
 | What happens | Error |
 |---|---|
-| a 429 or a 5xx from AMP (Retry-After kept), or a bridge error with such a status or a connection error | `AdapterTransportError`: the runner retries under the [shared policy](../retries.md) |
+| a 408, a 429 or a 5xx from AMP (Retry-After kept), or a bridge error with such a status or a connection error | `AdapterTransportError`: the runner retries under the [shared policy](../retries.md) |
 | a crew run that does not finish within `timeoutMs` | `AdapterTransportError`, marked exhausted |
 | any other status, a run whose status is `error`, or a bridge exit without a result | `AgentFailure` |
 

@@ -8,7 +8,7 @@ import {
   type Segment,
   type Session,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   answerTool,
@@ -191,8 +191,8 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
             typeof block.name === 'string'
           ) {
             const label = names.label(block.name);
-            asked.push({ id: block.id, label, input: block.input ?? {} });
-            segments.push({ type: 'tool_call', id: block.id, label, input: block.input ?? {}, ...take() });
+            asked.push({ id: block.id, label, input: block.input ?? null });
+            segments.push({ type: 'tool_call', id: block.id, label, input: block.input ?? null, ...take() });
           }
           // Thinking and server tool blocks carry nothing the customer sees; they go back to the API as they came.
         }

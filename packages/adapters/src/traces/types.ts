@@ -1,4 +1,4 @@
-import type { Observed } from '@driftbench/core';
+import type { Observed } from '@agent-nexus/driftbench-core';
 
 /**
  * A production trace read into driftbench's run shape: one conversation, its user turns in order, and what

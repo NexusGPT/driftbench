@@ -2,13 +2,13 @@
 
 Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode, on a fake client that plays the Acme example agent, and on the real `@anthropic-ai/sdk` client driven through a fake `fetch`. It has not run against a live model yet.
 
-The anthropic adapter runs an agent built on the Anthropic Messages API: a model, a system prompt and tools. The SDK is not a dependency of driftbench: the adapter takes your client and types it with a local interface that mirrors `client.messages.create`. `@anthropic-ai/sdk` is an optional peer dependency of `@driftbench/adapters`; the shapes match version 0.133.0.
+The anthropic adapter runs an agent built on the Anthropic Messages API: a model, a system prompt and tools. The SDK is not a dependency of driftbench: the adapter takes your client and types it with a local interface that mirrors `client.messages.create`. `@anthropic-ai/sdk` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; the shapes match version 0.133.0.
 
 ## Options
 
 ```ts
 import Anthropic from '@anthropic-ai/sdk';
-import { anthropicAdapter } from '@driftbench/adapters';
+import { anthropicAdapter } from '@agent-nexus/driftbench-adapters';
 import { salesPrompt, salesTools } from './agent'; // your prompt, and a function that returns SdkTool[]
 
 const adapter = anthropicAdapter({
@@ -88,7 +88,7 @@ Each call of a `sideEffects` tool that did not fail is a payload, recorded by bl
 
 | Error | Becomes |
 |---|---|
-| a 429 or any 5xx status (529 overloaded included), or a network error (refused, reset, timed out, `fetch failed`) in the error or its causes, after the [shared retry policy](../retries.md)'s attempts where the adapter retries the model call itself | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
+| a 408, 429 or any 5xx status (529 overloaded included), or a network error (refused, reset, timed out, `fetch failed`) in the error or its causes, after the [shared retry policy](../retries.md)'s attempts where the adapter retries the model call itself | `AdapterTransportError`, marked exhausted: the runner does not retry the block on top |
 | any other status or error | `AgentFailure` |
 | an answer with no content list | `AgentFailure` |
 | tool calls still asked at the step cap | `AgentFailure` |

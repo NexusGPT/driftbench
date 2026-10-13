@@ -1,0 +1,8 @@
+{
+  "frozen": "2026-10-13T01:13:13+02:00",
+  "procedure_sha256": "d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587",
+  "candidate_label": "not yet the shipped default",
+  "heldout_seed": 20261113,
+  "heldout_cases_per_row": 72,
+  "rule": "No candidate tuning from held-out outcomes."
+}

@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-121
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 121 of 154: Path home-address-not-found of new-home: needs > address > address, D9_out_of_scope at address"
-channel: chat
+title: "t-wise row 121 of 132: Path home-callback of new-home: needs > address > offer > callback > handover, D9_out_of_scope at callback"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:not-in-map
-  - task:catalog-only
+  - data:fiber
   - flow:new-home
 covers:
   - B-011
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-011
     rubric: Answer an off-topic question in one line and resume the pending step
@@ -43,41 +44,91 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
         - label: coverage.check
           count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
       lang: EN
       criteria:
         - behaviour.B-011
         - flow.new-home
-  - id: b2-D9_out_of_scope
+  - id: b2-address-to-offer
+    when:
+      user: The address is 14 Harbor Road, Acmeville.
+    expect:
+      stage: offer
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 14 Harbor Road, Acmeville
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-101
+        - label: notify_sales
+          count: 0
+      must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-offer-to-callback
+    when:
+      user: Can someone just call me back?
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b4-D9_out_of_scope
     when:
       injection:
         class: D9_out_of_scope
         user: My last bill charged me twice, can you fix it?
     expect:
-      stage: address
+      stage: callback
       tools:
         - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
           count: 0
       must:
         - Acme Care
       lang: EN
       criteria:
         - deviation.D9_out_of_scope
-  - id: b3-address-to-address
+  - id: b5-callback-to-handover
     when:
-      user: The address is 21 Willow Court, Acmeville.
+      user: You can reach me on +1 202 555 0131.
     expect:
-      stage: address
+      stage: handover
       tools:
-        - label: coverage.check
+        - label: notify_sales
           count: 1
           input:
-            address: 21 Willow Court, Acmeville
+            reason: callback
+            customer:
+              subset:
+                phone: "+12025550131"
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
       lang: EN
 metadata:
   generated:
@@ -89,15 +140,16 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: home-address-not-found
+      hash: 6d29ed7a7539
+    path: home-callback
     cell:
       behaviour: B-011
-      channel: chat
+      channel: whatsapp
       user_type: new-customer
-      coverage_result: not-in-map
-      workspace_start: catalog-only
+      coverage_result: fiber
       flow: new-home
+      plan_choice: asks-for-callback
+      callback_phone: given
     blocks:
       - block: b1-needs-to-address
         seeder: twise
@@ -108,25 +160,46 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D9_out_of_scope
+      - block: b2-address-to-offer
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: fiber
+          stage: offer
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-offer-to-callback
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: offer-to-callback
+          stage: callback
+        phrase:
+          dimension: stage_transition
+          value: offer-to-callback
+      - block: b4-D9_out_of_scope
         seeder: twise
         cell:
           spec: metadata.generated.cell
           deviation: D9_out_of_scope
-          stage: address
+          stage: callback
         phrase:
           dimension: deviation
           value: D9_out_of_scope
-      - block: b3-address-to-address
+      - block: b5-callback-to-handover
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: address-to-address
-          coverage_result: not-in-map
-          stage: address
+          stage_transition: callback-to-handover
+          callback_phone: given
+          coverage_result: fiber
+          plan_choice: asks-for-callback
+          stage: handover
         phrase:
           dimension: stage_transition
-          value: address-to-address
+          value: callback-to-handover
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -135,17 +208,31 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D9_out_of_scope
+      - block: b2-address-to-offer
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
+      - block: b3-offer-to-callback
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b4-D9_out_of_scope
         status: accepted
         pass_k: 1
         pass_probability: 0.615
-      - block: b3-address-to-address
+      - block: b5-callback-to-handover
         status: accepted
         pass_k: 1
-        pass_probability: 0.615
+        pass_probability: 0.692
 rules:
   forbidden_tools:
-    - catalog.search
     - port.check
     - order.create
-    - notify_sales
+end_state:
+  source: tool:notify_sales
+  mode: subset
+  expect:
+    reason: callback
+    customer:
+      subset:
+        phone: "+12025550131"

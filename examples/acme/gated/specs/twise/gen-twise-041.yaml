@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-041
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 41 of 154: Path home-no-coverage of new-home: needs > address > callback > handover > closing, D8_tool_failure of coverage.check at address"
-channel: whatsapp
+title: "t-wise row 41 of 132: Path home-address-not-found of new-home: needs > address > address, D8_tool_failure of coverage.check at address"
+channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:no-service
-  - task:catalog-only
+  - data:not-in-map
   - flow:new-home
 covers:
   - B-004
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-004
     rubric: Offer only the home plans available at the checked address
@@ -43,7 +44,7 @@ criteria:
 blocks:
   - id: b1-needs-to-address
     when:
-      user: Hello, I'm looking for home internet.
+      user: Do you have home internet where I live?
     expect:
       stage: address
       tools:
@@ -57,7 +58,7 @@ blocks:
     when:
       injection:
         class: D8_tool_failure
-        user: The address is 7 Quarry Lane, Acmeville.
+        user: The address is 21 Willow Court, Acmeville.
     given:
       world:
         tools:
@@ -69,7 +70,7 @@ blocks:
         - label: coverage.check
           count: 2
           input:
-            address: 7 Quarry Lane, Acmeville
+            address: 21 Willow Court, Acmeville
       lang: EN
       criteria:
         - deviation.D8_tool_failure
@@ -83,16 +84,14 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: home-no-coverage
+      hash: 6d29ed7a7539
+    path: home-address-not-found
     cell:
       behaviour: B-004
-      channel: whatsapp
+      channel: chat
       user_type: new-customer
-      coverage_result: no-service
-      workspace_start: catalog-only
+      coverage_result: not-in-map
       flow: new-home
-      callback_phone: given
       failing_tool: coverage.check
     blocks:
       - block: b1-needs-to-address
@@ -109,12 +108,12 @@ metadata:
         cell:
           spec: metadata.generated.cell
           deviation: D8_tool_failure
-          stage_transition: address-to-callback
-          coverage_result: no-service
+          stage_transition: address-to-address
+          coverage_result: not-in-map
           stage: callback
         phrase:
           dimension: stage_transition
-          value: address-to-callback
+          value: address-to-address
   gate:
     by: driftbench gate
     date: 2026-10-11

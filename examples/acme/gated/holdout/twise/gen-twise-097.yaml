@@ -2,17 +2,16 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-097
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 97 of 154: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer, D10_return at identify"
+title: "t-wise row 97 of 132: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D10_return at details"
 channel: chat
 lang: EN
 tier: generated
 tags:
-  - persona:existing-customer
-  - data:fiber
-  - task:existing-workbook
-  - flow:upgrade
+  - persona:new-customer
+  - data:5g-only
+  - flow:order
 covers:
   - B-009
 stages:
@@ -27,13 +26,15 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-009
     rubric: Treat a loose yes as no confirmation and ask for CONFIRM again
     gating: false
     scope: conversation
-  - name: flow.upgrade
-    rubric: An existing customer moves to a plan with more data
+  - name: flow.order
+    rubric: Recap, explicit confirmation and order placement
     gating: false
     scope: conversation
   - name: deviation.D10_return
@@ -41,44 +42,120 @@ criteria:
     gating: false
     scope: block
 blocks:
-  - id: b1-needs-to-identify
+  - id: b1-needs-to-address
     when:
-      user: Hi, I already have an Acme plan and I need more data.
+      user: Do you have home internet where I live?
     expect:
-      stage: identify
+      stage: address
       tools:
+        - label: coverage.check
+          count: 0
         - label: catalog.search
+          count: 0
+        - label: order.create
           count: 0
       lang: EN
       criteria:
         - behaviour.B-009
-        - flow.upgrade
-  - id: b2-D10_return
+        - flow.order
+  - id: b2-address-to-offer
+    when:
+      user: The address is 88 Summit Avenue, Acmeville.
+    expect:
+      stage: offer
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 88 Summit Avenue, Acmeville
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-103
+        - label: order.create
+          count: 0
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-offer-to-details
+    when:
+      user: Yes, that one.
+    expect:
+      stage: details
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b4-D10_return
     when:
       injection:
         class: D10_return
         user: ok, let's continue with the order.
     expect:
-      stage: identify
+      stage: details
       tools:
+        - label: coverage.check
+          count: 0
         - label: catalog.search
+          count: 0
+        - label: order.create
           count: 0
       must:
         - We were|pick up where we left off
       lang: EN
       criteria:
         - deviation.D10_return
-  - id: b3-identify-to-offer
+  - id: b5-details-to-recap
     when:
-      user: It's lee.jensen@example.com.
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
-      stage: offer
+      stage: recap
       tools:
+        - label: coverage.check
+          count: 0
         - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b6-recap-to-order_placed
+    when:
+      user: Confirm
+    expect:
+      stage: order_placed
+      tools:
+        - label: order.create
           count: 1
           input:
-            category: mobile
-            customer_email: lee.jensen@example.com
+            type: new
+            plan_id: air-5g
+            address_id: addr-103
+            customer:
+              subset:
+                name: Jo Okafor
+                email: jo.okafor@example.com
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b7-order_placed-to-closing
+    when:
+      user: No, that's all. Thanks!
+    expect:
+      stage: closing
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
       lang: EN
 metadata:
   generated:
@@ -90,64 +167,128 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: upgrade-plan-not-in-catalog
+      hash: 6d29ed7a7539
+    path: order-single-plan
     cell:
       behaviour: B-009
       channel: chat
-      user_type: existing-customer
-      coverage_result: fiber
-      workspace_start: existing-workbook
-      flow: upgrade
-      account_lookup: plan-not-in-catalog
+      user_type: new-customer
+      coverage_result: 5g-only
+      flow: order
+      plan_choice: loose-yes-to-single-offer
+      customer_details: name-and-email
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-needs-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-identify
-          stage: identify
+          stage_transition: needs-to-address
+          stage: address
         phrase:
           dimension: stage_transition
-          value: needs-to-identify
-      - block: b2-D10_return
+          value: needs-to-address
+      - block: b2-address-to-offer
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: 5g-only
+          stage: offer
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-offer-to-details
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: offer-to-details
+          stage: details
+        phrase:
+          dimension: stage_transition
+          value: offer-to-details
+      - block: b4-D10_return
         seeder: twise
         cell:
           spec: metadata.generated.cell
           deviation: D10_return
-          stage: identify
+          stage: details
         phrase:
           dimension: deviation
           value: D10_return
-      - block: b3-identify-to-offer
+      - block: b5-details-to-recap
         seeder: twise
         cell:
           spec: metadata.generated.cell
-          stage_transition: identify-to-offer
-          account_lookup: plan-not-in-catalog
-          stage: offer
+          stage_transition: details-to-recap
+          customer_details: name-and-email
+          stage: recap
         phrase:
           dimension: stage_transition
-          value: identify-to-offer
+          value: details-to-recap
+      - block: b6-recap-to-order_placed
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: recap-to-order_placed
+          coverage_result: 5g-only
+          customer_details: name-and-email
+          stage: order_placed
+        phrase:
+          dimension: stage_transition
+          value: recap-to-order_placed
+      - block: b7-order_placed-to-closing
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: order_placed-to-closing
+          stage: closing
+        phrase:
+          dimension: stage_transition
+          value: order_placed-to-closing
   gate:
     by: driftbench gate
     date: 2026-10-11
     blocks:
-      - block: b1-needs-to-identify
+      - block: b1-needs-to-address
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D10_return
+      - block: b2-address-to-offer
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
+      - block: b3-offer-to-details
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b3-identify-to-offer
+      - block: b4-D10_return
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b5-details-to-recap
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b6-recap-to-order_placed
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b7-order_placed-to-closing
         status: accepted
         pass_k: 1
         pass_probability: 0.692
 rules:
   forbidden_tools:
-    - coverage.check
     - port.check
-    - order.create
     - notify_sales
+end_state:
+  source: tool:order.create
+  mode: subset
+  expect:
+    type: new
+    plan_id: air-5g
+    address_id: addr-103
+    customer:
+      subset:
+        name: Jo Okafor
+        email: jo.okafor@example.com

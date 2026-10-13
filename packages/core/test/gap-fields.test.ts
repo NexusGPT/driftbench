@@ -1,4 +1,4 @@
-import { Expect, validateSpec } from '@driftbench/core';
+import { Expect, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 describe('similarity, relevancy and knowledge_retention in the spec', () => {
@@ -46,5 +46,67 @@ describe('similarity, relevancy and knowledge_retention in the spec', () => {
     expect(loaded.errors.map((issue) => `${issue.code} ${issue.path}`)).toEqual([
       'RETENTION_FACT_UNKNOWN blocks.0.expect.knowledge_retention.0.fact',
     ]);
+  });
+
+  it('does not count the given.ledger of the block a perturbation is inserted before', () => {
+    const loaded = validateSpec({
+      id: 'retention-perturbation',
+      blocks: [{ user: 'hi' }, { user: 'thanks', given: { ledger: { email: 'jo@example.com' } } }],
+      perturbations: [
+        {
+          id: 'p1',
+          class: 'D1_off_topic',
+          inject_at: 1,
+          user: 'what was my email',
+          expect: { knowledge_retention: [{ fact: 'email' }] },
+        },
+      ],
+    });
+    expect(loaded.ok).toBe(false);
+    if (loaded.ok) return;
+    expect(loaded.errors.map((issue) => `${issue.code} ${issue.path}`)).toEqual([
+      'RETENTION_FACT_UNKNOWN perturbations.0.expect.knowledge_retention.0.fact',
+    ]);
+  });
+
+  it('refuses a world-only perturbation with no block to carry it', () => {
+    const base = { id: 'world-end', blocks: [{ user: 'hi' }, { user: 'bye' }] };
+    const world = { tools: { 'records.lookup': { error: 'timeout' } } };
+    const at = (inject_at: number, extra: object) =>
+      validateSpec({
+        ...base,
+        perturbations: [{ id: 'p1', class: 'D1_off_topic', inject_at, ...extra }],
+      });
+    const refused = at(2, { world });
+    expect(refused.ok).toBe(false);
+    if (refused.ok) return;
+    expect(refused.errors.map((issue) => `${issue.code} ${issue.path}`)).toEqual([
+      'PERTURBATION_OUT_OF_RANGE perturbations.0.inject_at',
+    ]);
+    expect(at(1, { world }).ok).toBe(true);
+    expect(at(2, { user: 'hey', world }).ok).toBe(true);
+  });
+
+  it('checks the retention facts of a long spec in time linear in its blocks', () => {
+    const cpu = (blocks: number) => {
+      const spec = {
+        id: `long-${blocks}`,
+        blocks: Array.from({ length: blocks }, (_, at) => ({
+          user: `turn ${at}`,
+          given: { ledger: { [`fact${at}`]: 'x' } },
+          expect: { knowledge_retention: [{ fact: `fact${at}` }] },
+        })),
+      };
+      const before = process.cpuUsage();
+      const loaded = validateSpec(spec);
+      const used = process.cpuUsage(before);
+      expect(loaded.ok).toBe(true);
+      return (used.user + used.system) / 1000;
+    };
+    cpu(200);
+    const small = Math.max(cpu(500), 1);
+    const large = cpu(5000);
+    // Linear growth is ten times; a pass over the earlier blocks for every block is a hundred.
+    expect(large / small).toBeLessThan(30);
   });
 });

@@ -179,10 +179,12 @@ export type RunOptions = {
   hiddenSeed?: boolean;
   root?: string;
   /**
-   * Compute every level, also above the first failing one, so the whole bank is known (`--items`). The
+   * Compute every level through maxLevel, also above the first failing one (`--items`). The
    * level, the failing level and its items are the same as in a stopping run.
    */
   full?: boolean;
+  /** Compute only through this level (1 to the ladder's top), including in a full run. */
+  maxLevel?: number;
 };
 
 const TIERS = new Set([1, 2, 3, 4, 5]);
@@ -204,9 +206,13 @@ export function passes(value: number, threshold: number, direction: Direction = 
 
 /**
  * Evaluates the levels in order and stops at the first failing level. A level that throws fails with one
- * item naming the error. Levels after the first failure are listed but not computed.
+ * item naming the error. Levels after the first failure or maxLevel are listed but not computed.
  */
 export async function runLadder(ladder: Ladder, options: RunOptions): Promise<SeedRun> {
+  const maxLevel = options.maxLevel ?? ladder.levels.length;
+  if (!Number.isSafeInteger(maxLevel) || maxLevel < 1 || maxLevel > ladder.levels.length) {
+    throw new RangeError(`maxLevel must be a whole number from 1 to ${ladder.levels.length}.`);
+  }
   const ctx: LadderContext = {
     seed: options.seed,
     hidden: options.hiddenSeed ?? false,
@@ -225,7 +231,7 @@ export async function runLadder(ladder: Ladder, options: RunOptions): Promise<Se
       threshold: def.threshold,
       direction,
     };
-    if (failing && !options.full) {
+    if (index >= maxLevel || (failing && !options.full)) {
       rows.push({ ...base, observed: null, pass: null, itemCount: null });
       continue;
     }
@@ -290,7 +296,7 @@ export async function runSeeds(
   ladder: Ladder,
   seeds: readonly SeedSpec[],
   root?: string,
-  options: { full?: boolean } = {},
+  options: { full?: boolean; maxLevel?: number } = {},
 ): Promise<LadderReport> {
   if (seeds.length === 0) throw new RangeError('runSeeds needs at least one seed.');
   const runs: SeedRun[] = [];
@@ -301,6 +307,7 @@ export async function runSeeds(
         hiddenSeed: spec.hidden,
         ...(root ? { root } : {}),
         ...(options.full ? { full: true } : {}),
+        ...(options.maxLevel === undefined ? {} : { maxLevel: options.maxLevel }),
       }),
     );
   }

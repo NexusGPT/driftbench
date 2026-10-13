@@ -7,7 +7,7 @@ The http adapter reaches an agent behind an HTTP endpoint that speaks JSON. Each
 ## Options
 
 ```ts
-import { httpAdapter } from '@driftbench/adapters';
+import { httpAdapter } from '@agent-nexus/driftbench-adapters';
 
 const adapter = httpAdapter({
   url: 'http://localhost:8080/turn',
@@ -120,8 +120,8 @@ A response with status 200 holds one of two shapes.
 
 | What happens | Error |
 |---|---|
-| no connection, a timeout, a body that breaks off, status 429 or any 5xx | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
-| any other failing status (408 included), a body that is not a JSON object, a body of neither shape | `AgentFailure`: the run fails |
+| no connection, a timeout, a body that breaks off, status 408, 429 or any 5xx | `AdapterTransportError` with the status and the `Retry-After` wait: the runner retries under the [shared policy](../retries.md) |
+| any other failing status, a body that is not a JSON object, a body of neither shape | `AgentFailure`: the run fails |
 
 ## End state and close
 

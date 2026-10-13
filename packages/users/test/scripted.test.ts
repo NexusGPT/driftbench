@@ -1,4 +1,4 @@
-import { type DriverStep, validateSpec } from '@driftbench/core';
+import { type DriverStep, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { createScriptedDriver } from '../src/index';
 
@@ -42,5 +42,18 @@ describe('the scripted driver', () => {
     expect(at(3)).toEqual({ kind: 'stop', reason: 'the script ends after block 2' });
     expect(at(0)).toEqual({ kind: 'block', blockIndex: 0, stimulus: { user: 'first' } });
     expect(driver.id).toBe('scripted');
+  });
+});
+
+describe('the scripted driver and an end verdict', () => {
+  it('stops after the last block with the spec verdict, when the spec ends with one', () => {
+    const ended = validateSpec({
+      id: 'ended',
+      blocks: [{ user: 'hi' }],
+      end: { verdict: 'success', reason: 'the customer was served' },
+    });
+    if (!ended.ok) throw new Error('invalid test spec');
+    const step = createScriptedDriver().next({ spec: ended.spec, mode: 'F', blockIndex: 1, history: [] });
+    expect(step).toEqual({ kind: 'stop', reason: 'the customer was served', verdict: 'success' });
   });
 });

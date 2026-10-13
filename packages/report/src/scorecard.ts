@@ -3,11 +3,12 @@ import {
   type Count,
   compoundingIndex,
   type DriftClass,
+  type RunEvent,
   type RunMode,
   type RunResult,
   type Verdict,
-} from '@driftbench/core';
-import { bootstrapCI } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-core';
+import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import { type AggregateCriterion, type AggregateResult, evaluateAggregates } from './aggregate';
 import { type CompareResult, compareCampaigns } from './compare';
 import {
@@ -76,6 +77,8 @@ export type BlockDetail = {
   drift: DriftClass[];
   text: string;
   toolCalls: ToolCall[];
+  /** The runtime events the block recorded: a guard that ran and a skill that was loaded, by name. */
+  runtimeEvents?: { kind: 'guard' | 'skill'; name: string; verdict?: string }[];
   verdicts: Verdict[];
 };
 
@@ -101,6 +104,8 @@ export type RunDetail = {
   succession: RunResult['succession'];
   recovery?: RunResult['recovery'];
   blocks: BlockDetail[];
+  /** The events the run reported, in order, when it recorded them. */
+  events?: RunEvent[];
 };
 
 export type ToolAccuracy = {
@@ -245,6 +250,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     ...optional('endState', run.endState),
     succession: run.succession,
     ...optional('recovery', run.recovery),
+    ...optional('events', run.events),
     blocks: blocksWithSpec(run, spec).map(({ result, specBlock }) => {
       const injectedText =
         specBlock === undefined && perturbation
@@ -272,11 +278,33 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
           ...(call.output === undefined ? {} : { output: call.output }),
           ...optional('error', call.error),
         })),
+        ...(runtimeEventsOf(result.observed.runtime).length > 0
+          ? { runtimeEvents: runtimeEventsOf(result.observed.runtime) }
+          : {}),
         verdicts: result.verdicts,
       };
     }),
   };
 }
+
+/** The guards and skills a block's runtime trace recorded, in the order they ran. */
+function runtimeEventsOf(
+  runtime: RuntimeTraceLike | undefined,
+): { kind: 'guard' | 'skill'; name: string; verdict?: string }[] {
+  if (!runtime) return [];
+  const guards = (runtime.guards ?? []).map((guard) => ({
+    kind: 'guard' as const,
+    name: guard.name,
+    verdict: guard.verdict,
+  }));
+  const skills = (runtime.skills ?? []).map((skill) => ({ kind: 'skill' as const, name: skill.name }));
+  return [...guards, ...skills];
+}
+
+type RuntimeTraceLike = {
+  guards?: { name: string; verdict: string }[];
+  skills?: { name: string }[];
+};
 
 /** The expected number of calls for a tool expectation: the count, else its min, else 1. */
 function expectedCalls(count: Count | undefined): number {

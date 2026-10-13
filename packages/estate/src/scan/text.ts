@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { foldQuote, QuoteIndex } from '@driftbench/generate';
+import { foldQuote, QuoteIndex } from '@agent-nexus/driftbench-generate';
 import { parse as parseYaml } from 'yaml';
 
 /**
@@ -119,6 +119,50 @@ export function slug(text: string, words = 6): string {
   return joined === '' ? 'x' : joined;
 }
 
+/**
+ * The text with every line inside a fenced code block (the fence lines included) left empty, so the line
+ * numbers stay. HTML comments are masked with spaces, including comments across lines.
+ * A comment inside a code example does not hide the prose after the fence.
+ */
+export function blankFences(text: string): string {
+  let inside = false;
+  let comment = false;
+  return text
+    .split('\n')
+    .map((line) => {
+      if (inside) {
+        if (/^\s*(```|~~~)/.test(line)) inside = false;
+        return '';
+      }
+      let visible = '';
+      let cursor = 0;
+      while (cursor < line.length) {
+        if (comment) {
+          const end = line.indexOf('-->', cursor);
+          const stop = end < 0 ? line.length : end + 3;
+          visible += ' '.repeat(stop - cursor);
+          cursor = stop;
+          if (end >= 0) comment = false;
+        } else {
+          const start = line.indexOf('<!--', cursor);
+          if (start < 0) {
+            visible += line.slice(cursor);
+            break;
+          }
+          visible += line.slice(cursor, start);
+          cursor = start;
+          comment = true;
+        }
+      }
+      if (/^\s*(```|~~~)/.test(visible)) {
+        inside = true;
+        return '';
+      }
+      return visible;
+    })
+    .join('\n');
+}
+
 /** The line (1-based) and the trimmed text of every line of a text. */
 export function linesOf(text: string): Array<{ line: number; text: string; raw: string }> {
   return text.split('\n').map((raw, index) => ({ line: index + 1, text: raw.trim(), raw }));
@@ -227,7 +271,8 @@ export type Table = { header: string[]; headerLine: number; rows: TableRow[] };
 
 /** Every markdown table of a text, between `fromLine` and `toLine`: header cells and data rows. */
 export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_INFINITY): Table[] {
-  const lines = linesOf(text);
+  const lines = linesOf(blankFences(text));
+  const originals = linesOf(text);
   const tables: Table[] = [];
   for (let index = 0; index < lines.length; index++) {
     const head = lines[index];
@@ -238,8 +283,14 @@ export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_
     let next = index + 2;
     for (; next < lines.length; next++) {
       const row = lines[next];
-      if (!row?.text.startsWith('|') || row.line > toLine) break;
-      table.rows.push({ line: row.line, text: row.text, cells: cells(row.text) });
+      // A table belongs to the range that holds its header, and runs to its last row: a chunk that ends
+      // inside a table must not cut it, and the next chunk never sees its header, so it would lose the rest.
+      if (!row?.text.startsWith('|')) break;
+      table.rows.push({
+        line: row.line,
+        text: originals[row.line - 1]?.text ?? row.text,
+        cells: cells(row.text),
+      });
     }
     tables.push(table);
     index = next - 1;
@@ -265,6 +316,6 @@ export function plain(text: string): string {
 
 /** A rule label at the start of a line, such as `- **R5.**` or `R5.`: the label, else undefined. */
 export function labelOfLine(line: string): string | undefined {
-  const match = /^\s*(?:[-*]\s+)?(?:\*\*)?([A-Z]{1,3}\d{1,3})\.?(?:\*\*)?[.:]?\s/.exec(line);
-  return match?.[1];
+  const match = /^\s*(?:[-*]\s+)?(?:\*\*)?([A-Z]{1,3})#?(\d{1,3})\.?(?:\*\*)?[.:]?\s/.exec(line);
+  return match ? `${match[1]}${match[2]}` : undefined;
 }

@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
-import { type AgentAdapter, outcomeOf, type PlannedCell, runSpec } from '@driftbench/core';
+import { type AgentAdapter, outcomeOf, type PlannedCell, runSpec } from '@agent-nexus/driftbench-core';
 import {
   BUDGET_FILE,
   Budget,
@@ -13,9 +13,10 @@ import {
   SEALED_NOTE,
   SealedBundle,
   spendQuery,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { type CampaignDeps, type CampaignScope, defaultDeps, parseTarget, showTarget } from './campaign';
 import { display, exists, portable, readPool, table, whole } from './select';
 
@@ -337,7 +338,7 @@ export async function holdoutScoreCommand(options: ScoreOptions, io: Io, deps: H
 
 function shareOf(text: string | undefined): number | string {
   if (text === undefined) return 0.2;
-  const value = Number(text);
+  const value = optionNumber(text);
   if (text.trim() === '' || !Number.isFinite(value) || value <= 0 || value >= 1) {
     return `--share must be a number above 0 and below 1, got "${text}".`;
   }

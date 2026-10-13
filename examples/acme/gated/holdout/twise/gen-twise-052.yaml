@@ -2,16 +2,15 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-052
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 52 of 154: Path home-callback of new-home: needs > address > offer > callback > handover, D8_tool_failure of catalog.search at address"
+title: "t-wise row 52 of 132: Path home-callback of new-home: needs > address > offer > callback > handover, D8_tool_failure of notify_sales at callback"
 channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
   - data:fiber
-  - task:catalog-only
   - flow:new-home
 covers:
   - B-005
@@ -27,6 +26,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-005
     rubric: Book a sales callback with a phone number when the customer asks or a check cannot be done
@@ -51,32 +52,71 @@ blocks:
           count: 0
         - label: catalog.search
           count: 0
+        - label: notify_sales
+          count: 0
       lang: EN
       criteria:
         - behaviour.B-005
         - flow.new-home
-  - id: b2-D8_tool_failure
+  - id: b2-address-to-offer
     when:
-      injection:
-        class: D8_tool_failure
-        user: The address is 14 Harbor Road, Acmeville.
-    given:
-      world:
-        tools:
-          catalog.search:
-            error: service unavailable (generated tool failure)
+      user: The address is 14 Harbor Road, Acmeville.
     expect:
-      stage: callback
+      stage: offer
       tools:
         - label: coverage.check
           count: 1
           input:
             address: 14 Harbor Road, Acmeville
         - label: catalog.search
-          count: 2
+          count: 1
           input:
             category: home
             address_id: addr-101
+        - label: notify_sales
+          count: 0
+      must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-offer-to-callback
+    when:
+      user: Can someone just call me back?
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b4-D8_tool_failure
+    when:
+      injection:
+        class: D8_tool_failure
+        user: You can reach me on +1 202 555 0131.
+    given:
+      world:
+        tools:
+          notify_sales:
+            error: service unavailable (generated tool failure)
+    expect:
+      stage: handover
+      tools:
+        - label: notify_sales
+          count: 1
+          input:
+            reason: callback
+            customer:
+              subset:
+                phone: "+12025550131"
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
       lang: EN
       criteria:
         - deviation.D8_tool_failure
@@ -90,18 +130,17 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: home-callback
     cell:
       behaviour: B-005
       channel: chat
       user_type: new-customer
       coverage_result: fiber
-      workspace_start: catalog-only
       flow: new-home
       plan_choice: asks-for-callback
       callback_phone: given
-      failing_tool: catalog.search
+      failing_tool: notify_sales
     blocks:
       - block: b1-needs-to-address
         seeder: twise
@@ -112,17 +151,38 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-D8_tool_failure
+      - block: b2-address-to-offer
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: fiber
+          stage: offer
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-offer-to-callback
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: offer-to-callback
+          stage: callback
+        phrase:
+          dimension: stage_transition
+          value: offer-to-callback
+      - block: b4-D8_tool_failure
         seeder: twise
         cell:
           spec: metadata.generated.cell
           deviation: D8_tool_failure
-          stage_transition: address-to-offer
+          stage_transition: callback-to-handover
+          callback_phone: given
           coverage_result: fiber
-          stage: callback
+          plan_choice: asks-for-callback
+          stage: handover
         phrase:
           dimension: stage_transition
-          value: address-to-offer
+          value: callback-to-handover
   gate:
     by: driftbench gate
     date: 2026-10-11
@@ -131,12 +191,19 @@ metadata:
         status: accepted
         pass_k: 1
         pass_probability: 0.692
-      - block: b2-D8_tool_failure
+      - block: b2-address-to-offer
         status: accepted
         pass_k: 1
         pass_probability: 0.538
+      - block: b3-offer-to-callback
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b4-D8_tool_failure
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
 rules:
   forbidden_tools:
     - port.check
     - order.create
-    - notify_sales

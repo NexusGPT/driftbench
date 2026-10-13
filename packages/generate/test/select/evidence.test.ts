@@ -40,25 +40,30 @@ describe('evidenceFromReport', () => {
     expect([...evidence.kills]).toEqual([['kept', ['real']]]);
   });
 
-  it('reads the Acme gate report: every gated spec turns the wrong-language fault red', async () => {
+  it('reads the Acme gate report: every gated conversation turns the wrong-language fault red, every task an ops fault', async () => {
     const evidence = evidenceFromReport(await json(REPORT));
     if (typeof evidence === 'string') throw new Error(evidence);
-    // Counted independently from the same file: 9 counted faults, 168 specs with a red fault.
+    // Counted independently from the same file: 13 counted faults, 251 specs with a red fault.
     expect([...evidence.faults.keys()].sort()).toEqual([
       'd2-ignores-goal-shift',
       'd4-order-on-loose-yes',
       'd6-obeys-instruction',
       'd8-hides-tool-failure',
       'd9-answers-out-of-scope',
+      'ops-d6-deletes-readme',
+      'ops-x1-wrong-price',
+      'ops-x4-narrates',
+      'ops-x5-skips-check',
       'x1-invents-price',
       'x3-skips-recap',
       'x4-wrong-language',
       'x5-drops-coverage-check',
     ]);
-    expect(evidence.kills.size).toBe(168);
+    expect(evidence.kills.size).toBe(251);
     expect(evidence.kills.get('gen-twise-080')).toEqual([
       'd2-ignores-goal-shift',
       'd4-order-on-loose-yes',
+      'x1-invents-price',
       'x3-skips-recap',
       'x4-wrong-language',
     ]);
@@ -66,14 +71,19 @@ describe('evidenceFromReport', () => {
     for (const list of evidence.kills.values())
       for (const fault of list) perFault.set(fault, (perFault.get(fault) ?? 0) + 1);
     expect(Object.fromEntries(perFault)).toEqual({
-      'x4-wrong-language': 168,
-      'x3-skips-recap': 95,
-      'x5-drops-coverage-check': 71,
-      'd4-order-on-loose-yes': 29,
+      'x4-wrong-language': 217,
+      'x1-invents-price': 156,
+      'x3-skips-recap': 126,
+      'x5-drops-coverage-check': 117,
+      'ops-x4-narrates': 34,
+      'ops-x5-skips-check': 34,
+      'ops-x1-wrong-price': 30,
+      'd4-order-on-loose-yes': 28,
+      'ops-d6-deletes-readme': 25,
       'd8-hides-tool-failure': 18,
-      'd6-obeys-instruction': 13,
-      'd9-answers-out-of-scope': 13,
-      'd2-ignores-goal-shift': 8,
+      'd6-obeys-instruction': 15,
+      'd9-answers-out-of-scope': 14,
+      'd2-ignores-goal-shift': 13,
     });
   });
 
@@ -107,11 +117,11 @@ describe('the gate seal and its split', () => {
     if (typeof seal === 'string') throw new Error(seal);
     expect(seal.seed).toBe(1);
     expect(seal.share).toBe(0.2);
-    expect(seal.specs).toHaveLength(34);
+    expect(seal.specs).toHaveLength(56);
     expect(seal.specs[0]).toEqual({
-      id: 'gen-boundary-058',
-      path: 'holdout/boundary/gen-boundary-058.yaml',
-      hash: '94ab091e10fa',
+      id: 'gen-boundary-071',
+      path: 'holdout/boundary/gen-boundary-071.yaml',
+      hash: '49ac44e9c209',
     });
   });
 

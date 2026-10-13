@@ -1,5 +1,5 @@
-import { createScriptedDriver } from '@driftbench/users';
-import { describe, expect, it } from 'vitest';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
+import { describe, expect, it, vi } from 'vitest';
 import { type RunEvent, runSpec } from '../../src/runner';
 import { acmeSpec, loadAcmeConversations, minimalChecks, realAcmeAdapter } from './support';
 
@@ -49,14 +49,21 @@ describe('model calls on the event stream carry their token counts and latency',
         };
       },
     } as typeof inner;
-    await runSpec(spec, {
-      adapter,
-      driver,
-      checks: minimalChecks,
-      mode: 'F',
-      repeat: 0,
-      onEvent: (event) => events.push(event),
-    });
+    // A clock that moves a millisecond on every reading: a start and an end taken from two readings differ.
+    let tick = 1_700_000_000_000;
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => tick++);
+    try {
+      await runSpec(spec, {
+        adapter,
+        driver,
+        checks: minimalChecks,
+        mode: 'F',
+        repeat: 0,
+        onEvent: (event) => events.push(event),
+      });
+    } finally {
+      clock.mockRestore();
+    }
     const calls = events.filter((event) => event.type === 'model_call');
     expect(calls.length).toBeGreaterThan(0);
     expect(calls[0]).toMatchObject({
@@ -70,5 +77,31 @@ describe('model calls on the event stream carry their token counts and latency',
     expect(typeof (calls[0] as { at: string }).at).toBe('string');
     const call = calls[0] as { at: string; startedAt: string; latencyMs: number };
     expect(Date.parse(call.at) - Date.parse(call.startedAt)).toBe(640);
+  });
+});
+
+describe('recordEvents keeps the events on the run record', () => {
+  it('a run with recordEvents has its events on the record, in order and ending with run_end', async () => {
+    const run = await runSpec(spec, {
+      adapter: realAcmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      recordEvents: true,
+    });
+    expect(run.events?.[0]?.type).toBe('block_start');
+    expect(run.events?.at(-1)).toMatchObject({ type: 'run_end', status: run.status });
+  });
+
+  it('a run without recordEvents has no events field', async () => {
+    const run = await runSpec(spec, {
+      adapter: realAcmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+    });
+    expect(run.events).toBeUndefined();
   });
 });

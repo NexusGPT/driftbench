@@ -1,0 +1,40 @@
+{
+  "frozenAt": "2026-10-13T02:10:19.404Z",
+  "seed": 61326,
+  "seeds": {
+    "qa": 61326,
+    "fact": 61326
+  },
+  "casesPerRow": 60,
+  "pass": 30,
+  "fail": 30,
+  "labelsFixedBeforeRun": true,
+  "seedSelection": "First checked seed with unique requests and zero matches to every prior requested set; no model outcomes used.",
+  "candidate": "Compact ledger with bounded retry, not yet the shipped default",
+  "procedure": "Same complete-scope semantics, compact four-string per-requirement ledger, strict decoded source grounding, first conclusive verdict with at most three attempts only after an unscored reply.",
+  "assumption": "Complete fictional supplied scope is guaranteed by construction; production requires a caller completeness guarantee.",
+  "sha256": {
+    "audit-compact.ts": "1fb47607d3e33805ce0c30ea6536fddad1aed69152ba63d8475420eca0610332",
+    "audit-adaptive.ts": "8e9145eb73814ec9c1826d3f759646fb785bd2599c79cf9f9f30a69711dded0a",
+    "audit-scoped.ts": "d64f178983edcbdb4a89f3948a874b277fe7aa26232461c99381128d40333cba",
+    "audit-normalized.ts": "13fde3b2de92e827b53a2043ca72eb265316c20fec45c20a9672c3ecadfc961a",
+    "audit.ts": "5f86ab76b380435ba59db417093daedd027a32da9f55d48f702e67345e1338a6",
+    "generate.mts": "1c39b4b9adf554acef4ced1a352a3510c88591e74a9056f3e87305ef976ba61f",
+    "harness.ts": "53bcf51e1bb7251d0eadc1772822b19dfdfb14d36e6fe9d8cffe12d53710ac61",
+    "main-deciding.ts": "03f4d9cfdadc186642e1a8fe9f9203b08336075087cbab4c5d03fbbe2e96176a",
+    "deciding/main-snapshot.json": "ecb057c6fa2ce4c155efbe9e41e3357eee42bd150283c3edf1a813d19be86f70",
+    "qa-template.txt": "f07b32e50b33596a2db845ab8dfd11f64a17270a9162c828a42b8ed1d566d02a",
+    "fact-template.txt": "384298b3a412e9cee138ef7bbdb21c9a3e669fc9416eecdbb7c26fe24e13dda5",
+    "instructions.txt": "7c6cdf15888e0f2173e623fb52ba2d0b75aeb575a9937b0e3e66c9f4370afd5a",
+    "compact/qa-heldout.json": "db9f9a3e7ca698708a436467c2c37e9a68c270b654f90a3e406ae23962919e63",
+    "compact/fact-heldout.json": "be2b111061ab542c0c738da22af71016923bf8921a7537e35d23c60892696f90",
+    "compact/frozen-parser.txt": "a4564dde1a9c69ba7864cea14839bb4e8d0ac7a176e2e833b33be1ecbe904805"
+  },
+  "typeOnlyCorrection": {
+    "date": "2026-10-13T02:21:54.142Z",
+    "originalSourceSha256": "a4564dde1a9c69ba7864cea14839bb4e8d0ac7a176e2e833b33be1ecbe904805",
+    "correctedSourceSha256": "1fb47607d3e33805ce0c30ea6536fddad1aed69152ba63d8475420eca0610332",
+    "emittedJavaScriptSha256": "e4e1fdf1c839daa35a7620fd37027d4e51ee67062176e7ee8b201f83e675052b",
+    "verifiedIdenticalRuntime": true
+  }
+}

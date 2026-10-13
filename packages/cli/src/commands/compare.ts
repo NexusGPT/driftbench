@@ -1,5 +1,6 @@
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import type { RunMode, RunResult, Stimulus, Store } from '@driftbench/core';
+import type { RunMode, RunResult, Stimulus, Store } from '@agent-nexus/driftbench-core';
 import {
   createAnthropicJudge,
   createGoogleJudge,
@@ -7,7 +8,7 @@ import {
   type JudgeClient,
   judgePairwise,
   readPairwiseCriterion,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import {
   autoMargin,
   type CampaignData,
@@ -18,10 +19,12 @@ import {
   MIN_GOLDENS,
   ReportInputError,
   replyPairs,
-} from '@driftbench/report';
-import { openStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-report';
+import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
+import { noStoreAt } from '../store-path';
 
 /** What compare and report open stores with. Tests pass their own. */
 export type ReportDeps = {
@@ -55,6 +58,7 @@ type CompareCommandOptions = {
   json?: boolean;
   pairwise?: string;
   pairwiseJudge?: string;
+  pairwiseReference?: string;
 };
 
 /** Registers `driftbench compare`. */
@@ -95,6 +99,10 @@ export function registerCompareCommand(
       'the judge of the pairwise calls: openai, anthropic or google',
       'openai',
     )
+    .option(
+      '--pairwise-reference <file>',
+      'judge which reply matches this reference answer better, instead of which reply is better; the file holds the text',
+    )
     .action(async (options: CompareCommandOptions) => {
       setExit(await compareCommand(options, io, deps));
     });
@@ -110,6 +118,7 @@ export async function compareCommand(
   const q = parseRate(options.q, '--q', io);
   const modes = options.mode === undefined ? undefined : parseModes(options.mode, io);
   if (gate === undefined || q === undefined || modes === null) return 2;
+  if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
   try {
@@ -172,8 +181,12 @@ async function runPairwise(
 ): Promise<PairwiseLine | undefined> {
   let criterion: Awaited<ReturnType<typeof readPairwiseCriterion>>;
   let judge: JudgeClient;
+  let reference: string | undefined;
   try {
     criterion = await readPairwiseCriterion(resolve(io.cwd, options.pairwise ?? ''));
+    if (options.pairwiseReference !== undefined) {
+      reference = (await readFile(resolve(io.cwd, options.pairwiseReference), 'utf8')).trim();
+    }
     judge = (deps.pairwiseClient ?? defaultPairwiseClient)(options.pairwiseJudge ?? 'openai');
   } catch (cause) {
     io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
@@ -192,6 +205,7 @@ async function runPairwise(
         pair.stimulus === '' ? [] : [{ role: 'user', text: pair.stimulus }],
         pair.first,
         pair.second,
+        reference === undefined ? {} : { reference },
       ),
     );
     const { tally } = report;
@@ -252,7 +266,7 @@ export function parseGate(
   options: { margin: string; minGoldens: string; strict?: boolean },
   io: Io,
 ): Gate | undefined {
-  const minGoldens = Number(options.minGoldens);
+  const minGoldens = optionNumber(options.minGoldens);
   if (!Number.isInteger(minGoldens) || minGoldens < 1) {
     io.err(`--min-goldens takes a whole number of at least 1, not "${options.minGoldens}".\n`);
     return undefined;
@@ -273,6 +287,11 @@ export function resolveMargin(
   io?: Io,
 ): number {
   if (gate.margin !== 'auto') return gate.margin;
+  if (baseline.runs.length === 0) {
+    // Nothing to measure the margin on: a campaign with no runs keeps the 2 point default and says so.
+    io?.out('Margin auto: the campaign has no runs to measure it on; 2.0 points.\n');
+    return 0.02;
+  }
   const auto = autoMargin(baseline, options);
   io?.out(
     `Margin auto: ${(auto.margin * 100).toFixed(1)} points, the smallest half point at which the baseline compared with itself is non-inferior (set by ${auto.limitedBy}, ${(auto.needed * 100).toFixed(1)} points).\n`,
@@ -283,7 +302,7 @@ export function resolveMargin(
 
 /** A margin in points, such as 2, as a proportion; undefined after printing why it is not one. */
 export function parseMargin(text: string, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 100) {
     io.err(`--margin takes a number of points above 0 and below 100, such as 2, not "${text}".\n`);
     return undefined;
@@ -292,7 +311,7 @@ export function parseMargin(text: string, io: Io): number | undefined {
 }
 
 function parseRate(text: string, flag: string, io: Io): number | undefined {
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!Number.isFinite(value) || value <= 0 || value >= 1) {
     io.err(`${flag} takes a number between 0 and 1, not "${text}".\n`);
     return undefined;

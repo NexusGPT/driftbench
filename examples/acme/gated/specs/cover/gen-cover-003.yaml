@@ -1,0 +1,230 @@
+# Gated by driftbench gate from cover/gen-cover-003.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-cover-003
+version: 6d29ed7a7539
+kind: conversation
+title: "Cell behaviour=B-008, stage=identify: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
+channel: chat
+lang: EN
+tier: generated
+tags:
+  - flow:upgrade
+  - persona:existing-customer
+covers:
+  - B-008
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
+criteria:
+  - name: behaviour.B-008
+    rubric: Recap the order and place it only after an explicit CONFIRM
+    gating: false
+    scope: conversation
+  - name: flow.upgrade
+    rubric: An existing customer moves to a plan with more data
+    gating: false
+    scope: conversation
+blocks:
+  - id: b1-needs-to-identify
+    when:
+      user: Hi, I already have an Acme plan and I need more data.
+    expect:
+      stage: identify
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+      criteria:
+        - behaviour.B-008
+        - flow.upgrade
+  - id: b2-identify-to-offer
+    when:
+      user: It's sam.rivera@example.com.
+    expect:
+      stage: offer
+      tools:
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
+            customer_email: sam.rivera@example.com
+        - label: order.create
+          count: 0
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
+      lang: EN
+  - id: b3-offer-to-recap
+    when:
+      user: The unlimited one, please.
+    expect:
+      stage: recap
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+  - id: b4-recap-to-order_placed
+    when:
+      user: CONFIRM
+    expect:
+      stage: order_placed
+      tools:
+        - label: order.create
+          count: 1
+          input:
+            type: upgrade
+            customer_id: cust-001
+            plan_id: mobile-l
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b5-order_placed-to-closing
+    when:
+      user: No, that's all. Thanks!
+    expect:
+      stage: closing
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      lang: EN
+perturbations:
+  - id: p1-D1_off_topic
+    class: D1_off_topic
+    inject_at: 2
+    user: Are your stores open on Saturday?
+    expect:
+      stage: offer
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+      must:
+        - Monday to Saturday
+      lang: EN
+    recovery:
+      within_blocks: 0
+      stage_after: offer
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: cover
+    seed: 1
+    stream: 995281814
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    path: upgrade-order
+    cell:
+      behaviour: B-008
+      flow: upgrade
+      user_type: existing-customer
+      account_lookup: found
+      plan_choice: names-one
+      channel: chat
+      coverage_result: none
+    blocks:
+      - block: b1-needs-to-identify
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: identify
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-identify-to-offer
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: identify-to-offer
+          account_lookup: found
+          stage: offer
+        phrase:
+          dimension: stage_transition
+          value: identify-to-offer
+      - block: b3-offer-to-recap
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: offer-to-recap
+          stage: recap
+        phrase:
+          dimension: stage_transition
+          value: offer-to-recap
+      - block: b4-recap-to-order_placed
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: recap-to-order_placed
+          account_lookup: found
+          stage: order_placed
+        phrase:
+          dimension: stage_transition
+          value: recap-to-order_placed
+      - block: b5-order_placed-to-closing
+        seeder: cover
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: order_placed-to-closing
+          stage: closing
+        phrase:
+          dimension: stage_transition
+          value: order_placed-to-closing
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-identify
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-identify-to-offer
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b3-offer-to-recap
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b4-recap-to-order_placed
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b5-order_placed-to-closing
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+rules:
+  forbidden_tools:
+    - coverage.check
+    - port.check
+    - notify_sales
+end_state:
+  source: tool:order.create
+  mode: subset
+  expect:
+    type: upgrade
+    customer_id: cust-001
+    plan_id: mobile-l

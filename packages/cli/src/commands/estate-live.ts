@@ -1,7 +1,13 @@
-import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@driftbench/adapters';
-import { type Campaign, contentHash, type RunResult, runSpec, type Store } from '@driftbench/core';
+import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@agent-nexus/driftbench-adapters';
+import {
+  type Campaign,
+  contentHash,
+  type RunResult,
+  runSpec,
+  type Store,
+} from '@agent-nexus/driftbench-core';
 import {
   copyEstate,
   type EstateMap,
@@ -13,12 +19,13 @@ import {
   quoteDrift,
   readerFor,
   renderEstateMap,
-} from '@driftbench/estate';
-import { localProvider } from '@driftbench/sandbox';
-import { openStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-estate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { openStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 import { loadValidSpecs } from './campaign';
 import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
@@ -89,6 +96,10 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
       'the config folder: host (the login lives there) or isolated; default host, isolated for a stand-in',
     )
     .option('--allow-billed', 'run a command that is not a stand-in: a billed live run')
+    .option(
+      '--progress <file>',
+      'append one JSON line per finished spec to this file as each finishes, so a stopped batch keeps them',
+    )
     .option('--json', 'print one JSON document');
   addJudgeOptions(run).action(async (specs: string[], options: EstateRunOptions) => {
     setExit(await estateRunCommand(specs, options, io));
@@ -112,6 +123,8 @@ export type EstateRunOptions = {
   lockDeny?: string[];
   timeout?: string;
   allowBilled?: boolean;
+  /** A file that gets one JSON line per finished spec, appended as each spec finishes. */
+  progress?: string;
   model?: string;
   maxTurns?: string;
   maxBudgetUsd?: string;
@@ -121,11 +134,21 @@ export type EstateRunOptions = {
   json?: boolean;
 } & RunJudgeOptions;
 
-type RunLine = {
+export type RunLine = {
   spec: string;
   runId: string;
   status: RunResult['status'];
   pass: boolean;
+  /**
+   * True when only inconclusive checks keep the spec from passing (no stage feed, no judge): the run could
+   * not decide it. It still counts as not passed; `undecided` counts these apart from the specs that fail.
+   */
+  undecided: boolean;
+  /**
+   * True when only not-applicable checks keep the spec from passing (no stage record): the run has nothing
+   * the check could judge. It is left out of the decided count and counted apart (`notApplicable`).
+   */
+  notApplicable: boolean;
   failing: string[];
   costUsd: number | null;
   /** What the judge spent on this spec, included in costUsd. */
@@ -191,7 +214,7 @@ export async function estateRunCommand(
   }
   let timeoutMs: number | undefined;
   if (options.timeout !== undefined) {
-    timeoutMs = Number(options.timeout);
+    timeoutMs = optionNumber(options.timeout);
     if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
       io.err(`--timeout is a whole number of milliseconds, got "${options.timeout}".\n`);
       return 2;
@@ -208,7 +231,7 @@ export async function estateRunCommand(
     args.push('--max-turns', options.maxTurns);
   }
   if (options.maxBudgetUsd !== undefined) {
-    const value = Number(options.maxBudgetUsd);
+    const value = optionNumber(options.maxBudgetUsd);
     if (!Number.isFinite(value) || value <= 0) {
       io.err(`--max-budget-usd is a positive amount, got "${options.maxBudgetUsd}".\n`);
       return 2;
@@ -311,6 +334,7 @@ export async function estateRunCommand(
 
   let store: Store;
   const storePath = resolve(io.cwd, options.store);
+  const progressPath = options.progress === undefined ? undefined : resolve(io.cwd, options.progress);
   try {
     store = await openStore(storePath);
   } catch (cause) {
@@ -374,7 +398,9 @@ export async function estateRunCommand(
         store,
         campaignId,
       });
-      lines.push(lineOf(result, judge.spend.usd - spentBefore));
+      const line = lineOf(result, judge.spend.usd - spentBefore);
+      lines.push(line);
+      if (progressPath !== undefined) await appendFile(progressPath, `${JSON.stringify(line)}\n`);
     }
   } catch (cause) {
     io.err(`The live run stopped: ${describe(cause)}\n`);
@@ -384,16 +410,26 @@ export async function estateRunCommand(
   await store.close();
 
   const passed = lines.filter((line) => line.pass).length;
+  const undecided = lines.filter((line) => line.undecided).length;
+  const notApplicable = lines.filter((line) => line.notApplicable).length;
+  const failed = lines.length - passed - notApplicable;
   const costs = lines.map((line) => line.costUsd).filter((cost): cost is number => cost !== null);
   const total = costs.reduce((sum, cost) => sum + cost, 0);
   if (options.json) {
     io.out(
-      `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, judge: judge.label, judgeCostUsd: judge.spend.usd, runs: lines, passed, failed: lines.length - passed, costUsd: total }, null, 2)}\n`,
+      `${JSON.stringify({ campaignId, store: storePath, standIn, pins, notes, judge: judge.label, judgeCostUsd: judge.spend.usd, runs: lines, passed, failed, undecided, notApplicable, costUsd: total }, null, 2)}\n`,
     );
   } else {
     for (const note of notes) io.out(`note: ${note}\n`);
     for (const line of lines) {
-      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : '✗';
+      const mark =
+        line.status !== 'completed'
+          ? '!'
+          : line.pass
+            ? '✓'
+            : line.undecided || line.notApplicable
+              ? '?'
+              : '✗';
       const cost = line.costUsd === null ? 'no cost in the stream' : `${line.costUsd.toFixed(4)} USD`;
       io.out(`${mark} ${line.spec}  (${cost})\n`);
       if (line.error) io.out(`    error: ${line.error}\n`);
@@ -401,13 +437,14 @@ export async function estateRunCommand(
       for (const verdict of line.judged) io.out(`    judged ${verdict.criterion}: ${verdict.outcome}\n`);
     }
     io.out(
-      `${lines.length} spec${lines.length === 1 ? '' : 's'} run live${standIn ? ' on a stand-in' : ''}: ${passed} pass, ${lines.length - passed} fail. Cost ${total.toFixed(4)} USD over ${costs.length} run${costs.length === 1 ? '' : 's'} that report one, judge ${judge.label} ${judge.spend.usd.toFixed(4)} USD of it. Campaign ${campaignId}.\n`,
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} run live${standIn ? ' on a stand-in' : ''}: ${passed} pass, ${failed} fail${undecided > 0 ? ` (${undecided} undecided: only inconclusive checks)` : ''}${notApplicable > 0 ? ` (${notApplicable} not applicable: no stage record)` : ''}. Cost ${total.toFixed(4)} USD over ${costs.length} run${costs.length === 1 ? '' : 's'} that report one, judge ${judge.label} ${judge.spend.usd.toFixed(4)} USD of it. Campaign ${campaignId}.\n`,
     );
   }
   return passed === lines.length ? 0 : 1;
 }
 
-function lineOf(run: RunResult, judgeCostUsd: number): RunLine {
+/** The line of one run: pass, undecided (only inconclusive checks), the failing checks and the cost. */
+export function lineOf(run: RunResult, judgeCostUsd: number): RunLine {
   const failing = run.blocks.flatMap((block) =>
     block.verdicts
       .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
@@ -417,12 +454,24 @@ function lineOf(run: RunResult, judgeCostUsd: number): RunLine {
       ),
   );
   const reported = run.blocks.filter((block) => block.observed.cost.usd !== undefined);
+  const pass =
+    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
+  const gating = run.blocks.flatMap((block) =>
+    block.verdicts.filter((verdict) => verdict.gating && verdict.outcome !== 'pass'),
+  );
+  const settled = run.status === 'completed' && run.endState?.match !== false;
   return {
     spec: run.specId,
     runId: run.runId,
     status: run.status,
-    pass:
-      run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false,
+    pass,
+    undecided:
+      !pass && settled && gating.length > 0 && gating.every((verdict) => verdict.outcome === 'inconclusive'),
+    notApplicable:
+      !pass &&
+      settled &&
+      gating.length > 0 &&
+      gating.every((verdict) => verdict.outcome === 'not_applicable'),
     failing,
     costUsd:
       reported.length === 0 && judgeCostUsd === 0

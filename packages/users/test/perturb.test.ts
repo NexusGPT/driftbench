@@ -1,4 +1,10 @@
-import type { BlockResult, DriverStep, PerturbationSpec, Spec, UserDriver } from '@driftbench/core';
+import type {
+  BlockResult,
+  DriverStep,
+  PerturbationSpec,
+  Spec,
+  UserDriver,
+} from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   createPerturbingDriver,

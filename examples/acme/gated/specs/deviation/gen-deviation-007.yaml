@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-deviation-007
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
 title: "Deviation probe D8_tool_failure: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D8_tool_failure of order.create at recap"
 channel: whatsapp
@@ -12,7 +12,6 @@ tags:
   - flow:new-home
   - persona:new-customer
   - data:fiber
-  - task:existing-workbook
 stages:
   - needs
   - identify
@@ -25,6 +24,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: flow.new-home
     rubric: A new customer asks for home internet at an address
@@ -71,6 +72,10 @@ blocks:
           count: 0
         - label: notify_sales
           count: 0
+      must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
       lang: EN
   - id: b3-offer-to-details
     when:
@@ -146,7 +151,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: home-order
     cell:
       flow: new-home
@@ -156,7 +161,6 @@ metadata:
       customer_details: name-and-email
       failing_tool: order.create
       channel: whatsapp
-      workspace_start: existing-workbook
     blocks:
       - block: b1-needs-to-address
         seeder: deviation
@@ -219,7 +223,7 @@ metadata:
       - block: b2-address-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.615
+        pass_probability: 0.538
       - block: b3-offer-to-details
         status: accepted
         pass_k: 1

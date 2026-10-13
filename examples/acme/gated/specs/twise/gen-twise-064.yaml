@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-064
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 64 of 154: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D10_return at port_number"
+title: "t-wise row 64 of 132: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing, D10_return at port_number"
 channel: chat
 lang: EN
 tier: generated
 tags:
   - persona:new-customer
-  - data:no-service
-  - task:existing-workbook
   - flow:porting
 covers:
   - B-006
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-006
     rubric: Check that a number can move to Acme before promising to keep it
@@ -92,6 +92,10 @@ blocks:
             category: mobile
         - label: order.create
           count: 0
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
   - id: b4-offer-to-details
     when:
@@ -108,7 +112,7 @@ blocks:
       lang: EN
   - id: b5-details-to-recap
     when:
-      user: Jo Okafor, jo.okafor@example.com
+      user: I'm Jo Okafor and my email is jo.okafor@example.com.
     expect:
       stage: recap
       tools:
@@ -164,14 +168,13 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
+      hash: 6d29ed7a7539
     path: porting-locked-number
     cell:
       behaviour: B-006
       channel: chat
       user_type: new-customer
-      coverage_result: no-service
-      workspace_start: existing-workbook
+      coverage_result: none
       flow: porting
       port_result: locked
       plan_choice: names-one
@@ -259,7 +262,7 @@ metadata:
       - block: b3-port_number-to-offer
         status: accepted
         pass_k: 1
-        pass_probability: 0.692
+        pass_probability: 0.615
       - block: b4-offer-to-details
         status: accepted
         pass_k: 1

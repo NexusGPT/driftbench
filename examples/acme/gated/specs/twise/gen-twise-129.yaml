@@ -2,16 +2,14 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-twise-129
-version: badea3d3df7a
+version: 6d29ed7a7539
 kind: conversation
-title: "t-wise row 129 of 154: Path upgrade-unknown-email of upgrade: needs > identify > identify, D8_tool_failure of catalog.search at identify"
-channel: chat
+title: "t-wise row 129 of 132: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing, D8_tool_failure of catalog.search at identify"
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - persona:existing-customer
-  - data:5g-only
-  - task:existing-workbook
   - flow:upgrade
 covers:
   - B-012
@@ -27,6 +25,8 @@ stages:
   - callback
   - handover
   - closing
+  - build_sheet
+  - add_summary
 criteria:
   - name: behaviour.B-012
     rubric: Send billing and service matters to Acme Care, never to sales
@@ -57,7 +57,7 @@ blocks:
     when:
       injection:
         class: D8_tool_failure
-        user: It's pat.quinn@example.com.
+        user: It's sam.rivera@example.com.
     given:
       world:
         tools:
@@ -70,7 +70,7 @@ blocks:
           count: 2
           input:
             category: mobile
-            customer_email: pat.quinn@example.com
+            customer_email: sam.rivera@example.com
       lang: EN
       criteria:
         - deviation.D8_tool_failure
@@ -84,16 +84,16 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: badea3d3df7a
-    path: upgrade-unknown-email
+      hash: 6d29ed7a7539
+    path: upgrade-order
     cell:
       behaviour: B-012
-      channel: chat
+      channel: whatsapp
       user_type: existing-customer
-      coverage_result: 5g-only
-      workspace_start: existing-workbook
+      coverage_result: none
       flow: upgrade
-      account_lookup: not-found
+      account_lookup: found
+      plan_choice: names-one
       failing_tool: catalog.search
     blocks:
       - block: b1-needs-to-identify
@@ -110,12 +110,12 @@ metadata:
         cell:
           spec: metadata.generated.cell
           deviation: D8_tool_failure
-          stage_transition: identify-to-identify
-          account_lookup: not-found
+          stage_transition: identify-to-offer
+          account_lookup: found
           stage: callback
         phrase:
           dimension: stage_transition
-          value: identify-to-identify
+          value: identify-to-offer
   gate:
     by: driftbench gate
     date: 2026-10-11

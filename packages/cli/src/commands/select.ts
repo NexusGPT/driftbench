@@ -1,6 +1,6 @@
 import { copyFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
-import { type Inventory, type LoadedSpec, loadInventory, loadSpecs } from '@driftbench/core';
+import { type Inventory, type LoadedSpec, loadInventory, loadSpecs } from '@agent-nexus/driftbench-core';
 import {
   AUDIT_FILE,
   coverElements,
@@ -17,10 +17,17 @@ import {
   type Selection,
   sealFromJson,
   selectGolden,
-} from '@driftbench/generate';
-import { coverage, DEFAULT_MAX_CELLS, gridSize, loadSpaceMap, type SpaceCoverage } from '@driftbench/space';
+} from '@agent-nexus/driftbench-generate';
+import {
+  coverage,
+  DEFAULT_MAX_CELLS,
+  gridSize,
+  loadSpaceMap,
+  type SpaceCoverage,
+} from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { optionNumber } from '../number';
 
 export const GOLDEN_FILE = 'golden.json';
 export const GOLDEN_SPECS_DIR = 'specs';
@@ -523,7 +530,7 @@ export function whole(
   fallback: number,
 ): number | string {
   if (text === undefined) return fallback;
-  const value = Number(text);
+  const value = optionNumber(text);
   if (!/^\d+$/.test(text.trim()) || !Number.isSafeInteger(value) || value < minimum) {
     return `--${name} must be a whole number of at least ${minimum}, got "${text}".`;
   }

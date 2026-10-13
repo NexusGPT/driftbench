@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   type AdapterCapabilities,
   type AgentAdapter,
+  cloneJson,
   decideToolRule,
   deniesCall,
   type Message,
@@ -12,7 +13,7 @@ import {
   type ToolRule,
   type Turn,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { asAgentError, parseObserved, readSource, type ToolPayload } from '../shared';
 
 export type { ToolPayload } from '../shared';
@@ -102,7 +103,7 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
         adapter: id,
         target: given.target,
         given,
-        history: structuredClone(given.prefix),
+        history: cloneJson(given.prefix),
         state,
       };
     },
@@ -112,7 +113,7 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
       let observed: Observed;
       try {
         observed = await options.respond(
-          structuredClone(session.history),
+          cloneJson(session.history),
           structuredClone(turn.given.world),
           structuredClone(turn.given.vars),
           state.agent,

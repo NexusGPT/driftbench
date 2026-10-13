@@ -9,7 +9,8 @@ import { DriftClass, Message, TargetRef, WorldState } from './common';
 export const RunMode = z.enum(['T', 'F', 'P']);
 export type RunMode = z.infer<typeof RunMode>;
 
-export const Outcome = z.enum(['pass', 'fail', 'inconclusive']);
+/** `not_applicable`: a check whose subject the run never produced (a stage check with no stage record). */
+export const Outcome = z.enum(['pass', 'fail', 'inconclusive', 'not_applicable']);
 export type Outcome = z.infer<typeof Outcome>;
 
 /** The fully resolved initial conditions of a block. */
@@ -135,7 +136,18 @@ export const RuntimeTrace = z.strictObject({
       }),
     )
     .optional(),
-  stages: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
+  stages: z
+    .array(
+      z.strictObject({
+        name: z.string(),
+        at: z.string().optional(),
+        carried: z
+          .boolean()
+          .optional()
+          .describe('True marks a stage carried into this block, not reported during it.'),
+      }),
+    )
+    .optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */
   references: z.array(z.strictObject({ path: z.string(), at: z.string().optional() })).optional(),
   /** The tools the runtime offered the agent in the block, by name. Absent when the runtime does not report them. */
@@ -185,6 +197,8 @@ export type Observed = z.infer<typeof Observed>;
 export const Vote = z.strictObject({
   judge: z.string().min(1),
   outcome: Outcome,
+  /** The explicitly named candidate on a pairwise request. A tie differs from missing evidence. */
+  winner: z.enum(['A', 'B', 'tie', 'inconclusive']).optional(),
   score: z.number().optional(),
   reasoning: z.string().optional(),
   /** Every retry the judge's call took. Absent when none. */
@@ -236,6 +250,44 @@ export const Recovery = z.strictObject({
   clarified: z.boolean().optional(),
 });
 
+/**
+ * What the runner reports as a run goes, in order. A model call carries its tokens, cost and latency when the adapter
+ * gives them; its start is the reply time less its latency.
+ */
+export const RunEvent = z.discriminatedUnion('type', [
+  z.strictObject({ type: z.literal('block_start'), index: z.number().int().min(0), at: z.string().min(1) }),
+  z.strictObject({
+    type: z.literal('model_call'),
+    index: z.number().int().min(0),
+    inputTokens: z.number().int().nonnegative().optional(),
+    outputTokens: z.number().int().nonnegative().optional(),
+    usd: z.number().nonnegative().optional(),
+    latencyMs: z.number().nonnegative().optional(),
+    startedAt: z.string().min(1),
+    at: z.string().min(1),
+  }),
+  z.strictObject({
+    type: z.literal('tool_call'),
+    index: z.number().int().min(0),
+    label: z.string().min(1),
+    error: z.string().optional(),
+    at: z.string().min(1),
+  }),
+  z.strictObject({ type: z.literal('retry'), index: z.number().int().min(0), at: z.string().min(1) }),
+  z.strictObject({
+    type: z.literal('block_end'),
+    index: z.number().int().min(0),
+    pass: z.boolean(),
+    at: z.string().min(1),
+  }),
+  z.strictObject({
+    type: z.literal('run_end'),
+    status: z.enum(['completed', 'failed', 'stopped']),
+    at: z.string().min(1),
+  }),
+]);
+export type RunEvent = z.infer<typeof RunEvent>;
+
 export const RunResult = z.strictObject({
   runId: z.string().min(1),
   specId: z.string().min(1),
@@ -245,6 +297,8 @@ export const RunResult = z.strictObject({
   repeat: z.number().int().min(0),
   perturbationId: z.string().optional(),
   status: z.enum(['completed', 'failed', 'stopped']),
+  /** The verdict the spec's end gave the run, when the script ended with one. */
+  endVerdict: z.enum(['success', 'failure']).optional(),
   error: z.string().optional(),
   blocks: z.array(BlockResult),
   succession: Succession,
@@ -260,6 +314,8 @@ export const RunResult = z.strictObject({
   startedAt: z.string().min(1),
   finishedAt: z.string().min(1),
   cacheHit: z.boolean(),
+  /** The events the run reported, in order, when the run recorded them. Absent otherwise. */
+  events: z.array(RunEvent).optional(),
 });
 export type RunResult = z.infer<typeof RunResult>;
 
