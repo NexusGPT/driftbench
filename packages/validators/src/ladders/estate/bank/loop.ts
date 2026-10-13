@@ -5,7 +5,11 @@ import {
   estateImpact,
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
-import { generateEstateSuite } from '@agent-nexus/driftbench-generate';
+import {
+  compilePredicate,
+  generateEstateSuite,
+  REPLAY_CUSTOM_CHECKS,
+} from '@agent-nexus/driftbench-generate';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
 import { type EstateMutant, estateMutants } from '../mutants';
 import { type EstateRun, estateRun, scanRendered } from '../pipeline';
@@ -546,11 +550,20 @@ const ASKS: AskCheck[] = [
           const atom = atoms.get(id);
           if (!atom) return true;
           if (atom.kind === 'register') return criterion.gating === true || id !== criterion.name;
-          // The judged control (a control whose predicate has no machine inverse) may be of any rule; the rule's
-          // own criterion needs a custom predicate.
-          const control = id !== criterion.name;
-          const custom = atom.evidence.some((evidence) => evidence.type === 'custom');
-          return !((control || custom) && criterion.gating === true && listed.has(id) && tagged);
+          if (!(criterion.gating === true && listed.has(id) && tagged)) return true;
+          // A judged control: only in a negative control, for an atom with a predicate that has no machine
+          // inverse. A rule's own judged criterion: only for a custom predicate no code checks.
+          if (id !== criterion.name)
+            return !(
+              NEGATIVE_CONTROLS.has(v.spec.record.testType) &&
+              atom.evidence.some((evidence) => !hasMachineInverse(evidence))
+            );
+          return !atom.evidence.some(
+            (evidence) =>
+              evidence.type === 'custom' &&
+              !REPLAY_CUSTOM_CHECKS.includes(evidence.name) &&
+              compilePredicate(evidence.name, evidence.options) === undefined,
+          );
         });
       });
       return bad.length === 0
@@ -619,6 +632,23 @@ const ASKS: AskCheck[] = [
     },
   },
 ];
+
+/** The test types that are negative controls (docs/estate.md section 4: the control rows). */
+const NEGATIVE_CONTROLS: ReadonlySet<string> = new Set([
+  'outside_trigger',
+  'route_near_miss',
+  'guard_negative',
+]);
+
+/**
+ * Whether code can write the negative of a predicate (docs/estate.md section 5, the Then table): a skill not
+ * loaded, a guard that does not fire, a tool not called, a reply without the required words. Every other
+ * predicate (ordered, custom, a text with no required words) has no machine inverse.
+ */
+function hasMachineInverse(evidence: { type: string; must?: readonly string[] }): boolean {
+  if (evidence.type === 'text') return (evidence.must ?? []).length > 0;
+  return ['skill_loaded', 'guard', 'tool_called'].includes(evidence.type);
+}
 
 export function genAsksFamily(): Family {
   const family = 'gen.asks';

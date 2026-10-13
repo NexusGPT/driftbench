@@ -101,6 +101,66 @@ describe(`${ID} follows the Then table of docs/estate.md section 5`, { timeout: 
     expect(untagged).toMatchObject({ pass: false });
   });
 
+  // Review of PR 241: judged criteria section 5 does not give (each passed the first version of the item).
+  const addJudged = (id: string, name: string) => (body: Body) => {
+    body.criteria = [...(body.criteria ?? []), { name, gating: true }];
+    body.tags = [...new Set([...(body.tags ?? []), 'judged'])];
+    body.metadata = {
+      ...body.metadata,
+      estate: { ...body.metadata?.estate, judged: [...(body.metadata?.estate?.judged ?? []), id] },
+    };
+  };
+  function plantIn(specs: Spec[], testTypes: readonly string[], edit: (body: Body) => void): Spec[] {
+    const index = specs.findIndex((spec) => spec.loaded && testTypes.includes(spec.record.testType));
+    if (index < 0) throw new Error(`no spec of ${testTypes.join(' or ')}`);
+    const spec = specs[index] as Spec;
+    const body = structuredClone(spec.loaded?.spec) as Body;
+    edit(body);
+    specs[index] = { ...spec, loaded: { ...spec.loaded, spec: body } } as Spec;
+    return specs;
+  }
+
+  it('fails a judged control on a skill atom, whose skill_loaded predicate has a machine inverse', async () => {
+    const result = await withSpecs(1, (specs, run) => {
+      const skill = run.scanned.map.atoms.find(
+        (atom) =>
+          atom.kind === 'skill' && atom.evidence.every((evidence) => evidence.type === 'skill_loaded'),
+      );
+      if (!skill) throw new Error('no skill atom with only skill_loaded');
+      return plantIn(
+        specs,
+        ['outside_trigger', 'route_near_miss'],
+        addJudged(skill.id, `${skill.id}.control`),
+      );
+    });
+    expect(result).toMatchObject({ pass: false });
+  });
+
+  it('fails a judged control in a positive test (an obligation), which is no control', async () => {
+    const result = await withSpecs(1, (specs, run) => {
+      const control = run.specs
+        .flatMap((spec) => ((spec.loaded?.spec as Body | undefined)?.criteria ?? []).map((c) => c.name))
+        .find((name) => name.endsWith('.control'));
+      if (!control) throw new Error('the suite holds no judged control');
+      return plantIn(specs, ['obligation'], addJudged(control.replace(/\.control$/, ''), control));
+    });
+    expect(result).toMatchObject({ pass: false });
+  });
+
+  it('fails a judged criterion on a rule whose custom predicate a registered check runs (permission)', async () => {
+    const result = await withSpecs(1, (specs, run) => {
+      const tool = run.scanned.map.atoms.find(
+        (atom) =>
+          atom.kind === 'tool' &&
+          atom.evidence.length > 0 &&
+          atom.evidence.every((evidence) => evidence.type === 'custom' && evidence.name === 'permission'),
+      );
+      if (!tool) throw new Error('no tool atom judged by permission');
+      return change(specs, judges('other'), addJudged(tool.id, tool.id));
+    });
+    expect(result).toMatchObject({ pass: false });
+  });
+
   it('fails a criterion that names no atom of the map', async () => {
     const result = await withSpecs(1, (specs) =>
       change(specs, judges('other'), (body) => {
