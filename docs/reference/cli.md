@@ -1,6 +1,6 @@
 # CLI
 
-`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), imports specs from a CSV file or a spreadsheet (`import`), versions spec sets and prompts in the store (`dataset`, `prompt`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
+`driftbench` is the command line. It checks spec files (`spec validate`, `spec lint`, `spec coverage`), plans and runs campaigns (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), checks that an agent is deterministic (`smoke`), measures the specs against a map of situations (`space coverage`, `space complete`, `space declare`), proposes that map (`extract`, `extract approve`, `extract map`), generates specs from it by code (`generate`), passes candidate blocks through the validity gate (`gate`), builds the reference set of user turns (`intake`), measures where results vary (`pilot`), judges criteria with the council (`judge`), builds code-agent task families (`family`), reads an agent estate into a map and derives its tests (`estate`), runs specs over recorded sessions (`replay`), prints the blocks a change to the agent can affect (`radius`), imports specs from a CSV file or a spreadsheet (`import`), versions spec sets and prompts in the store (`dataset`, `prompt`), and runs the validators that prove driftbench works (`validate`). The campaign and smoke commands, their output and their exit codes are on the [running](../running.md) page. What generation, the gate, intake, the pilot and families do is on the [generating](../generating.md) page.
 
 ## Running it
 
@@ -1393,6 +1393,37 @@ $ pnpm driftbench holdout score --sealed <dir> --target function:acme-sales --bu
   49             49      100.0%     92.7% to 100.0%
 Not run, not counted: acme-price-sheet (names process:acme-ops), acme-price-sheet-i01-base (names process:acme-ops), (the other 9 price-sheet task specs).
 Budget: 1 of 3 queries used, 2 left. Which conversation passed is not shown: the holdout stays sealed.
+(exit 0)
+```
+
+## `driftbench radius`
+
+```
+driftbench radius <paths...> --change <manifest> [--mode <modes>] [--json]
+```
+
+Prints the [blast radius](../concepts/blast-radius.md) of a change: the blocks of the specs the change can affect, against the whole suite. It is read only: nothing runs and nothing is written.
+
+| Option | Meaning |
+|---|---|
+| `--change <manifest>` | the change manifest, YAML or JSON: `from`, `to` and the list of `changes`, each with a `kind`, an `id` and, for a tool, a `part` |
+| `--mode <modes>` | the run modes to plan for, separated by commas; default `F`. In `F` and `P` every block after a direct block of the same run is in; in `T` a block runs alone |
+| `--json` | one JSON document: the manifest and its hash, the totals per mode, and every block with its state (`direct`, `forward` or `out`) and its reasons |
+
+A block is in directly when its dependencies name a change, and forward when it follows such a block in the same run. A block with unknown dependencies is in every radius. A change that cannot be mapped, or that no block declares, makes the radius the whole suite, and the output says which change and why.
+
+Exit 0 when the radius is smaller than the suite, 1 when it is the whole suite, 2 on a usage or input error.
+
+```
+$ pnpm -s driftbench radius examples/acme/gated/specs --change examples/acme/radius/deviation-goal-shift.yaml
+Blast radius of acme-v1 to acme-v2 (manifest a393cc307eff): deviation:D2.
+195 specs, 861 blocks scored (6 more run with their spec and are not scored: a gate rejected them).
+Mode F, free-running: 22 of 861 blocks in the radius (9 direct, 13 forward), 839 out. 9 of 195 cells.
+  A cell reruns whole: 55 of 861 blocks sent, 93.6% saved; 186 of 195 cells left to carry.
+In the radius, mode F:
+  spec           blocks in  from              why
+  gen-twise-003  3 of 6     b4-D2_goal_shift  deviation:D2
+  (8 more rows)
 (exit 0)
 ```
 

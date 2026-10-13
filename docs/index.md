@@ -11,6 +11,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Block](concepts/block.md): the unit of evaluation, the four runtime concepts (tools, skills, guards, stages), one conversation spec and one task spec.
 * [Given, When, Then](concepts/given-when-then.md): the initial conditions, the stimulus and the expected result of a block.
 * [Run modes](concepts/run-modes.md): teacher-forced, free-running and perturbed runs of the same spec.
+* [Blast radius](concepts/blast-radius.md): which blocks a change to the agent can affect, so a fix reruns its radius and not the whole suite.
 * [Drift](concepts/drift.md): the five drift classes, and the metrics across a succession of blocks.
 * [Recovery](concepts/recovery.md): the twelve deviation classes, and how fast the agent comes back.
 * [Script](concepts/script.md): writing a conversation spec in code, with the steps `user`, `agent`, `judge` and `injection`, and the steps that have no spec form.
