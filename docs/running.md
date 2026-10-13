@@ -99,7 +99,7 @@ The projected cost of an adapter is its blocks times the latest cost per block m
 ## `driftbench campaign run`
 
 ```
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
 ```
 
 Creates a campaign over the specs, runs every cell and prints one line per cell, in cell order.
@@ -153,6 +153,7 @@ The process target runs each cell in a sandbox, a temporary folder under one fol
 | Option | Effect |
 |---|---|
 | `--target`, `--mode`, `--repeats` | as for `plan` |
+| `--agent-version <label>` | the version of the agent under test. It is written as the `variant` of every target that names none, so the runs record which agent produced them. The target is part of the cell id and of the cache key: a run under `v2` never reuses a run or a cached block of `v1`. With `--prompt`, the prompt hash is the version and the label is recorded beside it. |
 | `--campaign <id>` | the campaign id. Without it, the id is `c-` and a hash of the specs, the targets, the modes, the repeats and the creation time. An id the store already holds is refused. |
 | `--store <file>` | keep the campaign, its specs, its runs and the cache in this SQLite file. Without it, the store lives in memory and the runs are gone when the command ends. |
 | `--no-cache` | neither replay runs from the cache nor write to it |
