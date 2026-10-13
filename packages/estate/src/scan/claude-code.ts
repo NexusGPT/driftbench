@@ -28,7 +28,8 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
  * `.claude/settings.json` (model, permissions, environment keys, hooks), the hooks a skill declares in its
  * frontmatter, a check registry (a file whose name holds "registry", every table keyed by check id), a
  * catalogue of checks (a JSON file of entries with kind, event, watches, work, step and status), and step
- * lists (a JSON file with a `steps` list or a `processes` map of them). Symbolic links are followed. A hook
+ * lists (a JSON or YAML file with `steps`, a list or a map keyed by step id, or `processes`, a map or a list
+ * of named processes, at its top or one key down; JSON may carry comments and trailing commas). Symbolic links are followed. A hook
  * command behind a prefix or a dispatcher resolves to the script it runs. A frontmatter the YAML parser
  * refuses is read field by field. Prose (standing files, memory, skill bodies, the markdown files beside a
  * skill, helper bodies) is cut into chunks within a size budget. Claude Code calls a guard a hook; the
@@ -501,7 +502,7 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
   if (parts[1] === 'agents' && parts.length === 3 && path.endsWith('.md')) return { kind: 'subagent' };
   if (/registry|catalogu?e?/i.test(basename(path)) && /\.(md|json|ya?ml)$/.test(path))
     return { kind: 'registry' };
-  if (/\.(json|ya?ml)$/.test(path) && isStepList(text, path)) return { kind: 'step_list' };
+  if (/\.(jsonc?|ya?ml)$/.test(path) && isStepList(text, path)) return { kind: 'step_list' };
   if (path.endsWith('.json') && catalogueEntries(text) !== undefined) return { kind: 'registry' };
   return { kind: 'other' };
 }
@@ -544,10 +545,52 @@ function isCatalogueEntry(value: unknown): boolean {
   return isRecord(value) && CATALOGUE_KEYS.filter((key) => key in value).length >= 2;
 }
 
-/** A step list: a top-level `steps` list, or a `processes` map whose entries each hold a `steps` list. */
 /** A data file's content: YAML for `.yaml` and `.yml`, else JSON. Throws when it does not parse. */
 function parseData(text: string, path: string): unknown {
-  return /\.ya?ml$/.test(path) ? parseYaml(text) : JSON.parse(text);
+  if (/\.ya?ml$/.test(path)) return parseYaml(text);
+  try {
+    return JSON.parse(text);
+  } catch (cause) {
+    // JSON as people write it by hand: comments and a comma after the last item.
+    const relaxed = relaxJson(text);
+    if (relaxed === text) throw cause;
+    return JSON.parse(relaxed);
+  }
+}
+
+/**
+ * JSON with its comments (`//` to the line end, slash-star blocks) blanked and the comma before a closing
+ * bracket removed, outside strings. Every other character keeps its offset.
+ */
+export function relaxJson(text: string): string {
+  const out = text.split('');
+  let inString = false;
+  let lastComma = -1;
+  for (let index = 0; index < text.length; index++) {
+    const char = text[index] ?? '';
+    if (inString) {
+      if (char === '\\') index++;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') {
+      inString = true;
+      lastComma = -1;
+    } else if (char === '/' && text[index + 1] === '/') {
+      while (index < text.length && text[index] !== '\n') out[index++] = ' ';
+      index--;
+    } else if (char === '/' && text[index + 1] === '*') {
+      const end = text.indexOf('*/', index + 2);
+      const stop = end < 0 ? text.length : end + 2;
+      for (; index < stop; index++) if (text[index] !== '\n') out[index] = ' ';
+      index--;
+    } else if (char === ',') lastComma = index;
+    else if (char === '}' || char === ']') {
+      if (lastComma >= 0) out[lastComma] = ' ';
+      lastComma = -1;
+    } else if (!/\s/.test(char)) lastComma = -1;
+  }
+  return out.join('');
 }
 
 /** Where a key holding a value is written, in JSON or YAML: `"id": "G1"` or `id: G1`. */
@@ -555,15 +598,44 @@ function keyValue(key: string, value: string): RegExp {
   return new RegExp(`["']?${escapeRegex(key)}["']?\\s*:\\s*["']?${escapeRegex(value)}["']?(?![\\w-])`);
 }
 
+/** One list of steps a file holds: the steps (a list, or a map keyed by step id) and the process they belong to. */
+type StepSource = { process?: string; steps: unknown[] | Record<string, unknown> };
+
+/** Steps as a list, or as a nonempty map from a step id to its record. */
+function stepsOf(value: unknown): StepSource['steps'] | undefined {
+  if (Array.isArray(value)) return value;
+  if (!isRecord(value)) return undefined;
+  const entries = Object.values(value);
+  return entries.length > 0 && entries.every(isRecord) ? value : undefined;
+}
+
+/**
+ * The step lists of a parsed file, in file order: a top-level `steps` (a list, or a map keyed by step id),
+ * then each process of `processes` (a map from a name to a record with `steps`, or a list of records with a
+ * `name` and `steps`). A file that holds neither at its top is looked into one key down (`workflow.steps`).
+ */
+function stepSources(parsed: unknown, nested = true): StepSource[] {
+  if (!isRecord(parsed)) return [];
+  const found: StepSource[] = [];
+  const top = stepsOf(parsed.steps);
+  if (top) found.push({ steps: top });
+  const processes = parsed.processes;
+  const named: Array<[unknown, unknown]> = Array.isArray(processes)
+    ? processes.map((process) => [isRecord(process) ? (process.name ?? process.id) : undefined, process])
+    : isRecord(processes)
+      ? Object.entries(processes)
+      : [];
+  for (const [name, process] of named) {
+    const steps = isRecord(process) ? stepsOf(process.steps) : undefined;
+    if (typeof name === 'string' && name !== '' && steps) found.push({ process: name, steps });
+  }
+  if (found.length > 0 || !nested) return found;
+  return Object.values(parsed).flatMap((value) => stepSources(value, false));
+}
+
 function isStepList(text: string, path = '.json'): boolean {
   try {
-    const parsed: unknown = parseData(text, path);
-    if (!isRecord(parsed)) return false;
-    if (Array.isArray(parsed.steps)) return true;
-    return (
-      isRecord(parsed.processes) &&
-      Object.values(parsed.processes).some((process) => isRecord(process) && Array.isArray(process.steps))
-    );
+    return stepSources(parseData(text, path)).length > 0;
   } catch {
     return false;
   }
@@ -1284,10 +1356,11 @@ function parseEnforces(cell: string): RegistryRow['enforces'] {
 }
 
 /**
- * Reads a step list: the top-level `steps` list, then each process of a `processes` map as a stage
- * catalogue of its own. A process step goes by `<process>/<id>`, so two processes may share a step name.
- * A step is an object with an `id` (or a `name`), a `title`, a `next` list and `anytime`, or a plain
- * string. When no step of a process says what comes next, the steps follow the order of the list.
+ * Reads the step lists of a file (see `stepSources`), each process as a stage catalogue of its own. A
+ * process step goes by `<process>/<id>`, so two processes may share a step name. A step is an object with an
+ * `id` (or a `name`, or its key in a map of steps), a `title`, its successors (`next` or `then`, a list or
+ * one id) and `anytime`, or a plain string. When no step of a list says what comes next, the steps follow
+ * the order of the list.
  */
 function readSteps(file: EstateFile, estate: RawEstate): void {
   let json: unknown;
@@ -1297,22 +1370,31 @@ function readSteps(file: EstateFile, estate: RawEstate): void {
     estate.notes.push({ file: file.path, message: `not JSON: ${String(cause)}` });
     return;
   }
-  if (!isRecord(json)) return;
-  if (Array.isArray(json.steps)) readStepList(file, json.steps, undefined, { at: 0 }, estate);
-  if (!isRecord(json.processes)) return;
-  const start = file.text.search(/"processes"\s*:/);
-  for (const [name, process] of Object.entries(json.processes)) {
-    if (!isRecord(process) || !Array.isArray(process.steps)) continue;
-    const cursor = { at: Math.max(0, start) };
-    const key = seek(file, JSON.stringify(name), cursor);
-    if (!key) continue;
-    readStepList(file, process.steps, name, cursor, estate);
+  const cursor = { at: 0 };
+  const processes = file.text.search(/["']?processes["']?\s*:/);
+  for (const source of stepSources(json)) {
+    if (source.process !== undefined) {
+      cursor.at = Math.max(cursor.at, processes);
+      // The process is found by its name, as a key of the map or as the value of its name.
+      const from = { at: cursor.at };
+      if (!seek(file, JSON.stringify(source.process), from) && !seek(file, source.process, from)) continue;
+      cursor.at = from.at;
+    }
+    readStepList(file, source.steps, source.process, cursor, estate);
   }
+}
+
+/** The successors a step declares, under `next` or `then`: a list of ids or one id. Undefined when none. */
+function successors(record: Record<string, unknown>): string[] | undefined {
+  const declared = record.next ?? record.then;
+  if (typeof declared === 'string') return declared === '' ? [] : [declared];
+  if (!Array.isArray(declared)) return undefined;
+  return declared.filter((next): next is string => typeof next === 'string' && next !== '');
 }
 
 function readStepList(
   file: EstateFile,
-  steps: readonly unknown[],
+  steps: StepSource['steps'],
   process: string | undefined,
   cursor: { at: number },
   estate: RawEstate,
@@ -1320,23 +1402,28 @@ function readStepList(
   const qualify = (id: string) => (process === undefined ? id : `${process}/${id}`);
   const read: StepDecl[] = [];
   let declaresNext = false;
-  for (const step of steps) {
+  const keyed = !Array.isArray(steps);
+  const entries: Array<[string | undefined, unknown]> = keyed
+    ? Object.entries(steps)
+    : steps.map((step) => [undefined, step]);
+  for (const [mapKey, step] of entries) {
     const record = isRecord(step) ? step : {};
     const key = typeof record.id === 'string' ? 'id' : 'name';
-    const id = typeof step === 'string' ? step : record[key];
+    const id = mapKey ?? (typeof step === 'string' ? step : record[key]);
     if (typeof id !== 'string' || id === '') continue;
     const found =
-      typeof step === 'string'
-        ? seek(file, JSON.stringify(step), cursor)
-        : seekPattern(file, keyValue(key, id), cursor);
+      mapKey !== undefined
+        ? seekPattern(file, new RegExp(`["']?${escapeRegex(id)}["']?\\s*:`), cursor)
+        : typeof step === 'string'
+          ? seek(file, JSON.stringify(step), cursor)
+          : seekPattern(file, keyValue(key, id), cursor);
     if (!found) continue;
     const line = linesOf(file.text)[found.startLine - 1]?.text ?? found.quote;
-    if (Array.isArray(record.next)) declaresNext = true;
+    const next = successors(record);
+    if (next !== undefined) declaresNext = true;
     const decl: StepDecl = {
       id: qualify(id),
-      next: Array.isArray(record.next)
-        ? record.next.filter((next): next is string => typeof next === 'string').map(qualify)
-        : [],
+      next: (next ?? []).map(qualify),
       anytime: record.anytime === true,
       at: { ...found, endLine: found.startLine, quote: line },
     };
@@ -1344,7 +1431,7 @@ function readStepList(
     if (process !== undefined) decl.process = process;
     read.push(decl);
   }
-  if (process !== undefined && !declaresNext) {
+  if (!declaresNext) {
     const ordered = read.filter((step) => !step.anytime);
     ordered.forEach((step, index) => {
       const following = ordered[index + 1];
