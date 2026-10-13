@@ -32,7 +32,7 @@ def main():
     assert seal['prior_measured_usd']+.4+result['measured_usd']<=seal['overall_cap_usd']
     report=['# Separate Gemini 3.5 Flash-Lite cell','',f'Generated {result["generated"]}. Sources: `flash-lite/seal.json`, `requests.json`, `attempts.jsonl`, both `calls.jsonl` journals and `scores.json`.','',
             f'Model `{r.MODEL}`, reasoning `{mode}` for both contestants and both experiments. This is the same sealed cohort, 384 cases per row. Results never mix with Gemini 3.8.','',
-            f'{len(answers)}/{len(keys)} unique requests recorded. Model-cell measured spend USD {result["measured_usd"]:.8f}, cap USD 4. Combined measured spend plus the USD 0.40 lost-attempt reserve is USD {seal["prior_measured_usd"]+.4+result["measured_usd"]:.8f}, cap USD 16.','',
+            f'{len(answers)}/{len(keys)} unique requests recorded. Model-cell measured spend USD {result["measured_usd"]:.8f}, cap USD {seal["cell_cap_usd"]:g}. Combined measured spend plus the USD 0.40 lost-attempt reserve is USD {seal["prior_measured_usd"]+.4+result["measured_usd"]:.8f}, cap USD {seal["overall_cap_usd"]:g}.','',
             'Standard paid pricing, verified 2026-10-13: USD 0.30 ordinary input, USD 0.03 cached input, USD 2.50 output including thinking per million tokens. [Google pricing](https://ai.google.dev/gemini-api/docs/pricing). Raw usage and applied reasoning remain recorded per call.','']
     decisions=[]
     for experiment in ('primary','dialect'):

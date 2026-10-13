@@ -16,6 +16,11 @@ def main():
     seal=read('seal.json');recovery=read('crash-recovery.json');audit=read('construction-cue-audit.json')
     total=primary['measured_usd']+variant['measured_usd'];reserve=recovery['lost_attempt_reserve_usd']
     budget=read('budget-amendment.json')['cap_usd']
+    lite=read('flash-lite/scores.json') if (HERE/'flash-lite/scores.json').exists() else None
+    overall_total=total+(lite['measured_usd'] if lite else 0)
+    lite_budget=read('flash-lite/budget-amendment.json') if (HERE/'flash-lite/budget-amendment.json').exists() else read('flash-lite/seal.json') if (HERE/'flash-lite/seal.json').exists() else {}
+    overall_cap=lite_budget.get('overall_cap_usd',budget)
+    assert overall_total+reserve<=overall_cap
     assert abs(total-proof['measured_usd'])<1e-8 and total+reserve<=budget
     primary_text=(HERE/'REPORT.md').read_text()
     primary_text=primary_text.replace('Gemini is pending billing. The separate dialect variant is pending the core dossier.',
@@ -32,12 +37,12 @@ def main():
     variant_text=variant_text.replace('of USD 10.',f'of the amended USD {budget:g} cap.')
     daily=read('daily-quota-amendment.json')
     pending_label='262 requests not run: daily quota'
-    status='Final' if full else 'Haiku and Luna complete; Gemini '+pending_label+'.'
-    coverage='Full sealed coverage: 384 cases per row, 1,536 per model; two primary models and three dialect models.' if full else 'Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.'
+    status='Final' if full else 'Haiku and Luna complete; Gemini 3.8 '+pending_label+'.'
+    coverage='Full sealed coverage: 384 cases per row, 1,536 per model; two primary models and three dialect models.' if full else 'Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini 3.8 has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.'
     lines=['# Ledger hard-row dossier','',f'{status} Recording analysis generated {stamp()}. All case and result counts come from the linked files in `comparisons/ledger-hard/`.','',
        '- '+coverage,
        f'- {primary["unique_calls"]} primary and {variant["unique_calls"]} dialect unique recorded requests, including the goal equal-evidence ablation.',
-       f'- Measured spend: USD {total:.8f}. Lost-attempt reserve: USD {reserve:.2f}. Combined: USD {total+reserve:.8f}, within the owner-amended USD {budget:g} cap.',
+       f'- Measured spend across all published cells: USD {overall_total:.8f}. Lost-attempt reserve: USD {reserve:.2f}. Combined: USD {overall_total+reserve:.8f}, within the owner-amended USD {overall_cap:g} cap.',
        '- The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.',
        '- Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.','',
        '## Interpretation and coverage','',
@@ -52,6 +57,12 @@ def main():
             if b['complete']:
                 lines.append(f'| {label} | {model} | 384/384 | {a["wins"]}/{a["losses"]} | {b["wins"]}/{b["losses"]} | {b["two_sided_p"]:.8g} | {b["nominal_verdict"]} |')
             else:lines.append(f'| {label} | {model} | Incomplete | Pending | Pending | Pending | 262 requests not run: daily quota; no final verdict |')
+    if lite:
+        for experiment,data in lite['experiments'].items():
+            a=next(t for t in data['tables'] if t['row']=='pooled-default');b=next(t for t in data['tables'] if t['row']=='pooled-equal-evidence')
+            if b['complete']:lines.append(f'| {experiment.title()} | gemini-3.5-flash-lite | 384/384 | {a["wins"]}/{a["losses"]} | {b["wins"]}/{b["losses"]} | {b["two_sided_p"]:.8g} | {b["nominal_verdict"]} |')
+            else:lines.append(f'| {experiment.title()} | gemini-3.5-flash-lite | Incomplete | Pending | Pending | Pending | No final verdict |')
+        lines+=['',f'The separate Flash-Lite cell records {lite["unique_calls"]}/6560 unique requests, at USD {lite["measured_usd"]:.8f}. Its amended USD {lite_budget['cell_cap_usd']:g} allocation raises the overall cap to USD {overall_cap:g}. It uses medium reasoning as accepted by the API, with separate results and no reused Gemini 3.8 answers.']
     lines+=['','## Construction-cue audit','',
        f'`audit-construction.py` reads only source, seeds, sealed cases and rendered prompts. `construction-cue-audit.json` SHA-256 is `{digest(HERE/"construction-cue-audit.json")}`. It checks all {audit["rendered"]["primary"]["entries"]} primary and {audit["rendered"]["dialect"]["entries"]} dialect rendered inputs. No model outcomes inform this audit.','',
        '| Row | Cases | Trusted contexts paired across labels | Imbalanced trusted token values | Imbalanced identity suffix values |',
@@ -86,6 +97,9 @@ def main():
        '| Artifact | SHA-256 |','|---|---|']
     for name in ['seal.json','accounting-amendment.json','transport-amendment.json','dialect/seal.json','recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','gemini-topup.json','topup-runtime-amendment.json','gemini-probe-result.json','budget-amendment.json','daily-quota-amendment.json','owner-hold-amendment.json','crash-recovery.json','seeds.json','prompts.json','dialect/prompts.json','score.py','dialect-score.py','verification-final.json']:
         lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
+    if lite:
+        for name in ['flash-lite/seal.json','flash-lite/budget-amendment.json','flash-lite/pricing.json','flash-lite/reasoning-applied.json','flash-lite/scores.json']:
+            lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     lines+=['',f'Candidate procedure: `{seal["candidate_procedure_sha256"]}`. Original seal commit: `eeb7875e`. Core dialect source: `{variant["core_commit"]}`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.','',
        '## Original primary tables','',primary_text,'','## Dialect tables','',variant_text,'',
        '## Limits on claims','',
@@ -94,13 +108,14 @@ def main():
        '- Constant pass and constant fail each score 50% by label balance. Repeated-read noise and perturbation validity are unmeasured; no stability claim is made.',
        '- Information-asymmetric goal wins cannot establish a better judge on equal evidence. Both versions are disclosed.',
        '- No global matrix verdict or global Holm win is claimed here. The per-row tables and exact rational p-values support independent collation.','']
+    if lite:lines+=['','## Added Flash-Lite measurements','',(HERE/'flash-lite/REPORT.md').read_text()]
     content='\n'.join(lines)
     assert '\u2014' not in content and '\u2013' not in content
     assert len(recovery['items'])==20
     for x in recovery['items']:assert content.count(x['request_sha256'])==1
     (HERE/'FINAL.md').write_text(content);DOSSIER.write_text(content)
     dump(HERE/'delivery.json',{'created':stamp(),'dossier':str(DOSSIER),'dossier_sha256':digest(DOSSIER),'local_final_sha256':digest(HERE/'FINAL.md'),
-         'full_coverage':full,'available_models_complete':proof['available_models_complete'],'measured_usd':total,'lost_attempt_reserve_usd':reserve,'unique_recorded_requests':primary['unique_calls']+variant['unique_calls']})
+         'full_coverage':full,'available_models_complete':proof['available_models_complete'],'measured_usd':overall_total,'lost_attempt_reserve_usd':reserve,'unique_recorded_requests':primary['unique_calls']+variant['unique_calls']+(lite['unique_calls'] if lite else 0),'flash_lite_complete':lite['complete'] if lite else False,'overall_cap_usd':overall_cap})
     print(json.dumps(read('delivery.json'),indent=2))
 
 if __name__=='__main__':main()

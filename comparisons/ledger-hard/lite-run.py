@@ -48,7 +48,14 @@ def unique_requests(reasoning):
 def verify_seal():
     seal=json.loads((DEST/'seal.json').read_text())
     assert subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/flash-lite/seal.json'],cwd=ROOT)==(DEST/'seal.json').read_bytes()
-    for path,value in seal['sha256'].items():assert digest(ROOT/path)==value,path
+    hashes=dict(seal['sha256'])
+    budget_path=DEST/'budget-amendment.json'
+    if budget_path.exists():
+        budget=json.loads(budget_path.read_text())
+        assert subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/flash-lite/budget-amendment.json'],cwd=ROOT)==budget_path.read_bytes()
+        hashes.update(budget['sha256'])
+        seal=seal|{k:budget[k] for k in ('cell_cap_usd','overall_cap_usd')}
+    for path,value in hashes.items():assert digest(ROOT/path)==value,path
     primary.verify_seal();variant.verify()
     return seal
 
