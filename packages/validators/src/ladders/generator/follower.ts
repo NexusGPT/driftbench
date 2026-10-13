@@ -10,14 +10,7 @@ import type {
   WorldState,
 } from '@agent-nexus/driftbench-core';
 import type { FaultSession } from '@agent-nexus/driftbench-generate';
-import {
-  DETOUR_TEXT,
-  DEVIATION_GUARDS,
-  type HiddenProperty,
-  type HiddenSpec,
-  type HiddenTool,
-  readTurn,
-} from './hidden';
+import { DETOUR_TEXT, type HiddenProperty, type HiddenSpec, type HiddenTool, readTurn } from './hidden';
 
 /**
  * The rule follower: an agent built by code from the hidden specification that follows it exactly. It reads
@@ -189,7 +182,6 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         const toolCalls: ToolCall[] = [];
         const facts: Fact[] = [];
         const notes: string[] = [];
-        const guards: Array<{ name: string; verdict: string }> = [];
         let said = '';
         let replaced: string[] | undefined;
         let callId = 0;
@@ -282,8 +274,6 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             break;
           }
           case 'deviation': {
-            const policy = DEVIATION_GUARDS[intent.class];
-            if (policy) guards.push({ ...policy });
             const rule: DeviationAnswer =
               intent.class === 'D2_goal_shift'
                 ? { stage: spec.goal, enter: true, said: DETOUR_TEXT.D2_goal_shift }
@@ -365,14 +355,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           segments,
           text: replies.join('\n'),
           toolCalls,
-          ...(reported !== null || guards.length > 0
-            ? {
-                runtime: {
-                  ...(reported === null ? {} : { stages: [{ name: reported }] }),
-                  ...(guards.length > 0 ? { guards } : {}),
-                },
-              }
-            : {}),
+          ...(reported === null ? {} : { runtime: { stages: [{ name: reported }] } }),
           ...(workspace ? { workspaceDiff: workspace } : {}),
           ...(artifacts ? { artifacts } : {}),
           cost: { usd: 0 },

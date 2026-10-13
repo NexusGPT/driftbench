@@ -1,0 +1,13 @@
+{
+  "timestamp_before_v3_or_heldout_calls": "2026-10-13T01:56:41.563827+02:00",
+  "approval": "Clarify the grounding source, preserve label IDs and v1/v2 recordings; regenerate unrun held-out with same generator and seed.",
+  "hard_seed": 20261012,
+  "heldout_seed": 20261019,
+  "sha256": {
+    "sets-v1.json": "13c23010b79e7908ff1acdb8dfe62acf96d4820d76d75c269361d2a270390bf8",
+    "sets-v2.json": "bcf284794a851f9783c7da279f17b3929c3f528905a1ef6929110f934fb6402a",
+    "sets.json": "35574e925782e856064b7864003435d032b38ccec17a9382e5cdbfd239072f0e",
+    "sets-heldout-v2.json": "fe2824e9d4b3cafd12ac63ef0bbcf2494a0b4c3ef9704f78e6a7f71c7f688092",
+    "sets-heldout.json": "b998674084bd433dc9c042e73a9890d1d1fbb28016ebdba68f268730cf8b8986"
+  }
+}

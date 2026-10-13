@@ -65,3 +65,15 @@ The next entry records completed seed results or the final bank result. No unmea
 - Replay stage provenance and its cache version are repaired in separate commits. The new cache regression fails before the version bump, then the 27-test recheck passes.
 - All 104 focused integration tests pass. Lint passes; the rename-scope script changes no files. Typecheck, fresh cap evidence and paired speed measurements are running. Full repository tests and the new 21-seed sweep remain pending.
 - Measurement source: `1084a1e5`. The cap evidence script now compares written YAML hashes and protected probes against the uncapped suite. Historical cap counts remain bounded to their earlier source.
+
+## 2026-10-13T07:33:26+00:00: focused local verification only
+
+- The owner directs local work to run only focused tests, with full suites delegated to CI because host load exceeds 200. The local full run exits 143 after SIGTERM; every recorded process from that run is verified stopped. Its log has no completed suite result, so it supplies no pass or fail count. No other job is stopped.
+- The focused integration result remains 104 passing tests. Repository typecheck and lint pass. Both measurement scripts also pass a separate TypeScript check after a type-only cap-options correction.
+- The selected 100x cap will be timed in five full-window runs. Report the median process user-plus-system CPU time as contended, with no causal speed-gain claim. Pre-change single runs remain diagnostic output-preservation evidence.
+
+## 2026-10-13T07:57:17+00:00: recovery after plugin interruption
+
+- The recorded benchmark parent and child are absent after the plugin crash. Only the 1x and 10x after measurements complete; the 100x comparison, cap-limit probe and cap assays produce no completed result. No sweep was started. No interrupted result counts as evidence.
+- Replay recheck on `a7fb2452`: 22 tests pass across the current-block stage and replay cache regression files. The repair is already committed in `9abeb25c` and `42fb7c3b`; no duplicate fix is applied.
+- The owner directs PR 174 to merge only after green CI, then requests the full 21-seed sweep with two workers and load logging. The owner assigns protected changes to an independent maintainer on `fix/generator-validator-contracts`; import from main only after that PR merges. No protection exception or branch rename is used.

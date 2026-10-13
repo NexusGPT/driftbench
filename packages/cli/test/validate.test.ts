@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   FLOORS_FILE,
-  type FloorsFile,
   ladderVersion,
   readFloors,
   registeredLadders,
@@ -22,6 +21,7 @@ import { USAGE_EXIT, type ValidateDeps, validateCommand } from '../src/commands/
 import { main } from '../src/index';
 import type { Io } from '../src/io';
 import { committedFloorRun } from './support/committed-floor';
+import { parseFloorExample } from './support/floor-example';
 
 const made: string[] = [];
 afterAll(async () => {
@@ -160,16 +160,7 @@ describe('driftbench validate floors', () => {
         .split('\n')
         .find((text) => text.startsWith(prefix));
       if (!example?.endsWith('.')) throw new Error(`${page}: no floor output example`);
-      const fixture: FloorsFile = { version: 2, ladderVersion: {}, floors: {} };
-      for (const entry of example.slice(prefix.length, -1).split(', ')) {
-        const match = /^([a-z][a-z0-9-]*) = (\d+) \(ladder version (\d+)\)$/.exec(entry);
-        if (!match) throw new Error(`${page}: invalid floor entry ${entry}`);
-        const [, component, floor, version] = match;
-        if (!component || floor === undefined || version === undefined)
-          throw new Error(`${page}: incomplete floor entry ${entry}`);
-        fixture.floors[component] = Number(floor);
-        fixture.ladderVersion[component] = Number(version);
-      }
+      const fixture = parseFloorExample(example);
       const root = await temp();
       await mkdir(join(root, 'validators'));
       writeFloors(root, fixture);

@@ -7,7 +7,7 @@ import {
   type Separation,
 } from './calibration';
 import type { JudgeClient } from './client';
-import type { JudgeOutcome, JudgeRequest } from './contract';
+import type { EscalationRecord, EscalationTrigger, JudgeOutcome, JudgeRequest } from './contract';
 import { fixtureRequest, type LoadedCriterion } from './criteria';
 
 /**
@@ -32,7 +32,12 @@ export type CascadeConfig = {
   readonly unsure?: { readonly low: number; readonly high: number };
 };
 
-type Why = 'unsure' | 'disagrees';
+export type DeployableCascadeConfig = Pick<CascadeConfig, 'criteria' | 'labels' | 'repeats'> & {
+  /** A deployable procedure. Its routing sees only JudgeRequest, never labels or fixture sides. */
+  readonly judge: JudgeClient;
+};
+
+type Why = 'unsure' | 'disagrees' | EscalationTrigger;
 
 export type CascadeVariant = {
   readonly separation: Separation;
@@ -57,7 +62,13 @@ export type CascadeReport = {
   readonly spentUsd: number;
 };
 
-type Answered = { outcome: JudgeOutcome; score?: number; costUsd: number; error: boolean };
+type Answered = {
+  escalation?: EscalationRecord;
+  outcome: JudgeOutcome;
+  score?: number;
+  costUsd: number;
+  error: boolean;
+};
 
 async function ask(judge: JudgeClient, request: JudgeRequest): Promise<Answered> {
   let costUsd = 0;
@@ -71,6 +82,7 @@ async function ask(judge: JudgeClient, request: JudgeRequest): Promise<Answered>
     if (result.unparsed) return { outcome: 'inconclusive', costUsd, error: false };
     return {
       outcome: result.answer.outcome,
+      ...(result.escalation ? { escalation: result.escalation } : {}),
       ...(result.answer.score === undefined ? {} : { score: result.answer.score }),
       costUsd,
       error: false,
@@ -95,10 +107,15 @@ type Item = {
   fixture?: { side: 'pass' | 'fail'; repeat: number };
 };
 
-export async function calibrateCascade(config: CascadeConfig): Promise<CascadeReport> {
+export async function calibrateCascade(
+  config: CascadeConfig | DeployableCascadeConfig,
+): Promise<CascadeReport> {
+  const deployable = 'judge' in config;
+  const first = deployable ? config.judge : config.first;
+  const escalateTo = deployable ? [] : config.escalateTo;
   const repeats = config.repeats ?? DEFAULT_REPEATS;
-  const low = config.unsure?.low ?? 0.2;
-  const high = config.unsure?.high ?? 0.8;
+  const low = !deployable ? (config.unsure?.low ?? 0.2) : 0.2;
+  const high = !deployable ? (config.unsure?.high ?? 0.8) : 0.8;
   const criteria: CascadeCriterion[] = [];
   for (const criterion of config.criteria) {
     const items: Item[] = [];
@@ -124,9 +141,15 @@ export async function calibrateCascade(config: CascadeConfig): Promise<CascadeRe
     let thenCost = 0;
     let thenCostUnsure = 0;
     for (const item of items) {
-      const a = await ask(config.first, item.request);
+      const a = await ask(first, item.request);
       firstCost += a.costUsd;
       if (a.error) errors += 1;
+      if (deployable) {
+        full.push(a.outcome);
+        lean.push(a.outcome);
+        for (const why of a.escalation?.triggers ?? []) escalated.push({ item: item.id, why });
+        continue;
+      }
       const unsure =
         a.outcome === 'inconclusive' || (a.score !== undefined && a.score > low && a.score < high);
       const why: Why | undefined = unsure ? 'unsure' : a.outcome !== item.truth ? 'disagrees' : undefined;
@@ -138,7 +161,7 @@ export async function calibrateCascade(config: CascadeConfig): Promise<CascadeRe
       escalated.push({ item: item.id, why });
       const votes = [a.outcome];
       let cost = 0;
-      for (const judge of config.escalateTo) {
+      for (const judge of escalateTo) {
         const b = await ask(judge, item.request);
         cost += b.costUsd;
         if (b.error) errors += 1;
@@ -183,8 +206,8 @@ export async function calibrateCascade(config: CascadeConfig): Promise<CascadeRe
     });
   }
   return {
-    first: config.first.id,
-    escalateTo: config.escalateTo.map((judge) => judge.id),
+    first: first.id,
+    escalateTo: escalateTo.map((judge) => judge.id),
     repeats,
     criteria,
     spentUsd: criteria.reduce((sum, c) => sum + c.spentUsd, 0),

@@ -78,27 +78,21 @@ describe('total spec cap', () => {
     expect(full.report.options).not.toHaveProperty('specCap');
   }, 30_000);
 
-  it('leads with measured axis coverage and lists gaps even when the candidate array is complete', async () => {
-    // Retain the old weak recovery contract explicitly: the current fictional map covers every pair.
-    const weak = hiddenSpec(1);
-    for (const recovery of weak.recoveries) delete recovery.guards;
-    const generated = await generateFrom(weak, renderMap(weak), 1, {}, { once: true });
-    if (!generated.prepared) throw new Error('the weak fictional map failed to load');
-    const incomplete = generateSuite(generated.prepared, options);
-    expect(incomplete.report.twise.share).toBe(1);
-    const actual = incomplete.report.coverage.actual.find((row) => row.t === 2);
+  it('leads with measured axis coverage and lists gaps even when the candidate array is complete', () => {
+    expect(full.report.twise.share).toBe(1);
+    const actual = full.report.coverage.actual.find((row) => row.t === 2);
     expect(actual?.uncovered.length).toBeGreaterThan(0);
     expect(actual?.uncovered).toEqual(
-      cellsOf(generated.prepared, incomplete.complete, 2)
+      cellsOf(prepared, full.complete, 2)
         .filter((cell) => cell.count === 0)
         .map((cell) => cell.values),
     );
-    const lines = renderSummary(incomplete.report).split('\n');
+    const lines = renderSummary(full.report).split('\n');
     expect(lines[0]).toContain(`pairs ${actual?.covered} of ${actual?.allowed}`);
     expect(lines[0]).toMatch(/^Actual axis-map coverage/);
     expect(lines[1]).toMatch(/^Candidate t-wise array/);
     expect(lines[2]).toContain(`${actual?.uncovered.length} pairs`);
-  }, 180_000);
+  }, 30_000);
 
   it('requires explicit pairs mode to trade triples for a smaller suite', () => {
     const pairPool = generateSuite(prepared, { ...options, specCap: full.all.length, specCapMode: 'pairs' });

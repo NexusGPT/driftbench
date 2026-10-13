@@ -35,6 +35,13 @@ const SKIP_PATHS = new Set([
 ]);
 // The codemod and its test name the old scope in their own source, so they are never edited.
 const SKIP_FILES = new Set(['pnpm-lock.yaml', 'rename-scope.mjs', 'rename-scope.test.mjs']);
+// Historical comparison evidence pins source bytes; its cache wrapper intentionally resolves old names.
+const PINNED_COMPARISON_FILES = new Set([
+  'comparisons/inspect/hard/archive-env.ts',
+  'comparisons/inspect/hard/arch-deciding-snapshot.json',
+  'comparisons/inspect/hard/arch-snapshot.json',
+  'comparisons/inspect/hard/deciding/main-snapshot.json',
+]);
 const SKIP_FILE_PATTERN = /\.cassette\.json$/;
 const EXTENSIONS = new Set([
   '.ts',
@@ -109,7 +116,8 @@ const leftover = [];
 
 for (const file of walk(ROOT)) {
   const rel = relative(ROOT, file).split(sep).join('/');
-  if (SKIP_FILES.has(basename(file)) || SKIP_FILE_PATTERN.test(file)) continue;
+  if (SKIP_FILES.has(basename(file)) || PINNED_COMPARISON_FILES.has(rel) || SKIP_FILE_PATTERN.test(file))
+    continue;
   if (!EXTENSIONS.has(extname(file))) continue;
 
   const before = readFileSync(file, 'utf8');

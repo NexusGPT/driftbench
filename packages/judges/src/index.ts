@@ -57,6 +57,7 @@ export {
   type CascadeReport,
   type CascadeVariant,
   calibrateCascade,
+  type DeployableCascadeConfig,
 } from './cascade';
 export {
   Cassette,
@@ -102,6 +103,13 @@ export {
 export { type TokenUsage, type UsageProvider, usageFromResponse } from './clients/usage';
 export { comparePair, type PairChoice, type PairJudge, type PairWinner } from './compare-pair';
 export {
+  CONFORMANCE_PROMPT_FINGERPRINT,
+  CONFORMANCE_SYSTEM_PROMPT,
+  ConformanceAudit,
+  judgeConformance,
+} from './conformance';
+export type { ComparisonResult, EscalationRecord, EscalationTrigger } from './contract';
+export {
   type Budget,
   CriterionText,
   inconclusive,
@@ -146,12 +154,14 @@ export {
   parseCriterionFile,
 } from './criteria';
 export { CriterionLedger, type CriterionRequirement, requirementsFor } from './criterion-ledger';
+export { createEscalation, type EscalationConfig } from './escalation';
 export { type Grounding, groundEvidence } from './evidence';
-export { FactLedgerAnswer } from './fact-audit';
+export { FACT_LEDGER_POINTWISE, FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { findCycles } from './find-cycles';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export { ATTACK_CRITERION, type AttackVerdict, judgeAttack } from './injection-judge';
+export { KNOWLEDGE_RETENTION_CRITERION } from './knowledge-retention';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
 export {
   PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT,
@@ -160,8 +170,10 @@ export {
 export { type LintIssue, lintCriterion } from './lint';
 export { buildPairPrompt } from './pair-prompt';
 export {
+  type CanonicalPairwiseVerdict,
   judgePairwise,
   type PairwiseChoice,
+  type PairwiseOptions,
   type PairwiseTally,
   type PairwiseVerdict,
   pairwiseRequest,
@@ -204,7 +216,23 @@ export {
   readQueue,
   writeQueue,
 } from './queue';
+export {
+  createReaderFirstJudge,
+  READER_FIRST_CRITERIA,
+  READER_FIRST_THRESHOLDS,
+  type ReaderBallot,
+  type ReaderChoice,
+  type ReaderCriterion,
+  type ReaderFirstOptions,
+  type ReaderScore,
+  readerBallot,
+  readerFirstRequest,
+  readerRiskFlags,
+  resolveReaderFirst,
+} from './reader-first';
+export { type ReaderFeatures, readerFeatures } from './reader-first-features';
 export { type ReferenceOptions, type ReferenceSolve, withReferenceConsensus } from './reference';
+export { judgeResponseRelevance, ResponseRelevanceAnswer } from './response-relevance';
 export { type ScreenFinding, type ScreenReport, screenData } from './screen';
 export { noJudgeCheck, type SingleJudgeOptions, singleJudgeCheck } from './single';
 export { judgeTurns, type TurnOutcome, type TurnsResult } from './turns';

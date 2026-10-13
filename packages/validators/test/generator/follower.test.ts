@@ -198,42 +198,6 @@ describe('the fault family', () => {
 });
 
 describe('composed missing-stage reports', () => {
-  describe.each([
-    ['D1_off_topic', 'topic_boundary', 'redirect'],
-    ['D5_language_switch', 'reply_language', 'en'],
-    ['D6_instruction_in_data', 'instruction_in_data', 'block'],
-    ['D9_out_of_scope', 'scope_boundary', 'handoff'],
-  ] as const)('%s policy traces', (cls, name, verdict) => {
-    it.each([
-      { ids: ['X3.no-report'], referenceIds: [] },
-      { ids: ['X3.no-report', 'X4.narrate'], referenceIds: ['X4.narrate'] },
-      { ids: ['X4.narrate', 'X3.no-report'], referenceIds: ['X4.narrate'] },
-    ])('omits only stages for $ids', async ({ ids, referenceIds }) => {
-      const spec = hiddenSpec(1);
-      const steps = [
-        { text: deviation(spec, cls) },
-        { text: move(spec, `${spec.start}-to-${spec.goal}`) },
-        { text: move(spec, `${spec.goal}-to-check`) },
-      ];
-      const reference = await play(
-        createFollower(spec, referenceIds.length > 0 ? combinedFault(spec, referenceIds).mutation : {}),
-        steps,
-      );
-      const mutant = await play(createFollower(spec, combinedFault(spec, ids).mutation), steps);
-      expect(reference[0]?.runtime?.guards).toEqual([{ name, verdict }]);
-      expect(reference[2]?.toolCalls.length).toBeGreaterThan(0);
-      for (const [index, observed] of mutant.entries()) {
-        const expected = reference[index];
-        expect(observed.runtime?.guards).toEqual(expected?.runtime?.guards);
-        expect(observed.runtime?.stages).toBeUndefined();
-        expect(observed.text).toBe(expected?.text);
-        expect(observed.segments).toEqual(expected?.segments);
-        expect(observed.toolCalls).toEqual(expected?.toolCalls);
-      }
-      if (referenceIds.length > 0) expect(mutant[0]?.text).toContain('Step 1:');
-    });
-  });
-
   it('keeps the null report of X3.no-report in either composition order', async () => {
     const spec = hiddenSpec(1);
     const text = move(spec, `${spec.start}-to-${spec.goal}`);

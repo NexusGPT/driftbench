@@ -1,0 +1,27 @@
+{
+  "base": "98d82dcf0929e647d6c51f688419e53133a9f8e9",
+  "requests": 1440,
+  "promptFingerprint": "398673b792c1",
+  "defaultSystemBytesIdentical": true,
+  "renderedPromptsAndKeysIdentical": true,
+  "sourceCommit": "75755c088aaaf4fc92ddb200b6c62b76842e4e12",
+  "focusedTests": {
+    "files": 6,
+    "passed": 151,
+    "filesRun": [
+      "response-relevance.test.ts",
+      "legacy-main.test.ts",
+      "cassette.test.ts",
+      "pointwise-fact-ledger.test.ts",
+      "escalation-composition.test.ts",
+      "escalation.test.ts"
+    ]
+  },
+  "packageBuild": true,
+  "repositoryTypecheck": true,
+  "comparisonTypecheck": true,
+  "sourceFormatting": true,
+  "additionalModelCalls": 0,
+  "scopeRenameFilesChanged": 0,
+  "escalationSourceAndTestsMatchMain": true
+}

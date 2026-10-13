@@ -2,6 +2,10 @@
 
 This comparison runs the approved Acme map at budgets 20, 50, 100 and 200, with seed 1. It compares `--t 2 --max N` with `--t 2 --budget N`. The reference agents and planted faults are scripted. No model is called.
 
+## Full paired grid and numeric ablation
+
+[full-study.md](full-study.md) reports hybrid, pure pairwise and random at budgets 20, 50, 100 and 200 over seeds 1 through 30. It includes sample deviations, ranges, confidence intervals, exact paired tests, complete/incomplete counts, wall time, the four task-fault reachability diagnoses and a numeric sliced-LHS/uniform comparison. Its raw records pin their measurement source and map hashes separately. The earlier measurements below are retained.
+
 ## Results
 
 Measurements use the numeric implementation in `4bb18278097cff49f8d5d8c38c0a9a6f62107115`, via the offline scripts below. The map hash is `b583de68c530`. Every budget run uses seed 1. Every complete spec passes its reference blocks.

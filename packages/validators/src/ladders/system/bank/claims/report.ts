@@ -397,7 +397,8 @@ function medianOf(values: readonly number[]): number | undefined {
 type Interval = { estimate: number; lower: number; upper: number };
 
 /**
- * The clustered interval as estimate.ts documents it: a cluster bootstrap (2000 draws, seed 1); with one
+ * The clustered interval as estimate.ts documents it: design-effect Wilson for binary rates,
+ * otherwise a cluster bootstrap (2000 draws, seed 1); with one
  * cluster, no interval; a pass rate whose values all agree, Wilson over the clusters.
  */
 function clusteredTruth(
@@ -411,6 +412,31 @@ function clusteredTruth(
   if (rateFlags && count >= 2 && values.every((value) => value === first)) {
     const w = stats.wilson(first === 1 ? count : 0, count);
     return { estimate: first, lower: w.lower, upper: w.upper };
+  }
+  // estimate.ts and statistics.md: binary rates use the ratio-estimator design effect,
+  // with a Student t quantile on clusters - 1, instead of a percentile bootstrap.
+  if (rateFlags && count >= 2 && values.every((value) => value === 0 || value === 1)) {
+    const p = meanOf(values);
+    const totals = new Map<string | number, { n: number; k: number }>();
+    values.forEach((v, i) => {
+      const key = clusters[i] as string | number;
+      const t = totals.get(key) ?? { n: 0, k: 0 };
+      t.n += 1;
+      t.k += v;
+      totals.set(key, t);
+    });
+    const variance =
+      ((count / (count - 1)) * [...totals.values()].reduce((s, t) => s + (t.k - p * t.n) ** 2, 0)) /
+      values.length ** 2;
+    const effective =
+      variance > 0 ? Math.min(values.length, Math.max(1, (p * (1 - p)) / variance)) : values.length;
+    const df = count - 1;
+    const x = stats.betaQuantile(0.05, df / 2, 0.5);
+    const t = Math.sqrt((df * (1 - x)) / x);
+    const denominator = 1 + (t * t) / effective;
+    const centre = (p + (t * t) / (2 * effective)) / denominator;
+    const half = (t * Math.sqrt((p * (1 - p)) / effective + (t * t) / (4 * effective ** 2))) / denominator;
+    return { estimate: p, lower: Math.max(0, centre - half), upper: Math.min(1, centre + half) };
   }
   const boot = stats.bootstrapCI(values, { clusters, seed: 1, iterations: 2000 });
   if (count < 2) return { estimate: boot.estimate, lower: boot.estimate, upper: boot.estimate };

@@ -114,6 +114,29 @@ function runCodemod(root) {
 }
 
 describe('rename-scope codemod', () => {
+  it('preserves pinned comparison snapshots and their legacy cache wrapper', () => {
+    const root = fixture();
+    const files = [
+      'comparisons/inspect/hard/archive-env.ts',
+      'comparisons/inspect/hard/arch-deciding-snapshot.json',
+      'comparisons/inspect/hard/arch-snapshot.json',
+      'comparisons/inspect/hard/deciding/main-snapshot.json',
+    ];
+    for (const rel of files)
+      write(
+        root,
+        rel,
+        rel.endsWith('.ts')
+          ? 'const folder = `node_modules/@driftbench/${name}/`;\n'
+          : JSON.stringify({ pinnedSource: "import core from '@driftbench/core'" }),
+      );
+    const before = tree(root);
+    expect(() => runCodemod(root)).not.toThrow();
+    const after = tree(root);
+    for (const rel of files) expect(after[rel], rel).toBe(before[rel]);
+    expect(after['packages/core/src/run.ts']).toContain('@agent-nexus/driftbench-core');
+  });
+
   it('maps the cli to the bare scope and every other package to a suffixed name', () => {
     const root = fixture();
     runCodemod(root);
