@@ -17007,8 +17007,12 @@
             "a": 3,
             "b": 2,
             "quoteA": "Tip: For successive batches, no preheat is needed—simply load and cook.",
-            "quoteB": "Email: support@crispmaster.com",
-            "guard:allow": "public benchmark generated contact retained for exact evidence validation",
+            "quoteB": "Email: support@example.com",
+            "quoteBRedaction": {
+              "redacted": true,
+              "originalSha256": "4e39bac0646299ee7634d0cf52878b265d384d41678f14735673e5fdc863cb74",
+              "benchmarkItemId": "43f5c75c-3554-4b10-b356-38ff14fb45ec"
+            },
             "reasoning": "A is tight, with one minor overlap between cleaning and storage; B repeats contact details and cleaning and safety points across several sections."
           },
           {

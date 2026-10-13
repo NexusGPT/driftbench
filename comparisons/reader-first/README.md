@@ -23,3 +23,9 @@ Harness source: `research/opus-wp` at af25ea12, `examples/judge-benchmarks/src/{
 The owner raises concurrency to six and the budget to USD 20.00. Last new call: 2026-10-13 06:39 Brussels. Commit, push and report deadline: 06:42. Two in-flight calls from the original two-worker process are stopped and reserve USD 0.20. Returned recordings replay without spending again. TEST starts when frozen DEV passes. Incomplete results at cutoff are labeled partial, as authorized by the owner.
 
 The owner authorizes TEST after 144/180 DEV, with six calls at a time and no new calls after 06:39 Brussels. An interrupted TEST is partial and resumes from the same frozen source hashes and cached calls after the outage. Resume requires `--resume --call-deadline <authorized ISO timestamp>`; a completed TEST cannot run again. The 22 of 90 invalid-evidence DEV pairs use length fallback.
+
+## Display-only export redactions
+
+The `explore.json` and `final-dev.json` exports replace one contact address with `support@example.com`. Each `quoteBRedaction` sibling marks `redacted: true`, records the SHA-256 of the original complete quote, and names its public benchmark item. Stored validity, scores, features and verdicts describe the original evaluation and remain unchanged. Raw recordings retain the original response.
+
+When revalidating an export, skip exact candidate-substring matching for a quote whose sibling marks `redacted: true`. Report that quote as display-redacted, never as failed evidence or newly validated evidence. To verify the original quote, use the named item's raw recording and check its SHA-256. Live `readerBallot` validation is unchanged and accepts no redaction bypass.
