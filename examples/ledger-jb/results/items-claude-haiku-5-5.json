@@ -2986,5 +2986,329 @@
     ],
     "ledgerGraderErrors": 0,
     "promptfooGraderErrors": 0
+  },
+  {
+    "id": "1ecf95ed-55a1-56b0-9971-13dbe52bcc84",
+    "group": "mmlu",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "761e275c-7556-5238-8fcc-7b52af5dc416",
+    "group": "mmlu",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "f42921be-dcd2-5cb1-9447-eaa34fb8db08",
+    "group": "livebench",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      null,
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 1
+  },
+  {
+    "id": "e1a8d0ed-9897-55d8-b77d-7441389e2418",
+    "group": "livebench",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 0,
+    "difference": 1,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "B",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "e5a3a0bc-c9fc-58cf-973d-071d2744c53a",
+    "group": "mmlu",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "8a434591-3536-5802-9480-1ed7d9cd60ac",
+    "group": "mmlu",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "517dbc08-de63-54f0-bc18-07f1e2347c09",
+    "group": "livecodebench",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "84c8ebef-336e-50d8-9986-9db880d844f3",
+    "group": "mmlu",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "6c214deb-96b4-5152-801c-7b296182273e",
+    "group": "mmlu",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "31b7f739-8ebf-5565-9cc8-dbe81a71d1f0",
+    "group": "livebench",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "c35cfb8a-6918-5bc7-90d5-18272ff8023f",
+    "group": "mmlu",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 0,
+    "difference": 1,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "B",
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "6071bc26-275c-5873-aa87-bca1593c1350",
+    "group": "mmlu",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 0,
+    "difference": 1,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "6eea64c3-0413-5fdf-b089-80dd2336a931",
+    "group": "mmlu",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 0,
+    "difference": 1,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "47691eb8-6842-54b6-9bfa-638396a3757d",
+    "group": "mmlu",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 0,
+    "difference": 1,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "B",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "bbdcd0e8-c9f8-5d3d-bf42-7bd74bd75273",
+    "group": "mmlu",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "01c32337-3782-5fc0-8040-2850d4d212f3",
+    "group": "mmlu",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "40fec759-5b84-5ed6-b35f-c9852da124b8",
+    "group": "mmlu",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "6980179e-3e16-591f-8fbe-28adb5276913",
+    "group": "livebench",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
   }
 ]

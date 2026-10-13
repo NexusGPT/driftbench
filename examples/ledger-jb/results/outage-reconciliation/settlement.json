@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-13T11:56:39.823299+00:00",
+  "authorization": "The four no-answer Haiku CLI errors between 11:28 and 11:32 UTC match a host network outage. The owner authorizes one additional ask for those four calls only and release of their unknown-cost holds if the re-asks settle. Never ask a returned answer again.",
+  "sourceBeforeSha256": "9eeedc3d14d4665cd0318c5cab4daa5cdd5e8977b96fb25762b6ce276669330d",
+  "sourceAfterSha256": "85234b4b0b6df9fcb08413cbce5b7ddd98620325d6eee469b3a58cfac9a0e43b",
+  "settled": [
+    {
+      "key": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger:AB:0:4899deaf77dda847da0b737641231cc75900aff0a01e64674c4d929f64108fd5",
+      "replacementKey": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger:AB:0:4899deaf77dda847da0b737641231cc75900aff0a01e64674c4d929f64108fd5:transport:2",
+      "releasedUsd": 0.25
+    },
+    {
+      "key": "test:claude-haiku-5-5:7b9f3dbd-71e5-5ed0-be3f-893be2f81120:0:ledger:BA:0:87265a65cd7dee12814037289ade252633ab4f1dce419329003fa2c5c9be2700",
+      "replacementKey": "test:claude-haiku-5-5:7b9f3dbd-71e5-5ed0-be3f-893be2f81120:0:ledger:BA:0:87265a65cd7dee12814037289ade252633ab4f1dce419329003fa2c5c9be2700:transport:2",
+      "releasedUsd": 0.25
+    },
+    {
+      "key": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger:BA:0:f882af27e9ca59b2f8248307c9df160212f41c5406ad863c063590a14e50fc48",
+      "replacementKey": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger:BA:0:f882af27e9ca59b2f8248307c9df160212f41c5406ad863c063590a14e50fc48:transport:2",
+      "releasedUsd": 0.25
+    },
+    {
+      "key": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:promptfoo:AB:0:3ab78ff9cb2484791577eaa7b5b1312190697c1a72dbddd932c36a1f03a130b4",
+      "replacementKey": "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:promptfoo:AB:0:3ab78ff9cb2484791577eaa7b5b1312190697c1a72dbddd932c36a1f03a130b4:transport:2",
+      "releasedUsd": 0.25
+    }
+  ],
+  "unsettled": [],
+  "releasedUsd": 1.0,
+  "note": "Owner-authorized release of unknown-cost outage holds after priced replacement answers. Not a provider refund."
+}

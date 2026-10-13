@@ -1,12 +1,12 @@
 {
-  "version": 9,
-  "createdAt": "2026-10-13T11:43:35.483515+00:00",
+  "version": 10,
+  "createdAt": "2026-10-13T11:57:25.781679+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
   "adapter": "examples/ledger-jb/src/core-adapter.mjs",
   "capUsd": 25,
-  "concurrency": 12,
+  "concurrency": 14,
   "lastCallCutoff": "2026-10-14T00:00:00Z",
   "models": {
     "claude-haiku-5-5": {
@@ -162,8 +162,8 @@
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
     "examples/ledger-jb/run-driver.py": "162639c760a66ee0483b0ccd2bf0ea30154bb53f073530c2917bce9c1e97060c",
     "examples/ledger-jb/summarize-reasks.mjs": "e1b1378d21912b6899bc181904442cb74a2b568493f67d3ecadd98f61998c482",
-    "examples/ledger-jb/parallel-remaining.mjs": "eac65caaa3bf0ead73d91128408bfdd9ad82253f64ffbe16a45d11c1188ff305",
-    "examples/ledger-jb/test/parallel.test.mjs": "6a9d8bde15c3ee26f13a92f5eced537d64dd059a94500ec96d5eee34680ed4e8",
+    "examples/ledger-jb/parallel-remaining.mjs": "ecae5816bb0f18b97b405142f9372bd1df8e2dd1855d2fdcb5397e888b215067",
+    "examples/ledger-jb/test/parallel.test.mjs": "dd88a464e67002e765b07eec18d852376724b2ff785d6e522a159d335ae704b7",
     "examples/ledger-jb/audit-results.py": "d8a38d2e4a0ac72e4f6c2c274b01b0f9c3f3dd633ec3644388c0880246479c4b",
     "examples/ledger-jb/write-dossier.py": "83e32a5eb154c0ccad8a99aba619457544050716b06767e0d93478b4595bbe52",
     "examples/ledger-jb/reconcile-billing.py": "c199ac726b15bac0980cc37d4980fb54c2c51f43c3ba8b220c11a009787a839b",
@@ -171,10 +171,10 @@
     "examples/ledger-jb/reconcile-outage.py": "ffb1aafd3b68c613e079b232929173d9b6de44c55aeab60cedbc834eb89791e8"
   },
   "amendment": {
-    "previousFreezeSha256": "1ad3b2eb8a12d5bff8f3c8928def24a3c00226fa60d3efabf81cd8c93571c05d",
-    "reason": "The four no-answer Haiku CLI errors between 11:28 and 11:32 UTC match a host network outage. The owner authorizes one additional ask for those four calls only and release of their unknown-cost holds if the re-asks settle. Never ask a returned answer again.",
-    "boundary": "PID 91290 drains through SIGUSR2; zero unresolved calls. Only three decisions involving the four no-answer requests are quarantined. All received responses remain cached.",
-    "core": "Unchanged 35f07309; prompts, schema re-ask, scoring, models, reasoning, sealed order and 25 USD cap unchanged. Gemini remains paused for daily quota."
+    "previousFreezeSha256": "0fb7bc3a8e362500168bb48bc160643d4ac5effcadfd0aa72c4595f1034c94d3",
+    "reason": "Owner raises Haiku to four workers; fallback to two only when host load exceeds 60 or after two transport failures within ten minutes. Parse errors do not alter pacing.",
+    "boundary": "PID 52936 drains without unresolved calls. All four authorized outage requests have one priced replacement answer. Their 1.00 USD holds are released after drain; replacement costs remain counted.",
+    "core": "Unchanged 35f07309; prompts, schema re-ask, scoring, reasoning, sealed order and 25 USD cap unchanged. Gemini daily quota pause and cutoff unchanged."
   },
   "cacheIdentityModels": {
     "claude-haiku-5-5": {
@@ -222,7 +222,7 @@
   },
   "modelConcurrency": {
     "gpt-6-luna": 8,
-    "claude-haiku-5-5": 2,
+    "claude-haiku-5-5": 4,
     "gemini-3.8-flash": 2
   },
   "runtimeEntrypoint": "examples/ledger-jb/parallel-remaining.mjs",
@@ -605,5 +605,17 @@
       "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:ledger",
       "test:claude-haiku-5-5:4e63c13c-8a91-5f29-839e-f7a0b4e752ba:0:promptfoo"
     ]
+  },
+  "haikuPacing": {
+    "initialWorkers": 4,
+    "fallbackWorkers": 2,
+    "hostLoadMetric": "os.loadavg()[0], one-minute average",
+    "hostLoadFallbackStrictlyAbove": 60,
+    "transportFailureCount": 2,
+    "transportFailureWindowMs": 600000,
+    "failureDefinition": "Haiku no-answer transportFailure=true and returnedAnswer!=true; malformed or unparsed returned answers never change pacing.",
+    "fallback": "Latched for the current process; already active jobs drain, and new jobs wait until active count is below two. No automatic ramp-up.",
+    "evaluated": "Before each new job dispatch; queue retains sealed order.",
+    "events": "results/pacing-events.jsonl"
   }
 }

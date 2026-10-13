@@ -1,0 +1,45 @@
+✔ adapter runs the actual core in both orders and does not consume the label (29.913791ms)
+✔ core retains its one schema re-ask, independently of transport retries (2.205875ms)
+✔ missing usage is never zero cost, cached input is priced separately (0.201916ms)
+✔ exhausted transport failures never gain more tries through core re-ask (0.9795ms)
+✔ pool and all sealed artifacts retain their hashes (17.365417ms)
+✔ noise cache identity differs by repeat and contestant (0.633792ms)
+✔ fixed prompt rendering preserves dollar sequences and handles order (0.416833ms)
+✔ budget is reserved before a call and identical replay is free (3.384292ms)
+✔ an interrupted call cannot silently retry or lose its cost reserve (1.601459ms)
+✔ unknown cost retains liability and concurrent reservations cannot overspend (9.34775ms)
+✔ transport retries stop at three and keep every failed reservation (2.220791ms)
+✔ three failed attempts exhaust and returned content is never retried (1.17175ms)
+✔ 429 waits 60, 120 and 240 seconds, then stops without a judge error (2.422083ms)
+✔ a successful quota retry returns exactly one answer and preserves accounting (0.818292ms)
+✔ 402 stops that model immediately, releases proven rejection, and persists across restart (0.881042ms)
+✔ unexplained 402 stops without releasing an unproven cost hold (0.571875ms)
+✔ 402 in a sibling call prevents a waiting 429 call from retrying (1.579084ms)
+✔ explicit top-up resumes only rejected keys and never reissues an answered call (1.638542ms)
+✔ daily quota resumption skips recorded rejections and preserves answered cache (2.073542ms)
+✔ stop during quota backoff prevents another reservation or request (1.230375ms)
+✔ cutoff before dispatch writes no unresolved call or spend (1.079042ms)
+✔ outage authorization retries only named no-answer calls once and preserves answered reads (2.677ms)
+✔ authorized outage retry stops after one more no-answer failure (0.726791ms)
+✔ three models keep dependency order and respect 8, 4, 2 call limits (278.422417ms)
+✔ failed readiness prevents only that model test phase (7.933875ms)
+✔ shared stop drains already started jobs and starts no later job (27.434625ms)
+✔ host-load fallback uses one-minute load strictly above 60 and remains latched (4.832417ms)
+✔ two recent no-answer Haiku transport failures trigger fallback, parse errors do not (0.287208ms)
+✔ adaptive queue drains to the reduced limit before launching more jobs in sealed order (27.339292ms)
+✔ official net rule preserves ties, splits and grader errors (1.39325ms)
+✔ exact discordance tails and Wilson interval known answers (0.317583ms)
+✔ Holm is monotone in rank and rejects pending cells (1.538542ms)
+✔ balanced labels prevent trivial fixture earning (0.18675ms)
+✔ constant presented-first is not constant original-A (0.158291ms)
+✔ paired bootstrap and comparison retain matched units and errors (3.18575ms)
+✔ noise repeats count actual independent samples (0.264083ms)
+✔ invariance cannot pass by keeping the same wrong answer (0.493958ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5870.53975

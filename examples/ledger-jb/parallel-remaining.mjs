@@ -5,6 +5,7 @@ import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {setTimeout as sleep} from 'node:timers/promises';
+import {loadavg} from 'node:os';
 import {hash,readJson,readJsonl,verifyFreeze,jobs,Journal,promptfooPrompt,parsePromptfoo,REQUIREMENTS} from './src/harness.mjs';
 
 export async function runModels(models, runPhase, ready, event=()=>{}) {
@@ -21,15 +22,33 @@ export async function runModels(models, runPhase, ready, event=()=>{}) {
 }
 
 export async function drainQueue(queue,runJob,concurrency,stop) {
-  let next=0;
-  async function worker(){
-    while(!stop.error&&next<queue.length){
+  let next=0;const running=new Set();
+  const limit=()=>typeof concurrency==='function'?concurrency():concurrency;
+  while(next<queue.length||running.size){
+    while(!stop.error&&next<queue.length&&running.size<limit()){
       const job=queue[next++];
-      try{await runJob(job);}catch(error){stop.error??=error;}
+      const task=Promise.resolve().then(()=>runJob(job)).catch(error=>{stop.error??=error;}).finally(()=>running.delete(task));
+      running.add(task);
     }
+    if(!running.size)break;
+    await Promise.race(running);
   }
-  await Promise.all(Array.from({length:concurrency},worker));
   if(stop.error)throw stop.error;
+}
+
+export function createHaikuPacer({journal,load=()=>loadavg()[0],now=()=>Date.now(),event=()=>{}}){
+  let reason;
+  return ()=>{
+    if(!reason){
+      const hostLoad=load(),cutoff=now()-600000;
+      const failures=[...journal.finishes.values()].filter(x=>x.model==='claude-haiku-5-5'&&x.transportFailure&&!x.returnedAnswer&&Date.parse(x.at)>=cutoff).length;
+      if(hostLoad>60||failures>=2){
+        reason=hostLoad>60?'one-minute host load exceeds 60':'two no-answer transport failures within ten minutes';
+        event({reason,hostLoad,transportFailuresInTenMinutes:failures,workers:2});
+      }
+    }
+    return reason?2:4;
+  };
 }
 
 async function main(){
@@ -46,7 +65,7 @@ async function main(){
   process.on('exit',()=>{closeSync(fd);unlinkSync(lock);});
   const allModels=['gpt-6-luna','claude-haiku-5-5','gemini-3.8-flash'];
   const models=allModels.filter(model=>!freeze.pausedModels?.[model]);
-  const limits={'gpt-6-luna':8,'claude-haiku-5-5':2,'gemini-3.8-flash':2};
+  const limits={'gpt-6-luna':8,'claude-haiku-5-5':4,'gemini-3.8-flash':2};
   if(allModels.some(model=>freeze.modelConcurrency[model]!==limits[model]))throw new Error('Frozen concurrency does not match the owner pacing amendment');
   const data=Object.fromEntries(['fixtures','pilot','noise','pool','validity'].map(name=>[name,readJson(join(root,`data/${name}.json`))]));
   const adapter=await import(pathToFileURL(resolve(repo,freeze.adapter)).href);
@@ -65,6 +84,11 @@ async function main(){
     writeFileSync(join(r,'driver-state.json'),JSON.stringify(state,null,2)+'\n');
     console.log(JSON.stringify({at:state.at,...value}));
   }
+  const haikuLimit=createHaikuPacer({journal,event(value){
+    appendFileSync(join(r,'pacing-events.jsonl'),JSON.stringify({at:new Date().toISOString(),model:'claude-haiku-5-5',freezeSha256,...value})+'\n');
+    state.models['claude-haiku-5-5'].effectiveWorkers=value.workers;
+    event({pacingFallback:value});
+  }});
   function reports(){
     for(const path of ['src/report.mjs','summarize-reasks.mjs']){
       const output=execFileSync('node',[join(root,path)],{cwd:repo,encoding:'utf8',maxBuffer:10*1024*1024});
@@ -107,7 +131,7 @@ async function main(){
       appendFileSync(output,`${JSON.stringify(row)}\n`);completed.add(job.key);
       console.log(JSON.stringify({phase,model,completed:completed.size,planned:planned.length,liabilityUsd:journal.liability()}));
     }
-    await drainQueue(queue,runJob,limits[model],stop);
+    await drainQueue(queue,runJob,model==='claude-haiku-5-5'?haikuLimit:limits[model],stop);
     reports();
   }
   event({status:'running'});
