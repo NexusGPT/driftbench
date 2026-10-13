@@ -115,3 +115,9 @@ c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4:comparisons/reader-first/recordings/hai
 c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4:comparisons/reader-first/recordings/haiku.jsonl:generic-api-key:92
 c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4:comparisons/reader-first/recordings/haiku.jsonl:generic-api-key:94
 c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4:comparisons/reader-first/recordings/haiku.jsonl:generic-api-key:97
+
+# examples/escalation/fixtures/mm-dev400.jsonl: two recorded request hashes, recomputed from
+# SHA256(JSON.stringify([model, system, user])).slice(0, 20) for items 4141 and 4234, order AB.
+# Pinned prompt code 0278595c and recordings 140f406a produce identical hashes; no credentials.
+714af9eacb10f6fe268dd829c254505d40f6d39b:examples/escalation/fixtures/mm-dev400.jsonl:generic-api-key:31
+714af9eacb10f6fe268dd829c254505d40f6d39b:examples/escalation/fixtures/mm-dev400.jsonl:generic-api-key:86
