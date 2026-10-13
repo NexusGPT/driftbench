@@ -4,7 +4,38 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Opt-in `createEscalation` routes reference disagreement, order splits, inconclusive results and low confidence to a cross-family council. It preserves comparison diagnostics and recorded replay, supports deployable-route calibration and checks constituent model families. The offline MM-Eval DEV400 example reproduces 91.16 from pinned recordings, with unknown historical generator families disclosed.
+* Councils accept named pairwise winners directly, preserve them in votes and distinguish a majority tie from missing evidence. Comparison-aware reference, final-answer and verification wrappers preserve their behavior around an escalation client.
+* Opt-in `stated_length` check in the checks package: it reads a total length stated in the request (English words, or Chinese characters for 字) and fails a draft under half of it. Over-length never fails unless `over_ceiling` is set. The earlier 10 percent rule failed long drafts that human labels preferred. See [checks](docs/reference/checks.md#stated-length).
+
+* Winner quote grounding maps decoded JSON value characters back to their literal source spans. Escaped role tokens, JSON text-wrapper keys and escape digits alone cannot supply substantive evidence; legacy is unchanged.
+
+* Pairwise winner matching preserves substantive literal substrings, including partial code fences, before adding normalized views. Exactly one candidate must match; labels and decoration alone remain insufficient.
+* Ordinary criterion evidence accepts source-bound lists of `{ source, quote }` spans, each grounded independently in its named entry or data source. The default prompt requests lists; existing string evidence still parses. Public binary answers retain string evidence, and returned checks preserve all spans. This changes new-default prompt fingerprints; legacy rendering and parsing are unchanged.
+
+* Legacy judging freezes main `a97cb65e` rendering and parsing, including entry separators, object extraction and repair behavior. All 1,028 stored chat entries have main-matching replay outcomes.
+
 408 Request Timeout is retried like 429 and 5xx in every adapter.
+
+* Pairwise chat judges name a winner and quote a passage unique to it. Code validates the quote, maps the existing binary outcome and reconciles both candidate orders, with one retry for malformed output.
+* Reference-guided factual comparisons audit requested facts and recover ties through a structured fact ledger. Code computes the fallback winner from factual defects and unsupported additions.
+* Optional itemized rubric scoring aggregates caller weights and hard requirements in code. Candidate swaps reverse the item presentation order.
+* Optional bounded arithmetic verification, grounded final-answer extraction and strict blind-solve reference agreement are available through provider-neutral interfaces. Verification defaults to off.
+* Behaviour change: ordinary chat criterion checks now request a per-requirement evidence ledger; code computes pass, fail or inconclusive. The caller supplies exact requirement ids; an unsplit criterion is one complete requirement. Missing ids trigger a retry, then abstention; unknown ids are ignored and retained as diagnostics. Old binary model JSON is retried by council, calibration and single-judge paths, then abstains. Select `answerContract: 'legacy'` to restore the previous prompt and parser; probability judges are unchanged.
+* Winner quotes must be nonempty and identify exactly one candidate. A shared quote can use distinguishing following evidence supplied by the model; a still-ambiguous quote gets one explicit re-ask. Rendered role-prefixed evidence grounds only to its matching entry. New parser paths reject repeated decoded object keys before verdict aggregation; frozen legacy stays unchanged. Reference-guided rubric prompts retain both the reference and every supplied item. The numeric `majority(votes, seated = 3)` quorum is preserved.
+* Fresh Haiku regression cassettes retain all 28 responses on seven previous failures: 27 correct, one inconclusive, zero wrong verdicts. Quote grounding and code aggregation do not guarantee that the model's per-requirement judgment is correct.
+* Existing public binary criterion answers and pairwise verdict fields remain supported. Pairwise model JSON now uses `winner` and `winnerQuote`; custom chat clients should use the request-aware parsers. Assessment and custom system text enter cassette identity, so the new contract needs fresh recordings. Existing cassettes replay unchanged with `answerContract: 'legacy'`. See [judges](docs/concepts/judges.md#pairwise-comparison).
+* Binary text parsing utilities add narrow repairs for recased outcomes, quoted numeric scores, single or typographic quotes, trailing commas and comment lines. Additional quote and backslash repairs apply only to new paths; legacy uses its frozen extractor and repair.
+* Council size and per-judge cascade thresholds are configurable; explicit `majority(votes, { weights })` supports weighted votes. `CouncilResult.cost` reports relative call cost. The default numeric quorum remains three seats. Invalid probability values abstain, and reversed or equal probability bounds throw.
+* `combineVerdicts([], [])` returns `pass: false`; duplicate judged verdict ids are refused. Judge-check ids distinguish criterion names that sanitize to the same string. Workspace-diff paths escape line separators.
+* OpenAI, Anthropic and Google chat judge providers now send temperature zero.
+* HTTP judge error diagnostics redact echoed nonempty authentication header values, including secrets shorter than eight characters.
+* Leading reply labels are validated once against the declared winner; their stripped body is compared with both candidates, including JSON/plain equivalents. Labels cannot make shared content exclusive.
+* Winner identity also accepts strict JSON text-field decoding, rendered separators, preserved or stripped list presentation and a matching leading reply label. A repeated shared opening in supplied following evidence is removed before extension. Paraphrase, contradictory labels and nonexclusive matches still abstain.
+* New quote grounding ignores Markdown presentation syntax on both sides and requires a letter or digit from the quoted source text. Labels, renderer separators and punctuation alone abstain; frozen legacy is unchanged.
+* Calibration adds PABAK, AC1 and agreement intervals. Chat providers use request-specific structured output schemas; OpenAI chat calls use temperature zero. Invalid caller requirement sets report their own diagnostic rather than an invalid-JSON error.
+
+* New default transcripts use indexed JSON entries with explicit role fields. Literal role labels inside text cannot change an entry's role. Legacy prompt bytes remain unchanged.
 
 ## [0.1.0] - 2026-10-12
 
@@ -12,7 +43,7 @@ The first public release. driftbench evaluates AI agents block by block: a block
 
 ### Packages
 
-`@driftbench/cli` (the `driftbench` command), `@driftbench/core`, `@driftbench/checks`, `@driftbench/judges`, `@driftbench/users`, `@driftbench/adapters`, `@driftbench/sandbox`, `@driftbench/artifacts`, `@driftbench/stats`, `@driftbench/store`, `@driftbench/report`, `@driftbench/space`, `@driftbench/generate`, `@driftbench/estate`, `@driftbench/validators` and `@driftbench/vitest`, and `driftbench` on PyPI. `@driftbench/battery` stays private until it holds code.
+`@agent-nexus/driftbench` (the `driftbench` command), `@agent-nexus/driftbench-core`, `@agent-nexus/driftbench-checks`, `@agent-nexus/driftbench-judges`, `@agent-nexus/driftbench-users`, `@agent-nexus/driftbench-adapters`, `@agent-nexus/driftbench-sandbox`, `@agent-nexus/driftbench-artifacts`, `@agent-nexus/driftbench-stats`, `@agent-nexus/driftbench-store`, `@agent-nexus/driftbench-report`, `@agent-nexus/driftbench-space`, `@agent-nexus/driftbench-generate`, `@agent-nexus/driftbench-estate`, `@agent-nexus/driftbench-validators` and `@agent-nexus/driftbench-vitest`, and `driftbench` on PyPI. `@agent-nexus/driftbench-battery` stays private until it holds code.
 
 ### Added
 
@@ -29,7 +60,7 @@ The first public release. driftbench evaluates AI agents block by block: a block
 * Similarity with a local character n-gram TF-IDF embedder and a pluggable embedder port, relevancy with a machine floor and a judged criterion, and knowledge retention from the ledger (#15).
 * Relevancy key terms with light stemming in English, French, Spanish, Dutch, German, Italian and Portuguese, with no network call (#17).
 * `driftbench import` from CSV and spreadsheets through a mapping file; a content-addressed registry for datasets and prompts with push, list, diff and restore; `campaign run --dataset` and `--prompt` record their sources (#18).
-* Python package `driftbench` (PyPI): runs specs through the CLI, typed results, a pytest plugin (`pytest --driftbench specs/`), and a Python function as the agent; `campaign run --process-command`; `--json` cells carry the end state and per-block verdicts. `@driftbench/vitest`: `describeSpec(path, target)`, one vitest test per block (wave 3).
+* Python package `driftbench` (PyPI): runs specs through the CLI, typed results, a pytest plugin (`pytest --driftbench specs/`), and a Python function as the agent; `campaign run --process-command`; `--json` cells carry the end state and per-block verdicts. `@agent-nexus/driftbench-vitest`: `describeSpec(path, target)`, one vitest test per block (wave 3).
 * `driftbench view`: a local web viewer of a store, with hand labels per block and criterion for judge calibration, and a browser journey in CI (wave 3).
 * `driftbench simulate` and `campaign run --driver simulated`: a persona through the model port or a recording; `driftbench attack`, an adaptive attacker scored by the recovery record; `generate --model` (wave 3).
 * `driftbench import traces` drafts specs from OpenTelemetry GenAI spans, Nexus traces or Claude Code sessions; `driftbench monitor --source traces` watches production traces for drift (wave 3).

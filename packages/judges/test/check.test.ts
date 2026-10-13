@@ -1,4 +1,10 @@
-import { type CheckContext, machineVerdict, type Observed, type Spec, Verdict } from '@driftbench/core';
+import {
+  type CheckContext,
+  machineVerdict,
+  type Observed,
+  type Spec,
+  Verdict,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   combineVerdicts,
@@ -187,5 +193,36 @@ describe('a judge never overrides a machine fail', () => {
     expect(() => combineVerdicts([machineFail], [{ ...machinePass, id: 'x' }])).toThrow(
       'not a judge verdict',
     );
+  });
+});
+
+describe('a block with no verdict at all', () => {
+  it('does not pass', () => {
+    expect(combineVerdicts([], []).pass).toBe(false);
+  });
+});
+
+describe('two judge verdicts with one id', () => {
+  const judge = (id: string) =>
+    ({ id, kind: 'judge', outcome: 'pass', gating: true, evidence: '', detail: '' }) as never;
+
+  it('are refused, as a judge verdict reusing a machine id is', () => {
+    expect(() => combineVerdicts([], [judge('judge.a'), judge('judge.a')])).toThrow(/judge\.a/);
+    expect(combineVerdicts([], [judge('judge.a'), judge('judge.b')]).pass).toBe(true);
+  });
+});
+
+describe('two criterion names that map to one safe id', () => {
+  it('gives each verdict its own id, the first keeping the plain one', async () => {
+    const spec: Spec = {
+      ...SPEC,
+      criteria: ['a b', 'a_b'].map((name) => ({ name, rubric: 'r', judge_class: 'system1' as const })),
+    };
+    const ctx = { ...context(['a b', 'a_b']), spec };
+    const verdicts = await judgeCheck(council(PASS, PASS).council).evaluate(ctx);
+    const ids = verdicts.map((verdict) => verdict.id);
+    expect(ids[0]).toBe('judge.a_b');
+    expect(new Set(ids).size).toBe(2);
+    expect(verdicts.map((verdict) => verdict.name)).toEqual(['a b', 'a_b']);
   });
 });

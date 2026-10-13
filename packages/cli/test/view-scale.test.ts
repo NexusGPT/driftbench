@@ -1,8 +1,8 @@
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { emptyQueue, enqueue, writeQueue } from '@driftbench/judges';
-import { openStore } from '@driftbench/store';
+import { emptyQueue, enqueue, writeQueue } from '@agent-nexus/driftbench-judges';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
 import { startViewer, type Viewer } from '../src/view/server';

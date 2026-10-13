@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { loadEstateMap } from '@driftbench/estate';
+import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { FIXTURE, type FixtureSuite, fixtureSuite } from './fixture-suite';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -49,20 +49,35 @@ const TEST_TYPES = [
 
 const TASK_VERBS = new Set(
   `add answer archive audit book build cancel change chase check clean close compare correct count create delete
-  draft email explain file find fix forward get give handle list look make match merge move open order pay plan
-  prepare price print put reconcile record refund remove rename reply report reschedule review run schedule send
+  draft email explain file fill find fix forward get give go handle list look make match merge move open order pay plan
+  prepare price print put reconcile record refund remove rename reply report reschedule review run say schedule send
   set show sort summarise summarize tell track triage update write`
     .split(/\s+/)
     .filter(Boolean),
 );
-const SKIP = new Set(['a', 'an', 'the', 'this', 'that', 'my', 'our', 'me', 'us', 'it', 'up', 'out']);
+const SKIP = new Set([
+  'a',
+  'an',
+  'the',
+  'this',
+  'that',
+  'my',
+  'our',
+  'me',
+  'us',
+  'it',
+  'up',
+  'out',
+  'in',
+  'through',
+]);
 /** A code template that restates a rule, a condition or a refusal instead of asking for work. */
 const TEMPLATES = [/^"?(please|could you)\s+(do|handle)\s+this(\s+for\s+me)?:/i, /go against this rule/i];
-const QUESTION = /^(where|what|which|when|who|how|why|is|are|does|do|can|could)\b.*\?/i;
+const QUESTION = /^(where|what|which|when|who|how|why|is|are|does|do|can|could|has)\b.*\?/i;
 
 /**
  * Whether an ask holds a task: no rule template, and either a question about something or a task verb, not
- * negated, with its object after it (articles skipped).
+ * negated, with its object after it (articles and phrasal particles skipped).
  */
 export function holdsTask(ask: string): boolean {
   const text = ask.trim().replace(/^"|"$/g, '');

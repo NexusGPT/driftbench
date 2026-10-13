@@ -1,4 +1,4 @@
-import { analysePilot, type PilotAnalysis } from '@driftbench/generate';
+import { analysePilot, type PilotAnalysis } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   generator,

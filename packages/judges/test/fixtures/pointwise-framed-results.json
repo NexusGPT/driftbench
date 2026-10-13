@@ -1,0 +1,234 @@
+{
+  "frozenHash": "5f19a958e7d9a1456c124e09157240a31bb28d7ef3ef7fc3da0aa810d7861470",
+  "correct": 27,
+  "wrong": 0,
+  "inconclusive": 1,
+  "n": 28,
+  "costUsd": 0.011656400000000003,
+  "rows": [
+    {
+      "id": "relevancy-entity-swap-4-a",
+      "repeat": 0,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.0004918
+    },
+    {
+      "id": "factuality.006",
+      "repeat": 0,
+      "expected": "pass",
+      "outcome": "inconclusive",
+      "unparsed": true,
+      "costUsd": 0.0008233
+    },
+    {
+      "id": "qa-negation-0",
+      "repeat": 0,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.0006299
+    },
+    {
+      "id": "qa-negation-2",
+      "repeat": 0,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.0006728999999999999
+    },
+    {
+      "id": "qa-negation-4",
+      "repeat": 0,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.0007139
+    },
+    {
+      "id": "qa-negation-6",
+      "repeat": 0,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.0007864
+    },
+    {
+      "id": "qa-negation-8",
+      "repeat": 0,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.0006804000000000001
+    },
+    {
+      "id": "relevancy-entity-swap-4-a",
+      "repeat": 1,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00010393
+    },
+    {
+      "id": "factuality.006",
+      "repeat": 1,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00022692
+    },
+    {
+      "id": "qa-negation-0",
+      "repeat": 1,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00030695
+    },
+    {
+      "id": "qa-negation-2",
+      "repeat": 1,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00041595
+    },
+    {
+      "id": "qa-negation-4",
+      "repeat": 1,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00039195
+    },
+    {
+      "id": "qa-negation-6",
+      "repeat": 1,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00041145
+    },
+    {
+      "id": "qa-negation-8",
+      "repeat": 1,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00047295000000000003
+    },
+    {
+      "id": "relevancy-entity-swap-4-a",
+      "repeat": 2,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00011043
+    },
+    {
+      "id": "factuality.006",
+      "repeat": 2,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00023542000000000002
+    },
+    {
+      "id": "qa-negation-0",
+      "repeat": 2,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00037345
+    },
+    {
+      "id": "qa-negation-2",
+      "repeat": 2,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00039345
+    },
+    {
+      "id": "qa-negation-4",
+      "repeat": 2,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00034545
+    },
+    {
+      "id": "qa-negation-6",
+      "repeat": 2,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00040545
+    },
+    {
+      "id": "qa-negation-8",
+      "repeat": 2,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00032395000000000004
+    },
+    {
+      "id": "relevancy-entity-swap-4-a",
+      "repeat": 3,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00010443
+    },
+    {
+      "id": "factuality.006",
+      "repeat": 3,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00023542000000000002
+    },
+    {
+      "id": "qa-negation-0",
+      "repeat": 3,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00035145
+    },
+    {
+      "id": "qa-negation-2",
+      "repeat": 3,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00038545
+    },
+    {
+      "id": "qa-negation-4",
+      "repeat": 3,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00045545000000000004
+    },
+    {
+      "id": "qa-negation-6",
+      "repeat": 3,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00030995
+    },
+    {
+      "id": "qa-negation-8",
+      "repeat": 3,
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00049795
+    }
+  ]
+}

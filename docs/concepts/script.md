@@ -1,6 +1,6 @@
 # Script
 
-A script writes one conversation spec in code. Each step is a function call, and the result is the same spec the command line reads from a YAML file. The script API lives in `@driftbench/core` as `script`, with the steps `user`, `agent`, `judge` and `injection`.
+A script writes one conversation spec in code. Each step is a function call, and the result is the same spec the command line reads from a YAML file. The script API lives in `@agent-nexus/driftbench-core` as `script`, with the steps `user`, `agent`, `judge` and `injection`.
 
 ## The steps
 
@@ -17,7 +17,7 @@ A script writes one conversation spec in code. Each step is a function call, and
 ## An example
 
 ```ts
-import { script } from '@driftbench/core';
+import { script } from '@agent-nexus/driftbench-core';
 
 const { agent, conversation, injection, judge, toYaml, user } = script;
 

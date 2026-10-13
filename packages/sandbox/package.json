@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/sandbox",
+  "name": "@agent-nexus/driftbench-sandbox",
   "version": "0.1.0",
   "description": "The workspace a code agent works in for one driftbench run: a local folder or a docker container, with snapshots, diffs and bounded commands.",
   "keywords": [
@@ -41,7 +41,7 @@
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*"
+    "@agent-nexus/driftbench-core": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

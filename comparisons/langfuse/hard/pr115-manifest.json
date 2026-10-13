@@ -1,0 +1,26 @@
+{
+  "judge_commit": "8195902dd20c84267f85feba268c17868e00dfbe",
+  "frozen_at": "2026-10-12T23:54:10.678779+00:00",
+  "deadline": "2026-10-13T07:00:00+02:00",
+  "budget_usd": 1,
+  "case_count": 240,
+  "model_calls_per_case": 1,
+  "sha256": {
+    "hard.json": "09692a365e373e2b35a41f933dbe3e4999b248e3e65b22c238a96dc3f49e8b46",
+    "heldout-cases.json": "e536c6314c1609fa8f396823705ce877320202819c5a71a5e071918decbc05de",
+    "pr115-prompts.json": "add534ad74f7e9cbde59bb3b7c55bdc81e0b5419f8e49e0b57a06d9c83422e57",
+    "run.py": "efbc56c55ada3cd40b5fd3d8fcaf1c6bf94419b5a8c07d2031732c1e79939a81",
+    "pr115.mts": "fc773ba4714763afd087a0c69eef29574c15b5f7dcf187011db8aab80c036682",
+    "pr115-run.py": "f8ba73906df14f22a69e85065c0a3d5985079ef4ecd48bc4898e1fb1e3d7d534"
+  },
+  "native_sha256": {
+    "packages/judges/src/prompt.ts": "e8cf6fee79af172c82a3c77ea6f53b3ece1a228c1be9f8aeed47ebceb19b9882",
+    "packages/judges/src/contract.ts": "0f55a6cf4a9e98a76f1d563f4cb99b1a9f9f6fb2a92466308b5ae3a9a302d22c",
+    "packages/judges/src/criterion-ledger.ts": "ddf3123291029ca6a0d702e333369418595d68cf3c6c218670089aaa9d2d554c",
+    "packages/judges/src/assessment.ts": "2938653c1b490c1d6d1c3a32905d27fe31c6c1651887199d0354f7a09fd5e7ae",
+    "packages/judges/src/evidence.ts": "9ccc828ddb081b9bebd2052191c2271d98203d282ee1edb28fac4d250237db5f",
+    "packages/judges/src/transcript.ts": "5c709a63d0f000a6f531f8b4868aa334a6ff4fd1cdfcc79a66fb868c8a6c146d"
+  },
+  "repair": "exact run.py parse and repair_quotes, unchanged from the four prior rows",
+  "default_contract": "no answerContract, requirements, assessment, factAudit or system overrides"
+}

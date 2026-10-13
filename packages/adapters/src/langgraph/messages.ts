@@ -1,4 +1,4 @@
-import { isPlainObject, type Message, type Segment } from '@driftbench/core';
+import { isPlainObject, type Message, type Segment } from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   errorOf,
@@ -176,7 +176,7 @@ export function mapMessages(messages: readonly unknown[], usage: Usage, toolLabe
         const id = call.id ?? `call-${++unnamed}`;
         const label = toolLabels.label(call.name ?? 'tool');
         labels.set(id, label);
-        segments.push({ type: 'tool_call', id, label, input: call.args ?? {}, ...take() });
+        segments.push({ type: 'tool_call', id, label, input: call.args ?? null, ...take() });
       }
     } else if (kind === 'tool') {
       const id = message.tool_call_id ?? `call-${++unnamed}`;

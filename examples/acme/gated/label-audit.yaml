@@ -4,8 +4,8 @@
 families:
   - family: boundary
     sample:
-      - block: gen-boundary-058#b1-needs-to-identify
-        path: boundary/gen-boundary-058.yaml
+      - block: gen-boundary-063#b1-needs-to-identify
+        path: boundary/gen-boundary-063.yaml
         cell:
           stage_transition: needs-to-identify
           stage: identify
@@ -22,8 +22,8 @@ families:
             - flow.upgrade
         label_correct: null
         note: null
-      - block: gen-boundary-060#b2-identify-to-offer
-        path: boundary/gen-boundary-060.yaml
+      - block: gen-boundary-065#b2-identify-to-offer
+        path: boundary/gen-boundary-065.yaml
         cell:
           stage_transition: identify-to-offer
           account_lookup: plan-not-in-catalog
@@ -44,8 +44,8 @@ families:
           lang: EN
         label_correct: null
         note: null
-      - block: gen-boundary-079#b3-offer-to-callback
-        path: boundary/gen-boundary-079.yaml
+      - block: gen-boundary-084#b3-offer-to-callback
+        path: boundary/gen-boundary-084.yaml
         cell:
           stage_transition: offer-to-callback
           stage: callback

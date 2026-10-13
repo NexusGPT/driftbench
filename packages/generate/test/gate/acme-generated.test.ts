@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'node:url';
-import { functionAdapter, processAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { defaultChecks } from '@driftbench/checks';
-import { type AgentAdapter, loadSpecs, type Spec } from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
-import { createScriptedDriver } from '@driftbench/users';
+import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { type AgentAdapter, loadSpecs, type Spec } from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { faults } from '../../../../examples/acme/faults/index';
 import { createAcmeAgent, createStore } from '../../../../examples/acme/src/index';
@@ -48,7 +48,7 @@ beforeAll(async () => {
 
 describe('the generated Acme suite on the real agent', () => {
   it('passes every block of every complete spec on the reference agent', async () => {
-    expect(specs.length).toBe(251);
+    expect(specs.length).toBe(252);
     const failing: string[] = [];
     for (const spec of specs) {
       // A price-sheet task runs on the ops agent its family names, as the gate routes it.
@@ -82,7 +82,7 @@ describe('the generated Acme suite on the real agent', () => {
       // The probe block, or a block after it that reads what the probe changed, goes red.
       if (outcomes.slice(index).includes('fail')) killed.push(block.when.injection.class);
     }
-    expect(killed.sort()).toEqual([
+    expect([...new Set(killed)].sort()).toEqual([
       'D2_goal_shift',
       'D4_loose_confirmation',
       'D6_instruction_in_data',

@@ -1,6 +1,6 @@
 import { existsSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { type RunResult, runSpec, type Spec } from '@driftbench/core';
+import { type RunResult, runSpec, type Spec } from '@agent-nexus/driftbench-core';
 import {
   createPerturbingDriver,
   DEVIATIONS,
@@ -8,7 +8,7 @@ import {
   deviationClassOf,
   loadRedteamPack,
   type PerturbingDriver,
-} from '@driftbench/users';
+} from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

@@ -1,4 +1,4 @@
-import { isPlainObject, type Message, type Segment } from '@driftbench/core';
+import { isPlainObject, type Message, type Segment } from '@agent-nexus/driftbench-core';
 import { errorOf, outputText, readToolText, type ToolLabels, type ToolOutcome } from '../anthropic/common';
 import { contentText, parseArguments } from '../shared';
 
@@ -158,7 +158,7 @@ export function mapItems(items: readonly RunItemLike[], toolLabels: ToolLabels):
         const id = call(
           raw,
           label,
-          raw.arguments === undefined ? (raw.action ?? {}) : parseArguments(raw.arguments),
+          raw.arguments === undefined ? (raw.action ?? null) : parseArguments(raw.arguments),
         );
         if (raw.output !== undefined) result(id, label, readOutput(raw.output));
         break;

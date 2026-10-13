@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
-import { type AgentAdapter, outcomeOf, type PlannedCell, runSpec } from '@driftbench/core';
+import { type AgentAdapter, outcomeOf, type PlannedCell, runSpec } from '@agent-nexus/driftbench-core';
 import {
   BUDGET_FILE,
   Budget,
@@ -13,7 +13,7 @@ import {
   SEALED_NOTE,
   SealedBundle,
   spendQuery,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

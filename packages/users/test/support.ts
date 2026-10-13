@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
-import { functionAdapter, processAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { defaultChecks } from '@driftbench/checks';
+import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type BlockResult,
@@ -12,8 +12,8 @@ import {
   type Spec,
   type UserDriver,
   validateSpec,
-} from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import {
   type AcmeAgent,
   type AcmeStore,

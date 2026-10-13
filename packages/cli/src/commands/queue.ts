@@ -9,9 +9,9 @@ import {
   readLabelFile,
   readQueue,
   writeQueue,
-} from '@driftbench/judges';
-import { type CampaignData, loadCampaign } from '@driftbench/report';
-import { openStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-judges';
+import { type CampaignData, loadCampaign } from '@agent-nexus/driftbench-report';
+import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 

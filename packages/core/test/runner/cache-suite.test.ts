@@ -26,19 +26,12 @@ describe('the cache key per suite', () => {
 });
 
 describe('each block records the cache key it was stored under', () => {
-  it('the block result carries a block key, the same one the cache holds it under', async () => {
-    const { blockCacheKey } = await import('../../src/runner/cache');
+  // The run that stores a block under this key and reads it back is in run.test.ts. A resolved Given
+  // always carries its prefix, the list the key reads message by message.
+  it('the block key is the block prefix and a SHA-256 digest, the form a block result carries', () => {
     expect(
-      typeof blockCacheKey({
-        specHash: 'h',
-        repeat: 0,
-        position: 0,
-        given: {} as never,
-        stimulus: { user: 'x' },
-        target: { adapter: 'a' },
-        adapter: 'a',
-        adapterVersion: 'v',
-      }),
-    ).toBe('string');
+      blockCacheKey({ ...parts, given: { ...parts.given, prefix: [{ role: 'user', content: 'x' }] } }),
+    ).toMatch(/^block:[0-9a-f]{64}$/);
+    expect(blockCacheKey(parts)).toMatch(/^block:[0-9a-f]{64}$/);
   });
 });

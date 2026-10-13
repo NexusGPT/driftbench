@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-deviation-002
-version: b583de68c530
+version: 6d29ed7a7539
 kind: conversation
 title: "Deviation probe D2_goal_shift: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D2_goal_shift at recap"
 channel: chat
@@ -149,7 +149,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: b583de68c530
+      hash: 6d29ed7a7539
     path: order-named-plan
     cell:
       flow: order

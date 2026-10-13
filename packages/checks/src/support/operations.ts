@@ -1,5 +1,5 @@
-import type { CheckContext, ToolCall } from '@driftbench/core';
-import { isZero } from '@driftbench/core';
+import type { CheckContext, ToolCall } from '@agent-nexus/driftbench-core';
+import { isZero } from '@agent-nexus/driftbench-core';
 import { commandsOf } from './executions';
 import { isRecord, normalizePath as normalize } from './values';
 

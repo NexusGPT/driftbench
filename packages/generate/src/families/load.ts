@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { READERS } from '@driftbench/artifacts';
+import { READERS } from '@agent-nexus/driftbench-artifacts';
 import { parse as parseYaml, stringify } from 'yaml';
 import {
   type Condition,

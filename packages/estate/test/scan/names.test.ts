@@ -122,7 +122,7 @@ describe('alias tables', () => {
 });
 
 describe('the reader-cases names', () => {
-  it('resolves the bare name and the alias, and reports the shared name as ambiguous', async () => {
+  it('resolves a shared bare name in the local subtree before other skills, and resolves the alias', async () => {
     const { map, raw } = await scanEstate({ root: CASES, reader: new ClaudeCodeReader(), now: NOW });
     const references = Object.fromEntries(
       map.atoms
@@ -142,9 +142,12 @@ describe('the reader-cases names', () => {
     const ambiguous = lintEstate(map, raw).findings.filter(
       (finding) => finding.code === 'AMBIGUOUS_REFERENCE',
     );
-    expect(ambiguous.map((finding) => finding.message)).toEqual([
-      '.claude/skills/shipment-tracker/SKILL.md:12 names .claude/skills/shipment-tracker/notes.md, which several files could be: .claude/skills/parcel-claims/references/notes.md, .claude/skills/shipment-tracker/references/notes.md',
-    ]);
+    expect(references['.claude/skills/shipment-tracker/SKILL.md:12']).toMatchObject({
+      path: '.claude/skills/shipment-tracker/references/notes.md',
+      exists: true,
+      resolvedBy: 'suffix',
+    });
+    expect(ambiguous).toEqual([]);
     expect(lintEstate(map, raw).counts.MISSING_REFERENCE).toBe(0);
   });
 

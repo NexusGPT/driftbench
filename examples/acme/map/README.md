@@ -5,7 +5,7 @@ counts until it is approved; code enumerates blocks later from the approved entr
 
 | File | What it is |
 |---|---|
-| `proposal.yaml` | the proposal: 46 dimensions (177 values), 111 constraints, 51 phrases and 71 relations, nothing approved |
+| `proposal.yaml` | the proposal: 51 dimensions (182 values), 111 constraints, 51 phrases and 71 relations, nothing approved |
 | `approved.yaml` | the same proposal with every flag set, by `extract approve --all` (approved on the owner's delegation for the fictional demo, by the extract lane and then by the generate2 lane) |
 | `space.yaml` | the space map of the approved axes, by `extract map`: what `driftbench space` reads |
 | `tools.yaml` | the five Acme tools as JSON Schema, written from `src/tools.ts` |
@@ -45,7 +45,7 @@ relations rule out: 180180 cells, 374 constraints. A person may flip any role; `
 grid it gives.
 
 The proposal is a valid space map at every step (`toSpaceMap`, then `validateSpaceMap` from
-`@driftbench/space`): one stage, deviation and channel dimension each, value ids unique per kind (so tool
+`@agent-nexus/driftbench-space`): one stage, deviation and channel dimension each, value ids unique per kind (so tool
 values carry their dimension, such as `coverage.check.out.found.true`), and `none` added to the deviations.
 
 ## Approving it

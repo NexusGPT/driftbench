@@ -1,5 +1,5 @@
-import type { DeviationClass, DriftClass } from '@driftbench/core';
-import { type FaultDef, rngFor, type ThenField } from '@driftbench/generate';
+import type { DeviationClass, DriftClass } from '@agent-nexus/driftbench-core';
+import { type FaultDef, rngFor, type ThenField } from '@agent-nexus/driftbench-generate';
 import {
   compose,
   createFollower,

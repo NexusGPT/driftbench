@@ -1,4 +1,4 @@
-import { mulberry32 } from '@driftbench/stats';
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { clustered } from '../src/estimate';
 

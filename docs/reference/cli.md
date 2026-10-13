@@ -4,7 +4,7 @@
 
 ## Running it
 
-The package is not on npm yet: version 0.1.0 is prepared as `@driftbench/cli` and not published (see [Releasing](../releasing.md)). From a clone of the repository:
+The package is not on npm yet: version 0.1.0 is prepared as `@agent-nexus/driftbench` and not published (see [Releasing](../releasing.md)). From a clone of the repository:
 
 ```sh
 pnpm install
@@ -455,8 +455,8 @@ Proposes the map of situations from an agent's prompt or policy, its inventory a
 
 ```
 $ pnpm -s driftbench extract approve examples/acme/map/proposal.yaml
-examples/acme/map/proposal.yaml: 279 of 279 decisions are open (46 dimensions, 111 constraints, 51 phrases, 71 relations).
-Axes: 7 of 46 dimensions, a full grid of 96096 cells (the space commands accept 250000).
+examples/acme/map/proposal.yaml: 284 of 284 decisions are open (51 dimensions, 111 constraints, 51 phrases, 71 relations).
+Axes: 7 of 51 dimensions, a full grid of 96096 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
   dimension   deviation  deviation axis, by code, 10 values: The deviation classes the flows must be perturbed with
@@ -485,7 +485,7 @@ A proposal that does not load reports `PROPOSAL_PARSE`, `PROPOSAL_NOT_OBJECT`, `
 ## `driftbench generate`
 
 ```
-driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--tasks <n>] [--baseline <path>]... [--force] [--json]
+driftbench generate --map <file> --out <dir> [--t <n>] [--seed <n>] [--max <n>] [--budget <n>] [--spec-cap <n>] [--spec-cap-mode tuples|pairs] [--tasks <n>] [--baseline <path>]... [--force] [--json]
                     [--model --reference <adapter:agent>... --faults <set> [--proposals <n>] [--k <n>]]
 ```
 
@@ -498,6 +498,9 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--t <n>` | the strength of the covering array; default 3 |
 | `--seed <n>` | the integer seed of every seeded choice; default 1 |
 | `--max <n>` | the most specs per seeder |
+| `--budget <n>` | budget mode: N conversations in place of the t-wise rows, placed by pair coverage first and value balance second; the other seeders are unchanged. Adds a `budget` block to the report. See [budget mode](../generating.md#budget-mode) |
+| `--spec-cap <n>` | total written specs; keeps structural, fault and incomplete specs, then selects actual tuple coverage. See [total spec cap](../generating.md#total-spec-cap) |
+| `--spec-cap-mode <mode>` | `tuples` by default; `pairs` explicitly permits reported triple losses. Requires `--spec-cap` |
 | `--tasks <n>` | instances built per task family the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
@@ -510,7 +513,7 @@ On the approved Acme map:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
-Map acme (../../../../examples/acme/map/approved.yaml), hash b583de68c530: 46 dimensions, 180 values, 457 constraints, 51 approved phrases.
+Map acme (../../../../examples/acme/map/approved.yaml), hash 6d29ed7a7539: 51 dimensions, 185 values, 457 constraints, 51 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
@@ -977,7 +980,7 @@ driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] 
 driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
 driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
 driftbench estate unit <specs...> --estate <root> --json                      (not built yet)
-driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json   (not built yet)
+driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json
 ```
 
 | Command | Does |
@@ -993,7 +996,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `estate generate` | generates task specs from an approved plan, by code: one or more specs per plan row, with `estate-generate-report.json` and `run-order.txt`. With no approved phrase for a row, code writes the ask from the atoms (tag `ask:code`); with no declared outcome, the outcome is read from the atoms (no change, or nothing deleted). `--no-fallback` turns both off. `--focus` lists atom ids whose complete specs come first in the run order, then guards, gates and invariants |
 | `estate static` | runs the static tests `estate generate` writes under `static/` (one per invariant and per setting) against an estate root, read again by code with no run of the agent: an invariant must still hold, a setting must still be declared with its value. Exit 0 all pass, 1 one fails, 2 usage or input error |
 | `estate unit` | not built yet. Runs the unit-mode specs (guards on synthetic events, scripts on their fixtures) against an estate root and prints `runs`, `guards` and `scripts` as JSON; the shape is in [estate](../estate.md#unit-live-and-estate-mutants). Exit 0 all pass, 1 one fails, 2 usage or input error |
-| `estate stats` | not built yet. Prints the coverage lines of an estate as JSON: per atom kind the approved atoms, those with a complete spec and those a guard enforces; cells and edges covered; reach, decay and the deny rate per guard (drift) from recorded sessions. The shape is in [estate](../estate.md#the-coverage-command-estate-stats-contract-not-built-yet). Exit 0 printed, 2 usage or input error |
+| `estate stats` | Prints the coverage lines of an estate as JSON: per atom kind the approved atoms, those with a complete spec and those a guard enforces; cells and edges covered; reach for skills, references, guards and subagents, a not-observable count for the other approved atoms, decay and the deny rate per guard (drift) from recorded sessions. The shape is in [estate](../estate.md#the-coverage-command-estate-stats-contract). Exit 0 printed, 2 usage or input error |
 | `estate run` | runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate pinned to its map; see [estate run and estate mutate](#driftbench-estate-run-and-driftbench-estate-mutate) |
 | `estate mutate` | copies the estate and deletes or inverts one atom in the copy, for the adequacy of its tests |
 
@@ -1161,7 +1164,7 @@ Runs a validator ladder: the levels in order, stopping at the first failing leve
 | `--seeds <a..b>` | a range of visible seeds, such as `1..20` |
 | `--hidden` | add the hidden seed derived from `git rev-parse HEAD` |
 | `--json` | print the report as JSON |
-| `--check-floor` | exit 1 when a run is below its floor in `validators/floors.json`, else 0 |
+| `--check-floor` | compute through each positive applicable floor in `validators/floors.json`; floor 0 keeps the ordinary walk; exit 1 below a floor, else 0 |
 | `--raise <component>` | with `floors`: raise the floor of this component to `<level>` |
 | `--evidence <json>` | with `floors --raise`: the `--json` run that reaches the level |
 | `--brief` | print `validators/EXECUTOR.md` with the live state of the loop embedded |
@@ -1189,7 +1192,7 @@ The run reaches level 2, so the command exits 2.
 
 ```
 $ pnpm -s driftbench validate floors
-Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 1 (ladder version 1).
+Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 7 (ladder version 2), system = 7 (ladder version 5).
 ```
 
 | Exit code | When |
@@ -1367,7 +1370,7 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
-Pool: 198 unsealed specs; 60 sealed specs left out; 4 gate files that are not specs skipped.
+Pool: 200 unsealed specs; 58 sealed specs left out; 4 gate files that are not specs skipped.
 Cover: 106 conversations cover every cell the pool covers (598 of 637).
 (the ranked table)
 Cells covered: 306 of 637 allowed pairs (48.0%); the pool covers 598.
@@ -1462,8 +1465,8 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 | `battery run` | the runtime battery on agent traces | 4 |
 | a rerun of one stored cell | run one cell of a stored campaign again | no phase assigned |
 | `init` | start a project | no phase assigned |
-| `judge lint` | lint the rubric of every criterion in a folder (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
-| `judge compare` | judge two runs of the same specs side by side, in both orders, and report the winner per criterion and the position bias (see [judges, Planned](../concepts/judges.md#planned)) | no phase assigned |
+| `judge lint` | lint the rubric of every criterion in a folder (see [judges, Additional APIs](../concepts/judges.md#additional-judge-apis)) | no phase assigned |
+| `judge compare` | judge two runs of the same specs side by side, in both orders, and report the winner per criterion and the position bias (see [judges, Additional APIs](../concepts/judges.md#additional-judge-apis)) | no phase assigned |
 | `spec synth` | specs from traffic clusters | no phase assigned |
 
 ## `driftbench campaign run --cache-suite`

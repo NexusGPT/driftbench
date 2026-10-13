@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url';
-import { functionAdapter } from '@driftbench/adapters';
-import { defaultChecks } from '@driftbench/checks';
-import { type AgentAdapter, type LoadedSpec, loadSpecs, validateSpec } from '@driftbench/core';
-import { mulberry32 } from '@driftbench/stats';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { type AgentAdapter, type LoadedSpec, loadSpecs, validateSpec } from '@agent-nexus/driftbench-core';
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
 import {
   createRandomAgent,
   type RandomAgentOptions,

@@ -4,7 +4,7 @@ import {
   type Message,
   retryDecision,
   type Session,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { toChatMessages } from '../src/http/chat';
 import { httpAdapter } from '../src/http/index';
@@ -203,7 +203,7 @@ describe('http adapter', () => {
     ]);
     expect(observed.toolCalls).toEqual([
       { id: 'a', label: 'coverage.check', input: { address: 'x' }, output: { found: false }, latencyMs: 40 },
-      { id: 'b', label: 'catalog.search', input: {}, error: 'catalog offline' },
+      { id: 'b', label: 'catalog.search', input: '', error: 'catalog offline' },
     ]);
     expect(observed.text).toBe('Let me check.\nNo coverage there.');
     expect(observed.cost).toEqual({ inputTokens: 10, outputTokens: 3 });

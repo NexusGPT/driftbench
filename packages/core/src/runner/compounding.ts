@@ -3,12 +3,12 @@ import type { Spec } from '../schema/spec';
 import { canonicalJson } from '../spec/hash';
 import { replacesBlock } from './inject';
 
-/** A point estimate with its two-sided interval, the shape `@driftbench/stats` returns. */
+/** A point estimate with its two-sided interval, the shape `@agent-nexus/driftbench-stats` returns. */
 export type IntervalEstimate = { estimate: number; lower: number; upper: number };
 
 /**
  * Computes an interval on the mean of `values`, resampling by `clusters` (one key per value). The core
- * imports no statistics; the caller passes one, such as `bootstrapCI` of `@driftbench/stats`:
+ * imports no statistics; the caller passes one, such as `bootstrapCI` of `@agent-nexus/driftbench-stats`:
  * `(values, clusters) => bootstrapCI(values, { clusters })`.
  */
 export type IntervalFn = (values: readonly number[], clusters: readonly string[]) => IntervalEstimate;

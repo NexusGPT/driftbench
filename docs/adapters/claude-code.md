@@ -61,7 +61,7 @@ A block runs from one typed user message to the next. Tool results, injected mes
 | text | the assistant's text blocks, joined by a blank line |
 | cost | the usage of each model message, counted once per message id |
 
-A block's time window runs from its user message to the next one; a row earlier than the first block goes to the first block. Read paths stay in the Read calls' input, so the ordered-pair check sees a read before a write. A compaction boundary is a marker in the block's `raw.markers`, with the number of tool calls before it. Every record not mapped (thinking, snapshots, helper records, unknown types, lines that are not JSON) is kept in `raw.kept` of its block, or in `meta.preamble` before the first turn, with its line and the reason.
+A block's time window runs from its user message to the next one; a row earlier than the first block goes to the first block. An early stage row carries `carried: true` in `runtime.stages`: it preserves the stage used by `expect.stage`, but cannot satisfy `expect.stage_reported: true`. A stage row at the user message's timestamp belongs to that block and counts as a report. Read paths stay in the Read calls' input, so the ordered-pair check sees a read before a write. A compaction boundary is a marker in the block's `raw.markers`, with the number of tool calls before it. Every record not mapped (thinking, snapshots, helper records, unknown types, lines that are not JSON) is kept in `raw.kept` of its block, or in `meta.preamble` before the first turn, with its line and the reason.
 
 A saved transcript usually holds no init record, so its blocks carry no offered tools, and a `tools_offered` expectation is inconclusive on them: it neither passes nor fails. A capture of a headless run's stream (`--output-format stream-json --verbose`, as the live runner reads it) starts with the init record, so a replay of it reports what was offered, and a deny rule that removes a tool shows as a failing `tools_offered` verdict.
 
@@ -72,7 +72,7 @@ Without a decision log, `runtime.guards` is absent, and without a step feed, `ru
 `replayAdapter({ session, fromBlock, files })` serves a mapped session to the runner, block by block, with no model call. Its id is `claude-code`. With `files`, the folder the session left, it also reads artifacts from there (a bounded read that refuses a path outside the folder), so the artifact checks open the files the agent produced.
 
 ```ts
-import { readSession, replayAdapter } from '@driftbench/adapters';
+import { readSession, replayAdapter } from '@agent-nexus/driftbench-adapters';
 
 const session = await readSession({
   transcript: 'examples/estates/sessions/gate-violated.jsonl',
@@ -125,7 +125,7 @@ blocks:
       execution: { ran_code: true, exit_code: 0 }
 ```
 
-`session` is the transcript's file name without `.jsonl`, or its path, and `from_block` the session block the spec's first block reads (default 0). `before` and `after` go together: the folders the workspace held before and after the session, relative to the transcript's folder, so a corpus can move. With them, the last block's workspace diff is the diff of the two trees, and the artifact checks read the produced files from the `after` folder with the readers of `@driftbench/artifacts`. The spec's `workspace_seed` is what a live run would start from; replay reads the trees instead. A spec that names files in `expect.references` gets its session read again with those paths, so a read of any of them is a reference too. A spec without the key reads, in file order, the next session given, from block 0. A decision log or a step feed belongs to the session whose file name starts its own (`gate-violated.decisions.jsonl` for `gate-violated.jsonl`).
+`session` is the transcript's file name without `.jsonl`, or its path, and `from_block` the session block the spec's first block reads (default 0). `before` and `after` go together: the folders the workspace held before and after the session, relative to the transcript's folder, so a corpus can move. With them, the last block's workspace diff is the diff of the two trees, and the artifact checks read the produced files from the `after` folder with the readers of `@agent-nexus/driftbench-artifacts`. The spec's `workspace_seed` is what a live run would start from; replay reads the trees instead. A spec that names files in `expect.references` gets its session read again with those paths, so a read of any of them is a reference too. A spec without the key reads, in file order, the next session given, from block 0. A decision log or a step feed belongs to the session whose file name starts its own (`gate-violated.decisions.jsonl` for `gate-violated.jsonl`).
 
 The seven fixture sessions and their suite, from the repository root:
 
