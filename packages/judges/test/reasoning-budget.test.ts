@@ -169,3 +169,89 @@ it('rejects unsupported or invalid budget options before network access', () => 
     }),
   ).toThrow(/tokenBudget/);
 });
+
+it('returns cumulative usage, priced cost, request count and retry reason', async () => {
+  const f = fixture('openai');
+  const result = await createOpenAiJudge({
+    model: 'fictional',
+    env,
+    fetch: async (url, init) => {
+      const r = await f.fetch(url, init);
+      const p = (await r.json()) as Record<string, unknown>;
+      if (f.bodies.length === 2) p.usage = { prompt_tokens: 2, completion_tokens: 4 };
+      return new Response(JSON.stringify(p));
+    },
+    metering: { costOfUsage: (u) => (u.output ?? 0) / 1000000, maxCostUsd: 0.1, maxRetryCostUsd: 0.04 },
+  }).judge(request);
+  expect(result.requestCount).toBe(2);
+  expect(result.reaskReason).toBe('reasoning-budget-exhausted');
+  expect(result.costUsd).toBeCloseTo(0.008196);
+  expect(result.usage).toEqual({ input: 12, output: 8196 });
+});
+it('does not send a recovery outside the caller spend cap', async () => {
+  const f = fixture('google');
+  await expect(
+    createDialectTransport({
+      provider: 'google',
+      model: 'fictional',
+      env,
+      fetch: f.fetch,
+      metering: { costOfUsage: (u) => (u.output ?? 0) / 1000000, maxCostUsd: 0.005, maxRetryCostUsd: 0.004 },
+    }).complete({ system: 'Assess.', user: 'Hello.' }),
+  ).rejects.toMatchObject({
+    code: 'reasoning-budget-exhausted',
+    requestCount: 1,
+    costUsd: 0.004092,
+    recovery: { retrySkipped: 'spend-cap' },
+  });
+  expect(f.bodies).toHaveLength(1);
+});
+it('retains the first paid receipt when recovery has a transport failure', async () => {
+  let count = 0;
+  await expect(
+    createOpenAiJudge({
+      model: 'fictional',
+      env,
+      maxRetries: 0,
+      fetch: async () => {
+        if (count++) throw Error('offline');
+        return new Response(JSON.stringify(empty.openai));
+      },
+    }).judge(request),
+  ).rejects.toMatchObject({
+    code: 'reasoning-budget-exhausted',
+    requestCount: 2,
+    recovery: { attempts: [{ usage: { output: 8192 } }] },
+  });
+});
+it('lowers an explicitly configured numeric thinking budget on recovery', async () => {
+  const f = fixture('google');
+  await createGoogleJudge({
+    model: 'fictional',
+    env,
+    fetch: f.fetch,
+    tokenBudget: { answerTokens: 1024, reasoningTokens: 8192, googleThinkingBudget: true },
+  }).judge(request);
+  expect(f.bodies[1]?.generationConfig.thinkingConfig.thinkingBudget).toBeLessThan(8192);
+});
+it('recovers the later Gemini thinking exhaustion with a short partial answer', async () => {
+  let calls = 0;
+  const result = await createGoogleJudge({
+    model: 'fictional',
+    env,
+    reasoning: 'medium',
+    fetch: async () =>
+      new Response(
+        JSON.stringify(
+          calls++
+            ? ok.google
+            : {
+                candidates: [{ content: { parts: [{ text: '{"checks":[' }] }, finishReason: 'MAX_TOKENS' }],
+                usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 318, thoughtsTokenCount: 7860 },
+              },
+        ),
+      ),
+  }).judge(request);
+  expect(result.answer.outcome).toBe('pass');
+  expect(calls).toBe(2);
+});

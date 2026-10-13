@@ -1,4 +1,4 @@
-import type { TokenBudget } from './clients/reasoning-budget';
+import type { ReasoningMetering, TokenBudget } from './clients/reasoning-budget';
 import type { JudgeClass, JudgeRequest, JudgeResult } from './contract';
 import type { HttpOptions } from './http';
 
@@ -40,6 +40,8 @@ export type ClientOptions = HttpOptions & {
   env?: Record<string, string | undefined>;
   /** Opt-in separate answer allowance and reasoning headroom. */
   tokenBudget?: TokenBudget;
+  /** Caller pricing and conservative spend reservation for response-driven recovery. */
+  metering?: ReasoningMetering;
   /** The vote name. Default the client kind, such as `openai`. */
   id?: string;
   /** The model, when the variable that names it is not set. */

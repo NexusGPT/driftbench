@@ -121,22 +121,39 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         sent = await send(false);
       }
 
-      const { payload, recovery } = sent;
+      const { payload, recovery, accounting } = sent;
       const choice = isRecord(payload) && Array.isArray(payload.choices) ? payload.choices[0] : undefined;
       const message = isRecord(choice) ? choice.message : undefined;
       const raw = JSON.stringify(payload);
       if (!isRecord(choice) || !isRecord(message)) {
-        return { answer: inconclusive(`${model} answered without a choice`), raw, unparsed: true };
+        return {
+          answer: inconclusive(`${model} answered without a choice`),
+          raw,
+          unparsed: true,
+          ...accounting,
+          ...(recovery ? { recovery } : {}),
+        };
       }
       if (typeof message.refusal === 'string' && message.refusal !== '') {
-        return { answer: inconclusive(`${model} declined: ${message.refusal}`), raw };
+        return {
+          answer: inconclusive(`${model} declined: ${message.refusal}`),
+          raw,
+          ...accounting,
+          ...(recovery ? { recovery } : {}),
+        };
       }
       if (choice.finish_reason === 'content_filter') {
-        return { answer: inconclusive(`${model} declined: its content filter stopped the answer`), raw };
+        return {
+          answer: inconclusive(`${model} declined: its content filter stopped the answer`),
+          raw,
+          ...accounting,
+          ...(recovery ? { recovery } : {}),
+        };
       }
       const content = contentText(message.content);
-      if (choice.finish_reason === 'length') return truncated(content, model);
-      return { ...parseJudgeText(content, request), ...(recovery ? { recovery } : {}) };
+      if (choice.finish_reason === 'length')
+        return { ...truncated(content, model), ...(recovery ? { recovery } : {}), ...accounting };
+      return { ...parseJudgeText(content, request), ...(recovery ? { recovery } : {}), ...accounting };
     },
   };
 }
@@ -234,7 +251,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('google', { ...prompt, schema: responseSchema(request), reasoning }).payload
         : undefined;
-      const { payload, recovery } = await postReasoningJson(
+      const { payload, recovery, accounting } = await postReasoningJson(
         'google',
         url,
         { 'x-goog-api-key': key },
@@ -270,10 +287,18 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         return {
           answer: inconclusive(`${model} declined: the prompt was blocked (${feedback.blockReason})`),
           raw,
+          ...accounting,
+          ...(recovery ? { recovery } : {}),
         };
       }
       if (!isRecord(candidate)) {
-        return { answer: inconclusive(`${model} answered without a candidate`), raw, unparsed: true };
+        return {
+          answer: inconclusive(`${model} answered without a candidate`),
+          raw,
+          unparsed: true,
+          ...accounting,
+          ...(recovery ? { recovery } : {}),
+        };
       }
       const content = candidate.content;
       const parts = isRecord(content) && Array.isArray(content.parts) ? content.parts : [];
@@ -282,10 +307,16 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
           isRecord(part) && part.thought !== true && typeof part.text === 'string' ? part.text : '',
         )
         .join('');
-      if (candidate.finishReason === 'MAX_TOKENS') return truncated(text, model);
+      if (candidate.finishReason === 'MAX_TOKENS')
+        return { ...truncated(text, model), ...(recovery ? { recovery } : {}), ...accounting };
       if (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'RECITATION')
-        return { answer: inconclusive(`${model} declined the request`), raw };
-      return { ...parseJudgeText(text, request), ...(recovery ? { recovery } : {}) };
+        return {
+          answer: inconclusive(`${model} declined the request`),
+          raw,
+          ...accounting,
+          ...(recovery ? { recovery } : {}),
+        };
+      return { ...parseJudgeText(text, request), ...(recovery ? { recovery } : {}), ...accounting };
     },
   };
 }

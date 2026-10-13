@@ -34,6 +34,10 @@ export type DialectCompletionRequest = {
 };
 
 export type DialectCompletion = {
+  readonly requestCount?: number;
+  readonly reaskReason?: 'reasoning-budget-exhausted';
+  readonly usageComplete?: boolean;
+  readonly costComplete?: boolean;
   readonly recovery?: ReasoningRecovery;
   readonly text: string;
   readonly raw: string;
@@ -294,8 +298,12 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
       const sent =
         provider === 'openai' || provider === 'google'
           ? await postReasoningJson(provider, url, headers, body, options)
-          : { payload: await postJson(url, headers, body, options) };
-      const result = { ...identity, ...readCompletion(provider, sent.payload) };
+          : {
+              payload: await postJson(url, headers, body, options),
+              accounting: undefined,
+              recovery: undefined,
+            };
+      const result = { ...identity, ...readCompletion(provider, sent.payload), ...sent.accounting };
       if (sent.recovery)
         return {
           ...result,

@@ -111,6 +111,11 @@ export type ComparisonResult = {
 
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly usage?: import('./clients/usage').TokenUsage;
+  readonly requestCount?: number;
+  readonly reaskReason?: 'reasoning-budget-exhausted';
+  readonly usageComplete?: boolean;
+  readonly costComplete?: boolean;
   readonly recovery?: ReasoningRecovery;
   readonly pairLedger?: PairLedger;
   readonly parseSteps?: readonly LedgerParseStep[];
