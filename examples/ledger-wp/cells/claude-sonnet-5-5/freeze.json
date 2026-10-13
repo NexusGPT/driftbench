@@ -56,8 +56,8 @@
   },
   "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
   "files": {
-    "examples/ledger-wp/frontier.ts": "35af20093a2ea13bbbe967a3823ad9eb0bdef5c500529f1b1a703c426d6a14a7",
-    "examples/ledger-wp/frontier.test.ts": "88c4e2dfe0162a81d8054d6184b6bf13a1e72d0c40af02cd6ff826d340c779b7",
+    "examples/ledger-wp/frontier.ts": "a6a82427bc4d1ed51f5dd91f6fb3d3c4218603c41085d1884d8872a7eadf8175",
+    "examples/ledger-wp/frontier.test.ts": "76e9ed4808c136827d8be677becd19e5eaaf850272990093128d5fddfd1c0ae2",
     "examples/ledger-wp/frontier-report.py": "2f0930184a9d2e0173364f9b0b3f19c2e32567fdce9ec89f483f4757694170a3",
     "examples/ledger-wp/frontier-supervise.py": "6a91431e244f11aef280bf0ab7f38dab084842503b91975c99710d79f1e570b2",
     "examples/ledger-wp/frontier-wrapup.py": "89a31047dd1706c3c8fc09665001a736e6bd8547d39a74f6f780102e751cb3f1",
@@ -153,5 +153,10 @@
     "modelsChanged": false,
     "scoringChanged": false,
     "capsChanged": false
+  },
+  "native503RuntimeFix": {
+    "at": "2026-10-13T15:14:52.965473+00:00",
+    "reason": "Native Claude CLI reports HTTP 503 inside its error text without a separate httpStatus field. Recognize that representation in the same connection-class circuit breaker. Existing healthy run drained before edit; no TEST call yet. No prompt, input, model setting, scoring, sealed order or cap change. Resume through the existing ten-probe gate.",
+    "previousFreezeSha256": "9f80de887df299dfedb0cf599b5e72f9075579ae60986455dadb1f74b936783b"
   }
 }

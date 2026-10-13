@@ -17,7 +17,7 @@ const networkHold=resolve(HERE,'results/frontier-network-hold.json');
 const networkEvents=resolve(HERE,'results/frontier-network-events.jsonl');
 const networkControl=resolve(HERE,'results/frontier-network-control.json');
 const epochEvents=()=>rows(networkEvents).filter(e=>e.at>=(existsSync(networkControl)?load(networkControl).epochStart:''));
-export const connectionFailure=(entry:any)=>entry.httpStatus===503||/ECONNRESET|ECONNREFUSED|fetch failed|fetch failure|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|EADDRNOTAVAIL|UND_ERR|timed? ?out|timeout|connection dropped|connection refused/iu.test(entry.text??'');
+export const connectionFailure=(entry:any)=>entry.httpStatus===503||/\b503\b|ECONNRESET|ECONNREFUSED|fetch failed|fetch failure|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|EADDRNOTAVAIL|UND_ERR|timed? ?out|timeout|connection dropped|connection refused/iu.test(entry.text??'');
 export function shouldBreakNetwork(events:any[]) {
   // Latch any qualifying sequence, including a concurrent success appended before this reader runs.
   return events.some((event,i)=>event.connectionFailure&&events[i-1]?.connectionFailure===true&&events[i-2]?.connectionFailure===true);

@@ -22,6 +22,8 @@ assert.equal(args[args.indexOf('--tools')+1],'');
 assert.equal(args[args.indexOf('--setting-sources')+1],'');
 assert.equal(args[args.indexOf('--system-prompt')+1],'frozen prompt');
 assert(connectionFailure({text:'ECONNREFUSED'}));assert(connectionFailure({text:'fetch failed'}));assert(connectionFailure({httpStatus:503}));
+assert(connectionFailure({text:'API Error: 503 Service Unavailable'}));
+assert(!connectionFailure({text:'Provider 400: invalid request'}));
 assert.equal(shouldBreakNetwork([{connectionFailure:true,split:'dev'}]),false);
 assert.equal(shouldBreakNetwork([{connectionFailure:true},{connectionFailure:false},{connectionFailure:true,split:'dev'}]),false);
 assert.equal(shouldBreakNetwork([{connectionFailure:true},{connectionFailure:true,split:'dev'}]),false);

@@ -4,45 +4,45 @@
     {
       "model": "claude-sonnet-5-5",
       "contestant": "pair-ledger",
-      "pairs": 4,
-      "games": 8,
-      "correct": 4,
-      "accuracy": 50.0,
+      "pairs": 30,
+      "games": 60,
+      "correct": 36,
+      "accuracy": 60.0,
       "wilson95": [
-        21.521606221387756,
-        78.47839377861224
+        47.36605349204075,
+        71.43050946511744
       ],
-      "recipeUsd": 0.37468799999999997,
+      "recipeUsd": 2.629382,
       "graderErrors": 0,
-      "ties": 0,
-      "usdPer100Pairs": 9.367199999999999,
-      "usdPer100Games": 4.683599999999999,
+      "ties": 2,
+      "usdPer100Pairs": 8.764606666666667,
+      "usdPer100Games": 4.382303333333334,
       "comparison": {
-        "matchedPairs": 3,
-        "wins": 0,
-        "losses": 1,
-        "deltaPoints": -16.666666666666668,
+        "matchedPairs": 30,
+        "wins": 4,
+        "losses": 3,
+        "deltaPoints": 1.6666666666666667,
         "requestCluster95": [
-          -50.0,
-          0.0
+          -8.333333333333334,
+          12.903225806451612
         ],
         "mcnemarTwoSided": 1.0,
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       },
-      "projectedTestUsd": 16.205256,
+      "projectedTestUsd": 15.162769533333336,
       "controls": {
         "longer-wins": {
           "accuracy": 73.33333333333333,
-          "judgeLeadPoints": -23.33333333333333
+          "judgeLeadPoints": -13.333333333333329
         },
         "constant-FIRST": {
           "accuracy": 50.0,
-          "judgeLeadPoints": 0.0
+          "judgeLeadPoints": 10.0
         },
         "refusal-wins": {
           "accuracy": 0.0,
-          "judgeLeadPoints": 50.0
+          "judgeLeadPoints": 60.0
         }
       },
       "noise": {
@@ -96,32 +96,32 @@
     {
       "model": "claude-sonnet-5-5",
       "contestant": "promptfoo",
-      "pairs": 3,
-      "games": 6,
-      "correct": 3,
-      "accuracy": 50.0,
+      "pairs": 30,
+      "games": 60,
+      "correct": 35,
+      "accuracy": 58.333333333333336,
       "wilson95": [
-        18.76163064826506,
-        81.23836935173495
+        45.72808102264012,
+        69.93572144165839
       ],
-      "recipeUsd": 0.179226,
+      "recipeUsd": 1.3668500000000001,
       "graderErrors": 0,
       "ties": 0,
-      "usdPer100Pairs": 5.9742,
-      "usdPer100Games": 2.9871,
-      "projectedTestUsd": 10.335365999999999,
+      "usdPer100Pairs": 4.556166666666667,
+      "usdPer100Games": 2.2780833333333335,
+      "projectedTestUsd": 7.882168333333334,
       "controls": {
         "longer-wins": {
           "accuracy": 73.33333333333333,
-          "judgeLeadPoints": -23.33333333333333
+          "judgeLeadPoints": -14.999999999999993
         },
         "constant-FIRST": {
           "accuracy": 50.0,
-          "judgeLeadPoints": 0.0
+          "judgeLeadPoints": 8.333333333333336
         },
         "refusal-wins": {
           "accuracy": 0.0,
-          "judgeLeadPoints": 50.0
+          "judgeLeadPoints": 58.333333333333336
         }
       },
       "noise": {
