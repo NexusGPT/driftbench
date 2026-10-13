@@ -1,0 +1,77 @@
+{
+  "rows": [
+    {
+      "id": "7225b2d4f79d",
+      "solver": [
+        "disproved",
+        "disproved"
+      ],
+      "response": "disproved",
+      "base": true,
+      "new": true,
+      "official": true,
+      "audited": true
+    },
+    {
+      "id": "3c59c6f19c05",
+      "solver": [
+        "disproved",
+        "disproved"
+      ],
+      "response": "proved",
+      "base": false,
+      "new": false,
+      "official": false,
+      "audited": false
+    },
+    {
+      "id": "97420293b650",
+      "solver": [
+        "proved",
+        "proved"
+      ],
+      "response": "proved",
+      "base": false,
+      "new": true,
+      "official": true,
+      "audited": true
+    },
+    {
+      "id": "52fc2d3ed065",
+      "solver": [
+        "disproved",
+        "disproved"
+      ],
+      "response": "proved",
+      "base": false,
+      "new": false,
+      "official": false,
+      "audited": false
+    },
+    {
+      "id": "1bd8144011c3",
+      "solver": [
+        "unknown",
+        "disproved"
+      ],
+      "response": "disproved",
+      "base": true,
+      "new": true,
+      "official": true,
+      "audited": true
+    },
+    {
+      "id": "5dfb02d5ff70",
+      "solver": [
+        "unknown",
+        "unknown"
+      ],
+      "response": "proved",
+      "base": false,
+      "new": false,
+      "official": false,
+      "audited": false
+    }
+  ],
+  "cost": 0.02763515
+}

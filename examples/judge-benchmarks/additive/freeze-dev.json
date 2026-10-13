@@ -1,0 +1,31 @@
+{
+  "status": "frozen-dev-only",
+  "design": "cascade+M4",
+  "rule": "Use the frozen cascade unless both recorded M4 formalisations agree on a non-unknown result; then compare that result to the submitted response. No learned block veto.",
+  "official": 80,
+  "audited": 90,
+  "n": 95,
+  "fixes": [
+    "97420293b650"
+  ],
+  "breaks": [],
+  "newFalseRejections": [],
+  "baseline": "driftbench-verify-uncertainty-cascade",
+  "parent": "06c2dd86",
+  "preregistrationCommits": [
+    "4a1df605",
+    "bd9359fd",
+    "58d750ee",
+    "520220df"
+  ],
+  "testAuthorized": false,
+  "selectionBasis": "Owner bar: at least 90/95 audited and zero new false rejections. Existing solver control only; no novel learned veto qualified.",
+  "evidenceHashes": {
+    "scores-dev.json": "87f9df307092d04deb85214b5870885d0875fe7d755a673cac94c44782cbaa3a",
+    "solver-dev.json": "6bfc45d2abe887c86fadca3422fdeea19a70564e29ae964f448e732dd46c422a",
+    "driftbench-verify-uncertainty-cascade.json": "9b53f0103d1b9f59715c4d268871d5948cd2cad36354a0a0daa2226beaa3be14",
+    "label-audit.json": "6611539964001ceb7760f6b9014c777ea9cb5befe36ce18f733af955588819e8",
+    "preregistration.md": "7b7c978051bd174820dbb5f70518fd3eb2905942ce47fbc1332c3c8b51133efb",
+    "validation-dev.json": "3d3ecb4534514d424f4750ee3f86977f3a83d3f17455279a44532f1e0cfd9848"
+  }
+}

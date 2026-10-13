@@ -1,0 +1,10 @@
+{
+  "solver-dev.json": "6bfc45d2abe887c86fadca3422fdeea19a70564e29ae964f448e732dd46c422a",
+  "writing-holistic-dev.json": "de066fd3372cef789951fe1d29163f3bec9d0650b934ae866f3afa0a6e947c2b",
+  "verify-dev-items.json": "c3b0847f6bb584781fd39ee81afb2cd8cc6a704f431a2fecac85c3d20fe5848e",
+  "driftbench-verify-uncertainty-cascade.json": "9b53f0103d1b9f59715c4d268871d5948cd2cad36354a0a0daa2226beaa3be14",
+  "writing-audit-dev.json": "0808521d1fd95d2dc7f930580f221c571f73491d5a96477976cd69098ca89a91",
+  "label-audit.json": "6611539964001ceb7760f6b9014c777ea9cb5befe36ce18f733af955588819e8",
+  "recordings/longjudge-verify/program-outputs.jsonl": "eaafe9c662b1cef084681ec90566a1ef1c8119f96fd6e6da594f0ca2b73c99d1",
+  "recordings/longjudge-verify/haiku.jsonl": "86f46ba7efb02119b10bd28cdf2122f40ca08922969d8f1574ea90b6db0892b9"
+}

@@ -53,7 +53,7 @@ def verify_score(name,veto,withsolver=True,bgate=False,confirm=False):
  # A can be computed before C, avoiding confirmer calls for candidates A rejects.
  if confirm and 'A' in name: paid &= A
  reasons=Counter('solver:M4' if withsolver and i in sol else 'block-veto:'+name if i in veto else 'cascade' for i in bas)
- return dict(name=name,official=sum(decisions[i]==blk[i]['label'] for i in bas),audited=sum(decisions[i]==gt[i] for i in bas),n=95,fixes=fixes,breaks=breaks,newFalseRejections=newfr,decidedBy=dict(reasons),vetoed=sorted(veto),routedBlockItems=len(routed),crossFamilyItems=len(paid),incrementalKnownUsdPer100=100*(blockcost+solvercost)/95,incrementalReservedUsdPer100=100*len(paid)/95,baselineUsdPer100=100*base['costUsd']/95,decisions=decisions,barMet=sum(decisions[i]==gt[i] for i in bas)>=90 and not newfr)
+ return dict(name=name,official=sum(decisions[i]==blk[i]['label'] for i in bas),audited=sum(decisions[i]==gt[i] for i in bas),n=95,fixes=fixes,breaks=breaks,officialFixes=[i for i in bas if decisions[i]==blk[i]['label'] and bas[i]!=blk[i]['label']],officialBreaks=[i for i in bas if decisions[i]!=blk[i]['label'] and bas[i]==blk[i]['label']],newFalseRejections=newfr,decidedBy=dict(reasons),vetoed=sorted(veto),routedBlockItems=len(routed),crossFamilyItems=len(paid),incrementalKnownUsdPer100=100*(blockcost+solvercost)/95,incrementalReservedUsdPer100=100*len(paid)/95,baselineUsdPer100=100*base['costUsd']/95,decisions=decisions,barMet=sum(decisions[i]==gt[i] for i in bas)>=90 and not newfr)
 vs=[verify_score('cascade',set(),False),verify_score('cascade+M4',set()),verify_score('R',R),verify_score('A',A)]
 if gates:
  vs.extend([verify_score('B',R&B,bgate=True),verify_score('A&B',A&B,bgate=True)])
@@ -68,17 +68,39 @@ assert all(r['holistic']==hol[r['rowKey']]['games'] for r in w)
 D={k for k,r in hol.items() if r['games'][0]!=r['games'][1]}
 L={k for k,r in hol.items() if any(isinstance(p,dict) and isinstance(p.get('confidence'),int) and 1<=p['confidence']<=2 for p in r.get('parsed',[]))}
 U=D|L
+# Recover exact tie fallbacks for the routed writing pairs from the recorded block votes.
+wpraw=[json.loads(line) for line in (H.parent/'recordings/longjudge-wp/haiku-blocks.jsonl').open()]
+rowid={r['rowKey']:r['id'] for r in w}
+reqbyid={rowid[z['item']]:parse(z['text']) for z in wpraw if z.get('order')=='requirements'}
+votes={(z['item'],z['order']):parse(z['text']) for z in wpraw if z.get('contestant')=='driftbench-blocks' and z.get('order') in ['AB','BA']}
+blockDecides={}
+for r in w:
+ if r['rowKey'] not in U: continue
+ assert r['machineDecisive']==0
+ for j,order in enumerate(['AB','BA']):
+  parsed=votes[(r['rowKey'],order)]
+  winners={b['id']:b.get('winner') for b in parsed.get('blocks',[])}
+  scores=Counter()
+  for b in reqbyid[r['id']]['blocks'][:7]:
+   win=winners.get(b['id'])
+   if win in ['A','B']: scores[win]+=2 if b.get('hard') else 1
+  decisive=bool(parsed) and scores['A']!=scores['B']
+  blockDecides[(r['rowKey'],j)]=decisive
+  expected=('A' if scores['A']>scores['B'] else 'B') if decisive else hol[r['rowKey']]['games'][j]
+  if decisive and order=='BA': expected='B' if expected=='A' else 'A'
+  assert expected==r['games'][j],(r['rowKey'],order,expected,r['games'][j])
 wa=read(H/'writing-audit-dev.json')
 assert not any('audited' in r or 'auditedLabel' in r or 'correctedLabel' in r for r in wa['items'])
 ws=[]
 for name,gate,mode in [('holistic',set(),'per-order'),('D/order',D,'per-order'),('D/consensus',D,'consensus'),('U/order',U,'per-order'),('U/consensus',U,'consensus'),('U/machine',U,'machine')]:
  fixes=[];breaks=[];rows=[];reason=Counter();correct=inside0=inside1=0
  for r in w:
-  k=r['rowKey']; old=hol[k]['games']; new=old[:];why=['holistic']*2
+  k=r['rowKey']; old=hol[k]['games']; new=old[:];why=['holistic:not-routed']*2
   if k in gate:
    use=r['machineOnly'] if mode=='machine' else r['games']
    if mode!='consensus' or (use[0]==use[1] and use[0] in ['A','B']):
-    new=use[:];why=['blocks' if use[j]!=old[j] else 'holistic-or-agreeing-blocks' for j in range(2)]
+    new=use[:];why=[('holistic:machine-abstain' if mode=='machine' else 'blocks:'+mode if blockDecides[(k,j)] else 'holistic:block-tie-fallback') for j in range(2)]
+   else: why=['holistic:block-order-disagreement']*2
   for j in range(2):
    ok0=old[j]==r['label'];ok=new[j]==r['label'];correct+=ok;reason[why[j]]+=1
    if k in gate: inside0+=ok0;inside1+=ok
@@ -93,8 +115,8 @@ for name,gate,mode in [('holistic',set(),'per-order'),('D/order',D,'per-order'),
    if z.get('order') in ['AB','BA'] and z.get('contestant')=='driftbench-blocks':paircost[z['item']]+=z['costUsd']
   cost=sum(r['costUsd']-paircost[r['rowKey']] for r in w if r['rowKey'] in gate)
  else: cost=sum(r['costUsd'] for r in w if r['rowKey'] in gate)
- ws.append(dict(name=name,official=correct,audited=None,auditNote='No corrected label map: 19 defensible, 4 suspect, 3 ambiguous in 26 reviewed DEV pairs. No label is silently flipped.',n=180,routedPairs=len(gate),routedGames=2*len(gate),subsetBaselineCorrect=inside0,subsetDesignCorrect=inside1,netGames=inside1-inside0,fixes=fixes,breaks=breaks,newFalseRejections=None,decidedBy=dict(reason),incrementalKnownUsdPer100=100*cost/90,baselineUsdPer100=read(H/'writing-holistic-dev.json')['costPer100'],barMet=correct>=122,rows=rows))
-out=dict(preregistrationCommits=['4a1df605','bd9359fd','58d750ee'],verify=vs,writing=ws,routing=dict(R=sorted(R),A=sorted(A),B=sorted(B),C=sorted(C),D=sorted(D),lowConfidence=sorted(L),U=sorted(U)),crossFamily=cross)
+ ws.append(dict(name=name,official=correct,audited=None,auditNote='No corrected label map: 19 defensible, 4 suspect, 3 ambiguous in 26 reviewed DEV pairs. No label is silently flipped.',n=180,routedPairs=len(gate),routedGames=2*len(gate),subsetBaselineCorrect=inside0,subsetDesignCorrect=inside1,netGames=inside1-inside0,fixes=fixes,breaks=breaks,newFalseRejections=None,decidedBy=dict(reason),incrementalKnownUsdPer100=100*cost/90,baselineUsdPer100=read(H/'writing-holistic-dev.json')['costPer100'],barMet=correct>=122,byGroup={g:dict(correct=sum(v==q['label'] for q in rows if q['group']==g for v in q['games']),games=2*sum(q['group']==g for q in rows)) for g in ['en','zh']},rows=rows))
+out=dict(preregistrationCommits=['4a1df605','bd9359fd','58d750ee','520220df'],verify=vs,writing=ws,routing=dict(R=sorted(R),A=sorted(A),B=sorted(B),C=sorted(C),D=sorted(D),lowConfidence=sorted(L),U=sorted(U)),crossFamily=cross)
 save('scores-dev.json',out)
 for r in vs:print('VERIFY',r['name'],r['official'],r['audited'],'fix/break/FR',len(r['fixes']),len(r['breaks']),len(r['newFalseRejections']),'extra/100',round(r['incrementalKnownUsdPer100'],4),'reserve/100',round(r['incrementalReservedUsdPer100'],4))
 for r in ws:print('WRITING',r['name'],r['official'],'routed',r['routedPairs'],'net',r['netGames'],'fix/break',len(r['fixes']),len(r['breaks']),'extra/100',round(r['incrementalKnownUsdPer100'],4))

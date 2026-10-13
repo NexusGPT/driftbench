@@ -1,0 +1,14 @@
+{
+  "status": "pass",
+  "verifyItems": 95,
+  "writingPairs": 90,
+  "verifyDesigns": 10,
+  "writingDesigns": 6,
+  "frozenReplayMatches": 95,
+  "gateReproductions": 95,
+  "freshCalls": 10,
+  "maxObservedConcurrency": 6,
+  "lastCallStartedUtc": "2026-10-13T04:13:37.048591+00:00",
+  "lastCallFinishedUtc": "2026-10-13T04:13:43.104718+00:00",
+  "testItemsSelected": 0
+}
