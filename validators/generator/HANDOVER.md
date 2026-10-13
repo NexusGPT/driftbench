@@ -10,7 +10,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 5 |
 <!-- level-table:end -->
 
-The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes when every item of it passes on every seed. After journal row 14 (seed 1 only; the other seeds were not re-measured) seed 1 passes levels 1 to 5 and fails level 6 (the validity gate, 8 items). Bank on seed 1: 1537 of 2033 pass (0.756). The level table below is the pre-merge table of the other seeds and is stale until a full sweep (seeds 1 to 20 and hidden) runs.
+The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes when every item of it passes on every seed. After journal row 16 (seed 1 only; the other seeds were not re-measured) seed 1 passes levels 1 to 5 and fails level 6 (the validity gate, 4 items). Bank on seed 1: 1551 of 2033 pass (0.763). The level table below is the pre-merge table of the other seeds and is stale until a full sweep (seeds 1 to 20 and hidden) runs.
 
 ## Floor
 
@@ -18,10 +18,10 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The l
 
 ## Open items
 
-Failing items per family on seed 1 after row 14: fault-code 20, fault-drift 9, fault-deviation 1, modes 47, perturbation 3, coverage 9, minimality 53, interaction-pair 286, interaction-triple 11, stability 6, scale 11, sequence 2, allocation 4, contrast 4, phrases 3, behaviours 1, adequacy 18, gate 8. Report, boundary and paths are at 0.
+Failing items per family on seed 1 after row 14: fault-code 20, fault-drift 9, fault-deviation 1, modes 47, perturbation 3, coverage 9, minimality 53, interaction-pair 286, interaction-triple 11, stability 6, scale 11, sequence 2, allocation 4, contrast 4, phrases 3, behaviours 1, adequacy 18, gate 8 (after row 16: gate 4, scale 1). Report, boundary and paths are at 0.
 
 Level 6, the validity gate, 8 items (found with a script that runs `runGate` on the generated suite; see Tools):
-- `gate.contrast.then-ignores-edit` (about 590 blocks). Two blocks of one seeder whose cells differ in one slot, with another When and the same machine Then, are rejected. The biggest groups are `stage_transition` siblings that end on the same stage (opening-to-intake against intake-to-intake: same stage, same tools, different words) and recap blocks that differ only in a plan value the Then does not read. Making the transition phrase stable per context did not change the count (tried, reverted). Fix idea: make the Then read the slot (the recap block states the plan) or keep the pair out of one family. The map has no `states` relation for these.
+- `gate.contrast.then-ignores-edit` (31 blocks, was about 590). Row 15 fixed the transition siblings (a move block records the stage it is said at, and only the data its Then reads). What is left: boundary blocks of one dimension whose Then is the same (an invalid quantity below the minimum and one above the maximum both forbid the call and stay on the stage; true and false of a tool output) and D2 against D5 probes. Equal Thens are correct there; a fix would need the Then to read the value.
 - `gate.shortcut.passed-by-first-tool` (8 blocks, gen-boundary-010 to 012 and 3 more): single-turn reads of a tool output value ("tell me whether found comes back as true"). The block has count min 1 and no input, so the first-tool cheater passes.
 - `gate.accepted.*` and `gate.killers`: the accepted share follows the two causes above; the six unkilled classes below.
 
@@ -42,6 +42,8 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 - A flow phrase opens a path of its flow, in place of the opening move (`choosePhrase(..., opening)` in `scenario.ts`; flow branch in `metamorphicOnPaths`). The metamorphic flow families are complete: `phrases.flows` and `phrases.metamorphic` pass.
 - A boundary request that only forbids calls (an invalid value, a write tool asked for early) is said after the walk's first move, and the block expects the conversation to stay on that stage (`turn` in `ScenarioRequest`; boundary seeder). The 13 failing `boundary.*` items pass, and `phrases.data-out` too.
 - A single-turn boundary block states the reply language (`paths.lang.boundary` passes).
+- Row 15: a transition block's recorded cell now holds the stage it is said at (`saidAt`) and only the data values its Then reads. Gate.accepted.graph, twise, deviation and metamorphic pass.
+- Row 16: scale. `cellsOf` in `generate.ts` projects the grid once per map (`gridAt`) and the cover loop reads only the cells a spec reaches (`reachedCells`); the report counts maps up to 4 million cells (the space package refused 277200). Ten times the behaviours: 29 s of CPU for one generation (was 78 s for two); a hundred times completes but takes 384 s of CPU for two against a 60 s budget (`scale.100x.time` still fails; the remaining cost is YAML parsing of each spec and garbage collection, spread thin).
 - Tried and reverted: a stable transition phrase per context (no change in then-ignores-edit); letting a requested probe stage skip the first-turn filter (it fixed the Acme cover cells but added 53 constant and echo cheater passes on gen-cover blocks and level 6 got worse, 8 to 10 failing).
 - The previous builder's iteration 14 (a second probe of a class at another stage) and 15 (a probe after the last stage; main has its own version) were merged, not journaled separately.
 
@@ -49,8 +51,9 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 
 1. Run the full sweep (seeds 1 to 20 and hidden) in the background and write the next journal row from it; the level table is stale.
 2. `gate.contrast.then-ignores-edit`: choose one family of pairs (transition siblings) and give the two blocks a different Then or a different cell; measure with the `runGate` script, which takes about 5 minutes.
-3. Ask the owner whether the spec language may gain a closed-input assertion and a stage-reported assertion; the six unkilled classes depend on it.
-4. Handover test on the next third iteration: `pnpm driftbench validate generator --brief --fresh`.
+3. `scale.100x.time`: profile a 30x run with `node --cpu-prof` on `scale-child.ts`; parsing every written spec twice (render then `parseSpecText`) is the largest single cost.
+4. Ask the owner whether the spec language may gain a closed-input assertion and a stage-reported assertion; the six unkilled classes depend on it.
+5. Handover test on the next third iteration: `pnpm driftbench validate generator --brief --fresh`.
 
 ## Validator item defects (logged, not edited)
 
