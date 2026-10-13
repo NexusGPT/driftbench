@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "createdAt": "2026-10-13T13:39:35.376Z",
+  "version": 2,
+  "createdAt": "2026-10-13T14:31:30.739977+00:00",
   "model": "gpt-6.1-sol",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
@@ -26,7 +26,7 @@
   "budgetScope": "This model only; no transfer from or to the existing cell budget or other new model.",
   "transportPolicy": {
     "timeoutMs": 300000,
-    "maxNonQuotaAttempts": 3,
+    "maxNonQuotaAttempts": null,
     "quotaBackoffMs": [
       60000,
       120000,
@@ -34,9 +34,10 @@
     ],
     "returnedAnswerRetries": 0,
     "schemaReask": "Unchanged core single re-ask per malformed reading; enabled.",
-    "billing": "402 stops immediately, no retry or judge error; only proven rejection releases holds."
+    "billing": "402 stops immediately, no retry or judge error; only proven rejection releases holds.",
+    "noAnswerRecovery": "Unlimited recovery cycles under provider-health gate; every model answer is replay-only."
   },
-  "workers": 8,
+  "workers": 2,
   "claudeFallback": {
     "workers": 2,
     "loadGreaterThan": 60,
@@ -194,6 +195,35 @@
     "packages/judges/src/weighted-panel.ts": "5fb8ce2dcfd9d6996edcfcc8fb5fbaee649c707c2c11289bda87030fa826e5c8",
     "pnpm-lock.yaml": "f7178145e417f8f11e28bc7cf1943db901077492226de4d172bd49994e213e04",
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
-    "examples/ledger-jb/cells/gpt-6.1-sol/price.json": "17b3946b62d5a7104a0985af2fa3fcc928cbb1c5e30fc651f7c7d84129a377f3"
-  }
+    "examples/ledger-jb/cells/gpt-6.1-sol/price.json": "17b3946b62d5a7104a0985af2fa3fcc928cbb1c5e30fc651f7c7d84129a377f3",
+    "examples/ledger-jb/additional/recovery.mjs": "78e69e3a1a4bb4271a3f677d591978c8504eee8d687f456dbfb8968b99e43427",
+    "examples/ledger-jb/additional/recovery-transport.mjs": "8976ba6c57414d7c10e860adbab7231c427c34c100ae81717f72534296d6d914",
+    "examples/ledger-jb/additional/run-recovery.mjs": "ccfb24be39ca40beebbda688a9bfeb850322f2ba59885b6f13f551e8b9fac99e",
+    "examples/ledger-jb/additional/recovery.test.mjs": "759116ce8dcb8a3f8a3bc3d0debdb28fec362ebff663f38c022f067efcfa0509"
+  },
+  "priorCellFreezeSha256": "74c2aaf848dbb36da10684efd440c5e8c3dd53add4201ac338d32e088974c035",
+  "networkRecovery": {
+    "authorization": "Owner network pause: ten consecutive healthy provider probes 30 seconds apart; concurrency two, one model cell at a time; three consecutive connection failures pause ten minutes and repeat the gate; recover no-answer requests with unlimited recovery cycles; never resend a model answer; caps unchanged; no final score with transport-missing items.",
+    "probe": {
+      "method": "GET",
+      "path": "/v1/models",
+      "authorizationHeader": false,
+      "healthyHttpStatus": 401,
+      "requiredConsecutive": 10,
+      "spacingMs": 30000,
+      "timeoutMs": 15000,
+      "interpretation": "Expected unauthenticated provider response proves a complete HTTP round trip. It does not certify inference quality or quota."
+    },
+    "connectionFailureThreshold": 3,
+    "cooldownMs": 600000,
+    "oneModelAtATime": true,
+    "answeredRetryCount": 0,
+    "recoveryCycleLimit": null,
+    "accounting": "Zero only when the provider receipt confirms zero cost and zero tokens, or proves an explicit billing rejection. Keep unknown-cost holds when no provider receipt exists.",
+    "checkpoint": "cc507708",
+    "originalReceipts": "calls.jsonl at checkpoint cc507708; new attempts append without replacement",
+    "supersededDecisions": "transport-recovery/superseded-decisions.jsonl",
+    "scoreRelease": "All sealed pairs present and no transport-missing required requests."
+  },
+  "runner": "examples/ledger-jb/additional/run-recovery.mjs"
 }

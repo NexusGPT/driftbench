@@ -1,6 +1,6 @@
 {
-  "version": 4,
-  "createdAt": "2026-10-13T14:03:46.503172+00:00",
+  "version": 5,
+  "createdAt": "2026-10-13T14:31:30.739977+00:00",
   "model": "claude-sonnet-5-5",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
@@ -26,7 +26,7 @@
   "budgetScope": "This model only; no transfer from or to the existing cell budget or other new model.",
   "transportPolicy": {
     "timeoutMs": 300000,
-    "maxNonQuotaAttempts": 3,
+    "maxNonQuotaAttempts": null,
     "quotaBackoffMs": [
       60000,
       120000,
@@ -34,9 +34,10 @@
     ],
     "returnedAnswerRetries": 0,
     "schemaReask": "Unchanged core single re-ask per malformed reading; enabled.",
-    "billing": "402 stops immediately, no retry or judge error; only proven rejection releases holds."
+    "billing": "402 stops immediately, no retry or judge error; only proven rejection releases holds.",
+    "noAnswerRecovery": "Unlimited recovery cycles under provider-health gate; every model answer is replay-only."
   },
-  "workers": 4,
+  "workers": 2,
   "claudeFallback": {
     "workers": 2,
     "loadGreaterThan": 60,
@@ -198,9 +199,13 @@
     "examples/ledger-jb/additional/run-sonnet.mjs": "c0f02d7538586dd6e3df47c7f320cc56b0edeaa6e56f79c814e9c71c95aee737",
     "examples/ledger-jb/additional/budget.test.mjs": "1bfbe1a8fbeea61f95b3a9da9f806af8177ef0d68faa3ede63f1a107d201e077",
     "examples/ledger-jb/additional/sonnet-transport.mjs": "b059d9a508a3b7a19170f135161487794b712db61231224ff18fb0926219a70c",
-    "examples/ledger-jb/cells/claude-sonnet-5-5/cache-route-selection.json": "2f91cb63855daa55b02847c9efb6ef82253c1644547352845f5a3588cbdf2bb2"
+    "examples/ledger-jb/cells/claude-sonnet-5-5/cache-route-selection.json": "2f91cb63855daa55b02847c9efb6ef82253c1644547352845f5a3588cbdf2bb2",
+    "examples/ledger-jb/additional/recovery.mjs": "78e69e3a1a4bb4271a3f677d591978c8504eee8d687f456dbfb8968b99e43427",
+    "examples/ledger-jb/additional/recovery-transport.mjs": "8976ba6c57414d7c10e860adbab7231c427c34c100ae81717f72534296d6d914",
+    "examples/ledger-jb/additional/run-recovery.mjs": "ccfb24be39ca40beebbda688a9bfeb850322f2ba59885b6f13f551e8b9fac99e",
+    "examples/ledger-jb/additional/recovery.test.mjs": "759116ce8dcb8a3f8a3bc3d0debdb28fec362ebff663f38c022f067efcfa0509"
   },
-  "priorCellFreezeSha256": "2017a20810ba61885c9e4b5b77f9a0a04bdc3dea8d5ce08697809f1129237d49",
+  "priorCellFreezeSha256": "e7435a4f25ec66a330b59bef568c3dc62297580646323e83359801ee2b5cdca7",
   "nativeEnv": {
     "DISABLE_PROMPT_CACHING": "1"
   },
@@ -212,7 +217,7 @@
   },
   "runtimeAmendment": "Owner approves Sonnet JudgeBench 45 USD including holds. Try DISABLE_PROMPT_CACHING=1 on five practice requests before full run, then use the cheaper route. TEST runs once.",
   "cacheSource": "https://code.claude.com/docs/en/env-vars",
-  "runner": "examples/ledger-jb/additional/run-sonnet.mjs",
+  "runner": "examples/ledger-jb/additional/run-recovery.mjs",
   "transportReceiptAmendment": "The observed CLI terminal_reason=api_error envelope contains a provider error string, not a model answer. One zero-token zero-cost ECONNRESET receipt is reclassified from returnedAnswer to no-answer transport, with immutable before receipt and manifest. Retry within the existing three-try policy.",
   "reconciliationManifest": "examples/ledger-jb/cells/claude-sonnet-5-5/transport-reconciliation/manifest.json",
   "cacheRouteSelection": {
@@ -227,5 +232,28 @@
     "cacheDisabledProjectionUsd": 19.189768736,
     "zeroCostTransportRejections": 1,
     "limitation": "Different practice inputs; descriptive cost comparison, not a matched causal estimate. All five disabled-cache answers show zero cache tokens."
+  },
+  "networkRecovery": {
+    "authorization": "Owner network pause: ten consecutive healthy provider probes 30 seconds apart; concurrency two, one model cell at a time; three consecutive connection failures pause ten minutes and repeat the gate; recover no-answer requests with unlimited recovery cycles; never resend a model answer; caps unchanged; no final score with transport-missing items.",
+    "probe": {
+      "method": "GET",
+      "path": "/v1/models",
+      "authorizationHeader": false,
+      "healthyHttpStatus": 401,
+      "requiredConsecutive": 10,
+      "spacingMs": 30000,
+      "timeoutMs": 15000,
+      "interpretation": "Expected unauthenticated provider response proves a complete HTTP round trip. It does not certify inference quality or quota."
+    },
+    "connectionFailureThreshold": 3,
+    "cooldownMs": 600000,
+    "oneModelAtATime": true,
+    "answeredRetryCount": 0,
+    "recoveryCycleLimit": null,
+    "accounting": "Zero only when the provider receipt confirms zero cost and zero tokens, or proves an explicit billing rejection. Keep unknown-cost holds when no provider receipt exists.",
+    "checkpoint": "cc507708",
+    "originalReceipts": "calls.jsonl at checkpoint cc507708; new attempts append without replacement",
+    "supersededDecisions": "transport-recovery/superseded-decisions.jsonl",
+    "scoreRelease": "All sealed pairs present and no transport-missing required requests."
   }
 }
