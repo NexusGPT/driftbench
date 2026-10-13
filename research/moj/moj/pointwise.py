@@ -23,7 +23,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from . import clients_s2
 from .benches import HERE, POINT_BENCHES, load_point
-from .experts import POINT_CATALOGUE, PointCtx
+from .experts import POINT_CATALOGUE, PointCtx, carried
 from .policy import run_variant, score_games, score_verdict, wilson
 
 OUT = os.path.join(HERE, 'results', 'pointwise')
@@ -80,8 +80,14 @@ def collect(bench, experts, limit=None, offline=False, workers=8):
     return totals
 
 
+CLASSES = {'rows': 'rows', 'rubric': 'criterion', 'reference': 'criterion', 'question': 'question'}
+
+
 def meta_of(item):
+    # 'carries': what the item brings for the judge to check against. rows (rubric rows), criterion (one criterion text or
+    # one reference) or question (nothing but the request). Boundaries and weights are fitted per class of content.
     return {'label': item['label'], 'half': item['half'], 'split': item['split'], 'group': item['group'], 'kind': item['kind'],
+            'carries': CLASSES[carried(item)],
             'language': item['language'], 'swapped': item['swapped'], 'baselines': item.get('baselines', {})}
 
 
@@ -105,7 +111,7 @@ def load_signals(bench, ids=None):
 
 
 def calibrate(pooled, config):
-    """config['calibrate'] = {expert: t}: moves the yes boundary of a System-1 expert from 0.5 to t, on point items only.
+    """config['calibrate'] = {expert: {class: t}}: moves the yes boundary of an expert from 0.5 to t on point items of one content class.
 
     A point item has no swap to cancel a constant lean of the decision model, so the boundary is a tuned number.
     """
@@ -117,26 +123,32 @@ def calibrate(pooled, config):
         for signals in store.values():
             if signals['_meta']['kind'] != 'point':
                 continue
-            for name, boundary in shifts.items():
+            for name, by_class in shifts.items():
+                boundary = by_class.get(signals['_meta']['carries'])
                 p = (signals.get(name) or {}).get('pA')
-                if p is not None:
+                if p is not None and boundary is not None:
                     p, boundary = min(max(p, 1e-4), 1 - 1e-4), min(max(boundary, 1e-4), 1 - 1e-4)
                     z = math.log(p / (1 - p)) - math.log(boundary / (1 - boundary))
                     signals[name]['pA'] = 1 / (1 + math.exp(-z))
     return pooled
 
 
+def pools(pooled):
+    """Splits the items by what they carry: {class: {bench: {id: signals}}}. One combination is fitted per class."""
+    out = {}
+    for bench, store in pooled.items():
+        for item_id, signals in store.items():
+            out.setdefault(signals['_meta']['carries'], {}).setdefault(bench, {})[item_id] = signals
+    return out
+
+
 def decide_all(config, pooled):
-    """Runs the variant per item kind. Returns {(bench, id): decision} and the fitted weights per kind."""
-    pooled = calibrate(pooled, config)
+    """Runs the variant per content class. Returns {(bench, id): decision} and the fitted weights per class."""
     decisions, weights = {}, {}
-    for kind in ('point', 'pair'):
-        part = {bench: store for bench, store in pooled.items() if POINT_BENCHES[bench]['kind'] == kind and store}
-        if not part:
-            continue
+    for name, part in sorted(pools(calibrate(pooled, config)).items()):
         out, combiner = run_variant(config, part)
         decisions.update(out)
-        weights[kind] = {'+'.join(k): [round(float(x), 2) for x in w] for k, w in combiner.models.items()}
+        weights[name] = {'+'.join(k): [round(float(x), 2) for x in w] for k, w in combiner.models.items()}
     return decisions, weights
 
 
@@ -238,42 +250,54 @@ def board(config, benches=None, pooled=None):
 
 
 def tune(config, benches=None):
-    """Picks hi, lo and the stage-1 boundaries on the tuning half only. Ties go to the cheaper setting (fewer System-2 calls)."""
+    """Picks hi, lo and the stage-1 boundaries on the tuning half only, by balanced accuracy. Ties go to the cheaper setting."""
     benches = benches or list(POINT_BENCHES)
     pooled = {bench: load_signals(bench) for bench in benches}
     tune_ids = [(b, i) for b in benches for i in pooled[b] if pooled[b][i]['_meta']['half'] == 'tune']
 
     def tune_score(candidate):
+        # The objective is the balanced accuracy on the tuning half, averaged over the benchmarks: a constant verdict
+        # earns 50 on a point benchmark, so a variant cannot win by copying the constant-fail cheater.
         decisions, _ = decide_all(candidate, pooled)
-        correct = sum(score_verdict(decisions[k]['verdict'], pooled[k[0]][k[1]]['_meta']['label']) for k in tune_ids)
+        total = 0.0
+        for bench in benches:
+            ids = [k for k in tune_ids if k[0] == bench]
+            total += balanced([(pooled[b][i]['_meta']['label'], score_verdict(decisions[(b, i)]['verdict'], pooled[b][i]['_meta']['label'])) for b, i in ids])
         cost = sum(decisions[k]['calls']['luna'] for k in tune_ids)
-        return (round(correct, 6), -cost)
+        return (round(100 * total / len(benches), 4), -cost)
 
     best = copy.deepcopy(config)
+    best.pop('calibrate', None)
     trail = []
+    tolerance = config.get('tune_tolerance_points', 0.0)
+    classes = sorted({pooled[b][i]['_meta']['carries'] for b, i in tune_ids if pooled[b][i]['_meta']['kind'] == 'point'})
     for name in config.get('tune_calibrate', []):
-        options = []
-        for boundary in (0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9):
-            candidate = copy.deepcopy(best)
-            candidate.setdefault('calibrate', {})[name] = boundary
-            candidate.update({'hi': 0.0, 'lo': 0.0})  # the boundary is tuned on stage 1 alone
-            options.append((tune_score(candidate), -abs(boundary - 0.5), boundary))
-        chosen = max(options)
-        best.setdefault('calibrate', {})[name] = chosen[2]
-        trail.append({'calibrate': name, 'boundary': chosen[2], 'tune_correct': chosen[0][0], 'options': [(o[2], o[0][0]) for o in options]})
+        for content in classes:
+            options = []
+            for boundary in (0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95):
+                candidate = copy.deepcopy(best)
+                candidate.setdefault('calibrate', {}).setdefault(name, {})[content] = boundary
+                candidate.update({'hi': 0.0, 'lo': 0.0})  # the boundary is tuned with no confidence level in play
+                options.append((tune_score(candidate), -abs(boundary - 0.5), boundary))
+            chosen = max(options)
+            best.setdefault('calibrate', {}).setdefault(name, {})[content] = chosen[2]
+            trail.append({'calibrate': name, 'class': content, 'boundary': chosen[2], 'tune_balanced': chosen[0][0],
+                          'options': [(o[2], o[0][0]) for o in options]})
     if config.get('tune_levels', True) and (config.get('low') or config.get('cards')):
         options = []
-        for hi in (0.6, 0.7, 0.8, 0.9, 0.95, 0.99):
-            for lo in (0.6, 0.7, 0.8, 0.9, 0.95, 0.99):
+        for hi in (0.55, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99):
+            for lo in (0.55, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99):
                 if lo > hi:
                     continue
                 candidate = copy.deepcopy(best)
                 candidate.update({'hi': hi, 'lo': lo})
                 options.append((tune_score(candidate), hi, lo))
-        chosen = max(options)
+        top = max(options)[0][0]
+        # The cheapest setting within the tolerance of the best one: a gain smaller than the noise floor does not buy more calls.
+        chosen = max((option for option in options if option[0][0] >= top - tolerance), key=lambda option: (option[0][1], option[0][0]))
         best.update({'hi': chosen[1], 'lo': chosen[2]})
-        trail.append({'levels': {'hi': chosen[1], 'lo': chosen[2]}, 'tune_correct': chosen[0][0], 'tune_items': len(tune_ids),
-                      'tune_s2_calls': -chosen[0][1]})
+        trail.append({'levels': {'hi': chosen[1], 'lo': chosen[2]}, 'tune_balanced': chosen[0][0], 'best_tune_balanced': top,
+                      'tolerance_points': tolerance, 'tune_items': len(tune_ids), 'tune_s2_calls': -chosen[0][1]})
     best['tuned'] = {'on': 'tuning half only', 'trail': trail}
     return best
 
@@ -307,15 +331,16 @@ def scoreboard(configs, benches=None):
         if not tune_cell or not valid_cell:
             continue
         lines += [f"## {bench} ({tune_cell['items']} tuning items, {valid_cell['items']} validation items)", '',
-                  '| Row | Tuning half: accuracy [95% interval] | Validation half: accuracy [95% interval] | S1 calls per 100 | S2 calls per 100 | USD per 100 | Seconds per item |',
-                  '|---|---|---|---:|---:|---:|---:|']
+                  '| Row | Tuning half: accuracy [95% interval] | Validation half: accuracy [95% interval] | Balanced accuracy, tuning / validation | S1 calls per 100 | S2 calls per 100 | USD per 100 | Seconds per item |',
+                  '|---|---|---|---|---:|---:|---:|---:|']
         rows = [(f"MoJ {b['variant']}", b['cells'][f'{bench}.tune']['moj'], b['cells'][f'{bench}.valid']['moj']) for b in boards]
         for name in BASELINES + ['pw_s2v_luna', 'pw_s2v_gemini', 'pw_s2v_haiku'] + CHEATERS:
             if tune_cell[name]['n'] or valid_cell[name]['n']:
                 rows.append((ROW_LABELS[name], tune_cell[name], valid_cell[name]))
         for label, on_tune, on_valid in rows:
             usage = on_valid if on_valid.get('n') else on_tune
-            lines.append(f"| {label} | {fmt_acc(on_tune)} | {fmt_acc(on_valid)} | {fmt_num(usage, 's1_per_100', 0)} | {fmt_num(usage, 's2_per_100', 0)} | "
+            both = ' / '.join('n/a' if not e.get('n') else f"{100 * e['balanced']:.0f}" for e in (on_tune, on_valid))
+            lines.append(f"| {label} | {fmt_acc(on_tune)} | {fmt_acc(on_valid)} | {both} | {fmt_num(usage, 's1_per_100', 0)} | {fmt_num(usage, 's2_per_100', 0)} | "
                          f"{fmt_num(usage, 'usd_per_100', 4)} | {fmt_num(usage, 'seconds_per_item', 2)} |")
             table.setdefault(bench, []).append({'row': label, 'tune': on_tune, 'valid': on_valid})
         lines.append('')

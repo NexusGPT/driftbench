@@ -1,0 +1,34 @@
+{
+ "name": "pw-moj-mix",
+ "note": "Pointwise MoJ, full mix. Stage 1 rows. An item that carries no evidence always gets a blind System-2 reference. The middle level adds a split of the criterion when the item carries one text; the low level adds the single verdicts of gpt-6-luna, gemini-3.8-flash and haiku.",
+ "stage1": [
+  "pw_rows"
+ ],
+ "hi": 0.9,
+ "lo": 0.7,
+ "cards": [
+  {
+   "expert": "pw_split_luna",
+   "terrain": {
+    "splittable": 0.6
+   }
+  }
+ ],
+ "low": [
+  "pw_s2v_luna",
+  "pw_s2v_gemini",
+  "pw_s2v_haiku"
+ ],
+ "tune_calibrate": [
+  "pw_rows"
+ ],
+ "always": [
+  {
+   "expert": "pw_ref_luna",
+   "terrain": {
+    "no_evidence": 0.6
+   }
+  }
+ ],
+ "tune_tolerance_points": 2.0
+}

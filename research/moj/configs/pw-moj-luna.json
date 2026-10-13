@@ -1,0 +1,142 @@
+{
+ "name": "pw-moj-luna",
+ "note": "Pointwise MoJ with gpt-6-luna. Stage 1 rows. An item that carries no evidence (no criterion, rows or reference) always gets a blind System-2 reference, whatever the stage-1 confidence. The middle level adds a split of the criterion when the item carries one text; the low level adds the System-2 single verdict.",
+ "stage1": [
+  "pw_rows"
+ ],
+ "hi": 0.55,
+ "lo": 0.55,
+ "cards": [
+  {
+   "expert": "pw_split_luna",
+   "terrain": {
+    "splittable": 0.6
+   }
+  }
+ ],
+ "low": [
+  "pw_s2v_luna"
+ ],
+ "tune_calibrate": [
+  "pw_rows"
+ ],
+ "always": [
+  {
+   "expert": "pw_ref_luna",
+   "terrain": {
+    "no_evidence": 0.6
+   }
+  }
+ ],
+ "tune_tolerance_points": 2.0,
+ "calibrate": {
+  "pw_rows": {
+   "criterion": 0.9,
+   "question": 0.6
+  }
+ },
+ "tuned": {
+  "on": "tuning half only",
+  "trail": [
+   {
+    "calibrate": "pw_rows",
+    "class": "criterion",
+    "boundary": 0.9,
+    "tune_balanced": 84.3171,
+    "options": [
+     [
+      0.2,
+      72.6604
+     ],
+     [
+      0.3,
+      78.2159
+     ],
+     [
+      0.4,
+      82.1842
+     ],
+     [
+      0.5,
+      82.1842
+     ],
+     [
+      0.6,
+      82.1842
+     ],
+     [
+      0.7,
+      82.1842
+     ],
+     [
+      0.8,
+      82.1842
+     ],
+     [
+      0.9,
+      84.3171
+     ],
+     [
+      0.95,
+      81.8866
+     ]
+    ]
+   },
+   {
+    "calibrate": "pw_rows",
+    "class": "question",
+    "boundary": 0.6,
+    "tune_balanced": 84.7801,
+    "options": [
+     [
+      0.2,
+      76.9097
+     ],
+     [
+      0.3,
+      82.4653
+     ],
+     [
+      0.4,
+      84.7801
+     ],
+     [
+      0.5,
+      84.3171
+     ],
+     [
+      0.6,
+      84.7801
+     ],
+     [
+      0.7,
+      84.3171
+     ],
+     [
+      0.8,
+      79.2245
+     ],
+     [
+      0.9,
+      77.3727
+     ],
+     [
+      0.95,
+      78.7616
+     ]
+    ]
+   },
+   {
+    "levels": {
+     "hi": 0.55,
+     "lo": 0.55
+    },
+    "tune_balanced": 85.0071,
+    "best_tune_balanced": 85.2386,
+    "tolerance_points": 2.0,
+    "tune_items": 145,
+    "tune_s2_calls": 74
+   }
+  ]
+ }
+}

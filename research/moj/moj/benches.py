@@ -104,11 +104,13 @@ def load_point(bench):
     for item in items:
         item['bench'] = bench
         item['id'] = str(item['id'])
-        item['half'] = half(item['id'])
+        item['half'] = half(item.get('split_group', item['id']))  # by group: a shared prompt or reference stays in one half
         item['swapped'] = item['kind'] == 'pair' and _swap(item['id'])
         if item['swapped']:
             item['a'], item['b'] = item['b'], item['a']
             item['label'] = flip[item['label']]
             for base in item.get('baselines', {}).values():
                 base['games'] = [flip.get(game, game) for game in base['games']]
+                if 'repeats' in base:
+                    base['repeats'] = [[flip.get(game, game) for game in games] for games in base['repeats']]
     return items
