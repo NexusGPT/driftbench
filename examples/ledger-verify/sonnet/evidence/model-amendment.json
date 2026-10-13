@@ -37,9 +37,9 @@
     "status": "Measured native total_cost_usd per call; five-call gate required"
   },
   "lean": "Fresh empty directory; unchanged frozen judge system prompt; tools empty; settings sources empty; strict MCP; no session persistence; one turn",
-  "frozenAt": "2026-10-13T14:54:00.034665+00:00",
-  "runtimeSha256": "135ca6813ebf9fa5ea9bc5bf6d80562e3f125d85d1f3483d619df61fa8eeee78",
-  "reportingSha256": "520409cd67389d9f808e691b1a9e374b9173ba0ba22e75e4ef968bfde2016bdb",
+  "frozenAt": "2026-10-13T14:57:53.768376+00:00",
+  "runtimeSha256": "0974292748f5bedfae651b88f441bbf6dc2eb21a04beae0aa01821532af20832",
+  "reportingSha256": "92b4c089629fb8a12e4b4bc014a0c363456057003a906152e0e9b1293e2e53a0",
   "networkAmendment": "Ten healthy provider probes spaced 30 seconds apart before new calls, one model cell at a time, concurrency two. Three consecutive connection failures pause ten minutes and repeat the gate. Zero-token no-output transport requests retry missing-only without an attempt limit. Every answer stays cached.",
   "outerProcessTimeoutMs": 2147483647,
   "outerProcessNote": "Queueing and network-health pauses must not kill a live wrapper and orphan its physical attempt. Actual provider attempts remain 300 seconds; the outer envelope uses the maximum supported Node timer."

@@ -12,6 +12,7 @@ def ready(folder,model):
  p=read(BASE/folder/f'{model}.progress.json');f=read(BASE/folder/'evidence/finalizer-state.json')
  return f.get('status')=='offline evidence ready for review' or p.get('status','').startswith('paused: cost projection')
 while not (read(BASE/'evidence/haiku-test-timeout-recovery.json').get('status')=='complete' and read(BASE/'evidence/finalizer-state.json').get('status')=='offline evidence ready for review'):time.sleep(5)
+while read(BASE/'luna-addendum/state.json').get('status')!='complete':time.sleep(5)
 set_model('claude-sonnet-5-5')
 while not ready('sonnet','claude-sonnet-5-5'):time.sleep(5)
 set_model('gpt-6.1-sol')

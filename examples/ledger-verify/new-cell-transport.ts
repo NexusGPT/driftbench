@@ -32,6 +32,12 @@ try{
  const hit=calls.find(r=>r.phase===phase&&r.fingerprint===fingerprint&&r.output?.verify_answered!==false&&!['quota-pending','billing-pending'].includes(r.status));
  if(hit){process.stdout.write(JSON.stringify(hit.output));process.exit(0);}
  while(!slot){slot=budget('try-acquire').acquired;if(!slot)await new Promise(r=>setTimeout(r,250));}
+ // A same-key answer can arrive while this request waits for the network gate.
+ try{
+  const after=(await readFile(resolve(base,'receipts/calls.jsonl'),'utf8')).trim().split('\n').filter(Boolean).map(x=>JSON.parse(x));
+  const cached=after.find(r=>r.phase===phase&&r.fingerprint===fingerprint&&r.output?.verify_answered===true);
+  if(cached){budget('release');slot=false;process.stdout.write(JSON.stringify(cached.output));process.exit(0);}
+ }catch(e:any){if(e.code!=='ENOENT')throw e;}
  const inputBound=Buffer.byteLength(system+user)+4096;
  const reserve=model==='claude-sonnet-5-5'?.5:(inputBound*2.5*(inputBound>272000?2:1)+32768*10*(inputBound>272000?1.5:1))/1e6;
  budget('reserve',reserve);reservation=true;
