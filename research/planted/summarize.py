@@ -4,7 +4,8 @@ from collections import Counter, defaultdict
 from itertools import combinations
 import hashlib,json,math,os,random,statistics,subprocess
 
-root=Path(__file__).parent; runtime=root/'runtime'
+root=Path(__file__).parent
+runtime=root/os.environ.get('ASTRA_EVIDENCE_DIR','runtime' if (root/'runtime').exists() else 'results')
 Z=1.959963984540054
 def load(name):return json.loads((root/name).read_text())
 def read_rows(name):
@@ -30,8 +31,8 @@ def calls(tag):
             'stages':dict(Counter(x.get('order') for x in rows)),
             'callsByItem':dict(Counter(x.get('item') for x in rows))}
 manifest=load('manifest.json');vb=load('bank-verify.json');rb=load('bank-rb.json')
-cohorts=load('noise-cohorts.json');start=load('runtime/run-start.json')
-meter=load('runtime/meter-state.json')
+cohorts=load('noise-cohorts.json');start=json.loads((runtime/'run-start.json').read_text())
+meter=json.loads((runtime/'meter-state.json').read_text())
 vr=read_rows('bank-verify.json');rr=read_rows('bank-rb.json')
 vindex={x['id']:x for x in vr};rindex={x['id']:x for x in rr}
 metrics={'freezeCommit':start['freezeCommit'],'generatedAt':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),
@@ -56,6 +57,9 @@ for bench,bank,index in [('verify',vb,vindex),('rb',rb,rindex)]:
     metrics['bank'][bench]={'pairs':len(bank),'complete':evaluated,'validRequirementGrades':complete,'invalidOrMissingGrades':len(bank)-complete,'TPR':wilson(tpr,len(bank)),
                             'TNR':wilson(tnr,len(bank)),'bothTwinsCorrect':wilson(joint,len(bank)),
                             'familyCounts':dict(families),'items':itemrows,**cost}
+    judgmentIds=[x['id']+suffix for x in bank for suffix in ['-clean','-defect']] if bench=='verify' else [x['id'] for x in bank]
+    counts=[cost['callsByItem'].get(id,0) for id in judgmentIds]
+    metrics['bank'][bench]['newCallsPerJudgment']={'mean':sum(counts)/len(counts),'min':min(counts),'max':max(counts),'counts':counts}
     seen=set();unique=[]
     for item,row in zip(bank,itemrows):
         key=(item['question'],item['clean'],item['defect'])
@@ -88,6 +92,8 @@ for bench,N in [('verify',95),('rb',357)]:
     block={'requestedItems':30,'completeItems':len(rows),'repeatCounts':[len(x) for x in reps],
            'costs':costs,'successfulRecordedCalls':sum(x['successfulRecordedCalls'] for x in costs),
            'usd':sum(x['usd'] for x in costs),'items':rows}
+    counts=[c['callsByItem'].get(id,0) for c in costs for id in ids]
+    block['newCallsPerPlannedJudgment']={'mean':sum(counts)/90,'min':min(counts),'max':max(counts),'counts':counts}
     if rows:
         n=len(rows);flip=sum(x['pairwiseFlips'] for x in rows)/(3*n);cflip=sum(x['correctnessFlips'] for x in rows)/(3*n)
         vari=cflip/2
@@ -171,13 +177,14 @@ for bench in ['rb','verify']:
     lines.append(f"| {bench} noise | {b['successfulRecordedCalls']} | {b['successfulRecordedCalls']} | {b['usd']:.7f} |")
 lines+=['',f"Total transport attempts: {meter['calls']}. Recorded spend: USD {meter['spent']:.7f}. Unpriced reserved amount: USD {meter['unknownReserved']:.2f}. Cap: USD 16.00. Peak active model calls: {meter['peak']}.",
         f"Observed model identifiers: {', '.join(metrics['models']) or 'not returned'}. Calls request the haiku alias.",'',
-        f"The transport completed {metrics['meterAudit']['unrecordedTransportAttempts']} attempts without a retained judge recording. This includes calls finishing during the owner-authorized concurrency restart. Their spend remains included above.",
+        f"The transport completed {metrics['meterAudit']['unrecordedTransportAttempts']} attempts without a retained judge recording. This includes calls finishing during transport scheduling restarts. Their spend remains included above.",
         'The initial bank run used two concurrent calls. The owner then raised concurrency to six and the task cap to USD 16. Existing bank predictions were preserved.',
+        'Verify noise repeats run in parallel with two call slots each under the shared six-call ceiling. The scheduling restart preserves recorded replies within their own repetition and keeps repetitions separate.',
         'Per-judgment call accounting:',
-        f"- Verify bank: {metrics['bank']['verify']['successfulRecordedCalls']}/190 new calls per planned answer judgment; shared blind-reference cache hits are listed separately in metrics.json.",
-        f"- RubricBench bank: {metrics['bank']['rb']['successfulRecordedCalls']}/60 new calls per pair. One canonical comparison provides both requirement grades.",
-        f"- Verify noise: {metrics['noise']['verify']['successfulRecordedCalls']}/90 new calls per planned full-cascade judgment.",
-        f"- RubricBench noise: {metrics['noise']['rb']['successfulRecordedCalls']}/90 new calls per planned pair judgment.",'',
+        f"- Verify bank: {metrics['bank']['verify']['successfulRecordedCalls']} calls across 190 planned answer judgments, mean {metrics['bank']['verify']['newCallsPerJudgment']['mean']:.3f}; shared blind-reference cache hits are listed separately in metrics.json.",
+        f"- RubricBench bank: {metrics['bank']['rb']['successfulRecordedCalls']} calls across 60 pairs, mean {metrics['bank']['rb']['newCallsPerJudgment']['mean']:.3f} per pair. One canonical comparison provides both requirement grades.",
+        f"- Verify noise: {metrics['noise']['verify']['successfulRecordedCalls']} calls across 90 planned full-cascade judgments, mean {metrics['noise']['verify']['newCallsPerPlannedJudgment']['mean']:.3f}.",
+        f"- RubricBench noise: {metrics['noise']['rb']['successfulRecordedCalls']} calls across 90 planned pair judgments, mean {metrics['noise']['rb']['newCallsPerPlannedJudgment']['mean']:.3f}.",'',
         'Verification and limits:',
         '- Independent read-back oracle checks accept all clean copies and reject all planted copies. Python function fixtures include empty inputs, negative values and repeated values.',
         '- No model assigns bank truth. Original benchmark labels are used only to display repeat accuracy, not to construct or select bank labels.',

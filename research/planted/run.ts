@@ -58,7 +58,7 @@ async function rbRun(items:any[],tag:string,bank:boolean){
   rows.sort((a,b)=>a.id.localeCompare(b.id));
   await writeFile(path,JSON.stringify(rows,null,2)+'\n');await progress(tag,rows.length,items.length);return rows;
 }
-async function verifyRun(items:any[],tag:string){
+async function verifyRun(items:any[],tag:string,concurrency=6){
   let rows:any[]=[];
   const path=join(runtime,tag+'.json');
   try{rows=JSON.parse(await readFile(path,'utf8'))}catch{}
@@ -66,7 +66,7 @@ async function verifyRun(items:any[],tag:string){
   for(let at=0;at<pending.length;at+=10){
     const chunk=pending.slice(at,at+10);
     const rep=await runBenchmark({bench:'longjudge-verify',model:'haiku',contestants:[verifyById('driftbench-verify-uncertainty-cascade')],items:chunk,
-      criterion:'The final answer the response gives to the question is correct.',concurrency:6,capUsd:16,deadlineAt:deadline,
+      criterion:'The final answer the response gives to the question is correct.',concurrency,capUsd:16,deadlineAt:deadline,
       command,recordingsDir:join(runtime,'recordings',tag),includeDecisions:true});
     await appendFile(join(runtime,tag+'-batches.jsonl'),JSON.stringify(rep)+'\n');
     rows.push(...(rep.contestants[0]?.decisions??[]));
@@ -84,8 +84,8 @@ try{
   const cohorts=await read('noise-cohorts.json');
   // All bank calls finish before any noise call. Every repeat gets a fresh recording namespace.
   for(let k=1;k<=3;k++)await rbRun(cohorts.rb,`noise-rb-${k}`,false);
-  for(let k=1;k<=3;k++)await verifyRun(cohorts.verify,`noise-verify-${k}`);
-  await progress('all measured',155+60,155+60);
+  await Promise.all([1,2,3].map(k=>verifyRun(cohorts.verify,`noise-verify-${k}`,2)));
+  await progress('all measured',430,430);
 }catch(error){
   await writeFile(join(runtime,'stop.json'),JSON.stringify({at:new Date().toISOString(),error:String(error),meter:await meter()},null,2)+'\n');
   console.error(String(error));process.exitCode=1;
