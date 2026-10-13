@@ -112,7 +112,7 @@
     "packages/judges/src/budget.ts": "cc21c8eb2323df6804ded6c14bac0fcf0f8520a3f56b6edf4289b8c8427d3bdf",
     "packages/judges/src/calibration.ts": "9c394c0428f9e86c9ad8afe59a56511cef7a79f27fb1bab3013e93007a75cde7",
     "packages/judges/src/cascade.ts": "9c5b2ff06a1cf8ce12222a5f45f6a539cd29b097aa6533d226322be6803d32d2",
-    "packages/judges/src/cassette.ts": "3462f1aec38ce05f6b6bb20557ad4557c300121f395a6d0b93fe41fd4113d12b",
+    "packages/judges/src/cassette.ts": "bfa1f110ebc18682ef004aba29b7033f3d6e8aa27029fc23b4d86377f1620fc8",
     "packages/judges/src/check.ts": "1a6c2073bc7590866e223a2f6e2599cdf696afa41a782144badaecb95e6ff2bf",
     "packages/judges/src/client.ts": "9e4ce41e1a71e71c013ccae6bfa29cea237333f3c9446e53bab720577b5e366c",
     "packages/judges/src/clients/chat.ts": "7224e5b28f35a52e9fcfd3627fc8a530715a50fd376d4153009ed4a7599c831b",
