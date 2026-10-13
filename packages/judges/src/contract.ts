@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
+import type { ConformanceAudit } from './conformance';
 import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer } from './fact-audit';
 
@@ -55,6 +56,8 @@ export type CriterionText = z.infer<typeof CriterionText>;
 
 /** Everything one judge call reads. */
 export type JudgeRequest = {
+  /** A reference procedure observed disagreement before this judge call. Never a truth label. */
+  readonly referenceDisagreement?: boolean;
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
   /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
@@ -63,6 +66,8 @@ export type JudgeRequest = {
   readonly assessment?: Assessment;
   /** Candidate texts for validating content-anchored winners. */
   readonly candidates?: { readonly A: string; readonly B: string };
+  /** Pairwise presentation policy, included in cassette identity. Absent means both orders. */
+  readonly presentation?: 'both-orders' | 'canonical';
   readonly factAudit?: { readonly reference: string };
   readonly criterion: CriterionText;
   /** The system prompt of this request. Absent: the criterion prompt of the prompt kit. */
@@ -80,21 +85,48 @@ export type JudgeRequest = {
   readonly budget?: Budget;
 };
 
+/** Observable uncertainty signals. Labels never enter this routing contract. */
+export type EscalationTrigger = 'order-split' | 'inconclusive' | 'reference-disagreement' | 'low-confidence';
+export type EscalationRecord = {
+  readonly triggers: readonly EscalationTrigger[];
+  readonly escalated: boolean;
+  readonly first: readonly JudgeResult[];
+  readonly then: readonly { readonly judge: string; readonly result: JudgeResult; readonly error?: string }[];
+  readonly decision: 'first' | 'majority' | 'first-stands' | 'inconclusive';
+  readonly calls: number;
+};
+export type ComparisonResult = {
+  /** Final outcomes in their original presentation orders, including first-stands fallback. */
+  readonly ordered: JudgeOutcome;
+  readonly swapped: JudgeOutcome;
+  /** Diagnostics from the first judge's two orders, before escalation. */
+  readonly consistent: boolean;
+  readonly positionBias: boolean;
+};
+
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly escalation?: EscalationRecord;
+  readonly comparison?: ComparisonResult;
+  /** Explicit disagreement observed by a reference verification procedure. */
+  readonly referenceDisagreement?: boolean;
   /** Explicit pairwise winner before mapping it to the legacy binary outcome. */
   readonly winner?: 'A' | 'B' | 'tie' | 'inconclusive';
   /** Validated item scores and the deterministic aggregate. */
   readonly rubric?: RubricScores;
   readonly factLedger?: FactLedgerAnswer;
+  /** Opt-in criterion-local conformance audit, with its outcome computed in code. */
+  readonly conformance?: ConformanceAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
   readonly checks?: CriterionLedger['checks'];
-  /** Model-invented requirement ids, ignored during scoring and retained for diagnostics. */
+  /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {
     readonly attempts: number;
     readonly agreement: number;
     readonly used: boolean;
+    /** Auto route selected solving (true) or skipped it (false). Absent when routing was not requested. */
+    readonly routed?: boolean;
   };
   readonly answer: JudgeAnswer;
   /** The provider's answer as received: the model text, or the JSON body of a system 1 answer. */

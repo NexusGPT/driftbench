@@ -139,7 +139,7 @@ Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku a
 ## The request and the answer
 
 * Ordinary chat requests supply a criterion and an authoritative requirement list. `JudgeRequest.requirements` gives each requirement an `id` and its full definition. An unsplit criterion defaults to its name as one id covering the full rubric.
-* The model returns `checks`, each with a requested `id`, `reasoning`, a grounded `evidence` quote or null, and `met` as true, false or null. Every requested id must occur exactly once. Missing or duplicate ids are unparseable. Unknown ids are ignored and retained in `ignoredRequirementIds` diagnostics.
+* The model returns `checks`, each with a requested `id`, `reasoning`, grounded `evidence` spans or null, and `met` as true, false or null. Every requested id must occur exactly once. Missing or duplicate ids are unparseable. Unknown ids are ignored and retained in `ignoredRequirementIds` diagnostics.
 * Code computes the public binary `JudgeAnswer`: any known unmet requirement fails; otherwise an unknown requirement abstains; otherwise all requested requirements pass. The quote check proves that text appears in the data. It does not prove semantic correctness, and an incorrect model `met` flag can still produce an incorrect verdict.
 * Observed content sits inside data tags. The default guard escapes data-section tags, compatibility forms and invisible characters. The default renderer uses indexed JSON entries with separate role and text fields. Role comes from the frame; literal bracket tags or JSON fields inside text cannot change it. Evidence quotes the text value. The public `renderEntry` line utility still shows separators as ` ⏎ `.
 * The answer is the last complete JSON object. Extra fields, invalid evidence, duplicate decoded keys within an object and truncated objects are unparseable. Shared syntax repair handles unescaped quotes and invalid backslash escapes inside strings without supplying a verdict or requirement. Strict JSON is never marked repaired.
@@ -223,6 +223,61 @@ The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-d
 * Modes: `system1`, `hybrid` or `llm`. `system1` and `llm` force their class and never call the other one. Scores from different modes are not comparable.
 * Diversity: the council is refused when it is built, before any call, when a judge shares the model family of the agent under test (compared without case). The agent family must be stated: `none` for an agent that is not a model. In perturbed mode, the simulated user runs on a third family; the simulated user is planned, phase 3.
 * The council is also refused for fewer than three judges of a class the mode uses, two judges with one id, a row with a class the mode does not use or without three different judges of the right class, a re-judge row outside hybrid mode, and a criterion both assigned and unassigned.
+
+### Label-blind escalation
+
+`createEscalation` is an opt-in `JudgeClient` that asks other families only when the first judge reports a selected uncertainty signal. It uses `createCouncil` for the later vote. It does not read fixture sides or human labels, and it leaves the default prompt fingerprint unchanged.
+
+```ts
+import { createEscalation, judgePairwise } from '@agent-nexus/driftbench-judges';
+
+// first and then are caller-supplied provider clients or cassette players.
+const judge = createEscalation({
+  first,
+  then,
+  agentFamily: 'meta',
+  on: ['order-split', 'inconclusive', 'reference-disagreement'],
+  confidence: 0.5,
+  decide: 'first-stands',
+});
+const verdict = await judgePairwise(judge, criterion, transcript, firstReply, secondReply);
+console.log(verdict.choice, verdict.escalation);
+```
+
+Each enabled signal can trigger the same single escalation round:
+
+| Signal | When it fires |
+|---|---|
+| `order-split` | The first judge's two presentation orders disagree after mapping back to the same candidates. |
+| `inconclusive` | A first result is unparseable or unknown, or its requirement/rubric ledger contains a null value. A valid pairwise tie does not trigger this signal. |
+| `reference-disagreement` | A supplied reference disagrees with both explicitly marked final answers, a reference procedure reports disagreement, blind solves do not reach consensus, or both candidates have wrong/missing reference facts. |
+| `low-confidence` | The probability of the selected verdict is below `confidence`, or no valid score is available. |
+
+`score` is the probability of passing. A fail at score 0.01 has confidence 0.99, not 0.01. Equality with the threshold is accepted. Chat clients often omit scores, so enabling `low-confidence` makes those answers escalate. This signal is opt-in through `on`; no confidence is inferred from reasoning text.
+
+Exact final-answer comparison uses the existing extractor and preserves case, signs and punctuation after Unicode and whitespace normalization. Unmarked candidate prose is not compared as an exact answer. This signal requests another judgment; it does not prove that the reference is correct.
+
+`judgePairwise` supplies both orders together. The first judge answers each once, then every later seat answers at most once in that escalation round. Later seats receive the original ordering and may themselves be recorded comparison procedures. The first vote does not join the later majority. Both decision policies accept a later majority, including an explicit tie; `majority` abstains on a second split, while `first-stands` preserves the original answer or original two order outcomes. An inconsistent first pair still has aggregate `choice: 'tie'` when it stands.
+
+With `presentation: 'canonical'`, the first judge receives only the canonical order. `order-split` cannot fire without a second order; the other selected signals still apply. The canonical verdict preserves the escalation record, reported cost and actual seat-call count, including when replayed with the caller's candidates reversed.
+
+`verdict.escalation` records the triggers, first results, later results, decision and call count. The pairwise `ordered` and `swapped` fields carry the final outcomes; `consistent` and `positionBias` retain the first judge's diagnostics. `costUsd` sums reported provider costs. A first-seat transport error still throws; it is not relabelled as a model verdict. Later-seat errors abstain under the council contract.
+
+`agentFamily` is required. Construction refuses a first or later judge from that family, including known model-name aliases and constituents of nested clients. The pool must span multiple families. The composite retains `families` so an outer council and calibration cannot hide its later models behind the first judge's identity. `none` means a non-model agent; it does not mean unknown provenance.
+
+For pointwise use, call `judge.judge(request)`. That path has no second presentation, so it cannot trigger `order-split`. Reference and verification decorators can wrap the first seat or the full escalation client. A custom comparison client implements optional `judgeComparison(ordered, swapped)` and returns comparison diagnostics with its `JudgeResult`.
+
+To measure the actual deployable route, use the existing calibration engine:
+
+```ts
+const report = await calibrateCascade({ judge, criteria, labels, repeats: 3 });
+```
+
+This overload sends only each `JudgeRequest` to the procedure and uses labels afterward for scoring. Its full and `unsureOnly` scores coincide. The older `{ first, escalateTo, ... }` research overload remains available; its full score includes label-aware escalation and must not be presented as a deployed route's accuracy.
+
+`recordingClient(judge, cassette)` and `playerClient(cassette, judge.id)` preserve both-order comparisons and routing records. The key covers both requests and the escalation configuration, including constituent model settings. A missing entry fails; there is no live fallback.
+
+The [recording-only MM-Eval example](../../examples/escalation/README.md) replays all DEV400 rows through this public API. It pins research object `140f406a55a8ce46b24f1b51c5c32c23daf035b7` and the companion frozen-base recordings. The historical generator families are absent, so that replay cannot establish family independence or held-out quality. The package enforces the family rule on supplied production metadata.
 
 `driftbench judge run` replays a council on a cassette over every fixture pair of a criteria folder. A criterion is separated when its pass fixture passes and its fail fixture fails. It exits 0 when every criterion is separated, 1 when one is not or a judge gave no answer, and 2 on bad input or a refused council.
 
@@ -570,7 +625,9 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 
 ## Model-facing criterion checks
 
-Ordinary chat checks return one evidence row per requested requirement: `id`, `reasoning`, a grounded `evidence` quote (or null), and `met` (true, false or null). `JudgeRequest.requirements` defines the exact set; an unsplit criterion supplies one id, its name, covering its entire rubric. The model returns no overall verdict. Code computes fail when any requirement is unmet, inconclusive when a requirement is unknown, and pass when all requirements are met. A met requirement needs a quote from the supplied data. Invented evidence, missing or duplicate requested ids and extra keys are unparseable. Unknown ids are ignored and retained in `ignoredRequirementIds`. The model does not choose the requirement set.
+Ordinary chat checks return one evidence row per requested requirement: `id`, `reasoning`, grounded `evidence` spans (or null), and `met` (true, false or null). `JudgeRequest.requirements` defines the exact set; an unsplit criterion supplies one id, its name, covering its entire rubric. The model returns no overall verdict. Code computes fail when any requirement is unmet, inconclusive when a requirement is unknown, and pass when all requirements are met. A met requirement needs evidence from the supplied data. Invented evidence, missing or duplicate requested ids and extra keys are unparseable. Unknown ids are ignored and retained in `ignoredRequirementIds`. The model does not choose the requirement set.
+
+The default prompt requests `evidence` as a nonempty list of `{ source, quote }` spans, or null. Source ids are `transcript.<entry index>`, `artifact`, `given`, `input.<file path>` and `reference`. Each quote must ground in its named source. Separate entries need separate spans; a pipe-joined quotation is never split or guessed. One invalid span makes the ledger unparseable. Existing string evidence remains accepted under its original grounding rules. The returned `checks` retain every span; the public `JudgeAnswer.evidence` exposes the first grounded quote as a string.
 
 The public `JudgeAnswer` remains `{ outcome, reasoning, evidence?, score? }`. `parseAnswerText` and `parseAnswerValue` remain binary parsing utilities; the text utility includes additional syntax repairs. Custom chat clients use `parseJudgeText` or `parseJudgeValue` with the request. Probability judges retain their existing binary question and mapping.
 
@@ -582,7 +639,9 @@ The committed Haiku regression cassettes retain four fresh responses for each of
 
 ## Pairwise comparison
 
-`judgePairwise(client, criterion, transcript, first, second, options)` compares both candidate orders and reconciles their identities in code. Its public `choice`, `ordered`, `swapped`, `consistent` and `positionBias` fields remain available. A disagreement remains a tie. `calls` counts the actual calls; `recovered` marks a fact-ledger recovery.
+`council.judge(pairwiseRequest(criterion, transcript, first, second))` seats the named-winner contract directly. Every vote carries `winner`, and the council counts that field even if a custom client's binary outcome contradicts it. A majority of explicit ties returns `winner: 'tie'` with an inconclusive binary outcome, without another round. Missing winners and unparseable responses abstain. The council returns a winner for that presentation only; use `judgePairwise` when both orders must be checked.
+
+`judgePairwise(client, criterion, transcript, first, second, options)` defaults to `presentation: 'both-orders'`. It compares both candidate orders and reconciles their identities in code. Its public `choice`, `ordered`, `swapped`, `consistent` and `positionBias` fields remain available. A disagreement remains a tie. `calls` counts the actual calls; `recovered` marks a fact-ledger recovery.
 
 Chat models now return a named winner instead of translating a winner into pass or fail:
 
@@ -592,11 +651,34 @@ Chat models now return a named winner instead of translating a winner into pass 
 
 * `winner` is `A`, `B`, `tie` or `inconclusive`. Code maps A to the existing `pass` outcome and B to `fail`.
 * `winnerQuote` copies a passage that appears in the winner and not in the other candidate. The passage can occur anywhere and must be nonempty. It is null for a tie or missing data. A decisive answer without candidates or with a blank quote is unparseable.
+* For serialized JSON, the substantive span is checked after string unescaping and mapped back to its original source positions. A quote inside an escaped role token, a JSON `text` wrapper key or an escape spelling for punctuation cannot ground. JSON normalization still needs content from the decoded values.
+* A literal substring of a candidate retains its match, including an opening code fence copied from a complete fence. Normalization adds matching views; it cannot remove a substantive literal match. Quotes still need a letter or digit from the candidate body, excluding role and list metadata, and must identify exactly one candidate across all matching views.
 * If a quote is shared, the parser can extend it with following evidence text that the model actually supplied, including a winner-labelled quoted passage. The complete extension must occur in order in exactly one candidate. Code never invents following words from the A/B label. An evidence passage may repeat the shared opening; code removes that overlap before extending it. Strict JSON string or text-field decoding, rendered separators, Markdown/list presentation and a leading reply label can normalize copies. The label must agree with the declared winner, then the same stripped quote body is checked against both candidates. A label never excludes the other candidate. Malformed or duplicate JSON is not decoded. Paraphrase and nonexclusive matches remain invalid.
 * A malformed answer gets one re-ask with the large budget. An ambiguous quote's re-ask explicitly says "your quote matches both replies" and requests a distinguishing passage. A still-invalid answer stays inconclusive.
 * Every built-in chat client sends and parses the request's assessment contract. Custom clients that already return binary outcomes remain supported, including probability clients. They do not provide the named-winner integrity check until they adopt `parseJudgeText(raw, request)` or `parseJudgeValue(value, request)`.
 
 `pairwiseRequest` carries `assessment`, `candidates` and the comparison system prompt. An HTTP judge endpoint receives those fields in its request. A changed assessment, requirement set or custom system prompt changes the cassette key. New-default pairwise and criterion recordings require fresh responses. Existing recordings remain usable with `answerContract: 'legacy'`.
+
+### Canonical presentation
+
+```ts
+const result = await judgePairwise(client, criterion, transcript, first, second, {
+  presentation: 'canonical',
+});
+// result.choice names the caller's first or second candidate, or a tie.
+// result.outcome is the outcome in canonical A/B order.
+// result.aIsFirst says whether canonical A was the caller's first candidate.
+```
+
+Canonical presentation sorts the complete, unmodified candidate texts by their UTF-8 SHA-256 hashes, ascending. Equal hashes use JavaScript string order as a deterministic fallback. The judge sees that order once, and code maps its winner back to the caller's order. Identical candidates return a tie. A tie or missing-data answer also remains a tie.
+
+`CanonicalPairwiseVerdict` carries `presentation: 'canonical'`, `choice`, `outcome`, `aIsFirst` and `calls`. It omits `ordered`, `swapped`, `consistent`, `positionBias` and `recovered`: the other order was not measured. `pairwiseTally` accepts either verdict type; its inconsistency and position-bias counts include only measured, both-orders verdicts.
+
+One valid canonical comparison uses one client call instead of the default's two primary calls. A malformed answer retains the single bounded re-ask in the same canonical order. Reference text, audit settings and rubric items still apply, but canonical mode does not run the two-order fact-ledger recovery. Rubric items keep their supplied order. `calls` reports the actual number of client calls, including a repair.
+
+Canonical presentation joins the request key, including legacy and system 1 keys. A canonical cassette entry can replay either caller order. It cannot silently replay a both-orders entry. The default and explicit `both-orders` keys stay unchanged, as does the prompt fingerprint. There is no implicit result cache: two live invocations still call the client twice. Record once and use `playerClient` to reuse a judgement.
+
+Mapping is not immunity to order bias. A judge can prefer canonical A regardless of content, and independent live invocations can disagree. Keep the default when measuring position bias matters. Cost savings depend on retries, recovery and the client; one presentation does not promise a universal cost reduction.
 
 ### Factual audit and ledger recovery
 
@@ -623,9 +705,9 @@ const result = await judgePairwise(client, criterion, transcript, first, second,
 });
 ```
 
-Code validates that every item appears exactly once, then computes the weighted fulfillment fraction. A candidate that fully meets every hard item outranks one that fails a hard item. Otherwise the fractions decide. A missing score leaves the assessment inconclusive. The swapped pass reverses the rubric presentation order as well as the candidates; names preserve aggregation identity.
+Item names are stable caller-owned requirement ids, not model-assigned row positions. Code ignores unknown names before validating scores and retains them in `ignoredRequirementIds`. Every requested name must still appear exactly once; missing, duplicate or malformed requested rows are unparseable. Code then computes the weighted fulfillment fraction from only the requested items. A candidate that fully meets every hard item outranks one that fails a hard item. Otherwise the fractions decide. A null score leaves the assessment inconclusive. The swapped pass reverses the rubric presentation order as well as the candidates; names preserve aggregation identity. Reasoning prose cannot replace a structured score, even when they conflict.
 
-`judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
+`judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. An invalid ledger gets one re-ask with the same caller requirements and the large budget, then remains inconclusive if still invalid. Reported `costUsd` includes both calls. Valid scores, including null, do not trigger a re-ask. Explicit legacy requests retain their previous one-call behavior. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
 
 ### Optional verification and reference agreement
 
@@ -637,7 +719,44 @@ Code validates that every item appears exactly once, then computes the weighted 
 
 `referenceConsensus(answers, { minAgreement, normalize })` includes failed or missing solve attempts in its denominator. Its default requires agreement of at least 0.8 across at least two attempts. It never uses a mere plurality or removes decimal points. A caller may supply an equivalence normalizer. Agreement is a consistency signal, not a correctness guarantee.
 
-`withReferenceConsensus(client, { solve, samples })` wraps pointwise judgement with sequential blind solves. The solver receives the user question only, never the candidate response. Only an agreed answer becomes `reference`; an explicit caller reference remains intact. The result records agreement and reported solve costs. The solve port is opt-in, and no provider or solver model is selected automatically. Pairwise callers can collect blind solves once, apply `referenceConsensus`, then pass its reference to `judgePairwise`.
+`withReferenceConsensus(client, { solve, samples })` wraps a judge with sequential blind solves. The solver receives the user question only, never the candidate response, caller rubric or benchmark label. Only an agreed answer becomes `reference`; an explicit caller reference remains intact. The default stays five solves, with agreement of at least 0.8. The solve port is opt-in, and no provider or solver model is selected automatically.
+
+#### One solve and automatic routing
+
+Set `samples: 1` to use one nonempty blind solve. Its complete text becomes the reference, including any reasoning. This saves solve calls but provides no independent agreement check. The standalone `referenceConsensus` helper still needs at least two attempts.
+
+```ts
+import { withReferenceConsensus } from '@agent-nexus/driftbench-judges';
+
+// client and request are your existing judge and request.
+// solve(question, attempt) returns { answer?: string, costUsd?: number }.
+const routed = withReferenceConsensus(client, {
+  solve,
+  samples: 1,
+  route: 'auto',
+});
+const result = await routed.judge(request);
+```
+
+`route: 'auto'` first asks whether the question has one checkable correct answer: a number, option, fact, proof result or code behavior. Creative writing, advice, opinion, style and open-ended requests skip the solve. Without `route`, the wrapper always attempts the configured solves.
+
+The default route uses the wrapped client and its existing answer contract: pass means YES, fail means NO, and an unparsed or inconclusive result skips solving. The routing request contains only its fixed checkability criterion and the user question. It never receives candidate answers, caller system instructions, artifacts, inputs or labels. Multiple user entries are joined in transcript order.
+
+For a separate classifier or replay of one-word recordings, supply `check(question)`, which returns `{ answer: 'YES' | 'NO', costUsd? }`. It receives only the question and requires `route: 'auto'`. Only a complete YES, ignoring case and surrounding whitespace, enables solving. A missing or malformed answer, thrown error or invalid cost skips solving. The original judgement still runs without a generated reference. A failed or blank solve also leaves the reference absent; neither step manufactures a pass.
+
+| Result field | Meaning |
+| --- | --- |
+| `referenceAgreement.routed` | `true` when auto routing selects solving, `false` when it skips. Absent without auto routing. |
+| `referenceAgreement.attempts` | Number of solve attempts, including failures. Zero when routing skips. |
+| `referenceAgreement.agreement` | Winning answer's share of all attempts. A successful single solve records 1, which is not proof of correctness. |
+| `referenceAgreement.used` | Whether a generated reference reaches the judge. A positive route with a failed solve records `false`. |
+| `costUsd` | The final judgement's reported cost plus reported solve costs and any new routing call's cost. |
+
+Each wrapper caches route decisions by exact question, including concurrent and failed calls, for its lifetime. It charges a routing call only to the request that starts it. A later request reuses the decision without adding that cost again. A new wrapper starts an empty cache. Solves are not cached. An explicit caller reference, even an empty string, or a missing user question bypasses both steps and returns the original judge result.
+
+For repeated or pairwise judging, supply a caller-owned memoized solver when all verdicts should share one reference. Return its cost only when that solve runs. `samples` here counts blind solves, not verdict samples; `judgeRepeated` controls repeated judgements separately. Pairwise callers can also collect multiple blind solves once, apply `referenceConsensus`, then pass its reference to `judgePairwise`.
+
+The feature does not change `PROMPT_FINGERPRINT`. The generated reference and the separate route request use the existing request keys. See the [offline reference replay](https://github.com/achammah/driftbench/tree/main/examples/reference-replay) for historical reference3 and adaptive recordings through this API. That replay checks recorded behavior, not a fresh accuracy estimate for a different prompt or model.
 
 ## Repeat reducers
 

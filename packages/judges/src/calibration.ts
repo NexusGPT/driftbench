@@ -7,7 +7,7 @@ import type { JudgeClient } from './client';
 import { JudgeClass, type JudgeOutcome, type JudgeRequest } from './contract';
 import type { AssignmentRow, CouncilMode, UnassignedCriterion } from './council';
 import { CriterionFixture, fixtureInputs, fixtureRequest, type LoadedCriterion } from './criteria';
-import { normalizeFamily, sameFamily } from './family';
+import { familyOfModel, normalizeFamily } from './family';
 
 /**
  * Calibration (P2.3): a judge earns a criterion, it is never assumed to own one.
@@ -349,7 +349,9 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
   const mode = config.mode ?? 'hybrid';
   const kappaMin = config.kappaMin ?? KAPPA_MIN;
   const agentFamily = config.agentFamily ?? 'none';
-  const excluded = config.judges.filter((judge) => sameFamily(judge.family, agentFamily)).map((j) => j.id);
+  const excluded = config.judges
+    .filter((judge) => familiesOf(judge).includes(familyOfModel(agentFamily) ?? normalizeFamily(agentFamily)))
+    .map((j) => j.id);
   const judges = config.judges.filter((judge) => !excluded.includes(judge.id));
 
   const criteria: CriterionCalibration[] = [];
@@ -579,6 +581,16 @@ function byCost<T extends { cost: number; id: string }>(a: T, b: T): number {
   return a.cost - b.cost || a.id.localeCompare(b.id);
 }
 
+function familiesOf(judge: JudgeClient): string[] {
+  return [
+    ...new Set(
+      [judge.family, ...(judge.families ?? [])].map(
+        (family) => familyOfModel(family) ?? normalizeFamily(family),
+      ),
+    ),
+  ];
+}
+
 /** The cheapest-judge rule: the one cheapest judge at the bar, in a class the mode uses, judges alone. */
 function assignCheapest(
   rows: readonly JudgeCalibration[],
@@ -594,14 +606,16 @@ function assignCheapest(
     const missing = rows.map((row) => `${row.judge} ${row.misses.join(' and ')}`).join('; ');
     return { status: 'unassigned', reason: `no judge meets the bar${missing ? `: ${missing}` : ''}` };
   }
-  const family = judges.find((j) => j.id === owner.id)?.family;
+  const client = judges.find((j) => j.id === owner.id);
+  const families = client ? familiesOf(client) : [];
+  const [only] = families;
   return {
     status: 'assigned',
     owner: owner.id,
     cls: owner.cls,
     judges: [owner.id],
     rejudge: [],
-    ...(family === undefined ? {} : { singleFamily: normalizeFamily(family) }),
+    ...(families.length === 1 && only !== undefined ? { singleFamily: only } : {}),
   };
 }
 
@@ -641,7 +655,10 @@ function assign(
     }
     const seatedIds = seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
     const families = new Set(
-      [...seatedIds, ...rejudge].map((id) => normalizeFamily(judges.find((j) => j.id === id)?.family ?? id)),
+      [...seatedIds, ...rejudge].flatMap((id) => {
+        const judge = judges.find((j) => j.id === id);
+        return judge ? familiesOf(judge) : [id];
+      }),
     );
     const [only] = families;
     return {

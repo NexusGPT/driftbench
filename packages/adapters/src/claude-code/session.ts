@@ -609,7 +609,7 @@ export function mapSession(input: SessionInput): ReplaySession {
 /** Puts decision-log rows into `runtime.guards` and step-feed rows into `runtime.stages`, by time window. */
 function placeRows(input: SessionInput, meta: SessionMeta, builders: BlockBuilder[]): void {
   const starts = builders.map((block) => (block.at === undefined ? Number.NaN : Date.parse(block.at)));
-  const blockAt = (at: string): BlockBuilder | string => {
+  const blockAt = (at: string): { block: BlockBuilder; carried?: true } | string => {
     if (builders.length === 0) return 'the session has no user turn';
     const time = Date.parse(at);
     let found: BlockBuilder | undefined;
@@ -617,9 +617,9 @@ function placeRows(input: SessionInput, meta: SessionMeta, builders: BlockBuilde
       const start = starts[index] ?? Number.NaN;
       if (!Number.isNaN(start) && start <= time) found = block;
     });
-    if (found) return found;
+    if (found) return { block: found };
     if (starts.every((start) => Number.isNaN(start))) return 'the transcript has no timestamps';
-    return builders[0] as BlockBuilder;
+    return { block: builders[0] as BlockBuilder, carried: true };
   };
   let otherSession = 0;
   const guards: Array<{ row: DecisionRow; block: BlockBuilder }> = [];
@@ -633,9 +633,9 @@ function placeRows(input: SessionInput, meta: SessionMeta, builders: BlockBuilde
       otherSession += 1;
       continue;
     }
-    const block = blockAt(row.at);
-    if (typeof block === 'string') meta.unplaced.guards.push({ row, reason: block });
-    else guards.push({ row, block });
+    const placement = blockAt(row.at);
+    if (typeof placement === 'string') meta.unplaced.guards.push({ row, reason: placement });
+    else guards.push({ row, block: placement.block });
   }
   if (otherSession > 0) {
     meta.issues.push(`${otherSession} decision-log rows belong to another session and were left out`);
@@ -651,18 +651,20 @@ function placeRows(input: SessionInput, meta: SessionMeta, builders: BlockBuilde
       ...(row.outcome === undefined ? {} : { outcome: row.outcome }),
     });
   }
-  const stages: Array<{ row: StepRow; block: BlockBuilder }> = [];
+  const stages: Array<{ row: StepRow; block: BlockBuilder; carried?: true }> = [];
   for (const entry of input.steps ?? []) {
     const row = entry.ok ? stepRow(entry.value) : `line ${entry.line} is not JSON: ${entry.error}`;
     if (typeof row === 'string') {
       meta.unplaced.stages.push({ row: entry.ok ? entry.value : entry.text, reason: row });
       continue;
     }
-    const block = blockAt(row.at);
-    if (typeof block === 'string') meta.unplaced.stages.push({ row, reason: block });
-    else stages.push({ row, block });
+    const placement = blockAt(row.at);
+    if (typeof placement === 'string') meta.unplaced.stages.push({ row, reason: placement });
+    else stages.push({ row, ...placement });
   }
-  for (const { row, block } of sortByAt(stages)) block.stages.push({ name: row.step, at: row.at });
+  for (const { row, block, carried } of sortByAt(stages)) {
+    block.stages.push({ name: row.step, at: row.at, ...(carried ? { carried } : {}) });
+  }
 }
 
 function sortByAt<T extends { row: { at: string } }>(rows: T[]): T[] {

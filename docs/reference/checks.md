@@ -28,7 +28,7 @@ Two kinds of verdict are inconclusive:
 
 | Check | Applies to a block when | Verdict ids |
 |---|---|---|
-| `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.order`, `tools.argument_accuracy` |
+| `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input_closed`, `tools.order`, `tools.argument_accuracy` |
 | `tools_offered` | `expect.tools_offered` names a tool to include or exclude | `tools_offered.include.<tool>`, `tools_offered.exclude.<tool>` |
 | `forbidden` | a tool is in `rules.forbidden_tools`, has `rules.max_calls`, or is expected 0 times in the block | `forbidden.<label>`, `forbidden.max_calls.<label>` |
 | `must` | `expect.must` holds a pattern | `must.<index>` |
@@ -44,7 +44,7 @@ Two kinds of verdict are inconclusive:
 | `lang` | `expect.lang` is set, or `rules.lang_stable` is true | `lang.expected`, `lang.stable` |
 | `pii` | the block has visible text | `pii.iban`, `pii.national_number`, `pii.phone`, `pii.email` |
 | `cards` | `expect.cards` names a card, or `rules.one_message_per_turn` is true | `cards.<name>`, `cards.one_message_per_turn` |
-| `stage` | `expect.stage` is set and the runtime reported a stage | `stage.reached` |
+| `stage` | `expect.stage` is set and the runtime reported a stage, or `expect.stage_reported` is true | `stage.reached`, `stage.reported` |
 | `skills` | `expect.skills` names a skill | `skills.<name>` |
 | `guards` | `expect.guards` names a guard | `guards.<name>.<verdict>`, or `guards.<name>.any` for an entry without a verdict |
 | `references` | `expect.references` names a path and the runtime reports the files read | `references.<path>`, the path or glob as the spec writes it |
@@ -125,6 +125,8 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
           coupon: { absent: true }
     tool_order: in_order
 ```
+
+`input_closed: true` requires each call input to be an object containing only the top-level keys listed in `input`. Missing or non-object inputs fail. With no `input`, only an empty object is allowed. Nested values keep their normal assertion semantics. This gives a gating `tools.<label>.input_closed` verdict; it does not change argument accuracy. Zero calls pass closure; the count assertion remains independent. Omitted or false leaves extra keys allowed.
 
 `count: 0` means the call must not happen. The `forbidden` check reports that fact, not `tools`, so it is never reported twice.
 
@@ -396,6 +398,32 @@ rules:
 * `before` is one name or a list. With a list, any one of its names before the X holds the pair. The verdict id joins the list with `_or_`: the second pair above is `custom.ordered.Read_or_Grep.Edit`.
 * A Write that succeeded counts as a Read of the file it wrote, since the agent then holds its content. So `before: Read` with `key: file_path` holds for an Edit that follows a Write of the same file. A Write that failed counts as nothing.
 
+### Stated length
+
+`stated_length` is an opt-in custom check for writing tasks. It reads a total length stated in the request and fails a reply far under it. Register it, then name it under `rules.custom`.
+
+```ts
+import { registerCheck, statedLength } from '@agent-nexus/driftbench-checks';
+
+registerCheck('stated_length', statedLength);
+```
+
+```yaml
+rules:
+  custom:
+    stated_length: {}
+```
+
+* The request is `options.request`, else the block's user message. The check judges the whole reply.
+* It reads English words ("no less than 800 words", "around 1000 words", "a 1500-word speech", "between 500 and 800 words", "under 7 words") and Chinese characters stated in 字 (不少于800字, 大约1500字, 300字以内, 两千字左右). A limit on each item ("each slogan", 每条) and counts of lines, paragraphs or characters in a story are not read.
+* Units are whitespace-separated words for English, Han characters for 字. Punctuation and Latin letters in a Chinese reply do not count.
+* A reply fails when it holds fewer than `under_floor` (default 0.5) times the stated floor or target. Over-length never fails, unless `over_ceiling` is set: then a reply over that multiple of the stated ceiling or target fails.
+* No stated length: no verdict.
+
+For a pair of drafts, `preferByStatedLength(request, a, b)` returns `'a'` or `'b'` when one draft passes and the other fails, else `undefined`. Apply it before a pair judge and keep the judge's choice when it returns `undefined`. `statedLengthVerdict` and `parseStatedLength` give the same reading for one draft.
+
+Why these defaults. On 48 labelled pairs whose request states a length (WritingPreferenceBench outside its sealed test pool, and LongJudge writing DEV), human labels punish only a draft far under the stated length: a 35-word reply to "no less than 800 words" lost. Drafts between 66 and 99 percent of the stated floor or target won 6 times and lost 3 times. Over-length did not predict a loss: chosen drafts sat over the stated ceiling or target 9 times, rejected drafts 11 times, and one chosen reply held 18 times a stated ceiling of 7 words. The earlier rule, 10 percent tolerance both ways, overrode a correct holistic choice on 2 of 180 LongJudge writing DEV games and fixed none. The default fires on none of those games. It is a guard against a reply that ignores the request, not a quality signal.
+
 ## Judged criteria
 
 `criteria` names criteria the spec defines, or criteria from a shared catalogue. `gating: true` on a definition gates every reference to it, and `name@gating` gates that one reference; a fail of a gating criterion fails the block.
@@ -430,6 +458,7 @@ A verdict from the Acme campaign run with a council that replays the campaign ca
 ## Stage and facts
 
 * `stage` reads the last stage the runtime reports in the block. A runtime that reports a stage only when it changes leaves some blocks without one: in a free-running or perturbed run, the last stage an earlier block reported still holds. When no stage was ever reported, the check does not apply, and the runner's stage classifier reads the stage from the block's tool calls instead and gives `flow.stage` or `flow.order` verdicts. See [the stage classifier](../concepts/drift.md#the-stage-classifier). A name missing from `stages` is an error (`STAGE_UNKNOWN`).
+* `stage_reported: true` requires a non-empty runtime stage in this block, with a gating `stage.reported` verdict. A stage carried from history, marked `carried: true` in `runtime.stages`, or inferred from tools cannot satisfy it, in any run mode. It works without `stage`; use both to require a report with a particular stage name. Omitted or false keeps the existing behavior.
 * `ledger_add` adds facts to the ledger, which every later check sees. The runner records a ledger check per block: a fact the block adds with a value other than the one the ledger already holds is a contradiction, named with both values. It does not change whether the block passes. The ledger check compares the block's tool inputs, and the email addresses and phone numbers its reply states, with the ledger, in code, and gives one gating verdict `ledger.<fact>` per fact stated. See [the ledger check](../concepts/drift.md#the-ledger-check).
 
 ## Budget
