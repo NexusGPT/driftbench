@@ -21,6 +21,8 @@ export type CallIdentity = {
   /** Each independent repeat and canonical third read has a distinct sampling identity. */
   sample: number;
   ordinal: number;
+  /** Absent on the original attempt. Transport-only retries preserve the original key. */
+  transportAttempt?: number;
   transportFingerprint: string;
   request: unknown;
 };
@@ -37,6 +39,7 @@ export type LedgerCall = {
   identity: CallIdentity;
   completion?: LedgerCompletion;
   error?: string;
+  retryable?: boolean;
 };
 export class LedgerBudgetStop extends Error {}
 export class LedgerUncertainCall extends Error {}
@@ -73,6 +76,20 @@ export class LedgerCalls {
   get rows(): readonly LedgerCall[] { return [...this.completed.values()]; }
   get uncertainKeys(): readonly string[] {
     return [...this.started.keys()].filter((key) => !this.completed.has(key) && !this.live.has(key));
+  }
+  /** Caller first verifies that the interrupted runner and its children have stopped. */
+  async recoverInterrupted(): Promise<number> {
+    const keys = [...this.uncertainKeys];
+    for (const key of keys) await this.serial(async () => {
+      const start = this.started.get(key)!;
+      const row: LedgerCall = { key, model: start.identity.model, item: start.identity.item,
+        contestant: start.identity.contestant, identity: start.identity, text: '',
+        status: 'error', costUsd: start.reserveUsd, costBasis: 'reservation', retryable: true,
+        error: 'Runner interrupted; no client completion survived. Original reservation remains charged.' };
+      await appendRecording(join(this.directory, 'calls.jsonl'), row);
+      this.completed.set(key, row);
+    });
+    return keys.length;
   }
   private async serial<T>(f: () => Promise<T>): Promise<T> {
     const p = this.pending.then(f);
@@ -116,9 +133,13 @@ export class LedgerCalls {
         item: identity.item, contestant: identity.contestant, status: 'ok', identity, completion,
         costBasis: completion.costUsd !== undefined ? 'reported' : estimated !== undefined ? 'usage' : 'reservation' };
     } catch (e) {
+      const reason = e instanceof Error ? e.message : String(e);
+      const code = (e as { code?: string }).code;
+      const retryable = (e as { retryable?: boolean }).retryable === true ||
+        code === 'network' || /fetch failed|timed? ?out|past \d+ ms|ECONNRESET|ECONNREFUSED|ENOTFOUND|claude returned an error result|without a JSON result/i.test(reason);
       row = { key, model: identity.model, text: '', costUsd: reserveUsd, item: identity.item,
         contestant: identity.contestant, status: 'error', costBasis: 'reservation', identity,
-        error: e instanceof Error ? e.message : String(e) };
+        error: reason, retryable };
     }
     await this.serial(async () => {
       await appendRecording(join(this.directory, 'calls.jsonl'), row);

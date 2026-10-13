@@ -48,4 +48,19 @@ describe('live pair-ledger harness', () => {
     const next = await evaluate(swapped, requirements, 'claude-haiku-5-5', 'relabel', 0, 'pair-ledger', fake, calls, true);
     expect(next.decisions).toEqual(['B', 'B']);
   });
+  test('retries transport failures but never repeats a returned malformed answer', async () => {
+    const root = await mkdtemp(resolve('.cache/ledger-rb/test-live-'));
+    const calls = await new LedgerCalls(root, 2).load(); let count = 0;
+    const fake: DialectTransport = { dialect: 'scratchpad-json', fingerprint: 'retry-test',
+      async complete() { count++; if (count === 1) throw new Error('fetch failed');
+        return { text: 'malformed returned answer', raw: '{}', fingerprint: 'retry-test', dialect: 'scratchpad-json', costUsd: .001 }; } };
+    const item = validityFixtures()[0]!;
+    const row = await evaluate(item, [{ name: 'rb_1', rubric: item.criterion! }], 'claude-haiku-5-5', 'retry-test', 0, 'pair-ledger', fake, calls, true);
+    expect(count).toBe(3); // failed transport + ordered answer + swapped answer; zero schema reasks
+    expect(row.status).toBe('unparsed'); expect(row.callKeys).toHaveLength(3);
+    expect(calls.rows.filter((r) => r.status === 'error')).toHaveLength(1);
+    expect(calls.chargedUsd).toBeCloseTo(.102);
+    await evaluate(item, [{ name: 'rb_1', rubric: item.criterion! }], 'claude-haiku-5-5', 'retry-test', 0, 'pair-ledger', fake, calls, false);
+    expect(count).toBe(3);
+  });
 });

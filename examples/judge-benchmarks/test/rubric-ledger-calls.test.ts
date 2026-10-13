@@ -46,6 +46,11 @@ describe('paid-call reservations and replay', () => {
     await appendFile(join(dir, 'starts.jsonl'), `${JSON.stringify({ key: 'uncertain', reserveUsd: 0.2, identity, startedAt: 'fixture' })}\n`);
     expect((await new LedgerCalls(dir, 1).load()).uncertainKeys).toEqual(['uncertain']);
     expect((await new LedgerCalls(dir, 1).load()).chargedUsd).toBeCloseTo(0.3);
+    const interrupted = await new LedgerCalls(dir, 1).load();
+    expect(await interrupted.recoverInterrupted()).toBe(1);
+    expect(interrupted.uncertainKeys).toHaveLength(0);
+    expect(interrupted.rows.find((r) => r.key === 'uncertain')?.retryable).toBe(true);
+    expect(interrupted.chargedUsd).toBeCloseTo(.3);
   });
   it('rejects a missing replay before invoking a provider', async () => {
     const store = await new LedgerCalls(await scratch('ledger-free-'), 1).load();

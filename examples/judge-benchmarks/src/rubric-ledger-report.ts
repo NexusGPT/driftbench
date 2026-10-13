@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
-import { DIRECTORY, MODELS, SETTINGS, validityFixtures, type DecisionRow } from './rubric-ledger-live';
+import { DIRECTORY, MODELS, SETTINGS, latestDecisions, validityFixtures, type DecisionRow } from './rubric-ledger-live';
 import { LedgerCalls } from './rubric-ledger-calls';
 import { readRecordingRows } from './recording-files';
 import { pairedStatistics } from './rubric-ledger-stats';
@@ -18,7 +18,7 @@ export async function report() {
   const plan = JSON.parse(await readFile(`${DIRECTORY}/development-plan.json`, 'utf8'));
   const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd).load();
   const data: Record<string, DecisionRow[]> = Object.fromEntries(await Promise.all(['pilot', 'fixtures', 'noise', 'validity', 'test'].map(async (phase) =>
-    [phase, await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`)] as const)));
+    [phase, latestDecisions(await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`))] as const)));
   const cost = (rows: readonly DecisionRow[]) => {
     const keys = new Set(rows.flatMap((r) => r.callKeys));
     const paid = calls.rows.filter((r) => keys.has(r.key));

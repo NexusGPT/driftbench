@@ -38,9 +38,11 @@ Package imports are updated for the current repository namespace; historical pro
 
 Core PR 168 is pinned at `35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd`.
 `contestant-freeze.json` binds source, requirements, statistics, model settings and controlled validity fixtures.
-The freeze commit precedes every new model call. The cap is USD 20, including uncertain-call reserves.
-There are at most four simultaneous calls, 180-second timeouts and no transport retries.
-The core's one schema reask per failed reading remains enabled and recorded.
+The initial freeze commit precedes every new model call. The owner later raises the cap to USD 35, including uncertain-call reserves.
+The amended freeze preserves the original as `contestant-freeze-v1.json`.
+There are at most four simultaneous calls, 300-second timeouts and at most three transport attempts.
+Returned answers are never retried. Core schema reasks are suppressed after the owner's reconnect amendment.
+One prior Haiku pilot schema reask remains in its original recording and cost; no prior validity reask is present.
 
 Models are `claude-haiku-5-5` through the native CLI account, `gpt-6-luna` and `gemini-3.8-flash`.
 Luna and Gemini use medium reasoning for both contestants. Keys are read only within the executing process,
@@ -59,7 +61,9 @@ pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-report.ts
 ```
 
 Run only one phase process at a time. A restart reuses completed decisions and call keys.
-Unfinished reservations require inspection; they cannot trigger a silent repeat.
+Unfinished reservations require inspection; they cannot trigger a silent repeat. After verifying the old runner
+and its children are absent, `--recover-interrupted` records them as transport failures while retaining their reserves.
+Only failed transport calls can use the remaining attempts; successful answers replay unchanged.
 The TEST command rejects incomplete or failed gates. `--models` restricts execution to named frozen models.
 TEST order is outcome-blind and interleaves models and contestants by pair. Budget exhaustion leaves explicit partial coverage.
 

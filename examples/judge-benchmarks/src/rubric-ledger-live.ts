@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { buildPrompt, canonicalPairOrder, createDialectTransport, judgePairLedger,
   pairLedgerRequest, pairLedgerSchema, parsePairLedgerText, scoreLedger,
-  type DialectTransport, type JudgeClient, type JudgeRequest, type RubricItem } from '@agent-nexus/driftbench-judges';
+  type DialectTransport, type JudgeClient, type JudgeRequest, type JudgeResult, type RubricItem } from '@agent-nexus/driftbench-judges';
 import { codeEvidence } from './code-evidence';
 import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem } from './data';
@@ -19,7 +19,7 @@ export type Model = typeof MODELS[number];
 export const SETTINGS = {
   coreCommit: '35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd', corePr: 168,
   models: MODELS, reasoning: { 'claude-haiku-5-5': null, 'gpt-6-luna': 'medium', 'gemini-3.8-flash': 'medium' },
-  maxTokens: 8192, timeoutMs: 180000, maxRetries: 0, capUsd: 20, reserveUsd: 0.10,
+  maxTokens: 8192, timeoutMs: 300000, transportTries: 3, maxRetries: 0, capUsd: 35, reserveUsd: 0.10,
   concurrency: 4, testOrderSeed: 'ledger-rb-test-order-v1',
   stage0: { correctness: false, compute: false }, tiePolicy: 'canonical',
   pricePerMillion: { 'gpt-6-luna': { input: 0.1, cached: 0.01, output: 0.5 },
@@ -27,7 +27,7 @@ export const SETTINGS = {
   priceSource: 'Core PR 168 llm-shim.mjs and dossier-ledger-core.md; official pricing verified 2026-10-13: developers.openai.com/api/docs/pricing and ai.google.dev/gemini-api/docs/pricing. Gemini uses conservative uncached input pricing.',
   seatPolicy: 'Only the model under test is eligible. No cross-vendor seat. Six distinct DEV fixtures, each correct on all three independent reads, kappa >= 0.8. Failed or undersized domains use the same base model. Earning changes seat eligibility, never prompt or model settings.',
   validityScope: '20 planted arithmetic or supplied-reference facts with exact labels. Measures the pipeline on these fixtures only; not broad natural-data validity.',
-  retryPolicy: 'No HTTP retries or content retries. One schema reask only inside the frozen core contract. Recorded transport errors are not retried.',
+  retryPolicy: 'Owner amendment after interruption: at most three transport attempts, 300-second timeout. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Each failed or interrupted attempt retains its reservation and its own record.',
 } as const;
 export const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 export type DecisionRow = { model: Model; phase: string; id: string; group: string; sample: number;
@@ -36,6 +36,10 @@ export type DecisionRow = { model: Model; phase: string; id: string; group: stri
 export const flip = (x: PairDecision): PairDecision => x === 'A' ? 'B' : x === 'B' ? 'A' : 'tie';
 export const mapped = (choice: 'first' | 'second' | 'tie' | undefined, firstIsA: boolean): PairDecision =>
   choice === 'first' ? firstIsA ? 'A' : 'B' : choice === 'second' ? firstIsA ? 'B' : 'A' : 'tie';
+export const decisionKey = (j: { phase: string; model: string; id: string; contestant: string; sample: number }) => JSON.stringify([j.phase, j.model, j.id, j.contestant, j.sample]);
+/** Retain the journal; a transport-recovered decision supersedes its interrupted attempt. */
+export const latestDecisions = (rows: readonly DecisionRow[]): DecisionRow[] =>
+  [...new Map(rows.map((r) => [decisionKey(r), r])).values()];
 
 /** These fixtures never depend on benchmark labels or TEST outcomes. */
 export function validityFixtures(): PairItem[] {
@@ -101,12 +105,16 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
   raw: DialectTransport, calls: LedgerCalls, execute: boolean): Promise<DecisionRow> {
   const start = Date.now(); const callKeys: string[] = []; let ordinal = 0;
   const ask = async (request: { system: string; user: string; schema?: Record<string, unknown> }) => {
-    const row = await calls.complete({ model, phase, item: item.id, contestant, sample, ordinal: ordinal++,
-      transportFingerprint: raw.fingerprint, request }, SETTINGS.reserveUsd,
-    () => raw.complete(request), (completion) => usagePrice(model, completion), !execute);
-    callKeys.push(row.key);
-    if (row.status !== 'ok') throw new Error(row.error ?? 'Recorded transport error');
-    return row;
+    const identity = { model, phase, item: item.id, contestant, sample, ordinal: ordinal++, transportFingerprint: raw.fingerprint, request };
+    for (let attempt = 0; attempt < SETTINGS.transportTries; attempt++) {
+      const row = await calls.complete({ ...identity, ...(attempt ? { transportAttempt: attempt } : {}) }, SETTINGS.reserveUsd,
+        () => raw.complete(request), (completion) => usagePrice(model, completion), !execute);
+      callKeys.push(row.key);
+      if (row.status === 'ok') return row;
+      const retryable = row.retryable ?? /fetch failed|timed? ?out|past \d+ ms|ECONNRESET|ECONNREFUSED|ENOTFOUND/i.test(row.error ?? '');
+      if (!retryable || attempt + 1 === SETTINGS.transportTries) throw new Error(row.error ?? 'Recorded transport error');
+    }
+    throw new Error('Transport attempts exhausted');
   };
   const base = { model, phase, id: item.id, group: item.group, sample, contestant, label: item.label, callKeys };
   try {
@@ -129,12 +137,18 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
     const canonical = canonicalPairOrder(item.a, item.b);
     const request = pairLedgerRequest({ name: 'expert-rubrics', rubric: item.criterion! },
       [{ role: 'user', text: item.question }], canonical.first, canonical.second, { requirements, reasoning: raw.reasoning });
+    let previous: JudgeResult | undefined;
     const client: JudgeClient = { id: model, family: model === 'gpt-6-luna' ? 'openai' : model === 'gemini-3.8-flash' ? 'google' : 'anthropic',
       cls: 'system2', cost: 10, dialect: raw.dialect, reasoning: raw.reasoning,
       async judge(input: JudgeRequest) {
+        if (input.system?.includes('Your previous answer broke the ledger contract.')) {
+          if (!previous) throw new Error('Core requested a reask without a previous answer');
+          return { ...previous, metadata: { graderError: true } };
+        }
         const effective = { ...input, reference: await candidateReference(item, input.candidates!.A) };
         const row = await ask({ ...buildPrompt(effective), schema: pairLedgerSchema(effective) });
-        return { ...parsePairLedgerText(row.text, effective), costUsd: row.costUsd };
+        previous = { ...parsePairLedgerText(row.text, effective), costUsd: row.costUsd };
+        return previous;
       } };
     if (contestant === 'seat') {
       const result = await client.judge({ ...request, dialect: raw.dialect });
@@ -145,7 +159,9 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
     }
     const result = await judgePairLedger(client, request, { stage0: { correctness: false, compute: false }, tiePolicy: 'canonical' });
     const decision = mapped(result.choice, canonical.firstIsOriginalFirst);
-    return { ...base, decisions: [decision, decision], status: result.status, detail: result, elapsedMs: Date.now() - start };
+    return { ...base, decisions: [decision, decision], status: result.status,
+      detail: { ...result, coreJudgeInvocations: result.calls, calls: callKeys.length,
+        contentReaskPolicy: 'Suppressed per owner: returned answers are never retried. Reask trace entries represent cached reparse only.' }, elapsedMs: Date.now() - start };
   } catch (e) {
     if (e instanceof LedgerBudgetStop || !execute) throw e;
     return { ...base, decisions: ['tie', 'tie'], status: 'transport-error', error: e instanceof Error ? e.message : String(e), elapsedMs: Date.now() - start };
@@ -167,7 +183,7 @@ const sourcePaths = [
 
 async function main() {
   if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|test [--execute] [--models comma,list]'); return;
+    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped]'); return;
   }
   const phase = process.argv[process.argv.indexOf('--phase') + 1];
   if (!['seal', 'pilot', 'fixtures', 'noise', 'validity', 'test'].includes(phase ?? '')) throw new Error('Select a phase; use --help');
@@ -214,13 +230,13 @@ async function main() {
   if (phase === 'noise') for (const id of plan.noiseIds) for (let sample = 0; sample < 3; sample++) add(pool.get(id)!, sample, ['pair-ledger']);
   if (phase === 'test') for (const id of testIds.sort((a, b) => sha(SETTINGS.testOrderSeed + a).localeCompare(sha(SETTINGS.testOrderSeed + b)))) add(pool.get(id)!, 0, ['pair-ledger', 'promptfoo']);
   const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd).load();
+  if (process.argv.includes('--recover-interrupted')) console.log(JSON.stringify({ recoveredInterrupted: await calls.recoverInterrupted() }));
   if (calls.uncertainKeys.length) throw new Error(`Unfinished reserved calls: ${calls.uncertainKeys.length}; inspect before continuation`);
   const transports = new Map(await Promise.all(models.map(async (m) => [m, await transport(m, execute)] as const)));
   const resultPath = `${DIRECTORY}/decisions-${phase}.jsonl`;
-  const prior = await readRecordingRows<DecisionRow>(resultPath);
-  const keyOf = (j: { phase: string; model: string; id: string; contestant: string; sample: number }) => JSON.stringify([j.phase, j.model, j.id, j.contestant, j.sample]);
-  const done = new Set(prior.map(keyOf)); let completed = 0, next = 0, stopped = false;
-  const todo = jobs.filter((j) => !done.has(keyOf({ ...j, id: j.item.id })));
+  const prior = latestDecisions(await readRecordingRows<DecisionRow>(resultPath));
+  const done = new Set(prior.filter((r) => r.status !== 'transport-error').map(decisionKey)); let completed = 0, next = 0, stopped = false;
+  const todo = jobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
   let writes = Promise.resolve();
   await Promise.all(Array.from({ length: SETTINGS.concurrency }, async () => {
     while (!stopped) {
