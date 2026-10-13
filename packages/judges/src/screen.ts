@@ -35,7 +35,7 @@ const OTHER_LANGUAGES: readonly {
   {
     // French
     judge: [
-      "grille d'[ée]valuation",
+      "grille d['\u2019\\s]*[eé]?[\\s\u0301]*valuation",
       '[ée]valuateur',
       'juge',
       'crit[èe]res?',
