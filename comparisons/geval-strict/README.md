@@ -23,7 +23,10 @@ The historical shipped prompt was frozen at `12801e1`. The additional default
 tuning measurement here uses branch-start `9970c938`, whose default already has
 the criterion ledger. PR 146 advances the base to `fa05832b`; subsequent main
 merges include PRs 164, 165, 166, 167, 169, 170 and 173. The final upstream base
-is `71c26039`. These defaults are distinct versions.
+at measurement time is `71c26039`. After the first PR checks pass, main advances
+to `b06b5ddb`. Merge `38c5a79f` integrates that base without changing the opt-in
+policy, any recorded feature prompt, or any replayed feature result. These
+defaults are distinct versions.
 
 ## Recorded results
 
@@ -76,7 +79,11 @@ its raw JSON is complete. Relevance cassettes now retain the provider rejection
 and its reason. The focused relevance, cassette and legacy run passes 77 tests.
 Default and legacy rendering and cache keys match upstream `71c26039` across
 1,440 requests. The unchanged `SYSTEM_PROMPT` declaration is verified separately
-from the opt-in feature policy.
+from the opt-in feature policy. After the `b06b5ddb` integration, 124 focused
+tests pass, including pointwise fact-ledger and escalation composition. The
+1,440 default and legacy comparisons also match that newer base. A separate
+free replay verifies exact feature prompts and complete parsed results for all
+192 final tuning and held-out cases. See `post-merge-replay.json`.
 
 Unit tests prove schema, source restriction, aggregation and compatibility.
 Scripted verdicts do not prove model judgment; the recorded model runs provide
@@ -85,7 +92,18 @@ obligation or assigned the correct semantic status.
 
 ## Reproduction
 
-From the repository root, the final measurements replay without new model calls:
+From the repository root, verify current package compatibility without model calls:
+
+```sh
+pnpm exec tsx comparisons/geval-strict/replay-current.ts
+python3 comparisons/geval-strict/score.py tuning heldout
+pnpm exec vitest run packages/judges/test/response-relevance.test.ts packages/judges/test/legacy-main.test.ts packages/judges/test/cassette.test.ts packages/judges/test/pointwise-fact-ledger.test.ts packages/judges/test/escalation-composition.test.ts --maxWorkers=2
+```
+
+The original measurement replay below requires checkout `9b0bfaaf`, whose full
+package source matches the immutable measurement freezes. Its `integrity.json`
+and `verification.json` describe that measurement tree. Later integration does
+not overwrite those freezes or measurements:
 
 ```sh
 pnpm exec tsx comparisons/geval-strict/run.ts tuning feature replay
