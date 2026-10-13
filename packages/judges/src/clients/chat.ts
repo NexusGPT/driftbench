@@ -53,6 +53,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
   const env = options.env ?? process.env;
   const key = requireEnv(env, 'OPENAI_API_KEY');
   const model = modelOf(options, env, 'OPENAI_JUDGE_MODEL');
+  const reasoning = options.reasoning;
   const url = `${baseOf(env, 'OPENAI_BASE_URL', 'https://api.openai.com')}/v1/chat/completions`;
   let sendTemperature = true;
   return {
@@ -64,6 +65,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
     settings: settingsOf('openai-chat', {
       temperatureRetry: 'drop on a 400 that names it',
       responseFormat: 'json_schema',
+      ...(reasoning === undefined ? {} : { reasoning }),
     }),
     async judge(request) {
       const prompt = buildPrompt(request);
@@ -71,6 +73,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         model,
         max_completion_tokens: budgetOf(request),
         ...(withTemperature ? { temperature: TEMPERATURE } : {}),
+        ...(reasoning === undefined ? {} : { reasoning_effort: reasoning }),
         response_format: {
           type: 'json_schema',
           json_schema: { name: 'judge_answer', strict: false, schema: responseSchema(request) },
@@ -83,12 +86,13 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
       const send = (withTemperature: boolean) =>
         postJson(url, { authorization: `Bearer ${key}` }, body(withTemperature), options);
       let payload: unknown;
+      const sentTemperature = sendTemperature;
       try {
-        payload = await send(sendTemperature);
+        payload = await send(sentTemperature);
       } catch (cause) {
         // Some models (gpt-6-luna) take only the default temperature and answer 400 to 0: ask again without it, for good.
         const text = cause instanceof Error ? cause.message : '';
-        if (!sendTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
+        if (!sentTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
         sendTemperature = false;
         payload = await send(false);
       }
@@ -116,6 +120,8 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
  * ANTHROPIC_JUDGE_MODEL and ANTHROPIC_BASE_URL (default https://api.anthropic.com).
  */
 export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
+  if (options.reasoning !== undefined)
+    throw new JudgeError('config', 'reasoning is not supported by the Anthropic chat client');
   const env = options.env ?? process.env;
   const key = requireEnv(env, 'ANTHROPIC_API_KEY');
   const model = modelOf(options, env, 'ANTHROPIC_JUDGE_MODEL');
@@ -170,6 +176,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
   const key = env.GEMINI_API_KEY?.trim() || env.GOOGLE_API_KEY?.trim();
   if (!key) throw new JudgeError('config', 'GEMINI_API_KEY is not set (nor GOOGLE_API_KEY)');
   const model = modelOf(options, env, 'GOOGLE_JUDGE_MODEL');
+  const reasoning = options.reasoning;
   const base = baseOf(env, 'GOOGLE_BASE_URL', 'https://generativelanguage.googleapis.com');
   const url = `${base}/v1beta/models/${encodeURIComponent(model)}:generateContent`;
   return {
@@ -178,7 +185,10 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
     cls: 'system2',
     model,
     cost: options.cost ?? CHAT_COST,
-    settings: settingsOf('google-generate-content', { responseMimeType: 'application/json' }),
+    settings: settingsOf('google-generate-content', {
+      responseMimeType: 'application/json',
+      ...(reasoning === undefined ? {} : { reasoning }),
+    }),
     async judge(request) {
       const prompt = buildPrompt(request);
       const payload = await postJson(
@@ -192,6 +202,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
             responseSchema: googleSchema(responseSchema(request)),
             maxOutputTokens: budgetOf(request),
             temperature: TEMPERATURE,
+            ...(reasoning === undefined ? {} : { thinkingConfig: { thinkingLevel: reasoning } }),
           },
         },
         options,

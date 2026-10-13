@@ -790,3 +790,88 @@ A criterion can say how its verdicts across the repeats of one spec become one v
 * `at_least:<k>`: a pass when at least `k` repeats pass. A fail only when the passes plus the inconclusive repeats cannot reach `k`. Undecided otherwise, since an inconclusive repeat could still be the `k`-th pass.
 
 A run folds the criterion's verdicts across its blocks first: any fail makes the run a fail, every block passing makes it a pass, and anything else is undecided. An inconclusive repeat is left out of every reducer. A criterion without `repeat_reducer` gets no reduced verdict.
+
+
+## Pointwise fact ledger against a trusted reference
+
+This option audits one reply against a caller-supplied trusted reference. It stays off
+unless the request sets `assessment: { kind: 'fact-ledger' }` and omits `candidates`.
+The shipped default judge and its prompt fingerprint remain unchanged.
+
+```ts
+import { createAnthropicJudge, type JudgeRequest } from '@agent-nexus/driftbench-judges';
+
+const request: JudgeRequest = {
+  criterion: { name: 'facts', rubric: 'Every requested fact matches the trusted reference.' },
+  reference: 'Aster costs 34 crowns monthly, includes 60 GB, and excludes roaming.',
+  transcript: [
+    { role: 'user', text: 'State the price, data and roaming terms of Aster.' },
+    { role: 'agent', text: 'Aster: 34 crowns monthly, 60 GB and no roaming.' },
+  ],
+  assessment: { kind: 'fact-ledger' },
+};
+const result = await createAnthropicJudge({ model: 'your-model' }).judge(request);
+console.log(result.answer.outcome, result.factLedger);
+```
+
+The result carries a `PointwiseFactLedgerAnswer` in `factLedger`: each `facts` row
+has `reference`, `reply` and `status` (`match`, `wrong` or `missing`), plus an
+`unsupported` array of extra factual claims. Code computes `pass` only when all
+rows match and that array is empty. A wrong fact, missing fact or unsupported
+claim makes `fail`. A malformed, empty or duplicate ledger makes `inconclusive`.
+Only missing facts have empty reply text. There is no model-authored overall verdict.
+
+The semantic contract is the frozen candidate procedure, including shared sentence
+modifiers, paraphrases, exact unit conversions, negation, conditions and quantifiers.
+Its model prompt is exported as `FACT_LEDGER_POINTWISE`. Model judgment still decides
+which facts are requested, whether the list is complete, and whether each claim
+matches. Code does not independently prove those semantic decisions.
+
+A nonempty `reference` is required before a built-in chat client sends a request.
+Pass the transcript slice to audit: user entries become the query, agent entries
+become the reply, joined with newlines within each role. Other roles and artifacts
+are not included in this pointwise contract. Query, reference and reply are JSON
+data. The criterion name and rubric identify the request; requested facts come from
+the query and reference. Use the ordinary criterion judge for arbitrary rubrics.
+Existing `candidates` requests keep the pairwise fact ledger and its winner rules.
+
+### Strict grounding
+
+Set `assessment: { kind: 'fact-ledger', grounding: 'strict' }` to require each
+reference row to quote the supplied reference and each nonempty reply row to quote
+one agent entry. The existing quote matcher tolerates presentation differences and
+ordered ellipsis segments; it does not verify paraphrases. Quotes from user or tool
+entries cannot count as reply evidence. A failed grounding check returns
+`inconclusive` with `unparsed: true` and a reason, never a fabricated pass or fail.
+
+Strict mode applies to the parser only and preserves the frozen model prompt. A
+valid semantic paraphrase can therefore be refused. It neither proves that every
+requested fact is present nor checks the model's unsupported-claim judgments.
+The assessment, grounding option and reference participate in cassette keys.
+Calibration can evaluate either request variant on caller-owned labels; automatic
+procedure selection is a separate feature.
+
+### Offline replay evidence
+
+The committed replay imports every frozen Langfuse candidate response from
+`research/astra-hard-fresh` at `89425c88b12e5fd7516ed9cdbf6d37b9b0261595`.
+It verifies exact system and user prompt bytes and their SHA-256 digests, then
+parses the original responses through the public `playerClient` API. It makes
+no model calls and does not claim a new live-model measurement.
+
+| Slice | Recordings | Semantic correct | Strict correct | Strict inconclusive | Pass to inconclusive | Fail to inconclusive |
+|---|---:|---:|---:|---:|---:|---:|
+| Fresh planted facts | 192 | 192/192 | 74/192 | 118 | 57 | 61 |
+| Map replication | 180 | 178/180 | 77/180 | 101 | 43 | 58 |
+| Total | 372 | 370/372 | 151/372 | 219 | 100 | 119 |
+
+Strict mode changes 219 verdicts, all to inconclusive. No pass becomes fail and no
+fail becomes pass. The map slice retains its two wrong verdicts in both modes.
+Inconclusive responses count as incorrect for these scores; abstention is not an
+accuracy gain. These results describe the frozen fictional fixtures and recorded
+model responses, not a guarantee for other data or models.
+
+Run `pnpm exec tsx comparisons/langfuse/pointwise-fact-ledger/replay.ts` to verify
+[the report and per-case transitions](https://github.com/achammah/driftbench/blob/main/comparisons/langfuse/pointwise-fact-ledger/replay.json).
+The same replay runs in the regular test suite. The legacy cassette and golden
+prompt tests also run to prove that opting out retains the previous behavior.
