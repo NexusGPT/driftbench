@@ -50,7 +50,7 @@ System bank version 5 has floor 7. This executor does not change the floor. A fl
 
 The current branch has three separately committed component fixes after the partial baseline: suffix-only canonical registration (353ab983), short-circuit ledger evidence (dc65181b), and lazy ledger-history collection (1050ce7c). No full bank result is yet attributed to these changes.
 
-Five fresh Node 22.23.3 seed-2 repetitions after all three changes pass: 17.5835, 19.7989, 21.7793, 18.2166 and 13.4983. These are unchanged bank growth-item measurements, not complete seeds. Earlier broader core-suite runs still expose ratios 31.4 and 37.9, so CI and the final sweep remain acceptance evidence.
+Five cold Node 22.23.3 seed-2 repetitions after all three changes pass: 17.5835, 19.7989, 21.7793, 18.2166 and 13.4983. Reproducing the existing unit-test order, seed 1 before seed 2, passes only two of five: 30.1565, 18.5922, 18.2517, 33.6543 and 26.8932. Earlier broader core-suite runs expose ratios 31.4 and 37.9. These are growth-item measurements, not complete seeds. Growth remains unresolved. The owner has requested an independent design review and stopped new copy experiments until its findings arrive.
 
 Main 086b6003, including PR 180's revert of PR 176, is merged as 7fca5894. The executor neither duplicates nor depends on the seed-7167 calibration change. Main's separate escalation.ts union type error awaits fix/escalation-ledger-union through PR 185. Do not patch that file here. The final sweep starts only after main is green and the five-repeat growth gate holds.
 
@@ -61,13 +61,13 @@ Main 086b6003, including PR 180's revert of PR 176, is merged as 7fca5894. The e
 - Canonical registration: the red test sees 402 old/new message visits when a 400-message prefix grows by two. The committed fix visits only the two new messages. Public snapshots, prefix overrides, repeated/backward requests, mutable callbacks and structuredClone stay compatible. This change alone passes only four of five Node 22 repeats.
 - Ledger evidence: red tests read 80/800 content fields at history lengths 40/400. Current-contact replies need only the first older alternative, and replies without contact values need no history. Fixed reads are 2/2 and 0/0 respectively. Checked facts and contradiction order are preserved.
 - Runner history collection: red tests visit 1600/160000 message slots over 40/400 blocks for a reply needing no ledger history. A restartable iterable reduces both to zero. All 26 ledger and drift checks pass.
-- Rejected private experiments: literal message factories, bulk descriptor construction, and deferred nested-message slots do not establish CPU headroom. Deferred slots pass 79 compatibility tests but only two of five Node 22 growth repetitions. Those source/test edits are removed from the branch. The unchanged callback contract remains a mutable plain array.
+- Rejected private experiments: literal message factories, bulk descriptor construction, and deferred nested-message slots do not establish CPU headroom. Deferred slots pass 79 compatibility tests but only two of five Node 22 growth repetitions. A separate shared-accessor candidate passes 437 cases with two skips but still fails growth at 32.0. All rejected source/test edits are removed from the branch. The unchanged callback contract remains a mutable plain array.
 
 Earlier iterations and their source-specific scores remain in journal.jsonl, journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl. Their measurements cannot be combined with this partial baseline or the pending final sweep.
 
 ## Next actions
 
-1. Merge green current main after PR 185 lands. Keep both CHANGELOG sides. Run rename-scope, typecheck, lint and strict executor protection. Do not fix the upstream judge file here.
+1. Wait for the independent design review before another copy experiment. Keep callback mutability unchanged unless the owner authorizes a change. Merge green current main after PR 185 lands. Keep both CHANGELOG sides. Run rename-scope, typecheck, lint and strict executor protection. Do not fix the upstream judge file here.
 2. Freeze the source and run one full sequential sweep of seeds 1 through 20 plus its commit-derived hidden seed, with nested statistics workers capped at two. Record all seed levels and pass counts. Do not restart the stopped baseline.
 3. Append the measured result to the journal, rewrite this handover, push PR 118, and verify every check is green and GitHub reports MERGEABLE. Log item defects here; never edit the bank or its limits.
 
