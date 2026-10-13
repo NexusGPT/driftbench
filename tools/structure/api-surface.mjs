@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 // Prints the public API of every package: one row per name exported by packages/*/src/index.ts, with
-// the facts needed to decide whether the name should stay public. It fails nothing and writes no file.
+// the facts needed to decide whether the name should stay public. It also keeps the frozen list of those
+// names, tools/structure/api-surface.json: a name is added to, or removed from, a package's public API
+// only together with that file, so the change shows in review.
 //
-//   node tools/structure/api-surface.mjs          tab-separated rows, then one summary row per package
-//   node tools/structure/api-surface.mjs --json   the same data as one JSON document
+//   node tools/structure/api-surface.mjs           tab-separated rows, then one summary row per package
+//   node tools/structure/api-surface.mjs --json    the same data as one JSON document
+//   node tools/structure/api-surface.mjs --check   compare the exports with the frozen list; exit 1 and
+//                                                  name every added and removed export when they differ
+//   node tools/structure/api-surface.mjs --write   rewrite the frozen list from the exports
+//   --snapshot <file>                              the frozen list to check or write, for the tests
 //
 // Columns: package, name, kind (type or value), declaredIn, doc (the declaration has a doc comment),
 // inDocs (the name appears as a word in docs/**, README.md or a package README), srcImporters (other
@@ -14,7 +20,7 @@
 // its declaration, so a name counts as used when it is imported from the package root, from a file
 // inside the package, through a namespace (`import * as ns` then `ns.name`), through `export * as`, or
 // through a dynamic `import()`.
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
@@ -232,7 +238,71 @@ const summary = packages
   .sort((a, b) => b.exports - a.exports || a.package.localeCompare(b.package));
 const total = summarise('total', out);
 
-if (asJson) {
+const flagValue = (flag) => {
+  const at = process.argv.indexOf(flag);
+  return at < 0 ? undefined : process.argv[at + 1];
+};
+const SNAPSHOT = flagValue('--snapshot') ?? join(ROOT, 'tools/structure/api-surface.json');
+
+/** The frozen list: per package, its exported value names and type names, sorted. */
+function frozen() {
+  const list = {};
+  for (const dir of [...packages].sort()) {
+    const own = out.filter((row) => row.package === dir);
+    const names = (kind) =>
+      own
+        .filter((row) => row.kind === kind)
+        .map((row) => row.name)
+        .sort();
+    list[dir] = { values: names('value'), types: names('type') };
+  }
+  return {
+    note: 'The public API of every package: the names packages/*/src/index.ts exports. A test compares it with the code, so adding or removing a public name changes this file in the same pull request. Regenerate: node tools/structure/api-surface.mjs --write',
+    packages: list,
+  };
+}
+
+/** The names in `now` and not in `then`, and the reverse, as `package: kind name` lines. */
+function differences(then, now) {
+  const flat = (list) =>
+    new Set(
+      Object.entries(list.packages ?? {}).flatMap(([dir, kinds]) => [
+        ...(kinds.values ?? []).map((name) => `${dir}: value ${name}`),
+        ...(kinds.types ?? []).map((name) => `${dir}: type ${name}`),
+      ]),
+    );
+  const before = flat(then);
+  const after = flat(now);
+  return {
+    added: [...after].filter((line) => !before.has(line)).sort(),
+    removed: [...before].filter((line) => !after.has(line)).sort(),
+  };
+}
+
+if (process.argv.includes('--write')) {
+  writeFileSync(SNAPSHOT, `${JSON.stringify(frozen(), null, 2)}\n`);
+  process.stdout.write(`Wrote ${rel(SNAPSHOT)}: ${out.length} exports in ${packages.length} packages.\n`);
+} else if (process.argv.includes('--check')) {
+  if (!existsSync(SNAPSHOT)) {
+    process.stderr.write(`${rel(SNAPSHOT)} is missing: run node tools/structure/api-surface.mjs --write\n`);
+    process.exit(1);
+  }
+  const { added, removed } = differences(JSON.parse(readFileSync(SNAPSHOT, 'utf8')), frozen());
+  if (added.length + removed.length === 0) {
+    process.stdout.write(`The public API matches ${rel(SNAPSHOT)}: ${out.length} exports.\n`);
+  } else {
+    const lines = [
+      `The public API differs from ${rel(SNAPSHOT)}.`,
+      ...added.map((line) => `  added    ${line}`),
+      ...removed.map((line) => `  removed  ${line}`),
+      'A public name changes only on purpose. If this change is meant: run',
+      '  node tools/structure/api-surface.mjs --write',
+      'commit the file, and name the new or removed exports in CHANGELOG.md.',
+    ];
+    process.stderr.write(`${lines.join('\n')}\n`);
+    process.exit(1);
+  }
+} else if (asJson) {
   process.stdout.write(`${JSON.stringify({ exports: out, packages: summary, total }, null, 2)}\n`);
 } else {
   const yes = (flag) => (flag ? 'yes' : 'no');
