@@ -1,4 +1,4 @@
-import type { Spec } from '@driftbench/core';
+import type { Spec } from '@agent-nexus/driftbench-core';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
 import { DEVIATION_POOL, type HiddenSpec, type ToolRole } from './hidden';
 import type { Generation } from './measure';

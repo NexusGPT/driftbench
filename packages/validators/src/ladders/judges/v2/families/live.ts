@@ -1,5 +1,5 @@
-import type { ClientOptions, JudgeClient, JudgeRequest } from '@driftbench/judges';
-import { fixtureRequest } from '@driftbench/judges';
+import type { ClientOptions, JudgeClient, JudgeRequest } from '@agent-nexus/driftbench-judges';
+import { fixtureRequest } from '@agent-nexus/driftbench-judges';
 import { loadPool, splitPool } from '../../pool';
 import { type BankItem, fn, type JudgesApi, type Tier } from '../bank';
 import { ENGLISH, plant } from './injection';

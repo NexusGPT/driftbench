@@ -1,4 +1,4 @@
-import { type LoadResult, validateSpec } from '@driftbench/core';
+import { type LoadResult, validateSpec } from '@agent-nexus/driftbench-core';
 import {
   codeOf,
   combinations,
@@ -11,7 +11,7 @@ import {
   quantile,
   type SpaceMap,
   validateSpaceMap,
-} from '@driftbench/space';
+} from '@agent-nexus/driftbench-space';
 import type { Draw } from '../../spec';
 import { drawFor } from '../common';
 import { type BankItem, levelOf, type Outcome, type Tier } from '../types';

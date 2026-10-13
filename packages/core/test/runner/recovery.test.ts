@@ -1,4 +1,4 @@
-import { classifyTool, defaultChecks } from '@driftbench/checks';
+import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type BlockResult,
   type DriverStep,
@@ -6,9 +6,9 @@ import {
   machineVerdict,
   type RunResult,
   type UserDriver,
-} from '@driftbench/core';
-import { openMemoryStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import type { AcmeAgent } from '../../../../examples/acme/src/index';
 import {

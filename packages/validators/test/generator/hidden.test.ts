@@ -1,8 +1,8 @@
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadApprovedMap, stageGraph } from '@driftbench/generate';
-import { validateSpaceMap } from '@driftbench/space';
+import { loadApprovedMap, stageGraph } from '@agent-nexus/driftbench-generate';
+import { validateSpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import {
   DEVIATION_POOL,

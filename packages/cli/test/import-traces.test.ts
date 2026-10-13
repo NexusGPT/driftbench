@@ -2,7 +2,7 @@ import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadSpecFile } from '@driftbench/core';
+import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { importTracesCommand } from '../src/commands/import-traces';
 import { type Io, main } from '../src/index';

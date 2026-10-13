@@ -7,8 +7,8 @@ import {
   lintEstate,
   readerFor,
   scanEstate,
-} from '@driftbench/estate';
-import { generateEstateSuite, type PhraseBank } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-estate';
+import { generateEstateSuite, type PhraseBank } from '@agent-nexus/driftbench-generate';
 import { RUNTIME } from '../layout';
 import { writeEstate } from '../pipeline';
 import { scaleEstate } from './scale-estate';

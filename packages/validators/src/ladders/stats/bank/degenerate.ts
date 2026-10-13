@@ -1,4 +1,4 @@
-import type { Observation } from '@driftbench/stats';
+import type { Observation } from '@agent-nexus/driftbench-stats';
 import type { StatsImpl } from '../reference';
 import { attempt, type BankItem, fail, near, ok, show, type Tier } from './item';
 

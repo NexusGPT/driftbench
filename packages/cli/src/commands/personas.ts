@@ -1,5 +1,5 @@
 import { dirname, resolve } from 'node:path';
-import { loadSpecFile, type TargetRef, type UserDriver } from '@driftbench/core';
+import { loadSpecFile, type TargetRef, type UserDriver } from '@agent-nexus/driftbench-core';
 import {
   createSimulatedUser,
   loadPersona,
@@ -9,7 +9,7 @@ import {
   SimulatedUserError,
   type UserModelPort,
   userRecordingPort,
-} from '@driftbench/users';
+} from '@agent-nexus/driftbench-users';
 import type { Io } from '../io';
 
 /**

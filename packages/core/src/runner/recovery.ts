@@ -15,7 +15,7 @@ export type RecoveryOptions = {
   /**
    * Names more tools whose call is a consequential act (an order, a send, a payment, a deletion), beside
    * the ones the spec names: the tools its end state reads (`tool:<label>`), its forbidden tools and the
-   * tools its `max_calls` sets to 0. The CLI passes the operation classifier of `@driftbench/checks`.
+   * tools its `max_calls` sets to 0. The CLI passes the operation classifier of `@agent-nexus/driftbench-checks`.
    */
   consequential?: (label: string) => boolean;
 };

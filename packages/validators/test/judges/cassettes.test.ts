@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { loadCassette, requestKey } from '@driftbench/judges';
+import { loadCassette, requestKey } from '@agent-nexus/driftbench-judges';
 import { describe, expect, it } from 'vitest';
 import { cassetteFile, cassetteText, PERSONAS, recordCassettes, requestsToRecord } from './record';
 

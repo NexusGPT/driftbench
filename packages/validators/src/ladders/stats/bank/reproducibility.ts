@@ -1,5 +1,5 @@
-import { analysePilot } from '@driftbench/generate';
-import type { Observation } from '@driftbench/stats';
+import { analysePilot } from '@agent-nexus/driftbench-generate';
+import type { Observation } from '@agent-nexus/driftbench-stats';
 import { generator, normal } from '../draw';
 import type { StatsImpl } from '../reference';
 import { plantShares } from '../shares';

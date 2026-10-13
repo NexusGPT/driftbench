@@ -1,4 +1,4 @@
-import { combinations } from '@driftbench/space';
+import { combinations } from '@agent-nexus/driftbench-space';
 import type { Feasibility } from './feasible';
 import { type Rng, range, shuffle } from './random';
 

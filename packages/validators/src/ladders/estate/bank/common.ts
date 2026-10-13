@@ -1,4 +1,4 @@
-import { rngFor } from '@driftbench/generate';
+import { rngFor } from '@agent-nexus/driftbench-generate';
 import type { Evidence } from '../hidden';
 import { ANCHOR, SETTINGS, STANDING, skillFile } from '../layout';
 import type { ProseEntry } from '../render';

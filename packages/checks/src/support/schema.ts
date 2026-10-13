@@ -1,4 +1,4 @@
-import { deepEqual } from '@driftbench/core';
+import { deepEqual } from '@agent-nexus/driftbench-core';
 import { isRecord, show } from './values';
 
 /**

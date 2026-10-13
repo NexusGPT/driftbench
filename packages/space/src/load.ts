@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path';
-import { DeviationClass, isPlainObject } from '@driftbench/core';
+import { DeviationClass, isPlainObject } from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
 import { compileSpace, findAllowedCell } from './grid';

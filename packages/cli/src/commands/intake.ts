@@ -24,8 +24,8 @@ import {
   SECOND_PASSES,
   type SecondPass,
   turnRecordingPort,
-} from '@driftbench/generate';
-import { aboutPercent } from '@driftbench/space';
+} from '@agent-nexus/driftbench-generate';
+import { aboutPercent } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

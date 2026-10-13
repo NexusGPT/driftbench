@@ -96,4 +96,4 @@ The runs are not kept: pass --store <file> to keep them.
 
 ## From code
 
-`createSimulatedUser` of `@driftbench/users` gives the driver; `loadPersona`, `personaOptions`, `loadUserRecording` and `userRecordingPort` read the files. Any object with a `family`, a `model` and `complete({ system, user })` is a port; `FakeModelPort` of `@driftbench/generate` replays answers in tests.
+`createSimulatedUser` of `@agent-nexus/driftbench-users` gives the driver; `loadPersona`, `personaOptions`, `loadUserRecording` and `userRecordingPort` read the files. Any object with a `family`, a `model` and `complete({ system, user })` is a port; `FakeModelPort` of `@agent-nexus/driftbench-generate` replays answers in tests.

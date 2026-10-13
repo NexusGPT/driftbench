@@ -8,7 +8,7 @@ import {
   type InventoryIssue,
   loadInventory,
   loadSpecs,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import type { Io } from '../io';
 
 export type CoverageOptions = {

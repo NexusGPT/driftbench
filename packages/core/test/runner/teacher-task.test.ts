@@ -2,9 +2,9 @@ import { mkdtemp, realpath, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { processAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { defaultChecks } from '@driftbench/checks';
+import { processAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type Check,
@@ -14,9 +14,9 @@ import {
   type Session,
   type Spec,
   type Turn,
-} from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { canonicalGiven, runSpec } from '../../src/runner';
 import { failures } from './support';

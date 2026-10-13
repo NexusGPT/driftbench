@@ -1,4 +1,4 @@
-import { lintSpec, parseSpecText, type Spec } from '@driftbench/core';
+import { lintSpec, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { generateSuite, INCOMPLETE_DIR, REPORT_FILE } from '../../src/enumerate/generate';

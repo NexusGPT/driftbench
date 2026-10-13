@@ -1,4 +1,4 @@
-import type { SourceText } from '@driftbench/generate';
+import type { SourceText } from '@agent-nexus/driftbench-generate';
 import { stringify } from 'yaml';
 import { Draw, mixSeed } from '../spec';
 import type { CodeEntry } from './facts';

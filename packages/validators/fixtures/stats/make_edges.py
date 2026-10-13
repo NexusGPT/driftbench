@@ -1,6 +1,6 @@
 """Writes edges.json: expected values of the documented statistics on edge inputs.
 
-Each case names the function of @driftbench/stats, its arguments, the fields compared and their expected values,
+Each case names the function of @agent-nexus/driftbench-stats, its arguments, the fields compared and their expected values,
 the tolerance, and the need it serves (a docs page or a command that prints the value). Expected values come from
 scipy, from exact rational arithmetic (fractions, math.comb) or from 60-digit decimals, never from the package under
 test. Edge classes: n = 1, all pass, all fail, ties, huge n, extreme weights or tiny rates. NaN and infinite inputs are

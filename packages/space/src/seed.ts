@@ -4,7 +4,7 @@ import {
   type Inventory,
   type LoadedSpec,
   type LoadResult,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { Document, isMap, isSeq } from 'yaml';
 import { NONE, type SpaceConstraint, type SpaceDimension, type SpaceMap } from './schema';
 

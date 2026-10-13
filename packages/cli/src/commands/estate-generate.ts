@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { loadEstateMap, Plan, readerFor } from '@driftbench/estate';
+import { loadEstateMap, Plan, readerFor } from '@agent-nexus/driftbench-estate';
 import {
   ESTATE_COMPLETE_DIR,
   ESTATE_INCOMPLETE_DIR,
@@ -17,7 +17,7 @@ import {
   STATIC_DIR,
   UNIT_DIR,
   type YamlSchema,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

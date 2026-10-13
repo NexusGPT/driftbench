@@ -1,5 +1,5 @@
-import type { DeviationClass } from '@driftbench/core';
-import { NONE } from '@driftbench/space';
+import type { DeviationClass } from '@agent-nexus/driftbench-core';
+import { NONE } from '@agent-nexus/driftbench-space';
 import type { HiddenPath, HiddenSpec } from './hidden';
 
 /**
