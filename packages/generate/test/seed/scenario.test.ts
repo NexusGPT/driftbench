@@ -369,7 +369,7 @@ describe('buildScenario', () => {
       'b4-help-to-verify',
     ]);
     expect(failed.blocks[1]?.tools).toEqual([
-      { label: 'lookup', count: 2, input: { account: '4' } },
+      { label: 'lookup', count: 2, input: { account: '4' }, input_closed: true },
       { label: 'notify', count: 0 },
     ]);
     expect(failed.blocks[2]?.tools).toEqual(walked.blocks[1]?.tools);
@@ -654,22 +654,20 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
       fixed: [],
     });
     if (!built.ok) throw new Error(built.reason);
-    expect(built.perturbations?.[0]).toEqual(
-      {
-        id: 'p1-D1_off_topic',
-        class: 'D1_off_topic',
-        inject_at: 1,
-        user: 'Are you open on Sunday?',
-        expect: {
-          stage: 'verify',
-          stage_reported: true,
-          tools: [{ label: 'lookup', count: 0 }],
-          must: ['open Sunday', 'a.b'],
-          lang: 'EN',
-        },
-        recovery: { within_blocks: 0, stage_after: 'verify' },
+    expect(built.perturbations?.[0]).toEqual({
+      id: 'p1-D1_off_topic',
+      class: 'D1_off_topic',
+      inject_at: 1,
+      user: 'Are you open on Sunday?',
+      expect: {
+        stage: 'verify',
+        stage_reported: true,
+        tools: [{ label: 'lookup', count: 0 }],
+        must: ['open Sunday', 'a.b'],
+        lang: 'EN',
       },
-    );
+      recovery: { within_blocks: 0, stage_after: 'verify' },
+    });
     // The turn that calls the lookup also fails it in perturbed mode, with the recovery as its Then.
     expect(built.perturbations?.[1]).toMatchObject({
       id: 'p2-D8_tool_failure',

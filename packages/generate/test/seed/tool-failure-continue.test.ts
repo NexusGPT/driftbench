@@ -14,7 +14,8 @@ describe('a tool failure probe', () => {
     let continued = 0;
     for (const spec of suite.complete) {
       const at = spec.blocks.findIndex(
-        (block) => block.when && 'injection' in block.when && block.when.injection.class === 'D8_tool_failure',
+        (block) =>
+          block.when && 'injection' in block.when && block.when.injection.class === 'D8_tool_failure',
       );
       if (at < 0) continue;
       const failing = spec.blocks[at];
@@ -58,5 +59,31 @@ describe('a clean walk perturbed by a nudge', () => {
     );
     expect(nudged.length).toBeGreaterThan(0);
     for (const spec of nudged) expect(spec.rules?.one_message_per_turn, spec.id).toBe(true);
+  }, 60_000);
+});
+
+describe('the failing turn of a tool failure', () => {
+  it('keeps the closed arguments the turn names, as the agent sends them to the failing tool', () => {
+    let seen = 0;
+    for (const spec of suite.complete) {
+      spec.blocks.forEach((block, index) => {
+        if (!(block.when && 'injection' in block.when && block.when.injection.class === 'D8_tool_failure')) return;
+        const tool = Object.keys(block.given?.world?.tools ?? {})[0] as string;
+        const again = spec.blocks[index + 1]?.expect?.tools?.find((call) => call.label === tool);
+        const failing = block.expect?.tools?.find((call) => call.label === tool);
+        if (!again?.input_closed) return;
+        seen += 1;
+        expect(failing?.input_closed, spec.id).toBe(true);
+      });
+      for (const perturbation of spec.perturbations ?? []) {
+        if (perturbation.class !== 'D8_tool_failure') continue;
+        const tool = Object.keys(perturbation.world?.tools ?? {})[0] as string;
+        const turn = spec.blocks[perturbation.inject_at]?.expect?.tools?.find((call) => call.label === tool);
+        if (!turn?.input_closed) continue;
+        seen += 1;
+        expect(perturbation.expect?.tools?.find((call) => call.label === tool)?.input_closed, spec.id).toBe(true);
+      }
+    }
+    expect(seen).toBeGreaterThan(0);
   }, 60_000);
 });

@@ -665,7 +665,7 @@ function toolFailurePerturbation(
     // The agent sends the failing tool the arguments the turn names.
     expect.tools = (expect.tools ?? []).map((tool) =>
       tool.label === first.label && tool.input === undefined && first.input !== undefined
-        ? { ...tool, input: first.input }
+        ? { ...tool, input: first.input, ...(first.input_closed ? { input_closed: true } : {}) }
         : tool,
     );
     return { index, tool: first.label, user: block.stimulus.phrase.text, expect };
@@ -757,8 +757,16 @@ function toolFailure(
     const expected = toolExpect(call.tool, call.count, call.input, {});
     if (!expected.ok) return { ok: false, reason: `the recovery of ${chosen.tool} reads slots` };
     const before = tools.get(call.tool);
-    const input = expected.value.input ?? (before && calls(before) ? before.input : undefined);
-    tools.set(call.tool, { label: call.tool, count: expected.value.count ?? 1, ...(input ? { input } : {}) });
+    const kept = expected.value.input === undefined && before !== undefined && calls(before);
+    const input = expected.value.input ?? (kept ? before.input : undefined);
+    const closed =
+      expected.value.input === undefined ? kept && before.input_closed : expected.value.input_closed;
+    tools.set(call.tool, {
+      label: call.tool,
+      count: expected.value.count ?? 1,
+      ...(input ? { input } : {}),
+      ...(input && closed ? { input_closed: true } : {}),
+    });
   }
   block.tools = [...tools.values()];
   if (after === undefined) delete block.stage;

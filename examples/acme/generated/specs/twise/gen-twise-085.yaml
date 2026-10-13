@@ -73,6 +73,7 @@ blocks:
           count: 2
           input:
             address: 88 Summit Avenue, Acmeville
+          input_closed: true
         - label: catalog.search
           count: 0
       lang: EN
