@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-13T04:12:34.216Z",
+  "authorization": "Owner doubled every budget: your cap is now twice its old value. Use it to finish more of the verify TEST items before 06:35. Push at 06:40.",
+  "capUsd": 16,
+  "recordedStopUsd": 15.5,
+  "concurrency": 6,
+  "deadline": "2026-10-13T06:35:00+02:00",
+  "sourceFreeze": "558d75de017ecbf243852f5669a1bffeb8d511b9",
+  "samplingPolicy": "Retain the 72 original ids; measure twelve new items at concurrency six. Further nested seeded cohorts use only measured parallel time/cost, a 20% time margin and 90-second buffer. No accuracy controls selection."
+}

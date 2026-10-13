@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-13T03:36:58.073756+00:00",
+  "snapshot": "558d75de017ecbf243852f5669a1bffeb8d511b9",
+  "testPopulation": 221,
+  "customVerifyTestReceiptsBeforeTonight": 0,
+  "historicalTestReceiptCountsByOriginalOwner": {
+    "driftbench": 221,
+    "deepeval": 221,
+    "promptfoo": 221,
+    "inspect": 221,
+    "scenario": 221,
+    "langfuse": 221,
+    "driftbench-reference": 439,
+    "driftbench-reference3": 442,
+    "driftbench-adaptive": 305
+  },
+  "scope": "Own-worktree freeze snapshot only. Metadata, not new predictions. Shared prompt receipts retain their original owner. This is not an exhaustive global-history absence claim."
+}

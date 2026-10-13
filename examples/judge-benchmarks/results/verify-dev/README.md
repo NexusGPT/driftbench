@@ -16,3 +16,6 @@ Interrupted runs are excluded from full-score selection. Program outputs and mod
 - `test-selection.json`: final cohort chosen only from measured first-20 throughput and cost. The pilot belongs to the final cohort and is not judged again.
 - `final-paired-dev-changes.json` and `winner-vs-context-changes.json`: current audit-state paired DEV fixes and regressions.
 - `frozen-tests.log` and `frozen-typecheck.log`: final frozen-source validation, 56 tests and repository typecheck. Earlier error logs remain historical evidence.
+
+- `test-72-report.md`: complete original 72-item result beside Inspect, official/audited scores, cost and intervals.
+- `test-expansion-started.json` and `test-expansion-selection-*.json`: later explicit $16 budget and concurrency-six authorization, plus time/cost-only nested cohort selections. Frozen judge source and audit hashes remain unchanged.
