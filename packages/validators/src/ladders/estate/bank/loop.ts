@@ -5,7 +5,7 @@ import {
   estateImpact,
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
-import { generateEstateSuite } from '@agent-nexus/driftbench-generate';
+import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
 import { type EstateMutant, estateMutants } from '../mutants';
 import { type EstateRun, estateRun, scanRendered } from '../pipeline';
@@ -602,18 +602,12 @@ const ASKS: AskCheck[] = [
     tier: 1,
     title: 'every spec loads',
     check: (_r, all) => {
-      // A static test is JSON for `estate static`, not a task spec: it loads when it is an object with its id,
-      // test type and check. Every other file loads as a task spec.
+      // A static test is JSON for `estate static`, not a task spec: it loads when the runner's own schema
+      // (StaticTest, the one `driftbench estate static` parses with) accepts it. Every other file loads as a task spec.
       const bad = all.filter((v) => {
         const fixed = staticRecord(v);
         if (fixed === undefined) return !v.spec.loaded;
-        return (
-          fixed === null ||
-          typeof fixed.id !== 'string' ||
-          typeof fixed.testType !== 'string' ||
-          typeof fixed.check !== 'object' ||
-          fixed.check === null
-        );
+        return fixed === null || !StaticTest.safeParse(fixed).success;
       });
       return bad.length === 0 ? undefined : `${bad.length} specs do not load`;
     },

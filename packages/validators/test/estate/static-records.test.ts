@@ -57,6 +57,43 @@ describe('static tests are JSON for `estate static`, not task specs (docs/estate
     expect(bare.get('gen.asks.all-load')).toMatchObject({ pass: false, detail: '1 specs do not load' });
   });
 
+  // Records `driftbench estate static` refuses (its StaticTest schema): each must fail all-load (review of PR 239).
+  it.each([
+    [
+      'a test type the runner does not know',
+      (record: Record<string, unknown>) => {
+        record.testType = 'bogus';
+      },
+    ],
+    [
+      'an empty check',
+      (record: Record<string, unknown>) => {
+        record.check = {};
+      },
+    ],
+    [
+      'a check that is a list',
+      (record: Record<string, unknown>) => {
+        record.check = [];
+      },
+    ],
+    [
+      'no title',
+      (record: Record<string, unknown>) => {
+        delete record.title;
+      },
+    ],
+    [
+      'an extra field',
+      (record: Record<string, unknown>) => {
+        record.extra = 1;
+      },
+    ],
+  ])('fails all-load on a static test with %s', async (_name, fault) => {
+    const results = await withSpecs((specs) => first(specs, (spec) => json(spec, fault)));
+    expect(results.get('gen.asks.all-load')).toMatchObject({ pass: false, detail: '1 specs do not load' });
+  });
+
   it('fails all-load on a task spec that does not load', async () => {
     const results = await withSpecs((specs) => {
       const index = specs.findIndex((spec) => !isStatic(spec) && spec.loaded);
