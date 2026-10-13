@@ -1,0 +1,19 @@
+# Reader-first judge study
+
+This separate, explicitly length-aware configuration is exploratory. It never replaces the default judge.
+
+The owner asks for a longer answer unless it fails structure, economy, directness, context-free clarity or simplicity. Machine features are measured first, followed by the five-item rubric on both complete replies in both orders. Code pools criterion scores after remapping the swapped order. Scores are fulfillment, not confidence. Exact evidence quotes are validated against both replies. Invalid evidence prevents a judge override and is reported as a length fallback.
+
+## Initial DEV plan
+
+Only the fixed 90-pair DEV split is used for tuning. Two sequential calls per pair; two concurrent pair workers. No automatic retries. A returned error stops the run and reserves its per-call limit. The total authorization is USD 10.00. Raw responses, recipe cost and fresh spend are retained separately.
+
+Length uses English whitespace words or Chinese Han characters. The machine-only ablation flips the longer choice when its risk count exceeds the shorter reply by `featureMargin`. The combined variant flips only when both ballots validate, the pooled five-score advantage exceeds `judgeMargin`, and at least `minFailures` criteria have a longer score <=2, shorter score >=3, and a matching machine flag present only in the longer reply. Equal-length replies tie. Both games use the pooled decision; they are not independent votes.
+
+Initial thresholds: judgeMargin 4, featureMargin 2, minFailures 2. DEV-only search is predeclared over judgeMargin [2,3,4,5,6,8,10], featureMargin [1,2,3,4,5], minFailures [1,2,3]. Select the maximum DEV combined score, then fewer overrides, then larger judgeMargin, then larger minFailures. The featureMargin is selected independently for its ablation, with larger margin breaking ties. Report every combination, including losses. Commit the selected rule before the final full DEV replay. If it scores at least 142/180, write and commit a source-hash freeze, then run TEST once over all 173 pairs, 346 games. TEST may never choose or change thresholds. This TEST split was evaluated by earlier studies; it is confirmation, not a pristine holdout.
+
+## Reproduction
+
+Use worktree-local `TMPDIR` and `DRIFTBENCH_BENCH_CACHE` with `pnpm exec tsx comparisons/reader-first/src/study.ts --phase explore`. `--phase final-dev` only replays exact recordings. `--phase test` requires the committed freeze hashes and creates an exclusive run receipt before reading the split. A second TEST invocation is refused. Raw candidate text is loaded from the public dataset, never copied from a judge summary.
+
+Harness source: `research/opus-wp` at af25ea12, `examples/judge-benchmarks/src/{data,call}.ts`. The call harness uses one attempt here so unreturned retries cannot silently spend. The default judging code is imported without edits.
