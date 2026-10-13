@@ -1471,3 +1471,43 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 
 `--cache-suite <name>` names the cache suite of a campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without the flag, the keys are the ones earlier caches used.
 
+
+## `driftbench bench`
+
+Record the shipped default judge against immutable fictional slices, replay raw responses without model calls, and enforce per-model floors. Run from the repository checkout, or supply `--root`. See [benchmark floors](../benchmarks.md) for the full slice set, source commits, recording workflow and statistical limits.
+
+```sh
+driftbench bench replay [--slice <name|all>] [--model <id>] [--check-floor] [--root <path>] [--store <file>] [--json]
+driftbench bench record --model <id> --spend-cap-usd <usd> [--slice <name|all>] [--resume] [--concurrency <n>] [--spend-ledger <path>] [--root <path>] [--store <file>] [--json]
+driftbench bench floors [--root <path>] [--json]
+driftbench bench floors --raise <slice> <model> --evidence <json> [--root <path>] [--json]
+```
+
+| Option | Effect |
+|---|---|
+| `--slice <name>` | One manifest slice, or `all`, the default |
+| `--model <id>` | One model. Replay defaults to all active models; record requires one |
+| `--root <path>` | Repository containing `benchmarks/`; otherwise discovered from the working directory |
+| `--store <file>` | Also register the exact dataset versions in the store; reject a conflicting version |
+| `--check-floor` | Replay: require the absolute correct-count floor and paired regression checks |
+| `--spend-cap-usd <usd>` | Record: required positive spending cap for this invocation, including in-flight reservations |
+| `--spend-ledger <path>` | Record: append call spending rows here; default `benchmarks/evidence/spend.jsonl` |
+| `--concurrency <n>` | Record: parallel calls, from 1 through 16, default 4 |
+| `--resume` | Record: validate and reuse completed cassettes; resume matching successful responses from partial recordings |
+| `--raise <slice> <model>` | Floors: establish or raise the selected slice/model floor from current evidence |
+| `--evidence <json>` | Floors: a `bench replay --json` result, an individual record evidence file, or a matching report |
+| `--json` | Replay: reports, checks, problems and skips. Record: recording evidence and invocation charges. Floors: floor JSON |
+
+Replay and floor checks make no model calls. Replay reports the correct count, Wilson interval and bootstrap over construction families. Floor checks also report exact McNemar and the automatic non-inferiority margin. A changed prompt fingerprint, dataset or client setting fails with `re-record needed`.
+
+Recording uses the public client and retains raw responses. It checkpoints partial runs, checks recorded results against replay, and writes cassettes with measured spending evidence. `--resume` refuses stale data. Omit it for an intentional re-record; the previous completed cassette is archived by hash. A spend cap is per invocation, including after resume.
+
+The active model ids are `haiku` and `gpt-6-luna`. Haiku is pinned to `claude-haiku-5-5` and needs an authenticated `claude` executable. OpenAI needs `OPENAI_API_KEY`. `gemini-3.8-flash` is skipped until billing is enabled and cannot be selected for recording or replay.
+
+Floors validate evidence against the current cassette. The correct count cannot decrease within a dataset version. The same count can update evidence at a new fingerprint; unchanged count and fingerprint are refused. Earlier floor records remain in history.
+
+| Exit code | When |
+|---|---|
+| 0 | Replay has no problems; record completes; or floors are shown or raised |
+| 1 | Replay finds missing or stale recordings, integrity failures, or a failed floor |
+| 2 | Bad input or dataset; record fails, reaches its cap or regresses; or a floor update is refused |

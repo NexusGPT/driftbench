@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "82cc403c01aa2992b109a24d739e2febe4bd33f5",
+  "sourceBranch": "codex/hard-promptfoo",
+  "sourcePath": "comparisons/promptfoo/hard/rubric.json",
+  "sourceSha256": "05bdeeddb612a2a526ad60c84de9ee0e9773acf8737dd8cec43777be04f0fbca",
+  "sourceRows": 120,
+  "population": 120,
+  "labels": "Construction labels retained outside each model request.",
+  "mapping": "Verbatim request mapping from comparisons/promptfoo/hard/render.mts. Labels and construction metadata are outside the model request."
+}

@@ -134,6 +134,7 @@ export default defineConfig({
           { text: 'Testing an estate', link: '/estate' },
           { text: 'Datasets and prompts', link: '/datasets' },
           { text: 'Validators', link: '/validators' },
+          { text: 'Benchmark floors', link: '/benchmarks' },
         ],
       },
       {

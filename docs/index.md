@@ -33,6 +33,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Production traces](traces.md): `driftbench import traces` drafts specs from OpenTelemetry, Nexus or Claude Code traces; `driftbench monitor --source traces` watches production for drift in time windows, with the measured delay and false alarms.
 * [Releasing](releasing.md): the 0.1.0 packages, the release check and the tag-only release workflow.
 * [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.
+* [Benchmark floors](benchmarks.md): the shipped default judge on immutable fictional slices, recorded responses, free replay, and regression floors in CI.
 
 ## Reference
 
