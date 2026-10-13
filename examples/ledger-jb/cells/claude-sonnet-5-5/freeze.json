@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "createdAt": "2026-10-13T13:39:35.373Z",
+  "version": 2,
+  "createdAt": "2026-10-13T13:54:34.498514+00:00",
   "model": "claude-sonnet-5-5",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
@@ -20,7 +20,7 @@
     "route": "native-claude-cli-sonnet",
     "serviceTier": null
   },
-  "capUsd": 25,
+  "capUsd": 45,
   "authorization": "Owner: 25 USD per new model cell, separate from the earlier 25 USD total. Measure first five Sonnet requests, project the cell, and stop if either projection passes 25 USD. Go ahead with both transports now.",
   "priorLiabilityUsd": 14.11485872,
   "budgetScope": "This model only; no transfer from or to the existing cell budget or other new model.",
@@ -60,7 +60,7 @@
     "test"
   ],
   "probe": "First five physical pilot requests, sequential, saved for missing-only replay. Both contestants represented. No extra probe payloads.",
-  "projection": "Mean request cost per contestant times all planned decisions; ledger assumes 2.2 reads plus 2% schema re-asks, then at least the observed full pilot rate. Check after five requests and after the complete pilot. Stop when projection exceeds 25 USD.",
+  "projection": "Mean request cost per contestant times all planned decisions; ledger assumes 2.2 reads plus 2% schema re-asks, then at least the observed full pilot rate. Check after five requests and after the complete pilot. Stop when projection exceeds 45 USD.",
   "lastCallCutoff": "2026-10-14T00:00:00Z",
   "testPairs": 270,
   "winRule": "TIE-only for wins; an uncorrected significant observed loss remains a LOSS. No equivalence claim.",
@@ -194,6 +194,20 @@
     "packages/judges/src/weighted-panel.ts": "5fb8ce2dcfd9d6996edcfcc8fb5fbaee649c707c2c11289bda87030fa826e5c8",
     "pnpm-lock.yaml": "f7178145e417f8f11e28bc7cf1943db901077492226de4d172bd49994e213e04",
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
-    "examples/ledger-jb/cells/claude-sonnet-5-5/price.json": "d52af7ab2841b7397b0fba167c1e371b89ed22f594acd40deab25e44954ded62"
-  }
+    "examples/ledger-jb/cells/claude-sonnet-5-5/price.json": "d52af7ab2841b7397b0fba167c1e371b89ed22f594acd40deab25e44954ded62",
+    "examples/ledger-jb/additional/run-sonnet.mjs": "b44ce42fcf3753e2645c497b59e3e88111c7c72b3fa8db019517ab8b67043507",
+    "examples/ledger-jb/additional/budget.test.mjs": "4bc463412da98f5843ccd0da037d05e86ccc61ebd968b99f2694d8a5cdfe930c"
+  },
+  "priorCellFreezeSha256": "89dc323dd3d3ad8fa8b5a46d8768b701ec2c61c4230385ef4ece4f3f2d8a4972",
+  "nativeEnv": {
+    "DISABLE_PROMPT_CACHING": "1"
+  },
+  "cacheProbe": {
+    "startAfterRequests": 5,
+    "stopAfterRequests": 10,
+    "basis": "Next five unanswered practice requests in sealed queue order. No returned answer is reissued. Different practice inputs make raw cost comparison descriptive, not a matched estimate."
+  },
+  "runtimeAmendment": "Owner approves Sonnet JudgeBench 45 USD including holds. Try DISABLE_PROMPT_CACHING=1 on five practice requests before full run, then use the cheaper route. TEST runs once.",
+  "cacheSource": "https://code.claude.com/docs/en/env-vars",
+  "runner": "examples/ledger-jb/additional/run-sonnet.mjs"
 }
