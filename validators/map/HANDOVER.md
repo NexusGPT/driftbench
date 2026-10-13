@@ -7,26 +7,26 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 0 |
+| 1 | 8 |
 | 2 | 8 |
 | 3 | 8 |
-| 4 | 0 |
+| 4 | 8 |
 | 5 | 8 |
 | 6 | 8 |
 | 7 | 8 |
-| 8 | 0 |
+| 8 | 8 |
 | 9 | 8 |
 | 10 | 8 |
 | 11 | 8 |
-| 12 | 0 |
-| 13 | 0 |
+| 12 | 8 |
+| 13 | 8 |
 | 14 | 8 |
 | 15 | 8 |
-| 16 | 0 |
+| 16 | 8 |
 | 17 | 8 |
 | 18 | 8 |
-| 19 | 0 |
-| 20 | 0 |
+| 19 | 8 |
+| 20 | 8 |
 | hidden | 8 |
 <!-- level-table:end -->
 
@@ -133,3 +133,8 @@ The Acme test `is exactly what the extractor writes...` in packages/generate/tes
 * Remaining item, not a pre-pass fault: inventory-forms.no-channel-list expects no constraint at all, but the extractor correctly emits the behaviour-by-flow constraints that the base form expects. The validator's `code` for that form filters every constraint (packages/validators/src/ladders/map/bank/families/inventory.ts, form no-channel-list); it should drop only the channel constraints. Validator lane to fix.
 * Open for the validator lane: packages/validators/test/map/bank.test.ts ("writes a key only when the contract template shows it") and levels.test.ts ("gives roles only when the system prompt of the extractor asks for them") read the live SYSTEM_PROMPT and expect no polarity or role key; the template now states both, by design. They need a fixture template without those keys. PR 80 CI is red only on these two.
 * The earlier Open items and Hypotheses sections above are older than iteration 80; the figures there (328 of 578, level 0 at 561) are history.
+
+## Iteration 81: 100 percent
+
+* Bank 578 of 578 on seeds 1 to 20 and the hidden seed (score 1), level 8 of 8 on every seed, after merging main with the validator fixes (PR 127, 134, 136). The final report: ladder 8 on every seed; floor to set: 8 (ladder version 2); fragile: nothing known. The map floor lives in validators/floors.json, a protected file an executor branch cannot change, so the maintainer raises it from a non-exec branch with the evidence run.
+* The open items and next actions above are history; nothing remains. Run the validator again to confirm.
