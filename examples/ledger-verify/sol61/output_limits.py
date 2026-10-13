@@ -10,6 +10,8 @@ MODELS=['gpt-6.1-sol']
 
 def limit_reason(receipt, native=None):
     metadata=receipt.get('metadata') or {}
+    if native and native.get('stop_reason') in ('length','MAX_TOKENS','max_tokens'):
+        return 'native stop_reason='+native['stop_reason']
     if native and re.search(r'exceed\w*.*output token|output.token.*(?:maximum|limit)',native.get('result',''),re.I):
         return native['result']
     if metadata.get('finishReason') in ('length','MAX_TOKENS','max_tokens'):

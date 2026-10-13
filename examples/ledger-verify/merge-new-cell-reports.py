@@ -7,12 +7,45 @@ MODELS={'claude-sonnet-5-5':'sonnet','gpt-6.1-sol':'sol61'}
 CONTESTANTS=['driftbench-verify-uncertainty-cascade','promptfoo']
 def read(p):return json.loads(p.read_text())
 def rows(p):return [json.loads(x) for x in p.read_text().splitlines() if x.strip()] if p.exists() else []
+def closed_audit_report(text,audit):
+ # The closed rows and files remain intact. Each changed score gets a second labelled row.
+ haiku=next(c for c in audit['cells'] if c['model']=='haiku');out=[];label=None;strict=False
+ pct=lambda x:f'{100*x:.2f}%'
+ for line in text.splitlines():
+  if line.startswith('### Strict headline,'):strict=True;label='auditedLabels' if 'audited' in line else 'officialLabels'
+  elif line.startswith('### Product-final sensitivity,'):strict=False;label=None
+  out.append(line)
+  if strict and line.startswith('| haiku |'):
+   s=haiku['scores'][label]['auditCorrection'];accuracy=[]
+   for i in range(2):accuracy.append(f"{s['correct'][i]}/221, {pct(s['accuracy'][i])} [{pct(s['wilson95'][i][0])}, {pct(s['wilson95'][i][1])}]")
+   ci=s['deltaRequestClusterBootstrap95'];limits=' / '.join(str(haiku['counts'][c]['test']['answerEnvelopes']) for c in CONTESTANTS)
+   out.append(f"| haiku (labelled audit correction) | {accuracy[0]} | {accuracy[1]} | {limits} | {pct(s['delta'])} [{pct(ci[0])}, {pct(ci[1])}] | {s['wins']} / {s['losses']} | {s['twoSidedExactMcNemarP']:.8g} | pending | {s['verdict']} |")
+ text='\n'.join(out)+'\n'
+ section=['\n## Labelled closed-cell output-limit audit correction\n',
+ '- The accepted audit correction changes Haiku strict accuracy to 163/221 versus 159/221 on official labels, and 184/221 versus 180/221 on audited labels.',
+ '- Exact paired p is 0.6075913612730801 for both label sets. The result remains TIE. Closed result files and their original rows remain unchanged.',
+ '- Native receipt 81cd575a-8bb0-46f7-abca-b399594ea621 reports stop_reason=max_tokens despite subtype=success and empty text: 16387 output tokens, including 16384 thinking tokens.',
+ '- That additional limit belongs to our cascade. Strict loses one correct item. Product-final remains 168/221 versus 159/221 officially, and 189/221 versus 180/221 under audited labels.',
+ '- The identical detector audits both contestants on all three closed cells. No further score changes occur. Luna recovery receipts are included; its closed TEST remains unchanged.',
+ '- The new detector is frozen at 17:42:49 UTC on 13 October, before Sonnet TEST starts at 17:47:11 UTC and before Sol TEST. No model request is made for this audit.',
+ '- Haiku native bodies and API finish metadata are inspected. Two historical Haiku error bodies remain unavailable; API raw bodies were not retained. No missing evidence is inferred as an output limit.\n',
+ '| Model | Contestant | TEST limit answers | TEST affected items | All-phase limit answers | All-phase affected items | New limit answers |',
+ '|---|---|---|---|---|---|---|']
+ for cell in audit['cells']:
+  for c,v in cell['counts'].items():section.append(f"| {cell['model']} | {c} | {v['test']['answerEnvelopes']} | {v['test']['affectedItems']} | {v['all']['answerEnvelopes']} | {v['all']['affectedItems']} | {v['all']['newEnvelopes']} |")
+ section+=['','Evidence and unchanged-file hashes: evidence/closed-output-limit-audit.json. The original scores remain in evidence/cells.json cells; the separate correction is linked by closedOutputLimitAudit.','']
+ return text+'\n'.join(section)
 def main():
  original=read(BASE/'evidence/cells.json')
  assert read(BASE/'evidence/finalizer-state.json')['status']=='offline evidence ready for review'
  text=(BASE/'REPORT.md').read_text();marker='## Execution recovery and validity disclosure'
  supplement='\n'+marker+text.split(marker,1)[1] if marker in text else ''
  supplement=supplement.split('\n## Additional Sonnet and Sol cells',1)[0]
+ supplement=supplement.split('\n## Labelled closed-cell output-limit audit correction',1)[0]
+ closed_audit=read(BASE/'evidence/closed-output-limit-audit.json')
+ for path,h in closed_audit['closedFileHashes'].items():assert hashlib.sha256((BASE/path).read_bytes()).hexdigest()==h,path
+ original['closedOutputLimitAudit']=dict(path='evidence/closed-output-limit-audit.json',sha256=hashlib.sha256((BASE/'evidence/closed-output-limit-audit.json').read_bytes()).hexdigest(),officialFilesUnchanged=True)
+ original['freeze']['hashes']['evidence/closed-output-limit-audit.json']=original['closedOutputLimitAudit']['sha256']
  sections=['\n## Additional Sonnet and Sol cells\n',
  '- Separate model cells use the same sealed 221 items, unchanged audit map, frozen contestants, 20-item pilot, 48 mutations and 30-by-3 noise checks.',
  '- Sol has an owner-authorized 40 USD cap including holds. Sonnet has an owner-authorized 45 USD cap only if its five cache-disabled DEV calls project at most 45 USD, including calibration fees and holds.',
@@ -114,7 +147,7 @@ def main():
    sections.append(f"| {model} | {contestant} | {test_answers} | {test_items} | {v['all']['answerEnvelopes']}{suffix} | {v['all']['affectedItems']}{suffix} |")
  sections+=['','Sources per model folder: evidence/model-amendment.json, evidence/cost-sample.json, evidence/cells.json, evidence/output-limit-errors.json and receipts/native/.','Scores, paired exact p values and strict/product-final endpoints appear in the tables above for every completed cell. Pending cells have no sealed TEST score.','']
  subprocess.run([sys.executable,str(BASE/'render_report.py'),str(DOSSIER)],cwd=ROOT,check=True)
- result=(BASE/'REPORT.md').read_text()+supplement+'\n'.join(sections)
+ result=closed_audit_report((BASE/'REPORT.md').read_text()+supplement,closed_audit)+'\n'.join(sections)
  result=result.replace('Holm correction belongs to the prespecified 18-cell family and remains pending at this handoff. No local WIN or overall superiority claim is made.','The original three models belong to the prespecified 18-cell family. Flash Lite, Sonnet and Sol are additional cells. Multiplicity adjustment remains pending with the collator. No overall superiority claim is made.')
  result=result.replace('Settled fees:', 'Original three-model budget, settled fees:')
  result=result.replace('Strict is the headline: any output-limit hit makes the affected contestant/item an error, even if a later fallback returns a verdict.', 'Strict is the headline: any output-limit hit makes the affected contestant/item an error, even if a later fallback returns a verdict. For the additional Sonnet and Sol cells, any native refusal is also an error, at any token count.')
