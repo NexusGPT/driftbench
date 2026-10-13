@@ -35,7 +35,7 @@ export const CriterionLedger = z.strictObject({
       z.strictObject({
         id: z.string().trim().min(1),
         reasoning: z.string(),
-        evidence: z.union([z.string().trim().min(1), z.array(evidenceSpan).min(1)]).nullable(),
+        evidence: z.union([z.string().trim().min(1), z.array(evidenceSpan).min(1), z.null()]),
         met: z.boolean().nullable(),
       }),
     )
