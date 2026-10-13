@@ -59,16 +59,25 @@ def main():
   cell=extra['cells'][0];mapping=collections.defaultdict(set)
   for r in read(base/'evidence/request-attribution.json')['rows']:mapping[(r['phase'],r['fingerprint'])].add(r['contestant'])
   calls=rows(base/'receipts/calls.jsonl');sample=read(BASE/'evidence/new-model-cost-sample.json')['requests']
-  for r,s in zip(calls[:5],sample):mapping[(r['phase'],r['fingerprint'])].add(s['labels']['contestant'])
+  by_id={r['id']:r for r in calls}
+  for i,sample_row in enumerate(sample):
+   cached=base/'cache'/f'cost-sample-{i}.json'
+   if cached.exists():
+    r=by_id.get(read(cached).get('verify_receipt_id'))
+    if r:mapping[(r['phase'],r['fingerprint'])].add(sample_row['labels']['contestant'])
+  if remeasure:
+   for sample_row in remeasure['outcomes']:
+    r=by_id[sample_row['receipt']];mapping[(r['phase'],r['fingerprint'])].add(sample_row['labels']['contestant'])
   costs=collections.Counter();tokens=collections.Counter();unassigned=0
   for r in calls:
    owners=mapping[(r['phase'],r['fingerprint'])]
    if len(owners)!=1:unassigned+=r['costUsd'];continue
    c=next(iter(owners));costs[c]+=r['costUsd']
    metadata=r.get('metadata') or {};usage=metadata.get('usage') or metadata.get('nativeUsage') or {}
-   tokens[(c,'input')]+=usage.get('input_tokens',0);tokens[(c,'output')]+=usage.get('output_tokens',0)
-   tokens[(c,'reasoning')]+=(usage.get('output_tokens_details') or {}).get('reasoning_tokens',0)
-  evidence.append(dict(model=model,folder=folder,cell=cell,costs=dict(costs),unassignedUsd=unassigned,tokens=[dict(contestant=c,input=tokens[(c,'input')],output=tokens[(c,'output')],reasoning=tokens[(c,'reasoning')]) for c in CONTESTANTS]))
+   tokens[(c,'input')]+=usage.get('input_tokens',0)+(usage.get('cache_creation_input_tokens',0)+usage.get('cache_read_input_tokens',0) if model=='claude-sonnet-5-5' else 0);tokens[(c,'output')]+=usage.get('output_tokens',0)
+   tokens[(c,'cacheWrite')]+=usage.get('cache_creation_input_tokens',(usage.get('input_tokens_details') or {}).get('cache_write_tokens',0))
+   tokens[(c,'reasoning')]+=(usage.get('output_tokens_details') or {}).get('reasoning_tokens',(usage.get('output_tokens_details') or {}).get('thinking_tokens',0))
+  evidence.append(dict(model=model,folder=folder,cell=cell,costs=dict(costs),unassignedUsd=unassigned,tokens=[dict(contestant=c,input=tokens[(c,'input')],output=tokens[(c,'output')],reasoning=tokens[(c,'reasoning')],cacheWrite=tokens[(c,'cacheWrite')]) for c in CONTESTANTS]))
  original['newModelCostAttribution']=[{k:v for k,v in x.items() if k!='cell'} for x in evidence]
  original['at']=datetime.datetime.now(datetime.timezone.utc).isoformat();(BASE/'evidence/cells.json').write_text(json.dumps(original,indent=2)+'\n')
  sections+=projection_sections

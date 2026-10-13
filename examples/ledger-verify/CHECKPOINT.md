@@ -172,3 +172,17 @@
 - Completed models: haiku, gpt-6-luna. Offline replay covers 16 finished phases, with zero new provider calls.
 - Gemini pending status, if present, is an authorized daily-quota pause. See evidence/gemini-daily-quota-amendment.json and evidence/gemini-reset-watcher.json.
 - Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.
+
+## 2026-10-13T16:08:29.772211+00:00 resumed open model cells
+
+- Sonnet cache-off remeasure: five new DEV answers, 0.069768 USD, zero cache writes, projected total 29.080030 USD. Conditional 45 USD cap including holds is active.
+- Sonnet supervisor PID 56977, health daemon PID 88056. Logs: sonnet/logs/full-supervisor.log and logs/network-gate-resume.log. All old model answers remain cached.
+- Sol supervisor waits for its provider admission behind Sonnet. Network sequencer: logs/network-sequence-resume.log. Ten new OpenAI probes are required before Sol calls.
+- New-cell fee reservations include holds. Source amendments and archive hashes are in each new model folder. Original cells, Luna official results and parked Gemini are unchanged.
+- Before restart, inspect live processes and receipts. Never launch an extra supervisor for an active cell.
+
+## 2026-10-13T16:15:41.917330+00:00 verified report publication
+
+- Completed models: haiku, gpt-6-luna. Offline replay covers 16 finished phases, with zero new provider calls.
+- Gemini pending status, if present, is an authorized daily-quota pause. See evidence/gemini-daily-quota-amendment.json and evidence/gemini-reset-watcher.json.
+- Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.

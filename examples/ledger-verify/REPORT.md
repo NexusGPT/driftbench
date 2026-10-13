@@ -1,6 +1,6 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T16:02:12.274434+00:00.
+Evidence timestamp: 2026-10-13T16:15:41.001856+00:00.
 
 - Branch: research/ledger-verify. Core contract: PR 168 at 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 - All 221 TEST items are sealed. This is a previously evaluated split, not an unseen holdout.
@@ -159,7 +159,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | luna-addendum/state.json | e7ee3a57c98a7c1073bebd127989b45b0117c048a63e3493d0531097fc5f8ea0 |
 | luna-addendum/metrics.json | 7004cb786c920dc5b97783d2032ad4732eab3168dbe009497c4c231df9f4757e |
 | sonnet/evidence/model-amendment.json | ab0906dbc937581d5d846a1912bf81d2b4b69794ef13c58ceaf475df4d7ae3f4 |
-| sonnet/evidence/runtime-freeze.json | 92043b938cf0fc5b20e22a61e9c9c9c7e5ea3859ed31a00f3ce263c3341ac17e |
+| sonnet/evidence/runtime-freeze.json | b12daf35c06fa99430abeec5ed52751ba8f93b5dff086c40c0e7e6a36747547c |
 | sonnet/evidence/reporting-freeze.json | 92b4c089629fb8a12e4b4bc014a0c363456057003a906152e0e9b1293e2e53a0 |
 | sonnet/evidence/cost-sample.json | 1c416e1bfd884e17f5f6d6ec024ed1ce6f44417d3b0798b33a8f63d72faba26d |
 | sonnet/evidence/cache-off-amendment.json | d4f4d057bd41d197b8d69189358882b09d3594f81e6aae0ce8f74a7e4b49b01a |
@@ -167,6 +167,9 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | sol61/evidence/model-amendment.json | 5112f06d9111c55b8468f4d78e2626284d77ff2415bbd7df3f80520d5945f913 |
 | sol61/evidence/runtime-freeze.json | 7bd9573b0ed9b9273896563295dae18fd6020e459bf5c54d6e9fb4d43093e95e |
 | sol61/evidence/reporting-freeze.json | a7563ea875f1037a4798129120a4a879fd52ab195ddf0309578eca9ac48ff315 |
+| sonnet/evidence/cache-off-cost-sample.json | b415b3b1cecef4c287a680d040d331065ad5900924c6f4e8cdb01a90852aaa6b |
+| sonnet/evidence/cap45-activation.json | 09e2e68e7c4b20e5f08a87274d64a9750247ad8b44c5dbbd7a94118d85a4de5e |
+| sonnet/evidence/pilot-projection.json | 37f41ab06e0424b716a6d6e531fceec984c05438973ec7be64a4cf4a72d68ce0 |
 
 Active runtime id: d49a333a9d4e6dd0ffd6. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.
@@ -276,23 +279,24 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 
 | Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Unknown holds USD | Evidence folder |
 |---|---|---|---|---|---|---|
-| claude-sonnet-5-5 | paused: cost projection exceeds 25 USD | 0.13384600 | 57.41379200 | 0.13384600 | 0.00000000 | sonnet/ |
+| claude-sonnet-5-5 | running | 0.06976800 | 29.08003000 | 2.50554000 | 0.50000000 | sonnet/ |
 | gpt-6.1-sol | waiting for Haiku, its authorized recovery and Flash Lite | pending | pending | 0.00000000 | 0.00000000 | sol61/ |
 
 claude-sonnet-5-5 cost projection breakdown:
 
 | Contestant | Stage | Reference requests | Measured unit USD | Projected USD |
 |---|---|---|---|---|
-| driftbench-verify-uncertainty-cascade | blind-algebra | 340 | 0.03545400 | 12.05436000 |
-| driftbench-verify-uncertainty-cascade | blind-direct-program | 340 | 0.02120200 | 7.20868000 |
-| driftbench-verify-uncertainty-cascade | final-step | 102 | 0.03545400 | 3.61630800 |
-| driftbench-verify-uncertainty-cascade | program | 352 | 0.03545400 | 12.47980800 |
-| driftbench-verify-uncertainty-cascade | quoted-extract | 114 | 0.03545400 | 4.04175600 |
-| driftbench-verify-uncertainty-cascade | single | 359 | 0.02075800 | 7.45212200 |
-| driftbench-verify-uncertainty-cascade | single-review | 5 | 0.03545400 | 0.17727000 |
-| promptfoo | single | 368 | 0.02821600 | 10.38348800 |
+| driftbench-verify-uncertainty-cascade | blind-algebra | 340 | 0.01575000 | 5.35500000 |
+| driftbench-verify-uncertainty-cascade | blind-direct-program | 340 | 0.01558400 | 5.29856000 |
+| driftbench-verify-uncertainty-cascade | final-step | 102 | 0.01575000 | 1.60650000 |
+| driftbench-verify-uncertainty-cascade | program | 352 | 0.01575000 | 5.54400000 |
+| driftbench-verify-uncertainty-cascade | quoted-extract | 114 | 0.01575000 | 1.79550000 |
+| driftbench-verify-uncertainty-cascade | single | 359 | 0.01215000 | 4.36185000 |
+| driftbench-verify-uncertainty-cascade | single-review | 5 | 0.01575000 | 0.07875000 |
+| promptfoo | single | 368 | 0.01314200 | 4.83625600 |
 
-Five-call measured cost by contestant: cascade 0.07741400 USD; promptfoo 0.05643200 USD.
+Five-call measured cost by contestant: cascade 0.04348400 USD; promptfoo 0.02628400 USD.
+Additional conservative allowance: all calibration fees 0.20361400 USD plus holds 0.00000000 USD. Cache writes observed in the five new calls: 0 tokens.
 Projection uses the original full Luna request counts, with the highest sampled cascade fee assigned to unsampled stages. It is an estimate, not a measured full-cell cost.
 
 

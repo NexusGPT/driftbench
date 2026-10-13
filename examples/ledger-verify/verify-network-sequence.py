@@ -10,7 +10,7 @@ def set_model(model,stop=False):
  p=CONTROL.with_suffix('.tmp');p.write_text(json.dumps(value,indent=2)+'\n');p.replace(CONTROL);print(json.dumps(value),flush=True)
 def ready(folder,model):
  p=read(BASE/folder/f'{model}.progress.json');f=read(BASE/folder/'evidence/finalizer-state.json')
- return f.get('status')=='offline evidence ready for review' or p.get('status','').startswith('paused: cost projection')
+ return f.get('status')=='offline evidence ready for review' or p.get('status','').startswith('paused: cost projection') or p.get('status')=='owner budget decision'
 while not (read(BASE/'evidence/haiku-test-timeout-recovery.json').get('status')=='complete' and read(BASE/'evidence/finalizer-state.json').get('status')=='offline evidence ready for review'):time.sleep(5)
 while read(BASE/'luna-addendum/state.json').get('status')!='complete':time.sleep(5)
 set_model('claude-sonnet-5-5')

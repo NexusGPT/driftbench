@@ -12,7 +12,7 @@
   },
   "geminiAuthorization": "Gemini is authorized too (billing on, 180 s timeouts).",
   "deadlineAt": null,
-  "capUsd": 25,
+  "capUsd": 45,
   "modelConcurrency": {
     "claude-sonnet-5-5": 2
   },
@@ -197,5 +197,6 @@
     "at": "2026-10-13T15:59:22.994828+00:00",
     "priorSha256": "0974292748f5bedfae651b88f441bbf6dc2eb21a04beae0aa01821532af20832",
     "policy": "Fresh 10-probe provider gate after outage. Explicit noAnswer errors count toward cooldown. Quota retries recheck network admission. Sonnet disables prompt caching for both contestants; existing answers retain cache identity."
-  }
+  },
+  "conditionalBudgetEvidence": "sonnet/evidence/cache-off-cost-sample.json"
 }
