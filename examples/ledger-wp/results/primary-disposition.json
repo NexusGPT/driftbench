@@ -1,0 +1,50 @@
+[
+  {
+    "model": "haiku",
+    "verdict": "pending",
+    "comparison": {
+      "matchedPairs": 35,
+      "wins": 10,
+      "losses": 10,
+      "deltaPoints": 0.0,
+      "requestCluster95": [
+        -14.285714285714286,
+        12.857142857142858
+      ],
+      "mcnemarTwoSided": 1.0,
+      "holm18": null,
+      "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+    }
+  },
+  {
+    "model": "gpt-6-luna",
+    "verdict": "TIE",
+    "comparison": {
+      "matchedPairs": 173,
+      "wins": 31,
+      "losses": 42,
+      "deltaPoints": -3.179190751445087,
+      "requestCluster95": [
+        -8.720930232558139,
+        2.6785714285714284
+      ],
+      "mcnemarTwoSided": 0.24164472314075197,
+      "holm18": null,
+      "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+    }
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "verdict": "pending",
+    "comparison": {
+      "matchedPairs": 0,
+      "wins": 0,
+      "losses": 0,
+      "deltaPoints": null,
+      "requestCluster95": null,
+      "mcnemarTwoSided": null,
+      "holm18": null,
+      "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+    }
+  }
+]

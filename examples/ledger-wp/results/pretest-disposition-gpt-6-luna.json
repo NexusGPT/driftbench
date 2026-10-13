@@ -1,0 +1,412 @@
+{
+  "at": "2026-10-13T09:40:32.305Z",
+  "modelScope": "gpt-6-luna",
+  "authorization": "Resume the writing cell: run the full 173-pair TEST on the sealed pool. Your cap is 35 USD.",
+  "pacing": "Owner authorizes all models side by side at per-model limits; phase order remains fixtures, validity, dev, test.",
+  "policy": "Run without tuning; report failed validity checks and withhold unsupported validation claims.",
+  "fixtureAndCheaterChecks": [
+    {
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "pairs": 30,
+      "games": 60,
+      "correct": 30,
+      "accuracy": 50,
+      "wilson95": [
+        37.73502424155577,
+        62.26497575844423
+      ],
+      "recipeUsd": 0.07619262,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": 0.2539754,
+      "usdPer100Games": 0.1269877,
+      "comparison": {
+        "matchedPairs": 30,
+        "wins": 3,
+        "losses": 5,
+        "deltaPoints": -3.3333333333333335,
+        "requestCluster95": [
+          -13.333333333333334,
+          6.666666666666667
+        ],
+        "mcnemarTwoSided": 0.7265625,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": 0.43937744200000006,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": -23.33333333333333
+        },
+        "constant-FIRST": {
+          "accuracy": 50,
+          "judgeLeadPoints": 0
+        },
+        "refusal-wins": {
+          "accuracy": 0,
+          "judgeLeadPoints": 50
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 30,
+        "repeatGameFlips": 12,
+        "comparisons": 120,
+        "flipPercent": 10
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": true,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
+        "fixture-zh-count": true,
+        "fixture-zh-language": true
+      },
+      "fixtureKappa": 1,
+      "earnedFixtureSeat": true,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "pairs": 30,
+      "games": 60,
+      "correct": 44,
+      "accuracy": 73.33333333333333,
+      "wilson95": [
+        60.99128690331636,
+        82.86735999671944
+      ],
+      "recipeUsd": 0.1044181,
+      "graderErrors": 30,
+      "ties": 0,
+      "usdPer100Pairs": 0.34806033333333336,
+      "usdPer100Games": 0.17403016666666668,
+      "comparison": {
+        "matchedPairs": 30,
+        "wins": 20,
+        "losses": 8,
+        "deltaPoints": 20,
+        "requestCluster95": [
+          -5.357142857142857,
+          44.44444444444444
+        ],
+        "mcnemarTwoSided": 0.03569813817739487,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": 0.6021443766666666,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": 0
+        },
+        "constant-FIRST": {
+          "accuracy": 50,
+          "judgeLeadPoints": 23.33333333333333
+        },
+        "refusal-wins": {
+          "accuracy": 0,
+          "judgeLeadPoints": 73.33333333333333
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 30,
+        "repeatGameFlips": 0,
+        "comparisons": 120,
+        "flipPercent": 0
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": false,
+        "fixture-en-count": false,
+        "fixture-en-language": true,
+        "fixture-zh-name": false,
+        "fixture-zh-count": false,
+        "fixture-zh-language": true
+      },
+      "fixtureKappa": 0,
+      "earnedFixtureSeat": false,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 4,
+          "games": 12,
+          "accuracy": 33.333333333333336
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 4,
+          "games": 8,
+          "accuracy": 50
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 4,
+          "games": 8,
+          "accuracy": 50
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 4,
+          "games": 12,
+          "accuracy": 33.333333333333336
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "pairs": 30,
+      "games": 60,
+      "correct": 32,
+      "accuracy": 53.333333333333336,
+      "wilson95": [
+        40.89342702715789,
+        65.3720939585615
+      ],
+      "recipeUsd": 0.044948100000000005,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": 0.14982700000000002,
+      "usdPer100Games": 0.07491350000000001,
+      "projectedTestUsd": 0.25920071000000006,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": -19.999999999999993
+        },
+        "constant-FIRST": {
+          "accuracy": 50,
+          "judgeLeadPoints": 3.3333333333333357
+        },
+        "refusal-wins": {
+          "accuracy": 0,
+          "judgeLeadPoints": 53.333333333333336
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 30,
+        "repeatGameFlips": 3,
+        "comparisons": 120,
+        "flipPercent": 2.5
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": true,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
+        "fixture-zh-count": true,
+        "fixture-zh-language": true
+      },
+      "fixtureKappa": 1,
+      "earnedFixtureSeat": true,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100
+        }
+      }
+    }
+  ],
+  "editChecks": [
+    {
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 12,
+          "thresholdPercent": 95,
+          "passes": true
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 8,
+          "thresholdPercent": 95,
+          "passes": true
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 8,
+          "thresholdPercent": 100,
+          "passes": true
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 12,
+          "thresholdPercent": 90,
+          "passes": true
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 4,
+          "thresholdPercent": 95,
+          "passes": true
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 4,
+          "thresholdPercent": 95,
+          "passes": true
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 4,
+          "matchingGames": 6,
+          "games": 8,
+          "consistencyPercent": 75,
+          "plantedCorrectGames": 4,
+          "thresholdPercent": 100,
+          "passes": false
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 6,
+          "matchingGames": 4,
+          "games": 12,
+          "consistencyPercent": 33.333333333333336,
+          "plantedCorrectGames": 4,
+          "thresholdPercent": 90,
+          "passes": false
+        }
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 12,
+          "thresholdPercent": 95,
+          "passes": true
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 8,
+          "thresholdPercent": 95,
+          "passes": true
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 8,
+          "thresholdPercent": 100,
+          "passes": true
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100,
+          "plantedCorrectGames": 12,
+          "thresholdPercent": 90,
+          "passes": true
+        }
+      }
+    }
+  ]
+}

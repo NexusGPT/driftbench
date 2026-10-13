@@ -1,14 +1,18 @@
 # LongJudge writing pair ledger study
 
-Measured state: 2026-10-13T09:39:11.817049+00:00. Branch `research/ledger-wp`, local head `d116a155a3b5bbcdc4c49e6a365d764df0dfae6f`.
+Measured state: 2026-10-13T10:05:27.987379+00:00. Branch `research/ledger-wp`, local head `7d68a4d70c4f54e5aeff1b63fc5c6ced38eddcb3`.
 
 ## Outcome
 
 The model table below is the observed result, including pending and partial cells. No global superiority claim is made. This row is preregistered as no significant loss, not an assumed win.
 
+haiku: pending; gpt-6-luna: TIE; gemini-3.8-flash: pending. TIE follows the preregistered significance rule and does not establish equivalence. Source: `results/primary-disposition.json`.
+
+Preregistered development validity fails the cheater bar for haiku, gpt-6-luna. The full test runs under explicit owner authorization without tuning. This study cannot claim that all validity gates pass. Source: `results/phase-report.json`.
+
 Gemini is parked pending an owner-confirmed credit top-up. The owner reports depleted prepaid credits from another cell; this cell makes no new Gemini probe. Haiku and Luna continue.
 
-Actual recorded model spend: 4.41376539 USD. Unsettled reservations: 2.45000000 USD. Total lane cap: 35 USD. Recorded call attempts: 2143. Source: `results/spend.jsonl` and `results/calls.jsonl`.
+Actual recorded model spend: 5.72896990 USD. Unsettled reservations: 2.95000000 USD. Total lane cap: 35 USD. Recorded call attempts: 3533. Source: `results/spend.jsonl` and `results/calls.jsonl`.
 
 ## Licence and label provenance
 
@@ -40,12 +44,12 @@ Scores use normalized presentation games. Ties and unparsed pair-ledger or promp
 
 | Model | Contestant | Pairs / 173 | Correct games | Accuracy % | Wilson 95% | Errors | USD / 100 pairs | USD / 100 games |
 |---|---|---:|---:|---:|---|---:|---:|---:|
-| haiku | pair-ledger | 0 | 0/0 | pending | pending | 0 | pending | pending |
-| haiku | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | 0 | pending | pending |
-| haiku | promptfoo | 0 | 0/0 | pending | pending | 0 | pending | pending |
-| gpt-6-luna | pair-ledger | 0 | 0/0 | pending | pending | 0 | pending | pending |
-| gpt-6-luna | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | 0 | pending | pending |
-| gpt-6-luna | promptfoo | 0 | 0/0 | pending | pending | 0 | pending | pending |
+| haiku | pair-ledger | 35 | 46/70 | 65.71 | 54.04 to 75.75 | 0 | 0.44213 | 0.22107 |
+| haiku | reader-first-c50b2dc3 | 34 | 48/68 | 70.59 | 58.89 to 80.08 | 17 | 0.56213 | 0.28107 |
+| haiku | promptfoo | 35 | 46/70 | 65.71 | 54.04 to 75.75 | 1 | 0.20938 | 0.10469 |
+| gpt-6-luna | pair-ledger | 173 | 186/346 | 53.76 | 48.49 to 58.94 | 0 | 0.15114 | 0.07557 |
+| gpt-6-luna | reader-first-c50b2dc3 | 173 | 234/346 | 67.63 | 62.53 to 72.34 | 135 | 0.24011 | 0.12005 |
+| gpt-6-luna | promptfoo | 173 | 197/346 | 56.94 | 51.67 to 62.05 | 0 | 0.06837 | 0.03418 |
 | gemini-3.8-flash | pair-ledger | 0 | 0/0 | pending | pending | 0 | pending | pending |
 | gemini-3.8-flash | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | 0 | pending | pending |
 | gemini-3.8-flash | promptfoo | 0 | 0/0 | pending | pending | 0 | pending | pending |
@@ -54,10 +58,10 @@ Reader-first is the separate opt-in PR 157 row at `c50b2dc3`. It has a length pr
 
 | Model | Challenger vs promptfoo | Matched pairs | Wins / losses | Difference, points | Request-cluster 95% | Exact two-sided p | Holm-18 |
 |---|---|---:|---:|---:|---|---:|---|
-| haiku | pair-ledger | 0 | 0/0 | pending | pending | pending | pending full primary family |
-| haiku | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | pending | not applicable, exploratory |
-| gpt-6-luna | pair-ledger | 0 | 0/0 | pending | pending | pending | pending full primary family |
-| gpt-6-luna | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | pending | not applicable, exploratory |
+| haiku | pair-ledger | 35 | 10/10 | 0.00 | -14.29 to 12.86 | 1.000000 | pending full primary family |
+| haiku | reader-first-c50b2dc3 | 34 | 18/14 | 5.88 | -13.64 to 25.71 | 0.596615 | not applicable, exploratory |
+| gpt-6-luna | pair-ledger | 173 | 31/42 | -3.18 | -8.72 to 2.68 | 0.241645 | pending full primary family |
+| gpt-6-luna | reader-first-c50b2dc3 | 173 | 109/72 | 10.69 | 0.86 to 20.71 | 0.007284 | not applicable, exploratory |
 | gemini-3.8-flash | pair-ledger | 0 | 0/0 | pending | pending | pending | pending full primary family |
 | gemini-3.8-flash | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | pending | not applicable, exploratory |
 
@@ -73,6 +77,14 @@ Per-cell game McNemar is the requested nominal test. Games sharing a pair and re
 
 Longer-wins uses whitespace units in English and Han characters in Chinese, matching the frozen reader feature. The test control scores 234/346 games, 67.63%. This baseline is independent of model judging and is not evidence of superior writing assessment.
 
+| Separate reader-first row | Observed test pairs | Identical choices to longer-wins | Different choices |
+|---|---:|---:|---:|
+| haiku | 39 | 39 | 0 |
+| gpt-6-luna | 173 | 173 | 0 |
+| gemini-3.8-flash | 0 | 0 | 0 |
+
+This comparison uses every recorded test choice, not accuracy alone. Exact agreement with the control cannot support an added writing-quality benefit. Source: `results/reader-vs-longer.json` and `results/decisions.jsonl`.
+
 ## Pilot and dev checks
 
 | Stage | Model | Contestant | Pairs | Accuracy % | Projected test USD | Noise flips / comparisons | Fixture seat | Cheater bar |
@@ -86,12 +98,12 @@ Longer-wins uses whitespace units in English and Han characters in Chinese, matc
 | pilot | gemini-3.8-flash | pair-ledger | 20 | 60.00 | 3.3606 | pending/pending | pending | pending |
 | pilot | gemini-3.8-flash | reader-first-c50b2dc3 | 20 | 75.00 | 5.5983 | pending/pending | pending | pending |
 | pilot | gemini-3.8-flash | promptfoo | 20 | 75.00 | 2.4523 | pending/pending | pending | pending |
-| dev | haiku | pair-ledger | 30 | 60.00 | 1.2059 | 10/108 | True | False |
-| dev | haiku | reader-first-c50b2dc3 | 30 | 73.33 | 1.4381 | 2/104 | False | False |
-| dev | haiku | promptfoo | 30 | 48.33 | 0.7693 | 9/104 | False | False |
-| dev | gpt-6-luna | pair-ledger | 30 | 50.00 | 0.4394 | 12/100 | True | False |
-| dev | gpt-6-luna | reader-first-c50b2dc3 | 30 | 73.33 | 0.6021 | 0/100 | False | False |
-| dev | gpt-6-luna | promptfoo | 30 | 53.33 | 0.2592 | 2/104 | True | False |
+| dev | haiku | pair-ledger | 30 | 60.00 | 1.2059 | 10/120 | True | False |
+| dev | haiku | reader-first-c50b2dc3 | 30 | 73.33 | 1.4381 | 2/120 | False | False |
+| dev | haiku | promptfoo | 30 | 48.33 | 0.7693 | 11/120 | False | False |
+| dev | gpt-6-luna | pair-ledger | 30 | 50.00 | 0.4394 | 12/120 | True | False |
+| dev | gpt-6-luna | reader-first-c50b2dc3 | 30 | 73.33 | 0.6021 | 0/120 | False | False |
+| dev | gpt-6-luna | promptfoo | 30 | 53.33 | 0.2592 | 3/120 | True | False |
 | dev | gemini-3.8-flash | pair-ledger | 0 | pending | pending | 0/0 | True | pending |
 | dev | gemini-3.8-flash | reader-first-c50b2dc3 | 0 | pending | pending | 0/0 | False | pending |
 | dev | gemini-3.8-flash | promptfoo | 0 | pending | pending | 0/0 | True | pending |
@@ -143,12 +155,12 @@ Edit consistency compares each variant with the first sealed fixture reading. Re
 
 | Model | Contestant | Recorded attempts | Output-limit finishes | Provider errors | HTTP 429, all / test |
 |---|---|---:|---:|---:|---:|
-| haiku | pair-ledger | 328 | 0 | 0 | 0/0 |
-| haiku | reader-first-c50b2dc3 | 288 | 0 | 0 | 0/0 |
-| haiku | promptfoo | 288 | 0 | 0 | 0/0 |
-| gpt-6-luna | pair-ledger | 322 | 0 | 3 | 0/0 |
-| gpt-6-luna | reader-first-c50b2dc3 | 290 | 0 | 3 | 0/0 |
-| gpt-6-luna | promptfoo | 288 | 0 | 0 | 0/0 |
+| haiku | pair-ledger | 429 | 0 | 0 | 0/0 |
+| haiku | reader-first-c50b2dc3 | 374 | 0 | 0 | 0/0 |
+| haiku | promptfoo | 373 | 0 | 0 | 0/0 |
+| gpt-6-luna | pair-ledger | 731 | 0 | 3 | 0/0 |
+| gpt-6-luna | reader-first-c50b2dc3 | 645 | 0 | 3 | 0/0 |
+| gpt-6-luna | promptfoo | 642 | 0 | 0 | 0/0 |
 | gemini-3.8-flash | pair-ledger | 116 | 0 | 0 | 0/0 |
 | gemini-3.8-flash | reader-first-c50b2dc3 | 113 | 25 | 2 | 1/0 |
 | gemini-3.8-flash | promptfoo | 110 | 0 | 0 | 0/0 |
@@ -157,11 +169,11 @@ The common HTTP output limit can truncate a reasoning-heavy response. This is re
 
 | Scope | Model | Ordered readings | Schema re-asks | Recovered | Re-ask USD, already in total |
 |---|---|---:|---:|---:|---:|
-| all phases | haiku | 328 | 0 | 0 | 0.00000000 |
-| all phases | gpt-6-luna | 318 | 0 | 0 | 0.00000000 |
+| all phases | haiku | 429 | 0 | 0 | 0.00000000 |
+| all phases | gpt-6-luna | 728 | 0 | 0 | 0.00000000 |
 | all phases | gemini-3.8-flash | 116 | 0 | 0 | 0.00000000 |
-| test | haiku | 0 | 0 | 0 | 0.00000000 |
-| test | gpt-6-luna | 0 | 0 | 0 | 0.00000000 |
+| test | haiku | 95 | 0 | 0 | 0.00000000 |
+| test | gpt-6-luna | 398 | 0 | 0 | 0.00000000 |
 | test | gemini-3.8-flash | 0 | 0 | 0 | 0.00000000 |
 
 The owner explicitly preserves the frozen core single schema re-ask after malformed JSON. The no-returned-answer-retry rule applies to transport wrappers. Frequencies count `ledger.reask` in completed pair readings; their second attempt cost is included in each decision and the overall spend. Source: `results/reasks.json` and `results/decisions.jsonl`.

@@ -1,0 +1,20 @@
+[
+  {
+    "model": "haiku",
+    "observedPairs": 39,
+    "identicalToLongerWins": 39,
+    "differentFromLongerWins": 0
+  },
+  {
+    "model": "gpt-6-luna",
+    "observedPairs": 173,
+    "identicalToLongerWins": 173,
+    "differentFromLongerWins": 0
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "observedPairs": 0,
+    "identicalToLongerWins": 0,
+    "differentFromLongerWins": 0
+  }
+]

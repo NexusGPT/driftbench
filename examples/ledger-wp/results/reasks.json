@@ -2,8 +2,8 @@
   {
     "scope": "all phases",
     "model": "haiku",
-    "completedPairs": 145,
-    "orderedReadings": 328,
+    "completedPairs": 187,
+    "orderedReadings": 429,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0
@@ -11,8 +11,8 @@
   {
     "scope": "all phases",
     "model": "gpt-6-luna",
-    "completedPairs": 143,
-    "orderedReadings": 318,
+    "completedPairs": 321,
+    "orderedReadings": 728,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0
@@ -29,8 +29,8 @@
   {
     "scope": "test",
     "model": "haiku",
-    "completedPairs": 0,
-    "orderedReadings": 0,
+    "completedPairs": 39,
+    "orderedReadings": 95,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0
@@ -38,8 +38,8 @@
   {
     "scope": "test",
     "model": "gpt-6-luna",
-    "completedPairs": 0,
-    "orderedReadings": 0,
+    "completedPairs": 173,
+    "orderedReadings": 398,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0

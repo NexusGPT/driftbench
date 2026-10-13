@@ -35,6 +35,19 @@ def main():
     calls=records('results/calls.jsonl')
     decisions=records('results/decisions.jsonl')
     validity=load('results/validity-checks.json',{})
+    failed_dev=[r for r in phase.get('dev',[]) if r['contestant']=='pair-ledger' and r.get('noise',{}).get('completeTriplePairs')==30 and not r.get('cheaterBarPass')]
+    dev_warning=('Preregistered development validity fails the cheater bar for '+', '.join(r['model'] for r in failed_dev)+'. The full test runs under explicit owner authorization without tuning. This study cannot claim that all validity gates pass. Source: `results/phase-report.json`.') if failed_dev else 'Development validity is reported below; incomplete checks remain pending.'
+    primary=[]
+    for row in cells:
+        if row['contestant']!='pair-ledger':continue
+        comparison=row.get('comparison',{})
+        verdict='pending'
+        if comparison.get('matchedPairs')==173:
+            delta=comparison['deltaPoints'];p=comparison['mcnemarTwoSided']
+            verdict='LOSS' if delta<0 and p<.05 else 'TIE' if p>=.05 or delta==0 else 'positive result, Holm-18 pending'
+        primary.append({'model':row['model'],'verdict':verdict,'comparison':comparison})
+    (HERE/'results/primary-disposition.json').write_text(json.dumps(primary,indent=2)+'\n')
+    primary_summary='; '.join(r['model']+': '+r['verdict'] for r in primary)
     reasks=[]
     for scope in ['all phases','test']:
         for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
@@ -49,6 +62,8 @@ def main():
     lines=['# LongJudge writing pair ledger study','',f"Measured state: {datetime.datetime.now(datetime.timezone.utc).isoformat()}. Branch `research/ledger-wp`, local head `{head}`.",'',
         '## Outcome','',
         'The model table below is the observed result, including pending and partial cells. No global superiority claim is made. This row is preregistered as no significant loss, not an assumed win.','',
+        primary_summary+'. TIE follows the preregistered significance rule and does not establish equivalence. Source: `results/primary-disposition.json`.','',
+        dev_warning,'',
         ('Gemini is parked pending an owner-confirmed credit top-up. The owner reports depleted prepaid credits from another cell; this cell makes no new Gemini probe. Haiku and Luna continue.' if freeze.get('geminiCreditHold',{}).get('active') else 'Provider status follows the coverage table below.'),'',
         f"Actual recorded model spend: {actual:.8f} USD. Unsettled reservations: {sum(pending.values()):.8f} USD. Total lane cap: {freeze['capUsd']} USD. Recorded call attempts: {len(calls)}. Source: `results/spend.jsonl` and `results/calls.jsonl`.",'',
         '## Licence and label provenance','',
@@ -88,6 +103,17 @@ def main():
         if row['model']!='machine':continue
         lines.append(f"| {row['contestant']} | {row['correct']}/{row['games']} | {f(row['accuracy'])} | {interval(row['wilson95'])} | 0 |")
     lines+=['','Longer-wins uses whitespace units in English and Han characters in Chinese, matching the frozen reader feature. The test control scores 234/346 games, 67.63%. This baseline is independent of model judging and is not evidence of superior writing assessment.','',
+        '| Separate reader-first row | Observed test pairs | Identical choices to longer-wins | Different choices |',
+        '|---|---:|---:|---:|']
+    control={r['id']:r['games'] for r in decisions if r['split']=='test' and r['contestant']=='longer-wins'}
+    reader_comparisons=[]
+    for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
+        selected=[r for r in decisions if r['split']=='test' and r['model']==model and r['contestant']=='reader-first-c50b2dc3']
+        same=sum(r['games']==control[r['id']] for r in selected)
+        reader_comparisons.append({'model':model,'observedPairs':len(selected),'identicalToLongerWins':same,'differentFromLongerWins':len(selected)-same})
+        lines.append(f"| {model} | {len(selected)} | {same} | {len(selected)-same} |")
+    (HERE/'results/reader-vs-longer.json').write_text(json.dumps(reader_comparisons,indent=2)+'\n')
+    lines+=['','This comparison uses every recorded test choice, not accuracy alone. Exact agreement with the control cannot support an added writing-quality benefit. Source: `results/reader-vs-longer.json` and `results/decisions.jsonl`.','',
         '## Pilot and dev checks','',
         '| Stage | Model | Contestant | Pairs | Accuracy % | Projected test USD | Noise flips / comparisons | Fixture seat | Cheater bar |',
         '|---|---|---|---:|---:|---:|---|---|---|']

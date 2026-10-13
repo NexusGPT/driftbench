@@ -413,10 +413,10 @@
         }
       },
       "noise": {
-        "completeTriplePairs": 27,
+        "completeTriplePairs": 30,
         "repeatGameFlips": 10,
-        "comparisons": 108,
-        "flipPercent": 9.25925925925926
+        "comparisons": 120,
+        "flipPercent": 8.333333333333334
       },
       "sixFixturesThreeOfThree": {
         "fixture-en-name": true,
@@ -505,10 +505,10 @@
         }
       },
       "noise": {
-        "completeTriplePairs": 26,
+        "completeTriplePairs": 30,
         "repeatGameFlips": 2,
-        "comparisons": 104,
-        "flipPercent": 1.9230769230769231
+        "comparisons": 120,
+        "flipPercent": 1.6666666666666667
       },
       "sixFixturesThreeOfThree": {
         "fixture-en-name": false,
@@ -584,10 +584,10 @@
         }
       },
       "noise": {
-        "completeTriplePairs": 26,
-        "repeatGameFlips": 9,
-        "comparisons": 104,
-        "flipPercent": 8.653846153846153
+        "completeTriplePairs": 30,
+        "repeatGameFlips": 11,
+        "comparisons": 120,
+        "flipPercent": 9.166666666666666
       },
       "sixFixturesThreeOfThree": {
         "fixture-en-name": false,
@@ -676,10 +676,10 @@
         }
       },
       "noise": {
-        "completeTriplePairs": 25,
+        "completeTriplePairs": 30,
         "repeatGameFlips": 12,
-        "comparisons": 100,
-        "flipPercent": 12.0
+        "comparisons": 120,
+        "flipPercent": 10.0
       },
       "sixFixturesThreeOfThree": {
         "fixture-en-name": true,
@@ -768,9 +768,9 @@
         }
       },
       "noise": {
-        "completeTriplePairs": 25,
+        "completeTriplePairs": 30,
         "repeatGameFlips": 0,
-        "comparisons": 100,
+        "comparisons": 120,
         "flipPercent": 0.0
       },
       "sixFixturesThreeOfThree": {
@@ -847,10 +847,10 @@
         }
       },
       "noise": {
-        "completeTriplePairs": 26,
-        "repeatGameFlips": 2,
-        "comparisons": 104,
-        "flipPercent": 1.9230769230769231
+        "completeTriplePairs": 30,
+        "repeatGameFlips": 3,
+        "comparisons": 120,
+        "flipPercent": 2.5
       },
       "sixFixturesThreeOfThree": {
         "fixture-en-name": true,
