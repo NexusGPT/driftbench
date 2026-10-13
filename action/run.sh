@@ -28,6 +28,7 @@ args=(
 if [ -n "${INPUT_BUDGET_USD:-}" ]; then args+=(--budget-usd "$INPUT_BUDGET_USD"); fi
 if [ -n "${INPUT_FAULTS:-}" ]; then args+=(--faults "$INPUT_FAULTS"); fi
 if [ "${INPUT_STRICT:-false}" = "true" ]; then args+=(--strict); fi
+if [ -n "${INPUT_PROCESS_COMMAND:-}" ]; then args+=(--process-command "$INPUT_PROCESS_COMMAND"); fi
 while IFS= read -r line; do
   if [ -n "$line" ]; then args+=(--aggregate "$line"); fi
 done <<< "${INPUT_AGGREGATE:-}"

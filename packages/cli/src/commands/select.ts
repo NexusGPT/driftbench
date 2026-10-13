@@ -18,6 +18,7 @@ import {
   sealFromJson,
   selectGolden,
 } from '@agent-nexus/driftbench-generate';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import {
   coverage,
   DEFAULT_MAX_CELLS,
@@ -481,18 +482,7 @@ function goldenPaths(chosen: readonly LoadedSpec[], base: string): Map<string, s
   );
 }
 
-/** Rows as aligned columns; the last column is not padded. */
-export function table(rows: readonly string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
-}
+export { table };
 
 async function walk(dir: string): Promise<string[]> {
   const out: string[] = [];

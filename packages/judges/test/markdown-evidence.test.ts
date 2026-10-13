@@ -1,3 +1,4 @@
+// biome-ignore-all lint/style/noNonNullAssertion: every asserted value is set a few lines above its use.
 import { describe, expect, it } from 'vitest';
 import { textContainsQuote } from '../src/evidence';
 import { groundEvidence, type JudgeRequest, parseJudgeText } from '../src/index';
