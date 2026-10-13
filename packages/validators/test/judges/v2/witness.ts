@@ -210,8 +210,12 @@ function buildPrompt(request: JudgeRequest): { system: string; user: string } {
     : '';
   const tag = (name: string, text: string) => `<${name}>\n${escapeData(text)}\n</${name}>`;
   if (given) parts.push(tag('given_data', given), '');
-  const lines = request.transcript.map(renderEntry);
-  parts.push(`<transcript_data>\n${lines.map(escapeData).join('\n')}\n</transcript_data>`, '');
+  const frame = JSON.stringify(
+    request.transcript.map((entry, index) => ({ entry: index, ...entry })),
+    null,
+    2,
+  );
+  parts.push(tag('transcript_data', frame), '');
   if (request.artifact !== undefined) parts.push(tag('artifact_data', request.artifact), '');
   const reference = (request as JudgeRequest & { reference?: string }).reference;
   if (reference !== undefined) parts.push(tag('reference_data', reference), '');
@@ -553,7 +557,7 @@ function createCouncil(config: Config) {
 
 function majority(
   votes: readonly Vote[],
-  options?: { weights?: Record<string, number>; families?: Record<string, string> },
+  options?: number | { weights?: Record<string, number>; families?: Record<string, string> },
 ) {
   const out = bankMajority(votes, options);
   if (out === 'refused') throw new RangeError('a weight must be finite and not negative');
@@ -994,7 +998,7 @@ const declinedResult = (raw: unknown): JudgeResult => ({
 function chatClient(
   id: string,
   family: string,
-  read: (payload: unknown) => JudgeResult,
+  read: (payload: unknown, request: JudgeRequest) => JudgeResult,
   body: (request: JudgeRequest) => unknown,
 ) {
   return (options: ClientOptions = {}): JudgeClient => ({
@@ -1003,38 +1007,80 @@ function chatClient(
     cls: 'system2',
     cost: 10,
     async judge(request) {
-      return read(await postWitness(`https://${family}.example.com`, body(request), options));
+      return read(await postWitness(`https://${family}.example.com`, body(request), options), request);
     },
   });
+}
+
+function readChatText(text: string, request: JudgeRequest): JudgeResult {
+  if (request.answerContract === 'legacy') return parseAnswerText(text);
+  let value: { checks?: { id: string; reasoning: string; evidence: string | null; met: boolean | null }[] };
+  try {
+    value = JSON.parse(text);
+  } catch {
+    return { raw: text, answer: judges.inconclusive('invalid JSON'), unparsed: true };
+  }
+  const requirements = request.requirements ?? [
+    { id: request.criterion.name, requirement: request.criterion.rubric },
+  ];
+  const checks = value.checks;
+  if (!checks || requirements.some((r) => checks.filter((c) => c.id === r.id).length !== 1))
+    return { raw: text, answer: judges.inconclusive('missing or repeated requirement'), unparsed: true };
+  const known = checks.filter((c) => requirements.some((r) => r.id === c.id));
+  if (
+    known.some(
+      (c) =>
+        c.met === true &&
+        (!c.evidence || !request.transcript.some((entry) => entry.text.includes(c.evidence as string))),
+    )
+  )
+    return { raw: text, answer: judges.inconclusive('ungrounded evidence'), unparsed: true };
+  return {
+    raw: text,
+    answer: {
+      outcome: known.some((c) => c.met === false)
+        ? 'fail'
+        : known.some((c) => c.met === null)
+          ? 'inconclusive'
+          : 'pass',
+      reasoning: known.map((c) => c.reasoning).join('; '),
+    },
+  };
 }
 
 const openaiWitness = chatClient(
   'openai',
   'openai',
-  (payload) => {
+  (payload, request) => {
     const choice = rec((rec(payload).choices as unknown[] | undefined)?.[0]);
     if (Object.keys(choice).length === 0)
       return { answer: judges.inconclusive('no choice'), raw: JSON.stringify(payload), unparsed: true };
     if (choice.finish_reason === 'content_filter') return declinedResult(payload);
     const message = rec(choice.message);
     if (typeof message.refusal === 'string' && message.refusal) return declinedResult(payload);
-    let text =
+    const text =
       typeof message.content === 'string'
         ? message.content
         : Array.isArray(message.content)
           ? message.content.map((p) => (typeof rec(p).text === 'string' ? rec(p).text : '')).join('')
           : '';
     if (!text && Array.isArray(message.tool_calls))
-      text = String(rec(rec(message.tool_calls[0]).function).arguments ?? '');
-    if (!text && typeof choice.text === 'string') text = choice.text;
+      return parseAnswerText(String(rec(rec(message.tool_calls[0]).function).arguments ?? ''));
+    if (!text && typeof choice.text === 'string') return parseAnswerText(choice.text);
     if (choice.finish_reason === 'length')
       return { answer: judges.inconclusive('cut'), raw: text, unparsed: true };
-    return parseAnswerText(text);
+    return readChatText(text, request);
   },
   (request) => ({
     temperature: 0,
     max_tokens: judges.MAX_TOKENS[request.budget ?? 'normal'],
-    response_format: { type: 'json_schema', json_schema: { name: 'answer', schema: ANSWER_SCHEMA } },
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name: 'answer',
+        schema: request.answerContract === 'legacy' ? ANSWER_SCHEMA : LEDGER_SCHEMA,
+      },
+    },
     messages: buildPrompt(request),
   }),
 );
@@ -1042,7 +1088,7 @@ const openaiWitness = chatClient(
 const anthropicWitness = chatClient(
   'anthropic',
   'anthropic',
-  (payload) => {
+  (payload, request) => {
     const p = rec(payload);
     if (p.stop_reason === 'refusal') return declinedResult(payload);
     const blocks = Array.isArray(p.content) ? p.content.map(rec) : [];
@@ -1052,7 +1098,7 @@ const anthropicWitness = chatClient(
       .join('');
     const tool = blocks.find((b) => b.type === 'tool_use');
     if (!text && tool) return judges.parseAnswerValue(tool.input);
-    return parseAnswerText(text);
+    return readChatText(text, request);
   },
   (request) => ({
     temperature: 0,
@@ -1064,7 +1110,7 @@ const anthropicWitness = chatClient(
 const googleWitness = chatClient(
   'google',
   'google',
-  (payload) => {
+  (payload, request) => {
     const p = rec(payload);
     const candidate = rec((p.candidates as unknown[] | undefined)?.[0]);
     if (Object.keys(candidate).length === 0) {
@@ -1080,15 +1126,19 @@ const googleWitness = chatClient(
     const call = parts.find((part) => rec(part.functionCall).args !== undefined);
     if (call && !parts.some((part) => typeof part.text === 'string'))
       return judges.parseAnswerValue(rec(call.functionCall).args);
-    return parseAnswerText(
+    return readChatText(
       parts
         .filter((part) => part.thought !== true)
         .map((part) => String(part.text ?? ''))
         .join(''),
+      request,
     );
   },
   (request) => ({
-    generationConfig: { temperature: 0, responseSchema: ANSWER_SCHEMA },
+    generationConfig: {
+      temperature: 0,
+      responseSchema: request.answerContract === 'legacy' ? ANSWER_SCHEMA : LEDGER_SCHEMA,
+    },
     contents: buildPrompt(request),
   }),
 );
@@ -1133,6 +1183,27 @@ const decisionsWitness = systemOne('openai-decisions', 'openai', (payload) => {
   if (verdict.type === 'refusal') return declinedResult(payload);
   return probabilityResult(verdict.probability, payload);
 });
+
+const LEDGER_SCHEMA = {
+  type: 'object',
+  properties: {
+    checks: {
+      type: 'array',
+      minItems: 1,
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          reasoning: { type: 'string' },
+          evidence: { type: ['string', 'null'] },
+          met: { type: ['boolean', 'null'] },
+        },
+        required: ['id', 'reasoning', 'evidence', 'met'],
+      },
+    },
+  },
+  required: ['checks'],
+};
 
 const ANSWER_SCHEMA = {
   type: 'object',
