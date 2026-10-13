@@ -229,7 +229,16 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
 
 describe('driftbench perturb and the runner', { timeout: 60_000 }, () => {
   it("exits 1 on a late recovery: back, but after the spec's window", async () => {
-    const { code, out } = await perturb([COVERAGE, '--class', 'D7', '--at', '2', '--drafts']);
+    // The fault answers the billing aside itself, so the injected block fails; the recap one block later passes.
+    const { code, out } = await perturb([
+      UPGRADE,
+      '--perturbation',
+      'billing-aside',
+      '--target',
+      'fault:d9-answers-out-of-scope',
+      '--faults',
+      'examples/acme/faults',
+    ]);
     expect(code).toBe(1);
     expect(out).toContain('✗ Recovery: late, 1 block to come back (the spec allows 0 blocks)');
   });
