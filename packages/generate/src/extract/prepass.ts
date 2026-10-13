@@ -72,9 +72,12 @@ export function inventoryPrepass(
   // An entry quotes its whole item; an item too long for a quote is quoted by its title line.
   const itemText = (node: unknown) => {
     const whole = nodeText(text, node);
-    return whole !== undefined && whole.length <= MAX_QUOTE_LENGTH
-      ? whole
-      : pairText(text, entry(node, 'title'));
+    if (whole !== undefined && whole.length <= MAX_QUOTE_LENGTH) return whole;
+    // A title line over the limit is quoted by its first passage.
+    const title = pairText(text, entry(node, 'title'));
+    return title !== undefined && title.length > MAX_QUOTE_LENGTH
+      ? title.slice(0, MAX_QUOTE_LENGTH).trimEnd()
+      : title;
   };
   const dimensions: ProposalDimension[] = [];
   const constraints: ProposalConstraint[] = [];

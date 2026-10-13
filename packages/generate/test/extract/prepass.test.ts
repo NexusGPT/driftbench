@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { DEVIATION_TITLES, type InventoryPrepass, inventoryPrepass, QuoteIndex } from '../../src/extract';
+import { requoted, tableInventory } from '../../src/extract/tables';
 import { ACME, INVENTORY } from './support';
 
 function ok(result: InventoryPrepass) {
@@ -149,4 +150,60 @@ flows: []
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.map((issue) => issue.code)).toEqual(['INVENTORY_UNKNOWN_BEHAVIOUR']);
   });
+});
+
+describe('inventoryPrepass on an item whose title alone is over 1000 characters', () => {
+  it('quotes a passage of the source within the limit', () => {
+    const long = `${'a very long title '.repeat(80)}end`;
+    const source = `behaviours:\n  - id: B-001\n    title: ${long}\nflows:\n  - id: f1\n    title: ${long}\n    behaviours: [B-001]\n`;
+    const read = ok(inventoryPrepass(source, 'inventory.yaml'));
+    for (const dim of read.dimensions) {
+      for (const value of dim.values) {
+        expect(value.evidence.quote.length).toBeLessThanOrEqual(1000);
+        expect(source).toContain(value.evidence.quote);
+      }
+    }
+  });
+});
+
+describe('an inventory kept as markdown tables or CSV', () => {
+  const markdown = `# Behaviour inventory
+
+Channels: web, phone
+
+## Behaviours
+
+| id | title | channels |
+|---|---|---|
+| B-001 | Greets the caller | web, phone |
+| B-002 | Takes a booking | web |
+
+## Flows
+
+| id | title | behaviours | deviations |
+|---|---|---|---|
+| book | A booking | B-001, B-002 | D1_off_topic |
+`;
+  const csv = `section,id,title,channels,behaviours,deviations
+channels,,,web phone,,
+behaviour,B-001,"Greets the caller",web phone,,
+behaviour,B-002,"Takes a booking",web,,
+flow,book,"A booking",,B-001 B-002,D1_off_topic
+`;
+  for (const [name, source, path] of [
+    ['markdown', markdown, 'inventory.md'],
+    ['csv', csv, 'inventory.csv'],
+  ] as const) {
+    it(`reads ${name} into dimensions whose quotes are rows of the file`, () => {
+      const table = tableInventory(source, name === 'csv' ? 'csv' : 'markdown');
+      if (!table) throw new Error('no table');
+      const read = requoted(inventoryPrepass(table.yaml, path, 'yaml'), table.requote);
+      if (!read.ok) throw new Error(JSON.stringify(read.errors));
+      const dims = Object.fromEntries(read.dimensions.map((d) => [d.id, d.values.map((v) => v.id)]));
+      expect(dims.behaviour).toEqual(['B-001', 'B-002']);
+      expect(dims.flow).toEqual(['book']);
+      expect(dims.channel).toEqual(['web', 'phone']);
+      for (const d of read.dimensions) for (const v of d.values) expect(source).toContain(v.evidence.quote);
+    });
+  }
 });
