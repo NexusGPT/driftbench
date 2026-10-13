@@ -55,16 +55,18 @@ export function runProvenance(options: RunOptions): NonNullable<RunResult['prove
   };
   const adapter = adapterProvenance(options.adapter, options.target?.adapter);
   const agentVersion = options.target === undefined ? undefined : agentVersionOf({ target: options.target });
+  const { variant, prompt, ...targetContext } = options.target ?? {};
   return {
     version: 2,
     driver,
     adapter,
     agentVersionHash: agentVersion === undefined ? null : provenanceHash(agentVersion),
+    targetVersionHash: provenanceHash({ variant, prompt }),
+    agentVersionLabelHash: options.agentVersion === undefined ? null : provenanceHash(options.agentVersion),
     executionHash: provenanceHash({
       driver,
       adapter,
-      target: options.target,
-      agentVersion: options.agentVersion,
+      target: targetContext,
       mode: options.mode,
       repeat: options.repeat,
       perturbationId: options.perturbationId,

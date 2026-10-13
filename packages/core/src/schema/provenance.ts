@@ -20,6 +20,8 @@ export const RunProvenance = z.strictObject({
   driver: z.strictObject({ idHash: Digest, seedsHash: Digest.nullable() }),
   adapter: AdapterIdentity,
   agentVersionHash: Digest.nullable(),
+  targetVersionHash: Digest.optional(),
+  agentVersionLabelHash: Digest.nullable().optional(),
   executionHash: Digest,
 });
 export const CampaignProvenance = z.strictObject({

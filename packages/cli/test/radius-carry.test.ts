@@ -48,7 +48,11 @@ async function campaign(argv: string[], fault?: string) {
     ...defaultDeps,
     adapterFor: async (target, scope) => {
       const def = target.adapter === 'function' ? defs.find((each) => each.id === fault) : undefined;
-      return def ? faultAdapter(def, () => localProvider({})) : defaultDeps.adapterFor(target, scope);
+      const adapter = await defaultDeps.adapterFor(target, scope);
+      if (!adapter) throw new Error('missing fixture adapter');
+      // This fixture changes the agent (the explicit v1 -> v2), not its function transport.
+      // faultAdapter's diagnostic version otherwise introduces a second, correctly refused change.
+      return def ? { ...faultAdapter(def, () => localProvider({})), version: adapter.version } : adapter;
     },
   };
   let code = 0;

@@ -56,8 +56,10 @@ const stored = (id: string, variant: string | undefined, over: Partial<RunResult
         cacheIdentityHash: null,
         requiresCacheIdentity: false,
       },
-      agentVersionHash: variant === undefined ? null : provenanceHash(over.carried?.agentVersion ?? variant),
+      agentVersionHash: variant === undefined ? null : provenanceHash(variant),
       executionHash: provenanceHash('execution'),
+      targetVersionHash: provenanceHash({ variant }),
+      agentVersionLabelHash: null,
     },
     blocks: [
       {
@@ -115,7 +117,7 @@ const plan = (runs: RunResult[], limits = {}, planned = cells, change = manifest
         ],
       },
     },
-    { now, ...limits },
+    { now, currentProvenance: (cell) => stored(cell.specId, cell.target.variant).provenance, ...limits },
   );
 
 describe('planRadiusCampaign', () => {

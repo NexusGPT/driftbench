@@ -4,7 +4,7 @@ import type { TargetRef } from '../schema/common';
 import type { Campaign, CampaignRadius, RunResult } from '../schema/run';
 import { canonicalJson } from '../spec/hash';
 import { type ChangeManifest, changeLabel } from './change';
-import { completeBaselineProvenance } from './provenance';
+import { completeBaselineProvenance, sameCarryContext } from './provenance';
 import type { RadiusReport } from './radius';
 import { agentVersionOf } from './version';
 
@@ -22,6 +22,8 @@ export type CarryLimits = {
   maxAgeDays?: number;
   /** When the carrying campaign starts. */
   now: Date;
+  /** Actual candidate context per cell. Missing or uncertain context always reruns. */
+  currentProvenance?: (cell: PlannedCell) => RunResult['provenance'];
 };
 
 export const DEFAULT_MAX_CARRY = 5;
@@ -31,6 +33,7 @@ export type CarriedCell = {
   cell: PlannedCell;
   source: RunResult;
   carried: NonNullable<RunResult['carried']>;
+  provenance?: RunResult['provenance'];
 };
 
 export type RadiusPlan = {
@@ -149,6 +152,11 @@ export function planRadiusCampaign(
       );
       continue;
     }
+    const provenance = limits.currentProvenance?.(cell);
+    if (!sameCarryContext(source.provenance, provenance, source.target, cell.target, manifest)) {
+      refuse('current execution context differs or cannot be proved');
+      continue;
+    }
     const origin = source.carried;
     const campaigns = (origin?.age.campaigns ?? 0) + 1;
     // A carried copy keeps the times of the fresh run, so this is the end of the fresh run either way.
@@ -165,6 +173,7 @@ export function planRadiusCampaign(
     plan.carried.push({
       cell,
       source,
+      provenance,
       carried: {
         fromCampaign: origin?.fromCampaign ?? baseline.campaignId,
         fromRun: origin?.fromRun ?? source.runId,
@@ -178,7 +187,13 @@ export function planRadiusCampaign(
 
 /** The run a carried cell stores: the baseline run under the cell's own id and target, stamped. */
 export function carriedRun(entry: CarriedCell): RunResult {
-  return { ...entry.source, runId: entry.cell.cellId, target: entry.cell.target, carried: entry.carried };
+  return {
+    ...entry.source,
+    runId: entry.cell.cellId,
+    target: entry.cell.target,
+    provenance: entry.provenance,
+    carried: entry.carried,
+  };
 }
 
 /** Writes the carried copies under the carrying campaign. `resume` and `status` then find a completed run for each. */

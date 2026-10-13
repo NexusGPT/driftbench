@@ -274,3 +274,17 @@ target coverage, incomplete run or block fields, and unknown seeds also force a 
 `planRadiusCampaign` applies the same check; callers supply the baseline campaign's `provenance` beside
 its runs. Legacy observations cannot establish compatibility for criterion re-judging; run a new full
 campaign first. These stamps preserve execution evidence; they do not themselves authorize reuse.
+
+A complete baseline is necessary but insufficient: the planner also needs the actual current run's
+execution stamp (`CarryLimits.currentProvenance`). It compares every stamp field by default, including
+new fields. Changed driver identity or seeds, adapter identity or configuration, target configuration,
+mode, repeat, perturbation, retry settings or other execution options force a fresh run. Missing current
+context also forces a fresh run. `ALLOWED_VERSION_TRANSITION_FIELDS` names the sole exception: the
+manifest's verified `from` to `to` agent transition, including its target variant and prompt. No other
+context difference is justified by a small radius. Carried records retain the original observation's
+origin and age, and pin the current context whose compatibility was proved.
+
+Stamp hashes are deterministic equality fingerprints, not secrets. Low-entropy values such as short
+identifiers or numeric seeds are guessable by enumeration. No per-store salt is used: fingerprints remain
+comparable across stores, and this change adds no store metadata or salt lifecycle. Protect results stores
+as you protect the observations they contain; hashes do not replace that protection.

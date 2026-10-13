@@ -36,7 +36,11 @@ export {
   WORDING_FIELDS,
   type WordingField,
 } from './depends';
-export { completeBaselineProvenance } from './provenance';
+export {
+  ALLOWED_VERSION_TRANSITION_FIELDS,
+  completeBaselineProvenance,
+  sameCarryContext,
+} from './provenance';
 export {
   type BlockState,
   type RadiusBlock,

@@ -96,7 +96,10 @@ it('rejects every incomplete stamp at the public planner boundary', async () => 
     },
   };
   const plan = (base: typeof baseline) =>
-    planRadiusCampaign([cell], radius, manifest, base, { now: new Date() });
+    planRadiusCampaign([cell], radius, manifest, base, {
+      now: new Date(),
+      currentProvenance: () => runProvenance({ ...options, target }),
+    });
   expect(plan(baseline).carried).toHaveLength(1);
   const paths = [
     'provenance',
@@ -145,4 +148,71 @@ it('rejects every incomplete stamp at the public planner boundary', async () => 
     mutate(partial);
     expect(plan(partial).carried).toHaveLength(0);
   }
+});
+
+it('compares every current stamp field by default, including future fields', async () => {
+  const run = await runSpec(spec, options);
+  const stamp = present(run.provenance);
+  const target = { ...options.target, variant: 'v2' };
+  const cell = { ...run, target, cellId: cellId({ ...run, target }), blocks: 1 };
+  const manifest = { from: 'v1', to: 'v2', changes: [{ kind: 'criterion' as const, id: 'unused-review' }] };
+  const radius = radiusOf([{ spec, hash: run.specHash }], manifest);
+  const baseline = {
+    campaignId: 'base',
+    runs: [run],
+    provenance: {
+      version: 2 as const,
+      adapters: [
+        {
+          ...stamp.adapter,
+          targetHash: provenanceHash(run.target),
+          agentVersionHash: provenanceHash('v1'),
+        },
+      ],
+    },
+  };
+  const current = runProvenance({ ...options, target });
+  const plan = (context: typeof current | undefined) =>
+    planRadiusCampaign([cell], radius, manifest, baseline, {
+      now: new Date(),
+      currentProvenance: () => context,
+    });
+  expect(plan(current).carried).toHaveLength(1);
+  const leaves = (value: Record<string, unknown>, path: string[] = []): string[][] =>
+    Object.entries(value).flatMap(([key, child]) =>
+      child !== null && typeof child === 'object'
+        ? leaves(child as Record<string, unknown>, [...path, key])
+        : [[...path, key]],
+    );
+  for (const path of leaves(current)) {
+    const changed = structuredClone(current);
+    let object = changed as Record<string, unknown>;
+    for (const part of path.slice(0, -1)) object = object[part] as Record<string, unknown>;
+    const key = present(path.at(-1));
+    object[key] =
+      typeof object[key] === 'boolean'
+        ? !object[key]
+        : typeof object[key] === 'number'
+          ? 999
+          : provenanceHash('changed field');
+    expect(plan(changed).carried, path.join('.')).toHaveLength(0);
+    expect(plan(changed).fresh, path.join('.')).toHaveLength(1);
+  }
+  expect(plan(undefined).carried).toHaveLength(0);
+  // A newly introduced dimension cannot disappear behind the known schema or the execution digest.
+  expect(
+    plan({ ...current, futureExecutionField: provenanceHash('new') } as typeof current).carried,
+  ).toHaveLength(0);
+  for (const delta of [
+    { driver: { ...options.driver, id: 'other' } },
+    { driver: { ...options.driver, seeds: { sample: 2 } } },
+    { adapter: { ...options.adapter, version: 'other' } },
+    { adapter: { ...options.adapter, cacheIdentity: 'other' } },
+    { target: { ...target, agent: 'other' } },
+    { mode: 'T' as const },
+    { repeat: 1 },
+    { perturbationId: 'changed' },
+    { maxSteps: 1 },
+  ])
+    expect(plan(runProvenance({ ...options, target, ...delta })).carried).toHaveLength(0);
 });
