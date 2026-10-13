@@ -202,6 +202,12 @@ const OTHER_LANGUAGES: readonly {
     judge: ['rubrik', 'penilaian', 'penilai', 'juri', 'kriteria'],
     verdict: ['lulus', 'berhasil', 'gagal', 'sukses'],
   },
+  {
+    // Hindi
+    loose: true,
+    judge: ['मूल्यांकन', 'मानदंड', 'न्यायाधीश', 'निर्णायक'],
+    verdict: ['पास', 'उत्तीर्ण', 'असफल', 'सफल', 'फेल'],
+  },
 ];
 
 const VERDICT_WORDS = [
@@ -232,7 +238,7 @@ const OTHER = OTHER_LANGUAGES.map((row) =>
 const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
 
 const sentencesOf = (text: string): string[] =>
-  text.split(/(?<=[.!?;])\s+|(?<=[\u3002\uff01\uff1f\uff1b])|[\r\n\u2028\u2029]+/);
+  text.split(/(?<=[.!?;])\s+|(?<=[\u3002\uff01\uff1f\uff1b\u0964])|[\r\n\u2028\u2029]+/);
 
 // An English sentence instructs when it holds a modal or an imperative verb at the start of a clause, is a note or
 // a vocative to the judge (up to three words before a comma or colon, one a judge word), or sets a verdict field.
