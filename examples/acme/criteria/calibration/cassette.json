@@ -575,7 +575,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "44afbf5b0330",
+      "key": "83466ee546fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -585,7 +585,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "3481aedaf5e4",
+      "key": "a891d9c4d0e6",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -595,7 +595,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "d35b614e7249",
+      "key": "1d8b00bafe02",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -605,7 +605,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "fea1eba408ef",
+      "key": "6e80822d0b2e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -615,7 +615,7 @@
     },
     {
       "judge": "jev-a",
-      "key": "5749f2f57191",
+      "key": "d78717ba995e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -625,7 +625,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "44afbf5b0330",
+      "key": "83466ee546fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -635,7 +635,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "3481aedaf5e4",
+      "key": "a891d9c4d0e6",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -645,7 +645,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "d35b614e7249",
+      "key": "1d8b00bafe02",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -655,7 +655,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "fea1eba408ef",
+      "key": "6e80822d0b2e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -665,7 +665,7 @@
     },
     {
       "judge": "jev-b",
-      "key": "5749f2f57191",
+      "key": "d78717ba995e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -675,7 +675,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "e25679044b05",
+      "key": "181d66d9b74d",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -685,7 +685,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "c5e0e0f4ea5f",
+      "key": "ca71fb889f88",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -695,7 +695,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "d08b87017c89",
+      "key": "c063f81e6f94",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -705,7 +705,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "6880e1ea714e",
+      "key": "85159dee9a0c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -715,7 +715,7 @@
     },
     {
       "judge": "openai-decisions",
-      "key": "84295a685fb7",
+      "key": "b1755ff8d145",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -725,93 +725,93 @@
     },
     {
       "judge": "openai-chat",
-      "key": "44a4b05c1b1c",
+      "key": "002eb8e2a124",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: A coverage.check call for the address comes before the offer, and every plan named in the reply is in the catalog.search result for the checked address.\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Every plan named in the reply is in the catalog.search result for the checked address.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "5b404b1761e5",
+      "key": "5965a9bf4386",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.\"}"
+      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named before the coverage check, or a plan the address cannot get is offered.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "2e1a8bd6cb2a",
+      "key": "0a58e68fb5c2",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: A coverage.check call for the address comes before the offer, and every plan named in the reply is in the catalog.search result for the checked address.\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Every plan named in the reply is in the catalog.search result for the checked address.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "6be0d7f490a1",
+      "key": "c02f805765c8",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.\"}"
+      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named before the coverage check, or a plan the address cannot get is offered.\"}"
     },
     {
       "judge": "openai-chat",
-      "key": "f42e777c7794",
+      "key": "e4a62095e61b",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.\"}"
+      "raw": "{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named before the coverage check, or a plan the address cannot get is offered.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "5d03b156c3c0",
+      "key": "8d67ca2540cc",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: A coverage.check call for the address comes before the offer, and every plan named in the reply is in the catalog.search result for the checked address.\"}"
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: Every plan named in the reply is in the catalog.search result for the checked address.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "610b9834170a",
+      "key": "4877b8e0ac5d",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.\"}"
+      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A plan is named before the coverage check, or a plan the address cannot get is offered.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "9b3f716a0af0",
+      "key": "5df25aba3a85",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: A coverage.check call for the address comes before the offer, and every plan named in the reply is in the catalog.search result for the checked address.\"}"
+      "raw": "{\"outcome\":\"pass\",\"reasoning\":\"The slice matches the PASS picture: Every plan named in the reply is in the catalog.search result for the checked address.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "f3315867e7b3",
+      "key": "8d3d6bd3c150",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.\"}"
+      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A plan is named before the coverage check, or a plan the address cannot get is offered.\"}"
     },
     {
       "judge": "google-chat",
-      "key": "292c7c705284",
+      "key": "1b0ceb67b0f2",
       "criterion": "coverage_before_offer",
-      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.\"}"
+      "raw": "{\"outcome\":\"fail\",\"reasoning\":\"The slice matches the FAIL picture: A plan is named before the coverage check, or a plan the address cannot get is offered.\"}"
     },
     {
       "judge": "anthropic-chat",
-      "key": "d275d3814598",
+      "key": "7bc8bdcb8c57",
       "criterion": "coverage_before_offer",
-      "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: A coverage.check call for the address comes before the offer, and every plan named in the reply is in the catalog.search result for the checked address.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Every plan named in the reply is in the catalog.search result for the checked address.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "b1b249180929",
+      "key": "1c2134370eea",
       "criterion": "coverage_before_offer",
-      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named before the coverage check, or a plan the address cannot get is offered.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "0fd30c6e4733",
+      "key": "b76152c91691",
       "criterion": "coverage_before_offer",
-      "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: A coverage.check call for the address comes before the offer, and every plan named in the reply is in the catalog.search result for the checked address.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"pass\",\"score\":0.94,\"reasoning\":\"The slice matches the PASS picture: Every plan named in the reply is in the catalog.search result for the checked address.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "529b0ee11fa2",
+      "key": "914c31ccec48",
       "criterion": "coverage_before_offer",
-      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named before the coverage check, or a plan the address cannot get is offered.\"}\n```"
     },
     {
       "judge": "anthropic-chat",
-      "key": "4cb54f79fe3b",
+      "key": "00b2b881fce6",
       "criterion": "coverage_before_offer",
-      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named with no coverage.check call before it, or a plan the address cannot get is offered.\"}\n```"
+      "raw": "```json\n{\"outcome\":\"fail\",\"score\":0.06,\"reasoning\":\"The slice matches the FAIL picture: A plan is named before the coverage check, or a plan the address cannot get is offered.\"}\n```"
     },
     {
       "judge": "jev-a",
