@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
@@ -235,5 +236,215 @@ describe('built-in targets', () => {
     });
     expect(code).toBe(0);
     expect(asked).toBe(1);
+  });
+});
+
+/** A server that answers every request with `status` and a body that repeats the secrets it received. */
+function leaky(status: number, extra: Record<string, string> = {}): Server {
+  return createServer((request, response) => {
+    request.resume();
+    request.on('end', () => {
+      response.writeHead(status, { 'content-type': 'application/json', ...extra });
+      response.end(
+        JSON.stringify({
+          error: {
+            message: `rejected ${request.headers.authorization ?? ''} ${request.headers['x-api-key'] ?? ''}`,
+          },
+        }),
+      );
+    });
+  });
+}
+
+/** A server that counts its requests and remembers the key header of the last one. */
+function recorder(): { server: Server; hits: () => number; key: () => string | undefined } {
+  let hits = 0;
+  let key: string | undefined;
+  const server = createServer((request, response) => {
+    hits++;
+    key = request.headers['x-api-key'] as string | undefined;
+    request.resume();
+    request.on('end', () => {
+      response.writeHead(200, { 'content-type': 'application/json' });
+      response.end(
+        JSON.stringify({ choices: [{ message: { role: 'assistant', content: 'You said: Hello there' } }] }),
+      );
+    });
+  });
+  return { server, hits: () => hits, key: () => key };
+}
+
+const close = (server: Server) => new Promise((done) => server.close(done));
+const SENTINEL = 'sk-sentinel-4f9a7c21d8';
+
+describe('built-in targets keep secrets out of results', () => {
+  it('litellm: a 401 that repeats the key reaches neither the output nor the store', async () => {
+    const server = leaky(401);
+    const url = await listen(server);
+    process.env.MY_PROXY_KEY = SENTINEL;
+    try {
+      const path = await spec(
+        'leak-litellm',
+        `{ adapter: litellm, agent: m, options: { base_url: '${url}', api_key_env: MY_PROXY_KEY } }`,
+      );
+      const store = join(dir, 'leak-litellm.db');
+      const run = await cli(['campaign', 'run', path, '--json', '--store', store, '--retry-attempts', '1']);
+      expect(run.code).toBe(1);
+      expect(run.out).toContain('answered 401');
+      expect(run.out + run.err).not.toContain(SENTINEL);
+      expect(readFileSync(store).includes(SENTINEL)).toBe(false);
+    } finally {
+      await close(server);
+    }
+  });
+
+  it('http: a failing status that repeats a headers_env value reaches neither the output nor the store', async () => {
+    const server = leaky(500);
+    const url = await listen(server);
+    process.env.MY_TOKEN = SENTINEL;
+    try {
+      const path = await spec(
+        'leak-http',
+        `{ adapter: http, agent: bot, options: { url: '${url}/turn', headers_env: { x-api-key: MY_TOKEN } } }`,
+      );
+      const store = join(dir, 'leak-http.db');
+      const run = await cli(['campaign', 'run', path, '--json', '--store', store, '--retry-attempts', '1']);
+      expect(run.code).toBe(1);
+      expect(run.out).toContain('answered 500');
+      expect(run.out).toContain('[redacted]');
+      expect(run.out + run.err).not.toContain(SENTINEL);
+      expect(readFileSync(store).includes(SENTINEL)).toBe(false);
+    } finally {
+      await close(server);
+    }
+  });
+
+  it('http: the body of a 401 or a 403 is never shown', async () => {
+    const server = leaky(403);
+    const url = await listen(server);
+    process.env.MY_TOKEN = SENTINEL;
+    try {
+      const path = await spec(
+        'auth-http',
+        `{ adapter: http, agent: auth, options: { url: '${url}/turn', headers_env: { x-api-key: MY_TOKEN } } }`,
+      );
+      const run = await cli(['campaign', 'run', path, '--json', '--retry-attempts', '1']);
+      expect(run.code).toBe(1);
+      expect(run.out).toContain('answered 403');
+      expect(run.out).toContain('the response body of an authentication failure is not shown');
+      expect(run.out).not.toContain('rejected');
+      expect(run.out + run.err).not.toContain(SENTINEL);
+    } finally {
+      await close(server);
+    }
+  });
+
+  it('nexus: the key never appears in an error the adapter throws', async () => {
+    const built = builtinTarget(
+      { adapter: 'nexus', agent: 'a', deployment: 'd' },
+      { NEXUS_API_KEY: SENTINEL, NEXUS_BASE_URL: 'http://127.0.0.1:1' },
+    );
+    expect(built !== undefined && 'adapter' in built).toBe(true);
+    if (built === undefined || !('adapter' in built)) return;
+    const given = { prefix: [], ledger: {}, world: {}, vars: {}, target: { adapter: 'nexus' }, hash: 'h' };
+    const failure = await built.adapter.open(given).then(
+      () => undefined,
+      (cause: unknown) => cause,
+    );
+    expect(failure).toBeInstanceOf(Error);
+    expect(JSON.stringify(failure, Object.getOwnPropertyNames(failure as object))).not.toContain(SENTINEL);
+  });
+});
+
+describe('built-in targets refuse redirects', () => {
+  it('http: a 307 to another origin is refused, and neither the POST nor the key header goes there', async () => {
+    const other = recorder();
+    const otherUrl = await listen(other.server);
+    const first = leaky(307, { location: `${otherUrl}/turn` });
+    const url = await listen(first);
+    process.env.MY_TOKEN = SENTINEL;
+    try {
+      const path = await spec(
+        'redirect-cross',
+        `{ adapter: http, agent: bot, options: { url: '${url}/turn', redirects: same-origin, headers_env: { x-api-key: MY_TOKEN } } }`,
+      );
+      const run = await cli(['campaign', 'run', path, '--json', '--retry-attempts', '1']);
+      expect(run.code).toBe(1);
+      expect(other.hits()).toBe(0);
+      expect(other.key()).toBeUndefined();
+      expect(run.out).toContain(`redirects to another origin (${otherUrl}), which is refused`);
+    } finally {
+      await close(first);
+      await close(other.server);
+    }
+  });
+
+  it('http: a redirect on the same origin is refused unless redirects: same-origin allows it', async () => {
+    let hits = 0;
+    const server = createServer((request, response) => {
+      hits++;
+      request.resume();
+      request.on('end', () => {
+        if (request.url === '/old') {
+          response.writeHead(307, { location: '/turn' });
+          response.end();
+          return;
+        }
+        response.writeHead(200, { 'content-type': 'application/json' });
+        response.end(
+          JSON.stringify({ choices: [{ message: { role: 'assistant', content: 'You said: Hello there' } }] }),
+        );
+      });
+    });
+    const url = await listen(server);
+    try {
+      const refused = await cli([
+        'campaign',
+        'run',
+        await spec('redirect-same-off', `{ adapter: http, agent: a, options: { url: '${url}/old' } }`),
+        '--json',
+        '--retry-attempts',
+        '1',
+      ]);
+      expect(refused.code).toBe(1);
+      expect(hits).toBe(1);
+      expect(refused.out).toContain('redirects are refused');
+      hits = 0;
+      const followed = await cli([
+        'campaign',
+        'run',
+        await spec(
+          'redirect-same-on',
+          `{ adapter: http, agent: b, options: { url: '${url}/old', redirects: same-origin } }`,
+        ),
+      ]);
+      expect(followed.err).toBe('');
+      expect(followed.code).toBe(0);
+      expect(hits).toBe(2);
+    } finally {
+      await close(server);
+    }
+  });
+
+  it('litellm: a redirect is refused and the key goes nowhere else', async () => {
+    const other = recorder();
+    const otherUrl = await listen(other.server);
+    const first = leaky(307, { location: `${otherUrl}/chat/completions` });
+    const url = await listen(first);
+    process.env.MY_PROXY_KEY = SENTINEL;
+    try {
+      const path = await spec(
+        'redirect-litellm',
+        `{ adapter: litellm, agent: m, options: { base_url: '${url}', api_key_env: MY_PROXY_KEY } }`,
+      );
+      const run = await cli(['campaign', 'run', path, '--json', '--retry-attempts', '1']);
+      expect(run.code).toBe(1);
+      expect(other.hits()).toBe(0);
+      expect(run.out).toContain('redirect');
+      expect(run.out + run.err).not.toContain(SENTINEL);
+    } finally {
+      await close(first);
+      await close(other.server);
+    }
   });
 });

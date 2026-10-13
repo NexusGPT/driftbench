@@ -52,8 +52,11 @@ function httpTarget(target: TargetRef, env: Env): BuiltinTarget {
   }
   const headers = headersOf(options.headers, options.headers_env, env);
   if (typeof headers === 'string') return { missing: headers };
-  const settings: HttpAdapterOptions = { url };
-  if (Object.keys(headers).length > 0) settings.headers = headers;
+  const settings: HttpAdapterOptions = {
+    url,
+    fetch: guardedFetch(options.redirects === 'same-origin' ? 'same-origin' : 'refuse'),
+  };
+  if (Object.keys(headers.all).length > 0) settings.headers = headers.all;
   const endStateUrl = text(options.end_state_url);
   if (endStateUrl !== undefined) settings.endStateUrl = endStateUrl;
   const closeUrl = text(options.close_url);
@@ -70,7 +73,7 @@ function httpTarget(target: TargetRef, env: Env): BuiltinTarget {
       ...(capabilities.deterministic === undefined ? {} : { deterministic: capabilities.deterministic }),
     };
   }
-  return { adapter: httpAdapter(settings) };
+  return { adapter: withoutSecrets(httpAdapter(settings), headers.secret) };
 }
 
 function litellmTarget(target: TargetRef, env: Env): BuiltinTarget {
@@ -105,7 +108,7 @@ function litellmTarget(target: TargetRef, env: Env): BuiltinTarget {
   const maxSteps = positive(options.max_steps);
   if (maxSteps !== undefined) settings.maxSteps = maxSteps;
   if (options.deterministic === true) settings.deterministic = true;
-  return { adapter: litellmAdapter(settings) };
+  return { adapter: withoutSecrets(litellmAdapter(settings), [key]) };
 }
 
 function nexusTarget(target: TargetRef, env: Env): BuiltinTarget {
@@ -122,12 +125,16 @@ function nexusTarget(target: TargetRef, env: Env): BuiltinTarget {
   const timeoutMs = positive(options.timeout_ms);
   const generateTimeoutMs = positive(options.generate_timeout_ms);
   return {
-    adapter: nexusAdapter({
-      env,
-      ...(timeoutMs === undefined ? {} : { timeoutMs }),
-      ...(generateTimeoutMs === undefined ? {} : { generateTimeoutMs }),
-      ...(options.keep_conversations === true ? { keepConversations: true } : {}),
-    }),
+    adapter: withoutSecrets(
+      nexusAdapter({
+        env,
+        fetch: guardedFetch('refuse'),
+        ...(timeoutMs === undefined ? {} : { timeoutMs }),
+        ...(generateTimeoutMs === undefined ? {} : { generateTimeoutMs }),
+        ...(options.keep_conversations === true ? { keepConversations: true } : {}),
+      }),
+      [env.NEXUS_API_KEY],
+    ),
   };
 }
 
@@ -137,11 +144,12 @@ function nexusTarget(target: TargetRef, env: Env): BuiltinTarget {
  */
 function chatClient(baseUrl: string, key: string | undefined, timeoutMs = 120_000): OpenAIChatClientLike {
   const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`;
+  const guarded = guardedFetch('refuse');
   return {
     chat: {
       completions: {
         async create(body) {
-          const response = await fetch(url, {
+          const response = await guarded(url, {
             method: 'POST',
             headers: {
               'content-type': 'application/json',
@@ -169,13 +177,21 @@ function chatClient(baseUrl: string, key: string | undefined, timeoutMs = 120_00
   };
 }
 
-/** `headers` as written, plus one header per `headers_env` entry, its value read from the environment. */
-function headersOf(literal: unknown, fromEnv: unknown, env: Env): Record<string, string> | string {
-  const headers: Record<string, string> = {};
+/**
+ * `headers` as written, plus one header per `headers_env` entry, its value read from the environment. The
+ * values read from the environment are secrets: the adapter never lets them into an error or a result.
+ */
+function headersOf(
+  literal: unknown,
+  fromEnv: unknown,
+  env: Env,
+): { all: Record<string, string>; secret: string[] } | string {
+  const all: Record<string, string> = {};
+  const secret: string[] = [];
   if (isRecord(literal)) {
     for (const [name, value] of Object.entries(literal)) {
       if (typeof value !== 'string') return `An http target's header ${name} must be a string.`;
-      headers[name] = value;
+      all[name] = value;
     }
   }
   if (isRecord(fromEnv)) {
@@ -184,10 +200,130 @@ function headersOf(literal: unknown, fromEnv: unknown, env: Env): Record<string,
       if (value === undefined) {
         return `An http target reads the header ${name} from ${String(variable)}, which is not set.`;
       }
-      headers[name] = value;
+      all[name] = value;
+      secret.push(value);
     }
   }
-  return headers;
+  return { all, secret };
+}
+
+const REDACTED = '[redacted]';
+const NOT_SHOWN = 'the response body of an authentication failure is not shown';
+
+/**
+ * The fetch of a built-in target. It never follows a redirect by itself: a redirect to another origin is
+ * always refused, so neither the request nor a key header reaches a host the spec did not name; a 307 or
+ * 308 on the same origin is followed only when the target says `redirects: same-origin`. A refused redirect
+ * comes back as the response it was, with the reason as its body. The body of a 401 or a 403 is replaced
+ * too: an endpoint may repeat the credential it was sent.
+ */
+function guardedFetch(redirects: 'refuse' | 'same-origin') {
+  const answer = (status: number, error: string) =>
+    new Response(JSON.stringify({ error }), { status, headers: { 'content-type': 'application/json' } });
+  return async (input: string, init?: RequestInit): Promise<Response> => {
+    const origin = new URL(input).origin;
+    let url = input;
+    for (let hop = 0; ; hop++) {
+      const response = await fetch(url, { ...init, redirect: 'manual' });
+      const location = response.headers.get('location');
+      if (response.status >= 300 && response.status < 400 && response.status !== 304 && location !== null) {
+        await response.body?.cancel();
+        let next: URL;
+        try {
+          next = new URL(location, url);
+        } catch {
+          return answer(
+            response.status,
+            'the endpoint redirects to an address that is not a URL; redirects are refused',
+          );
+        }
+        if (next.origin !== origin) {
+          return answer(
+            response.status,
+            `the endpoint redirects to another origin (${next.origin}), which is refused: give the final URL in the target`,
+          );
+        }
+        const followable =
+          redirects === 'same-origin' && (response.status === 307 || response.status === 308);
+        if (!followable || hop >= 5) {
+          return answer(
+            response.status,
+            `the endpoint redirects to ${next.pathname}; redirects are refused: give the final URL, or set target.options.redirects: same-origin to follow a 307 or a 308 on the same origin`,
+          );
+        }
+        url = next.href;
+        continue;
+      }
+      if (response.status === 401 || response.status === 403) {
+        await response.body?.cancel();
+        return answer(response.status, NOT_SHOWN);
+      }
+      return response;
+    }
+  };
+}
+
+/** Replaces every secret in a text. Longest first, so a secret that contains another goes whole. */
+function scrubber(secrets: readonly (string | undefined)[]): (value: string) => string {
+  const known = [
+    ...new Set(secrets.filter((secret): secret is string => secret !== undefined && secret.length >= 4)),
+  ];
+  known.sort((a, b) => b.length - a.length);
+  return (value) => known.reduce((out, secret) => out.split(secret).join(REDACTED), value);
+}
+
+/** An error with the secrets taken out of its message, its stack and its causes; the same object, same class. */
+function scrubError(cause: unknown, scrub: (value: string) => string, depth = 0): unknown {
+  if (!(cause instanceof Error) || depth > 5) return typeof cause === 'string' ? scrub(cause) : cause;
+  cause.message = scrub(cause.message);
+  if (typeof cause.stack === 'string') cause.stack = scrub(cause.stack);
+  if (cause.cause !== undefined) cause.cause = scrubError(cause.cause, scrub, depth + 1);
+  return cause;
+}
+
+/** A JSON-like value with the secrets taken out of every string in it. */
+function scrubValue<T>(value: T, scrub: (text: string) => string): T {
+  if (typeof value === 'string') return scrub(value) as T;
+  if (Array.isArray(value)) return value.map((item) => scrubValue(item, scrub)) as T;
+  if (isRecord(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, scrubValue(item, scrub)]),
+    ) as T;
+  }
+  return value;
+}
+
+/**
+ * The adapter with the secrets it holds kept out of everything that leaves it: an error it throws, and a
+ * turn or an end state it returns (an agent can repeat a header it received). What is stored and printed
+ * comes from these, so a secret never reaches a result file, a store or the terminal.
+ */
+function withoutSecrets(adapter: AgentAdapter, secrets: readonly (string | undefined)[]): AgentAdapter {
+  const scrub = scrubber(secrets);
+  const kept = async <T>(work: () => Promise<T>, clean: boolean): Promise<T> => {
+    try {
+      const value = await work();
+      return clean ? scrubValue(value, scrub) : value;
+    } catch (cause) {
+      throw scrubError(cause, scrub);
+    }
+  };
+  const { trace, endState, readArtifact } = adapter;
+  return {
+    id: adapter.id,
+    version: adapter.version,
+    capabilities: () => adapter.capabilities(),
+    open: (given) => kept(() => adapter.open(given), false),
+    send: (session, turn) => kept(() => adapter.send(session, turn), true),
+    close: (session) => kept(() => adapter.close(session), false),
+    ...(trace ? { trace: (session, turn) => kept(() => trace.call(adapter, session, turn), true) } : {}),
+    ...(endState
+      ? { endState: (session, source) => kept(() => endState.call(adapter, session, source), true) }
+      : {}),
+    ...(readArtifact
+      ? { readArtifact: (session, path) => kept(() => readArtifact.call(adapter, session, path), false) }
+      : {}),
+  };
 }
 
 function flags<K extends string>(
