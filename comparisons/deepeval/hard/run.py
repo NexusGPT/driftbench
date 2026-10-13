@@ -48,7 +48,7 @@ def normalize_singletons(obj):
 
     The role template's own example uses an object despite declaring a list.
     Our audit has an analogous list-of-checks contract, so apply the same rule.
-    Raw responses remain unchanged in calls.jsonl.
+    Raw responses retain the documented operator-identifier redaction.
     """
     if not isinstance(obj, dict):
         return obj
