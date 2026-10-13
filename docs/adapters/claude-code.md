@@ -82,7 +82,7 @@ const session = await readSession({
 const adapter = replayAdapter({ session, fromBlock: 0 });
 ```
 
-The spec's block k reads the session's block `fromBlock + k`. The stimulus the spec writes is sent nowhere: the recorded user message is what the agent answered. A spec longer than what is left of the session fails the run with an `AgentFailure` that says so. `seedPrefix` and `deterministic` are on; `variants`, `toolStubs`, `trace`, `sandbox` and `endState` are off. The replay adapter does not run the contract suite.
+The spec's block k reads the session's block `fromBlock + k`. The stimulus the spec writes is sent nowhere: it must match the recorded user message. Comparison trims leading and trailing whitespace, including the newline added by a folded YAML string; case and internal whitespace remain significant. An injection compares its user text, and burst messages retain their boundaries. A mismatch fails with an `AgentFailure` naming the session block and both stimuli. There is no opt-out. A spec longer than what is left of the session fails the run with an `AgentFailure` that says so. `seedPrefix` and `deterministic` are on; `variants`, `toolStubs`, `trace`, `sandbox` and `endState` are off. The replay adapter does not run the contract suite.
 
 ## The ordered-pair check
 
