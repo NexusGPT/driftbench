@@ -43,9 +43,9 @@
   "summary": {
     "specs": 1144,
     "blocks": 1139,
-    "complete": 980,
-    "incomplete": 164,
-    "judged": 273
+    "complete": 847,
+    "incomplete": 297,
+    "judged": 251
   },
   "unit": {
     "tests": 26,
@@ -62,7 +62,7 @@
   "sources": {
     "asks": {
       "bank": 365,
-      "code": 607,
+      "code": 474,
       "session": 0,
       "none": 8
     },
@@ -72,18 +72,18 @@
       "no-change:guard": 15,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 204,
+      "no-delete": 71,
       "static": 8
     },
-    "judged": 168
+    "judged": 146
   },
   "focus": null,
   "perTestType": {
     "obligation": {
       "rows": 473,
       "specs": 473,
-      "complete": 349,
-      "incomplete": 124
+      "complete": 233,
+      "incomplete": 240
     },
     "outside_trigger": {
       "rows": 43,
@@ -94,20 +94,20 @@
     "twin": {
       "rows": 43,
       "specs": 43,
-      "complete": 36,
-      "incomplete": 7
+      "complete": 30,
+      "incomplete": 13
     },
     "ordered_pair": {
       "rows": 64,
       "specs": 64,
-      "complete": 56,
-      "incomplete": 8
+      "complete": 48,
+      "incomplete": 16
     },
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 6,
-      "incomplete": 2
+      "complete": 3,
+      "incomplete": 5
     },
     "route_positive": {
       "rows": 158,
@@ -264,28 +264,42 @@
     "live": {
       "rows": 1101,
       "specs": 1101,
-      "complete": 943,
-      "incomplete": 158
+      "complete": 810,
+      "incomplete": 291
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 147,
+      "specs": 280,
       "atoms": [
+        "gate.standing.never-report-done-before-verify-passed",
         "gate.standing.read-claude-skills-invoice-reconcile-references",
+        "gate.standing.read-git-status-before-commit-to",
+        "gate.standing.write-a-helper-s-brief-before",
         "instruction.invoice-reconcile.a-line-matches-on-article-code",
         "instruction.invoice-reconcile.an-invoice-line-with-no-order",
+        "instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with",
+        "instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50",
+        "instruction.invoice-reconcile.never-change-an-invoice-amount-report",
         "instruction.ledger-auditor.a-brief-missing-a-number-gets",
         "instruction.memory-memory.no-delivery-on-a-public-holiday",
         "instruction.memory-memory.the-weekly-report-is-due-monday",
         "instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and",
+        "instruction.memory-supplier-languages.write-to-each-supplier-in-its",
+        "instruction.shipment-tracker.ask-for-the-tracking-number-when",
         "instruction.shipment-tracker.on-a-carrier-error-say-so",
         "instruction.standing.after-a-compaction-re-read-the",
         "instruction.standing.after-two-failures-of-a-tool",
+        "instruction.standing.never-delete-a-ledger-file-archive",
+        "instruction.standing.never-invent-order-numbers-prices-or",
+        "instruction.standing.never-paste-a-credential-into-a",
         "instruction.standing.on-stop-stop-all-work-and",
+        "instruction.standing.read-the-memory-index-at-the",
+        "instruction.standing.report-only-numbers-read-during-the",
         "instruction.supplier-email.a-loose-yes-is-not-a",
         "instruction.supplier-email.no-price-or-date-in-a",
+        "instruction.supplier-email.write-in-the-supplier-s-language",
         "reference.invoice-reconcile.read-references-currency-table-md",
         "reference.invoice-reconcile.read-references-matching-rules-md",
         "reference.memory-memory.read-supplier-languages-md",
@@ -297,19 +311,33 @@
         "register.route-planner.the-plan-is-a-table-of"
       ],
       "details": [
-        "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"",
+        "no task in the atom's words (gate.standing.never-report-done-before-verify-passed (title)): the act restates the rule (\"report done before verify passed\"), and no unit of the row names a task",
+        "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act restates the rule (\"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"), and no unit of the row names a task",
+        "no task in the atom's words (gate.standing.read-git-status-before-commit-to (title)): the act restates the rule (\"read git status before commit to git\"), and no unit of the row names a task",
+        "no task in the atom's words (gate.standing.write-a-helper-s-brief-before (title)): the act restates the rule (\"write a helper's brief before dispatching it\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with (title)): the act restates the rule (\"convert a foreign currency invoice with the currency table\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 (title)): the act restates the rule (\"dispatch the ledger auditor above 50.00 EUR of difference\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.invoice-reconcile.never-change-an-invoice-amount-report (title)): the act restates the rule (\"change an invoice amount\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.ledger-auditor.a-brief-missing-a-number-gets (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.memory-memory.no-delivery-on-a-public-holiday (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.memory-memory.the-weekly-report-is-due-monday (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.memory-supplier-languages.write-to-each-supplier-in-its (title)): the act restates the rule (\"write to each supplier in its language\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.shipment-tracker.ask-for-the-tracking-number-when (title)): the act restates the rule (\"ask for the tracking number when none is given\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.shipment-tracker.on-a-carrier-error-say-so (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.standing.after-a-compaction-re-read-the (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.standing.after-two-failures-of-a-tool (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.standing.never-delete-a-ledger-file-archive (title)): the act restates the rule (\"delete a ledger file\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.standing.never-invent-order-numbers-prices-or (title)): the act restates the rule (\"invent order numbers\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.standing.never-paste-a-credential-into-a (title)): the act restates the rule (\"paste a credential into a reply\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.standing.on-stop-stop-all-work-and (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the act restates the rule (\"read the memory index at the start of a session\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.standing.report-only-numbers-read-during-the (title)): the act restates the rule (\"report only numbers read during the session\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.supplier-email.a-loose-yes-is-not-a (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.supplier-email.no-price-or-date-in-a (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.supplier-email.write-in-the-supplier-s-language (title)): the act restates the rule (\"write in the supplier's language from the memory table\"), and no unit of the row names a task",
         "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act names the file supplier-languages.md: \"read supplier-languages.md\"",
         "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act names the file .claude/memory/MEMORY.md: \"read .claude/memory/MEMORY.md\"",
         "no task in the atom's words (reference.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md\"",

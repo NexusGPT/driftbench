@@ -60,4 +60,4 @@ metadata:
     needs:
       - marker: needs-askable-act
         atom: gate.standing.read-claude-skills-invoice-reconcile-references
-        detail: "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\""
+        detail: "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act restates the rule (\"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"), and no unit of the row names a task"

@@ -219,7 +219,8 @@ describe('driftbench estate generate', () => {
     const report = JSON.parse(result.out);
     expect(report.phrases).toMatchObject({ path: '(none)', situations: 0 });
     expect(report.sources.asks.bank).toBe(0);
-    expect(report.sources.asks.code).toBeGreaterThan(20);
+    // Without a bank, a rule row whose words only restate the rule waits for a phrase: fewer code asks.
+    expect(report.sources.asks.code).toBeGreaterThan(10);
     expect(report.invalid).toEqual([]);
     expect(report.lint).toEqual([]);
     const strict = await run([...args, '--out', join(dir, 'strict'), '--no-fallback', '--json']);

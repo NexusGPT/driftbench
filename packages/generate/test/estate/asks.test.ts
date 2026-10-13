@@ -303,3 +303,36 @@ describe('the quality floor of a code-written ask', () => {
     expect(codeAsk('trigger', [skill], []).text).toBe('Please check, match or reconcile an invoice.');
   });
 });
+
+describe('an ask never restates the rule under test', () => {
+  it('refuses the act a rule title gives, and names why', () => {
+    for (const [title, kind] of [
+      ['Never paste a credential into a reply', 'instruction'],
+      ['Ask for the tracking number when none is given', 'instruction'],
+      ['Read git status before commit to git', 'gate'],
+      ['Keep every reply under 1,200 characters', 'register'],
+    ] as const) {
+      const rule = atom(`${kind}.standing.x`, { kind, title });
+      const ask = codeAsk('trigger', [rule], []);
+      expect(ask.text, title).toBeUndefined();
+      expect(ask.refused, title).toMatch(/the act restates the rule/);
+    }
+  });
+
+  it('still takes the task a unit of the row names, with the rule situation', () => {
+    const rule = atom('instruction.invoice-reconcile.x', {
+      title: 'Never round an amount',
+      situation: 'The invoice is not in EUR',
+    });
+    expect(codeAsk('trigger', [rule, skill], []).text).toBe(
+      'Please check, match or reconcile an invoice. The invoice is not in EUR.',
+    );
+  });
+
+  it('keeps the neutral ask of a control and a unit title, which restate nothing', () => {
+    const rule = atom('instruction.standing.x', { title: 'Never paste a credential into a reply' });
+    expect(codeAsk('outside', [rule], []).text).toBe(OUTSIDE_ASK);
+    const helper = atom('subagent.x.y', { title: 'Sort the inbox into folders' });
+    expect(codeAsk('trigger', [helper], []).text).toBe('Please sort the inbox into folders.');
+  });
+});

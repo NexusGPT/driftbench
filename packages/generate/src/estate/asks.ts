@@ -20,6 +20,9 @@ import type { EstateAtom, SituationUse } from './inputs';
  *              forbids, else a call of the tool it watches
  */
 
+/** Atom kinds whose title is a rule: as an ask, it restates the rule. A stage's title is a step of work. */
+const RULE_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate', 'register']);
+
 /** Other phrasings of a trigger ask, for the focus variants of a row: the same act, put another way. */
 export const TRIGGER_VARIANTS: ReadonlyArray<(act: string, context: string) => string> = [
   (act, context) => `I need you to ${act} today.${context}`,
@@ -117,6 +120,15 @@ export function codeAsk(
   variant?: number,
 ): CodeAsk {
   const found = actOf(atoms, lookup);
+  // An act taken from a rule's own words restates the rule (docs/estate.md section 5): no ask is written,
+  // the row waits for an approved phrase. A guard on the user's prompt asks with its trigger instead.
+  if (found.restates && use !== 'outside' && use !== 'resume') {
+    return {
+      lang: 'en',
+      source: found.source,
+      refused: `no task in the atom's words (${found.source}): the act restates the rule ("${clauseOf(found.act)}"), and no unit of the row names a task`,
+    };
+  }
   // A separator ends the task: "review the registry · weekly" asks to review the registry.
   const act = clauseOf(found.act);
   const source = found.source;
@@ -203,7 +215,7 @@ export function codeAsk(
 export function actOf(
   atoms: readonly EstateAtom[],
   lookup: (id: string) => EstateAtom | undefined = () => undefined,
-): { act: string; context?: string; source: string; describes?: boolean } {
+): { act: string; context?: string; source: string; describes?: boolean; restates?: boolean } {
   const head = atoms[0];
   const context = head ? contextOf(head) : undefined;
   const withContext = (act: string, source: string) => ({ act, ...(context ? { context } : {}), source });
@@ -247,9 +259,17 @@ export function actOf(
   const task = title.includes(': ') ? title.slice(title.indexOf(': ') + 2) : title;
   // A rule that forbids an act ("Never paste a credential"): the ask is the act it forbids.
   const forbidden = /^(?:never|do not|don't|no one may|you must not)\s+(.+)$/i.exec(task)?.[1];
+  // A rule's own title as the act restates the rule: the ask tests whether the agent repeats it, not
+  // whether it follows it while working. A unit's title ("Skill weekly-report") is no rule.
+  const rule = head !== undefined && RULE_KINDS.has(head.kind);
   if (forbidden && verbLed(forbidden))
-    return { act: lower(firstClause(forbidden)), source: `${head?.id ?? 'row'} (title)` };
-  if (verbLed(task)) return { act: taskOf(task), source: `${head?.id ?? 'row'} (title)` };
+    return {
+      act: lower(firstClause(forbidden)),
+      source: `${head?.id ?? 'row'} (title)`,
+      ...(rule ? { restates: true } : {}),
+    };
+  if (verbLed(task))
+    return { act: taskOf(task), source: `${head?.id ?? 'row'} (title)`, ...(rule ? { restates: true } : {}) };
   return {
     act: '',
     source: described ?? `${head?.id ?? 'row'} (title)`,

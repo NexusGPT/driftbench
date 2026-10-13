@@ -481,11 +481,12 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
+      // An ask that would restate the rule under test is refused (needs-askable-act): fewer complete specs.
       specs: 1144,
       blocks: 1139,
-      complete: 980,
-      incomplete: 164,
-      judged: 273,
+      complete: 847,
+      incomplete: 297,
+      judged: 251,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -499,7 +500,7 @@ describe('domain predicates judged from the rule own words', () => {
     const all = specs(result);
     const judged = specRecords(result).filter((record) => record.complete && record.judged.length > 0);
     expect(judged.length).toBe(result.report.sources.judged);
-    expect(judged.length).toBeGreaterThan(150);
+    expect(judged.length).toBeGreaterThan(140);
     for (const record of judged) {
       const spec = only(all, record.id);
       expect(spec.tags, record.id).toContain('judged');
