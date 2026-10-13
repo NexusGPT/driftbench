@@ -1,4 +1,5 @@
-import { chmod, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { readRecordingRows } from '../src/recording-files';
+import { chmod, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -190,9 +191,7 @@ process.stdin.on('end', () => setTimeout(() => {
     expect(report.contestants[0]?.summary.positionConsistency).toBe(1);
     expect(report.newCalls).toBe(24);
     expect(report.newSpendUsd).toBeCloseTo(0.024, 10);
-    const lines = (await readFile(join(recordingsDir, 'judgebench', 'fake.jsonl'), 'utf8'))
-      .trim()
-      .split('\n');
+    const lines = await readRecordingRows(join(recordingsDir, 'judgebench', 'fake.jsonl'));
     expect(lines).toHaveLength(24);
     // A rerun reads the recordings: no call, no spend, the same scores and the recorded cost.
     const again = await runBenchmark({ ...options, replayOnly: true });

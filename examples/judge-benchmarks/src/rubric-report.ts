@@ -1,3 +1,4 @@
+import { readRecordingRows } from './recording-files';
 import { execFileSync } from 'node:child_process';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -57,11 +58,7 @@ async function main(): Promise<void> {
   );
   const config = contestantById(best.contestant);
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-  const recording = await readFile(join(RECORDINGS, 'rubricbench', 'haiku.jsonl'), 'utf8');
-  const newRows = recording
-    .split('\n')
-    .filter(Boolean)
-    .map((line) => JSON.parse(line) as { contestant?: string; costUsd: number })
+  const newRows = (await readRecordingRows(join(RECORDINGS, 'rubricbench', 'haiku.jsonl')))
     .filter((r) => r.contestant?.startsWith('driftbench-rb-') || r.contestant === 'driftbench-checklist');
   const spend = newRows.reduce((a, b) => a + b.costUsd, 0);
   const audit = JSON.parse(await readFile(join(directory, 'audit.json'), 'utf8')) as {

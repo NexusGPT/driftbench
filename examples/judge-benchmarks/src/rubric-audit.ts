@@ -1,3 +1,4 @@
+import { readRecordingRows } from './recording-files';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -77,11 +78,7 @@ async function main(): Promise<void> {
     });
   }
   const directory = join(fileURLToPath(new URL('..', import.meta.url)), 'experiments', 'rb');
-  const text = await readFile(join(RECORDINGS, 'rubricbench', 'haiku.jsonl'), 'utf8');
-  const rows = text
-    .split('\n')
-    .filter(Boolean)
-    .map((line) => JSON.parse(line) as { contestant?: string; costUsd: number });
+  const rows = await readRecordingRows(join(RECORDINGS, 'rubricbench', 'haiku.jsonl'));
   const taskRows = rows.filter(
     (r) => r.contestant?.startsWith('driftbench-rb-') || r.contestant === 'driftbench-checklist',
   );

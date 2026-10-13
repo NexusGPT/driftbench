@@ -1,3 +1,4 @@
+import { readRecordingRows } from './recording-files';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { appendFile, readFile, writeFile } from 'node:fs/promises';
@@ -49,8 +50,7 @@ async function main(): Promise<void> {
   // Judge a predeclared stratified fallback first. If a projected full run overruns,
   // reporting this fixed subset needs no additional model call or post-hoc sample choice.
   const selected = sample ? fallback : [...fallback, ...population.filter((item) => !fallbackIds.has(item.id))];
-  const recording = (await readFile(join(RECORDINGS, 'rubricbench', 'haiku.jsonl'), 'utf8'))
-    .split('\n').filter(Boolean).map((line) => JSON.parse(line) as { contestant?: string; costUsd: number });
+  const recording = await readRecordingRows(join(RECORDINGS, 'rubricbench', 'haiku.jsonl'));
   const taskSpend = recording.filter((row) => row.contestant?.startsWith('driftbench-rb-') || row.contestant === 'driftbench-checklist')
     .reduce((sum, row) => sum + row.costUsd, 0);
   const capUsd = Math.max(0, 8 - 0.05 - taskSpend);

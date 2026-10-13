@@ -48,7 +48,7 @@ npx tsx examples/judge-benchmarks/src/run.ts --bench judgebench --model haiku [-
 
 `--bench` takes `judgebench`, `mmeval`, `longjudge-wp`, `longjudge-verify` or `rubricbench`. `--split dev` or `--split test` keeps one split. `--sample N` draws a stratified sample by the benchmark's group (source, subset or language), the same items for the same `--seed`.
 
-Every answer is recorded in `recordings/<bench>/<model>.jsonl`, keyed by a hash of the model and the exact prompt, with its cost as the command reported it. A rerun of the same prompts reads the recordings and costs nothing. `--replay-only` refuses to call the model and reproduces the published numbers from the recordings alone. Any change to a prompt, a template or a criterion misses the recording.
+Every answer is recorded in `recordings/<bench>/<model>-000.jsonl`, `-001.jsonl` and subsequent shards, each below 8 MiB, keyed by a hash of the model and the exact prompt, with its cost as the command reported it. The replay reader loads every numeric shard in order and also accepts legacy `<model>.jsonl` files. A rerun of the same prompts reads the recordings and costs nothing. `--replay-only` refuses to call the model and reproduces the published numbers from the recordings alone. Any change to a prompt, a template or a criterion misses the recording.
 
 Calls go through the local `claude` command (`claude -p --output-format json`, no tool, no settings, no session), so they spend the account's subscription. `--cap-usd` stops new calls once the run has spent that much; the cap is checked before each call, so concurrent calls can pass it slightly.
 

@@ -1,3 +1,4 @@
+import { readRecordingRows } from './recording-files';
 import { appendFile, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,12 +13,8 @@ const RESERVE = 0.05;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function taskSpend(): Promise<number> {
-  const text = await readFile(join(RECORDINGS, 'rubricbench', 'haiku.jsonl'), 'utf8');
-  return text
-    .split('\n')
-    .filter(Boolean)
-    .reduce((sum, line) => {
-      const r = JSON.parse(line) as { contestant?: string; costUsd: number };
+  return (await readRecordingRows(join(RECORDINGS, 'rubricbench', 'haiku.jsonl')))
+    .reduce((sum, r) => {
       return (
         sum +
         (r.contestant?.startsWith('driftbench-rb-') || r.contestant === 'driftbench-checklist'

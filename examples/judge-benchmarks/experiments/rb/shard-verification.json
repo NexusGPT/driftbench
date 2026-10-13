@@ -1,0 +1,59 @@
+{
+  "checkedAt": "2026-10-13T00:00:21.756252+00:00",
+  "checks": [
+    {
+      "benchmark": "judgebench",
+      "model": "haiku",
+      "preservedHeadRows": 8769,
+      "currentRows": 8769,
+      "shards": 2,
+      "maxBytes": 8388424
+    },
+    {
+      "benchmark": "judgebench",
+      "model": "sonnet",
+      "preservedHeadRows": 61,
+      "currentRows": 61,
+      "shards": 1,
+      "maxBytes": 42758
+    },
+    {
+      "benchmark": "longjudge-verify",
+      "model": "haiku",
+      "preservedHeadRows": 4139,
+      "currentRows": 4139,
+      "shards": 1,
+      "maxBytes": 4316270
+    },
+    {
+      "benchmark": "longjudge-wp",
+      "model": "haiku",
+      "preservedHeadRows": 5499,
+      "currentRows": 5499,
+      "shards": 1,
+      "maxBytes": 7257687
+    },
+    {
+      "benchmark": "mmeval",
+      "model": "haiku",
+      "preservedHeadRows": 17746,
+      "currentRows": 17746,
+      "shards": 2,
+      "maxBytes": 8388305
+    },
+    {
+      "benchmark": "rubricbench",
+      "model": "haiku",
+      "preservedHeadRows": 24146,
+      "currentRows": 25439,
+      "shards": 4,
+      "maxBytes": 8388251
+    }
+  ],
+  "guard": {
+    "clean": true,
+    "scanned": 11,
+    "skipped": 0,
+    "denylistTerms": 0
+  }
+}

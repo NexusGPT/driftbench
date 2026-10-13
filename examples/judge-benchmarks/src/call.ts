@@ -1,8 +1,9 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { appendFile, mkdir, mkdtemp, readFile } from 'node:fs/promises';
+import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
+import { appendRecording, readRecordingRows } from './recording-files';
 import type { Prompt } from './contestants';
 
 /**
@@ -32,18 +33,11 @@ export function promptKey(model: string, prompt: Prompt): string {
 
 export class Recordings {
   private readonly byKey = new Map<string, Recorded>();
+  private pending: Promise<void> = Promise.resolve();
   constructor(private readonly file: string) {}
 
   async load(): Promise<this> {
-    let text = '';
-    try {
-      text = await readFile(this.file, 'utf8');
-    } catch {
-      return this;
-    }
-    for (const line of text.split('\n')) {
-      if (line.trim() === '') continue;
-      const entry = JSON.parse(line) as Recorded;
+    for (const entry of await readRecordingRows(this.file)) {
       this.byKey.set(entry.key, entry);
     }
     return this;
@@ -58,9 +52,12 @@ export class Recordings {
   }
 
   async add(entry: Recorded): Promise<void> {
-    this.byKey.set(entry.key, entry);
-    await mkdir(dirname(this.file), { recursive: true });
-    await appendFile(this.file, `${JSON.stringify(entry)}\n`, 'utf8');
+    const write = this.pending.then(async () => {
+      await appendRecording(this.file, entry);
+      this.byKey.set(entry.key, entry);
+    });
+    this.pending = write.catch(() => undefined);
+    await write;
   }
 }
 

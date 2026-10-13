@@ -1,3 +1,4 @@
+import { readRecordingRows } from './recording-files';
 import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile, readdir, stat, writeFile } from 'node:fs/promises';
@@ -33,7 +34,7 @@ async function main(): Promise<void> {
   const paths = command('git', ['status', '--porcelain']).split('\n').filter(Boolean);
   if (paths.some((line) => !line.slice(3).startsWith('examples/judge-benchmarks/'))) throw new Error('Out-of-scope change');
   command('git', ['diff', '--check']);
-  command('git', ['add', 'examples/judge-benchmarks/src', 'examples/judge-benchmarks/test', 'examples/judge-benchmarks/experiments/rb', 'examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl']);
+  command('git', ['add', 'examples/judge-benchmarks/src', 'examples/judge-benchmarks/test', 'examples/judge-benchmarks/experiments/rb', 'examples/judge-benchmarks/recordings']);
   command('git', ['commit', '-m', 'Freeze RubricBench dev design for the official held-out run', '-m', 'Co-Authored-By: GPT-6.1 Sol (Codex) <noreply@openai.com>']); // guard:allow owner-required technical authorship address
   const commit = command('git', ['rev-parse', 'HEAD']).trim();
   const frozenAt = new Date().toISOString();
@@ -48,7 +49,7 @@ async function main(): Promise<void> {
     if (row) uniqueCalls = row.uniqueCalls ?? row.calls;
   }
   if (uniqueCalls === undefined) throw new Error('Frozen full-dev call count missing');
-  const rows = (await readFile('examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl', 'utf8')).split('\n').filter(Boolean).map((line) => JSON.parse(line) as { contestant?: string });
+  const rows = await readRecordingRows('examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl');
   const taskCalls = rows.filter((row) => row.contestant?.startsWith('driftbench-rb-') || row.contestant === 'driftbench-checklist').length;
   const start = JSON.parse(await readFile('.cache/rb/throughput-start.json', 'utf8')) as { observedAt: string; recordedCalls: number };
   const elapsedSeconds = (Date.now() - Date.parse(start.observedAt)) / 1000;
@@ -70,7 +71,7 @@ async function main(): Promise<void> {
   await run('pnpm', ['exec', 'tsx', 'examples/judge-benchmarks/src/guard-allow.ts', '--bench', 'rubricbench']);
   await run('pnpm', ['exec', 'tsx', 'examples/judge-benchmarks/src/rubric-report.ts', reportPath, '--frozen']);
   command('git', ['diff', '--check']);
-  command('git', ['add', 'examples/judge-benchmarks/experiments/rb', 'examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl']);
+  command('git', ['add', 'examples/judge-benchmarks/experiments/rb', 'examples/judge-benchmarks/recordings']);
   command('git', ['commit', '-m', 'Record the frozen RubricBench official test and domain results', '-m', 'Co-Authored-By: GPT-6.1 Sol (Codex) <noreply@openai.com>']); // guard:allow owner-required technical authorship address
   const head = command('git', ['rev-parse', 'HEAD']).trim();
   await run('git', ['push', 'origin', 'codex/rb-judge']);
