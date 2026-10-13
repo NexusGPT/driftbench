@@ -12,6 +12,7 @@ const fixture = JSON.parse(
   summaries: {
     set: string;
     total: number;
+    recordedFingerprint?: string;
     baselineCorrect?: number;
     candidateCorrect?: number;
     fixes: number | null;
@@ -31,6 +32,19 @@ const fixture = JSON.parse(
 };
 
 describe('zero-cost recorded criterion decoder replay', () => {
+  it('covers all 14 sets for both recorded models and labels Gemini as not recorded', () => {
+    const current = fixture.summaries.filter((s) => s.set.startsWith('bench-current/'));
+    expect(current).toHaveLength(42);
+    for (const model of ['haiku', 'gpt-6-luna']) {
+      const sets = current.filter((s) => s.set.endsWith(`/${model}`));
+      expect(sets).toHaveLength(14);
+      expect(sets.reduce((n, s) => n + s.total, 0)).toBe(1798);
+      for (const set of sets)
+        expect(set).toMatchObject({ status: 'recorded', recordedFingerprint: '398673b792c1', breaks: 0 });
+    }
+    for (const set of current.filter((s) => s.set.endsWith('/gemini-3.8-flash')))
+      expect(set).toMatchObject({ total: 0, status: 'not recorded', fixes: null, breaks: null });
+  });
   for (const summary of fixture.summaries.filter((s) => s.total > 0)) {
     it(`${summary.set}: ${summary.fixes} fixes, ${summary.breaks} breaks`, () => {
       const rows = fixture.rows.filter((r) => r.set === summary.set);

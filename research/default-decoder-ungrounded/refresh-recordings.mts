@@ -35,7 +35,6 @@ const summaries = data.summaries.map((summary: any) => {
     changed: set.filter((r: any) => r.baseline !== r.candidate).length,
   };
 });
-assert(summaries.every((s: any) => s.breaks === 0 || s.breaks === null));
 const fixture = {
   ...data,
   rows,
@@ -49,6 +48,7 @@ writeFileSync(
 const report = {
   measuredAt: new Date().toISOString(),
   packageBase: data.base,
+  recordingCommit: data.recordingCommit,
   snapshotSha256: fixture.snapshotSha256,
   modelCalls: 0,
   costUsd: 0,
@@ -57,6 +57,8 @@ const report = {
   rows: rows.map(({ request, raw, ...row }: any) => row),
 };
 writeFileSync(resolve(import.meta.dirname, 'results.json'), `${JSON.stringify(report, null, 2)}\n`);
+// Persist break items for investigation before failing the gate.
+assert(summaries.every((s: any) => s.breaks === 0 || s.breaks === null));
 console.log(
   JSON.stringify(
     summaries.filter((s: any) => s.total),
