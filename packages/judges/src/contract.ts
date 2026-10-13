@@ -110,6 +110,8 @@ export type ComparisonResult = {
 
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly retryReceipts?: readonly import('./clients/claude-errors').ClaudeRetryReceipt[];
+  readonly requestCount?: number;
   readonly pairLedger?: PairLedger;
   readonly parseSteps?: readonly LedgerParseStep[];
   readonly metadata?: { readonly graderError?: boolean };

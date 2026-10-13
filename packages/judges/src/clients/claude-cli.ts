@@ -7,6 +7,7 @@ import type { ClientOptions, JudgeClient } from '../client';
 import { inconclusive, type JudgeRequest, type JudgeResult } from '../contract';
 import { isRecord, JudgeError } from '../http';
 import { buildPrompt } from '../prompt';
+import { withClaudeErrorRetries } from './claude-errors';
 import { JUDGE_DIALECTS, withJudgeDialect } from './dialects';
 
 /**
@@ -21,12 +22,16 @@ import { JUDGE_DIALECTS, withJudgeDialect } from './dialects';
  * project file, memory or hook of the caller reaches the judge. The answer is the `result` text of the
  * JSON result, read through the answer contract; the cost is its `total_cost_usd`.
  *
- * Errors: an API error result is retryable and gives no answer; a run that stopped at its turn limit is an
+ * Errors: transient API errors without an answer retry up to three submissions; other errors retain
+ * sanitized diagnostics. A run that stopped at its turn limit is an
  * unparsed answer, never a pass. The command has no token limit flag, so the large budget asks again the
  * same way. Reads CLAUDE_JUDGE_MODEL when no model is given.
  */
 
-export type ClaudeCliOptions = Pick<ClientOptions, 'env' | 'id' | 'model' | 'cost' | 'timeoutMs'> & {
+export type ClaudeCliOptions = Pick<
+  ClientOptions,
+  'env' | 'id' | 'model' | 'cost' | 'timeoutMs' | 'retry' | 'maxRetries' | 'sleep'
+> & {
   /** The command to run. Default `claude`. */
   command?: string;
   /** Arguments before the judge's own, such as a script path for a fake command. */
@@ -98,8 +103,17 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
         ...CLAUDE_JUDGE_FLAGS,
         ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
       ];
-      const ran = await runClaudeCommand(command, args, prompt.user, { cwd: workdir(), env, timeoutMs });
-      return readResult(ran, model, request);
+      const sent = await withClaudeErrorRetries(
+        () => runClaudeCommand(command, args, prompt.user, { cwd: workdir(), env, timeoutMs }),
+        { ...prompt, env },
+        options,
+      );
+      return {
+        ...readResult(sent.ran, model, request),
+        ...(sent.retryReceipts
+          ? { retryReceipts: sent.retryReceipts, requestCount: sent.requestCount, costUsd: sent.costUsd }
+          : {}),
+      };
     },
   };
 }
