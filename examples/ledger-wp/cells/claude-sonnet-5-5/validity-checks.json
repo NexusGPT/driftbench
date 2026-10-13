@@ -1,0 +1,97 @@
+{
+  "scope": "Supplemental recording-only interpretation of the preregistered edit checks. No contestant or primary statistics change.",
+  "cells": [
+    {
+      "model": "claude-sonnet-5-5",
+      "contestant": "pair-ledger",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 1,
+          "matchingGames": 2,
+          "games": 2,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 2,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 1,
+          "matchingGames": 2,
+          "games": 2,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 2,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "contestant": "promptfoo",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 1,
+          "matchingGames": 2,
+          "games": 2,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 2,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    }
+  ]
+}

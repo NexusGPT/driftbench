@@ -1,0 +1,177 @@
+{
+  "pilot": [],
+  "dev": [
+    {
+      "model": "gpt-6.1-sol",
+      "contestant": "pair-ledger",
+      "pairs": 22,
+      "games": 44,
+      "correct": 24,
+      "accuracy": 54.54545454545455,
+      "wilson95": [
+        40.06618319896197,
+        68.2947658577791
+      ],
+      "recipeUsd": 0.8978589,
+      "graderErrors": 0,
+      "ties": 8,
+      "usdPer100Pairs": 4.0811768181818175,
+      "usdPer100Games": 2.0405884090909088,
+      "comparison": {
+        "matchedPairs": 20,
+        "wins": 2,
+        "losses": 0,
+        "deltaPoints": 5.0,
+        "requestCluster95": [
+          0.0,
+          10.869565217391305
+        ],
+        "mcnemarTwoSided": 0.5,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "projectedTestUsd": 7.060435895454544,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": -18.787878787878782
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 4.545454545454547
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 54.54545454545455
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": true,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
+        "fixture-zh-count": true,
+        "fixture-zh-language": true
+      },
+      "fixtureKappa": 1.0,
+      "earnedFixtureSeat": true,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
+        }
+      }
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "contestant": "promptfoo",
+      "pairs": 27,
+      "games": 54,
+      "correct": 27,
+      "accuracy": 50.0,
+      "wilson95": [
+        37.11458304022563,
+        62.88541695977437
+      ],
+      "recipeUsd": 0.8880418,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": 3.2890437037037037,
+      "usdPer100Games": 1.6445218518518518,
+      "projectedTestUsd": 5.6900456074074075,
+      "controls": {
+        "longer-wins": {
+          "accuracy": 73.33333333333333,
+          "judgeLeadPoints": -23.33333333333333
+        },
+        "constant-FIRST": {
+          "accuracy": 50.0,
+          "judgeLeadPoints": 0.0
+        },
+        "refusal-wins": {
+          "accuracy": 0.0,
+          "judgeLeadPoints": 50.0
+        }
+      },
+      "noise": {
+        "completeTriplePairs": 0,
+        "repeatGameFlips": 0,
+        "comparisons": 0,
+        "flipPercent": null
+      },
+      "sixFixturesThreeOfThree": {
+        "fixture-en-name": true,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
+        "fixture-zh-count": true,
+        "fixture-zh-language": true
+      },
+      "fixtureKappa": 1.0,
+      "earnedFixtureSeat": true,
+      "cheaterBarPass": false,
+      "plantedEditChecks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
+        }
+      }
+    }
+  ],
+  "policy": "A failed predeclared validity criterion is reported and never tuned away. Test launch requires an explicit recorded disposition."
+}
