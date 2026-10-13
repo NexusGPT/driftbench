@@ -23,13 +23,13 @@ The current map uses `types` and `import` conditions. Source entries follow the 
 node tools/structure/api-surface.mjs --build --check
 ```
 
-`--build` permits a build when the stamp is missing or stale. The gate runs the root build with sequential workspace builds, then records hashes of package/example inputs, root manifests, lockfile, TypeScript/build configuration and emitted package files, plus the Node version. A failed build or changed input during the build fails the gate. Build output is retained in diagnostics on failure.
+`--build` permits a build when the stamp is missing or stale. The gate runs the root build with sequential workspace builds, then records hashes of compiler-discovered inputs, root manifests, lockfile, TypeScript/build configuration and emitted package files, plus the Node version. For each package entry it loads the applicable TypeScript configuration and uses the program's source-file list, including transitive re-exports and sibling sources. Packages sharing a configuration share that program. Every input is resolved with `realpath` and its contents are hashed; changing a symlink target invalidates the build. Repository sources resolving outside the repository are refused. Third-party `node_modules` and compiler standard libraries are excluded; the lockfile tracks dependency versions. A failed build or changed input during the build fails the gate. Build output is retained in diagnostics on failure.
 
 ```sh
 node tools/structure/api-surface.mjs --check
 ```
 
-Without `--build`, a missing stamp, source change or altered `dist` fails with a stale-build diagnostic. The gate never accepts a stale build. Its stamp lives in the ignored `.cache/api-surface-build.json` and is not a replacement for the committed API snapshot.
+Without `--build`, a missing, unreadable or malformed stamp, source change or altered `dist` fails with one stale-build diagnostic and the exact rebuild command: `node tools/structure/api-surface.mjs --build --check`. The gate never accepts a stale build. Its stamp lives in the ignored `.cache/api-surface-build.json` and is not a replacement for the committed API snapshot.
 
 CI runs `node tools/structure/api-surface.mjs --build --check` before the test suite. The focused gate test builds or reuses that stamped build. Fixture mutation tests build their own tiny packages after each source change, including declare-only values, type-only functions, added/removed values and moves between entries.
 

@@ -9,6 +9,7 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -350,5 +351,115 @@ it('refuses source and built declaration type-only disagreement', () => {
     expect(check.stderr).toContain('source and built declaration type-only names differ: Phantom');
   } finally {
     rmSync(repo.root, { recursive: true, force: true });
+  }
+}, 120_000);
+
+const REBUILD =
+  'The API build is missing or stale. Run node tools/structure/api-surface.mjs --build --check.\n';
+
+it('hashes the content behind an in-repository source symlink', () => {
+  const repo = fixture('export const direct = 1;');
+  try {
+    const shared = join(repo.root, 'shared.ts');
+    writeFileSync(shared, 'export const direct = 1;');
+    symlinkSync(shared, join(repo.root, 'packages/demo/src/linked.ts'));
+    writeFileSync(repo.entry, "export { direct } from './linked.js';");
+    const freeze = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write');
+    expect(freeze.status, freeze.stderr).toBe(0);
+    writeFileSync(shared, 'export declare const direct: number;');
+    const stale = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+    expect(stale.status).toBe(1);
+    expect(stale.stderr).toBe(REBUILD);
+    const rebuilt = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
+    expect(rebuilt.status, rebuilt.stderr).toBe(1);
+    expect(rebuilt.stderr).not.toContain('stale');
+  } finally {
+    rmSync(repo.root, { recursive: true, force: true });
+  }
+}, 120_000);
+
+it('follows a re-export from a sibling package source', () => {
+  const repo = fixture('export const direct = 1;');
+  try {
+    const sibling = join(repo.root, 'packages/sibling/src/index.ts');
+    mkdirSync(join(sibling, '..'), { recursive: true });
+    writeFileSync(sibling, 'export const direct = 1;');
+    writeFileSync(repo.entry, "export { direct } from '../../sibling/src/index.js';");
+    for (const pkg of ['demo', 'sibling']) {
+      writeFileSync(
+        join(repo.root, 'packages', pkg, 'package.json'),
+        JSON.stringify({
+          name: `@fixture/${pkg}`,
+          type: 'module',
+          exports: {
+            '.': {
+              source: './src/index.ts',
+              types: `./dist/${pkg}/src/index.d.ts`,
+              import: `./dist/${pkg}/src/index.js`,
+            },
+          },
+        }),
+      );
+    }
+    const build = join(repo.root, 'build.mjs');
+    const original = readFileSync(build, 'utf8');
+    writeFileSync(
+      build,
+      original.replace("outDir: 'packages/demo/dist'", "rootDir: 'packages', outDir: 'packages/demo/dist'") +
+        "\n(await import('node:fs')).cpSync('packages/demo/dist', 'packages/sibling/dist', { recursive: true });",
+    );
+    const freeze = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write');
+    expect(freeze.status, freeze.stderr).toBe(0);
+    writeFileSync(sibling, 'export declare const direct: number;');
+    const stale = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+    expect(stale.status).toBe(1);
+    expect(stale.stderr).toBe(REBUILD);
+    const rebuilt = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
+    expect(rebuilt.status, rebuilt.stderr).toBe(1);
+    expect(rebuilt.stderr).not.toContain('stale');
+  } finally {
+    rmSync(repo.root, { recursive: true, force: true });
+  }
+}, 120_000);
+
+it.each(['malformed', 'missing', 'unreadable', 'wrong shape'])(
+  'gives the exact rebuild command for a %s stamp',
+  (state) => {
+    const repo = fixture('export const direct = 1;');
+    try {
+      expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+      const stamp = join(repo.root, '.cache/api-surface-build.json');
+      if (state === 'malformed') writeFileSync(stamp, '{');
+      if (state === 'wrong shape') writeFileSync(stamp, 'null');
+      if (state === 'missing' || state === 'unreadable') rmSync(stamp);
+      if (state === 'unreadable') mkdirSync(stamp);
+      const stale = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+      expect(stale.status).toBe(1);
+      expect(stale.stderr).toBe(REBUILD);
+      if (state !== 'unreadable') {
+        const repaired = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
+        expect(repaired.status, repaired.stderr).toBe(0);
+      }
+    } finally {
+      rmSync(repo.root, { recursive: true, force: true });
+    }
+  },
+  120_000,
+);
+
+it('refuses a source symlink that resolves outside the repository', () => {
+  const repo = fixture('export const direct = 1;');
+  const outside = mkdtempSync(join(tmpdir(), 'driftbench-api-outside-'));
+  try {
+    const shared = join(outside, 'shared.ts');
+    writeFileSync(shared, 'export const direct = 1;');
+    symlinkSync(shared, join(repo.root, 'packages/demo/src/linked.ts'));
+    writeFileSync(repo.entry, "export { direct } from './linked.js';");
+    const check = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write');
+    expect(check.status).toBe(1);
+    expect(check.stderr).toContain('source resolves outside the repository');
+  } finally {
+    rmSync(repo.root, { recursive: true, force: true });
+    rmSync(outside, { recursive: true, force: true });
   }
 }, 120_000);

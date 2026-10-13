@@ -1,16 +1,8 @@
 // The build, its input/output stamp, and the actual exported names are one gate.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import {
-  existsSync,
-  lstatSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  readlinkSync,
-  writeFileSync,
-} from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
@@ -28,7 +20,9 @@ function digest(root, files) {
     hash
       .update(relative(root, file))
       .update('\0')
-      .update(lstatSync(file).isSymbolicLink() ? readlinkSync(file) : readFileSync(file))
+      .update(realpathSync(file))
+      .update('\0')
+      .update(readFileSync(realpathSync(file)))
       .update('\0');
   return hash.digest('hex');
 }
@@ -75,29 +69,86 @@ export function packageEntries(root) {
     });
 }
 
+/** Use the compiler's resolved file graph, including inherited configs and sibling sources. */
+function compilerInputs(root, entries) {
+  const files = new Set();
+  const canonicalRoot = realpathSync(root);
+  const thirdParty = (file) => /(^|[/\\])node_modules([/\\]|$)/.test(file);
+  const add = (file) => {
+    if (thirdParty(file)) return;
+    const actual = realpathSync(file);
+    const path = relative(canonicalRoot, actual);
+    if (path === '..' || path.startsWith('../') || path.startsWith('..\\') || isAbsolute(path))
+      throw new Error(`${relative(root, file)}: source resolves outside the repository`);
+    files.add(file);
+  };
+  // Packages sharing a tsconfig share a compiler program, but every entry is a root.
+  const groups = new Map();
+  for (const entry of entries) {
+    const config = ts.findConfigFile(dirname(entry.source), ts.sys.fileExists);
+    const key = config ?? dirname(entry.source);
+    if (!groups.has(key)) groups.set(key, { config, roots: [] });
+    groups.get(key).roots.push(entry.source);
+  }
+  for (const { config, roots } of groups.values()) {
+    let options = {
+      target: ts.ScriptTarget.ES2023,
+      module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      types: [],
+    };
+    let configuredRoots = [];
+    if (config) {
+      const parsed = ts.getParsedCommandLineOfConfigFile(
+        config,
+        {},
+        {
+          ...ts.sys,
+          readFile(file) {
+            const content = ts.sys.readFile(file);
+            if (content !== undefined) add(file);
+            return content;
+          },
+          onUnRecoverableConfigFileDiagnostic(error) {
+            throw new Error(ts.flattenDiagnosticMessageText(error.messageText, '\n'));
+          },
+        },
+      );
+      if (parsed.errors.length)
+        throw new Error(
+          ts.formatDiagnostics(parsed.errors, {
+            getCanonicalFileName: (file) => file,
+            getCurrentDirectory: () => root,
+            getNewLine: () => '\n',
+          }),
+        );
+      options = parsed.options;
+      configuredRoots = parsed.fileNames;
+    }
+    const program = ts.createProgram([...new Set([...configuredRoots, ...roots])], options);
+    for (const source of program.getSourceFiles()) {
+      if (!program.isSourceFileDefaultLibrary(source)) add(source.fileName);
+    }
+  }
+  // Build commands/configuration and dependency resolution are inputs too.
+  const dirs = new Set([root, ...entries.map((entry) => join(root, 'packages', entry.pkg))]);
+  if (existsSync(join(root, 'examples')))
+    for (const example of readdirSync(join(root, 'examples'), { withFileTypes: true }))
+      if (example.isDirectory()) dirs.add(join(root, 'examples', example.name));
+  for (const dir of dirs)
+    for (const name of readdirSync(dir))
+      if (
+        /^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig.*\.json|(?:.*build.*|tsup\.config)\.[cm]?[jt]s)$/.test(
+          name,
+        )
+      )
+        add(join(dir, name));
+  return [...files];
+}
+
 export function requireFreshBuild(root, entries, allowBuild) {
   const stampFile = join(root, '.cache/api-surface-build.json');
-  const excluded = new Set(['node_modules', '.git']);
-  const sourceFiles = (base) =>
-    filesUnder(join(root, base), excluded).filter(
-      (file) =>
-        !/^(packages|examples)\/[^/]+\/(dist|build|coverage|\.cache|\.vite)\//.test(
-          relative(root, file).replaceAll('\\', '/'),
-        ),
-    );
-  const inputs = () =>
-    digest(root, [
-      ...sourceFiles('packages'),
-      ...sourceFiles('examples'),
-      ...readdirSync(root)
-        .filter((name) =>
-          /^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig.*\.json|.*build.*\.[cm]?js)$/.test(
-            name,
-          ),
-        )
-        .map((name) => join(root, name)),
-      fileURLToPath(import.meta.url),
-    ]);
+  const inputs = () => digest(root, [...compilerInputs(root, entries), fileURLToPath(import.meta.url)]);
   const outputs = () =>
     digest(
       root,
@@ -107,11 +158,16 @@ export function requireFreshBuild(root, entries, allowBuild) {
     );
   const before = inputs();
   let stamp;
-  if (existsSync(stampFile)) stamp = JSON.parse(readFileSync(stampFile, 'utf8'));
+  try {
+    stamp = JSON.parse(readFileSync(stampFile, 'utf8'));
+  } catch {
+    // Missing, unreadable and malformed stamps all require the same rebuild.
+    stamp = undefined;
+  }
   if (stamp?.inputs === before && stamp?.outputs === outputs() && stamp?.node === process.version) return;
   if (!allowBuild)
     throw new Error(
-      'The API build is missing or stale. Run node tools/structure/api-surface.mjs --build --check (or --build --write).',
+      'The API build is missing or stale. Run node tools/structure/api-surface.mjs --build --check.',
     );
   const build = spawnSync('pnpm', ['run', 'build'], {
     cwd: root,
