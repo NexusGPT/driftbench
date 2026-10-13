@@ -46,7 +46,10 @@ const jobs = [
   { name: 'perturbed', src: 'perturbed.html', out: 'perturbed-{theme}.png' },
   { name: 'council', src: 'council.html', out: 'council-{theme}.png' },
   { name: 'kinds', src: 'kinds.html', out: 'kinds-{theme}.png' },
-  { name: 'flow', src: 'flow.html', out: 'flow-{theme}.png' },
+  { name: 'loop', src: 'loop.html', out: 'loop-{theme}.png' },
+  { name: 'blocks-diff', src: 'blocks-diff.html', out: 'blocks-diff-{theme}.png' },
+  { name: 'gen', src: 'gen.html', out: 'gen-{theme}.png' },
+  { name: 'innovations', src: 'innovations.html', out: 'innovations-{theme}.png' },
   { name: 'moj', src: 'moj.html', out: 'moj-{theme}.png' },
   { name: 'blast', src: 'blast.html', out: 'blast-{theme}.png' },
   // The charts: one page, chart.html?c=<name>, reading chart-data.js (written by tools/readme-charts.mjs).

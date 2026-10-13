@@ -6,8 +6,8 @@
 <link rel="stylesheet" href="brand.css">
 <style>
   /* A change to the recap stage lights the blocks that read it and the blocks after them in the same
-     conversation. The rest is carried from the last full run. Numbers: the Acme suite, 195 conversations,
-     861 blocks, from the blast radius design probe. */
+     conversation. The rest is carried from the last full run. Numbers: the end to end run on Acme in docs/concepts/blast-radius.md of the blast radius pull
+     requests: 606 of 867 blocks sent, 261 carried, the same 102 failing tests as a full run. */
   #frame { width: 640px; height: 300px; }
   .chg { left: 16px; top: 64px; width: 124px; height: 84px; align-content: start; padding: 10px 11px; }
   .chg .nx-node__title { font: 500 12px/1.25 var(--nx-mono); }
@@ -58,10 +58,10 @@
     <span class="bk inh" style="left:288px;top:190px">order</span>
     <span class="bk inh" style="left:352px;top:190px">closing</span>
     <div class="nx-ill-panel con">
-      <span class="nx-kind">Radius</span>
-      <div class="n">298</div>
-      <div class="l">of 861 blocks run again</div>
-      <span class="nx-done">237 red, all inside</span>
+      <span class="nx-kind">Recap change</span>
+      <div class="n">606</div>
+      <div class="l">of 867 blocks sent; 261 carried</div>
+      <span class="nx-done">same 102 failures</span>
     </div>
     <span class="nx-ipill nx-ipill--flat key"><span class="sw" style="box-shadow:0 0 0 2px var(--nx-blue)"></span>reads it</span>
     <span class="nx-ipill nx-ipill--flat key2"><span class="sw" style="opacity:.78"></span>comes after it</span>

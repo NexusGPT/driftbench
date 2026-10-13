@@ -79,4 +79,43 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 ## Mixture of Judges
 
-The MoJ numbers in the README are practice data: no sealed test item was read. On writing, a rule that picks the longer reply scores 68.7 against MoJ's 64.8. The design and the full results are on the [research branch](https://github.com/achammah/driftbench/blob/9be7b75133e31a2f5d81f1dec0ef15c517be5d21/research/moj/RESULTS.md).
+* Design and results: `research/moj/RESULTS.md` on `research/system1-judge` at `06fd0edb`, section "Sealed confirmation (run once)". MoJ runs from that research harness; the package's opt-in escalation API (`createEscalation`) is on main.
+* The sealed ids were drawn before any call and the primary configuration (`r9-two-step`) was frozen before any sealed score existed. All contestants run GPT-6 Luna at medium effort. Sealed pairs: JudgeBench 100, MM-Eval 294, writing 300.
+* Results: JudgeBench (strict both-order rule) MoJ 85.0 [77, 91], promptfoo 84.0 [76, 90]; MM-Eval 94.9 [92, 97] against 94.7 [92, 97]; writing 65.2 [60, 70] against 57.0 [51, 62]. Paired tests with a Holm correction over six comparisons: ties on JudgeBench and MM-Eval, a win on writing against promptfoo (+8.2 points, Holm p 0.047). On writing a rule that picks the longer reply scores 69.7, above MoJ.
+* Reasoning (System-2) calls per 100 pairs: MoJ 57, 21 and 10 on JudgeBench, MM-Eval and writing; promptfoo 200 on each. MoJ also makes 246 to 347 System-1 calls per 100 pairs, whose price is not published.
+* Inspect's scorer cascade is cited from its [multiple scorers page](https://inspect.aisi.org.uk/multiple-scorers.html); judge choice and ensembles in the other tools from row 11 of the [comparison](../comparison.md).
+
+## Synthetic tests, written by code
+
+* Coverage: `pnpm driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2` on main prints `complete specs 637 of 637 (100.0%)` and writes 333 files. It exits 1 because some map values have no approved phrase yet; their specs go to `incomplete/`.
+* Covering arrays (pairwise and t-wise) and sliced Latin hypercube sampling (`slicedLhs`, for approved numeric settings in budget mode) are described in [generating tests](../generating.md#sliced-numeric-sampling).
+* The budget figures (9.00, 8.00, 8.37 of 13 at 20 tests) are means over 30 seeds from [the budget study](../../comparisons/budget/full-study.md); see [faults found on a budget](#faults-found-on-a-budget).
+* `pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated/specs --out golden` prints `114 conversations cover every cell the pool covers (592 of 637)` and `Faults turned red: 13 of the 13 the pool turns red`.
+* The DeepEval synthesizer is cited from row 19 of the [comparison](../comparison.md).
+
+## Blocks: a failure you can diagnose
+
+* The example is a recorded run on main: the golden Acme suite on the planted fault `x3-skips-recap` (`driftbench ci ... --target fault:x3-skips-recap --faults examples/acme/faults --route flow:price-sheet=process:acme-ops`), then `campaign status <campaign> --detail` and `--json`. In `gen-twise-066`, block 3 (counted from 0, the fourth block) fails `stage.reached` with `reached order_placed, expected recap` and `forbidden.order.create` with `order.create called 1 time (call-1); the block expects it 0 times`. Block 4 then fails `tools.order.create.count` with `order.create called 0 times, expected exactly 1; calls in this block: none`. The other five blocks pass.
+* That each of the 13 scored Acme faults turns specific blocks red is read from the committed gate report `examples/acme/gated/gate-report.json`; the red block count of each fault is listed in the blast radius containment test.
+* The units the other tools score are cited from row 1 of the [comparison](../comparison.md#where-driftbench-is-ahead).
+
+## Blast radius: rerun only what a change touches
+
+* The numbers come from `docs/concepts/blast-radius.md` on the blast radius pull requests ([PR 238](https://github.com/achammah/driftbench/pull/238), commit `916220c5`), measured on the Acme gated suite: 195 specs, 867 blocks sent in all, 861 scored.
+* End to end (`packages/cli/test/radius-carry.test.ts` on that branch, no model call): a baseline runs the agents as `acme-v1`; the sales assistant then suffers the planted fault that skips the recap. The radius campaign of the recap change sends 606 of 867 blocks and carries 93 cells (261 blocks): 30.1 percent saved. A full campaign of the same faulty agent fails on 102 cells, the same 102 the radius campaign fails on, none of them carried.
+* By change, the share of blocks not sent ranges from 0 (the reply-language rule, a tool no block names) to 95.9 percent (the price sheet task family). These are counts of blocks, not seconds.
+* For every scored Acme fault, a test asserts that every block the full suite turns red lies inside the radius of its change.
+* Caching in the other tools is cited from row 22 of the [comparison](../comparison.md).
+
+## A judge that shows its work
+
+* The pair ledger is opt-in (`answerContract: 'ledger'`), merged in PR 168.
+* RubricBench, Claude Haiku 5.5, 790 test pairs, 1,580 games: 1,306 correct (82.7 percent) against promptfoo select-best's 1,194 (75.6 percent); game McNemar p = 6.9e-10, with a correction across the full family of cells still pending. The test split was evaluated before. The result file is a copy of `examples/judge-benchmarks/experiments/ledger-rb/live-summary.json` on `research/ledger-rb` at `fe76cd48`, in [docs/assets/data/sealed/rubricbench-haiku.json](../assets/data/sealed/rubricbench-haiku.json). In the same file, Gemini 3.8 Flash is partial (116 of 790 pairs) and scores below promptfoo.
+
+## The other innovation figures
+
+* Drift and recovery: `pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` prints `Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0`. Row 15 of the comparison.
+* Statistics: the Acme gate prints `this suite cannot show parity under 15 points (the all-pass flag needs 27.8 points); about 22 goldens would.` with 10 goldens paired. Row 17 of the comparison.
+* Code agents: `pnpm driftbench estate lint examples/estates/fixture/approved.yaml` reads 125 atoms and prints 6 findings, all planted in the fixture. The code-agent benchmarks are cited from the comparison page.
+* Self-tests: see [driftbench tests itself](#driftbench-tests-itself).
+* Replay: `pnpm exec tsx examples/escalation/replay.ts` reproduces the MM-Eval development score of 91.16 from recordings, with no provider call.
