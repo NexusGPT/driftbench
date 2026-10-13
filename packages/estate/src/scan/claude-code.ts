@@ -726,6 +726,11 @@ function readSettings(file: EstateFile, estate: RawEstate): void {
   if (isRecord(json.hooks)) {
     const cursor = { at: file.text.search(/"hooks"\s*:/) };
     readGuards(json.hooks, 'estate', (command) => seek(file, JSON.stringify(command), cursor), estate, file);
+  } else if (json.hooks !== undefined && json.hooks !== null) {
+    estate.notes.push({
+      file: file.path,
+      message: 'hooks is not a mapping from an event to its matcher groups: not read',
+    });
   }
 }
 
@@ -737,27 +742,41 @@ function readGuards(
   estate: RawEstate,
   file: EstateFile,
 ): void {
+  const note = (message: string) => estate.notes.push({ file: file.path, message });
   for (const [event, groups] of Object.entries(hooks)) {
-    if (!Array.isArray(groups)) continue;
+    if (!Array.isArray(groups)) {
+      note(`the hooks of ${event} are not a list of matcher groups: not read`);
+      continue;
+    }
     for (const group of groups) {
-      if (!isRecord(group) || !Array.isArray(group.hooks)) continue;
+      if (!isRecord(group) || !Array.isArray(group.hooks)) {
+        note(`a matcher group of ${event} holds no hooks list: not read`);
+        continue;
+      }
       const matcher = typeof group.matcher === 'string' && group.matcher !== '' ? group.matcher : undefined;
       for (const hook of group.hooks) {
-        if (!isRecord(hook) || hook.type !== 'command' || typeof hook.command !== 'string') continue;
-        const found = locate(hook.command);
+        if (!isRecord(hook)) continue;
+        // A prompt hook hands its words to a model: a guard with no script, named by those words.
+        const prompt = hook.type === 'prompt' && typeof hook.prompt === 'string' && hook.prompt.trim() !== '';
+        const words = prompt ? hook.prompt : hook.command;
+        if ((hook.type !== 'command' && !prompt) || typeof words !== 'string') {
+          if (typeof hook.type === 'string' && hook.type !== 'command')
+            note(`a ${event} hook of type ${hook.type} is not read`);
+          continue;
+        }
+        const found = locate(words);
         if (!found) {
-          estate.notes.push({
-            file: file.path,
-            message: `cannot find the command of a ${event} guard in the file`,
-          });
+          note(`cannot find the command of a ${event} guard in the file`);
           continue;
         }
         const guard: GuardDecl = {
           event,
-          command: hook.command,
+          command: words,
           scope,
           at: found,
-          ...scriptOf(hook.command, new Set(estate.files.map((entry) => entry.path))),
+          ...(prompt
+            ? { anchored: true, type: 'prompt' as const }
+            : scriptOf(words, new Set(estate.files.map((entry) => entry.path)))),
         };
         if (matcher !== undefined) guard.matcher = matcher;
         if (typeof hook.timeout === 'number') guard.timeout = hook.timeout;

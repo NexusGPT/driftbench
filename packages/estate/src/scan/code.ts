@@ -234,6 +234,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
         ...(guard.dispatcher ? { dispatcher: guard.dispatcher } : {}),
         ...(guard.timeout !== undefined ? { timeout: guard.timeout } : {}),
+        ...(guard.type !== undefined ? { type: guard.type } : {}),
         ...(row ? { registry: row.id } : {}),
         ...(rows.length > 1 ? { registryRows: rows.map((entry) => entry.id) } : {}),
         ...(row?.state !== undefined ? { state: row.state } : {}),
