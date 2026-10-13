@@ -133,6 +133,7 @@ Iteration 118 (cause: no Chinese words. OTHER_LANGUAGES rows take loose: true (m
 Iteration 119 (cause: no Japanese words. OTHER_LANGUAGES row, loose. Test: screen.test.ts Japanese.)
 Iteration 120 (cause: no Korean words. OTHER_LANGUAGES row, loose. Test: screen.test.ts Korean.)
 Iteration 121 (cause: no Arabic words. OTHER_LANGUAGES row, loose. Test: screen.test.ts Arabic.)
+Iteration 122 (cause: the Caesar reading skipped any text over 400 characters, so a shifted sentence inside a long artifact passed (seeds 2 to 20). Now each sentence of 8 to 200 characters is shifted, up to 4000 characters in all. Test: screen.test.ts Caesar inside long text.)
 
 ## Next actions
 
