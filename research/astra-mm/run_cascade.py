@@ -53,6 +53,18 @@ attempt_counts={}
 if GEMINI_ONLY:
  for a in rows(ATTEMPTS):
   if a.get('phase')==PHASE and a['event']=='started':attempt_counts[a['key']]=attempt_counts.get(a['key'],0)+1
+SLOT_DIR=ROOT/'tmp/call-slots'
+SLOT_DIR.mkdir(parents=True,exist_ok=True)
+def acquire_slot(provider):
+ while True:
+  for i in range(6):
+   path=SLOT_DIR/str(i)
+   try:
+    fd=os.open(path,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
+   except FileExistsError:continue
+   with os.fdopen(fd,'w') as f:json.dump({'pid':os.getpid(),'provider':provider,'time':now()},f)
+   return path
+  time.sleep(.05)
 def post(url,headers,body):
  req=urllib.request.Request(url,json.dumps(body).encode(),{'Content-Type':'application/json',**headers},method='POST')
  with urllib.request.urlopen(req,timeout=TIMEOUT) as response:
@@ -72,6 +84,7 @@ def call(t):
   attempt_counts[t['key']]=attempt_counts.get(t['key'],0)+1
   append(ATTEMPTS,{'time':now(),'key':t['key'],'id':t['id'],'provider':t['provider'],'event':'started','phase':PHASE,'attempt':attempt_counts[t['key']],'timeoutSeconds':TIMEOUT})
  started=time.monotonic();p=t['provider'];route=p
+ slot=acquire_slot(p)
  try:
   if p=='openai':payload,status=post('https://api.openai.com/v1/chat/completions',{'Authorization':'Bearer '+keys[p]},t['body'])
   elif p=='gemini':payload,status=post('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',{'x-goog-api-key':keys[p]},t['body'])
@@ -98,6 +111,7 @@ def call(t):
    retry_after[t['key']]=time.time()+60
   print(json.dumps({'provider':p,'id':t['id'],'error':err}),flush=True)
  finally:
+  slot.unlink()
   with LOCK:
    reserved-=.20
    inflight.discard(t['key'])

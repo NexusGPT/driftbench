@@ -1,0 +1,9 @@
+{
+  "time": "2026-10-13T07:34:36.076067+00:00",
+  "change": "Six global atomic filesystem slots shared across six Haiku workers, one non-Gemini worker, and two Gemini workers. Total network calls <=6 and Gemini <=2. No prompt, model, verdict, or retry changes.",
+  "drain": "Initial Haiku runner stop flag set at an item-completion breakpoint using its own local Node debugger, then all in-flight items finished. Panel runners interrupted only after saved requests resolved. No model child was killed, and no completed key is repeated.",
+  "baseItemsAtDrain": 82,
+  "haikuReceiptsAtDrain": 179,
+  "panelReceiptsAtDrain": 28,
+  "pendingUnresolvedAttemptsAtDrain": 0
+}

@@ -1,7 +1,7 @@
 // Runs the frozen MM design (codex/mm-judge 92d6e72, contract c576): native direct for every subset,
 // chat-only three-sample vote. Imports that code read only; new calls append to a recordings COPY.
 // Usage: tsx frozen-arm.mts SAMPLE.json OUT.jsonl RECORDINGS_COPY.jsonl CAP_USD DEADLINE_ISO
-import { appendFile, readFile, open } from 'node:fs/promises';
+import { appendFile, readFile, open, unlink, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 const CM = '/Users/assem/Documents/GitHub/driftbench/.worktrees/astra-mm/research/astra-mm/frozen-source/examples/judge-benchmarks';
 const { createCaller, Recordings, ProviderRefused, promptKey } = await import(`${CM}/src/call.ts`);
@@ -23,6 +23,20 @@ const inflight=new Map<string,Promise<any>>();
 async function syncFile(path:string){const f=await open(path,'a');try{await f.sync();}finally{await f.close();}}
 
 let fresh = 0, freshUsd = 0, replays = 0, next = 0, stop = false;
+process.on('SIGTERM',()=>{stop=true;});process.on('SIGINT',()=>{stop=true;});
+const slotDir='/Users/assem/Documents/GitHub/driftbench/.worktrees/astra-mm/research/astra-mm/tmp/call-slots';
+await mkdir(slotDir,{recursive:true});
+async function acquireSlot(){
+ while(true){
+  for(let i=0;i<6;i++){
+   const path=`${slotDir}/${i}`;
+   try{const f=await open(path,'wx');await f.writeFile(JSON.stringify({pid:process.pid,provider:'haiku',time:new Date().toISOString()}));await f.close();return async()=>{await unlink(path);};}
+   catch(e:any){if(e.code!=='EEXIST')throw e;}
+  }
+  await new Promise(r=>setTimeout(r,100));
+ }
+}
+
 const workers = Number(process.env.WORKERS ?? 1);
 await Promise.all(Array.from({ length: workers }, async () => {
 while (!stop && next < sample.length) {
@@ -37,6 +51,7 @@ while (!stop && next < sample.length) {
     if(hit){replays++;return hit;}
     if(inflight.has(key)){replays++;return await inflight.get(key);}
     const request=(async()=>{
+      const release=await acquireSlot();
       try{
         const r=await caller.call(prompt,{bench:'mmeval',contestant:'opus-mm-frozen-replica',item:item.id,order:stage});
         await syncFile(recPath!);fresh++;freshUsd+=r.costUsd;return r;
@@ -46,7 +61,7 @@ while (!stop && next < sample.length) {
           await appendFile(refusalPath,JSON.stringify(r)+'\n');await syncFile(refusalPath);refusals.set(key,r);freshUsd+=e.costUsd;
         }
         throw e;
-      }
+      }finally{await release();}
     })();
     inflight.set(key,request);try{return await request;}finally{inflight.delete(key);}
   };
