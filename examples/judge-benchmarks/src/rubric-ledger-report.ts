@@ -25,7 +25,8 @@ export async function report() {
     return { calls: paid.length, costUsd: paid.reduce((s, r) => s + r.costUsd, 0),
       reportedOrUsageUsd: paid.filter((r) => r.costBasis !== 'reservation').reduce((s, r) => s + r.costUsd, 0),
       reservedUnknownUsd: paid.filter((r) => r.costBasis === 'reservation').reduce((s, r) => s + r.costUsd, 0),
-      transportErrors: paid.filter((r) => r.status === 'error').length };
+      transportErrors: paid.filter((r) => r.status === 'error' && r.httpStatus !== 429).length,
+      rateLimits: paid.filter((r) => r.httpStatus === 429).length };
   };
   const cells = [];
   for (const model of MODELS) {

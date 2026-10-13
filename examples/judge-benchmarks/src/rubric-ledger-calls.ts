@@ -35,13 +35,16 @@ export type LedgerCall = {
   item: string;
   contestant: string;
   status: 'ok' | 'error';
-  costBasis: 'reported' | 'usage' | 'reservation';
+  costBasis: 'reported' | 'usage' | 'reservation' | 'no-answer';
   identity: CallIdentity;
   completion?: LedgerCompletion;
   error?: string;
   retryable?: boolean;
+  httpStatus?: number;
+  retryAfterMs?: number;
 };
 export class LedgerBudgetStop extends Error {}
+export class LedgerRateLimitStop extends Error {}
 export class LedgerUncertainCall extends Error {}
 /** Includes the core's saved network-error text from journals written before retryable was recorded. */
 export const transportRetryable = (row: { retryable?: boolean; error?: string }): boolean =>
@@ -138,11 +141,14 @@ export class LedgerCalls {
     } catch (e) {
       const reason = e instanceof Error ? e.message : String(e);
       const code = (e as { code?: string }).code;
+      const httpStatus = (e as { status?: number }).status;
+      const retryAfterMs = (e as { retryAfterMs?: number }).retryAfterMs;
       const retryable = (e as { retryable?: boolean }).retryable === true ||
         code === 'network' || transportRetryable({ error: reason }) || /claude returned an error result|without a JSON result/i.test(reason);
-      row = { key, model: identity.model, text: '', costUsd: reserveUsd, item: identity.item,
-        contestant: identity.contestant, status: 'error', costBasis: 'reservation', identity,
-        error: reason, retryable };
+      row = { key, model: identity.model, text: '', costUsd: httpStatus === 429 ? 0 : reserveUsd, item: identity.item,
+        contestant: identity.contestant, status: 'error', costBasis: httpStatus === 429 ? 'no-answer' : 'reservation', identity,
+        error: reason, retryable, ...(httpStatus === undefined ? {} : { httpStatus }),
+        ...(retryAfterMs === undefined ? {} : { retryAfterMs }) };
     }
     await this.serial(async () => {
       await appendRecording(join(this.directory, 'calls.jsonl'), row);

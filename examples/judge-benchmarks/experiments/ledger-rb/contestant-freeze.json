@@ -20,6 +20,16 @@
     "reserveUsd": 0.1,
     "concurrency": 4,
     "testOrderSeed": "ledger-rb-test-order-v1",
+    "modelConcurrency": {
+      "claude-haiku-5-5": 2,
+      "gpt-6-luna": 4,
+      "gemini-3.8-flash": 2
+    },
+    "rateLimitWaitMs": [
+      60000,
+      120000,
+      240000
+    ],
     "stage0": {
       "correctness": false,
       "compute": false
@@ -39,14 +49,14 @@
     "priceSource": "Core PR 168 llm-shim.mjs and dossier-ledger-core.md; official pricing verified 2026-10-13: developers.openai.com/api/docs/pricing and ai.google.dev/gemini-api/docs/pricing. Gemini uses conservative uncached input pricing.",
     "seatPolicy": "Only the model under test is eligible. No cross-vendor seat. Six distinct DEV fixtures, each correct on all three independent reads, kappa >= 0.8. Failed or undersized domains use the same base model. Earning changes seat eligibility, never prompt or model settings.",
     "validityScope": "20 planted arithmetic or supplied-reference facts with exact labels. Measures the pipeline on these fixtures only; not broad natural-data validity.",
-    "retryPolicy": "Owner amendment after interruption: at most three transport attempts, 300-second timeout. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Each failed or interrupted attempt retains its reservation and its own record."
+    "retryPolicy": "Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero."
   },
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "166fa749f1ceb704af93a610c3fdda372f0fba20712a371a7a1c72e50f5a2ef0",
-    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "3a179e9fc0ea008c56641247542ceb6cb458d996a01cd2658a47bc74e1d26fc1",
+    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "9fddf73c222a89d55055c580f0cd7207c29c82c37c48d0982ea18ddc79b94d06",
+    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "42741beb2a7a7ff474ac3ff7d001ffef1834a79980cd31eca3f28f2b38bf2d6e",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
-    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "0a3f1df4bee05ea8b937d982d748e7fecfc86eb67cd2923dd7b4116a995c8cd3",
+    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "4db75568282de165d5dd6e62b284cdc2ac679a427113b5aeebac3b76c15a1b2a",
     "examples/judge-benchmarks/src/code-evidence.ts": "7552ea80f292ca33c292142910b2556094a19cf44d7d85942a2de98f92bc0929",
     "examples/judge-benchmarks/src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
     "examples/judge-benchmarks/src/rubric-items.ts": "b23fcd163c36d9d01e2ddbb669f0b746eca70f22d1cfc7cfcfde744db9aefe6a",
@@ -1105,6 +1115,6 @@
       }
     }
   ],
-  "testOrder": "SHA256(seed + id), outcome blind. Interleave all models and contestants by item.",
+  "testOrder": "SHA256(seed + id), outcome blind. Interleave Haiku and Luna contestants by item, then run Gemini TEST last in the same item order.",
   "completeMatrixGate": "fixtures, noise and planted validity completed; validity thresholds pass. Pilot cost projection recorded before TEST."
 }

@@ -2,10 +2,29 @@ import { mkdtemp } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { type DialectTransport } from '@agent-nexus/driftbench-judges';
-import { LedgerCalls } from '../src/rubric-ledger-calls';
-import { evaluate, mapped, usagePrice, validityFixtures, variants } from '../src/rubric-ledger-live';
+import { LedgerCalls, LedgerRateLimitStop } from '../src/rubric-ledger-calls';
+import { evaluate, mapped, modelLimiter, usagePrice, validityFixtures, variants } from '../src/rubric-ledger-live';
 
 describe('live pair-ledger harness', () => {
+  test('limits Gemini to two simultaneous jobs', async () => {
+    const limit = modelLimiter({ gemini: 2 }); let active = 0, peak = 0;
+    await Promise.all(Array.from({ length: 8 }, () => limit('gemini', async () => {
+      active++; peak = Math.max(peak, active);
+      await new Promise((resolve) => setTimeout(resolve, 5)); active--;
+    })));
+    expect(peak).toBe(2); expect(active).toBe(0);
+  });
+  test('backs off 429 without scoring it and stops incomplete after exhaustion', async () => {
+    const root = await mkdtemp(resolve('.cache/ledger-rb/test-live-'));
+    const calls = await new LedgerCalls(root, 1).load(); const waits: number[] = [];
+    const fake: DialectTransport = { dialect: 'scratchpad-json', fingerprint: 'quota-test',
+      async complete() { throw Object.assign(new Error('provider answered 429: quota'), { status: 429, retryable: true }); } };
+    const item = validityFixtures()[0]!;
+    await expect(evaluate(item, [{ name: 'rb_1', rubric: item.criterion! }], 'gemini-3.8-flash', 'quota-test', 0,
+      'promptfoo', fake, calls, true, async (ms) => { waits.push(ms); })).rejects.toBeInstanceOf(LedgerRateLimitStop);
+    expect(waits).toEqual([60000, 120000, 240000]); expect(calls.rows).toHaveLength(4);
+    expect(calls.chargedUsd).toBe(0); expect(calls.rows.every((r) => r.costBasis === 'no-answer')).toBe(true);
+  });
   test('maps both canonical positions to original labels', () => {
     expect(mapped('first', false)).toBe('B');
     expect(mapped('second', false)).toBe('A');

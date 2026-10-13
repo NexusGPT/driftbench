@@ -10,7 +10,7 @@ import { buildPrompt, canonicalPairOrder, createDialectTransport, judgePairLedge
 import { codeEvidence } from './code-evidence';
 import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem } from './data';
-import { LedgerBudgetStop, LedgerCalls, transportRetryable, type LedgerCompletion } from './rubric-ledger-calls';
+import { LedgerBudgetStop, LedgerRateLimitStop, LedgerCalls, transportRetryable, type LedgerCompletion } from './rubric-ledger-calls';
 import { appendRecording, readRecordingRows } from './recording-files';
 
 export const DIRECTORY = 'examples/judge-benchmarks/experiments/ledger-rb';
@@ -21,13 +21,15 @@ export const SETTINGS = {
   models: MODELS, reasoning: { 'claude-haiku-5-5': null, 'gpt-6-luna': 'medium', 'gemini-3.8-flash': 'medium' },
   maxTokens: 8192, timeoutMs: 300000, transportTries: 3, maxRetries: 0, capUsd: 35, reserveUsd: 0.10,
   concurrency: 4, testOrderSeed: 'ledger-rb-test-order-v1',
+  modelConcurrency: { 'claude-haiku-5-5': 2, 'gpt-6-luna': 4, 'gemini-3.8-flash': 2 },
+  rateLimitWaitMs: [60000, 120000, 240000],
   stage0: { correctness: false, compute: false }, tiePolicy: 'canonical',
   pricePerMillion: { 'gpt-6-luna': { input: 0.1, cached: 0.01, output: 0.5 },
     'gemini-3.8-flash': { input: 0.75, output: 3.75 } },
   priceSource: 'Core PR 168 llm-shim.mjs and dossier-ledger-core.md; official pricing verified 2026-10-13: developers.openai.com/api/docs/pricing and ai.google.dev/gemini-api/docs/pricing. Gemini uses conservative uncached input pricing.',
   seatPolicy: 'Only the model under test is eligible. No cross-vendor seat. Six distinct DEV fixtures, each correct on all three independent reads, kappa >= 0.8. Failed or undersized domains use the same base model. Earning changes seat eligibility, never prompt or model settings.',
   validityScope: '20 planted arithmetic or supplied-reference facts with exact labels. Measures the pipeline on these fixtures only; not broad natural-data validity.',
-  retryPolicy: 'Owner amendment after interruption: at most three transport attempts, 300-second timeout. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Each failed or interrupted attempt retains its reservation and its own record.',
+  retryPolicy: 'Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero.',
 } as const;
 export const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 export type DecisionRow = { model: Model; phase: string; id: string; group: string; sample: number;
@@ -40,6 +42,18 @@ export const decisionKey = (j: { phase: string; model: string; id: string; conte
 /** Retain the journal; a transport-recovered decision supersedes its interrupted attempt. */
 export const latestDecisions = (rows: readonly DecisionRow[]): DecisionRow[] =>
   [...new Map(rows.map((r) => [decisionKey(r), r])).values()];
+
+/** Model slots sit inside the four-worker envelope. They include backoff waits. */
+export function modelLimiter(limits: Record<string, number>) {
+  const active = new Map<string, number>(); const waiting = new Map<string, (() => void)[]>();
+  return async <T>(model: string, run: () => Promise<T>): Promise<T> => {
+    if ((active.get(model) ?? 0) >= limits[model]!)
+      await new Promise<void>((resolve) => { const q = waiting.get(model) ?? []; q.push(resolve); waiting.set(model, q); });
+    else active.set(model, (active.get(model) ?? 0) + 1);
+    try { return await run(); }
+    finally { const next = waiting.get(model)?.shift(); if (next) next(); else active.set(model, active.get(model)! - 1); }
+  };
+}
 
 /** These fixtures never depend on benchmark labels or TEST outcomes. */
 export function validityFixtures(): PairItem[] {
@@ -102,17 +116,24 @@ export async function candidateReference(item: PairItem, first: string): Promise
 
 export async function evaluate(item: PairItem, requirements: readonly RubricItem[], model: Model,
   phase: string, sample: number, contestant: 'pair-ledger' | 'promptfoo' | 'seat',
-  raw: DialectTransport, calls: LedgerCalls, execute: boolean): Promise<DecisionRow> {
+  raw: DialectTransport, calls: LedgerCalls, execute: boolean,
+  sleep: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms))): Promise<DecisionRow> {
   const start = Date.now(); const callKeys: string[] = []; let ordinal = 0;
   const ask = async (request: { system: string; user: string; schema?: Record<string, unknown> }) => {
     const identity = { model, phase, item: item.id, contestant, sample, ordinal: ordinal++, transportFingerprint: raw.fingerprint, request };
-    for (let attempt = 0; attempt < SETTINGS.transportTries; attempt++) {
+    for (let attempt = 0; attempt <= SETTINGS.rateLimitWaitMs.length; attempt++) {
       const row = await calls.complete({ ...identity, ...(attempt ? { transportAttempt: attempt } : {}) }, SETTINGS.reserveUsd,
         () => raw.complete(request), (completion) => usagePrice(model, completion), !execute);
       callKeys.push(row.key);
       if (row.status === 'ok') return row;
+      if (row.httpStatus === 429 || /answered 429:/.test(row.error ?? '')) {
+        const waitMs = SETTINGS.rateLimitWaitMs[attempt];
+        if (waitMs === undefined) throw new LedgerRateLimitStop(`HTTP 429 retries exhausted for ${model}; no judge verdict recorded`);
+        await sleep(Math.max(waitMs, row.retryAfterMs ?? 0));
+        continue;
+      }
       const retryable = transportRetryable(row);
-      if (!retryable || attempt + 1 === SETTINGS.transportTries) throw new Error(row.error ?? 'Recorded transport error');
+      if (!retryable || attempt + 1 >= SETTINGS.transportTries) throw new Error(row.error ?? 'Recorded transport error');
     }
     throw new Error('Transport attempts exhausted');
   };
@@ -127,7 +148,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
           const row = await ask(p); const decision = peer.parsePair!(row.text);
           decisions.push(swapped ? flip(decision) : decision);
         } catch (e) {
-          if (e instanceof LedgerBudgetStop || !execute) throw e;
+          if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || !execute) throw e;
           decisions.push('tie'); errors.push(e instanceof Error ? e.message : String(e));
         }
       }
@@ -163,7 +184,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
       detail: { ...result, coreJudgeInvocations: result.calls, calls: callKeys.length,
         contentReaskPolicy: 'Suppressed per owner: returned answers are never retried. Reask trace entries represent cached reparse only.' }, elapsedMs: Date.now() - start };
   } catch (e) {
-    if (e instanceof LedgerBudgetStop || !execute) throw e;
+    if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || !execute) throw e;
     return { ...base, decisions: ['tie', 'tie'], status: 'transport-error', error: e instanceof Error ? e.message : String(e), elapsedMs: Date.now() - start };
   }
 }
@@ -196,7 +217,7 @@ async function main() {
   const freezePath = `${DIRECTORY}/contestant-freeze.json`;
   if (phase === 'seal') {
     const freeze = { settings: SETTINGS, hashes, validityFixtures: validityFixtures().map(variants),
-      testOrder: 'SHA256(seed + id), outcome blind. Interleave all models and contestants by item.',
+      testOrder: 'SHA256(seed + id), outcome blind. Interleave Haiku and Luna contestants by item, then run Gemini TEST last in the same item order.',
       completeMatrixGate: 'fixtures, noise and planted validity completed; validity thresholds pass. Pilot cost projection recorded before TEST.' };
     await writeFile(freezePath, `${JSON.stringify(freeze, null, 2)}\n`);
     console.log(JSON.stringify({ phase, freezeSha256: sha(JSON.stringify(freeze)) })); return;
@@ -238,18 +259,25 @@ async function main() {
   const done = new Set(prior.filter((r) => r.status !== 'transport-error').map(decisionKey)); let completed = 0, next = 0, stopped = false;
   const todo = jobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
   let writes = Promise.resolve();
+  const limitModel = modelLimiter(SETTINGS.modelConcurrency);
+  process.once('SIGUSR2', () => { stopped = true; console.error('Stop requested; draining in-flight work'); });
+  const batches = phase === 'test' ? [todo.filter((j) => j.model !== 'gemini-3.8-flash'), todo.filter((j) => j.model === 'gemini-3.8-flash')] : [todo];
+  for (const batch of batches) {
+  next = 0;
   await Promise.all(Array.from({ length: SETTINGS.concurrency }, async () => {
     while (!stopped) {
-      const job = todo[next++]; if (!job) break;
+      const job = batch[next++]; if (!job) break;
       try {
         const requirements = reqs.get(job.item.id) ?? [{ name: 'rb_1', rubric: job.item.criterion! }];
-        const row = await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute);
+        const row = await limitModel(job.model, () => evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute));
         writes = writes.then(() => appendRecording(resultPath, row)); await writes;
         completed++;
         console.log(JSON.stringify({ phase, model: job.model, contestant: job.contestant, completed: done.size + completed, target: jobs.length, chargedUsd: calls.chargedUsd, status: row.status }));
       } catch (e) { stopped = true; console.error(e instanceof Error ? e.message : String(e)); }
     }
   }));
+  if (stopped) break;
+  }
   await writes;
   console.log(JSON.stringify({ phase, complete: !stopped, added: completed, prior: done.size, target: jobs.length, chargedUsd: calls.chargedUsd }));
   if (stopped) process.exitCode = 2;
