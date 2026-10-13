@@ -20,7 +20,7 @@ No system floor is set. The owner authorizes an initial floor from the measured 
 
 The current seed-1 report has one growth failure and 22 stale item expectations. The committed bank includes the five maintainer estate-item rewrites. The original baseline census is two real and 27 stale failures. The latest real failure is `scale/flow-blocks-teacher-forced/growth` (25.7 times), against the unchanged bound of 25. Free-running and replay growth pass this one seed; other seeds can still fail. The free-running growth item passes the baseline but can fail on a new timing.
 
-Stale expectations cover the report's two rate intervals, four MDE assertions, extract proposal validation and map counts, select and holdout fixture counts, four mixed-suite golden comparisons, five estate output assertions and the pilot example totals. The executor does not edit any of them. The bank maintainer re-derives each assertion from current code or docs and retains its strength.
+Stale expectations cover the report's two rate intervals, four MDE assertions, extract proposal validation and map counts, select and holdout fixture counts, four mixed-suite golden comparisons and the pilot example totals. The executor does not edit any of them. The bank maintainer re-derives each assertion from current code or docs and retains its strength.
 
 The current golden suite has nine conversations and one price-sheet task. Its documented run requires `--route flow:price-sheet=process:acme-ops`. The stale comparison items omit that route. The holdout secrecy item fails its old sealed-count conjunct, not its leakage assertion: the measured leaked-ID list is empty.
 
