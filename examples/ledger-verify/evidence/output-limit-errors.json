@@ -3,9 +3,29 @@
     "haiku": {
       "driftbench-verify-uncertainty-cascade": {
         "all": {
-          "answerEnvelopes": 1,
-          "affectedItems": 1,
+          "answerEnvelopes": 10,
+          "affectedItems": 6,
           "items": [
+            {
+              "phase": "noise-0",
+              "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+            },
+            {
+              "phase": "noise-0",
+              "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
+            },
+            {
+              "phase": "noise-0",
+              "id": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539"
+            },
+            {
+              "phase": "noise-1",
+              "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
+            },
+            {
+              "phase": "noise-1",
+              "id": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539"
+            },
             {
               "phase": "pilot",
               "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec"
@@ -100,6 +120,177 @@
           "bench": "longjudge-verify",
           "contestant": "driftbench-verify-uncertainty-cascade",
           "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+          "order": "program"
+        }
+      ]
+    },
+    {
+      "receipt": "7524b74b-9d4e-4440-875b-bd3294798db7",
+      "model": "haiku",
+      "phase": "noise-0",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T09:22:42.745Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "haiku",
+          "key": "cf3e86f5e9160b696214",
+          "fingerprint": "960ecc99d608c34a39257a1ab1285cc1bd36c1df7f85f961470b3dfd6b8a8d16",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+          "order": "program"
+        }
+      ]
+    },
+    {
+      "receipt": "b35b5cf6-97ee-41e9-af77-66129087d795",
+      "model": "haiku",
+      "phase": "noise-0",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T09:28:36.245Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "haiku",
+          "key": "a2c2d66d38a34ae5a64b",
+          "fingerprint": "4ff942e054cdd4f650d8f33c09174410401395ec7acd5fa384761526f98e2bad",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+          "order": "blind-direct-program"
+        }
+      ]
+    },
+    {
+      "receipt": "0dda06b2-a47d-47f4-8c06-6d0519115bef",
+      "model": "haiku",
+      "phase": "noise-0",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T09:33:20.938Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "haiku",
+          "key": "c1fe1cecf23d005dd6a9",
+          "fingerprint": "e2ec83f4c83e0392f953a03e728ffc77f2e5659d61a56272be233462871057da",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+          "order": "program"
+        }
+      ]
+    },
+    {
+      "receipt": "67a0e1c7-ad90-4886-afef-bfe4f131b38c",
+      "model": "haiku",
+      "phase": "noise-0",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T09:49:39.129Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "haiku",
+          "key": "94a38c7377005697ff19",
+          "fingerprint": "f4c02c1e933a99751c8ce0421ff11fc734a9c30fd8584d1a8b1683ef66f96028",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+          "order": "blind-direct-program"
+        }
+      ]
+    },
+    {
+      "receipt": "1cab2014-457e-4ad6-a4b0-da1144b77c1a",
+      "model": "haiku",
+      "phase": "noise-0",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T09:54:24.145Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "haiku",
+          "key": "2d62e8d0702da910610c",
+          "fingerprint": "2523041527cd0cac51b8f2f449b29fd820f557c3651e6d705056d12acf129df8",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+          "order": "program"
+        }
+      ]
+    },
+    {
+      "receipt": "1998e572-09d2-491e-b0ba-fff82d9cd869",
+      "model": "haiku",
+      "phase": "noise-1",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T10:14:22.642Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "haiku",
+          "key": "a2c2d66d38a34ae5a64b",
+          "fingerprint": "4ff942e054cdd4f650d8f33c09174410401395ec7acd5fa384761526f98e2bad",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+          "order": "blind-direct-program"
+        }
+      ]
+    },
+    {
+      "receipt": "1d90e4e6-75b5-47d9-9c15-97c83dbb98d8",
+      "model": "haiku",
+      "phase": "noise-1",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T10:19:00.744Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "haiku",
+          "key": "c1fe1cecf23d005dd6a9",
+          "fingerprint": "e2ec83f4c83e0392f953a03e728ffc77f2e5659d61a56272be233462871057da",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+          "order": "program"
+        }
+      ]
+    },
+    {
+      "receipt": "177ffc4b-8079-480c-a2e3-54a785002470",
+      "model": "haiku",
+      "phase": "noise-1",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T10:31:43.503Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "haiku",
+          "key": "94a38c7377005697ff19",
+          "fingerprint": "f4c02c1e933a99751c8ce0421ff11fc734a9c30fd8584d1a8b1683ef66f96028",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+          "order": "blind-direct-program"
+        }
+      ]
+    },
+    {
+      "receipt": "ea3062a9-d749-45d6-91ef-fc53201c59cc",
+      "model": "haiku",
+      "phase": "noise-1",
+      "reason": "API Error: Claude's response exceeded the 16384 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.",
+      "at": "2026-10-13T10:36:34.460Z",
+      "consumers": [
+        {
+          "phase": "noise-1",
+          "model": "haiku",
+          "key": "2d62e8d0702da910610c",
+          "fingerprint": "2523041527cd0cac51b8f2f449b29fd820f557c3651e6d705056d12acf129df8",
+          "bench": "longjudge-verify",
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
           "order": "program"
         }
       ]

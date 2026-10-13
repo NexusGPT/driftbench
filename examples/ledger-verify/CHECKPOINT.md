@@ -47,3 +47,9 @@
 - finish.py --wait runs as exec session 40010, PID 48739. It waits for all three supervisors to finish every phase, then runs attribution, strict limits, exact replay, statistics and report generation without provider keys.
 - It validates all 18 phases and 379 units per model before generating the full report. It does not commit or push; review and git remain the main worker's next action.
 - The cheater margin is not established on the pilot. evidence/cheater-gate-audit.json records the exact comparison and bounds mutation validity. The final report includes that disclosure without changing TEST scoring.
+
+## 10:47 UTC checkpoint
+
+- Luna completes all 379 units, including 221 TEST items per contestant. Official strict/product-final: 165 versus 160 correct, p 0.4731296599. Audited: 188 versus 181, p 0.2810415151. Both TIE; no limits or missing TEST verdicts.
+- Gemini has one HTTP 429 event, followed by its prescribed 60-second wait. No renewed HTTP 402.
+- Offline finalizer session 40010 was retired to fix a status-file read race. Replacement session 57895 is active; its current PID is in evidence/finalizer-state.json. Paid runners were not interrupted.

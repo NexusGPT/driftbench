@@ -19,7 +19,11 @@ def now():
 
 def ready():
     for model in MODELS:
-        state = json.loads((BASE / f'{model}.progress.json').read_text())
+        try:
+            state = json.loads((BASE / f'{model}.progress.json').read_text())
+        except (FileNotFoundError, json.JSONDecodeError):
+            # A supervisor can be replacing this small status file at this instant.
+            return False
         if state.get('phase') != 'all' or state.get('status') != 'complete':
             return False
     return True
@@ -57,6 +61,11 @@ try:
     assert len(replay['phases']) == 18 and all(p['identicalDecisions'] and p['newCalls'] == 0 for p in replay['phases'])
     cells = json.loads((BASE / 'evidence/cells.json').read_text())
     assert cells['fees']['maximumAccountedUsd'] <= 40
+    cells['cheaterGateAuditFile'] = 'evidence/cheater-gate-audit.json'
+    cells['predeclaredCheaterMarginEstablished'] = False
+    for cell in cells['cells']:
+        cell['validityPassedScope'] = 'Planted mutation checks only; predeclared cheater margin not established'
+    (BASE / 'evidence/cells.json').write_text(json.dumps(cells, indent=2) + '\n')
     freeze = json.loads((BASE / 'evidence/scoring-freeze.json').read_text())
     for path, expected in {**freeze['sourceHashes'], **freeze['implementationHashes']}.items():
         assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected, path

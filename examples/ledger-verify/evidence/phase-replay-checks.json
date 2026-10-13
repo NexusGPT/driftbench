@@ -1,6 +1,30 @@
 {
-  "at": "2026-10-13T08:51:00.083890+00:00",
+  "at": "2026-10-13T10:48:01.161700+00:00",
   "phases": [
+    {
+      "model": "haiku",
+      "phase": "pilot",
+      "items": 20,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
+      "model": "haiku",
+      "phase": "validity",
+      "items": 48,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
+      "model": "haiku",
+      "phase": "noise-0",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
     {
       "model": "gpt-6-luna",
       "phase": "pilot",
@@ -18,9 +42,57 @@
       "changed": []
     },
     {
+      "model": "gpt-6-luna",
+      "phase": "noise-0",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "noise-1",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "noise-2",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "results",
+      "items": 221,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
       "model": "gemini-3.8-flash",
       "phase": "pilot",
       "items": 20,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "phase": "validity",
+      "items": 48,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": []
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "phase": "noise-0",
+      "items": 30,
       "newCalls": 0,
       "identicalDecisions": true,
       "changed": []
