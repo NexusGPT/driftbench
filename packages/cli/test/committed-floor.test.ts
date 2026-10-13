@@ -1,4 +1,12 @@
-import { defineLadder, type FloorsFile } from '@agent-nexus/driftbench-validators';
+import { fileURLToPath } from 'node:url';
+import {
+  defineLadder,
+  type FloorsFile,
+  floorOf,
+  ladderVersion,
+  readFloors,
+  registeredLadders,
+} from '@agent-nexus/driftbench-validators';
 import { describe, expect, it } from 'vitest';
 import { committedFloorRun } from './support/committed-floor';
 
@@ -28,6 +36,13 @@ const floors = (floor: number, version = 5): FloorsFile => ({
 });
 
 describe('committed ladder floor guard', () => {
+  it('keeps an applicable regression floor for the registered system bank', () => {
+    const ladder = registeredLadders().system;
+    if (!ladder) throw new Error('missing system ladder');
+    const root = fileURLToPath(new URL('../../../', import.meta.url));
+    expect(floorOf(readFloors(root), 'system', ladderVersion(ladder))).toBeGreaterThan(0);
+  });
+
   it.each([2, 7])('computes exactly through the applicable floor %s', async (floor) => {
     const f = fixture();
     const { run } = await committedFloorRun(f.ladder, floors(floor), '/fixture');
