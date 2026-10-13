@@ -1,7 +1,7 @@
 import type { DriftClass, RunEvent, Verdict } from '@agent-nexus/driftbench-core';
 import type { CompareResult } from './compare';
 import type { Estimate } from './estimate';
-import { count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';
+import { carriedLines, count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';
 import type { PilotReport } from './pilot';
 import type { RecoverySummary, ReliabilityLine } from './reliability';
 import type { CriterionRepeat } from './repeats';
@@ -132,9 +132,13 @@ function summary(card: Scorecard): string {
     );
   }
   const verdict = card.compare ? verdictBanner(card.compare) : '';
+  // A campaign that carried results says so above every rate: the rates below merge fresh and carried.
+  const merged = carriedLines(card.carried)
+    .map((line) => `<p class="note">${esc(line.trim())}</p>`)
+    .join('\n');
   return `<section id="summary">
 <h2>Summary</h2>
-${verdict}
+${verdict}${merged === '' ? '' : `\n${merged}`}
 <div class="tiles">
 ${tiles.join('\n')}
 </div>
@@ -608,6 +612,11 @@ function runDetail(run: RunDetail, options: RenderOptions = {}): string {
   const s = run.succession;
   const facts = [
     `status ${run.status}`,
+    ...(run.carried
+      ? [
+          `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+        ]
+      : []),
     `${count(run.blocks.length, 'block')}`,
     `first drift ${s.firstDriftBlock === undefined ? 'none' : `block ${s.firstDriftBlock}`}`,
     `${s.driftCount} drifting`,

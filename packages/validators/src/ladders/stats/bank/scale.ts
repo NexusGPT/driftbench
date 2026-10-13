@@ -1,5 +1,6 @@
 import type { Observation } from '@agent-nexus/driftbench-stats';
 import { normal } from '../draw';
+import type { StatsImpl } from '../reference';
 import { attempt, type BankItem, fail, near, ok, show } from './item';
 
 /**
@@ -46,6 +47,66 @@ function timed<T>(call: string, run: () => T, check: (value: T) => string | unde
   return ok(`${Math.round(ms)} ms`);
 }
 
+/**
+ * Acceptance bands of scale.bootstrap-clustered, in units of the cluster standard error se of the data (the sd of
+ * the 1000 cluster means over root 1000), all computed here from the values, never from the statistics package.
+ * With 200 resamples the 0.95 percentile interval of a correct implementation has a width over 2 z se of mean
+ * 0.977 and sd 0.064, and a midpoint at sd 0.130 se from the mean; the mean is t-distributed around 0.5. Simulated
+ * law (10,000,000 sets of 200 resample means, packages/validators/test/stats/scale-bootstrap.test.ts checks the
+ * bands against the real item): the first five conditions below together fail a correct implementation on
+ * 0.00041 of the seeds, where the old demand (0.5 inside [lower, upper + 0.002]) failed it on 0.030. The level
+ * check: the 0.5 interval over the 0.95 one (same resamples) has mean 0.351 and sd 0.032; outside `ratio` on
+ * 0.0000088 of 5,000,000 simulated seeds. Total at most 0.00042.
+ */
+export const BOOTSTRAP_SCALE = { width: [0.7, 1.32], centre: 0.6, truth: 1.7, ratio: [0.2, 0.5] } as const;
+
+/**
+ * The check of the clustered bootstrap at scale: the estimate is the mean of the values (1e-9), the interval holds
+ * that mean, its width over 2 z se lies in the width band, its midpoint lies within `centre` se of the mean, the
+ * true mean 0.5 lies within `truth` se of the interval, and the interval at alpha 0.5 is the `ratio` share of it
+ * (the level is used), and 300 resamples
+ * give another interval than 200 (the number of resamples is used). The two extra calls are not timed.
+ */
+export function bootstrapScaleVerdict(
+  values: readonly number[],
+  keys: readonly number[],
+  s: Pick<StatsImpl, 'bootstrapCI'>,
+  clusters = 1000,
+): (r: { estimate: number; lower: number; upper: number }) => string | undefined {
+  const sums = new Array<number>(clusters).fill(0);
+  values.forEach((value, i) => {
+    sums[i % clusters] = (sums[i % clusters] as number) + value;
+  });
+  const per = values.length / clusters;
+  const means = sums.map((sum) => sum / per);
+  const mean = means.reduce((a, b) => a + b, 0) / clusters;
+  const se = Math.sqrt(means.reduce((a, b) => a + (b - mean) ** 2, 0) / (clusters - 1) / clusters);
+  const z = 1.959963984540054;
+  const { width, centre, truth, ratio } = BOOTSTRAP_SCALE;
+  return (r) => {
+    const at = `interval [${r.lower}, ${r.upper}], estimate ${r.estimate}; the values have mean ${mean} and cluster standard error ${se}`;
+    if (!near(r.estimate, mean, 1e-9)) return `${at}: the estimate is not the mean of the values`;
+    if (!(r.lower < mean && mean < r.upper)) return `${at}: the interval does not hold the mean`;
+    const w = (r.upper - r.lower) / (2 * z * se);
+    if (!(width[0] <= w && w <= width[1]))
+      return `${at}: its width is ${w} times 2 z se, outside ${width[0]} to ${width[1]} (a 0.95 interval)`;
+    const c = ((r.upper + r.lower) / 2 - mean) / se;
+    if (Math.abs(c) > centre) return `${at}: its midpoint is ${c} se from the mean, beyond ${centre}`;
+    if (!(r.lower - truth * se <= 0.5 && 0.5 <= r.upper + truth * se))
+      return `${at}: the true mean 0.5 lies more than ${truth} se outside it`;
+    const half = s.bootstrapCI(values, { clusters: keys, iterations: 200, alpha: 0.5 });
+    const share = (half.upper - half.lower) / (r.upper - r.lower);
+    if (!(ratio[0] <= share && share <= ratio[1]))
+      return `${at}: the interval at alpha 0.5 is [${half.lower}, ${half.upper}], ${share} of the 0.95 one, outside ${ratio[0]} to ${ratio[1]}: the level is not used`;
+    // 300, not 400: at twice the count the two quantiles fall on the same interpolation weights, and a correct
+    // implementation then gives the very same bounds on about 1 seed in 200.
+    const more = s.bootstrapCI(values, { clusters: keys, iterations: 300 });
+    if (more.lower === r.lower && more.upper === r.upper)
+      return `${at}: 300 resamples give the same interval as 200: the number of resamples is not used`;
+    return undefined;
+  };
+}
+
 const B = 'packages/stats/src/basics.ts';
 export function scaleItems(): BankItem[] {
   const out: BankItem[] = [];
@@ -87,13 +148,11 @@ export function scaleItems(): BankItem[] {
     scaleItem('bootstrap-clustered', 'packages/stats/src/intervals.ts', ({ s, rng }) => {
       const v = arr(rng);
       const keys = v.map((_, i) => i % 1000);
+      const verdict = bootstrapScaleVerdict(v, keys, s);
       return timed(
         'bootstrapCI(1e6 values in 1000 clusters, { iterations: 200 })',
         () => s.bootstrapCI(v, { clusters: keys, iterations: 200 }),
-        (r) =>
-          r.lower <= 0.5 && 0.5 <= r.upper + 0.002
-            ? undefined
-            : `interval [${r.lower}, ${r.upper}] far from 0.5`,
+        verdict,
       );
     }),
     scaleItem('wilcoxon', 'packages/stats/src/paired.ts', ({ s, rng }) => {

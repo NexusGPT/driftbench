@@ -1,5 +1,5 @@
 import { type CompareResult, PLANNING_MARGIN, PLANNING_POWER } from './compare';
-import { count, fixed, interval, pct, points, pValue } from './format';
+import { carriedLines, count, fixed, interval, pct, points, pValue } from './format';
 import type { CriterionRepeat } from './repeats';
 
 /** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
@@ -91,6 +91,13 @@ export function compareText(result: CompareResult): string {
     lines.push('', `New gating flags (${result.flagFamilies.join(', ')}), firing for the candidate only:`);
     lines.push(
       ...textTable([['golden', 'family'], ...result.newFlags.map((flag) => [flag.unit, flag.family])]),
+    );
+  }
+  if (result.carried) {
+    lines.push(
+      '',
+      `Carried, not paired: ${count(result.carried.carried, 'run')} of the candidate are results copied from an earlier campaign. The tests above read the ${count(result.carried.fresh, 'fresh run')} only.`,
+      ...carriedLines(result.carried).slice(1),
     );
   }
   if (result.unpaired.length > 0) {
