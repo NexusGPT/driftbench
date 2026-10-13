@@ -2,7 +2,7 @@
 
 Frozen variant: `reasoning`.
 SHA-256: `d115fe7ccf50e269d76e412f7a31843e35c3a4c7af757dc3211a1aa91454de2c`.
-Code: `a90c9d8b60d5bf73c73bd5d5c18b33c80c4b60ec`. Draft PR: https://github.com/achammah/driftbench/pull/294.
+Code: `a90c9d8b60d5bf73c73bd5d5c18b33c80c4b60ec`. PR: https://github.com/achammah/driftbench/pull/294.
 
 ## Development selection
 
@@ -87,3 +87,5 @@ The 80% power column conditions on that discordance count and assumes independen
 - Haiku uses 202 CLI calls, all on writing, below the 400 cap. No session-limit stop occurs. Supervisor PID 49521 exits after the completed report.
 - Grader errors count at zero. Dev Gemini JudgeBench has one ledger error shared by baseline and both variants, plus two promptfoo errors. Fresh Gemini writing has one ledger error shared by baseline and follow-up. Other cells have no grader errors.
 - Fresh follow-up improves six of seven cell scores and preserves Luna writing. Versus promptfoo, two cells score higher, one matches and four score lower. No higher-scoring cell passes the unadjusted two-sided 0.05 sign test.
+
+The [fresh score and overhead table](FINAL-SUMMARY.md) includes per-cell tie counts and marginal calls and cost.

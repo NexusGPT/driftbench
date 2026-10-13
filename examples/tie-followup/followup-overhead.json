@@ -1,0 +1,65 @@
+{
+  "gpt-6.1-sol/mm": {
+    "pairs": 92,
+    "ties": 2,
+    "correctResolutions": 2,
+    "extraCalls": 2,
+    "extraCallsPer100Pairs": 2.1739130434782608,
+    "extraCostUsd": 0.010012,
+    "extraCostUsdPer100Pairs": 0.010882608695652175
+  },
+  "gpt-6.1-sol/wp": {
+    "pairs": 80,
+    "ties": 14,
+    "correctResolutions": 7,
+    "extraCalls": 14,
+    "extraCallsPer100Pairs": 17.5,
+    "extraCostUsd": 0.114542,
+    "extraCostUsdPer100Pairs": 0.1431775
+  },
+  "gpt-6-luna/mm": {
+    "pairs": 92,
+    "ties": 2,
+    "correctResolutions": 2,
+    "extraCalls": 2,
+    "extraCallsPer100Pairs": 2.1739130434782608,
+    "extraCostUsd": 0.0006113000000000001,
+    "extraCostUsdPer100Pairs": 0.0006644565217391304
+  },
+  "gpt-6-luna/wp": {
+    "pairs": 80,
+    "ties": 0,
+    "correctResolutions": 0,
+    "extraCalls": 0,
+    "extraCallsPer100Pairs": 0.0,
+    "extraCostUsd": 0,
+    "extraCostUsdPer100Pairs": 0.0
+  },
+  "gemini-3.5-flash-lite/mm": {
+    "pairs": 92,
+    "ties": 5,
+    "correctResolutions": 4,
+    "extraCalls": 5,
+    "extraCallsPer100Pairs": 5.434782608695652,
+    "extraCostUsd": 0.0072419,
+    "extraCostUsdPer100Pairs": 0.007871630434782608
+  },
+  "gemini-3.5-flash-lite/wp": {
+    "pairs": 80,
+    "ties": 8,
+    "correctResolutions": 4,
+    "extraCalls": 8,
+    "extraCallsPer100Pairs": 10.0,
+    "extraCostUsd": 0.0117442,
+    "extraCostUsdPer100Pairs": 0.01468025
+  },
+  "claude-haiku-5-5/wp": {
+    "pairs": 50,
+    "ties": 2,
+    "correctResolutions": 2,
+    "extraCalls": 2,
+    "extraCallsPer100Pairs": 4.0,
+    "extraCostUsd": 0.0017215000000000002,
+    "extraCostUsdPer100Pairs": 0.0034430000000000003
+  }
+}

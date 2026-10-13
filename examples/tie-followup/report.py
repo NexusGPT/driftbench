@@ -14,7 +14,7 @@ pct = lambda x: 'missing' if x is None else f'{100*x:.2f}%'
 out = ['# Pair ledger tie follow-up results', '',
        f'Frozen variant: `{freeze["variant"]}`.',
        f'SHA-256: `{(folder / "frozen-choice.json.sha256").read_text().strip()}`.',
-       'Code: `a90c9d8b60d5bf73c73bd5d5c18b33c80c4b60ec`. Draft PR: https://github.com/achammah/driftbench/pull/294.', '',
+       'Code: `a90c9d8b60d5bf73c73bd5d5c18b33c80c4b60ec`. PR: https://github.com/achammah/driftbench/pull/294.', '',
        '## Development selection', '',
        'Equal-weight average over the nine model-by-benchmark cells chooses the variant. Exact selection ties prefer direct.', '',
        'The [full dev tie accounting](DEV-DETAIL.md) reports 14 final ties: direct resolves 5 correctly, reasoning 6. Both beat the no-follow-up mean of 71.11%; neither beats promptfoo at 73.43%. The selected edge is one net pair in 270 equal-cell scoring units, from 240 actual model-pair evaluations.', '',
@@ -65,6 +65,7 @@ out += ['', '- JudgeBench has no fresh held-out pool; no sealed JudgeBench test 
         '- Global concurrency is 2. The detached supervisor records health probes, reservations and raw receipts. Answered requests are never resubmitted.',
         '- Research data and raw receipts remain outside the repository. Public files contain code, hashes and aggregate results only.', '']
 out += ['', '## Execution audit', '', '- [Receipt audit](execution-audit.json): 3,252 submissions, 3,250 returned answers, zero repeated answered requests, zero unreserved submissions, peak concurrency 2.', '- Five provider/phase health gates each contain ten healthy probes, at least 30 seconds apart. Freeze commit precedes the first fresh call.', '- The two unanswered transport attempts retain USD 0.162354 in conservative reservations. Missing-only recovery completes every planned pair.', '- Haiku uses 202 CLI calls, all on writing, below the 400 cap. No session-limit stop occurs. Supervisor PID 49521 exits after the completed report.', '- Grader errors count at zero. Dev Gemini JudgeBench has one ledger error shared by baseline and both variants, plus two promptfoo errors. Fresh Gemini writing has one ledger error shared by baseline and follow-up. Other cells have no grader errors.', '- Fresh follow-up improves six of seven cell scores and preserves Luna writing. Versus promptfoo, two cells score higher, one matches and four score lower. No higher-scoring cell passes the unadjusted two-sided 0.05 sign test.']
+out += ['', 'The [fresh score and overhead table](FINAL-SUMMARY.md) includes per-cell tie counts and marginal calls and cost.', '']
 text='\n'.join(out)
 if '\u2013' in text or '\u2014' in text:
     raise ValueError('Forbidden dash in repo prose')
