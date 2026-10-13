@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { type Inventory, type LoadResult, loadInventory, loadSpecs } from '@driftbench/core';
-import { coverage, loadSpaceMap, type SpaceMap } from '@driftbench/space';
+import { type Inventory, type LoadResult, loadInventory, loadSpecs } from '@agent-nexus/driftbench-core';
+import { coverage, loadSpaceMap, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 const MAP = fileURLToPath(new URL('./fixtures/acme-space.yaml', import.meta.url));

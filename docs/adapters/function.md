@@ -9,7 +9,7 @@ The function adapter runs an agent that is an async function in the same process
 The command line builds its `function:acme-sales` target this way:
 
 ```ts
-import { functionAdapter } from '@driftbench/adapters';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { createAcmeAgent, createStore } from './examples/acme/src/index';
 
 const adapter = functionAdapter({

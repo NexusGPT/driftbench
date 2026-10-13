@@ -1,5 +1,5 @@
-import { type Issue, type LoadResult, parseSpecText, type Spec } from '@driftbench/core';
-import { coverage } from '@driftbench/space';
+import { type Issue, type LoadResult, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
+import { coverage } from '@agent-nexus/driftbench-space';
 import { stringify } from 'yaml';
 import {
   NO_THEN_CRITERION,

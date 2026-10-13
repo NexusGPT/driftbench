@@ -1,5 +1,5 @@
-import { functionAdapter, httpAdapter } from '@driftbench/adapters';
-import { defaultChecks } from '@driftbench/checks';
+import { functionAdapter, httpAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   AgentFailure,
   type Check,
@@ -7,7 +7,7 @@ import {
   type RunMode,
   type RunResult,
   type UserDriver,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { CHECK_COMPONENTS, SYSTEM_COMPONENTS } from '../components';
 import { type BlockTruth, LOOKUP } from '../family';
 import type { Behaviour, Flow, RawSpec } from '../plant';

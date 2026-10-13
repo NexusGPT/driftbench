@@ -1,4 +1,4 @@
-import { type RunResult, RunResult as RunSchema } from '@driftbench/core';
+import { type RunResult, RunResult as RunSchema } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { observationOf } from '../../src/pilot/run';
 

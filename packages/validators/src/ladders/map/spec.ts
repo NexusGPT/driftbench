@@ -1,4 +1,4 @@
-import type { DeviationClass } from '@driftbench/core';
+import type { DeviationClass } from '@agent-nexus/driftbench-core';
 
 /**
  * The deviation classes the map validator draws from: D1 to D10, frozen here. Reading the live list of core
@@ -18,8 +18,8 @@ export const MAP_DEVIATIONS = [
 ] as const satisfies readonly DeviationClass[];
 export type MapDeviation = (typeof MAP_DEVIATIONS)[number];
 
-import { AtomKind } from '@driftbench/estate';
-import { mulberry32 } from '@driftbench/stats';
+import { AtomKind } from '@agent-nexus/driftbench-estate';
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
 
 /**
  * The hidden agent specification of the map validator (docs/validators.md section 2). Code draws it from a

@@ -1,4 +1,4 @@
-import type { Observed } from '@driftbench/core';
+import type { Observed } from '@agent-nexus/driftbench-core';
 
 /** One text segment of a block, with its position among all the block's segments. */
 export type TextSegment = { index: number; text: string };

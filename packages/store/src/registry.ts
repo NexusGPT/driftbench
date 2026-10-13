@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative, sep } from 'node:path';
-import { canonicalJson } from '@driftbench/core';
+import { canonicalJson } from '@agent-nexus/driftbench-core';
 import { StoreError } from './errors';
 
 /**

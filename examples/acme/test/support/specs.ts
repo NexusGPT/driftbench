@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { type LoadedSpec, loadSpecs } from '@driftbench/core';
+import { type LoadedSpec, loadSpecs } from '@agent-nexus/driftbench-core';
 
 export const SPECS_DIR = fileURLToPath(new URL('../../specs', import.meta.url));
 export const INVENTORY_PATH = fileURLToPath(new URL('../../inventory.yaml', import.meta.url));

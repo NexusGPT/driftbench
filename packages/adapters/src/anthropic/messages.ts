@@ -1,4 +1,4 @@
-import type { Message } from '@driftbench/core';
+import type { Message } from '@agent-nexus/driftbench-core';
 import { outputText, type WireNames } from './common';
 
 /**

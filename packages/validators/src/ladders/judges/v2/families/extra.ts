@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { Verdict } from '@driftbench/core';
+import type { Verdict } from '@agent-nexus/driftbench-core';
 import type {
   Cassette,
   ClientOptions,
@@ -9,7 +9,7 @@ import type {
   CriteriaLoad,
   JudgeClient,
   JudgeRequest,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import { type BankItem, fn, type JudgesApi, MissingCapability, type Tier } from '../bank';
 
 /**

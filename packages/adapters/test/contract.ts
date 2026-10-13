@@ -11,7 +11,7 @@ import {
   type TargetRef,
   type Turn,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 /**

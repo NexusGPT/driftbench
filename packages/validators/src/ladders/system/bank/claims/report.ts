@@ -9,10 +9,10 @@ import {
   type Store,
   type TargetRef,
   validateSpec,
-} from '@driftbench/core';
-import * as report from '@driftbench/report';
-import * as stats from '@driftbench/stats';
-import { openMemoryStore, openStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-core';
+import * as report from '@agent-nexus/driftbench-report';
+import * as stats from '@agent-nexus/driftbench-stats';
+import { openMemoryStore, openStore } from '@agent-nexus/driftbench-store';
 import { LOOKUP, withForbiddenCall } from '../../family';
 import type { Behaviour, Flow } from '../../plant';
 import { MIN_GOLDENS } from '../documented';

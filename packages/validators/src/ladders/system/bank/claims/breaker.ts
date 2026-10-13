@@ -1,5 +1,5 @@
-import { INFORMATION, LINT_CODES } from '@driftbench/estate';
-import { mde as powerMde } from '@driftbench/stats';
+import { INFORMATION, LINT_CODES } from '@agent-nexus/driftbench-estate';
+import { mde as powerMde } from '@agent-nexus/driftbench-stats';
 import { gateContract, goldenContract, pilotContract } from '../current-contracts';
 import { DOCUMENTED_CHECKS } from '../documented';
 /**

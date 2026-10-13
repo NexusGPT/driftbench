@@ -13,7 +13,7 @@ import {
   type ToolRule,
   type Turn,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { asAgentError, parseObserved, readSource, type ToolPayload } from '../shared';
 
 export type { ToolPayload } from '../shared';

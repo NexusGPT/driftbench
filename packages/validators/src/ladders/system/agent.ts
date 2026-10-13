@@ -1,4 +1,4 @@
-import { functionAdapter } from '@driftbench/adapters';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import type {
   AgentAdapter,
   DriverContext,
@@ -7,7 +7,7 @@ import type {
   Spec,
   TargetRef,
   UserDriver,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import type { Behaviour } from './plant';
 
 /**

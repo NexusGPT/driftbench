@@ -13,7 +13,7 @@ import {
   type Session,
   type ToolRule,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   addUsage,
   closeOpenCalls,

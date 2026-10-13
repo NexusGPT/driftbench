@@ -4,7 +4,7 @@ import {
   compoundingIndex,
   contentHash,
   type RunResult,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { SYSTEM_COMPONENTS } from '../components';
 import { GUARD, LOOKUP, withForbiddenCall } from '../family';
 import { type Behaviour, DETOUR, type Flow, followerReply, type RawSpec } from '../plant';
@@ -489,7 +489,7 @@ function runFields(): Draft[] {
       const planted = plantedFlow(seed, 'non-gating', 2);
       const run = await runScenario(planted.spec, behavioursFor(planted), {
         checks: [
-          ...(await import('@driftbench/checks')).defaultChecks(),
+          ...(await import('@agent-nexus/driftbench-checks')).defaultChecks(),
           {
             name: 'custom',
             applies: () => true,

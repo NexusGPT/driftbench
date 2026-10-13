@@ -1,4 +1,4 @@
-"""Reference values for @driftbench/stats.
+"""Reference values for @agent-nexus/driftbench-stats.
 
 Run from the repository root:  python3 packages/stats/test/reference/make_fixtures.py
 Then format the output the way the repository does:  npx biome format --write packages/stats/test/reference/fixtures.json

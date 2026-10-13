@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { parseInventoryText } from '@driftbench/core';
+import { parseInventoryText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { fixtureFiles, MAP_FIXTURES } from '../../src/ladders/map/fixtures';
 import { ROOT } from './support';

@@ -1,5 +1,5 @@
-import { type DriverStep, runSpec, type Stimulus, type UserDriver } from '@driftbench/core';
-import { portFromEnv } from '@driftbench/generate';
+import { type DriverStep, runSpec, type Stimulus, type UserDriver } from '@agent-nexus/driftbench-core';
+import { portFromEnv } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

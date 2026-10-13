@@ -1,10 +1,10 @@
-import type { CompiledSpace } from '@driftbench/space';
+import type { CompiledSpace } from '@agent-nexus/driftbench-space';
 import { type Rng, range, shuffle } from './random';
 
 /**
  * Which partial cells the constraint list allows. A partial cell (some dimensions fixed) is allowed when
  * at least one allowed cell of the full grid holds it: the definition of an allowed t-tuple in
- * constrained combinatorial testing (NIST SP 800-142), the one `@driftbench/space` counts coverage with.
+ * constrained combinatorial testing (NIST SP 800-142), the one `@agent-nexus/driftbench-space` counts coverage with.
  * The full grid is never enumerated: a depth-first search fixes the given values, then tries the values of
  * every other dimension, and drops a branch as soon as a constraint matches. A map with 46 dimensions has
  * a grid far larger than any enumeration; the search touches one cell per answer.

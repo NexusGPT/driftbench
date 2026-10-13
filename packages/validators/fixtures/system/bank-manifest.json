@@ -11672,7 +11672,7 @@
       "level": 7,
       "source": "contract",
       "component": "packages/stats/src/index.ts",
-      "cause": "index.ts of @driftbench/stats exports every helper the page lists."
+      "cause": "index.ts of @agent-nexus/driftbench-stats exports every helper the page lists."
     },
     {
       "id": "version/paired/x1-local/first/4",

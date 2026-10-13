@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { loadSpecs } from '@driftbench/core';
-import { mde as powerMde } from '@driftbench/stats';
-import { openStore } from '@driftbench/store';
+import { loadSpecs } from '@agent-nexus/driftbench-core';
+import { mde as powerMde } from '@agent-nexus/driftbench-stats';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { parse, stringify } from 'yaml';
 import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from '../types';
 

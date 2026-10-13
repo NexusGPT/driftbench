@@ -1,5 +1,5 @@
-import type { RunResult, Spec } from '@driftbench/core';
-import { repeatsForFloor, wilson, Z95 } from '@driftbench/stats';
+import type { RunResult, Spec } from '@agent-nexus/driftbench-core';
+import { repeatsForFloor, wilson, Z95 } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { clustered } from '../src/estimate';
 import { factorsOf, judgeFlip, spread } from '../src/spread';

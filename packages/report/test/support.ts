@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { classifyTool, defaultChecks } from '@driftbench/checks';
+import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type BlockResult,
@@ -17,10 +17,10 @@ import {
   type Store,
   type TargetRef,
   type Verdict,
-} from '@driftbench/core';
-import { faultAdapter } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { faultAdapter } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { faults } from '../../../examples/acme/faults/index';
 import { acmeFunctionAdapter } from '../../cli/src/commands/campaign';
 import type { CampaignData } from '../src/data';

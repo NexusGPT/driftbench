@@ -1,4 +1,4 @@
-import { classifyTool, defaultChecks } from '@driftbench/checks';
+import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type BlockResult,
   type Check,
@@ -21,8 +21,8 @@ import {
   succession,
   type Verdict,
   validateSpec,
-} from '@driftbench/core';
-import * as stats from '@driftbench/stats';
+} from '@agent-nexus/driftbench-core';
+import * as stats from '@agent-nexus/driftbench-stats';
 import {
   abundances,
   benjaminiHochberg,
@@ -52,8 +52,8 @@ import {
   wilcoxonSignedRank,
   wilson,
   zeroFailureBound,
-} from '@driftbench/stats';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-stats';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Behaviour, RawSpec } from '../../plant';
 import { withPerturbation } from '../reach';
 import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from '../types';
@@ -2982,7 +2982,7 @@ function statsItems(out: BankItem[]): void {
     1,
     'index',
     'statistics.md "Helpers": the package exports every listed helper',
-    'index.ts of @driftbench/stats exports every helper the page lists.',
+    'index.ts of @agent-nexus/driftbench-stats exports every helper the page lists.',
     () => {
       const names = [
         'mean',

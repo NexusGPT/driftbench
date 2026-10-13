@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { binomialCdf, designEffect, logGamma, wilson } from '@driftbench/stats';
+import { binomialCdf, designEffect, logGamma, wilson } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import * as plant from '../../src/ladders/system/effect';
 

@@ -1,5 +1,10 @@
 import { performance } from 'node:perf_hooks';
-import { checkQuotes, type ExtractResult, extractMap, validateProposal } from '@driftbench/generate';
+import {
+  checkQuotes,
+  type ExtractResult,
+  extractMap,
+  validateProposal,
+} from '@agent-nexus/driftbench-generate';
 import { fold } from '../truth';
 import {
   type CodeEntry,

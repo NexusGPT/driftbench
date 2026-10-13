@@ -1,4 +1,4 @@
-import * as stats from '@driftbench/stats';
+import * as stats from '@agent-nexus/driftbench-stats';
 import { defineLadder, type Ladder } from '../../ladder';
 import {
   BANK_LEVELS,

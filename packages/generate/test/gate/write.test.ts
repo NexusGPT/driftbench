@@ -1,4 +1,4 @@
-import { parseSpecText } from '@driftbench/core';
+import { parseSpecText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 import { gateFiles, renderFunnel } from '../../src/gate';

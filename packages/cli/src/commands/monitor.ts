@@ -1,8 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
-import { type PriceTable, readTraces, TRACE_SOURCES, type TraceSource } from '@driftbench/adapters';
-import { type Campaign, type RunResult, runsByCell, type Store } from '@driftbench/core';
-import { cusum, ksTest, mean, pageHinkley, sampleVariance } from '@driftbench/stats';
+import {
+  type PriceTable,
+  readTraces,
+  TRACE_SOURCES,
+  type TraceSource,
+} from '@agent-nexus/driftbench-adapters';
+import { type Campaign, type RunResult, runsByCell, type Store } from '@agent-nexus/driftbench-core';
+import { cusum, ksTest, mean, pageHinkley, sampleVariance } from '@agent-nexus/driftbench-stats';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
