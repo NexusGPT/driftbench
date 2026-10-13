@@ -624,9 +624,7 @@ function referenceAtoms(
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     for (const named of namedPaths(line.text)) {
       // A path written in another form (backslashes, a wiki link) is looked for by its file name's stem.
-      const written = line.text.includes(named)
-        ? named
-        : basename(named).replace(/\.[A-Za-z0-9]+$/, '');
+      const written = line.text.includes(named) ? named : basename(named).replace(/\.[A-Za-z0-9]+$/, '');
       if (!positiveMention(line.text, written, ['read', 'open', 'load'])) continue;
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
@@ -701,18 +699,90 @@ function routeAtoms(
   }
 }
 
-/** The fixed forms of a gate, each giving the thing to read first and the act it comes before. */
+/** What a gate names to read: a backticked or double-quoted name, a markdown link, or one word. */
+const TARGET = '(`[^`]+`|"[^"\\n]+"|\\[[^\\]\\n]*\\]\\([^)\\s]+\\)|\\S+)';
+/** A quoted target only: the forms beyond the first four take no bare word, so prose never reads as a gate. */
+const QUOTED = '(`[^`]+`|"[^"\\n]+"|\\[[^\\]\\n]*\\]\\([^)\\s]+\\))';
+/** Where a sentence starts: the line start (after a list marker) or after a stop. */
+const START = '(?:^|[.;!?]\\s+)(?:[-*]\\s+)?';
+
+/**
+ * The fixed forms of a gate, each giving the thing to read first and the act it comes before. The first four
+ * are the documented forms; the others say the same order in other words.
+ */
 const GATE_FORMS: Array<{ form: string; pattern: RegExp; read: number; act: number }> = [
-  { form: 'before-colon-read', pattern: /\bbefore ([^:;]+?):\s*read\s+(`[^`]+`|\S+)/i, read: 2, act: 1 },
-  { form: 'before-comma-read', pattern: /\bbefore ([^,:;]+?),\s*read\s+(`[^`]+`)/i, read: 2, act: 1 },
-  { form: 'read-before', pattern: /\bread\s+(`[^`]+`)\s+before\s+([^.;!]+)/i, read: 1, act: 2 },
+  {
+    form: 'before-colon-read',
+    pattern: new RegExp(`\\bbefore ([^:;]+?):\\s*read\\s+${TARGET}`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'before-comma-read',
+    pattern: new RegExp(`\\bbefore ([^,:;]+?),\\s*read\\s+${QUOTED}`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'read-before',
+    pattern: new RegExp(`\\bread\\s+${QUOTED}\\s+before\\s+([^.;!]+)`, 'i'),
+    read: 1,
+    act: 2,
+  },
   {
     form: 'not-until-read',
     pattern: /\bdo not ([^.;]+?) until you have read (?:the output of )?(`[^`]+`|[^.;]+)/i,
     read: 2,
     act: 1,
   },
+  {
+    form: 'read-first-then',
+    pattern: new RegExp(`\\bread\\s+${QUOTED}\\s+first,?\\s+then\\s+([^.;!?]+)`, 'i'),
+    read: 1,
+    act: 2,
+  },
+  {
+    form: 'never-without-reading',
+    pattern: new RegExp(
+      `\\b(?:never|do not|don't)\\s+([^.;!?]+?)\\s+without\\s+(?:first\\s+)?reading\\s+${QUOTED}`,
+      'i',
+    ),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'only-after-reading',
+    pattern: new RegExp(
+      `${START}([^.;!?]+?)\\s+only\\s+after\\s+(?:you\\s+(?:have\\s+)?)?(?:reading|read)\\s+${QUOTED}`,
+      'i',
+    ),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'question-read-first',
+    pattern: new RegExp(`${START}([^.;!?]+?)\\?\\s*read\\s+${QUOTED}\\s+first`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'prior-to-read',
+    pattern: new RegExp(`\\bprior to ([^,:;]+?)[,:]\\s*read\\s+${QUOTED}`, 'i'),
+    read: 2,
+    act: 1,
+  },
 ];
+
+/** The name a gate's target gives: a link's destination, without quotes, markup or a closing stop. */
+function gateTarget(raw: string): string {
+  const link = /^\[[^\]]*\]\(([^)\s]+)\)$/.exec(raw.trim());
+  const name = link?.[1] ?? raw;
+  return name
+    .replace(/[`*"]/g, '')
+    .replace(/[.,;:!?]+$/, '')
+    .replace(/[#?].*$/, '')
+    .trim();
+}
 
 function gateAtoms(
   chunk: ProseChunk,
@@ -721,6 +791,11 @@ function gateAtoms(
   builder: AtomBuilder,
 ): void {
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
+    // A form quoted as an example ("before editing: read the notes") is no rule of the line.
+    const quoted = Array.from(line.text.matchAll(/"[^"\n]*"|\u201c[^\u201d\n]*\u201d/g), (match) => [
+      match.index,
+      match.index + match[0].length,
+    ]);
     const matches = GATE_FORMS.flatMap(({ pattern, ...form }) =>
       Array.from(line.text.matchAll(new RegExp(pattern.source, `${pattern.flags}g`)), (match) => ({
         ...form,
@@ -730,8 +805,16 @@ function gateAtoms(
     let coveredUntil = 0;
     for (const { form, read, act, match } of matches) {
       if (match.index < coveredUntil) continue;
-      // Markup around the words (bold, backticks) is not part of the act or of what is read.
-      const first = (match[read] ?? '').replace(/[`*]/g, '').trim();
+      const at = match.index + match[0].search(/\S/);
+      if (quoted.some(([start, end]) => at > (start as number) && at < (end as number))) continue;
+      // "Never read Y before X" forbids the read: no order to keep.
+      if (
+        form === 'read-before' &&
+        /\b(?:never|not|don't|must not|should not)\s*$/i.test(line.text.slice(0, at))
+      )
+        continue;
+      // Markup around the words (bold, backticks, quotes, a link) is not part of the act or of what is read.
+      const first = gateTarget(match[read] ?? '');
       const trigger = (match[act] ?? '').replace(/[`*]/g, '').trim();
       if (first === '' || trigger === '' || !isAct(trigger)) continue;
       coveredUntil = match.index + match[0].length;
