@@ -1,0 +1,1023 @@
+{
+  "id": "rubric_eval_1139",
+  "protocolVersion": 4,
+  "planKey": "de86687b0b2907833a3c",
+  "questionPlanKey": "71d3747c64f2efa0cfc7",
+  "at": "2026-10-13T04:26:10.021Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "87a8c0d8739acd0250c7",
+        "costUsd": 0.00425956,
+        "value": {
+          "runnable": true,
+          "reason": "The previous run failed only in the harness wrapper: Harness.cs referenced IStatusCodeActionResult, which did not resolve against the ref packs, so the candidate never compiled to a run. The revised Harness.cs reads the StatusCode property by reflection on the returned IActionResult instead of naming that type. The candidate block-0 is unchanged and still compiled through the Roslyn csc.dll path. Not executed here; the caller runs it.",
+          "command": "python3 harness.py",
+          "files": {
+            "harness.py": "import glob, os, shutil, subprocess, json, sys\n\ndef fail(msg):\n    print(json.dumps({\"results\": [], \"harness_error\": msg}))\n    sys.exit(0)\n\nroot = os.environ.get(\"DOTNET_ROOT\") or \"/usr/local/share/dotnet\"\ncwd = os.getcwd()\ncsc_hits = sorted(glob.glob(os.path.join(root, \"sdk\", \"*\", \"Roslyn\", \"bincore\", \"csc.dll\")))\nif not csc_hits:\n    fail(\"csc.dll not found under DOTNET_ROOT\")\ncsc = csc_hits[-1]\n\ndef pack(name):\n    return sorted(glob.glob(os.path.join(root, \"packs\", name, \"*\", \"ref\", \"net8.0\", \"*.dll\")))\n\ncore = pack(\"Microsoft.NETCore.App.Ref\")\nweb = pack(\"Microsoft.AspNetCore.App.Ref\")\nif not core or not web:\n    fail(\"reference assemblies not found\")\n\nseen = {}\nfor p in core + web:\n    seen.setdefault(os.path.basename(p), p)\nwith open(\"refs.rsp\", \"w\") as f:\n    for p in seen.values():\n        f.write('-r:\"' + p + '\"\\n')\n\nshutil.copyfile(\"block-0.txt\", \"candidate.cs\")\n\ntry:\n    c = subprocess.run([\"dotnet\", csc, \"-nologo\", \"-target:exe\", \"-out:Candidate.dll\", \"@refs.rsp\", \"candidate.cs\", \"Harness.cs\"], cwd=cwd, capture_output=True, text=True, timeout=5)\nexcept subprocess.TimeoutExpired:\n    fail(\"compile timeout\")\nif c.returncode != 0:\n    fail(\"compile failed: \" + (c.stdout + c.stderr)[-1500:])\n\nwith open(\"Candidate.runtimeconfig.json\", \"w\") as f:\n    json.dump({\"runtimeOptions\": {\"tfm\": \"net8.0\", \"framework\": {\"name\": \"Microsoft.AspNetCore.App\", \"version\": \"8.0.0\"}}}, f)\n\ntry:\n    r = subprocess.run([\"dotnet\", \"Candidate.dll\"], cwd=cwd, capture_output=True, text=True, timeout=5)\nexcept subprocess.TimeoutExpired:\n    fail(\"run timeout\")\n\nlines = [l for l in r.stdout.splitlines() if l.strip().startswith(\"{\")]\nif not lines:\n    fail(\"no output: \" + r.stderr[-1000:])\nprint(lines[-1])\n",
+            "Harness.cs": "using System;\nusing System.Collections.Generic;\nusing System.ComponentModel.DataAnnotations;\nusing System.IO;\nusing System.Linq;\nusing System.Reflection;\nusing System.Text.Json;\nusing Microsoft.AspNetCore.Http;\nusing Microsoft.AspNetCore.Mvc;\nusing Microsoft.AspNetCore.Mvc.Abstractions;\nusing Microsoft.AspNetCore.Mvc.ModelBinding;\nusing Microsoft.AspNetCore.Routing;\n\npublic static class Harness\n{\n    public static int Main()\n    {\n        TextWriter realOut = Console.Out;\n        var results = new List<object>();\n        try\n        {\n            using var doc = JsonDocument.Parse(File.ReadAllText(\"inputs.json\"));\n            Type ctrlType = null;\n            foreach (var t in typeof(Harness).Assembly.GetTypes())\n            {\n                if (!t.IsAbstract && typeof(ControllerBase).IsAssignableFrom(t)) { ctrlType = t; break; }\n            }\n            if (ctrlType == null) throw new InvalidOperationException(\"no ControllerBase subclass in candidate\");\n\n            MethodInfo action = null;\n            foreach (var m in ctrlType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))\n            {\n                if (typeof(IActionResult).IsAssignableFrom(m.ReturnType)) { action = m; break; }\n            }\n            if (action == null) throw new InvalidOperationException(\"no action method found\");\n\n            ParameterInfo p = action.GetParameters().FirstOrDefault();\n            if (p == null) throw new InvalidOperationException(\"action has no parameter\");\n\n            foreach (var item in doc.RootElement.EnumerateArray())\n            {\n                string id = item.GetProperty(\"id\").GetString();\n                var buf = new StringWriter();\n                Console.SetOut(buf);\n                try\n                {\n                    object value = ReadValue(item, p.Name);\n                    int status = RunAction(ctrlType, action, p, value);\n                    Console.SetOut(realOut);\n                    results.Add(new { id, actual = new { status } });\n                }\n                catch (Exception ex)\n                {\n                    Console.SetOut(realOut);\n                    results.Add(new { id, error = ex.GetType().FullName + \": \" + ex.Message });\n                }\n            }\n        }\n        catch (Exception ex)\n        {\n            Console.SetOut(realOut);\n            Console.WriteLine(JsonSerializer.Serialize(new { results, harness_error = ex.ToString() }));\n            return 0;\n        }\n        Console.SetOut(realOut);\n        Console.WriteLine(JsonSerializer.Serialize(new { results }));\n        return 0;\n    }\n\n    static object ReadValue(JsonElement item, string name)\n    {\n        JsonElement inp;\n        if (!item.TryGetProperty(\"input\", out inp) || inp.ValueKind != JsonValueKind.Object) return null;\n        JsonElement v;\n        if (!inp.TryGetProperty(name, out v) || v.ValueKind == JsonValueKind.Null) return null;\n        if (v.ValueKind != JsonValueKind.String) throw new InvalidOperationException(\"non-string input for \" + name);\n        return v.GetString();\n    }\n\n    static int RunAction(Type ctrlType, MethodInfo action, ParameterInfo p, object value)\n    {\n        var ms = new ModelStateDictionary();\n        var vctx = new ValidationContext(new object()) { MemberName = p.Name, DisplayName = p.Name };\n        foreach (ValidationAttribute attr in p.GetCustomAttributes(typeof(ValidationAttribute), false))\n        {\n            ValidationResult r = attr.GetValidationResult(value, vctx);\n            if (r != null) ms.AddModelError(p.Name, r.ErrorMessage ?? \"invalid\");\n        }\n\n        var ctrl = (ControllerBase)Activator.CreateInstance(ctrlType);\n        ctrl.ControllerContext = new ControllerContext(\n            new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor(), ms));\n\n        object res;\n        try\n        {\n            res = action.Invoke(ctrl, new object[] { value });\n        }\n        catch (TargetInvocationException tie)\n        {\n            throw tie.InnerException ?? tie;\n        }\n\n        if (res == null) throw new InvalidOperationException(\"action returned null\");\n        PropertyInfo scp = res.GetType().GetProperty(\"StatusCode\");\n        if (scp != null)\n        {\n            object sc = scp.GetValue(res);\n            if (sc is int code) return code;\n        }\n        throw new InvalidOperationException(\"action result has no status code\");\n    }\n}\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "2267b8226bf2d7337751",
+        "costUsd": 0.0035068899999999995,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "The adapter compiles and runs the candidate's block-0 verbatim, with no replacement of the controller, action, or validation logic.",
+            "The harness reads the candidate's own parameter attributes ([Required, Url]) and applies them to ModelState. This substitutes for TestHost and does not compute the expected status or URL validity.",
+            "The status is taken from the action's returned IActionResult via reflection on StatusCode, so the candidate's own 400 or 200 is what gets observed.",
+            "The previous compile failure was a wrapper reference error (IStatusCodeActionResult). The revised Harness.cs fixes only that and does not change candidate behavior.",
+            "Required dependencies (.NET 8 SDK csc, Microsoft.NETCore.App.Ref and Microsoft.AspNetCore.App.Ref net8.0 packs) are in the supported list.",
+            "Caveats that do not block validity: the runtime is net8.0 while the user targets .NET 7, the implicit [ApiController] 400 path is not emulated (the candidate's explicit ModelState check covers it), and binding is bypassed by passing the value directly rather than through query binding.",
+            "Setup code (ControllerContext creation and attribute evaluation) sits inside the per-item try, so a wrapper fault would be reported as an error field rather than a status. This is reported verbatim, not disguised as a candidate status, so it is noted but not disqualifying."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-getDIp",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 harness.py 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t1\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t2\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t3\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t4\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t5\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t6\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t7\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t8\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t9\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t10\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t11\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t12\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t13\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t14\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t15\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t16\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"},{\"id\":\"t17\",\"error\":\"System.ArgumentException: The action descriptor must be of type \\u0027Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor\\u0027. (Parameter \\u0027context\\u0027)\"}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:28:38.701Z",
+          "latencyMs": 5551.028
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t1",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t2",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t3",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t4",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t5",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t6",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t7",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t8",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t9",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t10",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t11",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t12",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t13",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t14",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t15",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t16",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            },
+            {
+              "id": "t17",
+              "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {},
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "url": null
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "url": ""
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "url": "   "
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "url": "not a url"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "url": "example.com"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "url": "/relative/path"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "url": "https://"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "url": "https:/example.com"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "url": "https://exa mple.com"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "url": "https://example.com/has space"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "url": "https://example.com"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "url": "http://example.com"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "url": "HTTPS://EXAMPLE.COM"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "url": "https://example.com/path/to?x=1&y=2#frag"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "url": "http://localhost:5000/api"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "url": "https://192.168.0.1:8080/"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "url": "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "error": "System.ArgumentException: The action descriptor must be of type 'Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor'. (Parameter 'context')",
+          "verdict": "fail"
+        }
+      ]
+    },
+    {
+      "status": "executed",
+      "side": "b",
+      "adapter": {
+        "key": "25e4d4e95564b91096a3",
+        "costUsd": 0.004204960000000001,
+        "value": {
+          "runnable": true,
+          "reason": "The previous compile failed only because Harness.cs referenced IStatusCodeActionResult, whose namespace is not imported. The fix reads the StatusCode property by reflection, so no extra type is needed. The candidate block is still compiled verbatim as candidate.cs, and the action is run on every input from inputs.json.",
+          "command": "python3 harness.py",
+          "files": {
+            "harness.py": "import glob\nimport json\nimport os\nimport shutil\nimport subprocess\nimport sys\n\n\ndef emit(obj):\n    sys.stdout.write(json.dumps(obj) + \"\\n\")\n    sys.stdout.flush()\n    sys.exit(0)\n\n\ndef latest(pattern):\n    matches = sorted(glob.glob(pattern))\n    return matches[-1] if matches else None\n\n\ndef main():\n    dotnet = shutil.which(\"dotnet\")\n    if not dotnet:\n        emit({\"results\": [], \"harness_error\": \"dotnet not found on PATH\"})\n    root = os.environ.get(\"DOTNET_ROOT\") or os.path.dirname(os.path.realpath(dotnet))\n    env = dict(os.environ)\n    env[\"DOTNET_ROOT\"] = root\n\n    csc_all = sorted(glob.glob(os.path.join(root, \"sdk\", \"*\", \"Roslyn\", \"bincore\", \"csc.dll\")))\n    if not csc_all:\n        emit({\"results\": [], \"harness_error\": \"Roslyn csc.dll not found\"})\n    csc = csc_all[-1]\n\n    net_ref = latest(os.path.join(root, \"packs\", \"Microsoft.NETCore.App.Ref\", \"*\", \"ref\", \"net8.0\"))\n    asp_ref = latest(os.path.join(root, \"packs\", \"Microsoft.AspNetCore.App.Ref\", \"*\", \"ref\", \"net8.0\"))\n    if not net_ref or not asp_ref:\n        emit({\"results\": [], \"harness_error\": \"reference packs not found\"})\n\n    dlls = sorted(glob.glob(os.path.join(net_ref, \"*.dll\")) + glob.glob(os.path.join(asp_ref, \"*.dll\")))\n    with open(\"refs.rsp\", \"w\") as f:\n        for d in dlls:\n            f.write(\"-r:\" + d + \"\\n\")\n\n    shutil.copyfile(\"block-0.txt\", \"candidate.cs\")\n\n    try:\n        c = subprocess.run(\n            [dotnet, csc, \"-nologo\", \"-target:exe\", \"-out:Candidate.dll\", \"@refs.rsp\", \"candidate.cs\", \"Harness.cs\"],\n            capture_output=True, text=True, timeout=5, env=env, cwd=os.getcwd())\n    except subprocess.TimeoutExpired:\n        emit({\"results\": [], \"harness_error\": \"compile timed out\"})\n    if c.returncode != 0:\n        emit({\"results\": [], \"harness_error\": \"compile failed: \" + (c.stdout + c.stderr)[:2000]})\n\n    rc = {\"runtimeOptions\": {\"tfm\": \"net8.0\", \"frameworks\": [\n        {\"name\": \"Microsoft.NETCore.App\", \"version\": \"8.0.0\"},\n        {\"name\": \"Microsoft.AspNetCore.App\", \"version\": \"8.0.0\"}]}}\n    with open(\"Candidate.runtimeconfig.json\", \"w\") as f:\n        json.dump(rc, f)\n\n    try:\n        r = subprocess.run([dotnet, \"Candidate.dll\"], capture_output=True, text=True,\n                           timeout=5, env=env, cwd=os.getcwd())\n    except subprocess.TimeoutExpired:\n        emit({\"results\": [], \"harness_error\": \"run timed out\"})\n    lines = [line for line in r.stdout.splitlines() if line.strip()]\n    if not lines:\n        emit({\"results\": [], \"harness_error\": \"no output: \" + r.stderr[:1000]})\n    sys.stdout.write(lines[-1] + \"\\n\")\n    sys.stdout.flush()\n\n\nif __name__ == \"__main__\":\n    main()\n",
+            "Harness.cs": "using System;\nusing System.Collections.Generic;\nusing System.ComponentModel.DataAnnotations;\nusing System.IO;\nusing System.Linq;\nusing System.Reflection;\nusing System.Text.Json;\nusing Microsoft.AspNetCore.Http;\nusing Microsoft.AspNetCore.Mvc;\n\npublic static class HarnessMain\n{\n    public static int Main(string[] args)\n    {\n        TextWriter realOut = Console.Out;\n        var results = new List<Dictionary<string, object>>();\n        string harnessError = null;\n        try\n        {\n            string text = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), \"inputs.json\"));\n            using JsonDocument doc = JsonDocument.Parse(text);\n            Type controllerType = Assembly.GetExecutingAssembly().GetTypes()\n                .FirstOrDefault(t => !t.IsAbstract && typeof(ControllerBase).IsAssignableFrom(t));\n            if (controllerType == null) throw new InvalidOperationException(\"no controller type found in candidate\");\n            MethodInfo action = controllerType\n                .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)\n                .FirstOrDefault(m => typeof(IActionResult).IsAssignableFrom(m.ReturnType) && m.GetParameters().Length == 1);\n            if (action == null) throw new InvalidOperationException(\"no single-parameter action found\");\n            ParameterInfo param = action.GetParameters()[0];\n\n            foreach (JsonElement c in doc.RootElement.EnumerateArray())\n            {\n                var entry = new Dictionary<string, object>();\n                entry[\"id\"] = c.GetProperty(\"id\").ToString();\n                try\n                {\n                    object value = ReadValue(c, param.Name);\n                    entry[\"actual\"] = RunCase(controllerType, action, param, value);\n                }\n                catch (Exception ex)\n                {\n                    Exception root = ex is TargetInvocationException tie && tie.InnerException != null ? tie.InnerException : ex;\n                    entry[\"error\"] = root.GetType().Name + \": \" + root.Message;\n                }\n                results.Add(entry);\n            }\n        }\n        catch (Exception ex)\n        {\n            harnessError = ex.GetType().Name + \": \" + ex.Message;\n        }\n\n        var final = new Dictionary<string, object> { [\"results\"] = results };\n        if (harnessError != null) final[\"harness_error\"] = harnessError;\n        realOut.WriteLine(JsonSerializer.Serialize(final));\n        return 0;\n    }\n\n    static object ReadValue(JsonElement c, string name)\n    {\n        if (!c.TryGetProperty(\"input\", out JsonElement input) || input.ValueKind != JsonValueKind.Object) return null;\n        if (!input.TryGetProperty(name, out JsonElement v)) return null;\n        if (v.ValueKind == JsonValueKind.Null) return null;\n        if (v.ValueKind == JsonValueKind.String) return v.GetString();\n        return v.GetRawText();\n    }\n\n    static Dictionary<string, object> RunCase(Type controllerType, MethodInfo action, ParameterInfo param, object value)\n    {\n        var controller = (ControllerBase)Activator.CreateInstance(controllerType);\n        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };\n        foreach (ValidationAttribute attr in param.GetCustomAttributes(typeof(ValidationAttribute), true))\n        {\n            var vc = new ValidationContext(new object()) { MemberName = param.Name };\n            ValidationResult r = attr.GetValidationResult(value, vc);\n            if (r != ValidationResult.Success)\n                controller.ModelState.AddModelError(param.Name, r.ErrorMessage ?? \"invalid\");\n        }\n\n        TextWriter saved = Console.Out;\n        Console.SetOut(new StringWriter());\n        object res;\n        try\n        {\n            res = action.Invoke(controller, new object[] { value });\n        }\n        finally\n        {\n            Console.SetOut(saved);\n        }\n\n        if (res != null)\n        {\n            PropertyInfo sp = res.GetType().GetProperty(\"StatusCode\");\n            if (sp != null && sp.GetValue(res) is int code)\n                return new Dictionary<string, object> { [\"status\"] = code };\n        }\n        throw new InvalidOperationException(\"action result has no status code\");\n    }\n}\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "6dc1ef5e097ff89371f2",
+        "costUsd": 0.00478519,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "Block 0 is compiled verbatim as candidate.cs and its real `[Required, Url]` attributes and `ModelState.IsValid` check run unchanged. The adapter does not repair, replace, or reimplement the candidate's validation or status logic.",
+            "Model validation is replayed by calling each parameter's own ValidationAttribute.GetValidationResult and adding errors to ModelState. This is framework-style scaffolding that executes the candidate's attributes. It does not decide URL validity itself, so it is acceptable.",
+            "Action discovery, value binding (null, string, or raw JSON text), and status extraction via the StatusCode property are generic wrapper code. They do not compute expected results and do not depend on the candidate's logic.",
+            "The second Harness.cs no longer references IStatusCodeActionResult and reads StatusCode by reflection. Its imports cover every type it uses (ControllerBase, IActionResult, ControllerContext, DefaultHttpContext, ValidationAttribute, PropertyInfo), so it should compile against the net8.0 reference packs.",
+            "Runtime and dependencies are supported: .NET 8 SDK Roslyn csc, Microsoft.NETCore.App.Ref and Microsoft.AspNetCore.App.Ref net8.0 packs. The user asked about .NET 7, so the adapter targets a different version than the question, but .NET 8 is in the supported list and this is not a reason to reject.",
+            "Standard imports omitted from block 1 are permitted scaffolding. Block 2 (plain-text NuGet list) is not code and is correctly not executed.",
+            "Non-blocking risks: the 5-second compile and run timeouts may cause infrastructure errors on a cold start, and the runtimeconfig depends on the ASP.NET Core shared framework being installed. Neither reflects a candidate defect or a missing-setup-as-candidate-error bug in the wrapper's logic."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-KY6jWX",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 harness.py 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"actual\":{\"status\":400}},{\"id\":\"t1\",\"actual\":{\"status\":400}},{\"id\":\"t2\",\"actual\":{\"status\":400}},{\"id\":\"t3\",\"actual\":{\"status\":400}},{\"id\":\"t4\",\"actual\":{\"status\":400}},{\"id\":\"t5\",\"actual\":{\"status\":400}},{\"id\":\"t6\",\"actual\":{\"status\":400}},{\"id\":\"t7\",\"actual\":{\"status\":200}},{\"id\":\"t8\",\"actual\":{\"status\":400}},{\"id\":\"t9\",\"actual\":{\"status\":200}},{\"id\":\"t10\",\"actual\":{\"status\":200}},{\"id\":\"t11\",\"actual\":{\"status\":200}},{\"id\":\"t12\",\"actual\":{\"status\":200}},{\"id\":\"t13\",\"actual\":{\"status\":200}},{\"id\":\"t14\",\"actual\":{\"status\":200}},{\"id\":\"t15\",\"actual\":{\"status\":200}},{\"id\":\"t16\",\"actual\":{\"status\":200}},{\"id\":\"t17\",\"actual\":{\"status\":200}}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:31:33.068Z",
+          "latencyMs": 4966.798
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": {
+                "status": 400
+              }
+            },
+            {
+              "id": "t1",
+              "actual": {
+                "status": 400
+              }
+            },
+            {
+              "id": "t2",
+              "actual": {
+                "status": 400
+              }
+            },
+            {
+              "id": "t3",
+              "actual": {
+                "status": 400
+              }
+            },
+            {
+              "id": "t4",
+              "actual": {
+                "status": 400
+              }
+            },
+            {
+              "id": "t5",
+              "actual": {
+                "status": 400
+              }
+            },
+            {
+              "id": "t6",
+              "actual": {
+                "status": 400
+              }
+            },
+            {
+              "id": "t7",
+              "actual": {
+                "status": 200
+              }
+            },
+            {
+              "id": "t8",
+              "actual": {
+                "status": 400
+              }
+            },
+            {
+              "id": "t9",
+              "actual": {
+                "status": 200
+              }
+            },
+            {
+              "id": "t10",
+              "actual": {
+                "status": 200
+              }
+            },
+            {
+              "id": "t11",
+              "actual": {
+                "status": 200
+              }
+            },
+            {
+              "id": "t12",
+              "actual": {
+                "status": 200
+              }
+            },
+            {
+              "id": "t13",
+              "actual": {
+                "status": 200
+              }
+            },
+            {
+              "id": "t14",
+              "actual": {
+                "status": 200
+              }
+            },
+            {
+              "id": "t15",
+              "actual": {
+                "status": 200
+              }
+            },
+            {
+              "id": "t16",
+              "actual": {
+                "status": 200
+              }
+            },
+            {
+              "id": "t17",
+              "actual": {
+                "status": 200
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {},
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 400
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "url": null
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 400
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "url": ""
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 400
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "url": "   "
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 400
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "url": "not a url"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 400
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "url": "example.com"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 400
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "url": "/relative/path"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 400
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "url": "https://"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "url": "https:/example.com"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 400
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "url": "https://exa mple.com"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "url": "https://example.com/has space"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "url": "https://example.com"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "url": "http://example.com"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "url": "HTTPS://EXAMPLE.COM"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "url": "https://example.com/path/to?x=1&y=2#frag"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "url": "http://localhost:5000/api"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "url": "https://192.168.0.1:8080/"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "url": "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference",
+          "actual": {
+            "status": 200
+          },
+          "verdict": "pass"
+        }
+      ]
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-UhoNeL",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"url\": null}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"url\": \"\"}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"url\": \"   \"}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"url\": \"not a url\"}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"url\": \"example.com\"}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"url\": \"/relative/path\"}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"url\": \"https://\"}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"url\": \"https:/example.com\"}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"url\": \"https://exa mple.com\"}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"url\": \"https://example.com/has space\"}, \"expected\": {\"status\": 400}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"url\": \"https://example.com\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"url\": \"http://example.com\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"url\": \"HTTPS://EXAMPLE.COM\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"url\": \"https://example.com/path/to?x=1&y=2#frag\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"url\": \"http://localhost:5000/api\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"url\": \"https://192.168.0.1:8080/\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"url\": \"https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": true}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:08:23.526Z",
+      "latencyMs": 191.875
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {},
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "url": null
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "url": ""
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "url": "   "
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "url": "not a url"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "url": "example.com"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "url": "/relative/path"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "url": "https://"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "url": "https:/example.com"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "url": "https://exa mple.com"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "url": "https://example.com/has space"
+          },
+          "expected": {
+            "status": 400
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "url": "https://example.com"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "url": "http://example.com"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "url": "HTTPS://EXAMPLE.COM"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "url": "https://example.com/path/to?x=1&y=2#frag"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "url": "http://localhost:5000/api"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "url": "https://192.168.0.1:8080/"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "url": "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": true
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "569206209a24e0bc90b8342f7bb5e61f8e892dfa87ebf978b5c2be3d8a417839"
+  },
+  "contractAudit": {
+    "key": "27ad470680136748a196",
+    "costUsd": 0.0026294199999999995,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "The plan has no C1 checks, so no check-level rejection applies.",
+        "The generated inputs cover the required domains: missing key, null, empty, whitespace-only, relative, schemeless, hostless, malformed-scheme, internal-whitespace, valid http/https, uppercase scheme, query/fragment, localhost with port, IP host, and a long string under 4000 characters.",
+        "Each observed expected status matches the reference on every listed input, and the reference returns 400 or 200 without errors on the generated set.",
+        "The validator agrees with the input contract: it accepts an absent or null 'url' and strings up to 4000 characters, and it rejects extra keys and non-dict top-level values.",
+        "The examples list is empty, so there is no example-versus-reference conflict.",
+        "Non-blocking gap: the reference calls urlsplit without catching ValueError, so inputs such as 'http://[' would raise instead of returning 400. The validator admits such strings, but the generated test set does not exercise them, so this does not invalidate the executed contract.",
+        "The plan does not claim a runtime version. The question targets .NET 7 while the verified local runtime is .NET8, but the contract makes no version claim, so this does not invalidate the execution."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "27ad470680136748a196",
+    "7905a6f5ae59cb439c84",
+    "1c5b93586edd24b9845d",
+    "29e3e892db39467f7643",
+    "6c713e8af6861587d091"
+  ],
+  "callKeys": [
+    "27ad470680136748a196",
+    "0902ca2ef8ec2cda8e5f",
+    "d69f2f58fd2785c76a76",
+    "87a8c0d8739acd0250c7",
+    "2267b8226bf2d7337751",
+    "8cf3f3cedd940386bc5f",
+    "10022dc957e05f14bd09",
+    "25e4d4e95564b91096a3",
+    "6dc1ef5e097ff89371f2"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "id": "rubric_eval_1098",
+  "planKey": "0724a7045cb157dcffe6",
+  "at": "2026-10-13T03:57:33.640Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "all_years_1990_2020_present",
+      "source_quote": "from 1990 to 2020",
+      "a": true,
+      "b": true,
+      "programHash": "f554ce735aff1518b119ae47a33800669df1b2e95c72552efd591ebffa3cf0a7"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-4AZdXq",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:43.621Z",
+      "latencyMs": 385.552
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "d4c2b036d4471b049673bfba2396a0420027095ca5be282791e5d2ab94a30145"
+  },
+  "contractAudit": {
+    "key": "f64e219851d7f331d387",
+    "costUsd": 0.0007662000000000001,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal instruction to list years 1990 through 2020, and its source_quote 'from 1990 to 2020' is grounded in the question.",
+        "The positive fixture contains all 31 years and the check returns True on it, as observed.",
+        "The negative fixture omits 2015 and the check returns False on it, so the check discriminates correctly.",
+        "The check tests only year presence, not the one-product-per-year pairing or release-date accuracy from the rubric, so it covers a subset of the requirements.",
+        "execution is null, so no reference implementation or supplied examples exist to validate execution; execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-2DZVj5",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"all_years_1990_2020_present\", \"source_quote\": \"from 1990 to 2020\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:57:44.166Z",
+      "latencyMs": 228.465
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "all_years_1990_2020_present",
+          "source_quote": "from 1990 to 2020",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "f64e219851d7f331d387"
+  ]
+}

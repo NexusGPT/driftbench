@@ -1,0 +1,105 @@
+{
+  "id": "rubric_eval_67",
+  "planKey": "8a964d07e1f44b3c6abe",
+  "at": "2026-10-13T04:04:45.217Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "divider_between_paragraphs",
+      "source_quote": "Separate the paragraphs with the markdown divider: ***",
+      "a": true,
+      "b": true,
+      "programHash": "7e1d1b49e669d2a52997db9445fb450bc1e68ad84eb4994f0685622fcc02d07b"
+    },
+    {
+      "index": 1,
+      "name": "exactly_two_paragraphs",
+      "source_quote": "Write a story of exactly 2 paragraphs",
+      "a": false,
+      "b": false,
+      "programHash": "7787bf1b7980a1d33fd79b2f06cc6dc3070801eaf0bc7ad60e0fa17f6d32c186"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-nogUWk",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:46.920Z",
+      "latencyMs": 375.835
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "0eab1903224b6fbbb63fd46d8659bd7cf36a61c221b742e663b076bcef46f50c"
+  },
+  "contractAudit": {
+    "key": "08526fb4e519cc37c65e",
+    "costUsd": 0.0009405,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (divider_between_paragraphs) implements the literal instruction to separate paragraphs with a *** line. Its source quote is grounded, and its positive and negative fixtures behave correctly.",
+        "Check 1 (exactly_two_paragraphs) implements the literal instruction for exactly two paragraphs split by the *** line. It rejects empty input, zero dividers, and multiple dividers. Its source quote is grounded, and its positive and negative fixtures behave correctly.",
+        "Execution is null, so execution_valid is false. Validity rests on the two valid C1 checks.",
+        "The rubric items on vivid vocabulary, conflict, core event, and game mechanics are not encoded as checks. This does not invalidate the existing checks, which validate only the literal structural instructions."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-wFdcGS",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"divider_between_paragraphs\", \"source_quote\": \"Separate the paragraphs with the markdown divider: ***\", \"a\": true, \"b\": true}, {\"index\": 1, \"name\": \"exactly_two_paragraphs\", \"source_quote\": \"Write a story of exactly 2 paragraphs\", \"a\": false, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:04:52.781Z",
+      "latencyMs": 154.046
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "divider_between_paragraphs",
+          "source_quote": "Separate the paragraphs with the markdown divider: ***",
+          "a": true,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "exactly_two_paragraphs",
+          "source_quote": "Write a story of exactly 2 paragraphs",
+          "a": false,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "08526fb4e519cc37c65e"
+  ]
+}

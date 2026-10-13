@@ -1,0 +1,85 @@
+{
+  "id": "rubric_eval_901",
+  "planKey": "aa140525328f37437167",
+  "at": "2026-10-13T04:06:46.028Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "single_paragraph",
+      "source_quote": "Keep it a paragraph short.",
+      "a": true,
+      "b": true,
+      "programHash": "080638db329d51ddd8d79143a9fd878523fc3098129ee569272ee14ac2d32cd4"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-xprVpe",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:47.816Z",
+      "latencyMs": 451.841
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "e2cbfd7cb7fbe1faed50cae1402878211ac29f81666f829a11c139d00903203f"
+  },
+  "contractAudit": {
+    "key": "55f54f217697b3629be9",
+    "costUsd": 0.0007017,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal single-paragraph instruction: it rejects any newline or carriage return in the stripped text, and it returns False for empty or whitespace-only input.",
+        "The positive fixture is one line with no line breaks and passes. The negative fixture contains a blank line ('\\n\\n') and correctly fails.",
+        "The source_quote is grounded in the question's instruction to keep the answer to a paragraph.",
+        "The check covers only the single-paragraph requirement and does not test brevity, which is acceptable because the check does not claim to test length.",
+        "execution is null, so execution_valid is false. valid is true because check 0 is valid."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-bBxfvq",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"single_paragraph\", \"source_quote\": \"Keep it a paragraph short.\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:06:51.956Z",
+      "latencyMs": 194.47
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "single_paragraph",
+          "source_quote": "Keep it a paragraph short.",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "55f54f217697b3629be9"
+  ]
+}

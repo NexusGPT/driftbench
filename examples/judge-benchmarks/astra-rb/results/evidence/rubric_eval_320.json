@@ -1,0 +1,87 @@
+{
+  "id": "rubric_eval_320",
+  "planKey": "731a49bd29ed01e936e4",
+  "at": "2026-10-13T04:01:00.173Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "at_least_six_bracketed_placeholders",
+      "source_quote": "Your response must contain at least six placeholders which should be represented by square brackets like [name].",
+      "a": false,
+      "b": true,
+      "programHash": "8fab2b8de819fd9b4069f3ffbee4b7149b4088373d2300976b537d287330ee5a"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-pNvpwm",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:45.260Z",
+      "latencyMs": 533.691
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "380d90ccb6fce7c4905a12b8db390ec13597c83693bab16f1f63818f99fbadbb"
+  },
+  "contractAudit": {
+    "key": "337197bb2637c1e976cb",
+    "costUsd": 0.0007616000000000001,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "The single C1 check (index 0) implements the literal instruction to include at least six square-bracketed placeholders.",
+        "The source_quote matches the question text exactly.",
+        "The regex counts non-empty bracketed spans and excludes nested brackets and newlines, which is a sensible convention for placeholders.",
+        "The positive fixture contains seven bracketed placeholders and returns True, so it is a correct positive.",
+        "The negative fixture contains one placeholder and returns False, so it is a correct negative.",
+        "The observed positive=true, negative=false results agree with the fixtures.",
+        "execution is null, so execution_valid is false. Validity rests on the valid C1 check."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-QK9IkK",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"at_least_six_bracketed_placeholders\", \"source_quote\": \"Your response must contain at least six placeholders which should be represented by square brackets like [name].\", \"a\": false, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:01:06.828Z",
+      "latencyMs": 157.618
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "at_least_six_bracketed_placeholders",
+          "source_quote": "Your response must contain at least six placeholders which should be represented by square brackets like [name].",
+          "a": false,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "337197bb2637c1e976cb"
+  ]
+}

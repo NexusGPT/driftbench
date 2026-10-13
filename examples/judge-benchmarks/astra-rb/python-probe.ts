@@ -1,0 +1,2 @@
+import {sandboxRun} from './sandbox';
+console.log(JSON.stringify(await sandboxRun({'probe.py':"import importlib,json,time\nout={}\nfor name in ['numpy','scipy','pandas','fastapi','pydantic','lxml']:\n print('START '+name,flush=True)\n m=importlib.import_module(name)\n out[name]=getattr(m,'__version__','loaded')\n print('OK '+name,flush=True)\nprint(json.dumps({'probe':out}))\n"},'python3 -u -I probe.py',55000)));

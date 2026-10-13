@@ -1,0 +1,90 @@
+{
+  "id": "rubric_eval_153",
+  "protocolVersion": 4,
+  "planKey": "2ca164667b829ee2264d",
+  "questionPlanKey": "61d867cf84a7a8cae0ea",
+  "at": "2026-10-13T04:26:49.213Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "code_blocks_have_language",
+      "source_quote": "formatted in markdown code blocks with the language specified",
+      "programHash": "0928e0120ade688121296f7ad71d7087c5c79eb45291d8fcce689acf600f6698",
+      "a": true,
+      "b": true
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-CEgTel",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:08:42.268Z",
+      "latencyMs": 159.684
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "9781c5175e0b7fc05d2d2dfa93044147ce4fa22e4ee01040479314a18fe73a2f"
+  },
+  "contractAudit": {
+    "key": "d79c1ad313da47a6d735",
+    "costUsd": 0.00084132,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal instruction that code blocks specify a language: it flags any opening fence that is a bare ``` and any unclosed block, and it requires at least one block.",
+        "Check 0 is grounded in the source quote, and its positive fixture (```javascript) passes while its negative fixture (bare ```) fails, matching the observed results.",
+        "Execution is null, so execution_valid is false under the contract. Validity rests on the valid C1 check.",
+        "Minor edge cases (four-backtick fences, inline triple backticks at line start) do not invalidate the narrow necessary requirement."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-YD11yF",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"code_blocks_have_language\", \"source_quote\": \"formatted in markdown code blocks with the language specified\", \"programHash\": \"0928e0120ade688121296f7ad71d7087c5c79eb45291d8fcce689acf600f6698\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:26:49.216Z",
+      "latencyMs": 277.945
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "code_blocks_have_language",
+          "source_quote": "formatted in markdown code blocks with the language specified",
+          "programHash": "0928e0120ade688121296f7ad71d7087c5c79eb45291d8fcce689acf600f6698",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "d79c1ad313da47a6d735"
+  ],
+  "callKeys": [
+    "d79c1ad313da47a6d735"
+  ]
+}

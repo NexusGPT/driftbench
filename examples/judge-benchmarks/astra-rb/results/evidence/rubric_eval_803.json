@@ -1,0 +1,1354 @@
+{
+  "id": "rubric_eval_803",
+  "protocolVersion": 4,
+  "planKey": "1cd30808e9501ea87cae",
+  "questionPlanKey": "16f8aa54d32dd7c3bee4",
+  "at": "2026-10-13T04:30:08.332Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "unsupported_candidate",
+      "side": "a",
+      "adapter": {
+        "key": "f7997e4774058a82a21a",
+        "costUsd": 0.00342596,
+        "value": {
+          "runnable": false,
+          "reason": "The candidate's public entry point does not compile. In `void delete(Tree* t, int key) { t->root = deleteNode(t->root, key); }`, `Tree` is `struct tree *`, so `Tree*` is `struct tree **`. Applying `->root` to it is a type error (invalid type argument of '->'), and gcc and clang both reject it. The task forbids changing signatures or argument types and forbids repairing the algorithm, so the harness cannot compile the block as written and no actual values can be observed from it. The helper functions (deleteNode, balance, findMin, deleteMin) are syntactically valid, but the required delete entry point is not. Re-run with a corrected entry point (for example `delete(Tree t, int key)`) or explicit permission to bind the adapter to `deleteNode(Node, int)`.",
+          "command": "",
+          "files": {},
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    },
+    {
+      "status": "unsupported_candidate",
+      "side": "b",
+      "adapter": {
+        "key": "f018b08a0361f53f12b1",
+        "costUsd": 0.0014212600000000001,
+        "value": {
+          "runnable": false,
+          "reason": "The candidate block calls max(), which is not defined in the block, the question's ADT, or the C standard library. It also calls deleteNodeHelper() before that function is declared, which is an implicit declaration that modern C compilers reject. Supplying a max() helper or a prototype would be inventing missing code rather than binding inputs to the candidate as written, so the harness cannot be built faithfully without changing the candidate.",
+          "command": "",
+          "files": {},
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-zyEF54",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"tree\": null, \"key\": 5}, \"expected\": {\"keys\": [], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"tree\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"key\": 1}, \"expected\": {\"keys\": [], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"tree\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"key\": 2}, \"expected\": {\"keys\": [1], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"tree\": {\"key\": 1, \"height\": 2, \"left\": null, \"right\": {\"key\": 2, \"height\": 1, \"left\": null, \"right\": null}}, \"key\": 1}, \"expected\": {\"keys\": [2], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"tree\": {\"key\": 1, \"height\": 2, \"left\": null, \"right\": {\"key\": 2, \"height\": 1, \"left\": null, \"right\": null}}, \"key\": 2}, \"expected\": {\"keys\": [1], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"tree\": {\"key\": 4, \"height\": 3, \"left\": {\"key\": 2, \"height\": 2, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 6, \"height\": 2, \"left\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 1}, \"expected\": {\"keys\": [2, 3, 4, 5, 6, 7], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"tree\": {\"key\": 4, \"height\": 3, \"left\": {\"key\": 2, \"height\": 2, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 6, \"height\": 2, \"left\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 2}, \"expected\": {\"keys\": [1, 3, 4, 5, 6, 7], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"tree\": {\"key\": 4, \"height\": 3, \"left\": {\"key\": 2, \"height\": 2, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 6, \"height\": 2, \"left\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 3}, \"expected\": {\"keys\": [1, 2, 4, 5, 6, 7], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"tree\": {\"key\": 4, \"height\": 3, \"left\": {\"key\": 2, \"height\": 2, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 6, \"height\": 2, \"left\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 4}, \"expected\": {\"keys\": [1, 2, 3, 5, 6, 7], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"tree\": {\"key\": 4, \"height\": 3, \"left\": {\"key\": 2, \"height\": 2, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 6, \"height\": 2, \"left\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 5}, \"expected\": {\"keys\": [1, 2, 3, 4, 6, 7], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"tree\": {\"key\": 4, \"height\": 3, \"left\": {\"key\": 2, \"height\": 2, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 6, \"height\": 2, \"left\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 6}, \"expected\": {\"keys\": [1, 2, 3, 4, 5, 7], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"tree\": {\"key\": 4, \"height\": 3, \"left\": {\"key\": 2, \"height\": 2, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 6, \"height\": 2, \"left\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 7}, \"expected\": {\"keys\": [1, 2, 3, 4, 5, 6], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"tree\": {\"key\": 4, \"height\": 3, \"left\": {\"key\": 2, \"height\": 2, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 6, \"height\": 2, \"left\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 8}, \"expected\": {\"keys\": [1, 2, 3, 4, 5, 6, 7], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"tree\": {\"key\": 4, \"height\": 3, \"left\": {\"key\": 2, \"height\": 2, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}}, \"key\": 5}, \"expected\": {\"keys\": [1, 2, 3, 4], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"tree\": {\"key\": 2, \"height\": 3, \"left\": {\"key\": 1, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 4, \"height\": 2, \"left\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 5, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 1}, \"expected\": {\"keys\": [2, 3, 4, 5], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"tree\": {\"key\": 8, \"height\": 4, \"left\": {\"key\": -26, \"height\": 3, \"left\": {\"key\": -38, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": -9, \"height\": 2, \"left\": null, \"right\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}}}, \"right\": {\"key\": 23, \"height\": 3, \"left\": {\"key\": 10, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 40, \"height\": 2, \"left\": {\"key\": 29, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 41, \"height\": 1, \"left\": null, \"right\": null}}}}, \"key\": 40}, \"expected\": {\"keys\": [-38, -26, -9, 3, 8, 10, 23, 29, 41], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"tree\": {\"key\": -22, \"height\": 5, \"left\": {\"key\": -41, \"height\": 3, \"left\": {\"key\": -48, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": -34, \"height\": 2, \"left\": {\"key\": -37, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": -25, \"height\": 1, \"left\": null, \"right\": null}}}, \"right\": {\"key\": 25, \"height\": 4, \"left\": {\"key\": 21, \"height\": 3, \"left\": {\"key\": -19, \"height\": 2, \"left\": null, \"right\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 23, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 42, \"height\": 2, \"left\": {\"key\": 26, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 43, \"height\": 1, \"left\": null, \"right\": null}}}}, \"key\": -48}, \"expected\": {\"keys\": [-41, -37, -34, -25, -22, -19, 7, 21, 23, 25, 26, 42, 43], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"tree\": {\"key\": -33, \"height\": 1, \"left\": null, \"right\": null}, \"key\": -33}, \"expected\": {\"keys\": [], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": {\"tree\": {\"key\": 27, \"height\": 2, \"left\": {\"key\": 24, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 45, \"height\": 1, \"left\": null, \"right\": null}}, \"key\": 27}, \"expected\": {\"keys\": [24, 45], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t19\", \"input\": {\"tree\": {\"key\": 10, \"height\": 4, \"left\": {\"key\": -7, \"height\": 3, \"left\": {\"key\": -19, \"height\": 2, \"left\": {\"key\": -49, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": -11, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 5, \"height\": 2, \"left\": {\"key\": 0, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 8, \"height\": 1, \"left\": null, \"right\": null}}}, \"right\": {\"key\": 36, \"height\": 3, \"left\": {\"key\": 25, \"height\": 2, \"left\": {\"key\": 21, \"height\": 1, \"left\": null, \"right\": null}, \"right\": null}, \"right\": {\"key\": 43, \"height\": 2, \"left\": {\"key\": 41, \"height\": 1, \"left\": null, \"right\": null}, \"right\": null}}}, \"key\": 39}, \"expected\": {\"keys\": [-49, -19, -11, -7, 0, 5, 8, 10, 21, 25, 36, 41, 43], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t20\", \"input\": {\"tree\": {\"key\": -20, \"height\": 4, \"left\": {\"key\": -37, \"height\": 2, \"left\": {\"key\": -45, \"height\": 1, \"left\": null, \"right\": null}, \"right\": null}, \"right\": {\"key\": 32, \"height\": 3, \"left\": {\"key\": 27, \"height\": 2, \"left\": {\"key\": 7, \"height\": 1, \"left\": null, \"right\": null}, \"right\": null}, \"right\": {\"key\": 46, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": -20}, \"expected\": {\"keys\": [-45, -37, 7, 27, 32, 46], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t21\", \"input\": {\"tree\": {\"key\": 7, \"height\": 4, \"left\": {\"key\": -32, \"height\": 3, \"left\": {\"key\": -47, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 4, \"height\": 2, \"left\": {\"key\": 3, \"height\": 1, \"left\": null, \"right\": null}, \"right\": null}}, \"right\": {\"key\": 19, \"height\": 2, \"left\": {\"key\": 17, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 48, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 17}, \"expected\": {\"keys\": [-47, -32, 3, 4, 7, 19, 48], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t22\", \"input\": {\"tree\": {\"key\": -21, \"height\": 5, \"left\": {\"key\": -41, \"height\": 3, \"left\": {\"key\": -45, \"height\": 2, \"left\": {\"key\": -46, \"height\": 1, \"left\": null, \"right\": null}, \"right\": null}, \"right\": {\"key\": -31, \"height\": 2, \"left\": {\"key\": -32, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": -23, \"height\": 1, \"left\": null, \"right\": null}}}, \"right\": {\"key\": 11, \"height\": 4, \"left\": {\"key\": -13, \"height\": 2, \"left\": null, \"right\": {\"key\": 8, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 39, \"height\": 3, \"left\": {\"key\": 14, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 42, \"height\": 2, \"left\": null, \"right\": {\"key\": 43, \"height\": 1, \"left\": null, \"right\": null}}}}}, \"key\": -6}, \"expected\": {\"keys\": [-46, -45, -41, -32, -31, -23, -21, -13, 8, 11, 14, 39, 42, 43], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}, {\"id\": \"t23\", \"input\": {\"tree\": {\"key\": 32, \"height\": 3, \"left\": {\"key\": -32, \"height\": 2, \"left\": {\"key\": -39, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 19, \"height\": 1, \"left\": null, \"right\": null}}, \"right\": {\"key\": 38, \"height\": 2, \"left\": {\"key\": 37, \"height\": 1, \"left\": null, \"right\": null}, \"right\": {\"key\": 46, \"height\": 1, \"left\": null, \"right\": null}}}, \"key\": 19}, \"expected\": {\"keys\": [-39, -32, 32, 37, 38, 46], \"bst_ok\": true, \"balanced\": true, \"heights_ok\": true}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:22:48.586Z",
+      "latencyMs": 502.653
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "tree": null,
+            "key": 5
+          },
+          "expected": {
+            "keys": [],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "tree": {
+              "key": 1,
+              "height": 1,
+              "left": null,
+              "right": null
+            },
+            "key": 1
+          },
+          "expected": {
+            "keys": [],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "tree": {
+              "key": 1,
+              "height": 1,
+              "left": null,
+              "right": null
+            },
+            "key": 2
+          },
+          "expected": {
+            "keys": [
+              1
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "tree": {
+              "key": 1,
+              "height": 2,
+              "left": null,
+              "right": {
+                "key": 2,
+                "height": 1,
+                "left": null,
+                "right": null
+              }
+            },
+            "key": 1
+          },
+          "expected": {
+            "keys": [
+              2
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "tree": {
+              "key": 1,
+              "height": 2,
+              "left": null,
+              "right": {
+                "key": 2,
+                "height": 1,
+                "left": null,
+                "right": null
+              }
+            },
+            "key": 2
+          },
+          "expected": {
+            "keys": [
+              1
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "tree": {
+              "key": 4,
+              "height": 3,
+              "left": {
+                "key": 2,
+                "height": 2,
+                "left": {
+                  "key": 1,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 6,
+                "height": 2,
+                "left": {
+                  "key": 5,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 7,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 1
+          },
+          "expected": {
+            "keys": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "tree": {
+              "key": 4,
+              "height": 3,
+              "left": {
+                "key": 2,
+                "height": 2,
+                "left": {
+                  "key": 1,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 6,
+                "height": 2,
+                "left": {
+                  "key": 5,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 7,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 2
+          },
+          "expected": {
+            "keys": [
+              1,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "tree": {
+              "key": 4,
+              "height": 3,
+              "left": {
+                "key": 2,
+                "height": 2,
+                "left": {
+                  "key": 1,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 6,
+                "height": 2,
+                "left": {
+                  "key": 5,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 7,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 3
+          },
+          "expected": {
+            "keys": [
+              1,
+              2,
+              4,
+              5,
+              6,
+              7
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "tree": {
+              "key": 4,
+              "height": 3,
+              "left": {
+                "key": 2,
+                "height": 2,
+                "left": {
+                  "key": 1,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 6,
+                "height": 2,
+                "left": {
+                  "key": 5,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 7,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 4
+          },
+          "expected": {
+            "keys": [
+              1,
+              2,
+              3,
+              5,
+              6,
+              7
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "tree": {
+              "key": 4,
+              "height": 3,
+              "left": {
+                "key": 2,
+                "height": 2,
+                "left": {
+                  "key": 1,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 6,
+                "height": 2,
+                "left": {
+                  "key": 5,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 7,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 5
+          },
+          "expected": {
+            "keys": [
+              1,
+              2,
+              3,
+              4,
+              6,
+              7
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "tree": {
+              "key": 4,
+              "height": 3,
+              "left": {
+                "key": 2,
+                "height": 2,
+                "left": {
+                  "key": 1,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 6,
+                "height": 2,
+                "left": {
+                  "key": 5,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 7,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 6
+          },
+          "expected": {
+            "keys": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              7
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "tree": {
+              "key": 4,
+              "height": 3,
+              "left": {
+                "key": 2,
+                "height": 2,
+                "left": {
+                  "key": 1,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 6,
+                "height": 2,
+                "left": {
+                  "key": 5,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 7,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 7
+          },
+          "expected": {
+            "keys": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "tree": {
+              "key": 4,
+              "height": 3,
+              "left": {
+                "key": 2,
+                "height": 2,
+                "left": {
+                  "key": 1,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 6,
+                "height": 2,
+                "left": {
+                  "key": 5,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 7,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 8
+          },
+          "expected": {
+            "keys": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "tree": {
+              "key": 4,
+              "height": 3,
+              "left": {
+                "key": 2,
+                "height": 2,
+                "left": {
+                  "key": 1,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 5,
+                "height": 1,
+                "left": null,
+                "right": null
+              }
+            },
+            "key": 5
+          },
+          "expected": {
+            "keys": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "tree": {
+              "key": 2,
+              "height": 3,
+              "left": {
+                "key": 1,
+                "height": 1,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": 4,
+                "height": 2,
+                "left": {
+                  "key": 3,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 5,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 1
+          },
+          "expected": {
+            "keys": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "tree": {
+              "key": 8,
+              "height": 4,
+              "left": {
+                "key": -26,
+                "height": 3,
+                "left": {
+                  "key": -38,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": -9,
+                  "height": 2,
+                  "left": null,
+                  "right": {
+                    "key": 3,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  }
+                }
+              },
+              "right": {
+                "key": 23,
+                "height": 3,
+                "left": {
+                  "key": 10,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 40,
+                  "height": 2,
+                  "left": {
+                    "key": 29,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": {
+                    "key": 41,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  }
+                }
+              }
+            },
+            "key": 40
+          },
+          "expected": {
+            "keys": [
+              -38,
+              -26,
+              -9,
+              3,
+              8,
+              10,
+              23,
+              29,
+              41
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "tree": {
+              "key": -22,
+              "height": 5,
+              "left": {
+                "key": -41,
+                "height": 3,
+                "left": {
+                  "key": -48,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": -34,
+                  "height": 2,
+                  "left": {
+                    "key": -37,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": {
+                    "key": -25,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  }
+                }
+              },
+              "right": {
+                "key": 25,
+                "height": 4,
+                "left": {
+                  "key": 21,
+                  "height": 3,
+                  "left": {
+                    "key": -19,
+                    "height": 2,
+                    "left": null,
+                    "right": {
+                      "key": 7,
+                      "height": 1,
+                      "left": null,
+                      "right": null
+                    }
+                  },
+                  "right": {
+                    "key": 23,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  }
+                },
+                "right": {
+                  "key": 42,
+                  "height": 2,
+                  "left": {
+                    "key": 26,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": {
+                    "key": 43,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  }
+                }
+              }
+            },
+            "key": -48
+          },
+          "expected": {
+            "keys": [
+              -41,
+              -37,
+              -34,
+              -25,
+              -22,
+              -19,
+              7,
+              21,
+              23,
+              25,
+              26,
+              42,
+              43
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "tree": {
+              "key": -33,
+              "height": 1,
+              "left": null,
+              "right": null
+            },
+            "key": -33
+          },
+          "expected": {
+            "keys": [],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "tree": {
+              "key": 27,
+              "height": 2,
+              "left": {
+                "key": 24,
+                "height": 1,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "key": 45,
+                "height": 1,
+                "left": null,
+                "right": null
+              }
+            },
+            "key": 27
+          },
+          "expected": {
+            "keys": [
+              24,
+              45
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t19",
+          "input": {
+            "tree": {
+              "key": 10,
+              "height": 4,
+              "left": {
+                "key": -7,
+                "height": 3,
+                "left": {
+                  "key": -19,
+                  "height": 2,
+                  "left": {
+                    "key": -49,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": {
+                    "key": -11,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  }
+                },
+                "right": {
+                  "key": 5,
+                  "height": 2,
+                  "left": {
+                    "key": 0,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": {
+                    "key": 8,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  }
+                }
+              },
+              "right": {
+                "key": 36,
+                "height": 3,
+                "left": {
+                  "key": 25,
+                  "height": 2,
+                  "left": {
+                    "key": 21,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": null
+                },
+                "right": {
+                  "key": 43,
+                  "height": 2,
+                  "left": {
+                    "key": 41,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": null
+                }
+              }
+            },
+            "key": 39
+          },
+          "expected": {
+            "keys": [
+              -49,
+              -19,
+              -11,
+              -7,
+              0,
+              5,
+              8,
+              10,
+              21,
+              25,
+              36,
+              41,
+              43
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t20",
+          "input": {
+            "tree": {
+              "key": -20,
+              "height": 4,
+              "left": {
+                "key": -37,
+                "height": 2,
+                "left": {
+                  "key": -45,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": null
+              },
+              "right": {
+                "key": 32,
+                "height": 3,
+                "left": {
+                  "key": 27,
+                  "height": 2,
+                  "left": {
+                    "key": 7,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": null
+                },
+                "right": {
+                  "key": 46,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": -20
+          },
+          "expected": {
+            "keys": [
+              -45,
+              -37,
+              7,
+              27,
+              32,
+              46
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t21",
+          "input": {
+            "tree": {
+              "key": 7,
+              "height": 4,
+              "left": {
+                "key": -32,
+                "height": 3,
+                "left": {
+                  "key": -47,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 4,
+                  "height": 2,
+                  "left": {
+                    "key": 3,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 19,
+                "height": 2,
+                "left": {
+                  "key": 17,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 48,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 17
+          },
+          "expected": {
+            "keys": [
+              -47,
+              -32,
+              3,
+              4,
+              7,
+              19,
+              48
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t22",
+          "input": {
+            "tree": {
+              "key": -21,
+              "height": 5,
+              "left": {
+                "key": -41,
+                "height": 3,
+                "left": {
+                  "key": -45,
+                  "height": 2,
+                  "left": {
+                    "key": -46,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": null
+                },
+                "right": {
+                  "key": -31,
+                  "height": 2,
+                  "left": {
+                    "key": -32,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": {
+                    "key": -23,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  }
+                }
+              },
+              "right": {
+                "key": 11,
+                "height": 4,
+                "left": {
+                  "key": -13,
+                  "height": 2,
+                  "left": null,
+                  "right": {
+                    "key": 8,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  }
+                },
+                "right": {
+                  "key": 39,
+                  "height": 3,
+                  "left": {
+                    "key": 14,
+                    "height": 1,
+                    "left": null,
+                    "right": null
+                  },
+                  "right": {
+                    "key": 42,
+                    "height": 2,
+                    "left": null,
+                    "right": {
+                      "key": 43,
+                      "height": 1,
+                      "left": null,
+                      "right": null
+                    }
+                  }
+                }
+              }
+            },
+            "key": -6
+          },
+          "expected": {
+            "keys": [
+              -46,
+              -45,
+              -41,
+              -32,
+              -31,
+              -23,
+              -21,
+              -13,
+              8,
+              11,
+              14,
+              39,
+              42,
+              43
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t23",
+          "input": {
+            "tree": {
+              "key": 32,
+              "height": 3,
+              "left": {
+                "key": -32,
+                "height": 2,
+                "left": {
+                  "key": -39,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 19,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              },
+              "right": {
+                "key": 38,
+                "height": 2,
+                "left": {
+                  "key": 37,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                },
+                "right": {
+                  "key": 46,
+                  "height": 1,
+                  "left": null,
+                  "right": null
+                }
+              }
+            },
+            "key": 19
+          },
+          "expected": {
+            "keys": [
+              -39,
+              -32,
+              32,
+              37,
+              38,
+              46
+            ],
+            "bst_ok": true,
+            "balanced": true,
+            "heights_ok": true
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "528b318413b5683517ec3803b1f68c35f01ab045223bf519b56b92e1b9c45a8d"
+  },
+  "contractAudit": {
+    "key": "252ead7876d03fa17da9",
+    "costUsd": 0.00356192,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "The plan has no C1 checks, so there are no check indices to invalidate; validity rests on the execution contract.",
+        "The generator builds valid AVL inputs with a fixed seed, and the validator enforces the stated node shape, stored heights, |balance|<=1, and strictly increasing in-order keys. Validator probes for null, empty dict, list, int, bool, and string inputs all return false as expected.",
+        "The reference removes exactly the given key if present and returns the remaining sorted in-order keys with all invariant flags true. This matches the original deletion task's observable outcome for valid inputs.",
+        "Spot-checked observed cases agree with the reference: empty tree, single-node deletion, absent keys (t2, t13, t19), root deletion (t15, t20), and rotation-prone shapes (t5 through t12). Examples are empty, so there is no example conflict.",
+        "Edge cases are covered: empty tree, single node, absent key, deletion of root, leaves, and internal nodes. The seeded random cases are deterministic, and the observable output is local with no external behavior.",
+        "Memory freeing and balancing-code quality from the rubric are not observed by this execution. That is partial coverage of the rubric, which is acceptable for a narrow necessary behavioral requirement."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "252ead7876d03fa17da9",
+    "c72fbf4c039384858df7",
+    "61cabc668639f3d9beba"
+  ],
+  "callKeys": [
+    "252ead7876d03fa17da9",
+    "f7997e4774058a82a21a",
+    "f018b08a0361f53f12b1"
+  ]
+}

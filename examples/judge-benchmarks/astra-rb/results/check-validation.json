@@ -1,0 +1,50 @@
+[
+  {
+    "programHash": "175baaecefaf2ee5e89604f0e4dd1f198bf04902d43e5fb8642e282e1a055173",
+    "name": "enctype_multipart_literal",
+    "fixture": {
+      "text": "<form method=post enctype=multipart/form-data>",
+      "expected": true,
+      "reason": "An unquoted HTML attribute value has the same enctype semantics."
+    },
+    "valid": false,
+    "observed": {
+      "actual": false,
+      "expected": true,
+      "valid": false
+    },
+    "exitCode": 0
+  },
+  {
+    "programHash": "cbe32fd56b7859b8deda1af4fa69a1921100d634ee7c730a320b6886f6ae6367",
+    "name": "at_least_six_italic_highlights",
+    "fixture": {
+      "text": "_one_ _two_ _three_ _four_ _five_ _six_",
+      "expected": true,
+      "reason": "Underscores are valid Markdown emphasis; a star-only regex rejects valid highlighted sections."
+    },
+    "valid": false,
+    "observed": {
+      "actual": false,
+      "expected": true,
+      "valid": false
+    },
+    "exitCode": 0
+  },
+  {
+    "programHash": "1a10b6f0517fb57527ba140fc40b704b29c166f0ff5aad585c5afe8dcba331d1",
+    "name": "declarative_to_interrogative_ratio_2_to_1",
+    "fixture": {
+      "text": "\"A fact.\" Another fact. A third fact. Is it true?",
+      "expected": false,
+      "reason": "Three declarative sentences and one question do not satisfy a 2:1 ratio. A closing quote must not hide a sentence."
+    },
+    "valid": false,
+    "observed": {
+      "actual": true,
+      "expected": false,
+      "valid": false
+    },
+    "exitCode": 0
+  }
+]

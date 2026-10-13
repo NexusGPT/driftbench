@@ -1,0 +1,85 @@
+{
+  "id": "rubric_eval_687",
+  "planKey": "64076d8ec83acfcd50e8",
+  "at": "2026-10-13T04:04:52.940Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "common_fraction_format",
+      "source_quote": "Express your answer as a common fraction.",
+      "a": false,
+      "b": false,
+      "programHash": "0ae0d974f01c32247ad5cb611d55192209bb9cf2e4835e2e6c72f3b056ad65a3"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-ihETzs",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:46.919Z",
+      "latencyMs": 137.603
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "692172d25c025f39662befef5d886302caafdc305b19ef8c3ef57b6bdf34af0e"
+  },
+  "contractAudit": {
+    "key": "84e3a90cf54264c3b0e6",
+    "costUsd": 0.0008378000000000001,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (common_fraction_format) implements the literal instruction 'Express your answer as a common fraction' by requiring an integer a/b pattern. Its source_quote is grounded in the question text.",
+        "The positive fixture 'The probability is 37/819.' matches the regex and the negative fixture 'approximately 0.045.' does not, so both fixtures are correct for this check.",
+        "The check verifies only that an a/b form is present. It does not test lowest terms or that the fraction is the final answer, but this is a format check, not a semantic one.",
+        "Independent arithmetic for the question: C(28,4)=20475, favorable = 3*C(25,2)+C(25,1)=900+25=925, and 925/20475=37/819. The rubric's 3*C(25,3)=6900 is the correct count for exactly one top student, so the rubric is consistent with the question.",
+        "execution is null, so execution_valid is false. Validity rests on the valid C1 check alone."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-ziYdlB",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"common_fraction_format\", \"source_quote\": \"Express your answer as a common fraction.\", \"a\": false, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:05:00.356Z",
+      "latencyMs": 147.709
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "common_fraction_format",
+          "source_quote": "Express your answer as a common fraction.",
+          "a": false,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "84e3a90cf54264c3b0e6"
+  ]
+}

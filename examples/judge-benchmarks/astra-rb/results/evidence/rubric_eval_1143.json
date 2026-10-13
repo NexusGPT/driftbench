@@ -1,0 +1,106 @@
+{
+  "id": "rubric_eval_1143",
+  "planKey": "9f82c3b52e6b0ab07881",
+  "at": "2026-10-13T03:58:13.869Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "war_word_count_at_least_8",
+      "source_quote": "Make sure to use the word war at least 8 times",
+      "a": false,
+      "b": true,
+      "programHash": "6e44541d0bd98a8436009c9dbe1284df67e8c570384af515e7f619d0673f98ce"
+    },
+    {
+      "index": 1,
+      "name": "peace_word_count_at_least_10",
+      "source_quote": "the word peace at least 10 times",
+      "a": false,
+      "b": true,
+      "programHash": "913750615c4d14717d6e9dde632fad969dcc8d690e291b0eaca0bfea819f63c5"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-3Tmxdf",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:44.013Z",
+      "latencyMs": 441.068
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "21b8063d7566cc027d009b6416fae552e57eebf72e575babb15298fb8816b014"
+  },
+  "contractAudit": {
+    "key": "a01b68abe0d790b34fe6",
+    "costUsd": 0.0007992,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Both C1 checks implement literal word-count instructions from the question, and each source_quote is grounded in the question text.",
+        "check 0 (war, at least 8): the regex uses \\b word boundaries and case-insensitive matching. The positive fixture has exactly 8 matches and the negative has 7, so both fixtures are correct.",
+        "check 1 (peace, at least 10): the same boundary handling applies. The positive fixture has exactly 10 matches and the negative has 9, so both fixtures are correct.",
+        "No reference implementation or examples are supplied, so there are no reference/example conflicts to check.",
+        "execution is null, so execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-ZFbFOC",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"war_word_count_at_least_8\", \"source_quote\": \"Make sure to use the word war at least 8 times\", \"a\": false, \"b\": true}, {\"index\": 1, \"name\": \"peace_word_count_at_least_10\", \"source_quote\": \"the word peace at least 10 times\", \"a\": false, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:58:21.453Z",
+      "latencyMs": 173.412
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "war_word_count_at_least_8",
+          "source_quote": "Make sure to use the word war at least 8 times",
+          "a": false,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "peace_word_count_at_least_10",
+          "source_quote": "the word peace at least 10 times",
+          "a": false,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "a01b68abe0d790b34fe6"
+  ]
+}

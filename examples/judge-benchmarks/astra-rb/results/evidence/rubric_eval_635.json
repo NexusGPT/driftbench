@@ -1,0 +1,84 @@
+{
+  "id": "rubric_eval_635",
+  "planKey": "9caed5a9d66a49d823ef",
+  "at": "2026-10-13T04:04:27.083Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "umeboshi_mentioned",
+      "source_quote": "onigiri with umeboshi",
+      "a": true,
+      "b": true,
+      "programHash": "f309fabd0994e758235ab3c943f8471d31dc79795aaae2c5a78261e80103e1ee"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-6HwxbT",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:46.723Z",
+      "latencyMs": 178.056
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "dda290df1cbc2c97e5c8ef3d5afddda54787d7c90b5fe8880e5441591bbb0aa5"
+  },
+  "contractAudit": {
+    "key": "b3d617ffde3677089e99",
+    "costUsd": 0.0010935,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (umeboshi_mentioned) has a source_quote that appears verbatim in the question (\"onigiri with umeboshi\").",
+        "Check 0's positive fixture contains 'umeboshi' and its negative fixture does not, so the fixtures match the check's behavior.",
+        "Check 0 tests only for the substring 'umeboshi'. It does not verify the bento/onigiri packing or the breakfast description the instruction also requires. It is a narrow but literal implementation, so it is accepted as valid.",
+        "No reference implementation or runtime execution was supplied (execution is null), so execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-W7QDBS",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"umeboshi_mentioned\", \"source_quote\": \"onigiri with umeboshi\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:04:36.343Z",
+      "latencyMs": 168.911
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "umeboshi_mentioned",
+          "source_quote": "onigiri with umeboshi",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "b3d617ffde3677089e99"
+  ]
+}

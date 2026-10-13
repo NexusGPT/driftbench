@@ -1,0 +1,294 @@
+{
+  "id": "rubric_eval_730",
+  "protocolVersion": 4,
+  "planKey": "339cad93a021531617a3",
+  "questionPlanKey": "1120e5dd365a3cca2e03",
+  "at": "2026-10-13T04:29:07.821Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "unsupported_candidate",
+      "side": "b",
+      "adapter": {
+        "key": "ad8f418ccb171ee23328",
+        "costUsd": 0.0010337599999999999,
+        "value": {
+          "runnable": false,
+          "reason": "The candidate is a prose-driven walkthrough, not an executable implementation. Its code blocks are fragments: a bare PowerShell Install-Package line, a dotnet aspnet-codegenerator command, a Startup.cs method pair with no enclosing class, and a controller scaffold command. The C# fragment references ApplicationDbContext, ApplicationUser and ApplicationRole, which are never defined in the answer, and it depends on a Configuration object and SQL Server. Making it runnable would require creating the missing project, models, database and NuGet packages, and installs and network access are not allowed here. The recommended approach is also ASP.NET Core Identity forms login, which redirects to a login page rather than issuing HTTP Basic 401 challenges with a WWW-Authenticate header, so the contract cannot be exercised against it without repairing the candidate's design.",
+          "command": "",
+          "files": {},
+          "uses": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    },
+    {
+      "status": "unsupported_candidate",
+      "side": "a",
+      "adapter": {
+        "key": "6ba700644c631ac8fe99",
+        "costUsd": 0.00105536,
+        "value": {
+          "runnable": false,
+          "reason": "The candidate depends on the NuGet package Microsoft.AspNetCore.Authentication.Basic and the types BasicAuthenticationDefaults and BasicAuthenticationEvents. No such first-party ASP.NET Core package is in the available shared framework, and NuGet installs are not permitted, so the referenced API cannot be compiled or bound. The fragments also lack a complete Program/Startup host, and testing the contract requires HTTP requests to a running site, which would need a Kestrel listener that is not allowed. The web.config snippet is an IIS configuration fragment that cannot be exercised without IIS. Without a resolvable dependency and a runnable host, no faithful harness can be produced.",
+          "command": "",
+          "files": {},
+          "uses": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-FwEnvJ",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"path\": \"/\", \"authorization\": null}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"path\": \"/\", \"authorization\": \"Basic ZGVtby11c2VyOmRlbW8tcGFzcy0xMjM=\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"path\": \"/about\", \"authorization\": \"Basic ZGVtby11c2VyOmRlbW8tcGFzcy0xMjM=\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"path\": \"/\", \"authorization\": \"Basic ZGVtby11c2VyOndyb25n\"}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"path\": \"/\", \"authorization\": \"Basic d3Jvbmc6ZGVtby1wYXNzLTEyMw==\"}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"path\": \"/\", \"authorization\": \"Basic ZGVtby11c2VyOg==\"}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"path\": \"/\", \"authorization\": \"Basic Og==\"}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"path\": \"/\", \"authorization\": \"Basic ZGVtby11c2VyOmRlbW8tcGFzcy0xMjN4\"}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"path\": \"/\", \"authorization\": \"Basic !!!notbase64\"}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"path\": \"/\", \"authorization\": \"Bearer abc\"}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"path\": \"/\", \"authorization\": \"\"}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"path\": \"/\", \"authorization\": \"Basic REVNTy1VU0VSOmRlbW8tcGFzcy0xMjM=\"}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"path\": \"/a/b/c.css\", \"authorization\": null}, \"expected\": {\"status\": 401, \"www_authenticate_basic\": true}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"path\": \"/a/b/c.css\", \"authorization\": \"Basic ZGVtby11c2VyOmRlbW8tcGFzcy0xMjM=\"}, \"expected\": {\"status\": 200}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:21:54.220Z",
+      "latencyMs": 377.589
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "path": "/",
+            "authorization": null
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "path": "/",
+            "authorization": "Basic ZGVtby11c2VyOmRlbW8tcGFzcy0xMjM="
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "path": "/about",
+            "authorization": "Basic ZGVtby11c2VyOmRlbW8tcGFzcy0xMjM="
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "path": "/",
+            "authorization": "Basic ZGVtby11c2VyOndyb25n"
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "path": "/",
+            "authorization": "Basic d3Jvbmc6ZGVtby1wYXNzLTEyMw=="
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "path": "/",
+            "authorization": "Basic ZGVtby11c2VyOg=="
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "path": "/",
+            "authorization": "Basic Og=="
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "path": "/",
+            "authorization": "Basic ZGVtby11c2VyOmRlbW8tcGFzcy0xMjN4"
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "path": "/",
+            "authorization": "Basic !!!notbase64"
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "path": "/",
+            "authorization": "Bearer abc"
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "path": "/",
+            "authorization": ""
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "path": "/",
+            "authorization": "Basic REVNTy1VU0VSOmRlbW8tcGFzcy0xMjM="
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "path": "/a/b/c.css",
+            "authorization": null
+          },
+          "expected": {
+            "status": 401,
+            "www_authenticate_basic": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "path": "/a/b/c.css",
+            "authorization": "Basic ZGVtby11c2VyOmRlbW8tcGFzcy0xMjM="
+          },
+          "expected": {
+            "status": 200
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "53d6a3499312e7eaa3346a18bdbadd419858ea53c337c2b485ad80a7cc30a9ea"
+  },
+  "contractAudit": {
+    "key": "aad01e6a10441bd6b0bf",
+    "costUsd": 0.00158592,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Execution contract is internally consistent: the generator, validator, and reference agree on the input shape (path string starting with '/', authorization string or null).",
+        "Reference implements the stated oracle: 200 only for a well-formed 'Basic' header whose base64 payload decodes exactly to 'demo-user:demo-pass-123', otherwise 401 with a Basic challenge.",
+        "Empty, malformed, wrong-scheme, wrong-user, wrong-password, extra-character, and case-changed-username credentials are all covered and each yields 401 under the reference.",
+        "Validator probes reject non-dict, missing-key, list, number, boolean, and string inputs, matching the input contract.",
+        "Supplied observed expectations match the reference outputs, and there are no examples to conflict with them.",
+        "The inputs are pure functions of the request, with no external state or nondeterminism. The contract is a narrow, necessary behavioral requirement (site-wide Basic gate) that is relevant to the front-end password-protection question.",
+        "The reference uses a case-sensitive 'Basic ' prefix. This matches the stated oracle basis and no test input depends on it, so it does not invalidate the contract."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "aad01e6a10441bd6b0bf",
+    "0e038417011b86acbde6",
+    "455120f66bd16bc87985"
+  ],
+  "callKeys": [
+    "aad01e6a10441bd6b0bf",
+    "ad8f418ccb171ee23328",
+    "6ba700644c631ac8fe99"
+  ]
+}

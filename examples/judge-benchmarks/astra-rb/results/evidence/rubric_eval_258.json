@@ -1,0 +1,2198 @@
+{
+  "id": "rubric_eval_258",
+  "protocolVersion": 4,
+  "planKey": "26388e8524f2e2aea21b",
+  "questionPlanKey": "7edd7f749ea5ba064ee1",
+  "at": "2026-10-13T04:26:58.429Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "2077a6b519b6d7d8aa66",
+        "costUsd": 0.0046219600000000005,
+        "value": {
+          "runnable": true,
+          "reason": "The candidate Solute/Solution classes are used verbatim by exec-ing block-0.txt (its __main__ guard prevents the example call from running). The harness binds the abstract ops to the candidate: prepare builds Solution(solute, molarity*volume/1000, volume); mix chains the candidate's pairwise mix over the listed items and consumes them; take uses take_volume, keeps the remaining portion at the source index, and treats the taken portion as the final solution. Molar masses are placeholder standard values that do not affect the output fields. Each case gets fresh objects, and candidate stdout is captured.",
+          "command": "python3 -I harness.py",
+          "files": {
+            "harness.py": "import contextlib\nimport io\nimport json\nimport os\nimport sys\n\nMOLAR_MASS = {\"NaOH\": 40.0, \"HCl\": 36.46, \"KCl\": 74.55}\n\n\ndef harness_fail(msg):\n    print(json.dumps({\"results\": [], \"harness_error\": msg}))\n    sys.exit(0)\n\n\ndef load_candidate():\n    path = os.path.join(os.getcwd(), \"block-0.txt\")\n    with open(path, \"r\", encoding=\"utf-8\") as f:\n        src = f.read()\n    ns = {\"__name__\": \"candidate_module\"}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        exec(compile(src, \"block-0.txt\", \"exec\"), ns)\n    return ns[\"Solute\"], ns[\"Solution\"]\n\n\ndef run_ops(ops, Solute, Solution):\n    solutes = {}\n    pool = []\n    last = None\n    for op in ops:\n        kind = op[\"op\"]\n        if kind == \"prepare\":\n            name = op[\"solute\"]\n            if name not in solutes:\n                solutes[name] = Solute(name, MOLAR_MASS[name])\n            vol = float(op[\"volume_mL\"])\n            moles = float(op[\"molarity\"]) * vol / 1000.0\n            last = Solution(solutes[name], moles, vol)\n            pool.append(last)\n        elif kind == \"mix\":\n            items = list(op[\"items\"])\n            acc = None\n            for i in items:\n                sol = pool[i]\n                acc = sol if acc is None else acc.mix(sol)\n            for i in items:\n                pool[i] = None\n            last = acc\n            pool.append(acc)\n        elif kind == \"take\":\n            idx = op[\"source\"]\n            taken, remaining = pool[idx].take_volume(float(op[\"volume_mL\"]))\n            pool[idx] = remaining\n            last = taken\n            pool.append(taken)\n        else:\n            raise ValueError(\"unknown op: \" + str(kind))\n    if last is None:\n        raise ValueError(\"no solution produced\")\n    return {\n        \"solute\": last.solute.name,\n        \"volume_mL\": last.volume_ml,\n        \"moles\": last.moles,\n        \"molarity\": last.molarity_M,\n    }\n\n\ndef main():\n    try:\n        with open(os.path.join(os.getcwd(), \"inputs.json\"), \"r\", encoding=\"utf-8\") as f:\n            cases = json.load(f)\n    except Exception as e:\n        harness_fail(\"cannot read inputs.json: \" + repr(e))\n    try:\n        Solute, Solution = load_candidate()\n    except Exception as e:\n        harness_fail(\"cannot load candidate: \" + repr(e))\n    results = []\n    for case in cases:\n        cid = case.get(\"id\")\n        try:\n            buf = io.StringIO()\n            with contextlib.redirect_stdout(buf):\n                out = run_ops(case[\"input\"][\"ops\"], Solute, Solution)\n            results.append({\"id\": cid, \"actual\": out})\n        except Exception as e:\n            results.append({\"id\": cid, \"error\": type(e).__name__ + \": \" + str(e)})\n    print(json.dumps({\"results\": results}))\n\n\nif __name__ == \"__main__\":\n    main()\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "2f3fa6bdd68277ef7c0a",
+        "costUsd": 0.00227019,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "The harness execs block-0.txt, which is read from the working directory and is intended to hold the candidate's verbatim block 0. Solute and Solution, including mix, take_volume and the molarity_M, moles and volume_ml properties, are used as written and not reimplemented.",
+            "The __main__ guard is preserved, and exec runs with __name__ set to 'candidate_module', so the unrelated demo call does not run. Removing that top-level call is permitted scaffolding.",
+            "The prepare op only converts the abstract input into constructor arguments (moles = molarity × volume_mL / 1000) and does not compute any expected or actual result. Molar masses are placeholder inputs to Solute, which the contract says do not affect the output fields.",
+            "Mix chains the candidate's own pairwise mix over the listed items and marks consumed pool entries as None, which matches the contract's 'whole solutions consumed' rule. Take calls the candidate's take_volume, keeps the remaining portion at the source index and appends the taken portion, so indices follow creation order.",
+            "The output object reads solute name, volume_ml, moles and molarity_M from the candidate's final object, which matches the output schema. Candidate-produced wrong values, exceptions such as ValueError from the candidate's own checks, and wrong types are passed through per case as errors or actual values rather than repaired.",
+            "Harness-level setup failures (unreadable inputs.json or failure to load the candidate) are reported separately as harness_error and are not mixed into per-case candidate results.",
+            "All dependencies are Python standard library modules (contextlib, io, json, os, sys), run under python3 -I, so no unsupported library is required.",
+            "Candidate stdout is captured during both loading and each case, so printed text does not contaminate the JSON result."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-u5GRlB",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I harness.py 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\": [{\"id\": \"t0\", \"actual\": {\"solute\": \"NaOH\", \"volume_mL\": 20.0, \"moles\": 0.004, \"molarity\": 0.2}}, {\"id\": \"t1\", \"actual\": {\"solute\": \"NaOH\", \"volume_mL\": 100.0, \"moles\": 0.038, \"molarity\": 0.37999999999999995}}, {\"id\": \"t2\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 1000.0, \"moles\": 0.1, \"molarity\": 0.1}}, {\"id\": \"t3\", \"actual\": {\"solute\": \"NaOH\", \"volume_mL\": 1.0, \"moles\": 0.0002, \"molarity\": 0.2}}, {\"id\": \"t4\", \"actual\": {\"solute\": \"NaOH\", \"volume_mL\": 30.0, \"moles\": 0.006, \"molarity\": 0.2}}, {\"id\": \"t5\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 76.0, \"moles\": 0.09120000000000002, \"molarity\": 1.2000000000000002}}, {\"id\": \"t6\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 102.0, \"moles\": 0.05099999999999999, \"molarity\": 0.49999999999999994}}, {\"id\": \"t7\", \"actual\": {\"solute\": \"KCl\", \"volume_mL\": 11.0, \"moles\": 0.005499999999999997, \"molarity\": 0.4999999999999998}}, {\"id\": \"t8\", \"actual\": {\"solute\": \"KCl\", \"volume_mL\": 314.0, \"moles\": 0.06878252631578947, \"molarity\": 0.21905263157894736}}, {\"id\": \"t9\", \"actual\": {\"solute\": \"NaOH\", \"volume_mL\": 103.0, \"moles\": 0.025750000000000002, \"molarity\": 0.25000000000000006}}, {\"id\": \"t10\", \"actual\": {\"solute\": \"KCl\", \"volume_mL\": 61.0, \"moles\": 0.02706338028169014, \"molarity\": 0.44366197183098594}}, {\"id\": \"t11\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 12.0, \"moles\": 0.001199999999999998, \"molarity\": 0.09999999999999983}}, {\"id\": \"t12\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 603.0, \"moles\": 0.7562553008595989, \"molarity\": 1.2541547277936964}}, {\"id\": \"t13\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 35.0, \"moles\": 0.005514150943396227, \"molarity\": 0.15754716981132078}}, {\"id\": \"t14\", \"actual\": {\"solute\": \"KCl\", \"volume_mL\": 349.0, \"moles\": 0.41879999999999995, \"molarity\": 1.2}}, {\"id\": \"t15\", \"actual\": {\"solute\": \"NaOH\", \"volume_mL\": 167.0, \"moles\": 0.2500291873963516, \"molarity\": 1.4971807628524048}}, {\"id\": \"t16\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 31.0, \"moles\": 0.0030999999999999986, \"molarity\": 0.09999999999999995}}, {\"id\": \"t17\", \"actual\": {\"solute\": \"NaOH\", \"volume_mL\": 229.0, \"moles\": 0.11450000000000002, \"molarity\": 0.5000000000000001}}, {\"id\": \"t18\", \"actual\": {\"solute\": \"KCl\", \"volume_mL\": 34.0, \"moles\": 0.017, \"molarity\": 0.5}}, {\"id\": \"t19\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 73.0, \"moles\": 0.0365, \"molarity\": 0.5}}, {\"id\": \"t20\", \"actual\": {\"solute\": \"KCl\", \"volume_mL\": 5.0, \"moles\": 0.005999999999999998, \"molarity\": 1.1999999999999997}}, {\"id\": \"t21\", \"actual\": {\"solute\": \"KCl\", \"volume_mL\": 146.0, \"moles\": 0.05475000000000001, \"molarity\": 0.37500000000000006}}, {\"id\": \"t22\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 98.0, \"moles\": 0.059976, \"molarity\": 0.612}}, {\"id\": \"t23\", \"actual\": {\"solute\": \"HCl\", \"volume_mL\": 29.0, \"moles\": 0.0029000000000000007, \"molarity\": 0.10000000000000002}}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:27:48.270Z",
+          "latencyMs": 205.794
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": {
+                "solute": "NaOH",
+                "volume_mL": 20,
+                "moles": 0.004,
+                "molarity": 0.2
+              }
+            },
+            {
+              "id": "t1",
+              "actual": {
+                "solute": "NaOH",
+                "volume_mL": 100,
+                "moles": 0.038,
+                "molarity": 0.37999999999999995
+              }
+            },
+            {
+              "id": "t2",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 1000,
+                "moles": 0.1,
+                "molarity": 0.1
+              }
+            },
+            {
+              "id": "t3",
+              "actual": {
+                "solute": "NaOH",
+                "volume_mL": 1,
+                "moles": 0.0002,
+                "molarity": 0.2
+              }
+            },
+            {
+              "id": "t4",
+              "actual": {
+                "solute": "NaOH",
+                "volume_mL": 30,
+                "moles": 0.006,
+                "molarity": 0.2
+              }
+            },
+            {
+              "id": "t5",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 76,
+                "moles": 0.09120000000000002,
+                "molarity": 1.2000000000000002
+              }
+            },
+            {
+              "id": "t6",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 102,
+                "moles": 0.05099999999999999,
+                "molarity": 0.49999999999999994
+              }
+            },
+            {
+              "id": "t7",
+              "actual": {
+                "solute": "KCl",
+                "volume_mL": 11,
+                "moles": 0.005499999999999997,
+                "molarity": 0.4999999999999998
+              }
+            },
+            {
+              "id": "t8",
+              "actual": {
+                "solute": "KCl",
+                "volume_mL": 314,
+                "moles": 0.06878252631578947,
+                "molarity": 0.21905263157894736
+              }
+            },
+            {
+              "id": "t9",
+              "actual": {
+                "solute": "NaOH",
+                "volume_mL": 103,
+                "moles": 0.025750000000000002,
+                "molarity": 0.25000000000000006
+              }
+            },
+            {
+              "id": "t10",
+              "actual": {
+                "solute": "KCl",
+                "volume_mL": 61,
+                "moles": 0.02706338028169014,
+                "molarity": 0.44366197183098594
+              }
+            },
+            {
+              "id": "t11",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 12,
+                "moles": 0.001199999999999998,
+                "molarity": 0.09999999999999983
+              }
+            },
+            {
+              "id": "t12",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 603,
+                "moles": 0.7562553008595989,
+                "molarity": 1.2541547277936964
+              }
+            },
+            {
+              "id": "t13",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 35,
+                "moles": 0.005514150943396227,
+                "molarity": 0.15754716981132078
+              }
+            },
+            {
+              "id": "t14",
+              "actual": {
+                "solute": "KCl",
+                "volume_mL": 349,
+                "moles": 0.41879999999999995,
+                "molarity": 1.2
+              }
+            },
+            {
+              "id": "t15",
+              "actual": {
+                "solute": "NaOH",
+                "volume_mL": 167,
+                "moles": 0.2500291873963516,
+                "molarity": 1.4971807628524048
+              }
+            },
+            {
+              "id": "t16",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 31,
+                "moles": 0.0030999999999999986,
+                "molarity": 0.09999999999999995
+              }
+            },
+            {
+              "id": "t17",
+              "actual": {
+                "solute": "NaOH",
+                "volume_mL": 229,
+                "moles": 0.11450000000000002,
+                "molarity": 0.5000000000000001
+              }
+            },
+            {
+              "id": "t18",
+              "actual": {
+                "solute": "KCl",
+                "volume_mL": 34,
+                "moles": 0.017,
+                "molarity": 0.5
+              }
+            },
+            {
+              "id": "t19",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 73,
+                "moles": 0.0365,
+                "molarity": 0.5
+              }
+            },
+            {
+              "id": "t20",
+              "actual": {
+                "solute": "KCl",
+                "volume_mL": 5,
+                "moles": 0.005999999999999998,
+                "molarity": 1.1999999999999997
+              }
+            },
+            {
+              "id": "t21",
+              "actual": {
+                "solute": "KCl",
+                "volume_mL": 146,
+                "moles": 0.05475000000000001,
+                "molarity": 0.37500000000000006
+              }
+            },
+            {
+              "id": "t22",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 98,
+                "moles": 0.059976,
+                "molarity": 0.612
+              }
+            },
+            {
+              "id": "t23",
+              "actual": {
+                "solute": "HCl",
+                "volume_mL": 29,
+                "moles": 0.0029000000000000007,
+                "molarity": 0.10000000000000002
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 20
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 20,
+            "moles": 0.004,
+            "molarity": 0.2
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "NaOH",
+            "volume_mL": 20,
+            "moles": 0.004,
+            "molarity": 0.2
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.5",
+                "volume_mL": 60
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 100,
+            "moles": 0.038,
+            "molarity": 0.38
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "NaOH",
+            "volume_mL": 100,
+            "moles": 0.038,
+            "molarity": 0.37999999999999995
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 1000
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 1000,
+            "moles": 0.1,
+            "molarity": 0.1
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 1000,
+            "moles": 0.1,
+            "molarity": 0.1
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 1
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 1,
+            "moles": 0.0002,
+            "molarity": 0.2
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "NaOH",
+            "volume_mL": 1,
+            "moles": 0.0002,
+            "molarity": 0.2
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 30
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 30,
+            "moles": 0.006,
+            "molarity": 0.2
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "NaOH",
+            "volume_mL": 30,
+            "moles": 0.006,
+            "molarity": 0.2
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "1.2",
+                "volume_mL": 432
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 171
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 76
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 76,
+            "moles": 0.0912,
+            "molarity": 1.2
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 76,
+            "moles": 0.09120000000000002,
+            "molarity": 1.2000000000000002
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.5",
+                "volume_mL": 409
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 193
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 102
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 102,
+            "moles": 0.051,
+            "molarity": 0.5
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 102,
+            "moles": 0.05099999999999999,
+            "molarity": 0.49999999999999994
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.5",
+                "volume_mL": 185
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 167
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 11
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 11,
+            "moles": 0.0055,
+            "molarity": 0.5
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "KCl",
+            "volume_mL": 11,
+            "moles": 0.005499999999999997,
+            "molarity": 0.4999999999999998
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.25",
+                "volume_mL": 377
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.1",
+                "volume_mL": 98
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 314
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 314,
+            "moles": 0.068782526316,
+            "molarity": 0.219052631579
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "KCl",
+            "volume_mL": 314,
+            "moles": 0.06878252631578947,
+            "molarity": 0.21905263157894736
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.25",
+                "volume_mL": 420
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 96
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 103
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 103,
+            "moles": 0.02575,
+            "molarity": 0.25
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "NaOH",
+            "volume_mL": 103,
+            "moles": 0.025750000000000002,
+            "molarity": 0.25000000000000006
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.1",
+                "volume_mL": 10
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.5",
+                "volume_mL": 61
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 61
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 61,
+            "moles": 0.027063380282,
+            "molarity": 0.443661971831
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "KCl",
+            "volume_mL": 61,
+            "moles": 0.02706338028169014,
+            "molarity": 0.44366197183098594
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 372
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 356
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 12
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 12,
+            "moles": 0.0012,
+            "molarity": 0.1
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 12,
+            "moles": 0.001199999999999998,
+            "molarity": 0.09999999999999983
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 274
+              },
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "2",
+                "volume_mL": 424
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 603
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 603,
+            "moles": 0.75625530086,
+            "molarity": 1.254154727794
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 603,
+            "moles": 0.7562553008595989,
+            "molarity": 1.2541547277936964
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 98
+              },
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.25",
+                "volume_mL": 61
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 35
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 35,
+            "moles": 0.005514150943,
+            "molarity": 0.157547169811
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 35,
+            "moles": 0.005514150943396227,
+            "molarity": 0.15754716981132078
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "1.2",
+                "volume_mL": 250
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "1.2",
+                "volume_mL": 192
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 349
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 349,
+            "moles": 0.4188,
+            "molarity": 1.2
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "KCl",
+            "volume_mL": 349,
+            "moles": 0.41879999999999995,
+            "molarity": 1.2
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "1.2",
+                "volume_mL": 379
+              },
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "2",
+                "volume_mL": 224
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 167
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 167,
+            "moles": 0.250029187396,
+            "molarity": 1.497180762852
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "NaOH",
+            "volume_mL": 167,
+            "moles": 0.2500291873963516,
+            "molarity": 1.4971807628524048
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 437
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 394
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 31
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 31,
+            "moles": 0.0031,
+            "molarity": 0.1
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 31,
+            "moles": 0.0030999999999999986,
+            "molarity": 0.09999999999999995
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.5",
+                "volume_mL": 305
+              },
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.5",
+                "volume_mL": 481
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 229
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 229,
+            "moles": 0.1145,
+            "molarity": 0.5
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "NaOH",
+            "volume_mL": 229,
+            "moles": 0.11450000000000002,
+            "molarity": 0.5000000000000001
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.5",
+                "volume_mL": 487
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.5",
+                "volume_mL": 415
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 34
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 34,
+            "moles": 0.017,
+            "molarity": 0.5
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "KCl",
+            "volume_mL": 34,
+            "moles": 0.017,
+            "molarity": 0.5
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t19",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.5",
+                "volume_mL": 238
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 74
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 73
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 73,
+            "moles": 0.0365,
+            "molarity": 0.5
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 73,
+            "moles": 0.0365,
+            "molarity": 0.5
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t20",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "1.2",
+                "volume_mL": 407
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 391
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 5
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 5,
+            "moles": 0.006,
+            "molarity": 1.2
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "KCl",
+            "volume_mL": 5,
+            "moles": 0.005999999999999998,
+            "molarity": 1.1999999999999997
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t21",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "1.2",
+                "volume_mL": 115
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.1",
+                "volume_mL": 345
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 146
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 146,
+            "moles": 0.05475,
+            "molarity": 0.375
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "KCl",
+            "volume_mL": 146,
+            "moles": 0.05475000000000001,
+            "molarity": 0.37500000000000006
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t22",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.5",
+                "volume_mL": 105
+              },
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "1.2",
+                "volume_mL": 20
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 98
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 98,
+            "moles": 0.059976,
+            "molarity": 0.612
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 98,
+            "moles": 0.059976,
+            "molarity": 0.612
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t23",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 439
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 253
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 29
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 29,
+            "moles": 0.0029,
+            "molarity": 0.1
+          },
+          "oracle": "reference",
+          "actual": {
+            "solute": "HCl",
+            "volume_mL": 29,
+            "moles": 0.0029000000000000007,
+            "molarity": 0.10000000000000002
+          },
+          "verdict": "pass"
+        }
+      ]
+    },
+    {
+      "status": "unsupported_candidate",
+      "side": "b",
+      "adapter": {
+        "key": "b216c9e6761fc1c6037f",
+        "costUsd": 0.00162966,
+        "value": {
+          "runnable": false,
+          "reason": "Block 0 cannot be bound to the input contract without changing its algorithm. The Solution constructor takes mass_solute and volume_water, not molarity and volume_mL, so a prepare op would need a new molarity-to-mass conversion and a different volume formula. mix_with returns a new object without consuming its inputs and does not check that the solutes match, while the contract requires whole-solution consumption and same-solute checks. Supplying those behaviors would repair the candidate, which is forbidden. A runnable harness needs a candidate that exposes prepare, mix, and take entry points with the specified semantics.",
+          "command": "",
+          "files": {},
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "attempt": 1
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-Xyf8wN",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.2\", \"volume_mL\": 40}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 20}]}, \"expected\": {\"solute\": \"NaOH\", \"volume_mL\": 20.0, \"moles\": 0.004, \"molarity\": 0.2}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.2\", \"volume_mL\": 40}, {\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.5\", \"volume_mL\": 60}, {\"op\": \"mix\", \"items\": [0, 1]}]}, \"expected\": {\"solute\": \"NaOH\", \"volume_mL\": 100.0, \"moles\": 0.038, \"molarity\": 0.38}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.1\", \"volume_mL\": 1000}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 1000.0, \"moles\": 0.1, \"molarity\": 0.1}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.2\", \"volume_mL\": 40}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 1}]}, \"expected\": {\"solute\": \"NaOH\", \"volume_mL\": 1.0, \"moles\": 0.0002, \"molarity\": 0.2}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.2\", \"volume_mL\": 40}, {\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.2\", \"volume_mL\": 40}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 30}]}, \"expected\": {\"solute\": \"NaOH\", \"volume_mL\": 30.0, \"moles\": 0.006, \"molarity\": 0.2}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"1.2\", \"volume_mL\": 432}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 171}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 76}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 76.0, \"moles\": 0.0912, \"molarity\": 1.2}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.5\", \"volume_mL\": 409}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 193}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 102}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 102.0, \"moles\": 0.051, \"molarity\": 0.5}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"0.5\", \"volume_mL\": 185}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 167}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 11}]}, \"expected\": {\"solute\": \"KCl\", \"volume_mL\": 11.0, \"moles\": 0.0055, \"molarity\": 0.5}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"0.25\", \"volume_mL\": 377}, {\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"0.1\", \"volume_mL\": 98}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 314}]}, \"expected\": {\"solute\": \"KCl\", \"volume_mL\": 314.0, \"moles\": 0.068782526316, \"molarity\": 0.219052631579}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.25\", \"volume_mL\": 420}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 96}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 103}]}, \"expected\": {\"solute\": \"NaOH\", \"volume_mL\": 103.0, \"moles\": 0.02575, \"molarity\": 0.25}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"0.1\", \"volume_mL\": 10}, {\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"0.5\", \"volume_mL\": 61}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 61}]}, \"expected\": {\"solute\": \"KCl\", \"volume_mL\": 61.0, \"moles\": 0.027063380282, \"molarity\": 0.443661971831}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.1\", \"volume_mL\": 372}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 356}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 12}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 12.0, \"moles\": 0.0012, \"molarity\": 0.1}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.1\", \"volume_mL\": 274}, {\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"2\", \"volume_mL\": 424}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 603}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 603.0, \"moles\": 0.75625530086, \"molarity\": 1.254154727794}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.1\", \"volume_mL\": 98}, {\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.25\", \"volume_mL\": 61}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 35}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 35.0, \"moles\": 0.005514150943, \"molarity\": 0.157547169811}, \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"1.2\", \"volume_mL\": 250}, {\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"1.2\", \"volume_mL\": 192}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 349}]}, \"expected\": {\"solute\": \"KCl\", \"volume_mL\": 349.0, \"moles\": 0.4188, \"molarity\": 1.2}, \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"1.2\", \"volume_mL\": 379}, {\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"2\", \"volume_mL\": 224}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 167}]}, \"expected\": {\"solute\": \"NaOH\", \"volume_mL\": 167.0, \"moles\": 0.250029187396, \"molarity\": 1.497180762852}, \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.1\", \"volume_mL\": 437}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 394}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 31}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 31.0, \"moles\": 0.0031, \"molarity\": 0.1}, \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.5\", \"volume_mL\": 305}, {\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.5\", \"volume_mL\": 481}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 229}]}, \"expected\": {\"solute\": \"NaOH\", \"volume_mL\": 229.0, \"moles\": 0.1145, \"molarity\": 0.5}, \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"0.5\", \"volume_mL\": 487}, {\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"0.5\", \"volume_mL\": 415}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 34}]}, \"expected\": {\"solute\": \"KCl\", \"volume_mL\": 34.0, \"moles\": 0.017, \"molarity\": 0.5}, \"oracle\": \"reference\"}, {\"id\": \"t19\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.5\", \"volume_mL\": 238}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 74}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 73}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 73.0, \"moles\": 0.0365, \"molarity\": 0.5}, \"oracle\": \"reference\"}, {\"id\": \"t20\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"1.2\", \"volume_mL\": 407}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 391}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 5}]}, \"expected\": {\"solute\": \"KCl\", \"volume_mL\": 5.0, \"moles\": 0.006, \"molarity\": 1.2}, \"oracle\": \"reference\"}, {\"id\": \"t21\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"1.2\", \"volume_mL\": 115}, {\"op\": \"prepare\", \"solute\": \"KCl\", \"molarity\": \"0.1\", \"volume_mL\": 345}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 146}]}, \"expected\": {\"solute\": \"KCl\", \"volume_mL\": 146.0, \"moles\": 0.05475, \"molarity\": 0.375}, \"oracle\": \"reference\"}, {\"id\": \"t22\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.5\", \"volume_mL\": 105}, {\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"1.2\", \"volume_mL\": 20}, {\"op\": \"mix\", \"items\": [0, 1]}, {\"op\": \"take\", \"source\": 2, \"volume_mL\": 98}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 98.0, \"moles\": 0.059976, \"molarity\": 0.612}, \"oracle\": \"reference\"}, {\"id\": \"t23\", \"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"HCl\", \"molarity\": \"0.1\", \"volume_mL\": 439}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 253}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 29}]}, \"expected\": {\"solute\": \"HCl\", \"volume_mL\": 29.0, \"moles\": 0.0029, \"molarity\": 0.1}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [{\"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.2\", \"volume_mL\": 40}, {\"op\": \"take\", \"source\": 0, \"volume_mL\": 20}]}, \"expected\": {\"solute\": \"NaOH\", \"volume_mL\": 20, \"moles\": 0.004, \"molarity\": 0.2}, \"actual\": {\"solute\": \"NaOH\", \"volume_mL\": 20.0, \"moles\": 0.004, \"molarity\": 0.2}, \"pass\": true}, {\"input\": {\"ops\": [{\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.2\", \"volume_mL\": 40}, {\"op\": \"prepare\", \"solute\": \"NaOH\", \"molarity\": \"0.5\", \"volume_mL\": 60}, {\"op\": \"mix\", \"items\": [0, 1]}]}, \"expected\": {\"solute\": \"NaOH\", \"volume_mL\": 100, \"moles\": 0.038, \"molarity\": 0.38}, \"actual\": {\"solute\": \"NaOH\", \"volume_mL\": 100.0, \"moles\": 0.038, \"molarity\": 0.38}, \"pass\": true}], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:10:57.225Z",
+      "latencyMs": 203.064
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 20
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 20,
+            "moles": 0.004,
+            "molarity": 0.2
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.5",
+                "volume_mL": 60
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 100,
+            "moles": 0.038,
+            "molarity": 0.38
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 1000
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 1000,
+            "moles": 0.1,
+            "molarity": 0.1
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 1
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 1,
+            "moles": 0.0002,
+            "molarity": 0.2
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 30
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 30,
+            "moles": 0.006,
+            "molarity": 0.2
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "1.2",
+                "volume_mL": 432
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 171
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 76
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 76,
+            "moles": 0.0912,
+            "molarity": 1.2
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.5",
+                "volume_mL": 409
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 193
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 102
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 102,
+            "moles": 0.051,
+            "molarity": 0.5
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.5",
+                "volume_mL": 185
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 167
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 11
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 11,
+            "moles": 0.0055,
+            "molarity": 0.5
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.25",
+                "volume_mL": 377
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.1",
+                "volume_mL": 98
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 314
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 314,
+            "moles": 0.068782526316,
+            "molarity": 0.219052631579
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.25",
+                "volume_mL": 420
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 96
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 103
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 103,
+            "moles": 0.02575,
+            "molarity": 0.25
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.1",
+                "volume_mL": 10
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.5",
+                "volume_mL": 61
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 61
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 61,
+            "moles": 0.027063380282,
+            "molarity": 0.443661971831
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 372
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 356
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 12
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 12,
+            "moles": 0.0012,
+            "molarity": 0.1
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 274
+              },
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "2",
+                "volume_mL": 424
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 603
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 603,
+            "moles": 0.75625530086,
+            "molarity": 1.254154727794
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 98
+              },
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.25",
+                "volume_mL": 61
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 35
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 35,
+            "moles": 0.005514150943,
+            "molarity": 0.157547169811
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "1.2",
+                "volume_mL": 250
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "1.2",
+                "volume_mL": 192
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 349
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 349,
+            "moles": 0.4188,
+            "molarity": 1.2
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "1.2",
+                "volume_mL": 379
+              },
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "2",
+                "volume_mL": 224
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 167
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 167,
+            "moles": 0.250029187396,
+            "molarity": 1.497180762852
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 437
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 394
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 31
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 31,
+            "moles": 0.0031,
+            "molarity": 0.1
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.5",
+                "volume_mL": 305
+              },
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.5",
+                "volume_mL": 481
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 229
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 229,
+            "moles": 0.1145,
+            "molarity": 0.5
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.5",
+                "volume_mL": 487
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.5",
+                "volume_mL": 415
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 34
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 34,
+            "moles": 0.017,
+            "molarity": 0.5
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t19",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.5",
+                "volume_mL": 238
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 74
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 73
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 73,
+            "moles": 0.0365,
+            "molarity": 0.5
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t20",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "1.2",
+                "volume_mL": 407
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 391
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 5
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 5,
+            "moles": 0.006,
+            "molarity": 1.2
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t21",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "1.2",
+                "volume_mL": 115
+              },
+              {
+                "op": "prepare",
+                "solute": "KCl",
+                "molarity": "0.1",
+                "volume_mL": 345
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 146
+              }
+            ]
+          },
+          "expected": {
+            "solute": "KCl",
+            "volume_mL": 146,
+            "moles": 0.05475,
+            "molarity": 0.375
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t22",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.5",
+                "volume_mL": 105
+              },
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "1.2",
+                "volume_mL": 20
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "op": "take",
+                "source": 2,
+                "volume_mL": 98
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 98,
+            "moles": 0.059976,
+            "molarity": 0.612
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t23",
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "HCl",
+                "molarity": "0.1",
+                "volume_mL": 439
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 253
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 29
+              }
+            ]
+          },
+          "expected": {
+            "solute": "HCl",
+            "volume_mL": 29,
+            "moles": 0.0029,
+            "molarity": 0.1
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [
+        {
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "take",
+                "source": 0,
+                "volume_mL": 20
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 20,
+            "moles": 0.004,
+            "molarity": 0.2
+          },
+          "actual": {
+            "solute": "NaOH",
+            "volume_mL": 20,
+            "moles": 0.004,
+            "molarity": 0.2
+          },
+          "pass": true
+        },
+        {
+          "input": {
+            "ops": [
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.2",
+                "volume_mL": 40
+              },
+              {
+                "op": "prepare",
+                "solute": "NaOH",
+                "molarity": "0.5",
+                "volume_mL": 60
+              },
+              {
+                "op": "mix",
+                "items": [
+                  0,
+                  1
+                ]
+              }
+            ]
+          },
+          "expected": {
+            "solute": "NaOH",
+            "volume_mL": 100,
+            "moles": 0.038,
+            "molarity": 0.38
+          },
+          "actual": {
+            "solute": "NaOH",
+            "volume_mL": 100,
+            "moles": 0.038,
+            "molarity": 0.38
+          },
+          "pass": true
+        }
+      ],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "7b0c0761f4005cade83c9e9e45133a3921b384ebfede9f5caf4ebc7c53a7b7c3"
+  },
+  "contractAudit": {
+    "key": "ef1b75e6a7e3d4d4502c",
+    "costUsd": 0.0042292200000000005,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "The plan has no C1 checks, so validity rests on the execution contract.",
+        "The reference implements the stated mass-balance model: moles = M·V/1000 on prepare, moles and volume summed on mix, and proportional removal on take with the source molarity preserved.",
+        "I hand-checked all 24 supplied oracle outputs against that model (for example t0 gives 0.004 mol, t1 gives 0.038 mol and 0.38 M, t8 and t12 match to 12 decimals), and both supplied examples agree with the reference.",
+        "The validator rejects every malformed probe (null, {}, [], 1, true, 'malformed') and enforces the input domain: non-empty ops, valid indices, no reuse of consumed solutions, same-solute mixing only, and take volume strictly below the remaining volume.",
+        "The generator is seeded and deterministic, and every generated case passes the validator (take volumes are chosen within remaining volume, and mix totals are valid).",
+        "Restricting mixing to a single solute and assuming volume additivity follow the question's stated rules, so they are not unrequested requirements. Density and mass are not exercised, which is acceptable because the contract is a narrow necessary behavioral requirement.",
+        "Minor note: expected floats are rounded to 12 decimals, so the comparison tolerance should be stated in the adapter. This does not invalidate the contract."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "ef1b75e6a7e3d4d4502c",
+    "7f889dd4855c4fa302df",
+    "0c7267420c7b71bfea78",
+    "614a990f7aa74e140f42",
+    "0469279214ba2cdc0be9",
+    "89957dfde9679b037569"
+  ],
+  "callKeys": [
+    "ef1b75e6a7e3d4d4502c",
+    "2077a6b519b6d7d8aa66",
+    "2f3fa6bdd68277ef7c0a",
+    "dc8621c6e1b3217ca0c0",
+    "b216c9e6761fc1c6037f"
+  ]
+}

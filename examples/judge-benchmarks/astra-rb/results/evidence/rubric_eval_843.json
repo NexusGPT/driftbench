@@ -1,0 +1,950 @@
+{
+  "id": "rubric_eval_843",
+  "protocolVersion": 4,
+  "planKey": "06d400757a6762adce27",
+  "questionPlanKey": "26f25a98a4d9042c69cc",
+  "at": "2026-10-13T04:30:50.563Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-KgrqFC",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": [\"h\", \"e\", \"L\", \"I\", \"o\", \"*\", \"7\", \"W\", \"O\", \"r\", \"L\", \"#\", \"d\", \"-\", \"5\"], \"expected\": {\"symArr\": [\"*\", \"#\", \"-\"], \"uniqueLetters\": [\"h\", \"e\", \"I\", \"W\", \"r\", \"d\"]}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": [\"a\", \"A\", \"b\", \"B\", \"c\", \"C\", \"d\", \"D\", \"e\", \"E\", \"f\", \"F\", \"g\", \"G\", \"h\"], \"expected\": {\"symArr\": [], \"uniqueLetters\": [\"h\"]}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": [\"!\", \"@\", \"#\", \"$\", \"%\", \"^\", \"&\", \"*\", \"(\", \")\", \"-\", \"_\", \"=\", \"+\", \"[\"], \"expected\": {\"symArr\": [\"!\", \"@\", \"#\", \"$\", \"%\", \"^\", \"&\", \"*\", \"(\", \")\", \"-\", \"_\", \"=\", \"+\", \"[\"], \"uniqueLetters\": []}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": [\"0\", \"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"0\", \"1\", \"2\", \"3\", \"4\"], \"expected\": {\"symArr\": [], \"uniqueLetters\": []}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\", \"g\", \"h\", \"i\", \"j\", \"k\", \"l\", \"m\", \"n\", \"o\"], \"expected\": {\"symArr\": [], \"uniqueLetters\": [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\", \"g\", \"h\", \"i\", \"j\", \"k\", \"l\", \"m\", \"n\", \"o\"]}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": [\"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\", \"A\"], \"expected\": {\"symArr\": [], \"uniqueLetters\": []}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": [\"a\", \"A\", \"1\", \"b\", \"B\", \"2\", \"c\", \"C\", \"3\", \"d\", \"D\", \"4\", \"e\", \"E\", \"5\"], \"expected\": {\"symArr\": [], \"uniqueLetters\": []}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": [\"x\", \"y\", \"z\", \"X\", \"Y\", \"Z\", \"!\", \"!\", \"!\", \"!\", \"!\", \"!\", \"!\", \"!\", \"!\"], \"expected\": {\"symArr\": [\"!\", \"!\", \"!\", \"!\", \"!\", \"!\", \"!\", \"!\", \"!\"], \"uniqueLetters\": []}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": [\"X\", \"L\", \"o\", \"Q\", \"s\", \"X\", \"8\", \"7\", \"\\\\\", \"W\", \"Y\", \"H\", \"|\", \"P\", \"R\"], \"expected\": {\"symArr\": [\"\\\\\", \"|\"], \"uniqueLetters\": [\"L\", \"o\", \"Q\", \"s\", \"W\", \"Y\", \"H\", \"P\", \"R\"]}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": [\"@\", \"R\", \"G\", \"'\", \"|\", \"w\", \"{\", \"v\", \"f\", \";\", \"x\", \"O\", \"P\", \"x\", \"z\"], \"expected\": {\"symArr\": [\"@\", \"'\", \"|\", \"{\", \";\"], \"uniqueLetters\": [\"R\", \"G\", \"w\", \"v\", \"f\", \"O\", \"P\", \"z\"]}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": [\"t\", \">\", \".\", \"a\", \"m\", \"e\", \"J\", \"8\", \"3\", \"S\", \"{\", \"_\", \"|\", \"c\", \"Z\"], \"expected\": {\"symArr\": [\">\", \".\", \"{\", \"_\", \"|\"], \"uniqueLetters\": [\"t\", \"a\", \"m\", \"e\", \"J\", \"S\", \"c\", \"Z\"]}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": [\"%\", \"o\", \":\", \"{\", \".\", \"P\", \"w\", \"m\", \"=\", \"j\", \"~\", \"`\", \"F\", \"r\", \"_\"], \"expected\": {\"symArr\": [\"%\", \":\", \"{\", \".\", \"=\", \"~\", \"`\", \"_\"], \"uniqueLetters\": [\"o\", \"P\", \"w\", \"m\", \"j\", \"F\", \"r\"]}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": [\"~\", \"8\", \"T\", \"1\", \"@\", \"5\", \"^\", \"A\", \"\\\\\", \"Y\", \"}\", \"1\", \"Z\", \"|\", \"|\"], \"expected\": {\"symArr\": [\"~\", \"@\", \"^\", \"\\\\\", \"}\", \"|\", \"|\"], \"uniqueLetters\": [\"T\", \"A\", \"Y\", \"Z\"]}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": [\",\", \"u\", \"J\", \"5\", \"8\", \"[\", \"^\", \"a\", \"o\", \"P\", \",\", \"L\", \"S\", \"C\", \"`\"], \"expected\": {\"symArr\": [\",\", \"[\", \"^\", \",\", \"`\"], \"uniqueLetters\": [\"u\", \"J\", \"a\", \"o\", \"P\", \"L\", \"S\", \"C\"]}, \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": [\"S\", \"L\", \"G\", \"e\", \"P\", \"H\", \"5\", \"K\", \"K\", \"N\", \"%\", \"t\", \"?\", \"M\", \"Y\"], \"expected\": {\"symArr\": [\"%\", \"?\"], \"uniqueLetters\": [\"S\", \"L\", \"G\", \"e\", \"P\", \"H\", \"N\", \"t\", \"M\", \"Y\"]}, \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": [\"%\", \"A\", \"A\", \"@\", \"5\", \"}\", \"_\", \"e\", \"K\", \"U\", \"x\", \"c\", \"L\", \"2\", \"G\"], \"expected\": {\"symArr\": [\"%\", \"@\", \"}\", \"_\"], \"uniqueLetters\": [\"e\", \"K\", \"U\", \"x\", \"c\", \"L\", \"G\"]}, \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": [\"w\", \"\\\"\", \"o\", \"l\", \"d\", \">\", \"(\", \"0\", \"H\", \"Y\", \"J\", \"3\", \"(\", \"*\", \",\"], \"expected\": {\"symArr\": [\"\\\"\", \">\", \"(\", \"(\", \"*\", \",\"], \"uniqueLetters\": [\"w\", \"o\", \"l\", \"d\", \"H\", \"Y\", \"J\"]}, \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": [\"*\", \"O\", \":\", \"R\", \"p\", \"{\", \"4\", \"\\\\\", \"7\", \"R\", \"z\", \"q\", \"c\", \"B\", \"#\"], \"expected\": {\"symArr\": [\"*\", \":\", \"{\", \"\\\\\", \"#\"], \"uniqueLetters\": [\"O\", \"p\", \"z\", \"q\", \"c\", \"B\"]}, \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": [\"t\", \"|\", \"<\", \"5\", \"&\", \"s\", \"G\", \"I\", \"2\", \"s\", \".\", \"~\", \"I\", \"E\", \"m\"], \"expected\": {\"symArr\": [\"|\", \"<\", \"&\", \".\", \"~\"], \"uniqueLetters\": [\"t\", \"G\", \"E\", \"m\"]}, \"oracle\": \"reference\"}, {\"id\": \"t19\", \"input\": [\"_\", \"c\", \"/\", \"k\", \"z\", \"|\", \"0\", \"3\", \"h\", \"n\", \";\", \".\", \"C\", \">\", \"P\"], \"expected\": {\"symArr\": [\"_\", \"/\", \"|\", \";\", \".\", \">\"], \"uniqueLetters\": [\"k\", \"z\", \"h\", \"n\", \"P\"]}, \"oracle\": \"reference\"}, {\"id\": \"t20\", \"input\": [\"r\", \"m\", \"g\", \"O\", \"l\", \"s\", \"c\", \"B\", \"E\", \"q\", \"y\", \"6\", \")\", \"q\", \"z\"], \"expected\": {\"symArr\": [\")\"], \"uniqueLetters\": [\"r\", \"m\", \"g\", \"O\", \"l\", \"s\", \"c\", \"B\", \"E\", \"y\", \"z\"]}, \"oracle\": \"reference\"}, {\"id\": \"t21\", \"input\": [\"K\", \"i\", \"5\", \"j\", \"}\", \"R\", \"2\", \"j\", \"_\", \"=\", \"]\", \"v\", \"&\", \"4\", \"l\"], \"expected\": {\"symArr\": [\"}\", \"_\", \"=\", \"]\", \"&\"], \"uniqueLetters\": [\"K\", \"i\", \"R\", \"v\", \"l\"]}, \"oracle\": \"reference\"}, {\"id\": \"t22\", \"input\": [\"{\", \"[\", \"I\", \"\\\"\", \"C\", \"3\", \"i\", \"o\", \"N\", \"(\", \"`\", \"r\", \"w\", \"d\", \"j\"], \"expected\": {\"symArr\": [\"{\", \"[\", \"\\\"\", \"(\", \"`\"], \"uniqueLetters\": [\"C\", \"o\", \"N\", \"r\", \"w\", \"d\", \"j\"]}, \"oracle\": \"reference\"}, {\"id\": \"t23\", \"input\": [\",\", \"u\", \"~\", \"Q\", \"e\", \"2\", \"=\", \"C\", \"q\", \"q\", \"#\", \"V\", \"E\", \"O\", \"=\"], \"expected\": {\"symArr\": [\",\", \"~\", \"=\", \"#\", \"=\"], \"uniqueLetters\": [\"u\", \"C\", \"V\", \"O\"]}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:22:54.436Z",
+      "latencyMs": 409.605
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": [
+            "h",
+            "e",
+            "L",
+            "I",
+            "o",
+            "*",
+            "7",
+            "W",
+            "O",
+            "r",
+            "L",
+            "#",
+            "d",
+            "-",
+            "5"
+          ],
+          "expected": {
+            "symArr": [
+              "*",
+              "#",
+              "-"
+            ],
+            "uniqueLetters": [
+              "h",
+              "e",
+              "I",
+              "W",
+              "r",
+              "d"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": [
+            "a",
+            "A",
+            "b",
+            "B",
+            "c",
+            "C",
+            "d",
+            "D",
+            "e",
+            "E",
+            "f",
+            "F",
+            "g",
+            "G",
+            "h"
+          ],
+          "expected": {
+            "symArr": [],
+            "uniqueLetters": [
+              "h"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": [
+            "!",
+            "@",
+            "#",
+            "$",
+            "%",
+            "^",
+            "&",
+            "*",
+            "(",
+            ")",
+            "-",
+            "_",
+            "=",
+            "+",
+            "["
+          ],
+          "expected": {
+            "symArr": [
+              "!",
+              "@",
+              "#",
+              "$",
+              "%",
+              "^",
+              "&",
+              "*",
+              "(",
+              ")",
+              "-",
+              "_",
+              "=",
+              "+",
+              "["
+            ],
+            "uniqueLetters": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "0",
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "expected": {
+            "symArr": [],
+            "uniqueLetters": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j",
+            "k",
+            "l",
+            "m",
+            "n",
+            "o"
+          ],
+          "expected": {
+            "symArr": [],
+            "uniqueLetters": [
+              "a",
+              "b",
+              "c",
+              "d",
+              "e",
+              "f",
+              "g",
+              "h",
+              "i",
+              "j",
+              "k",
+              "l",
+              "m",
+              "n",
+              "o"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": [
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A",
+            "A"
+          ],
+          "expected": {
+            "symArr": [],
+            "uniqueLetters": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": [
+            "a",
+            "A",
+            "1",
+            "b",
+            "B",
+            "2",
+            "c",
+            "C",
+            "3",
+            "d",
+            "D",
+            "4",
+            "e",
+            "E",
+            "5"
+          ],
+          "expected": {
+            "symArr": [],
+            "uniqueLetters": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": [
+            "x",
+            "y",
+            "z",
+            "X",
+            "Y",
+            "Z",
+            "!",
+            "!",
+            "!",
+            "!",
+            "!",
+            "!",
+            "!",
+            "!",
+            "!"
+          ],
+          "expected": {
+            "symArr": [
+              "!",
+              "!",
+              "!",
+              "!",
+              "!",
+              "!",
+              "!",
+              "!",
+              "!"
+            ],
+            "uniqueLetters": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": [
+            "X",
+            "L",
+            "o",
+            "Q",
+            "s",
+            "X",
+            "8",
+            "7",
+            "\\",
+            "W",
+            "Y",
+            "H",
+            "|",
+            "P",
+            "R"
+          ],
+          "expected": {
+            "symArr": [
+              "\\",
+              "|"
+            ],
+            "uniqueLetters": [
+              "L",
+              "o",
+              "Q",
+              "s",
+              "W",
+              "Y",
+              "H",
+              "P",
+              "R"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": [
+            "@",
+            "R",
+            "G",
+            "'",
+            "|",
+            "w",
+            "{",
+            "v",
+            "f",
+            ";",
+            "x",
+            "O",
+            "P",
+            "x",
+            "z"
+          ],
+          "expected": {
+            "symArr": [
+              "@",
+              "'",
+              "|",
+              "{",
+              ";"
+            ],
+            "uniqueLetters": [
+              "R",
+              "G",
+              "w",
+              "v",
+              "f",
+              "O",
+              "P",
+              "z"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": [
+            "t",
+            ">",
+            ".",
+            "a",
+            "m",
+            "e",
+            "J",
+            "8",
+            "3",
+            "S",
+            "{",
+            "_",
+            "|",
+            "c",
+            "Z"
+          ],
+          "expected": {
+            "symArr": [
+              ">",
+              ".",
+              "{",
+              "_",
+              "|"
+            ],
+            "uniqueLetters": [
+              "t",
+              "a",
+              "m",
+              "e",
+              "J",
+              "S",
+              "c",
+              "Z"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": [
+            "%",
+            "o",
+            ":",
+            "{",
+            ".",
+            "P",
+            "w",
+            "m",
+            "=",
+            "j",
+            "~",
+            "`",
+            "F",
+            "r",
+            "_"
+          ],
+          "expected": {
+            "symArr": [
+              "%",
+              ":",
+              "{",
+              ".",
+              "=",
+              "~",
+              "`",
+              "_"
+            ],
+            "uniqueLetters": [
+              "o",
+              "P",
+              "w",
+              "m",
+              "j",
+              "F",
+              "r"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": [
+            "~",
+            "8",
+            "T",
+            "1",
+            "@",
+            "5",
+            "^",
+            "A",
+            "\\",
+            "Y",
+            "}",
+            "1",
+            "Z",
+            "|",
+            "|"
+          ],
+          "expected": {
+            "symArr": [
+              "~",
+              "@",
+              "^",
+              "\\",
+              "}",
+              "|",
+              "|"
+            ],
+            "uniqueLetters": [
+              "T",
+              "A",
+              "Y",
+              "Z"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": [
+            ",",
+            "u",
+            "J",
+            "5",
+            "8",
+            "[",
+            "^",
+            "a",
+            "o",
+            "P",
+            ",",
+            "L",
+            "S",
+            "C",
+            "`"
+          ],
+          "expected": {
+            "symArr": [
+              ",",
+              "[",
+              "^",
+              ",",
+              "`"
+            ],
+            "uniqueLetters": [
+              "u",
+              "J",
+              "a",
+              "o",
+              "P",
+              "L",
+              "S",
+              "C"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": [
+            "S",
+            "L",
+            "G",
+            "e",
+            "P",
+            "H",
+            "5",
+            "K",
+            "K",
+            "N",
+            "%",
+            "t",
+            "?",
+            "M",
+            "Y"
+          ],
+          "expected": {
+            "symArr": [
+              "%",
+              "?"
+            ],
+            "uniqueLetters": [
+              "S",
+              "L",
+              "G",
+              "e",
+              "P",
+              "H",
+              "N",
+              "t",
+              "M",
+              "Y"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": [
+            "%",
+            "A",
+            "A",
+            "@",
+            "5",
+            "}",
+            "_",
+            "e",
+            "K",
+            "U",
+            "x",
+            "c",
+            "L",
+            "2",
+            "G"
+          ],
+          "expected": {
+            "symArr": [
+              "%",
+              "@",
+              "}",
+              "_"
+            ],
+            "uniqueLetters": [
+              "e",
+              "K",
+              "U",
+              "x",
+              "c",
+              "L",
+              "G"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": [
+            "w",
+            "\"",
+            "o",
+            "l",
+            "d",
+            ">",
+            "(",
+            "0",
+            "H",
+            "Y",
+            "J",
+            "3",
+            "(",
+            "*",
+            ","
+          ],
+          "expected": {
+            "symArr": [
+              "\"",
+              ">",
+              "(",
+              "(",
+              "*",
+              ","
+            ],
+            "uniqueLetters": [
+              "w",
+              "o",
+              "l",
+              "d",
+              "H",
+              "Y",
+              "J"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": [
+            "*",
+            "O",
+            ":",
+            "R",
+            "p",
+            "{",
+            "4",
+            "\\",
+            "7",
+            "R",
+            "z",
+            "q",
+            "c",
+            "B",
+            "#"
+          ],
+          "expected": {
+            "symArr": [
+              "*",
+              ":",
+              "{",
+              "\\",
+              "#"
+            ],
+            "uniqueLetters": [
+              "O",
+              "p",
+              "z",
+              "q",
+              "c",
+              "B"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": [
+            "t",
+            "|",
+            "<",
+            "5",
+            "&",
+            "s",
+            "G",
+            "I",
+            "2",
+            "s",
+            ".",
+            "~",
+            "I",
+            "E",
+            "m"
+          ],
+          "expected": {
+            "symArr": [
+              "|",
+              "<",
+              "&",
+              ".",
+              "~"
+            ],
+            "uniqueLetters": [
+              "t",
+              "G",
+              "E",
+              "m"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t19",
+          "input": [
+            "_",
+            "c",
+            "/",
+            "k",
+            "z",
+            "|",
+            "0",
+            "3",
+            "h",
+            "n",
+            ";",
+            ".",
+            "C",
+            ">",
+            "P"
+          ],
+          "expected": {
+            "symArr": [
+              "_",
+              "/",
+              "|",
+              ";",
+              ".",
+              ">"
+            ],
+            "uniqueLetters": [
+              "k",
+              "z",
+              "h",
+              "n",
+              "P"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t20",
+          "input": [
+            "r",
+            "m",
+            "g",
+            "O",
+            "l",
+            "s",
+            "c",
+            "B",
+            "E",
+            "q",
+            "y",
+            "6",
+            ")",
+            "q",
+            "z"
+          ],
+          "expected": {
+            "symArr": [
+              ")"
+            ],
+            "uniqueLetters": [
+              "r",
+              "m",
+              "g",
+              "O",
+              "l",
+              "s",
+              "c",
+              "B",
+              "E",
+              "y",
+              "z"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t21",
+          "input": [
+            "K",
+            "i",
+            "5",
+            "j",
+            "}",
+            "R",
+            "2",
+            "j",
+            "_",
+            "=",
+            "]",
+            "v",
+            "&",
+            "4",
+            "l"
+          ],
+          "expected": {
+            "symArr": [
+              "}",
+              "_",
+              "=",
+              "]",
+              "&"
+            ],
+            "uniqueLetters": [
+              "K",
+              "i",
+              "R",
+              "v",
+              "l"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t22",
+          "input": [
+            "{",
+            "[",
+            "I",
+            "\"",
+            "C",
+            "3",
+            "i",
+            "o",
+            "N",
+            "(",
+            "`",
+            "r",
+            "w",
+            "d",
+            "j"
+          ],
+          "expected": {
+            "symArr": [
+              "{",
+              "[",
+              "\"",
+              "(",
+              "`"
+            ],
+            "uniqueLetters": [
+              "C",
+              "o",
+              "N",
+              "r",
+              "w",
+              "d",
+              "j"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t23",
+          "input": [
+            ",",
+            "u",
+            "~",
+            "Q",
+            "e",
+            "2",
+            "=",
+            "C",
+            "q",
+            "q",
+            "#",
+            "V",
+            "E",
+            "O",
+            "="
+          ],
+          "expected": {
+            "symArr": [
+              ",",
+              "~",
+              "=",
+              "#",
+              "="
+            ],
+            "uniqueLetters": [
+              "u",
+              "C",
+              "V",
+              "O"
+            ]
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "16e9638180893df975638afa2516fb38f9f355ff928a9180ffd870ba195502e8"
+  },
+  "contractAudit": {
+    "key": "022bf560ee2a9502bede",
+    "costUsd": 0.0026139199999999996,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "Reference/example conflict: the task's own example says unique letters are 'h e W r d', but the reference and every observed expected value include 'I' (from 'I' in t0), which appears once case-insensitively. The reference matches the spec's rule, but the supplied example disagrees, so execution is invalid.",
+        "Every observed t0-t23 expected output matches the reference. The generator, validator, and reference cover the stated domain: 15 printable ASCII one-character strings. Validator probes reject null, {}, [], 1, true, and a string.",
+        "No C1 checks were provided, so validity rests on execution alone, and execution is invalid because of the example conflict."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "executionAbstention": "invalid_contract_or_reference",
+  "status": "evaluated",
+  "priorCallKeys": [
+    "022bf560ee2a9502bede"
+  ],
+  "callKeys": [
+    "022bf560ee2a9502bede"
+  ]
+}

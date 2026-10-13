@@ -1,0 +1,85 @@
+{
+  "id": "rubric_eval_772",
+  "planKey": "bd3990f0b5617d199d52",
+  "at": "2026-10-13T04:05:34.992Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "starts_with_exact_request",
+      "source_quote": "Write an interesting riddle that uses math notation.",
+      "a": false,
+      "b": true,
+      "programHash": "087701ff1f3f795328059e72dba1a46e47d95b1b7d4b890825e93dcec44c366b"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-XYTu3B",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:47.318Z",
+      "latencyMs": 169.998
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "8819e93fedaf72d8b3254dd6ea2073f167fd6a3ad0adca19b35058bf9feaf5b4"
+  },
+  "contractAudit": {
+    "key": "d65ce349c17c5d7cd089",
+    "costUsd": 0.0007337,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (starts_with_exact_request) implements the literal instruction to begin the response with the exact request text, with no words before it.",
+        "The source_quote matches the question text exactly, so the check is grounded.",
+        "The positive fixture starts with the exact request and passes. The negative fixture prefixes \"Sure!\" and correctly fails.",
+        "The check is deterministic and has no external dependencies.",
+        "Execution is null, so execution_valid is false. The contract is still valid because check 0 is valid."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-1LlO13",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"starts_with_exact_request\", \"source_quote\": \"Write an interesting riddle that uses math notation.\", \"a\": false, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:05:41.746Z",
+      "latencyMs": 160.446
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "starts_with_exact_request",
+          "source_quote": "Write an interesting riddle that uses math notation.",
+          "a": false,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "d65ce349c17c5d7cd089"
+  ]
+}

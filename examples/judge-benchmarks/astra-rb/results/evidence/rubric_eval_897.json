@@ -1,0 +1,85 @@
+{
+  "id": "rubric_eval_897",
+  "planKey": "8a8ae8cd5b4fd4256e47",
+  "at": "2026-10-13T04:06:38.850Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "exact_model_filename",
+      "source_quote": "sentiment_model.pth",
+      "a": false,
+      "b": false,
+      "programHash": "f857b84efce62da6dba67ea9d54f28775884b326964c601d2f957e015634665e"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-iXwijJ",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:47.814Z",
+      "latencyMs": 454.416
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "d999c92e836caaa98f0247964becd462d8e5732a87dd574aed377f54ca27e6e6"
+  },
+  "contractAudit": {
+    "key": "b1e98ba2f348830148b8",
+    "costUsd": 0.0018755,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (exact_model_filename) implements the literal instruction to use the filename 'sentiment_model.pth'.",
+        "Its source_quote 'sentiment_model.pth' appears verbatim in the question text.",
+        "The positive fixture contains the required filename and the negative fixture uses a different filename, so both fixtures are correct.",
+        "The check is a loose substring test, so it would also accept the name appearing in a comment or a non-save context. This is a weakness but does not make the check invalid.",
+        "Plan execution is null, so there is no reference implementation or execution contract to validate and execution_valid must be false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-HjLRR3",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"exact_model_filename\", \"source_quote\": \"sentiment_model.pth\", \"a\": false, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:06:45.896Z",
+      "latencyMs": 122.716
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "exact_model_filename",
+          "source_quote": "sentiment_model.pth",
+          "a": false,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "b1e98ba2f348830148b8"
+  ]
+}

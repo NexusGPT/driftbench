@@ -1,0 +1,91 @@
+{
+  "id": "rubric_eval_557",
+  "protocolVersion": 4,
+  "planKey": "a1537923c33336ad85ad",
+  "questionPlanKey": "6b4ba1555ac1c18839a3",
+  "at": "2026-10-13T04:28:57.672Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "only_sql_code_blocks",
+      "source_quote": "You'll only respond to me with SQL code blocks",
+      "programHash": "2e2cae465ca64d2dc3620d3a19020dd7ec4414416f7fe4696013f7b14efad912",
+      "a": true,
+      "b": true
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-esN3Rn",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:20:49.136Z",
+      "latencyMs": 166
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "a48554071417b7a050f579f0112c8d66cb8196bf4b792312eda00f961df1d775"
+  },
+  "contractAudit": {
+    "key": "511a4d493ee74530388e",
+    "costUsd": 0.00074712,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (only_sql_code_blocks) implements the literal instruction 'only respond with SQL code blocks': it requires the text to be wrapped in fences with no non-blank prose outside them.",
+        "The check's positive and negative fixtures agree with its logic: the positive is a bare fenced SQL block and the negative has a prose line before the fence.",
+        "The source_quote is grounded in the question text.",
+        "The check does not enforce the sql info string or reject multiple fenced blocks; these are not necessary for the narrow requirement, so they do not invalidate it.",
+        "execution is null, so the experiment has no executable reference or oracle and execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-mD3I6L",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"only_sql_code_blocks\", \"source_quote\": \"You'll only respond to me with SQL code blocks\", \"programHash\": \"2e2cae465ca64d2dc3620d3a19020dd7ec4414416f7fe4696013f7b14efad912\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:28:57.674Z",
+      "latencyMs": 546.427
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "only_sql_code_blocks",
+          "source_quote": "You'll only respond to me with SQL code blocks",
+          "programHash": "2e2cae465ca64d2dc3620d3a19020dd7ec4414416f7fe4696013f7b14efad912",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "511a4d493ee74530388e"
+  ],
+  "callKeys": [
+    "511a4d493ee74530388e"
+  ]
+}

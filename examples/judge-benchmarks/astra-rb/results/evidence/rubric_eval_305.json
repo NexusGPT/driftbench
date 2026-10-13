@@ -1,0 +1,105 @@
+{
+  "id": "rubric_eval_305",
+  "planKey": "1ae1a7da1ff7daf801f3",
+  "at": "2026-10-13T04:00:46.592Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "at_least_six_italic_highlights",
+      "source_quote": "Please highlight at least 6 sections in your answer with markdown",
+      "a": false,
+      "b": true,
+      "programHash": "cbe32fd56b7859b8deda1af4fa69a1921100d634ee7c730a320b6886f6ae6367",
+      "validationRejected": "Underscores are valid Markdown emphasis; a star-only regex rejects valid highlighted sections."
+    },
+    {
+      "index": 1,
+      "name": "at_least_300_words",
+      "source_quote": "Please write at least 300 words.",
+      "a": true,
+      "b": true,
+      "programHash": "01437e4ae3081ce0bbc16da590616dea72ac81b0fdaaad9c95794afe3560852a"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-szNfej",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:44.967Z",
+      "latencyMs": 265.033
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "b604010cfbeb737577dbc9d746c9d9618d3d69c38904138f0b466e6f1d7bb4db"
+  },
+  "contractAudit": {
+    "key": "e608333fb2bed95d57b6",
+    "costUsd": 0.0010892,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (at_least_six_italic_highlights) implements the literal instruction to highlight at least 6 sections with markdown. Its source_quote is grounded in the prompt, the positive fixture has 6 italic spans, and the negative fixture has 5. The regex does not count bold (**text**) spans.",
+        "Check 1 (at_least_300_words) implements the literal word-count instruction with text.split(). Its source_quote is grounded in the prompt. The negative fixture has 4 words and correctly fails; the positive fixture is observed to pass.",
+        "execution is null, so execution_valid is false and no reference or example outputs can be validated. The two C1 checks are still valid on their own, which makes the overall contract valid."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-Fqltu1",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"at_least_six_italic_highlights\", \"source_quote\": \"Please highlight at least 6 sections in your answer with markdown\", \"a\": false, \"b\": true}, {\"index\": 1, \"name\": \"at_least_300_words\", \"source_quote\": \"Please write at least 300 words.\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:00:55.225Z",
+      "latencyMs": 145.94
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "at_least_six_italic_highlights",
+          "source_quote": "Please highlight at least 6 sections in your answer with markdown",
+          "a": false,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "at_least_300_words",
+          "source_quote": "Please write at least 300 words.",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "e608333fb2bed95d57b6"
+  ]
+}

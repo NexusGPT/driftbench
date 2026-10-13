@@ -1,0 +1,85 @@
+{
+  "id": "rubric_eval_124",
+  "planKey": "66eda832de6705e53cdd",
+  "at": "2026-10-13T03:58:21.630Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "single_code_block",
+      "source_quote": "as a single executable code block",
+      "a": true,
+      "b": false,
+      "programHash": "392da7ece5c2980fdc2898b516a875704ecd1addfbd54747ba70887d2bd9d209"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-7eOY6e",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:44.014Z",
+      "latencyMs": 439.16
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "61d8e06d40648dacdcc2e4eb8de5999ec1c14d3a45643f6895eb5a1d77954e30"
+  },
+  "contractAudit": {
+    "key": "ffaa5db862fa1fc8e49a",
+    "costUsd": 0.0022311,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (single_code_block) has a source_quote that appears verbatim in the rubric: 'as a single executable code block'.",
+        "Check 0 implements the 'single code block' part of the instruction literally: text.count('```') == 2 means exactly one fenced block.",
+        "Check 0 positive fixture (one fenced block) returns true and negative fixture (two fenced blocks) returns false, as the observed results show.",
+        "Check 0 only verifies the fence count. It does not verify that the block is executable or Python, so it covers part of the instruction, not all of it.",
+        "The execution field is null, so execution_valid is false. Validity rests on check 0 alone."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-yWtSaa",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"single_code_block\", \"source_quote\": \"as a single executable code block\", \"a\": true, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:58:34.781Z",
+      "latencyMs": 359.609
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "single_code_block",
+          "source_quote": "as a single executable code block",
+          "a": true,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "ffaa5db862fa1fc8e49a"
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "id": "rubric_eval_308",
+  "planKey": "9d008cb728e6744ba106",
+  "at": "2026-10-13T04:00:52.545Z",
+  "checks": [
+    {
+      "index": 1,
+      "name": "required_checklist_sections",
+      "source_quote": "sections for Hard Constraints, Core Task Fulfillment, Optional Criteria, and Pitfall Criteria",
+      "a": false,
+      "b": false,
+      "programHash": "7e15a84f27cfb7141fbdaa92e4370c59cf36702ab352e23a6ef5e7f3e2cd5cde"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-a9Cepl",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:45.238Z",
+      "latencyMs": 129.419
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "520dfdb91a06fbfeab8694be8b0f0fd52f3a00dc3d5dc565bbdb8ba966f3e320"
+  },
+  "contractAudit": {
+    "key": "82f51ed7dc449d488b90",
+    "costUsd": 0.001002,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check index 1 (required_checklist_sections) implements its quoted instruction literally: it requires all four section names and its negative fixture omits one of them.",
+        "Check index 0 (markdown_checkbox_items) tests whether any line starts with a checkbox, but its source quote requires each item to start with one. The check cannot distinguish a response where only some items are checkboxes, so it does not implement the literal instruction.",
+        "execution is null, so no execution-based validation was performed and execution_valid is false."
+      ],
+      "invalid_checks": [
+        0
+      ],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-eSZNOw",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 1, \"name\": \"required_checklist_sections\", \"source_quote\": \"sections for Hard Constraints, Core Task Fulfillment, Optional Criteria, and Pitfall Criteria\", \"a\": false, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:01:00.006Z",
+      "latencyMs": 152.166
+    },
+    "output": {
+      "results": [
+        {
+          "index": 1,
+          "name": "required_checklist_sections",
+          "source_quote": "sections for Hard Constraints, Core Task Fulfillment, Optional Criteria, and Pitfall Criteria",
+          "a": false,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "82f51ed7dc449d488b90"
+  ]
+}

@@ -1,0 +1,1417 @@
+{
+  "id": "rubric_eval_1072",
+  "protocolVersion": 4,
+  "planKey": "b3fb7a2637c2a289ffd7",
+  "questionPlanKey": "49502e9fdbe35ebe545c",
+  "at": "2026-10-13T04:26:00.391Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "b",
+      "adapter": {
+        "key": "3b1a75f219211f4c91e4",
+        "costUsd": 0.00832856,
+        "value": {
+          "runnable": true,
+          "reason": "Blocks 1 and 2 are complete React components (LoginModal and App) and are used verbatim from block-1.txt and block-2.txt. Block 0 is a shell install command and is not executed. The harness transpiles the JSX with the installed TypeScript compiler, renders App under React 18 in a jsdom window, and records whether a role='dialog' element is present after each action. It requires NODE_PATH to expose react, react-dom, react-modal, jsdom and typescript. It reads inputs.json generically and writes one JSON object to stdout.",
+          "command": "node harness.cjs",
+          "files": {
+            "harness.cjs": "'use strict';\nconst fs = require('fs');\nconst path = require('path');\nconst DIR = __dirname;\n\nconst GLOBAL_KEYS = ['HTMLElement','HTMLInputElement','HTMLButtonElement','HTMLFormElement','Node','Element','Event','CustomEvent','MouseEvent','KeyboardEvent','FocusEvent','InputEvent','SVGElement','getComputedStyle','requestAnimationFrame','cancelAnimationFrame','MutationObserver','HTMLIFrameElement','Text','Comment','DocumentFragment'];\nconst BOUND_KEYS = ['getComputedStyle','requestAnimationFrame','cancelAnimationFrame'];\n\nfunction setGlobal(k, v) {\n  try {\n    Object.defineProperty(globalThis, k, { value: v, configurable: true, writable: true });\n  } catch (e) {\n    try { globalThis[k] = v; } catch (e2) { /* ignore */ }\n  }\n}\n\nfunction installGlobals(win) {\n  setGlobal('window', win);\n  setGlobal('document', win.document);\n  setGlobal('navigator', win.navigator);\n  for (const k of GLOBAL_KEYS) {\n    if (win[k] === undefined) continue;\n    const v = BOUND_KEYS.includes(k) ? win[k].bind(win) : win[k];\n    setGlobal(k, v);\n  }\n  globalThis.IS_REACT_ACT_ENVIRONMENT = true;\n}\n\nfunction compile(src, fileName) {\n  const ts = require('typescript');\n  const out = ts.transpileModule(src, {\n    fileName: fileName,\n    compilerOptions: {\n      jsx: ts.JsxEmit.React,\n      module: ts.ModuleKind.CommonJS,\n      target: ts.ScriptTarget.ES2019,\n      esModuleInterop: true,\n      allowJs: true\n    }\n  });\n  return out.outputText;\n}\n\nfunction evalModule(code, localRequire) {\n  const mod = { exports: {} };\n  const fn = new Function('require', 'module', 'exports', code);\n  fn(localRequire, mod, mod.exports);\n  return mod.exports;\n}\n\nfunction findSignIn(container) {\n  const buttons = Array.from(container.querySelectorAll('button'));\n  const btn = buttons.find((b) => (b.textContent || '').trim() === 'Sign In');\n  if (!btn) throw new Error('Sign In button not found');\n  return btn;\n}\n\nfunction isDialogVisible(doc) {\n  return !!doc.querySelector('[role=\"dialog\"]');\n}\n\nasync function runCase(ctx, input) {\n  const { doc, React, ReactDOMClient, act, loginSrc, appSrc } = ctx;\n  doc.body.innerHTML = '<div id=\"root\"></div>';\n  const container = doc.getElementById('root');\n\n  const loginExports = evalModule(loginSrc, (name) => require(name));\n  const appExports = evalModule(appSrc, (name) => (name === './LoginModal' ? loginExports : require(name)));\n  const AppComponent = appExports.default;\n\n  const actions = input && input.actions;\n  if (!Array.isArray(actions)) throw new Error('input.actions must be an array');\n\n  const root = ReactDOMClient.createRoot(container);\n  const visible = [];\n  try {\n    await act(async () => { root.render(React.createElement(AppComponent)); });\n    for (const a of actions) {\n      if (a === 'click_sign_in') {\n        const btn = findSignIn(container);\n        await act(async () => { btn.click(); });\n      } else if (a === 'wait') {\n        await act(async () => { await new Promise((r) => setTimeout(r, 0)); });\n      } else {\n        throw new Error('unknown action: ' + String(a));\n      }\n      visible.push(isDialogVisible(doc));\n    }\n  } finally {\n    try { await act(async () => { root.unmount(); }); } catch (e) { /* ignore cleanup errors */ }\n    doc.body.innerHTML = '';\n  }\n  return visible;\n}\n\nasync function main() {\n  let inputs;\n  try {\n    inputs = JSON.parse(fs.readFileSync(path.join(DIR, 'inputs.json'), 'utf8'));\n  } catch (e) {\n    return { results: [], harness_error: 'cannot read inputs.json: ' + e.message };\n  }\n  if (!Array.isArray(inputs)) return { results: [], harness_error: 'inputs.json must be an array' };\n\n  let loginSrc, appSrc;\n  try {\n    loginSrc = compile(fs.readFileSync(path.join(DIR, 'block-1.txt'), 'utf8'), 'LoginModal.jsx');\n    appSrc = compile(fs.readFileSync(path.join(DIR, 'block-2.txt'), 'utf8'), 'App.jsx');\n  } catch (e) {\n    return { results: [], harness_error: 'cannot load candidate source: ' + e.message };\n  }\n\n  let ctx;\n  try {\n    const { JSDOM } = require('jsdom');\n    const dom = new JSDOM('<!doctype html><html><body></body></html>', { pretendToBeVisual: true, url: 'http://localhost/' });\n    installGlobals(dom.window);\n    const React = require('react');\n    const ReactDOMClient = require('react-dom/client');\n    const { act } = require('react-dom/test-utils');\n    ctx = { dom, doc: dom.window.document, React, ReactDOMClient, act, loginSrc, appSrc };\n  } catch (e) {\n    return { results: [], harness_error: 'infrastructure load failure: ' + ((e && e.message) || String(e)) };\n  }\n\n  const results = [];\n  for (const item of inputs) {\n    const id = item && item.id;\n    try {\n      const actual = await runCase(ctx, item && item.input);\n      results.push({ id: id, actual: actual });\n    } catch (e) {\n      results.push({ id: id, error: String((e && e.message) || e) });\n    }\n  }\n  try { ctx.dom.window.close(); } catch (e) { /* ignore */ }\n  return { results: results };\n}\n\nfunction finish(obj) {\n  process.stdout.write(JSON.stringify(obj) + '\\n', () => process.exit(0));\n}\n\n(async () => {\n  const saved = { log: console.log, error: console.error, warn: console.warn, info: console.info, debug: console.debug };\n  const silence = () => {};\n  for (const k of Object.keys(saved)) console[k] = silence;\n  let out;\n  try {\n    out = await main();\n  } catch (e) {\n    out = { results: [], harness_error: 'harness failure: ' + ((e && e.message) || String(e)) };\n  }\n  for (const k of Object.keys(saved)) console[k] = saved[k];\n  finish(out);\n})();\n"
+          },
+          "uses": [
+            1,
+            2
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "2adc95260fc5acd9139b",
+        "costUsd": 0.0025941899999999997,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "Uses the original LoginModal and App blocks (indices 1 and 2) via block-1.txt and block-2.txt, with no edits to the candidate's component logic, state, markup, or handlers.",
+            "The harness only transpiles the supplied JSX with TypeScript, evaluates it, and drives it through the input actions. It does not compute expected results or replace candidate internals.",
+            "Scaffolding is limited to permitted categories: an entry point, reading inputs.json, mounting the App, a jsdom document, and a click/wait driver. The 'Sign In' lookup finds the candidate's own rendered button rather than implementing the behavior.",
+            "The visibility observable is the presence of role='dialog' in the jsdom document after each action, which matches the contract's stated observable. Output is one JSON object with per-case actual arrays.",
+            "Required dependencies (react, react-dom, react-modal, jsdom, typescript) are all in the supported list and are exposed via NODE_PATH as declared. Block 0 is a shell command and is correctly not executed.",
+            "Missing button or absent dialog are reported as genuine candidate observations, not as harness setup failures. Candidate compile errors are reported as harness_error.",
+            "Caveat: an exception thrown while requiring react-modal inside runCase would be recorded per case as an error rather than as a harness_error. This only matters if the dependency is absent, which the environment preflight should catch."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-3uw7uh",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; node harness.cjs 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"actual\":[]},{\"id\":\"t1\",\"actual\":[true]},{\"id\":\"t2\",\"actual\":[false]},{\"id\":\"t3\",\"actual\":[true,true]},{\"id\":\"t4\",\"actual\":[true,true]},{\"id\":\"t5\",\"actual\":[false,true]},{\"id\":\"t6\",\"actual\":[false,false]},{\"id\":\"t7\",\"actual\":[true,true,true]},{\"id\":\"t8\",\"actual\":[true,true,true]},{\"id\":\"t9\",\"actual\":[true,true,true]},{\"id\":\"t10\",\"actual\":[true,true,true]},{\"id\":\"t11\",\"actual\":[false,true,true]},{\"id\":\"t12\",\"actual\":[false,true,true]},{\"id\":\"t13\",\"actual\":[false,false,true]},{\"id\":\"t14\",\"actual\":[false,false,false]},{\"id\":\"t15\",\"actual\":[true,true,true,true,true]},{\"id\":\"t16\",\"actual\":[false,false,false,false,false,false]}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:27:26.680Z",
+          "latencyMs": 3899.44
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": []
+            },
+            {
+              "id": "t1",
+              "actual": [
+                true
+              ]
+            },
+            {
+              "id": "t2",
+              "actual": [
+                false
+              ]
+            },
+            {
+              "id": "t3",
+              "actual": [
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t4",
+              "actual": [
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t5",
+              "actual": [
+                false,
+                true
+              ]
+            },
+            {
+              "id": "t6",
+              "actual": [
+                false,
+                false
+              ]
+            },
+            {
+              "id": "t7",
+              "actual": [
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t8",
+              "actual": [
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t9",
+              "actual": [
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t10",
+              "actual": [
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t11",
+              "actual": [
+                false,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t12",
+              "actual": [
+                false,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t13",
+              "actual": [
+                false,
+                false,
+                true
+              ]
+            },
+            {
+              "id": "t14",
+              "actual": [
+                false,
+                false,
+                false
+              ]
+            },
+            {
+              "id": "t15",
+              "actual": [
+                true,
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t16",
+              "actual": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ]
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "actions": []
+          },
+          "expected": [],
+          "oracle": "reference",
+          "actual": [],
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "actions": [
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "actions": [
+              "wait"
+            ]
+          },
+          "expected": [
+            false
+          ],
+          "oracle": "reference",
+          "actual": [
+            false
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "wait"
+            ]
+          },
+          "expected": [
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "actions": [
+              "wait",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            false,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "actions": [
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            false
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            false
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in",
+              "wait"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "wait",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "actions": [
+              "wait",
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            false,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "actions": [
+              "wait",
+              "click_sign_in",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "actions": [
+              "wait",
+              "wait",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            false,
+            false,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            false,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "actions": [
+              "wait",
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            false,
+            false
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            false,
+            false
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "actions": [
+              "wait",
+              "wait",
+              "wait",
+              "wait",
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "verdict": "pass"
+        }
+      ]
+    },
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "928875e866fad8305c4c",
+        "costUsd": 0.00601566,
+        "value": {
+          "runnable": true,
+          "reason": "Both candidate component blocks (block-2 App.js and block-3 LoginModal.js) are complete modules. The harness transpiles them verbatim with the installed TypeScript compiler, mounts App in jsdom with React 18 createRoot, and replays each action list from a fresh mount. It reports dialog visibility after each action.",
+          "command": "node harness.cjs",
+          "files": {
+            "harness.cjs": "const fs = require('fs');\nconst path = require('path');\nconst realWrite = process.stdout.write.bind(process.stdout);\nconst noop = () => {};\nconsole.log = console.info = console.warn = console.error = console.debug = noop;\n\nfunction emit(obj) { realWrite(JSON.stringify(obj) + '\\n'); }\n\nfunction setup() {\n  const { JSDOM } = require('jsdom');\n  const dom = new JSDOM('<!doctype html><html><body></body></html>', { pretendToBeVisual: true, url: 'http://localhost/' });\n  const w = dom.window;\n  for (const key of Object.getOwnPropertyNames(w)) {\n    if (!(key in globalThis)) { try { globalThis[key] = w[key]; } catch (e) {} }\n  }\n  globalThis.window = w;\n  globalThis.document = w.document;\n  globalThis.navigator = w.navigator;\n  globalThis.IS_REACT_ACT_ENVIRONMENT = true;\n\n  const ts = require('typescript');\n  const srcDir = path.join(__dirname, 'app');\n  fs.mkdirSync(srcDir, { recursive: true });\n  const compile = (blockFile, outName) => {\n    const src = fs.readFileSync(path.join(__dirname, blockFile), 'utf8');\n    const res = ts.transpileModule(src, {\n      fileName: outName.replace(/\\.js$/, '.jsx'),\n      compilerOptions: {\n        module: ts.ModuleKind.CommonJS,\n        target: ts.ScriptTarget.ES2019,\n        jsx: ts.JsxEmit.React,\n        esModuleInterop: true,\n        allowJs: true\n      }\n    });\n    fs.writeFileSync(path.join(srcDir, outName), res.outputText);\n  };\n  compile('block-3.txt', 'LoginModal.js');\n  compile('block-2.txt', 'App.js');\n\n  const React = require('react');\n  const ReactDOM = require('react-dom/client');\n  const { act } = require('react-dom/test-utils');\n  const mod = require(path.join(srcDir, 'App.js'));\n  const App = mod.default || mod;\n  return { w, React, ReactDOM, act, App };\n}\n\nfunction findSignIn(doc) {\n  return Array.from(doc.querySelectorAll('button')).find((b) => (b.textContent || '').trim() === 'Sign In') || null;\n}\n\nfunction dialogVisible(doc) {\n  const el = doc.querySelector('[role=dialog]');\n  if (!el) return false;\n  for (let n = el; n && n.nodeType === 1; n = n.parentElement) {\n    if (n.hidden || (n.style && (n.style.display === 'none' || n.style.visibility === 'hidden'))) return false;\n  }\n  return true;\n}\n\nfunction runCase(ctx, input) {\n  const { w, React, ReactDOM, act, App } = ctx;\n  const doc = w.document;\n  if (!input || !Array.isArray(input.actions)) throw new Error('invalid input: expected object with actions array');\n  const container = doc.createElement('div');\n  doc.body.appendChild(container);\n  const root = ReactDOM.createRoot(container);\n  const seen = [];\n  try {\n    act(() => { root.render(React.createElement(App)); });\n    for (const action of input.actions) {\n      if (action === 'click_sign_in') {\n        const btn = findSignIn(doc);\n        if (!btn) throw new Error('Sign In button not found');\n        act(() => { btn.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true })); });\n      } else if (action === 'wait') {\n        act(() => {});\n      } else {\n        throw new Error('unknown action: ' + String(action));\n      }\n      seen.push(dialogVisible(doc));\n    }\n    return seen;\n  } finally {\n    try { act(() => { root.unmount(); }); } catch (e) {}\n    container.remove();\n    doc.body.innerHTML = '';\n  }\n}\n\nfunction main() {\n  let ctx;\n  try {\n    ctx = setup();\n  } catch (e) {\n    emit({ results: [], harness_error: 'setup failed: ' + String((e && e.stack) || e) });\n    return;\n  }\n  let inputs;\n  try {\n    inputs = JSON.parse(fs.readFileSync(path.join(__dirname, 'inputs.json'), 'utf8'));\n  } catch (e) {\n    emit({ results: [], harness_error: 'cannot read inputs.json: ' + String((e && e.message) || e) });\n    return;\n  }\n  if (!Array.isArray(inputs)) {\n    emit({ results: [], harness_error: 'inputs.json is not an array' });\n    return;\n  }\n  const results = [];\n  for (const item of inputs) {\n    const id = item && item.id;\n    try {\n      results.push({ id, actual: runCase(ctx, item.input) });\n    } catch (e) {\n      results.push({ id, error: String((e && e.message) || e) });\n    }\n  }\n  emit({ results });\n}\n\nmain();\n"
+          },
+          "uses": [
+            2,
+            3
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "5998b84c9651e949894d",
+        "costUsd": 0.00257839,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "Both candidate code blocks (index 2 as App.js and index 3 as LoginModal.js) are complete modules and are read verbatim from block-2.txt and block-3.txt, matching the uses field. The harness transpiles them with TypeScript without modifying their logic.",
+            "The wrapper does not replace or reimplement the candidate's component logic. It only mounts App with React 18 createRoot, dispatches clicks on the button, and reads dialog visibility from the DOM.",
+            "The observation is the visibility of [role=dialog] after each action, which matches the output_schema of boolean arrays. The wrapper computes no expected or actual results itself.",
+            "Dependencies (jsdom, TypeScript, React 18, ReactDOM, react-bootstrap) are all within the permitted list. The candidate's own install command covers react-bootstrap.",
+            "Setup and harness failures (missing inputs.json, transpile or require failures, jsdom initialization) are reported as harness_error, separate from per-case results. Per-case errors such as a missing 'Sign In' button or an unknown action reflect the candidate's own DOM or runtime behavior rather than missing harness setup.",
+            "Minor risk: copying jsdom globals onto globalThis, including the navigator assignment, could behave differently across Node versions. This is an environment concern, not a reason to reject the adapter."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-XZGh7u",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; node harness.cjs 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"actual\":[]},{\"id\":\"t1\",\"actual\":[true]},{\"id\":\"t2\",\"actual\":[false]},{\"id\":\"t3\",\"actual\":[true,true]},{\"id\":\"t4\",\"actual\":[true,true]},{\"id\":\"t5\",\"actual\":[false,true]},{\"id\":\"t6\",\"actual\":[false,false]},{\"id\":\"t7\",\"actual\":[true,true,true]},{\"id\":\"t8\",\"actual\":[true,true,true]},{\"id\":\"t9\",\"actual\":[true,true,true]},{\"id\":\"t10\",\"actual\":[true,true,true]},{\"id\":\"t11\",\"actual\":[false,true,true]},{\"id\":\"t12\",\"actual\":[false,true,true]},{\"id\":\"t13\",\"actual\":[false,false,true]},{\"id\":\"t14\",\"actual\":[false,false,false]},{\"id\":\"t15\",\"actual\":[true,true,true,true,true]},{\"id\":\"t16\",\"actual\":[false,false,false,false,false,false]}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:28:33.635Z",
+          "latencyMs": 7521.409
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": []
+            },
+            {
+              "id": "t1",
+              "actual": [
+                true
+              ]
+            },
+            {
+              "id": "t2",
+              "actual": [
+                false
+              ]
+            },
+            {
+              "id": "t3",
+              "actual": [
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t4",
+              "actual": [
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t5",
+              "actual": [
+                false,
+                true
+              ]
+            },
+            {
+              "id": "t6",
+              "actual": [
+                false,
+                false
+              ]
+            },
+            {
+              "id": "t7",
+              "actual": [
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t8",
+              "actual": [
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t9",
+              "actual": [
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t10",
+              "actual": [
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t11",
+              "actual": [
+                false,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t12",
+              "actual": [
+                false,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t13",
+              "actual": [
+                false,
+                false,
+                true
+              ]
+            },
+            {
+              "id": "t14",
+              "actual": [
+                false,
+                false,
+                false
+              ]
+            },
+            {
+              "id": "t15",
+              "actual": [
+                true,
+                true,
+                true,
+                true,
+                true
+              ]
+            },
+            {
+              "id": "t16",
+              "actual": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ]
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "actions": []
+          },
+          "expected": [],
+          "oracle": "reference",
+          "actual": [],
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "actions": [
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "actions": [
+              "wait"
+            ]
+          },
+          "expected": [
+            false
+          ],
+          "oracle": "reference",
+          "actual": [
+            false
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "wait"
+            ]
+          },
+          "expected": [
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "actions": [
+              "wait",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            false,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "actions": [
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            false
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            false
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in",
+              "wait"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "wait",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "actions": [
+              "wait",
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            false,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "actions": [
+              "wait",
+              "click_sign_in",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "actions": [
+              "wait",
+              "wait",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            false,
+            false,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            false,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "actions": [
+              "wait",
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            false,
+            false
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            false,
+            false
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference",
+          "actual": [
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "actions": [
+              "wait",
+              "wait",
+              "wait",
+              "wait",
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "oracle": "reference",
+          "actual": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "verdict": "pass"
+        }
+      ]
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-nsFYy9",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"actions\": []}, \"expected\": [], \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"actions\": [\"click_sign_in\"]}, \"expected\": [true], \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"actions\": [\"wait\"]}, \"expected\": [false], \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"actions\": [\"click_sign_in\", \"click_sign_in\"]}, \"expected\": [true, true], \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"actions\": [\"click_sign_in\", \"wait\"]}, \"expected\": [true, true], \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"actions\": [\"wait\", \"click_sign_in\"]}, \"expected\": [false, true], \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"actions\": [\"wait\", \"wait\"]}, \"expected\": [false, false], \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"actions\": [\"click_sign_in\", \"click_sign_in\", \"click_sign_in\"]}, \"expected\": [true, true, true], \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"actions\": [\"click_sign_in\", \"click_sign_in\", \"wait\"]}, \"expected\": [true, true, true], \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"actions\": [\"click_sign_in\", \"wait\", \"click_sign_in\"]}, \"expected\": [true, true, true], \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"actions\": [\"click_sign_in\", \"wait\", \"wait\"]}, \"expected\": [true, true, true], \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"actions\": [\"wait\", \"click_sign_in\", \"click_sign_in\"]}, \"expected\": [false, true, true], \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"actions\": [\"wait\", \"click_sign_in\", \"wait\"]}, \"expected\": [false, true, true], \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"actions\": [\"wait\", \"wait\", \"click_sign_in\"]}, \"expected\": [false, false, true], \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"actions\": [\"wait\", \"wait\", \"wait\"]}, \"expected\": [false, false, false], \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"actions\": [\"click_sign_in\", \"click_sign_in\", \"click_sign_in\", \"click_sign_in\", \"click_sign_in\"]}, \"expected\": [true, true, true, true, true], \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"actions\": [\"wait\", \"wait\", \"wait\", \"wait\", \"wait\", \"wait\"]}, \"expected\": [false, false, false, false, false, false], \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:08:07.660Z",
+      "latencyMs": 616.645
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "actions": []
+          },
+          "expected": [],
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "actions": [
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "actions": [
+              "wait"
+            ]
+          },
+          "expected": [
+            false
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "wait"
+            ]
+          },
+          "expected": [
+            true,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "actions": [
+              "wait",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            false,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "actions": [
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            false
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in",
+              "wait"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "wait",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "actions": [
+              "wait",
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            false,
+            true,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "actions": [
+              "wait",
+              "click_sign_in",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            true,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "actions": [
+              "wait",
+              "wait",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            false,
+            false,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "actions": [
+              "wait",
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            false,
+            false
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "actions": [
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in",
+              "click_sign_in"
+            ]
+          },
+          "expected": [
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "actions": [
+              "wait",
+              "wait",
+              "wait",
+              "wait",
+              "wait",
+              "wait"
+            ]
+          },
+          "expected": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "72576db842cd99d34fa21445935ba885545032000758a5bfac71759ee71e32cc"
+  },
+  "contractAudit": {
+    "key": "29e772cba19557c4ad41",
+    "costUsd": 0.00119992,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Reference matches the stated behavior: no dialog before activation, opening on each 'click_sign_in', and persistence across 'wait' actions.",
+        "Generator covers all sequences up to length 3 plus two length-5/6 stress cases, and the validator rejects null, dict, list, int, bool, and string inputs while accepting the bounded action-list domain.",
+        "Supplied examples are consistent with the reference, and no examples conflict with it.",
+        "Observable (role='dialog' presence and visibility after each action) is deterministic and does not depend on external services.",
+        "Tested behavior is narrow and uses only verified local runtimes (React 18 with jsdom)."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "29e772cba19557c4ad41",
+    "3ca0113ba03778b06114",
+    "f6ae6e9af7ccbc53a7d8",
+    "dccf09f414616b98583b",
+    "cea1c289eaac9c02bd47",
+    "5d56065c44c3ab8946a7"
+  ],
+  "callKeys": [
+    "29e772cba19557c4ad41",
+    "3b1a75f219211f4c91e4",
+    "2adc95260fc5acd9139b",
+    "928875e866fad8305c4c",
+    "5998b84c9651e949894d"
+  ]
+}

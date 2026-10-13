@@ -1,0 +1,127 @@
+{
+  "id": "rubric_eval_201",
+  "planKey": "a83605cc2c68b70987f8",
+  "at": "2026-10-13T03:59:31.763Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "five_lines",
+      "source_quote": "Write a five line poem",
+      "a": true,
+      "b": true,
+      "programHash": "b9437128a7cabe78fbfbe70064af22e58260ae1b9aa235e09fadad0f27686df3"
+    },
+    {
+      "index": 1,
+      "name": "no_capital_letters",
+      "source_quote": "should not contain any capital letters",
+      "a": false,
+      "b": true,
+      "programHash": "34a965add821c34af731fb0bfd4710f0e052745f33749b53965dc3ffa70bc16c"
+    },
+    {
+      "index": 2,
+      "name": "contains_netflix",
+      "source_quote": "include the word",
+      "a": true,
+      "b": true,
+      "programHash": "816ef2d6711b532404f94a9c613f14ff318e5162d407b8de7503a024a1c93c86"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-HmbBs7",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 2, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:44.506Z",
+      "latencyMs": 386.893
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 2,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "7a86fa6d24ef1b43a08c42afa2fb0e895a3b3a8f9c6459c3c589dac1314f3a21"
+  },
+  "contractAudit": {
+    "key": "8e7f25e1cb08dfec50f8",
+    "costUsd": 0.0008593,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (five_lines) implements the literal instruction 'Write a five line poem'. Its positive fixture has five non-empty lines and its negative has four, so both fixtures are correct.",
+        "Check 1 (no_capital_letters) implements 'should not contain any capital letters'. Its positive fixture is all lowercase and its negative fixture starts with a capital 'I', so both fixtures are correct.",
+        "Check 2 (contains_netflix) implements 'include the word' with a case-insensitive substring test. Its positive fixture contains 'netflix' and its negative fixture does not, so both fixtures are correct.",
+        "The plan has no AABBA rhyme-scheme check, so the rubric's rhyme requirement is not covered. This is an omission, not an invalid check.",
+        "execution is null and no reference or examples were supplied, so execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-EEeIxA",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"five_lines\", \"source_quote\": \"Write a five line poem\", \"a\": true, \"b\": true}, {\"index\": 1, \"name\": \"no_capital_letters\", \"source_quote\": \"should not contain any capital letters\", \"a\": false, \"b\": true}, {\"index\": 2, \"name\": \"contains_netflix\", \"source_quote\": \"include the word\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:59:38.746Z",
+      "latencyMs": 125.762
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "five_lines",
+          "source_quote": "Write a five line poem",
+          "a": true,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "no_capital_letters",
+          "source_quote": "should not contain any capital letters",
+          "a": false,
+          "b": true
+        },
+        {
+          "index": 2,
+          "name": "contains_netflix",
+          "source_quote": "include the word",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "8e7f25e1cb08dfec50f8"
+  ]
+}

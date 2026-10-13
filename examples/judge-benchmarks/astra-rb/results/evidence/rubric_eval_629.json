@@ -1,0 +1,193 @@
+{
+  "id": "rubric_eval_629",
+  "protocolVersion": 4,
+  "planKey": "8af2d09b0ba201e1e026",
+  "questionPlanKey": "103de2d96eeb16c6a30f",
+  "at": "2026-10-13T04:28:58.333Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "ed41bb2d269730f000dd",
+        "costUsd": 0.00242231,
+        "value": {
+          "runnable": true,
+          "reason": "Block 0 is a complete, self-contained Python script with no outer context needed, so it is saved verbatim as block-0.txt and run as a subprocess once per input. The harness records the observed stdout and exit code for each input without judging them. The candidate may fail at runtime (for example, its staticmethod wrappers call logging.Logger methods without self and reference functools.current_frame, which does not exist). Any such failure appears as the observed exit_code and stdout, not as a harness error.",
+          "command": "python3 harness.py",
+          "files": {
+            "harness.py": "import json\nimport subprocess\nimport sys\n\n\ndef main():\n    try:\n        with open('inputs.json', 'r', encoding='utf-8') as f:\n            cases = json.load(f)\n    except Exception as e:\n        print(json.dumps({'results': [], 'harness_error': 'failed to read inputs.json: ' + str(e)}))\n        return 0\n\n    results = []\n    for case in cases:\n        cid = case.get('id') if isinstance(case, dict) else None\n        inp = case.get('input') if isinstance(case, dict) else None\n        stdin_text = ''\n        if isinstance(inp, dict) and isinstance(inp.get('stdin', ''), str):\n            stdin_text = inp.get('stdin', '')\n        try:\n            proc = subprocess.run(\n                [sys.executable, '-I', 'block-0.txt'],\n                input=stdin_text.encode('utf-8'),\n                capture_output=True,\n                timeout=5,\n            )\n        except subprocess.TimeoutExpired:\n            results.append({'id': cid, 'error': 'candidate timed out after 5 seconds'})\n            continue\n        except OSError as e:\n            print(json.dumps({'results': results, 'harness_error': 'failed to launch candidate: ' + str(e)}))\n            return 0\n        results.append({\n            'id': cid,\n            'actual': {\n                'stdout': proc.stdout.decode('utf-8', errors='replace'),\n                'exit_code': proc.returncode,\n            },\n        })\n\n    print(json.dumps({'results': results}))\n    return 0\n\n\nif __name__ == '__main__':\n    sys.exit(main())\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "d9325fbc06f4571bf936",
+        "costUsd": 0.00146098,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "Block 0 is the candidate's only fenced Python block, saved verbatim as block-0.txt and executed unmodified with python3 -I. The adapter does not replace or repair its internals.",
+            "The only imports are logging, contextlib, and functools, all standard library, so no third-party dependencies are needed.",
+            "The harness records the observed stdout and exit_code from the real subprocess for each input and does not compute expected or actual results itself.",
+            "Candidate runtime failures (for example, the nonexistent functools.current_frame and the unbound staticmethod calls to logging.Logger methods) surface as observed stdout and exit_code rather than being caught as harness errors.",
+            "Each successful result has an 'actual' object with stdout (string) and exit_code (number), matching contract.output_schema.",
+            "Harness-level problems (unreadable inputs.json, failure to launch the interpreter) are reported separately as harness_error, not as candidate results.",
+            "Minor note: a timeout produces an entry with 'error' and no 'actual'. This is a candidate behavior rather than missing setup, and this script cannot hang, so it does not invalidate the adapter."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-jrP97O",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 harness.py 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\": [{\"id\": \"t0\", \"actual\": {\"stdout\": \"\", \"exit_code\": 1}}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:21:42.835Z",
+          "latencyMs": 348.971
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": {
+                "stdout": "",
+                "exit_code": 1
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "stdin": ""
+          },
+          "expected": {
+            "stdout": "Hello, World!\n",
+            "exit_code": 0
+          },
+          "oracle": "reference",
+          "actual": {
+            "stdout": "",
+            "exit_code": 1
+          },
+          "verdict": "fail"
+        }
+      ],
+      "retainedObservation": true
+    },
+    {
+      "status": "unsupported_candidate",
+      "side": "b",
+      "adapter": {
+        "key": "6a6b5d3b5942d8971600",
+        "costUsd": 0.00104706,
+        "value": {
+          "runnable": false,
+          "reason": "The candidate contains five mutually exclusive alternatives (blocks 0-4) and no single final recommended one; the prose says the reader should 'choose one that fits' or combine them. Running one would mean selecting a candidate, and combining them would mean building a new program, which the harness rules forbid. The contract also requires output of exactly 'Hello, World!\\n' with exit 0, and no single block meets that as written: block 0 prints a random greeting, block 1 reads a misspelled file ('hello__world.txt') that is never created, block 2 needs a display and blocks in mainloop, block 3 runs a server forever, and block 4 prints an extra line.",
+          "command": "",
+          "files": {},
+          "uses": [],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-oZ0AKw",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"stdin\": \"\"}, \"expected\": {\"stdout\": \"Hello, World!\\n\", \"exit_code\": 0}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": true}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:21:05.395Z",
+      "latencyMs": 648.86
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "stdin": ""
+          },
+          "expected": {
+            "stdout": "Hello, World!\n",
+            "exit_code": 0
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": true
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "e37f7950ac06666e8917a919e36ce4da21295bffbb0eb5b8145eda0556719d8c"
+  },
+  "contractAudit": {
+    "key": "1e7719b095ec641b898b",
+    "costUsd": 0.0008954200000000001,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Execution contract is internally consistent: the generator emits only {\"stdin\": \"\"}, which the validator accepts.",
+        "Validator probes behave as intended: None, [], 1, True, and \"malformed\" are rejected; {} is accepted, which is consistent with the optional 'stdin' key defaulting to the empty string.",
+        "Reference returns stdout 'Hello, World!\\n' and exit_code 0, matching the stated oracle basis and expected observable.",
+        "Input domain is fully covered for this task: the program takes no arguments or input, so the single empty-stdin case is the complete domain, and there are no negative, duplicate, or malformed cases to add.",
+        "No examples are supplied, so there is no reference/example conflict.",
+        "No plan C1 checks are present, so none can be invalid. No nondeterministic or external behavior is required, and no unsupported runtime claims are made beyond Python.",
+        "The contract only constrains observable output and exit status, so it does not require the candidate's code to be 'advanced'. That is a rubric concern for the answer, not a defect in this execution contract."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "1e7719b095ec641b898b",
+    "ed41bb2d269730f000dd",
+    "d9325fbc06f4571bf936",
+    "b31d054b00fe2e6784c0"
+  ],
+  "callKeys": [
+    "1e7719b095ec641b898b",
+    "ed41bb2d269730f000dd",
+    "d9325fbc06f4571bf936",
+    "b31d054b00fe2e6784c0",
+    "6a6b5d3b5942d8971600"
+  ]
+}

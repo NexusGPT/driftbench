@@ -1,0 +1,1348 @@
+{
+  "id": "rubric_eval_52",
+  "protocolVersion": 4,
+  "planKey": "7729fe5cf57cc9e8a2d3",
+  "questionPlanKey": "3a2c311fd6ad60abe0ac",
+  "at": "2026-10-13T04:28:57.663Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-b2opgS",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [{\"id\": \"t0\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"tab_in\"}, {\"op\": \"key\", \"key\": \"Enter\"}, {\"op\": \"click_option\", \"value\": \"b\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnChange\", \"b\"], [\"OnClose\", null]], \"value\": \"b\", \"aria_expanded\": false, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": true, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"click_trigger\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"a\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnChange\", [\"a\"]], [\"OnChange\", [\"a\", \"c\"]], [\"OnChange\", [\"c\"]]], \"value\": [\"c\"], \"aria_expanded\": true, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": true, \"error\": false, \"actions\": [{\"op\": \"tab_in\"}, {\"op\": \"key\", \"key\": \"Enter\"}, {\"op\": \"click_option\", \"value\": \"a\"}]}, \"expected\": {\"events\": [], \"value\": null, \"aria_expanded\": false, \"focused\": false, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": true, \"error\": false, \"actions\": [{\"op\": \"click_trigger\"}, {\"op\": \"type\", \"text\": \"x\"}]}, \"expected\": {\"events\": [], \"value\": null, \"aria_expanded\": false, \"focused\": false, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"tab_in\"}, {\"op\": \"key\", \"key\": \"Enter\"}, {\"op\": \"key\", \"key\": \"Tab\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnClose\", null]], \"value\": null, \"aria_expanded\": false, \"focused\": false, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"tab_in\"}, {\"op\": \"key\", \"key\": \"ArrowDown\"}, {\"op\": \"key\", \"key\": \"Escape\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnClose\", null]], \"value\": null, \"aria_expanded\": false, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"tab_in\"}, {\"op\": \"type\", \"text\": \"ab\"}]}, \"expected\": {\"events\": [[\"OnInput\", \"ab\"]], \"value\": null, \"aria_expanded\": false, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": []}, \"expected\": {\"events\": [], \"value\": null, \"aria_expanded\": false, \"focused\": false, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"click_option\", \"value\": \"a\"}]}, \"expected\": {\"events\": [], \"value\": null, \"aria_expanded\": false, \"focused\": false, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": true, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"click_trigger\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"a\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnChange\", [\"a\"]], [\"OnChange\", []]], \"value\": [], \"aria_expanded\": true, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"click_trigger\"}, {\"op\": \"click_trigger\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnClose\", null]], \"value\": null, \"aria_expanded\": false, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"tab_in\"}, {\"op\": \"key\", \"key\": \"Enter\"}, {\"op\": \"key\", \"key\": \" \"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnClose\", null]], \"value\": null, \"aria_expanded\": false, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": true, \"actions\": [{\"op\": \"click_trigger\"}, {\"op\": \"click_option\", \"value\": \"c\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnChange\", \"c\"], [\"OnClose\", null]], \"value\": \"c\", \"aria_expanded\": false, \"focused\": true, \"aria_invalid\": true, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": true, \"actions\": [{\"op\": \"tab_in\"}, {\"op\": \"key\", \"key\": \"Tab\"}]}, \"expected\": {\"events\": [], \"value\": null, \"aria_expanded\": false, \"focused\": false, \"aria_invalid\": true, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": true, \"disabled\": true, \"error\": true, \"actions\": [{\"op\": \"click_trigger\"}, {\"op\": \"click_option\", \"value\": \"a\"}]}, \"expected\": {\"events\": [], \"value\": [], \"aria_expanded\": false, \"focused\": false, \"aria_invalid\": true, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"options\": [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"tab_in\"}, {\"op\": \"key\", \"key\": \"Enter\"}, {\"op\": \"click_option\", \"value\": \"d\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnChange\", \"d\"], [\"OnClose\", null]], \"value\": \"d\", \"aria_expanded\": false, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"options\": [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"], \"multiple\": true, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"click_trigger\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}, {\"op\": \"click_option\", \"value\": \"f\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}, {\"op\": \"click_option\", \"value\": \"f\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}, {\"op\": \"click_option\", \"value\": \"f\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}, {\"op\": \"click_option\", \"value\": \"f\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnChange\", [\"a\"]], [\"OnChange\", [\"a\", \"b\"]], [\"OnChange\", [\"a\", \"b\", \"c\"]], [\"OnChange\", [\"a\", \"b\", \"c\", \"d\"]], [\"OnChange\", [\"a\", \"b\", \"c\", \"d\", \"e\"]], [\"OnChange\", [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"]], [\"OnChange\", [\"b\", \"c\", \"d\", \"e\", \"f\"]], [\"OnChange\", [\"c\", \"d\", \"e\", \"f\"]], [\"OnChange\", [\"d\", \"e\", \"f\"]], [\"OnChange\", [\"e\", \"f\"]], [\"OnChange\", [\"f\"]], [\"OnChange\", []], [\"OnChange\", [\"a\"]], [\"OnChange\", [\"a\", \"b\"]], [\"OnChange\", [\"a\", \"b\", \"c\"]], [\"OnChange\", [\"a\", \"b\", \"c\", \"d\"]], [\"OnChange\", [\"a\", \"b\", \"c\", \"d\", \"e\"]], [\"OnChange\", [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"]], [\"OnChange\", [\"b\", \"c\", \"d\", \"e\", \"f\"]], [\"OnChange\", [\"c\", \"d\", \"e\", \"f\"]], [\"OnChange\", [\"d\", \"e\", \"f\"]], [\"OnChange\", [\"e\", \"f\"]], [\"OnChange\", [\"f\"]], [\"OnChange\", []], [\"OnChange\", [\"a\"]], [\"OnChange\", [\"a\", \"b\"]], [\"OnChange\", [\"a\", \"b\", \"c\"]], [\"OnChange\", [\"a\", \"b\", \"c\", \"d\"]], [\"OnChange\", [\"a\", \"b\", \"c\", \"d\", \"e\"]]], \"value\": [\"a\", \"b\", \"c\", \"d\", \"e\"], \"aria_expanded\": true, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"options\": [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"click_trigger\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}, {\"op\": \"click_option\", \"value\": \"f\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}, {\"op\": \"click_option\", \"value\": \"f\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}, {\"op\": \"click_option\", \"value\": \"f\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}, {\"op\": \"click_option\", \"value\": \"f\"}, {\"op\": \"click_option\", \"value\": \"a\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_option\", \"value\": \"c\"}, {\"op\": \"click_option\", \"value\": \"d\"}, {\"op\": \"click_option\", \"value\": \"e\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnChange\", \"a\"], [\"OnClose\", null]], \"value\": \"a\", \"aria_expanded\": false, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": {\"options\": [\"a\", \"b\", \"c\"], \"multiple\": false, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"tab_in\"}, {\"op\": \"key\", \"key\": \"Escape\"}, {\"op\": \"key\", \"key\": \"ArrowDown\"}, {\"op\": \"type\", \"text\": \"\"}]}, \"expected\": {\"events\": [[\"OnOpen\", null], [\"OnInput\", \"\"]], \"value\": null, \"aria_expanded\": true, \"focused\": true, \"aria_invalid\": false, \"slots_rendered\": true}, \"oracle\": \"reference\"}], \"rejected\": [{\"options\": [\"x\", \"y\"], \"multiple\": true, \"disabled\": false, \"error\": false, \"actions\": [{\"op\": \"click_trigger\"}, {\"op\": \"click_option\", \"value\": \"b\"}, {\"op\": \"click_trigger\"}]}], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:20:48.668Z",
+      "latencyMs": 246.783
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "tab_in"
+              },
+              {
+                "op": "key",
+                "key": "Enter"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnChange",
+                "b"
+              ],
+              [
+                "OnClose",
+                null
+              ]
+            ],
+            "value": "b",
+            "aria_expanded": false,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": true,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "click_trigger"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnChange",
+                [
+                  "a"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "c"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "c"
+                ]
+              ]
+            ],
+            "value": [
+              "c"
+            ],
+            "aria_expanded": true,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": true,
+            "error": false,
+            "actions": [
+              {
+                "op": "tab_in"
+              },
+              {
+                "op": "key",
+                "key": "Enter"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              }
+            ]
+          },
+          "expected": {
+            "events": [],
+            "value": null,
+            "aria_expanded": false,
+            "focused": false,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": true,
+            "error": false,
+            "actions": [
+              {
+                "op": "click_trigger"
+              },
+              {
+                "op": "type",
+                "text": "x"
+              }
+            ]
+          },
+          "expected": {
+            "events": [],
+            "value": null,
+            "aria_expanded": false,
+            "focused": false,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "tab_in"
+              },
+              {
+                "op": "key",
+                "key": "Enter"
+              },
+              {
+                "op": "key",
+                "key": "Tab"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnClose",
+                null
+              ]
+            ],
+            "value": null,
+            "aria_expanded": false,
+            "focused": false,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "tab_in"
+              },
+              {
+                "op": "key",
+                "key": "ArrowDown"
+              },
+              {
+                "op": "key",
+                "key": "Escape"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnClose",
+                null
+              ]
+            ],
+            "value": null,
+            "aria_expanded": false,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "tab_in"
+              },
+              {
+                "op": "type",
+                "text": "ab"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnInput",
+                "ab"
+              ]
+            ],
+            "value": null,
+            "aria_expanded": false,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": []
+          },
+          "expected": {
+            "events": [],
+            "value": null,
+            "aria_expanded": false,
+            "focused": false,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "click_option",
+                "value": "a"
+              }
+            ]
+          },
+          "expected": {
+            "events": [],
+            "value": null,
+            "aria_expanded": false,
+            "focused": false,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": true,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "click_trigger"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnChange",
+                [
+                  "a"
+                ]
+              ],
+              [
+                "OnChange",
+                []
+              ]
+            ],
+            "value": [],
+            "aria_expanded": true,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "click_trigger"
+              },
+              {
+                "op": "click_trigger"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnClose",
+                null
+              ]
+            ],
+            "value": null,
+            "aria_expanded": false,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "tab_in"
+              },
+              {
+                "op": "key",
+                "key": "Enter"
+              },
+              {
+                "op": "key",
+                "key": " "
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnClose",
+                null
+              ]
+            ],
+            "value": null,
+            "aria_expanded": false,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": true,
+            "actions": [
+              {
+                "op": "click_trigger"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnChange",
+                "c"
+              ],
+              [
+                "OnClose",
+                null
+              ]
+            ],
+            "value": "c",
+            "aria_expanded": false,
+            "focused": true,
+            "aria_invalid": true,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": true,
+            "actions": [
+              {
+                "op": "tab_in"
+              },
+              {
+                "op": "key",
+                "key": "Tab"
+              }
+            ]
+          },
+          "expected": {
+            "events": [],
+            "value": null,
+            "aria_expanded": false,
+            "focused": false,
+            "aria_invalid": true,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": true,
+            "disabled": true,
+            "error": true,
+            "actions": [
+              {
+                "op": "click_trigger"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              }
+            ]
+          },
+          "expected": {
+            "events": [],
+            "value": [],
+            "aria_expanded": false,
+            "focused": false,
+            "aria_invalid": true,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c",
+              "d",
+              "e",
+              "f"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "tab_in"
+              },
+              {
+                "op": "key",
+                "key": "Enter"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnChange",
+                "d"
+              ],
+              [
+                "OnClose",
+                null
+              ]
+            ],
+            "value": "d",
+            "aria_expanded": false,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c",
+              "d",
+              "e",
+              "f"
+            ],
+            "multiple": true,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "click_trigger"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              },
+              {
+                "op": "click_option",
+                "value": "f"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              },
+              {
+                "op": "click_option",
+                "value": "f"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              },
+              {
+                "op": "click_option",
+                "value": "f"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              },
+              {
+                "op": "click_option",
+                "value": "f"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnChange",
+                [
+                  "a"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c",
+                  "d"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c",
+                  "d",
+                  "e"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c",
+                  "d",
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "b",
+                  "c",
+                  "d",
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "c",
+                  "d",
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "d",
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                []
+              ],
+              [
+                "OnChange",
+                [
+                  "a"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c",
+                  "d"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c",
+                  "d",
+                  "e"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c",
+                  "d",
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "b",
+                  "c",
+                  "d",
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "c",
+                  "d",
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "d",
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "e",
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "f"
+                ]
+              ],
+              [
+                "OnChange",
+                []
+              ],
+              [
+                "OnChange",
+                [
+                  "a"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c",
+                  "d"
+                ]
+              ],
+              [
+                "OnChange",
+                [
+                  "a",
+                  "b",
+                  "c",
+                  "d",
+                  "e"
+                ]
+              ]
+            ],
+            "value": [
+              "a",
+              "b",
+              "c",
+              "d",
+              "e"
+            ],
+            "aria_expanded": true,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c",
+              "d",
+              "e",
+              "f"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "click_trigger"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              },
+              {
+                "op": "click_option",
+                "value": "f"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              },
+              {
+                "op": "click_option",
+                "value": "f"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              },
+              {
+                "op": "click_option",
+                "value": "f"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              },
+              {
+                "op": "click_option",
+                "value": "f"
+              },
+              {
+                "op": "click_option",
+                "value": "a"
+              },
+              {
+                "op": "click_option",
+                "value": "b"
+              },
+              {
+                "op": "click_option",
+                "value": "c"
+              },
+              {
+                "op": "click_option",
+                "value": "d"
+              },
+              {
+                "op": "click_option",
+                "value": "e"
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnChange",
+                "a"
+              ],
+              [
+                "OnClose",
+                null
+              ]
+            ],
+            "value": "a",
+            "aria_expanded": false,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "options": [
+              "a",
+              "b",
+              "c"
+            ],
+            "multiple": false,
+            "disabled": false,
+            "error": false,
+            "actions": [
+              {
+                "op": "tab_in"
+              },
+              {
+                "op": "key",
+                "key": "Escape"
+              },
+              {
+                "op": "key",
+                "key": "ArrowDown"
+              },
+              {
+                "op": "type",
+                "text": ""
+              }
+            ]
+          },
+          "expected": {
+            "events": [
+              [
+                "OnOpen",
+                null
+              ],
+              [
+                "OnInput",
+                ""
+              ]
+            ],
+            "value": null,
+            "aria_expanded": true,
+            "focused": true,
+            "aria_invalid": false,
+            "slots_rendered": true
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [
+        {
+          "options": [
+            "x",
+            "y"
+          ],
+          "multiple": true,
+          "disabled": false,
+          "error": false,
+          "actions": [
+            {
+              "op": "click_trigger"
+            },
+            {
+              "op": "click_option",
+              "value": "b"
+            },
+            {
+              "op": "click_trigger"
+            }
+          ]
+        }
+      ],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "06809932a639dd75423f0d54d46a577ef4d1423079af6da0527f865d964f61e3"
+  },
+  "contractAudit": {
+    "key": "3fd3b202898eb65024eb",
+    "costUsd": 0.0043234200000000006,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "Check 0 (named_slots_left_and_right) is a regex proxy for HTML semantics, which the contract forbids. It should be replaced by a DOM or template-parse check.",
+        "Execution is invalid because the reference adds unrequested requirements that a candidate cannot infer from the question: the multi-select OnChange payload must be a sorted array, multi-select must stay open, single-select must suppress OnChange when the value is unchanged, and disabled components must not be focusable.",
+        "Execution is also invalid because the observable contract is underspecified: the 'type' operation has no defined DOM mechanism (the question requires no text input), and 'aria_expanded' is defined as 'on the root or trigger' with no fixed location.",
+        "The reference matches the supplied expected outputs for all 19 inputs I traced, including the 29-click multi-select toggle sequence (t16) and the disabled and error cases. The problem is the requirement surface, not the arithmetic.",
+        "The validator correctly rejects malformed, empty, duplicate, and out-of-range inputs, and the rejected example (option 'b' absent from options ['x','y']) is correctly filtered."
+      ],
+      "invalid_checks": [
+        0
+      ],
+      "execution_valid": false
+    }
+  },
+  "executionAbstention": "invalid_contract_or_reference",
+  "status": "evaluated",
+  "priorCallKeys": [
+    "3fd3b202898eb65024eb"
+  ],
+  "callKeys": [
+    "3fd3b202898eb65024eb"
+  ]
+}

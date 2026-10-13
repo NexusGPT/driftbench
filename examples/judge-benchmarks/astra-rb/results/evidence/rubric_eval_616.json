@@ -1,0 +1,106 @@
+{
+  "id": "rubric_eval_616",
+  "planKey": "d69f332a2935f014db35",
+  "at": "2026-10-13T04:03:33.460Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "ends_with_exact_phrase_no_trailing_characters",
+      "source_quote": "no other words should follow this phrase",
+      "a": false,
+      "b": false,
+      "programHash": "8ced2c25f751b4d53aee950b678e168f2f4b7c34c6b5fc88954db80a450a7851"
+    },
+    {
+      "index": 1,
+      "name": "body_before_final_phrase_all_caps",
+      "source_quote": "in all capital letters",
+      "a": false,
+      "b": false,
+      "programHash": "416d700bf5326184892d90feb482f93dd3881dec8f3a0d997007e49419bdbdea"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-qJECvi",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:46.587Z",
+      "latencyMs": 314.249
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "5029a08ba3fbed8bb7ea98484c80b9fc3010a5e01d4ab132347d2bd16c0ae00e"
+  },
+  "contractAudit": {
+    "key": "13f7f7fe295d1f5bece0",
+    "costUsd": 0.0010601,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal instruction that no words, punctuation, or characters may follow the final phrase. Its source quote is grounded, and its positive and negative fixtures are correct.",
+        "Check 1 implements the all-caps requirement for the body before the final phrase. Its source quote is grounded, and its positive and negative fixtures are correct.",
+        "Observed fixture results match the expected positive and negative outcomes for both checks.",
+        "Execution is null, so execution_valid is false. Validity rests on the two valid C1 checks.",
+        "The plan does not cover the English-language or singular-'human' rubric items. That is a coverage gap, not an invalidity, because the requirement is only that at least one valid check exists."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-LLNQ0Z",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"ends_with_exact_phrase_no_trailing_characters\", \"source_quote\": \"no other words should follow this phrase\", \"a\": false, \"b\": false}, {\"index\": 1, \"name\": \"body_before_final_phrase_all_caps\", \"source_quote\": \"in all capital letters\", \"a\": false, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:03:42.197Z",
+      "latencyMs": 274.112
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "ends_with_exact_phrase_no_trailing_characters",
+          "source_quote": "no other words should follow this phrase",
+          "a": false,
+          "b": false
+        },
+        {
+          "index": 1,
+          "name": "body_before_final_phrase_all_caps",
+          "source_quote": "in all capital letters",
+          "a": false,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "13f7f7fe295d1f5bece0"
+  ]
+}

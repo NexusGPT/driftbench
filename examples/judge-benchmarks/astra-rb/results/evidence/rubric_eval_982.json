@@ -1,0 +1,86 @@
+{
+  "id": "rubric_eval_982",
+  "planKey": "0d15d6041e7fe9b4f089",
+  "at": "2026-10-13T04:07:31.795Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "single_paragraph",
+      "source_quote": "Can you make this a one paragraph summary?",
+      "a": true,
+      "b": true,
+      "programHash": "16fb575d18cf8b90a8f124cc531e6700e76ccd6ce32a1e638b98bf77dc24ea99"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-gHf9BE",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:48.695Z",
+      "latencyMs": 328.154
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "3b25bda1d233b33891802dc191087ec4c5431b9c39db769530e7568a8891a6e6"
+  },
+  "contractAudit": {
+    "key": "90eb5c363694f13ad6dc",
+    "costUsd": 0.0008617,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (single_paragraph) implements the literal instruction 'Can you make this a one paragraph summary?' by counting blank-line-separated paragraphs and requiring exactly one.",
+        "The source_quote appears verbatim in the question.",
+        "Positive and negative fixtures are correct: a single-paragraph string passes and a two-paragraph string fails.",
+        "The check returns False for empty, whitespace-only, and non-string inputs, which is a sensible result.",
+        "The observed positive/negative results (true/false) agree with the fixtures.",
+        "Execution is null, so execution_valid is false. Validity rests on check 0."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-OMxDDu",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"single_paragraph\", \"source_quote\": \"Can you make this a one paragraph summary?\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:07:38.656Z",
+      "latencyMs": 214.401
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "single_paragraph",
+          "source_quote": "Can you make this a one paragraph summary?",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "90eb5c363694f13ad6dc"
+  ]
+}

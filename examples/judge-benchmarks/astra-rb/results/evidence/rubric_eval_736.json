@@ -1,0 +1,84 @@
+{
+  "id": "rubric_eval_736",
+  "planKey": "38599e0bff800051b48c",
+  "at": "2026-10-13T04:05:03.586Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "no_forbidden_preamble",
+      "source_quote": "Hey here is the message you asked",
+      "a": true,
+      "b": true,
+      "programHash": "19941d22d9e81b0412b67877b5d20b13ffffe042c47be69eb3050a3924fb59b7"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-q38pdV",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:46.928Z",
+      "latencyMs": 368.616
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "0054d8ae311f4fd07f23fd1a57c29f98d0a7bfa22b0111ae5f638468548f856e"
+  },
+  "contractAudit": {
+    "key": "bfcbcfb9cd7bdfc13f17",
+    "costUsd": 0.0009,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal prohibition on the exact phrase quoted in the question, and its source_quote is grounded in that instruction.",
+        "Check 0 positive fixture passes and negative fixture fails under the check's logic, matching the observed results.",
+        "The check covers only one phrase, so it does not enforce the broader 'no meta-commentary' rule. This limits coverage but does not make the check invalid.",
+        "plan.execution is null, so execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-oZjpGj",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"no_forbidden_preamble\", \"source_quote\": \"Hey here is the message you asked\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:05:12.209Z",
+      "latencyMs": 177.092
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "no_forbidden_preamble",
+          "source_quote": "Hey here is the message you asked",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "bfcbcfb9cd7bdfc13f17"
+  ]
+}

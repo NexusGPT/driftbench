@@ -1,0 +1,1246 @@
+{
+  "id": "rubric_eval_503",
+  "protocolVersion": 4,
+  "planKey": "e9a7051d57252bb4c0b3",
+  "questionPlanKey": "6c9b0509a623386d27e1",
+  "at": "2026-10-13T04:28:41.490Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "unsupported_candidate",
+      "side": "b",
+      "adapter": {
+        "key": "19a60b0cfef424e45ec5",
+        "costUsd": 0.0012379600000000002,
+        "value": {
+          "runnable": false,
+          "reason": "The only code block is a Python Flask server endpoint, not a browser-side JavaScript function. The contract requires a JavaScript function that accepts PDF bytes (ArrayBuffer or Uint8Array) and resolves to a markdown string, and the candidate defines no such function. Running the Flask app would also need a network listener, which the harness rules forbid. The prose suggests pdf.js or other client-side options but gives no implementation, and turning prose into an algorithm is not permitted.",
+          "command": "",
+          "files": {},
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    },
+    {
+      "status": "unsupported_candidate",
+      "side": "a",
+      "adapter": {
+        "key": "c8f6886c9af498cf1b1a",
+        "costUsd": 0.00129936,
+        "value": {
+          "runnable": false,
+          "reason": "The candidate depends on pdf-lib, pdf-text-extract, and turndown. None of these is in the available dependency list, and installs are not permitted, so the candidate cannot be loaded or executed. Blocks 0 to 2 are the candidate's real algorithm and cannot be replaced or mocked. Block 3 is browser DOM wiring that is not needed for the function under test.",
+          "command": "",
+          "files": {},
+          "uses": [
+            0,
+            1,
+            2
+          ],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-abQVWi",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNTEgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKGhlbGxvIHdvcmxkKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKNDEyCiUlRU9GCg==\", \"lines\": [\"hello world\"]}, \"expected\": {\"contains_in_order\": [\"hello world\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggODkgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKGZpcnN0IGxpbmUpIFRqIFQqCihzZWNvbmQgbGluZSkgVGogVCoKKHRoaXJkIGxpbmUpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0NTAKJSVFT0YK\", \"lines\": [\"first line\", \"second line\", \"third line\"]}, \"expected\": {\"contains_in_order\": [\"first line\", \"second line\", \"third line\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMzEgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCjAwMDAwMDAyNDEgMDAwMDAgbiAKMDAwMDAwMDMxMSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjM5MgolJUVPRgo=\", \"lines\": []}, \"expected\": {\"contains_in_order\": [], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNzMgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKGFscGhhKSBUaiBUKgooYWxwaGEpIFRqIFQqCihhbHBoYSkgVGogVCoKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCjAwMDAwMDAyNDEgMDAwMDAgbiAKMDAwMDAwMDMxMSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjQzNAolJUVPRgo=\", \"lines\": [\"alpha\", \"alpha\", \"alpha\"]}, \"expected\": {\"contains_in_order\": [\"alpha\", \"alpha\", \"alpha\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNjIgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKHBhcmVucyBcKGluc2lkZVwpIGhlcmUpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0MjMKJSVFT0YK\", \"lines\": [\"parens (inside) here\"]}, \"expected\": {\"contains_in_order\": [\"parens (inside) here\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNDEgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKHgpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0MDIKJSVFT0YK\", \"lines\": [\"x\"]}, \"expected\": {\"contains_in_order\": [\"x\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNzEgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKG51bWJlcnMgMDA0MiBrZWVwIGxlYWRpbmcgemVyb3MpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0MzIKJSVFT0YK\", \"lines\": [\"numbers 0042 keep leading zeros\"]}, \"expected\": {\"contains_in_order\": [\"numbers 0042 keep leading zeros\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNjQ2ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihzaWduYWwgMDA0MikgVGogVCoKKGxhbXApIFRqIFQqCihsYW1wIHRyZWUgcXVpZXQgcml2ZXIgcGFwZXIpIFRqIFQqCihyaXZlciBsYW1wKSBUaiBUKgooc2lnbmFsIGxhbXAgb3JiaXQgbGFtcCkgVGogVCoKKHNpZ25hbCByaXZlciBxdWlldCBsYW1wIG9yYml0KSBUaiBUKgooMDA0MiBxdWlldCByaXZlciBxdWlldCBxdWlldCBzaWduYWwpIFRqIFQqCihvcmJpdCkgVGogVCoKKHBhcGVyKSBUaiBUKgooY2FibGUgc2lnbmFsKSBUaiBUKgoocGFwZXIgbGFtcCkgVGogVCoKKGNhYmxlIHBhcGVyIDAwNDIgZ2FyZGVuIGxhbXApIFRqIFQqCihxdWlldCAwMDQyIG9yYml0IHRyZWUgbGFtcCkgVGogVCoKKGRlbHRhIGxhbXAgcXVpZXQgcml2ZXIgcXVpZXQpIFRqIFQqCihtb3VudGFpbiAwMDQyKSBUaiBUKgooc2lnbmFsIHRyZWUgbW91bnRhaW4gcXVpZXQgbW91bnRhaW4pIFRqIFQqCihjYWJsZSBvcmJpdCBnYXJkZW4pIFRqIFQqCihvcmJpdCBsYW1wIHF1aWV0IGNhYmxlIHBhcGVyIG1vdW50YWluKSBUaiBUKgooZGVsdGEgbW91bnRhaW4gY2FibGUpIFRqIFQqCihsYW1wIGxhbXAgcGFwZXIgc2lnbmFsIGdhcmRlbikgVGogVCoKKGdhcmRlbiBtb3VudGFpbiBzaWduYWwpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgoxMDA4CiUlRU9GCg==\", \"lines\": [\"signal 0042\", \"lamp\", \"lamp tree quiet river paper\", \"river lamp\", \"signal lamp orbit lamp\", \"signal river quiet lamp orbit\", \"0042 quiet river quiet quiet signal\", \"orbit\", \"paper\", \"cable signal\", \"paper lamp\", \"cable paper 0042 garden lamp\", \"quiet 0042 orbit tree lamp\", \"delta lamp quiet river quiet\", \"mountain 0042\", \"signal tree mountain quiet mountain\", \"cable orbit garden\", \"orbit lamp quiet cable paper mountain\", \"delta mountain cable\", \"lamp lamp paper signal garden\", \"garden mountain signal\"]}, \"expected\": {\"contains_in_order\": [\"signal 0042\", \"lamp\", \"lamp tree quiet river paper\", \"river lamp\", \"signal lamp orbit lamp\", \"signal river quiet lamp orbit\", \"0042 quiet river quiet quiet signal\", \"orbit\", \"paper\", \"cable signal\", \"paper lamp\", \"cable paper 0042 garden lamp\", \"quiet 0042 orbit tree lamp\", \"delta lamp quiet river quiet\", \"mountain 0042\", \"signal tree mountain quiet mountain\", \"cable orbit garden\", \"orbit lamp quiet cable paper mountain\", \"delta mountain cable\", \"lamp lamp paper signal garden\", \"garden mountain signal\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTM0ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihsYW1wIHBhcGVyIHF1aWV0IHRyZWUgdHJlZSBkZWx0YSkgVGogVCoKKHF1aWV0IG1vdW50YWluIHF1aWV0KSBUaiBUKgoobGFtcCBsYW1wIGNhYmxlIG1vdW50YWluKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKNDk2CiUlRU9GCg==\", \"lines\": [\"lamp paper quiet tree tree delta\", \"quiet mountain quiet\", \"lamp lamp cable mountain\"]}, \"expected\": {\"contains_in_order\": [\"lamp paper quiet tree tree delta\", \"quiet mountain quiet\", \"lamp lamp cable mountain\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTg3ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihkZWx0YSkgVGogVCoKKGNhYmxlIDAwNDIgcXVpZXQgMDA0MiBtb3VudGFpbiBjYWJsZSkgVGogVCoKKHNpZ25hbCAwMDQyIHRyZWUgcml2ZXIgbW91bnRhaW4gdHJlZSkgVGogVCoKKHF1aWV0IGxhbXApIFRqIFQqCihyaXZlciBvcmJpdCBjYWJsZSBnYXJkZW4pIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo1NDkKJSVFT0YK\", \"lines\": [\"delta\", \"cable 0042 quiet 0042 mountain cable\", \"signal 0042 tree river mountain tree\", \"quiet lamp\", \"river orbit cable garden\"]}, \"expected\": {\"contains_in_order\": [\"delta\", \"cable 0042 quiet 0042 mountain cable\", \"signal 0042 tree river mountain tree\", \"quiet lamp\", \"river orbit cable garden\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNDk2ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihzaWduYWwgbW91bnRhaW4gbGFtcCBnYXJkZW4pIFRqIFQqCihzaWduYWwgcGFwZXIgY2FibGUgZ2FyZGVuKSBUaiBUKgoocGFwZXIgY2FibGUgZGVsdGEgc2lnbmFsKSBUaiBUKgooMDA0MiBzaWduYWwgb3JiaXQpIFRqIFQqCihsYW1wIGdhcmRlbikgVGogVCoKKG9yYml0IDAwNDIpIFRqIFQqCihyaXZlciBtb3VudGFpbikgVGogVCoKKGdhcmRlbiBjYWJsZSBjYWJsZSByaXZlciBnYXJkZW4pIFRqIFQqCihwYXBlciB0cmVlIHF1aWV0IHF1aWV0KSBUaiBUKgooZ2FyZGVuIGRlbHRhIHBhcGVyKSBUaiBUKgooMDA0MiAwMDQyIGRlbHRhIHJpdmVyIG1vdW50YWluKSBUaiBUKgoocGFwZXIgc2lnbmFsIHNpZ25hbCBzaWduYWwgc2lnbmFsIGxhbXApIFRqIFQqCigwMDQyIHNpZ25hbCByaXZlciBvcmJpdCkgVGogVCoKKG9yYml0KSBUaiBUKgooZ2FyZGVuIGxhbXAgdHJlZSBxdWlldCkgVGogVCoKKGxhbXApIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo4NTgKJSVFT0YK\", \"lines\": [\"signal mountain lamp garden\", \"signal paper cable garden\", \"paper cable delta signal\", \"0042 signal orbit\", \"lamp garden\", \"orbit 0042\", \"river mountain\", \"garden cable cable river garden\", \"paper tree quiet quiet\", \"garden delta paper\", \"0042 0042 delta river mountain\", \"paper signal signal signal signal lamp\", \"0042 signal river orbit\", \"orbit\", \"garden lamp tree quiet\", \"lamp\"]}, \"expected\": {\"contains_in_order\": [\"signal mountain lamp garden\", \"signal paper cable garden\", \"paper cable delta signal\", \"0042 signal orbit\", \"lamp garden\", \"orbit 0042\", \"river mountain\", \"garden cable cable river garden\", \"paper tree quiet quiet\", \"garden delta paper\", \"0042 0042 delta river mountain\", \"paper signal signal signal signal lamp\", \"0042 signal river orbit\", \"orbit\", \"garden lamp tree quiet\", \"lamp\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNjggPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKGdhcmRlbiBwYXBlciBsYW1wIHRyZWUgcXVpZXQpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0MjkKJSVFT0YK\", \"lines\": [\"garden paper lamp tree quiet\"]}, \"expected\": {\"contains_in_order\": [\"garden paper lamp tree quiet\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggODMgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKG9yYml0KSBUaiBUKgooc2lnbmFsIGdhcmRlbiAwMDQyIGNhYmxlIHRyZWUpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0NDQKJSVFT0YK\", \"lines\": [\"orbit\", \"signal garden 0042 cable tree\"]}, \"expected\": {\"contains_in_order\": [\"orbit\", \"signal garden 0042 cable tree\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTEzMiA+PgpzdHJlYW0KQlQgL0YxIDExIFRmIDcyIDc0MCBUZCAxNCBUTAoobW91bnRhaW4gbGFtcCBsYW1wKSBUaiBUKgoobW91bnRhaW4gbW91bnRhaW4gbW91bnRhaW4gY2FibGUpIFRqIFQqCihnYXJkZW4pIFRqIFQqCihkZWx0YSkgVGogVCoKKGRlbHRhIGNhYmxlIG1vdW50YWluKSBUaiBUKgooZ2FyZGVuIHBhcGVyIHJpdmVyIG9yYml0IHBhcGVyIHRyZWUpIFRqIFQqCihkZWx0YSBwYXBlcikgVGogVCoKKHBhcGVyKSBUaiBUKgooMDA0MiBsYW1wIGRlbHRhKSBUaiBUKgoocGFwZXIgdHJlZSBnYXJkZW4pIFRqIFQqCihvcmJpdCBwYXBlciBwYXBlcikgVGogVCoKKHRyZWUgMDA0MiBvcmJpdCBxdWlldCBvcmJpdCkgVGogVCoKKHNpZ25hbCBkZWx0YSkgVGogVCoKKG9yYml0IHBhcGVyKSBUaiBUKgoodHJlZSBkZWx0YSByaXZlciByaXZlcikgVGogVCoKKG1vdW50YWluIGNhYmxlIG9yYml0KSBUaiBUKgoocXVpZXQgdHJlZSBtb3VudGFpbiBkZWx0YSB0cmVlIHRyZWUpIFRqIFQqCihvcmJpdCkgVGogVCoKKG9yYml0KSBUaiBUKgoob3JiaXQgdHJlZSBvcmJpdCBtb3VudGFpbikgVGogVCoKKHF1aWV0IHJpdmVyIG1vdW50YWluIDAwNDIgdHJlZSkgVGogVCoKKGxhbXAgMDA0MiBsYW1wIHNpZ25hbCBkZWx0YSBvcmJpdCkgVGogVCoKKGdhcmRlbiBzaWduYWwgMDA0MiB0cmVlKSBUaiBUKgooZGVsdGEpIFRqIFQqCihtb3VudGFpbiBzaWduYWwgZGVsdGEgbGFtcCkgVGogVCoKKGdhcmRlbiBnYXJkZW4gZ2FyZGVuIHJpdmVyIGdhcmRlbiBxdWlldCkgVGogVCoKKDAwNDIgZ2FyZGVuIHF1aWV0IHF1aWV0KSBUaiBUKgooMDA0MiB0cmVlIGdhcmRlbiBwYXBlcikgVGogVCoKKGdhcmRlbiByaXZlciByaXZlciBkZWx0YSAwMDQyKSBUaiBUKgoocGFwZXIpIFRqIFQqCihnYXJkZW4gc2lnbmFsIG9yYml0IG9yYml0IHJpdmVyIGNhYmxlKSBUaiBUKgooY2FibGUgcGFwZXIpIFRqIFQqCihxdWlldCB0cmVlKSBUaiBUKgoocGFwZXIgc2lnbmFsIGdhcmRlbikgVGogVCoKKGRlbHRhKSBUaiBUKgoobW91bnRhaW4gMDA0MiBxdWlldCkgVGogVCoKKHNpZ25hbCBwYXBlciBnYXJkZW4gcGFwZXIgZ2FyZGVuKSBUaiBUKgoocGFwZXIgcml2ZXIgbW91bnRhaW4gZ2FyZGVuIHF1aWV0KSBUaiBUKgooZ2FyZGVuKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKMTQ5NQolJUVPRgo=\", \"lines\": [\"mountain lamp lamp\", \"mountain mountain mountain cable\", \"garden\", \"delta\", \"delta cable mountain\", \"garden paper river orbit paper tree\", \"delta paper\", \"paper\", \"0042 lamp delta\", \"paper tree garden\", \"orbit paper paper\", \"tree 0042 orbit quiet orbit\", \"signal delta\", \"orbit paper\", \"tree delta river river\", \"mountain cable orbit\", \"quiet tree mountain delta tree tree\", \"orbit\", \"orbit\", \"orbit tree orbit mountain\", \"quiet river mountain 0042 tree\", \"lamp 0042 lamp signal delta orbit\", \"garden signal 0042 tree\", \"delta\", \"mountain signal delta lamp\", \"garden garden garden river garden quiet\", \"0042 garden quiet quiet\", \"0042 tree garden paper\", \"garden river river delta 0042\", \"paper\", \"garden signal orbit orbit river cable\", \"cable paper\", \"quiet tree\", \"paper signal garden\", \"delta\", \"mountain 0042 quiet\", \"signal paper garden paper garden\", \"paper river mountain garden quiet\", \"garden\"]}, \"expected\": {\"contains_in_order\": [\"mountain lamp lamp\", \"mountain mountain mountain cable\", \"garden\", \"delta\", \"delta cable mountain\", \"garden paper river orbit paper tree\", \"delta paper\", \"paper\", \"0042 lamp delta\", \"paper tree garden\", \"orbit paper paper\", \"tree 0042 orbit quiet orbit\", \"signal delta\", \"orbit paper\", \"tree delta river river\", \"mountain cable orbit\", \"quiet tree mountain delta tree tree\", \"orbit\", \"orbit\", \"orbit tree orbit mountain\", \"quiet river mountain 0042 tree\", \"lamp 0042 lamp signal delta orbit\", \"garden signal 0042 tree\", \"delta\", \"mountain signal delta lamp\", \"garden garden garden river garden quiet\", \"0042 garden quiet quiet\", \"0042 tree garden paper\", \"garden river river delta 0042\", \"paper\", \"garden signal orbit orbit river cable\", \"cable paper\", \"quiet tree\", \"paper signal garden\", \"delta\", \"mountain 0042 quiet\", \"signal paper garden paper garden\", \"paper river mountain garden quiet\", \"garden\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNDAwID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihtb3VudGFpbiBxdWlldCkgVGogVCoKKGxhbXAgcGFwZXIgcml2ZXIgdHJlZSAwMDQyIHBhcGVyKSBUaiBUKgoocGFwZXIgbW91bnRhaW4gbGFtcCBwYXBlciByaXZlcikgVGogVCoKKG9yYml0IGNhYmxlKSBUaiBUKgoobGFtcCkgVGogVCoKKG1vdW50YWluIHBhcGVyIHJpdmVyIGxhbXAgbW91bnRhaW4pIFRqIFQqCihxdWlldCBwYXBlciBxdWlldCkgVGogVCoKKG9yYml0IGRlbHRhIGNhYmxlIG1vdW50YWluIHBhcGVyKSBUaiBUKgoobW91bnRhaW4gcGFwZXIgb3JiaXQgZGVsdGEgcGFwZXIpIFRqIFQqCihwYXBlciBvcmJpdCBtb3VudGFpbikgVGogVCoKKHNpZ25hbCBsYW1wKSBUaiBUKgoobW91bnRhaW4gdHJlZSBsYW1wIDAwNDIpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo3NjIKJSVFT0YK\", \"lines\": [\"mountain quiet\", \"lamp paper river tree 0042 paper\", \"paper mountain lamp paper river\", \"orbit cable\", \"lamp\", \"mountain paper river lamp mountain\", \"quiet paper quiet\", \"orbit delta cable mountain paper\", \"mountain paper orbit delta paper\", \"paper orbit mountain\", \"signal lamp\", \"mountain tree lamp 0042\"]}, \"expected\": {\"contains_in_order\": [\"mountain quiet\", \"lamp paper river tree 0042 paper\", \"paper mountain lamp paper river\", \"orbit cable\", \"lamp\", \"mountain paper river lamp mountain\", \"quiet paper quiet\", \"orbit delta cable mountain paper\", \"mountain paper orbit delta paper\", \"paper orbit mountain\", \"signal lamp\", \"mountain tree lamp 0042\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNTIzID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihsYW1wIG9yYml0IDAwNDIgY2FibGUpIFRqIFQqCihnYXJkZW4pIFRqIFQqCigwMDQyIDAwNDIgdHJlZSBnYXJkZW4gY2FibGUgZ2FyZGVuKSBUaiBUKgoob3JiaXQgZGVsdGEgbGFtcCBzaWduYWwpIFRqIFQqCihnYXJkZW4gMDA0MiBvcmJpdCBnYXJkZW4pIFRqIFQqCihzaWduYWwgcGFwZXIgc2lnbmFsIHRyZWUgc2lnbmFsIG9yYml0KSBUaiBUKgoodHJlZSBsYW1wIGRlbHRhKSBUaiBUKgoocml2ZXIgdHJlZSBwYXBlcikgVGogVCoKKG1vdW50YWluIGRlbHRhIHJpdmVyIHNpZ25hbCkgVGogVCoKKHBhcGVyIHF1aWV0IGNhYmxlKSBUaiBUKgoobGFtcCBsYW1wIG9yYml0IGxhbXAgbGFtcCkgVGogVCoKKGNhYmxlIHJpdmVyIGdhcmRlbikgVGogVCoKKGdhcmRlbiBzaWduYWwgMDA0MikgVGogVCoKKHNpZ25hbCBnYXJkZW4gcGFwZXIpIFRqIFQqCihxdWlldCBtb3VudGFpbiBkZWx0YSB0cmVlIGxhbXApIFRqIFQqCihyaXZlciBkZWx0YSBnYXJkZW4pIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo4ODUKJSVFT0YK\", \"lines\": [\"lamp orbit 0042 cable\", \"garden\", \"0042 0042 tree garden cable garden\", \"orbit delta lamp signal\", \"garden 0042 orbit garden\", \"signal paper signal tree signal orbit\", \"tree lamp delta\", \"river tree paper\", \"mountain delta river signal\", \"paper quiet cable\", \"lamp lamp orbit lamp lamp\", \"cable river garden\", \"garden signal 0042\", \"signal garden paper\", \"quiet mountain delta tree lamp\", \"river delta garden\"]}, \"expected\": {\"contains_in_order\": [\"lamp orbit 0042 cable\", \"garden\", \"0042 0042 tree garden cable garden\", \"orbit delta lamp signal\", \"garden 0042 orbit garden\", \"signal paper signal tree signal orbit\", \"tree lamp delta\", \"river tree paper\", \"mountain delta river signal\", \"paper quiet cable\", \"lamp lamp orbit lamp lamp\", \"cable river garden\", \"garden signal 0042\", \"signal garden paper\", \"quiet mountain delta tree lamp\", \"river delta garden\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNzMxID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihjYWJsZSkgVGogVCoKKDAwNDIpIFRqIFQqCihjYWJsZSkgVGogVCoKKHF1aWV0KSBUaiBUKgoobGFtcCBjYWJsZSkgVGogVCoKKG1vdW50YWluKSBUaiBUKgoodHJlZSkgVGogVCoKKHNpZ25hbCBjYWJsZSBxdWlldCBnYXJkZW4gcml2ZXIpIFRqIFQqCihkZWx0YSBvcmJpdCBsYW1wIGdhcmRlbiBjYWJsZSkgVGogVCoKKGdhcmRlbikgVGogVCoKKGNhYmxlIDAwNDIpIFRqIFQqCihwYXBlciBvcmJpdCBjYWJsZSkgVGogVCoKKHBhcGVyIDAwNDIgZ2FyZGVuIGNhYmxlKSBUaiBUKgoocml2ZXIgY2FibGUgcml2ZXIpIFRqIFQqCihyaXZlcikgVGogVCoKKHBhcGVyIHBhcGVyIG9yYml0IHBhcGVyIG1vdW50YWluIG9yYml0KSBUaiBUKgoobGFtcCAwMDQyIDAwNDIgc2lnbmFsKSBUaiBUKgoobW91bnRhaW4gcGFwZXIgc2lnbmFsIHBhcGVyIGNhYmxlIGRlbHRhKSBUaiBUKgoob3JiaXQgdHJlZSkgVGogVCoKKGRlbHRhIGRlbHRhKSBUaiBUKgooZ2FyZGVuIHNpZ25hbCB0cmVlIHJpdmVyIGdhcmRlbiByaXZlcikgVGogVCoKKDAwNDIpIFRqIFQqCihjYWJsZSBzaWduYWwgZ2FyZGVuIHJpdmVyIGxhbXAgMDA0MikgVGogVCoKKHBhcGVyIDAwNDIgY2FibGUgcXVpZXQpIFRqIFQqCihkZWx0YSBjYWJsZSkgVGogVCoKKG1vdW50YWluKSBUaiBUKgooZ2FyZGVuIGNhYmxlKSBUaiBUKgoocml2ZXIgY2FibGUgdHJlZSB0cmVlKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKMTA5MwolJUVPRgo=\", \"lines\": [\"cable\", \"0042\", \"cable\", \"quiet\", \"lamp cable\", \"mountain\", \"tree\", \"signal cable quiet garden river\", \"delta orbit lamp garden cable\", \"garden\", \"cable 0042\", \"paper orbit cable\", \"paper 0042 garden cable\", \"river cable river\", \"river\", \"paper paper orbit paper mountain orbit\", \"lamp 0042 0042 signal\", \"mountain paper signal paper cable delta\", \"orbit tree\", \"delta delta\", \"garden signal tree river garden river\", \"0042\", \"cable signal garden river lamp 0042\", \"paper 0042 cable quiet\", \"delta cable\", \"mountain\", \"garden cable\", \"river cable tree tree\"]}, \"expected\": {\"contains_in_order\": [\"cable\", \"0042\", \"cable\", \"quiet\", \"lamp cable\", \"mountain\", \"tree\", \"signal cable quiet garden river\", \"delta orbit lamp garden cable\", \"garden\", \"cable 0042\", \"paper orbit cable\", \"paper 0042 garden cable\", \"river cable river\", \"river\", \"paper paper orbit paper mountain orbit\", \"lamp 0042 0042 signal\", \"mountain paper signal paper cable delta\", \"orbit tree\", \"delta delta\", \"garden signal tree river garden river\", \"0042\", \"cable signal garden river lamp 0042\", \"paper 0042 cable quiet\", \"delta cable\", \"mountain\", \"garden cable\", \"river cable tree tree\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTA5NyA+PgpzdHJlYW0KQlQgL0YxIDExIFRmIDcyIDc0MCBUZCAxNCBUTAoob3JiaXQgcml2ZXIgY2FibGUpIFRqIFQqCih0cmVlIGdhcmRlbikgVGogVCoKKHRyZWUpIFRqIFQqCihsYW1wIG1vdW50YWluIGNhYmxlIHBhcGVyKSBUaiBUKgoob3JiaXQgb3JiaXQgcGFwZXIgcml2ZXIgbGFtcCBjYWJsZSkgVGogVCoKKGdhcmRlbikgVGogVCoKKHF1aWV0IHJpdmVyIHNpZ25hbCByaXZlcikgVGogVCoKKGNhYmxlIDAwNDIgb3JiaXQpIFRqIFQqCihxdWlldCkgVGogVCoKKGdhcmRlbiAwMDQyIGRlbHRhIHF1aWV0IHNpZ25hbCkgVGogVCoKKGRlbHRhIG1vdW50YWluIGdhcmRlbikgVGogVCoKKGRlbHRhIHF1aWV0IDAwNDIpIFRqIFQqCihyaXZlciBkZWx0YSkgVGogVCoKKDAwNDIgc2lnbmFsIGRlbHRhIGRlbHRhIHBhcGVyKSBUaiBUKgoocGFwZXIgcGFwZXIpIFRqIFQqCihyaXZlciAwMDQyIHF1aWV0IGRlbHRhIDAwNDIpIFRqIFQqCigwMDQyIG9yYml0IGxhbXAgcml2ZXIgcml2ZXIgZ2FyZGVuKSBUaiBUKgoodHJlZSBsYW1wIHNpZ25hbCBtb3VudGFpbiBwYXBlciByaXZlcikgVGogVCoKKHJpdmVyIDAwNDIgcGFwZXIgMDA0MiBvcmJpdCBtb3VudGFpbikgVGogVCoKKHJpdmVyIG1vdW50YWluIGxhbXApIFRqIFQqCihwYXBlciBwYXBlciBsYW1wIDAwNDIgcGFwZXIgbGFtcCkgVGogVCoKKGRlbHRhIG1vdW50YWluIGNhYmxlIGxhbXAgY2FibGUgb3JiaXQpIFRqIFQqCihvcmJpdCBvcmJpdCBkZWx0YSAwMDQyIG1vdW50YWluIG1vdW50YWluKSBUaiBUKgoobGFtcCBtb3VudGFpbiAwMDQyIGNhYmxlKSBUaiBUKgoocXVpZXQpIFRqIFQqCigwMDQyIG9yYml0IGxhbXAgcXVpZXQgZ2FyZGVuIHRyZWUpIFRqIFQqCigwMDQyIGRlbHRhIGRlbHRhKSBUaiBUKgoocXVpZXQgcXVpZXQgZ2FyZGVuKSBUaiBUKgoobW91bnRhaW4pIFRqIFQqCihtb3VudGFpbikgVGogVCoKKDAwNDIgbGFtcCBkZWx0YSkgVGogVCoKKDAwNDIgbW91bnRhaW4pIFRqIFQqCihkZWx0YSBwYXBlciBjYWJsZSkgVGogVCoKKG1vdW50YWluIG1vdW50YWluIGxhbXAgcGFwZXIpIFRqIFQqCihjYWJsZSBsYW1wKSBUaiBUKgoocml2ZXIgY2FibGUgbW91bnRhaW4gbGFtcCkgVGogVCoKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCjAwMDAwMDAyNDEgMDAwMDAgbiAKMDAwMDAwMDMxMSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjE0NjAKJSVFT0YK\", \"lines\": [\"orbit river cable\", \"tree garden\", \"tree\", \"lamp mountain cable paper\", \"orbit orbit paper river lamp cable\", \"garden\", \"quiet river signal river\", \"cable 0042 orbit\", \"quiet\", \"garden 0042 delta quiet signal\", \"delta mountain garden\", \"delta quiet 0042\", \"river delta\", \"0042 signal delta delta paper\", \"paper paper\", \"river 0042 quiet delta 0042\", \"0042 orbit lamp river river garden\", \"tree lamp signal mountain paper river\", \"river 0042 paper 0042 orbit mountain\", \"river mountain lamp\", \"paper paper lamp 0042 paper lamp\", \"delta mountain cable lamp cable orbit\", \"orbit orbit delta 0042 mountain mountain\", \"lamp mountain 0042 cable\", \"quiet\", \"0042 orbit lamp quiet garden tree\", \"0042 delta delta\", \"quiet quiet garden\", \"mountain\", \"mountain\", \"0042 lamp delta\", \"0042 mountain\", \"delta paper cable\", \"mountain mountain lamp paper\", \"cable lamp\", \"river cable mountain lamp\"]}, \"expected\": {\"contains_in_order\": [\"orbit river cable\", \"tree garden\", \"tree\", \"lamp mountain cable paper\", \"orbit orbit paper river lamp cable\", \"garden\", \"quiet river signal river\", \"cable 0042 orbit\", \"quiet\", \"garden 0042 delta quiet signal\", \"delta mountain garden\", \"delta quiet 0042\", \"river delta\", \"0042 signal delta delta paper\", \"paper paper\", \"river 0042 quiet delta 0042\", \"0042 orbit lamp river river garden\", \"tree lamp signal mountain paper river\", \"river 0042 paper 0042 orbit mountain\", \"river mountain lamp\", \"paper paper lamp 0042 paper lamp\", \"delta mountain cable lamp cable orbit\", \"orbit orbit delta 0042 mountain mountain\", \"lamp mountain 0042 cable\", \"quiet\", \"0042 orbit lamp quiet garden tree\", \"0042 delta delta\", \"quiet quiet garden\", \"mountain\", \"mountain\", \"0042 lamp delta\", \"0042 mountain\", \"delta paper cable\", \"mountain mountain lamp paper\", \"cable lamp\", \"river cable mountain lamp\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggOTcxID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihjYWJsZSBzaWduYWwgb3JiaXQgb3JiaXQpIFRqIFQqCihxdWlldCkgVGogVCoKKGdhcmRlbikgVGogVCoKKHBhcGVyIGNhYmxlIHRyZWUgZ2FyZGVuIHF1aWV0IDAwNDIpIFRqIFQqCihjYWJsZSBsYW1wIGRlbHRhIHRyZWUgb3JiaXQpIFRqIFQqCihtb3VudGFpbiBzaWduYWwgcml2ZXIgZ2FyZGVuKSBUaiBUKgoobW91bnRhaW4pIFRqIFQqCihtb3VudGFpbiBzaWduYWwgY2FibGUgZGVsdGEgZ2FyZGVuIHNpZ25hbCkgVGogVCoKKHNpZ25hbCB0cmVlIGxhbXApIFRqIFQqCihyaXZlciB0cmVlIHRyZWUpIFRqIFQqCihsYW1wIG9yYml0IGRlbHRhIHJpdmVyKSBUaiBUKgooY2FibGUgY2FibGUgdHJlZSBsYW1wIHNpZ25hbCBzaWduYWwpIFRqIFQqCihsYW1wIHRyZWUgc2lnbmFsIGNhYmxlIHJpdmVyKSBUaiBUKgoobGFtcCByaXZlciAwMDQyKSBUaiBUKgooMDA0MiBnYXJkZW4gb3JiaXQpIFRqIFQqCihzaWduYWwgcGFwZXIgdHJlZSkgVGogVCoKKHRyZWUgc2lnbmFsKSBUaiBUKgooMDA0MikgVGogVCoKKHBhcGVyIHBhcGVyIG9yYml0IGRlbHRhKSBUaiBUKgoocml2ZXIpIFRqIFQqCihzaWduYWwgbW91bnRhaW4gcXVpZXQgZ2FyZGVuIDAwNDIgY2FibGUpIFRqIFQqCihyaXZlciBwYXBlciBnYXJkZW4gZ2FyZGVuKSBUaiBUKgooc2lnbmFsIHRyZWUgY2FibGUgY2FibGUpIFRqIFQqCihkZWx0YSBkZWx0YSAwMDQyKSBUaiBUKgooc2lnbmFsIDAwNDIgb3JiaXQpIFRqIFQqCihtb3VudGFpbiBwYXBlciAwMDQyKSBUaiBUKgoobGFtcCBnYXJkZW4gMDA0MiBnYXJkZW4pIFRqIFQqCihvcmJpdCkgVGogVCoKKG1vdW50YWluIHBhcGVyIG9yYml0IG1vdW50YWluIHRyZWUpIFRqIFQqCihzaWduYWwgZ2FyZGVuIHBhcGVyIG9yYml0KSBUaiBUKgoobGFtcCBnYXJkZW4pIFRqIFQqCihwYXBlciBsYW1wIHRyZWUpIFRqIFQqCih0cmVlIGNhYmxlKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKMTMzMwolJUVPRgo=\", \"lines\": [\"cable signal orbit orbit\", \"quiet\", \"garden\", \"paper cable tree garden quiet 0042\", \"cable lamp delta tree orbit\", \"mountain signal river garden\", \"mountain\", \"mountain signal cable delta garden signal\", \"signal tree lamp\", \"river tree tree\", \"lamp orbit delta river\", \"cable cable tree lamp signal signal\", \"lamp tree signal cable river\", \"lamp river 0042\", \"0042 garden orbit\", \"signal paper tree\", \"tree signal\", \"0042\", \"paper paper orbit delta\", \"river\", \"signal mountain quiet garden 0042 cable\", \"river paper garden garden\", \"signal tree cable cable\", \"delta delta 0042\", \"signal 0042 orbit\", \"mountain paper 0042\", \"lamp garden 0042 garden\", \"orbit\", \"mountain paper orbit mountain tree\", \"signal garden paper orbit\", \"lamp garden\", \"paper lamp tree\", \"tree cable\"]}, \"expected\": {\"contains_in_order\": [\"cable signal orbit orbit\", \"quiet\", \"garden\", \"paper cable tree garden quiet 0042\", \"cable lamp delta tree orbit\", \"mountain signal river garden\", \"mountain\", \"mountain signal cable delta garden signal\", \"signal tree lamp\", \"river tree tree\", \"lamp orbit delta river\", \"cable cable tree lamp signal signal\", \"lamp tree signal cable river\", \"lamp river 0042\", \"0042 garden orbit\", \"signal paper tree\", \"tree signal\", \"0042\", \"paper paper orbit delta\", \"river\", \"signal mountain quiet garden 0042 cable\", \"river paper garden garden\", \"signal tree cable cable\", \"delta delta 0042\", \"signal 0042 orbit\", \"mountain paper 0042\", \"lamp garden 0042 garden\", \"orbit\", \"mountain paper orbit mountain tree\", \"signal garden paper orbit\", \"lamp garden\", \"paper lamp tree\", \"tree cable\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t19\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTE3NyA+PgpzdHJlYW0KQlQgL0YxIDExIFRmIDcyIDc0MCBUZCAxNCBUTAoocml2ZXIgZGVsdGEpIFRqIFQqCihzaWduYWwgc2lnbmFsIGRlbHRhIHBhcGVyKSBUaiBUKgooc2lnbmFsIGNhYmxlKSBUaiBUKgoocml2ZXIgbW91bnRhaW4gY2FibGUpIFRqIFQqCih0cmVlIGdhcmRlbiAwMDQyIHBhcGVyIHBhcGVyKSBUaiBUKgoob3JiaXQgbGFtcCBjYWJsZSBvcmJpdCBzaWduYWwgc2lnbmFsKSBUaiBUKgoobW91bnRhaW4gc2lnbmFsIGNhYmxlIHJpdmVyIGdhcmRlbiByaXZlcikgVGogVCoKKGRlbHRhIG1vdW50YWluIHF1aWV0IG1vdW50YWluKSBUaiBUKgoobGFtcCkgVGogVCoKKHBhcGVyIG1vdW50YWluIG1vdW50YWluIG9yYml0KSBUaiBUKgoob3JiaXQpIFRqIFQqCihnYXJkZW4gcGFwZXIpIFRqIFQqCihsYW1wIGRlbHRhIGRlbHRhIDAwNDIgbW91bnRhaW4gbGFtcCkgVGogVCoKKHJpdmVyIHJpdmVyIGdhcmRlbiBvcmJpdCBxdWlldCkgVGogVCoKKDAwNDIpIFRqIFQqCihjYWJsZSBnYXJkZW4gMDA0MiBjYWJsZSBwYXBlciAwMDQyKSBUaiBUKgooZGVsdGEgbGFtcCBsYW1wIGxhbXApIFRqIFQqCihwYXBlciBxdWlldCBvcmJpdCkgVGogVCoKKGNhYmxlIG9yYml0IHF1aWV0IHJpdmVyKSBUaiBUKgoocGFwZXIpIFRqIFQqCihtb3VudGFpbiBjYWJsZSB0cmVlKSBUaiBUKgoob3JiaXQgbW91bnRhaW4gcGFwZXIgb3JiaXQgcGFwZXIgb3JiaXQpIFRqIFQqCihzaWduYWwpIFRqIFQqCigwMDQyIGNhYmxlIHJpdmVyIHJpdmVyIG9yYml0IG1vdW50YWluKSBUaiBUKgooMDA0MiBzaWduYWwgbGFtcCBjYWJsZSBvcmJpdCAwMDQyKSBUaiBUKgoodHJlZSBvcmJpdCBtb3VudGFpbiByaXZlcikgVGogVCoKKHRyZWUgZGVsdGEgc2lnbmFsIHRyZWUgMDA0MiBzaWduYWwpIFRqIFQqCihyaXZlciBjYWJsZSkgVGogVCoKKHBhcGVyIGxhbXAgb3JiaXQgbW91bnRhaW4gb3JiaXQgY2FibGUpIFRqIFQqCihvcmJpdCBtb3VudGFpbikgVGogVCoKKGNhYmxlIGNhYmxlKSBUaiBUKgoocXVpZXQpIFRqIFQqCihxdWlldCBnYXJkZW4gb3JiaXQgbW91bnRhaW4pIFRqIFQqCigwMDQyIHJpdmVyIHF1aWV0IGdhcmRlbikgVGogVCoKKHJpdmVyIG9yYml0IHJpdmVyIHF1aWV0KSBUaiBUKgooc2lnbmFsIHJpdmVyKSBUaiBUKgoocml2ZXIgZ2FyZGVuIHNpZ25hbCBtb3VudGFpbiBkZWx0YSB0cmVlKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKMTU0MAolJUVPRgo=\", \"lines\": [\"river delta\", \"signal signal delta paper\", \"signal cable\", \"river mountain cable\", \"tree garden 0042 paper paper\", \"orbit lamp cable orbit signal signal\", \"mountain signal cable river garden river\", \"delta mountain quiet mountain\", \"lamp\", \"paper mountain mountain orbit\", \"orbit\", \"garden paper\", \"lamp delta delta 0042 mountain lamp\", \"river river garden orbit quiet\", \"0042\", \"cable garden 0042 cable paper 0042\", \"delta lamp lamp lamp\", \"paper quiet orbit\", \"cable orbit quiet river\", \"paper\", \"mountain cable tree\", \"orbit mountain paper orbit paper orbit\", \"signal\", \"0042 cable river river orbit mountain\", \"0042 signal lamp cable orbit 0042\", \"tree orbit mountain river\", \"tree delta signal tree 0042 signal\", \"river cable\", \"paper lamp orbit mountain orbit cable\", \"orbit mountain\", \"cable cable\", \"quiet\", \"quiet garden orbit mountain\", \"0042 river quiet garden\", \"river orbit river quiet\", \"signal river\", \"river garden signal mountain delta tree\"]}, \"expected\": {\"contains_in_order\": [\"river delta\", \"signal signal delta paper\", \"signal cable\", \"river mountain cable\", \"tree garden 0042 paper paper\", \"orbit lamp cable orbit signal signal\", \"mountain signal cable river garden river\", \"delta mountain quiet mountain\", \"lamp\", \"paper mountain mountain orbit\", \"orbit\", \"garden paper\", \"lamp delta delta 0042 mountain lamp\", \"river river garden orbit quiet\", \"0042\", \"cable garden 0042 cable paper 0042\", \"delta lamp lamp lamp\", \"paper quiet orbit\", \"cable orbit quiet river\", \"paper\", \"mountain cable tree\", \"orbit mountain paper orbit paper orbit\", \"signal\", \"0042 cable river river orbit mountain\", \"0042 signal lamp cable orbit 0042\", \"tree orbit mountain river\", \"tree delta signal tree 0042 signal\", \"river cable\", \"paper lamp orbit mountain orbit cable\", \"orbit mountain\", \"cable cable\", \"quiet\", \"quiet garden orbit mountain\", \"0042 river quiet garden\", \"river orbit river quiet\", \"signal river\", \"river garden signal mountain delta tree\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t20\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMjMwID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihnYXJkZW4pIFRqIFQqCihvcmJpdCBnYXJkZW4gMDA0MikgVGogVCoKKGRlbHRhIG1vdW50YWluIHJpdmVyIGNhYmxlIDAwNDIpIFRqIFQqCihzaWduYWwgdHJlZSB0cmVlIG1vdW50YWluIGdhcmRlbiBsYW1wKSBUaiBUKgoobGFtcCkgVGogVCoKKGxhbXAgdHJlZSBzaWduYWwpIFRqIFQqCihwYXBlcikgVGogVCoKKHNpZ25hbCB0cmVlKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKNTkyCiUlRU9GCg==\", \"lines\": [\"garden\", \"orbit garden 0042\", \"delta mountain river cable 0042\", \"signal tree tree mountain garden lamp\", \"lamp\", \"lamp tree signal\", \"paper\", \"signal tree\"]}, \"expected\": {\"contains_in_order\": [\"garden\", \"orbit garden 0042\", \"delta mountain river cable 0042\", \"signal tree tree mountain garden lamp\", \"lamp\", \"lamp tree signal\", \"paper\", \"signal tree\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}, {\"id\": \"t21\", \"input\": {\"pdf_base64\": \"JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNjE0ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihsYW1wIHJpdmVyIGRlbHRhIG1vdW50YWluKSBUaiBUKgoodHJlZSBwYXBlcikgVGogVCoKKG9yYml0IHRyZWUgdHJlZSBkZWx0YSkgVGogVCoKKHJpdmVyIDAwNDIgc2lnbmFsIG9yYml0KSBUaiBUKgooc2lnbmFsIHJpdmVyIHNpZ25hbCByaXZlciBtb3VudGFpbiBsYW1wKSBUaiBUKgooY2FibGUpIFRqIFQqCihkZWx0YSBsYW1wKSBUaiBUKgoodHJlZSB0cmVlIGNhYmxlIHRyZWUgcXVpZXQpIFRqIFQqCihjYWJsZSkgVGogVCoKKGRlbHRhIGRlbHRhIHRyZWUgY2FibGUgY2FibGUgcml2ZXIpIFRqIFQqCihxdWlldCAwMDQyIGxhbXAgcml2ZXIgb3JiaXQgbGFtcCkgVGogVCoKKGRlbHRhIG1vdW50YWluIHNpZ25hbCBjYWJsZSkgVGogVCoKKG1vdW50YWluIGdhcmRlbiBtb3VudGFpbiBnYXJkZW4pIFRqIFQqCihkZWx0YSkgVGogVCoKKGRlbHRhIGdhcmRlbiBxdWlldCkgVGogVCoKKHRyZWUgdHJlZSkgVGogVCoKKHRyZWUgcXVpZXQgbGFtcCBwYXBlcikgVGogVCoKKHNpZ25hbCBnYXJkZW4pIFRqIFQqCihzaWduYWwgbGFtcCkgVGogVCoKKHJpdmVyIG1vdW50YWluIHBhcGVyIHBhcGVyIHRyZWUgZ2FyZGVuKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKOTc2CiUlRU9GCg==\", \"lines\": [\"lamp river delta mountain\", \"tree paper\", \"orbit tree tree delta\", \"river 0042 signal orbit\", \"signal river signal river mountain lamp\", \"cable\", \"delta lamp\", \"tree tree cable tree quiet\", \"cable\", \"delta delta tree cable cable river\", \"quiet 0042 lamp river orbit lamp\", \"delta mountain signal cable\", \"mountain garden mountain garden\", \"delta\", \"delta garden quiet\", \"tree tree\", \"tree quiet lamp paper\", \"signal garden\", \"signal lamp\", \"river mountain paper paper tree garden\"]}, \"expected\": {\"contains_in_order\": [\"lamp river delta mountain\", \"tree paper\", \"orbit tree tree delta\", \"river 0042 signal orbit\", \"signal river signal river mountain lamp\", \"cable\", \"delta lamp\", \"tree tree cable tree quiet\", \"cable\", \"delta delta tree cable cable river\", \"quiet 0042 lamp river orbit lamp\", \"delta mountain signal cable\", \"mountain garden mountain garden\", \"delta\", \"delta garden quiet\", \"tree tree\", \"tree quiet lamp paper\", \"signal garden\", \"signal lamp\", \"river mountain paper paper tree garden\"], \"must_not_contain\": [\"BT\", \"ET\", \"Tj\", \"TL\", \"Tf\", \"endobj\", \"stream\", \"/F1\", \"obj\", \"%PDF\"]}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:12:34.183Z",
+      "latencyMs": 192.815
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNTEgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKGhlbGxvIHdvcmxkKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKNDEyCiUlRU9GCg==",
+            "lines": [
+              "hello world"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "hello world"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggODkgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKGZpcnN0IGxpbmUpIFRqIFQqCihzZWNvbmQgbGluZSkgVGogVCoKKHRoaXJkIGxpbmUpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0NTAKJSVFT0YK",
+            "lines": [
+              "first line",
+              "second line",
+              "third line"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "first line",
+              "second line",
+              "third line"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMzEgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCjAwMDAwMDAyNDEgMDAwMDAgbiAKMDAwMDAwMDMxMSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjM5MgolJUVPRgo=",
+            "lines": []
+          },
+          "expected": {
+            "contains_in_order": [],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNzMgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKGFscGhhKSBUaiBUKgooYWxwaGEpIFRqIFQqCihhbHBoYSkgVGogVCoKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCjAwMDAwMDAyNDEgMDAwMDAgbiAKMDAwMDAwMDMxMSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjQzNAolJUVPRgo=",
+            "lines": [
+              "alpha",
+              "alpha",
+              "alpha"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "alpha",
+              "alpha",
+              "alpha"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNjIgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKHBhcmVucyBcKGluc2lkZVwpIGhlcmUpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0MjMKJSVFT0YK",
+            "lines": [
+              "parens (inside) here"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "parens (inside) here"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNDEgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKHgpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0MDIKJSVFT0YK",
+            "lines": [
+              "x"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "x"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNzEgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKG51bWJlcnMgMDA0MiBrZWVwIGxlYWRpbmcgemVyb3MpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0MzIKJSVFT0YK",
+            "lines": [
+              "numbers 0042 keep leading zeros"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "numbers 0042 keep leading zeros"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNjQ2ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihzaWduYWwgMDA0MikgVGogVCoKKGxhbXApIFRqIFQqCihsYW1wIHRyZWUgcXVpZXQgcml2ZXIgcGFwZXIpIFRqIFQqCihyaXZlciBsYW1wKSBUaiBUKgooc2lnbmFsIGxhbXAgb3JiaXQgbGFtcCkgVGogVCoKKHNpZ25hbCByaXZlciBxdWlldCBsYW1wIG9yYml0KSBUaiBUKgooMDA0MiBxdWlldCByaXZlciBxdWlldCBxdWlldCBzaWduYWwpIFRqIFQqCihvcmJpdCkgVGogVCoKKHBhcGVyKSBUaiBUKgooY2FibGUgc2lnbmFsKSBUaiBUKgoocGFwZXIgbGFtcCkgVGogVCoKKGNhYmxlIHBhcGVyIDAwNDIgZ2FyZGVuIGxhbXApIFRqIFQqCihxdWlldCAwMDQyIG9yYml0IHRyZWUgbGFtcCkgVGogVCoKKGRlbHRhIGxhbXAgcXVpZXQgcml2ZXIgcXVpZXQpIFRqIFQqCihtb3VudGFpbiAwMDQyKSBUaiBUKgooc2lnbmFsIHRyZWUgbW91bnRhaW4gcXVpZXQgbW91bnRhaW4pIFRqIFQqCihjYWJsZSBvcmJpdCBnYXJkZW4pIFRqIFQqCihvcmJpdCBsYW1wIHF1aWV0IGNhYmxlIHBhcGVyIG1vdW50YWluKSBUaiBUKgooZGVsdGEgbW91bnRhaW4gY2FibGUpIFRqIFQqCihsYW1wIGxhbXAgcGFwZXIgc2lnbmFsIGdhcmRlbikgVGogVCoKKGdhcmRlbiBtb3VudGFpbiBzaWduYWwpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgoxMDA4CiUlRU9GCg==",
+            "lines": [
+              "signal 0042",
+              "lamp",
+              "lamp tree quiet river paper",
+              "river lamp",
+              "signal lamp orbit lamp",
+              "signal river quiet lamp orbit",
+              "0042 quiet river quiet quiet signal",
+              "orbit",
+              "paper",
+              "cable signal",
+              "paper lamp",
+              "cable paper 0042 garden lamp",
+              "quiet 0042 orbit tree lamp",
+              "delta lamp quiet river quiet",
+              "mountain 0042",
+              "signal tree mountain quiet mountain",
+              "cable orbit garden",
+              "orbit lamp quiet cable paper mountain",
+              "delta mountain cable",
+              "lamp lamp paper signal garden",
+              "garden mountain signal"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "signal 0042",
+              "lamp",
+              "lamp tree quiet river paper",
+              "river lamp",
+              "signal lamp orbit lamp",
+              "signal river quiet lamp orbit",
+              "0042 quiet river quiet quiet signal",
+              "orbit",
+              "paper",
+              "cable signal",
+              "paper lamp",
+              "cable paper 0042 garden lamp",
+              "quiet 0042 orbit tree lamp",
+              "delta lamp quiet river quiet",
+              "mountain 0042",
+              "signal tree mountain quiet mountain",
+              "cable orbit garden",
+              "orbit lamp quiet cable paper mountain",
+              "delta mountain cable",
+              "lamp lamp paper signal garden",
+              "garden mountain signal"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTM0ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihsYW1wIHBhcGVyIHF1aWV0IHRyZWUgdHJlZSBkZWx0YSkgVGogVCoKKHF1aWV0IG1vdW50YWluIHF1aWV0KSBUaiBUKgoobGFtcCBsYW1wIGNhYmxlIG1vdW50YWluKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKNDk2CiUlRU9GCg==",
+            "lines": [
+              "lamp paper quiet tree tree delta",
+              "quiet mountain quiet",
+              "lamp lamp cable mountain"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "lamp paper quiet tree tree delta",
+              "quiet mountain quiet",
+              "lamp lamp cable mountain"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTg3ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihkZWx0YSkgVGogVCoKKGNhYmxlIDAwNDIgcXVpZXQgMDA0MiBtb3VudGFpbiBjYWJsZSkgVGogVCoKKHNpZ25hbCAwMDQyIHRyZWUgcml2ZXIgbW91bnRhaW4gdHJlZSkgVGogVCoKKHF1aWV0IGxhbXApIFRqIFQqCihyaXZlciBvcmJpdCBjYWJsZSBnYXJkZW4pIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo1NDkKJSVFT0YK",
+            "lines": [
+              "delta",
+              "cable 0042 quiet 0042 mountain cable",
+              "signal 0042 tree river mountain tree",
+              "quiet lamp",
+              "river orbit cable garden"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "delta",
+              "cable 0042 quiet 0042 mountain cable",
+              "signal 0042 tree river mountain tree",
+              "quiet lamp",
+              "river orbit cable garden"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNDk2ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihzaWduYWwgbW91bnRhaW4gbGFtcCBnYXJkZW4pIFRqIFQqCihzaWduYWwgcGFwZXIgY2FibGUgZ2FyZGVuKSBUaiBUKgoocGFwZXIgY2FibGUgZGVsdGEgc2lnbmFsKSBUaiBUKgooMDA0MiBzaWduYWwgb3JiaXQpIFRqIFQqCihsYW1wIGdhcmRlbikgVGogVCoKKG9yYml0IDAwNDIpIFRqIFQqCihyaXZlciBtb3VudGFpbikgVGogVCoKKGdhcmRlbiBjYWJsZSBjYWJsZSByaXZlciBnYXJkZW4pIFRqIFQqCihwYXBlciB0cmVlIHF1aWV0IHF1aWV0KSBUaiBUKgooZ2FyZGVuIGRlbHRhIHBhcGVyKSBUaiBUKgooMDA0MiAwMDQyIGRlbHRhIHJpdmVyIG1vdW50YWluKSBUaiBUKgoocGFwZXIgc2lnbmFsIHNpZ25hbCBzaWduYWwgc2lnbmFsIGxhbXApIFRqIFQqCigwMDQyIHNpZ25hbCByaXZlciBvcmJpdCkgVGogVCoKKG9yYml0KSBUaiBUKgooZ2FyZGVuIGxhbXAgdHJlZSBxdWlldCkgVGogVCoKKGxhbXApIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo4NTgKJSVFT0YK",
+            "lines": [
+              "signal mountain lamp garden",
+              "signal paper cable garden",
+              "paper cable delta signal",
+              "0042 signal orbit",
+              "lamp garden",
+              "orbit 0042",
+              "river mountain",
+              "garden cable cable river garden",
+              "paper tree quiet quiet",
+              "garden delta paper",
+              "0042 0042 delta river mountain",
+              "paper signal signal signal signal lamp",
+              "0042 signal river orbit",
+              "orbit",
+              "garden lamp tree quiet",
+              "lamp"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "signal mountain lamp garden",
+              "signal paper cable garden",
+              "paper cable delta signal",
+              "0042 signal orbit",
+              "lamp garden",
+              "orbit 0042",
+              "river mountain",
+              "garden cable cable river garden",
+              "paper tree quiet quiet",
+              "garden delta paper",
+              "0042 0042 delta river mountain",
+              "paper signal signal signal signal lamp",
+              "0042 signal river orbit",
+              "orbit",
+              "garden lamp tree quiet",
+              "lamp"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNjggPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKGdhcmRlbiBwYXBlciBsYW1wIHRyZWUgcXVpZXQpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0MjkKJSVFT0YK",
+            "lines": [
+              "garden paper lamp tree quiet"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "garden paper lamp tree quiet"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggODMgPj4Kc3RyZWFtCkJUIC9GMSAxMSBUZiA3MiA3NDAgVGQgMTQgVEwKKG9yYml0KSBUaiBUKgooc2lnbmFsIGdhcmRlbiAwMDQyIGNhYmxlIHRyZWUpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0NDQKJSVFT0YK",
+            "lines": [
+              "orbit",
+              "signal garden 0042 cable tree"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "orbit",
+              "signal garden 0042 cable tree"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTEzMiA+PgpzdHJlYW0KQlQgL0YxIDExIFRmIDcyIDc0MCBUZCAxNCBUTAoobW91bnRhaW4gbGFtcCBsYW1wKSBUaiBUKgoobW91bnRhaW4gbW91bnRhaW4gbW91bnRhaW4gY2FibGUpIFRqIFQqCihnYXJkZW4pIFRqIFQqCihkZWx0YSkgVGogVCoKKGRlbHRhIGNhYmxlIG1vdW50YWluKSBUaiBUKgooZ2FyZGVuIHBhcGVyIHJpdmVyIG9yYml0IHBhcGVyIHRyZWUpIFRqIFQqCihkZWx0YSBwYXBlcikgVGogVCoKKHBhcGVyKSBUaiBUKgooMDA0MiBsYW1wIGRlbHRhKSBUaiBUKgoocGFwZXIgdHJlZSBnYXJkZW4pIFRqIFQqCihvcmJpdCBwYXBlciBwYXBlcikgVGogVCoKKHRyZWUgMDA0MiBvcmJpdCBxdWlldCBvcmJpdCkgVGogVCoKKHNpZ25hbCBkZWx0YSkgVGogVCoKKG9yYml0IHBhcGVyKSBUaiBUKgoodHJlZSBkZWx0YSByaXZlciByaXZlcikgVGogVCoKKG1vdW50YWluIGNhYmxlIG9yYml0KSBUaiBUKgoocXVpZXQgdHJlZSBtb3VudGFpbiBkZWx0YSB0cmVlIHRyZWUpIFRqIFQqCihvcmJpdCkgVGogVCoKKG9yYml0KSBUaiBUKgoob3JiaXQgdHJlZSBvcmJpdCBtb3VudGFpbikgVGogVCoKKHF1aWV0IHJpdmVyIG1vdW50YWluIDAwNDIgdHJlZSkgVGogVCoKKGxhbXAgMDA0MiBsYW1wIHNpZ25hbCBkZWx0YSBvcmJpdCkgVGogVCoKKGdhcmRlbiBzaWduYWwgMDA0MiB0cmVlKSBUaiBUKgooZGVsdGEpIFRqIFQqCihtb3VudGFpbiBzaWduYWwgZGVsdGEgbGFtcCkgVGogVCoKKGdhcmRlbiBnYXJkZW4gZ2FyZGVuIHJpdmVyIGdhcmRlbiBxdWlldCkgVGogVCoKKDAwNDIgZ2FyZGVuIHF1aWV0IHF1aWV0KSBUaiBUKgooMDA0MiB0cmVlIGdhcmRlbiBwYXBlcikgVGogVCoKKGdhcmRlbiByaXZlciByaXZlciBkZWx0YSAwMDQyKSBUaiBUKgoocGFwZXIpIFRqIFQqCihnYXJkZW4gc2lnbmFsIG9yYml0IG9yYml0IHJpdmVyIGNhYmxlKSBUaiBUKgooY2FibGUgcGFwZXIpIFRqIFQqCihxdWlldCB0cmVlKSBUaiBUKgoocGFwZXIgc2lnbmFsIGdhcmRlbikgVGogVCoKKGRlbHRhKSBUaiBUKgoobW91bnRhaW4gMDA0MiBxdWlldCkgVGogVCoKKHNpZ25hbCBwYXBlciBnYXJkZW4gcGFwZXIgZ2FyZGVuKSBUaiBUKgoocGFwZXIgcml2ZXIgbW91bnRhaW4gZ2FyZGVuIHF1aWV0KSBUaiBUKgooZ2FyZGVuKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKMTQ5NQolJUVPRgo=",
+            "lines": [
+              "mountain lamp lamp",
+              "mountain mountain mountain cable",
+              "garden",
+              "delta",
+              "delta cable mountain",
+              "garden paper river orbit paper tree",
+              "delta paper",
+              "paper",
+              "0042 lamp delta",
+              "paper tree garden",
+              "orbit paper paper",
+              "tree 0042 orbit quiet orbit",
+              "signal delta",
+              "orbit paper",
+              "tree delta river river",
+              "mountain cable orbit",
+              "quiet tree mountain delta tree tree",
+              "orbit",
+              "orbit",
+              "orbit tree orbit mountain",
+              "quiet river mountain 0042 tree",
+              "lamp 0042 lamp signal delta orbit",
+              "garden signal 0042 tree",
+              "delta",
+              "mountain signal delta lamp",
+              "garden garden garden river garden quiet",
+              "0042 garden quiet quiet",
+              "0042 tree garden paper",
+              "garden river river delta 0042",
+              "paper",
+              "garden signal orbit orbit river cable",
+              "cable paper",
+              "quiet tree",
+              "paper signal garden",
+              "delta",
+              "mountain 0042 quiet",
+              "signal paper garden paper garden",
+              "paper river mountain garden quiet",
+              "garden"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "mountain lamp lamp",
+              "mountain mountain mountain cable",
+              "garden",
+              "delta",
+              "delta cable mountain",
+              "garden paper river orbit paper tree",
+              "delta paper",
+              "paper",
+              "0042 lamp delta",
+              "paper tree garden",
+              "orbit paper paper",
+              "tree 0042 orbit quiet orbit",
+              "signal delta",
+              "orbit paper",
+              "tree delta river river",
+              "mountain cable orbit",
+              "quiet tree mountain delta tree tree",
+              "orbit",
+              "orbit",
+              "orbit tree orbit mountain",
+              "quiet river mountain 0042 tree",
+              "lamp 0042 lamp signal delta orbit",
+              "garden signal 0042 tree",
+              "delta",
+              "mountain signal delta lamp",
+              "garden garden garden river garden quiet",
+              "0042 garden quiet quiet",
+              "0042 tree garden paper",
+              "garden river river delta 0042",
+              "paper",
+              "garden signal orbit orbit river cable",
+              "cable paper",
+              "quiet tree",
+              "paper signal garden",
+              "delta",
+              "mountain 0042 quiet",
+              "signal paper garden paper garden",
+              "paper river mountain garden quiet",
+              "garden"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNDAwID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihtb3VudGFpbiBxdWlldCkgVGogVCoKKGxhbXAgcGFwZXIgcml2ZXIgdHJlZSAwMDQyIHBhcGVyKSBUaiBUKgoocGFwZXIgbW91bnRhaW4gbGFtcCBwYXBlciByaXZlcikgVGogVCoKKG9yYml0IGNhYmxlKSBUaiBUKgoobGFtcCkgVGogVCoKKG1vdW50YWluIHBhcGVyIHJpdmVyIGxhbXAgbW91bnRhaW4pIFRqIFQqCihxdWlldCBwYXBlciBxdWlldCkgVGogVCoKKG9yYml0IGRlbHRhIGNhYmxlIG1vdW50YWluIHBhcGVyKSBUaiBUKgoobW91bnRhaW4gcGFwZXIgb3JiaXQgZGVsdGEgcGFwZXIpIFRqIFQqCihwYXBlciBvcmJpdCBtb3VudGFpbikgVGogVCoKKHNpZ25hbCBsYW1wKSBUaiBUKgoobW91bnRhaW4gdHJlZSBsYW1wIDAwNDIpIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo3NjIKJSVFT0YK",
+            "lines": [
+              "mountain quiet",
+              "lamp paper river tree 0042 paper",
+              "paper mountain lamp paper river",
+              "orbit cable",
+              "lamp",
+              "mountain paper river lamp mountain",
+              "quiet paper quiet",
+              "orbit delta cable mountain paper",
+              "mountain paper orbit delta paper",
+              "paper orbit mountain",
+              "signal lamp",
+              "mountain tree lamp 0042"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "mountain quiet",
+              "lamp paper river tree 0042 paper",
+              "paper mountain lamp paper river",
+              "orbit cable",
+              "lamp",
+              "mountain paper river lamp mountain",
+              "quiet paper quiet",
+              "orbit delta cable mountain paper",
+              "mountain paper orbit delta paper",
+              "paper orbit mountain",
+              "signal lamp",
+              "mountain tree lamp 0042"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNTIzID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihsYW1wIG9yYml0IDAwNDIgY2FibGUpIFRqIFQqCihnYXJkZW4pIFRqIFQqCigwMDQyIDAwNDIgdHJlZSBnYXJkZW4gY2FibGUgZ2FyZGVuKSBUaiBUKgoob3JiaXQgZGVsdGEgbGFtcCBzaWduYWwpIFRqIFQqCihnYXJkZW4gMDA0MiBvcmJpdCBnYXJkZW4pIFRqIFQqCihzaWduYWwgcGFwZXIgc2lnbmFsIHRyZWUgc2lnbmFsIG9yYml0KSBUaiBUKgoodHJlZSBsYW1wIGRlbHRhKSBUaiBUKgoocml2ZXIgdHJlZSBwYXBlcikgVGogVCoKKG1vdW50YWluIGRlbHRhIHJpdmVyIHNpZ25hbCkgVGogVCoKKHBhcGVyIHF1aWV0IGNhYmxlKSBUaiBUKgoobGFtcCBsYW1wIG9yYml0IGxhbXAgbGFtcCkgVGogVCoKKGNhYmxlIHJpdmVyIGdhcmRlbikgVGogVCoKKGdhcmRlbiBzaWduYWwgMDA0MikgVGogVCoKKHNpZ25hbCBnYXJkZW4gcGFwZXIpIFRqIFQqCihxdWlldCBtb3VudGFpbiBkZWx0YSB0cmVlIGxhbXApIFRqIFQqCihyaXZlciBkZWx0YSBnYXJkZW4pIFRqIFQqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo4ODUKJSVFT0YK",
+            "lines": [
+              "lamp orbit 0042 cable",
+              "garden",
+              "0042 0042 tree garden cable garden",
+              "orbit delta lamp signal",
+              "garden 0042 orbit garden",
+              "signal paper signal tree signal orbit",
+              "tree lamp delta",
+              "river tree paper",
+              "mountain delta river signal",
+              "paper quiet cable",
+              "lamp lamp orbit lamp lamp",
+              "cable river garden",
+              "garden signal 0042",
+              "signal garden paper",
+              "quiet mountain delta tree lamp",
+              "river delta garden"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "lamp orbit 0042 cable",
+              "garden",
+              "0042 0042 tree garden cable garden",
+              "orbit delta lamp signal",
+              "garden 0042 orbit garden",
+              "signal paper signal tree signal orbit",
+              "tree lamp delta",
+              "river tree paper",
+              "mountain delta river signal",
+              "paper quiet cable",
+              "lamp lamp orbit lamp lamp",
+              "cable river garden",
+              "garden signal 0042",
+              "signal garden paper",
+              "quiet mountain delta tree lamp",
+              "river delta garden"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNzMxID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihjYWJsZSkgVGogVCoKKDAwNDIpIFRqIFQqCihjYWJsZSkgVGogVCoKKHF1aWV0KSBUaiBUKgoobGFtcCBjYWJsZSkgVGogVCoKKG1vdW50YWluKSBUaiBUKgoodHJlZSkgVGogVCoKKHNpZ25hbCBjYWJsZSBxdWlldCBnYXJkZW4gcml2ZXIpIFRqIFQqCihkZWx0YSBvcmJpdCBsYW1wIGdhcmRlbiBjYWJsZSkgVGogVCoKKGdhcmRlbikgVGogVCoKKGNhYmxlIDAwNDIpIFRqIFQqCihwYXBlciBvcmJpdCBjYWJsZSkgVGogVCoKKHBhcGVyIDAwNDIgZ2FyZGVuIGNhYmxlKSBUaiBUKgoocml2ZXIgY2FibGUgcml2ZXIpIFRqIFQqCihyaXZlcikgVGogVCoKKHBhcGVyIHBhcGVyIG9yYml0IHBhcGVyIG1vdW50YWluIG9yYml0KSBUaiBUKgoobGFtcCAwMDQyIDAwNDIgc2lnbmFsKSBUaiBUKgoobW91bnRhaW4gcGFwZXIgc2lnbmFsIHBhcGVyIGNhYmxlIGRlbHRhKSBUaiBUKgoob3JiaXQgdHJlZSkgVGogVCoKKGRlbHRhIGRlbHRhKSBUaiBUKgooZ2FyZGVuIHNpZ25hbCB0cmVlIHJpdmVyIGdhcmRlbiByaXZlcikgVGogVCoKKDAwNDIpIFRqIFQqCihjYWJsZSBzaWduYWwgZ2FyZGVuIHJpdmVyIGxhbXAgMDA0MikgVGogVCoKKHBhcGVyIDAwNDIgY2FibGUgcXVpZXQpIFRqIFQqCihkZWx0YSBjYWJsZSkgVGogVCoKKG1vdW50YWluKSBUaiBUKgooZ2FyZGVuIGNhYmxlKSBUaiBUKgoocml2ZXIgY2FibGUgdHJlZSB0cmVlKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKMTA5MwolJUVPRgo=",
+            "lines": [
+              "cable",
+              "0042",
+              "cable",
+              "quiet",
+              "lamp cable",
+              "mountain",
+              "tree",
+              "signal cable quiet garden river",
+              "delta orbit lamp garden cable",
+              "garden",
+              "cable 0042",
+              "paper orbit cable",
+              "paper 0042 garden cable",
+              "river cable river",
+              "river",
+              "paper paper orbit paper mountain orbit",
+              "lamp 0042 0042 signal",
+              "mountain paper signal paper cable delta",
+              "orbit tree",
+              "delta delta",
+              "garden signal tree river garden river",
+              "0042",
+              "cable signal garden river lamp 0042",
+              "paper 0042 cable quiet",
+              "delta cable",
+              "mountain",
+              "garden cable",
+              "river cable tree tree"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "cable",
+              "0042",
+              "cable",
+              "quiet",
+              "lamp cable",
+              "mountain",
+              "tree",
+              "signal cable quiet garden river",
+              "delta orbit lamp garden cable",
+              "garden",
+              "cable 0042",
+              "paper orbit cable",
+              "paper 0042 garden cable",
+              "river cable river",
+              "river",
+              "paper paper orbit paper mountain orbit",
+              "lamp 0042 0042 signal",
+              "mountain paper signal paper cable delta",
+              "orbit tree",
+              "delta delta",
+              "garden signal tree river garden river",
+              "0042",
+              "cable signal garden river lamp 0042",
+              "paper 0042 cable quiet",
+              "delta cable",
+              "mountain",
+              "garden cable",
+              "river cable tree tree"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTA5NyA+PgpzdHJlYW0KQlQgL0YxIDExIFRmIDcyIDc0MCBUZCAxNCBUTAoob3JiaXQgcml2ZXIgY2FibGUpIFRqIFQqCih0cmVlIGdhcmRlbikgVGogVCoKKHRyZWUpIFRqIFQqCihsYW1wIG1vdW50YWluIGNhYmxlIHBhcGVyKSBUaiBUKgoob3JiaXQgb3JiaXQgcGFwZXIgcml2ZXIgbGFtcCBjYWJsZSkgVGogVCoKKGdhcmRlbikgVGogVCoKKHF1aWV0IHJpdmVyIHNpZ25hbCByaXZlcikgVGogVCoKKGNhYmxlIDAwNDIgb3JiaXQpIFRqIFQqCihxdWlldCkgVGogVCoKKGdhcmRlbiAwMDQyIGRlbHRhIHF1aWV0IHNpZ25hbCkgVGogVCoKKGRlbHRhIG1vdW50YWluIGdhcmRlbikgVGogVCoKKGRlbHRhIHF1aWV0IDAwNDIpIFRqIFQqCihyaXZlciBkZWx0YSkgVGogVCoKKDAwNDIgc2lnbmFsIGRlbHRhIGRlbHRhIHBhcGVyKSBUaiBUKgoocGFwZXIgcGFwZXIpIFRqIFQqCihyaXZlciAwMDQyIHF1aWV0IGRlbHRhIDAwNDIpIFRqIFQqCigwMDQyIG9yYml0IGxhbXAgcml2ZXIgcml2ZXIgZ2FyZGVuKSBUaiBUKgoodHJlZSBsYW1wIHNpZ25hbCBtb3VudGFpbiBwYXBlciByaXZlcikgVGogVCoKKHJpdmVyIDAwNDIgcGFwZXIgMDA0MiBvcmJpdCBtb3VudGFpbikgVGogVCoKKHJpdmVyIG1vdW50YWluIGxhbXApIFRqIFQqCihwYXBlciBwYXBlciBsYW1wIDAwNDIgcGFwZXIgbGFtcCkgVGogVCoKKGRlbHRhIG1vdW50YWluIGNhYmxlIGxhbXAgY2FibGUgb3JiaXQpIFRqIFQqCihvcmJpdCBvcmJpdCBkZWx0YSAwMDQyIG1vdW50YWluIG1vdW50YWluKSBUaiBUKgoobGFtcCBtb3VudGFpbiAwMDQyIGNhYmxlKSBUaiBUKgoocXVpZXQpIFRqIFQqCigwMDQyIG9yYml0IGxhbXAgcXVpZXQgZ2FyZGVuIHRyZWUpIFRqIFQqCigwMDQyIGRlbHRhIGRlbHRhKSBUaiBUKgoocXVpZXQgcXVpZXQgZ2FyZGVuKSBUaiBUKgoobW91bnRhaW4pIFRqIFQqCihtb3VudGFpbikgVGogVCoKKDAwNDIgbGFtcCBkZWx0YSkgVGogVCoKKDAwNDIgbW91bnRhaW4pIFRqIFQqCihkZWx0YSBwYXBlciBjYWJsZSkgVGogVCoKKG1vdW50YWluIG1vdW50YWluIGxhbXAgcGFwZXIpIFRqIFQqCihjYWJsZSBsYW1wKSBUaiBUKgoocml2ZXIgY2FibGUgbW91bnRhaW4gbGFtcCkgVGogVCoKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCjAwMDAwMDAyNDEgMDAwMDAgbiAKMDAwMDAwMDMxMSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDYgL1Jvb3QgMSAwIFIgPj4Kc3RhcnR4cmVmCjE0NjAKJSVFT0YK",
+            "lines": [
+              "orbit river cable",
+              "tree garden",
+              "tree",
+              "lamp mountain cable paper",
+              "orbit orbit paper river lamp cable",
+              "garden",
+              "quiet river signal river",
+              "cable 0042 orbit",
+              "quiet",
+              "garden 0042 delta quiet signal",
+              "delta mountain garden",
+              "delta quiet 0042",
+              "river delta",
+              "0042 signal delta delta paper",
+              "paper paper",
+              "river 0042 quiet delta 0042",
+              "0042 orbit lamp river river garden",
+              "tree lamp signal mountain paper river",
+              "river 0042 paper 0042 orbit mountain",
+              "river mountain lamp",
+              "paper paper lamp 0042 paper lamp",
+              "delta mountain cable lamp cable orbit",
+              "orbit orbit delta 0042 mountain mountain",
+              "lamp mountain 0042 cable",
+              "quiet",
+              "0042 orbit lamp quiet garden tree",
+              "0042 delta delta",
+              "quiet quiet garden",
+              "mountain",
+              "mountain",
+              "0042 lamp delta",
+              "0042 mountain",
+              "delta paper cable",
+              "mountain mountain lamp paper",
+              "cable lamp",
+              "river cable mountain lamp"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "orbit river cable",
+              "tree garden",
+              "tree",
+              "lamp mountain cable paper",
+              "orbit orbit paper river lamp cable",
+              "garden",
+              "quiet river signal river",
+              "cable 0042 orbit",
+              "quiet",
+              "garden 0042 delta quiet signal",
+              "delta mountain garden",
+              "delta quiet 0042",
+              "river delta",
+              "0042 signal delta delta paper",
+              "paper paper",
+              "river 0042 quiet delta 0042",
+              "0042 orbit lamp river river garden",
+              "tree lamp signal mountain paper river",
+              "river 0042 paper 0042 orbit mountain",
+              "river mountain lamp",
+              "paper paper lamp 0042 paper lamp",
+              "delta mountain cable lamp cable orbit",
+              "orbit orbit delta 0042 mountain mountain",
+              "lamp mountain 0042 cable",
+              "quiet",
+              "0042 orbit lamp quiet garden tree",
+              "0042 delta delta",
+              "quiet quiet garden",
+              "mountain",
+              "mountain",
+              "0042 lamp delta",
+              "0042 mountain",
+              "delta paper cable",
+              "mountain mountain lamp paper",
+              "cable lamp",
+              "river cable mountain lamp"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggOTcxID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihjYWJsZSBzaWduYWwgb3JiaXQgb3JiaXQpIFRqIFQqCihxdWlldCkgVGogVCoKKGdhcmRlbikgVGogVCoKKHBhcGVyIGNhYmxlIHRyZWUgZ2FyZGVuIHF1aWV0IDAwNDIpIFRqIFQqCihjYWJsZSBsYW1wIGRlbHRhIHRyZWUgb3JiaXQpIFRqIFQqCihtb3VudGFpbiBzaWduYWwgcml2ZXIgZ2FyZGVuKSBUaiBUKgoobW91bnRhaW4pIFRqIFQqCihtb3VudGFpbiBzaWduYWwgY2FibGUgZGVsdGEgZ2FyZGVuIHNpZ25hbCkgVGogVCoKKHNpZ25hbCB0cmVlIGxhbXApIFRqIFQqCihyaXZlciB0cmVlIHRyZWUpIFRqIFQqCihsYW1wIG9yYml0IGRlbHRhIHJpdmVyKSBUaiBUKgooY2FibGUgY2FibGUgdHJlZSBsYW1wIHNpZ25hbCBzaWduYWwpIFRqIFQqCihsYW1wIHRyZWUgc2lnbmFsIGNhYmxlIHJpdmVyKSBUaiBUKgoobGFtcCByaXZlciAwMDQyKSBUaiBUKgooMDA0MiBnYXJkZW4gb3JiaXQpIFRqIFQqCihzaWduYWwgcGFwZXIgdHJlZSkgVGogVCoKKHRyZWUgc2lnbmFsKSBUaiBUKgooMDA0MikgVGogVCoKKHBhcGVyIHBhcGVyIG9yYml0IGRlbHRhKSBUaiBUKgoocml2ZXIpIFRqIFQqCihzaWduYWwgbW91bnRhaW4gcXVpZXQgZ2FyZGVuIDAwNDIgY2FibGUpIFRqIFQqCihyaXZlciBwYXBlciBnYXJkZW4gZ2FyZGVuKSBUaiBUKgooc2lnbmFsIHRyZWUgY2FibGUgY2FibGUpIFRqIFQqCihkZWx0YSBkZWx0YSAwMDQyKSBUaiBUKgooc2lnbmFsIDAwNDIgb3JiaXQpIFRqIFQqCihtb3VudGFpbiBwYXBlciAwMDQyKSBUaiBUKgoobGFtcCBnYXJkZW4gMDA0MiBnYXJkZW4pIFRqIFQqCihvcmJpdCkgVGogVCoKKG1vdW50YWluIHBhcGVyIG9yYml0IG1vdW50YWluIHRyZWUpIFRqIFQqCihzaWduYWwgZ2FyZGVuIHBhcGVyIG9yYml0KSBUaiBUKgoobGFtcCBnYXJkZW4pIFRqIFQqCihwYXBlciBsYW1wIHRyZWUpIFRqIFQqCih0cmVlIGNhYmxlKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKMTMzMwolJUVPRgo=",
+            "lines": [
+              "cable signal orbit orbit",
+              "quiet",
+              "garden",
+              "paper cable tree garden quiet 0042",
+              "cable lamp delta tree orbit",
+              "mountain signal river garden",
+              "mountain",
+              "mountain signal cable delta garden signal",
+              "signal tree lamp",
+              "river tree tree",
+              "lamp orbit delta river",
+              "cable cable tree lamp signal signal",
+              "lamp tree signal cable river",
+              "lamp river 0042",
+              "0042 garden orbit",
+              "signal paper tree",
+              "tree signal",
+              "0042",
+              "paper paper orbit delta",
+              "river",
+              "signal mountain quiet garden 0042 cable",
+              "river paper garden garden",
+              "signal tree cable cable",
+              "delta delta 0042",
+              "signal 0042 orbit",
+              "mountain paper 0042",
+              "lamp garden 0042 garden",
+              "orbit",
+              "mountain paper orbit mountain tree",
+              "signal garden paper orbit",
+              "lamp garden",
+              "paper lamp tree",
+              "tree cable"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "cable signal orbit orbit",
+              "quiet",
+              "garden",
+              "paper cable tree garden quiet 0042",
+              "cable lamp delta tree orbit",
+              "mountain signal river garden",
+              "mountain",
+              "mountain signal cable delta garden signal",
+              "signal tree lamp",
+              "river tree tree",
+              "lamp orbit delta river",
+              "cable cable tree lamp signal signal",
+              "lamp tree signal cable river",
+              "lamp river 0042",
+              "0042 garden orbit",
+              "signal paper tree",
+              "tree signal",
+              "0042",
+              "paper paper orbit delta",
+              "river",
+              "signal mountain quiet garden 0042 cable",
+              "river paper garden garden",
+              "signal tree cable cable",
+              "delta delta 0042",
+              "signal 0042 orbit",
+              "mountain paper 0042",
+              "lamp garden 0042 garden",
+              "orbit",
+              "mountain paper orbit mountain tree",
+              "signal garden paper orbit",
+              "lamp garden",
+              "paper lamp tree",
+              "tree cable"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t19",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTE3NyA+PgpzdHJlYW0KQlQgL0YxIDExIFRmIDcyIDc0MCBUZCAxNCBUTAoocml2ZXIgZGVsdGEpIFRqIFQqCihzaWduYWwgc2lnbmFsIGRlbHRhIHBhcGVyKSBUaiBUKgooc2lnbmFsIGNhYmxlKSBUaiBUKgoocml2ZXIgbW91bnRhaW4gY2FibGUpIFRqIFQqCih0cmVlIGdhcmRlbiAwMDQyIHBhcGVyIHBhcGVyKSBUaiBUKgoob3JiaXQgbGFtcCBjYWJsZSBvcmJpdCBzaWduYWwgc2lnbmFsKSBUaiBUKgoobW91bnRhaW4gc2lnbmFsIGNhYmxlIHJpdmVyIGdhcmRlbiByaXZlcikgVGogVCoKKGRlbHRhIG1vdW50YWluIHF1aWV0IG1vdW50YWluKSBUaiBUKgoobGFtcCkgVGogVCoKKHBhcGVyIG1vdW50YWluIG1vdW50YWluIG9yYml0KSBUaiBUKgoob3JiaXQpIFRqIFQqCihnYXJkZW4gcGFwZXIpIFRqIFQqCihsYW1wIGRlbHRhIGRlbHRhIDAwNDIgbW91bnRhaW4gbGFtcCkgVGogVCoKKHJpdmVyIHJpdmVyIGdhcmRlbiBvcmJpdCBxdWlldCkgVGogVCoKKDAwNDIpIFRqIFQqCihjYWJsZSBnYXJkZW4gMDA0MiBjYWJsZSBwYXBlciAwMDQyKSBUaiBUKgooZGVsdGEgbGFtcCBsYW1wIGxhbXApIFRqIFQqCihwYXBlciBxdWlldCBvcmJpdCkgVGogVCoKKGNhYmxlIG9yYml0IHF1aWV0IHJpdmVyKSBUaiBUKgoocGFwZXIpIFRqIFQqCihtb3VudGFpbiBjYWJsZSB0cmVlKSBUaiBUKgoob3JiaXQgbW91bnRhaW4gcGFwZXIgb3JiaXQgcGFwZXIgb3JiaXQpIFRqIFQqCihzaWduYWwpIFRqIFQqCigwMDQyIGNhYmxlIHJpdmVyIHJpdmVyIG9yYml0IG1vdW50YWluKSBUaiBUKgooMDA0MiBzaWduYWwgbGFtcCBjYWJsZSBvcmJpdCAwMDQyKSBUaiBUKgoodHJlZSBvcmJpdCBtb3VudGFpbiByaXZlcikgVGogVCoKKHRyZWUgZGVsdGEgc2lnbmFsIHRyZWUgMDA0MiBzaWduYWwpIFRqIFQqCihyaXZlciBjYWJsZSkgVGogVCoKKHBhcGVyIGxhbXAgb3JiaXQgbW91bnRhaW4gb3JiaXQgY2FibGUpIFRqIFQqCihvcmJpdCBtb3VudGFpbikgVGogVCoKKGNhYmxlIGNhYmxlKSBUaiBUKgoocXVpZXQpIFRqIFQqCihxdWlldCBnYXJkZW4gb3JiaXQgbW91bnRhaW4pIFRqIFQqCigwMDQyIHJpdmVyIHF1aWV0IGdhcmRlbikgVGogVCoKKHJpdmVyIG9yYml0IHJpdmVyIHF1aWV0KSBUaiBUKgooc2lnbmFsIHJpdmVyKSBUaiBUKgoocml2ZXIgZ2FyZGVuIHNpZ25hbCBtb3VudGFpbiBkZWx0YSB0cmVlKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKMTU0MAolJUVPRgo=",
+            "lines": [
+              "river delta",
+              "signal signal delta paper",
+              "signal cable",
+              "river mountain cable",
+              "tree garden 0042 paper paper",
+              "orbit lamp cable orbit signal signal",
+              "mountain signal cable river garden river",
+              "delta mountain quiet mountain",
+              "lamp",
+              "paper mountain mountain orbit",
+              "orbit",
+              "garden paper",
+              "lamp delta delta 0042 mountain lamp",
+              "river river garden orbit quiet",
+              "0042",
+              "cable garden 0042 cable paper 0042",
+              "delta lamp lamp lamp",
+              "paper quiet orbit",
+              "cable orbit quiet river",
+              "paper",
+              "mountain cable tree",
+              "orbit mountain paper orbit paper orbit",
+              "signal",
+              "0042 cable river river orbit mountain",
+              "0042 signal lamp cable orbit 0042",
+              "tree orbit mountain river",
+              "tree delta signal tree 0042 signal",
+              "river cable",
+              "paper lamp orbit mountain orbit cable",
+              "orbit mountain",
+              "cable cable",
+              "quiet",
+              "quiet garden orbit mountain",
+              "0042 river quiet garden",
+              "river orbit river quiet",
+              "signal river",
+              "river garden signal mountain delta tree"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "river delta",
+              "signal signal delta paper",
+              "signal cable",
+              "river mountain cable",
+              "tree garden 0042 paper paper",
+              "orbit lamp cable orbit signal signal",
+              "mountain signal cable river garden river",
+              "delta mountain quiet mountain",
+              "lamp",
+              "paper mountain mountain orbit",
+              "orbit",
+              "garden paper",
+              "lamp delta delta 0042 mountain lamp",
+              "river river garden orbit quiet",
+              "0042",
+              "cable garden 0042 cable paper 0042",
+              "delta lamp lamp lamp",
+              "paper quiet orbit",
+              "cable orbit quiet river",
+              "paper",
+              "mountain cable tree",
+              "orbit mountain paper orbit paper orbit",
+              "signal",
+              "0042 cable river river orbit mountain",
+              "0042 signal lamp cable orbit 0042",
+              "tree orbit mountain river",
+              "tree delta signal tree 0042 signal",
+              "river cable",
+              "paper lamp orbit mountain orbit cable",
+              "orbit mountain",
+              "cable cable",
+              "quiet",
+              "quiet garden orbit mountain",
+              "0042 river quiet garden",
+              "river orbit river quiet",
+              "signal river",
+              "river garden signal mountain delta tree"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t20",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMjMwID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihnYXJkZW4pIFRqIFQqCihvcmJpdCBnYXJkZW4gMDA0MikgVGogVCoKKGRlbHRhIG1vdW50YWluIHJpdmVyIGNhYmxlIDAwNDIpIFRqIFQqCihzaWduYWwgdHJlZSB0cmVlIG1vdW50YWluIGdhcmRlbiBsYW1wKSBUaiBUKgoobGFtcCkgVGogVCoKKGxhbXAgdHJlZSBzaWduYWwpIFRqIFQqCihwYXBlcikgVGogVCoKKHNpZ25hbCB0cmVlKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKNTkyCiUlRU9GCg==",
+            "lines": [
+              "garden",
+              "orbit garden 0042",
+              "delta mountain river cable 0042",
+              "signal tree tree mountain garden lamp",
+              "lamp",
+              "lamp tree signal",
+              "paper",
+              "signal tree"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "garden",
+              "orbit garden 0042",
+              "delta mountain river cable 0042",
+              "signal tree tree mountain garden lamp",
+              "lamp",
+              "lamp tree signal",
+              "paper",
+              "signal tree"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t21",
+          "input": {
+            "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvQ29udGVudHMgNSAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4gPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNjE0ID4+CnN0cmVhbQpCVCAvRjEgMTEgVGYgNzIgNzQwIFRkIDE0IFRMCihsYW1wIHJpdmVyIGRlbHRhIG1vdW50YWluKSBUaiBUKgoodHJlZSBwYXBlcikgVGogVCoKKG9yYml0IHRyZWUgdHJlZSBkZWx0YSkgVGogVCoKKHJpdmVyIDAwNDIgc2lnbmFsIG9yYml0KSBUaiBUKgooc2lnbmFsIHJpdmVyIHNpZ25hbCByaXZlciBtb3VudGFpbiBsYW1wKSBUaiBUKgooY2FibGUpIFRqIFQqCihkZWx0YSBsYW1wKSBUaiBUKgoodHJlZSB0cmVlIGNhYmxlIHRyZWUgcXVpZXQpIFRqIFQqCihjYWJsZSkgVGogVCoKKGRlbHRhIGRlbHRhIHRyZWUgY2FibGUgY2FibGUgcml2ZXIpIFRqIFQqCihxdWlldCAwMDQyIGxhbXAgcml2ZXIgb3JiaXQgbGFtcCkgVGogVCoKKGRlbHRhIG1vdW50YWluIHNpZ25hbCBjYWJsZSkgVGogVCoKKG1vdW50YWluIGdhcmRlbiBtb3VudGFpbiBnYXJkZW4pIFRqIFQqCihkZWx0YSkgVGogVCoKKGRlbHRhIGdhcmRlbiBxdWlldCkgVGogVCoKKHRyZWUgdHJlZSkgVGogVCoKKHRyZWUgcXVpZXQgbGFtcCBwYXBlcikgVGogVCoKKHNpZ25hbCBnYXJkZW4pIFRqIFQqCihzaWduYWwgbGFtcCkgVGogVCoKKHJpdmVyIG1vdW50YWluIHBhcGVyIHBhcGVyIHRyZWUgZ2FyZGVuKSBUaiBUKgpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKOTc2CiUlRU9GCg==",
+            "lines": [
+              "lamp river delta mountain",
+              "tree paper",
+              "orbit tree tree delta",
+              "river 0042 signal orbit",
+              "signal river signal river mountain lamp",
+              "cable",
+              "delta lamp",
+              "tree tree cable tree quiet",
+              "cable",
+              "delta delta tree cable cable river",
+              "quiet 0042 lamp river orbit lamp",
+              "delta mountain signal cable",
+              "mountain garden mountain garden",
+              "delta",
+              "delta garden quiet",
+              "tree tree",
+              "tree quiet lamp paper",
+              "signal garden",
+              "signal lamp",
+              "river mountain paper paper tree garden"
+            ]
+          },
+          "expected": {
+            "contains_in_order": [
+              "lamp river delta mountain",
+              "tree paper",
+              "orbit tree tree delta",
+              "river 0042 signal orbit",
+              "signal river signal river mountain lamp",
+              "cable",
+              "delta lamp",
+              "tree tree cable tree quiet",
+              "cable",
+              "delta delta tree cable cable river",
+              "quiet 0042 lamp river orbit lamp",
+              "delta mountain signal cable",
+              "mountain garden mountain garden",
+              "delta",
+              "delta garden quiet",
+              "tree tree",
+              "tree quiet lamp paper",
+              "signal garden",
+              "signal lamp",
+              "river mountain paper paper tree garden"
+            ],
+            "must_not_contain": [
+              "BT",
+              "ET",
+              "Tj",
+              "TL",
+              "Tf",
+              "endobj",
+              "stream",
+              "/F1",
+              "obj",
+              "%PDF"
+            ]
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "c35f2e840c38dec31b3c4108542280279f5176645c3e0049f3632a5a66d0fb1c"
+  },
+  "contractAudit": {
+    "key": "41dfc23c565561dac26e",
+    "costUsd": 0.0023839599999999996,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Execution contract is internally consistent: the generator, validator, and reference agree on the same input domain and expected observable (whitespace-normalized in-order substrings plus a PDF-syntax leak check).",
+        "Validator accepts all 22 generated inputs and rejects the probed non-dict and malformed inputs. Empty-line, duplicate-line, parenthesis-escaping, and leading-zero cases are covered.",
+        "Spot-checked observed PDF t0 (Length 51) and t1 (Length 89) against their content streams; the byte counts match, and the observed expected outputs match the input lines.",
+        "must_not_contain tokens (BT, ET, Tj, TL, Tf, obj, stream, /F1, %PDF) do not occur in any generator word or line, so the reference does not conflict with its own leak check.",
+        "Checks are empty, so no C1 checks are assessed. The execution is a narrow, necessary behavioral requirement (text preservation, order, and no raw PDF operator leakage) and does not require Markdown layout, which the plan explicitly excludes.",
+        "Weakness noted but not disqualifying: very short required substrings such as 'x' and 'alpha' are weak under substring matching, and the oracle does not verify Markdown structure."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "41dfc23c565561dac26e",
+    "06c38d9f4e82390d6627",
+    "1de218bfd6e2cf9757cb"
+  ],
+  "callKeys": [
+    "41dfc23c565561dac26e",
+    "19a60b0cfef424e45ec5",
+    "c8f6886c9af498cf1b1a"
+  ]
+}

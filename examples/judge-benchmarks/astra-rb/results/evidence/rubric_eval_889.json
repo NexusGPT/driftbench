@@ -1,0 +1,85 @@
+{
+  "id": "rubric_eval_889",
+  "planKey": "faa163dddc9682e140c5",
+  "at": "2026-10-13T04:06:32.055Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "single_line_title",
+      "source_quote": "generate a one liner title",
+      "a": true,
+      "b": true,
+      "programHash": "fd63c56617083aea7c49ed964b27865147f7c8baf84437f22ec966d2063c784d"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-RlBjvl",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:47.798Z",
+      "latencyMs": 198.608
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "1becdb84b88d074208ce74bca4f6b0ad3c931305e72d97d93f151cf7a8607b33"
+  },
+  "contractAudit": {
+    "key": "7c70c7f4acd12abccf3d",
+    "costUsd": 0.00082,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 literally implements the 'one liner title' instruction by rejecting line breaks (\\n, \\r, \\u2028, \\u2029).",
+        "The source_quote 'generate a one liner title' appears in the question text.",
+        "The positive fixture is a single line and passes; the negative fixture contains a newline and fails, so the fixtures are correct.",
+        "The check rejects non-string, empty, and whitespace-only inputs, so the input domain is handled.",
+        "Execution is null, so execution_valid is false. Validity rests on check 0."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-j0AwcS",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"single_line_title\", \"source_quote\": \"generate a one liner title\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:06:38.701Z",
+      "latencyMs": 148.045
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "single_line_title",
+          "source_quote": "generate a one liner title",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "7c70c7f4acd12abccf3d"
+  ]
+}

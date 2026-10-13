@@ -1,0 +1,104 @@
+{
+  "id": "rubric_eval_1055",
+  "planKey": "e8eee91fc7aba0eda106",
+  "at": "2026-10-13T03:56:42.943Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "titles_3_to_5_words_with_blank_line_before_description",
+      "source_quote": "consise and rephrased 3-5 word title",
+      "a": false,
+      "b": false,
+      "programHash": "d03228b81384473bc84d316af463cebd6232d7e83c679b6b218476055db6ee3a"
+    },
+    {
+      "index": 1,
+      "name": "no_list_numbering",
+      "source_quote": "don’t number the list points",
+      "a": true,
+      "b": true,
+      "programHash": "2ced436403d429de9c2914553795f88aef1b076e5483100afbd6cf602bf71e04"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-AKBUn4",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:43.307Z",
+      "latencyMs": 284.833
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "332e3ccab648d392e381761d7b00931e2aef14c21935920844b460d44501ff56"
+  },
+  "contractAudit": {
+    "key": "e401b22be667bf6eab6b",
+    "costUsd": 0.0015123,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the 3-5 word title and blank-line-before-description instruction, with a grounded source quote and correct positive and negative fixtures.",
+        "Check 1 implements the 'don't number the list points' instruction, with a grounded source quote and correct positive and negative fixtures.",
+        "execution is null, so there is no reference implementation or execution-level validation, and execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-OBU10O",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"titles_3_to_5_words_with_blank_line_before_description\", \"source_quote\": \"consise and rephrased 3-5 word title\", \"a\": false, \"b\": false}, {\"index\": 1, \"name\": \"no_list_numbering\", \"source_quote\": \"don\\u2019t number the list points\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:56:52.281Z",
+      "latencyMs": 143.92
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "titles_3_to_5_words_with_blank_line_before_description",
+          "source_quote": "consise and rephrased 3-5 word title",
+          "a": false,
+          "b": false
+        },
+        {
+          "index": 1,
+          "name": "no_list_numbering",
+          "source_quote": "don’t number the list points",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "e401b22be667bf6eab6b"
+  ]
+}

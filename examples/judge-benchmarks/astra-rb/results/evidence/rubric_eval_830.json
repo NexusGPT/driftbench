@@ -1,0 +1,104 @@
+{
+  "id": "rubric_eval_830",
+  "planKey": "dbc63d4333a3c65b2354",
+  "at": "2026-10-13T04:05:41.915Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "json_object_with_single_name_string",
+      "source_quote": "Your responses will adhere to the following JSON format",
+      "a": false,
+      "b": true,
+      "programHash": "a384f9afe47c7522b5f9a82905bc339b3863af83596c78c87151062be81f7628"
+    },
+    {
+      "index": 1,
+      "name": "name_not_starting_with_spell_of",
+      "source_quote": "should not begin with \"Spell Of\"",
+      "a": null,
+      "b": true,
+      "programHash": "0df24a784a8bccab748192c47e2ce060f19646a30c4b9cdd4d59ead2333d6f8a"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-hCjewk",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:47.345Z",
+      "latencyMs": 442.878
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "633a2bd0e19668b545b1bebcfafbd3c694c61379fea3ca1112c5bf9ee95b909d"
+  },
+  "contractAudit": {
+    "key": "41ebb5a3c618696bc3c4",
+    "costUsd": 0.0009843,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal format instruction: the output must be a JSON object whose only key is `name` with a string value. Its positive and negative fixtures are correct, and its source_quote is grounded.",
+        "Check 1 implements the quoted instruction that the name must not begin with \"Spell Of\". Its positive and negative fixtures are correct, and its source_quote is grounded. It does not test the vaguer \"or any similar phrase\" wording, which is a narrower coverage limit rather than a contract error.",
+        "Execution is null, so no reference implementation or supplied examples were validated and execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-k0WzQ1",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"json_object_with_single_name_string\", \"source_quote\": \"Your responses will adhere to the following JSON format\", \"a\": false, \"b\": true}, {\"index\": 1, \"name\": \"name_not_starting_with_spell_of\", \"source_quote\": \"should not begin with \\\"Spell Of\\\"\", \"a\": null, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:05:49.949Z",
+      "latencyMs": 167.693
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "json_object_with_single_name_string",
+          "source_quote": "Your responses will adhere to the following JSON format",
+          "a": false,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "name_not_starting_with_spell_of",
+          "source_quote": "should not begin with \"Spell Of\"",
+          "a": null,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "41ebb5a3c618696bc3c4"
+  ]
+}

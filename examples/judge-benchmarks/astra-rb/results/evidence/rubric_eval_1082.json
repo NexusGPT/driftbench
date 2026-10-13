@@ -1,0 +1,270 @@
+{
+  "id": "rubric_eval_1082",
+  "protocolVersion": 4,
+  "planKey": "abcbfab4d4fee4b54c4e",
+  "questionPlanKey": "00bdae23164a334476ed",
+  "at": "2026-10-13T04:26:00.392Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "no_executable_snippet",
+      "side": "a",
+      "retainedObservation": true
+    },
+    {
+      "status": "no_executable_snippet",
+      "side": "b",
+      "retainedObservation": true
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-sqbGNy",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 0, \"length\": 0}, \"expected\": \"\", \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 0, \"length\": 1}, \"expected\": \"00\", \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 0, \"length\": 4}, \"expected\": \"00010203\", \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 0, \"length\": 100}, \"expected\": \"000102030405060708090a0b0c0d0e0f\", \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 1, \"length\": 0}, \"expected\": \"\", \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 1, \"length\": 1}, \"expected\": \"01\", \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 1, \"length\": 4}, \"expected\": \"01020304\", \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 1, \"length\": 100}, \"expected\": \"0102030405060708090a0b0c0d0e0f\", \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 15, \"length\": 0}, \"expected\": \"\", \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 15, \"length\": 1}, \"expected\": \"0f\", \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 15, \"length\": 4}, \"expected\": \"0f\", \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 15, \"length\": 100}, \"expected\": \"0f\", \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 16, \"length\": 0}, \"expected\": \"\", \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 16, \"length\": 1}, \"expected\": \"\", \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 16, \"length\": 4}, \"expected\": \"\", \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"content_hex\": \"000102030405060708090a0b0c0d0e0f\", \"offset\": 16, \"length\": 100}, \"expected\": \"\", \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"content_hex\": \"00\", \"offset\": 0, \"length\": 1}, \"expected\": \"00\", \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"content_hex\": \"ff00ff\", \"offset\": 0, \"length\": 3}, \"expected\": \"ff00ff\", \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:08:07.673Z",
+      "latencyMs": 603.43
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 0,
+            "length": 0
+          },
+          "expected": "",
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 0,
+            "length": 1
+          },
+          "expected": "00",
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 0,
+            "length": 4
+          },
+          "expected": "00010203",
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 0,
+            "length": 100
+          },
+          "expected": "000102030405060708090a0b0c0d0e0f",
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 1,
+            "length": 0
+          },
+          "expected": "",
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 1,
+            "length": 1
+          },
+          "expected": "01",
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 1,
+            "length": 4
+          },
+          "expected": "01020304",
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 1,
+            "length": 100
+          },
+          "expected": "0102030405060708090a0b0c0d0e0f",
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 15,
+            "length": 0
+          },
+          "expected": "",
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 15,
+            "length": 1
+          },
+          "expected": "0f",
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 15,
+            "length": 4
+          },
+          "expected": "0f",
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 15,
+            "length": 100
+          },
+          "expected": "0f",
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 16,
+            "length": 0
+          },
+          "expected": "",
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 16,
+            "length": 1
+          },
+          "expected": "",
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 16,
+            "length": 4
+          },
+          "expected": "",
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "content_hex": "000102030405060708090a0b0c0d0e0f",
+            "offset": 16,
+            "length": 100
+          },
+          "expected": "",
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "content_hex": "00",
+            "offset": 0,
+            "length": 1
+          },
+          "expected": "00",
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "content_hex": "ff00ff",
+            "offset": 0,
+            "length": 3
+          },
+          "expected": "ff00ff",
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "da36920b1c084a99aa3499d1eb2d61ee03022cbb50ce890765470fb8b4ff691e"
+  },
+  "contractAudit": {
+    "key": "11b757b39ac9fdf6cddc",
+    "costUsd": 0.0013759000000000002,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Reference implements the original task: it returns the bytes of a read of up to `length` bytes starting at `offset`, matching the function's seek-then-read behavior on a mapping of the full file.",
+        "All 18 observed expected values agree with the reference, including truncation at end-of-file (t10, t11, t15) and the zero-length cases (t0, t4, t8, t12).",
+        "The validator restricts the domain to non-empty content, offsets in [0, size], and non-negative lengths. The excluded cases (empty files, which mmap rejects, and out-of-range offsets) are unspecified by the question, so the restriction is reasonable.",
+        "Validator probes (null, {}, [], 1, true, 'malformed') are all correctly rejected.",
+        "No C1 checks are present in the plan or observed sections, so there are no check-level failures to report.",
+        "The adapter behavior (temp file from hex, hex-encoded output) is deterministic and introduces no external dependencies or unrequested requirements."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "11b757b39ac9fdf6cddc"
+  ],
+  "callKeys": [
+    "11b757b39ac9fdf6cddc"
+  ]
+}

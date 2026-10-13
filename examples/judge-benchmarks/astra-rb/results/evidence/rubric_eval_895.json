@@ -1,0 +1,85 @@
+{
+  "id": "rubric_eval_895",
+  "planKey": "3e6db9800863d3d87677",
+  "at": "2026-10-13T04:06:37.911Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "exactly_three_numbers_in_response",
+      "source_quote": "Include exactly 3 numbers in the response.",
+      "a": true,
+      "b": true,
+      "programHash": "c9f896fd82422ac2a6ebb3e3ecac0d2f93e16b260530453dc35602fb452ee0aa"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-LHlkaN",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:47.806Z",
+      "latencyMs": 461.6
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "7f4106854b79e289d0eac91a0c101dfa71126d799141253e9d2c8afca809f6d7"
+  },
+  "contractAudit": {
+    "key": "ad0c8a33643f2722ecbe",
+    "costUsd": 0.0010132000000000001,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal instruction 'Include exactly 3 numbers in the response' by counting numeric tokens after stripping list markers, and its source_quote is grounded in the question.",
+        "The positive fixture contains exactly three numbers (1, 2, 3) and the negative fixture contains four (0.5, 2, 4, 9), so the check returns the expected result on both.",
+        "The observed result for check 0 (positive true, negative false, valid true) agrees with the check's own fixtures.",
+        "Execution is null, so execution_valid is false. Validity rests on the C1 check alone.",
+        "No reference or oracle outputs are supplied, so no reference conflict can be assessed."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-KqobOK",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"exactly_three_numbers_in_response\", \"source_quote\": \"Include exactly 3 numbers in the response.\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:06:46.205Z",
+      "latencyMs": 142.202
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "exactly_three_numbers_in_response",
+          "source_quote": "Include exactly 3 numbers in the response.",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "ad0c8a33643f2722ecbe"
+  ]
+}

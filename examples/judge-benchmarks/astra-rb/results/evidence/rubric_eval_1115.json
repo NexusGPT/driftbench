@@ -1,0 +1,104 @@
+{
+  "id": "rubric_eval_1115",
+  "planKey": "b397f7f56b5486a53021",
+  "at": "2026-10-13T03:57:53.667Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "exactly_four_paragraphs_separated_by_double_newline",
+      "source_quote": "There should be exactly 4 paragraphs.",
+      "a": false,
+      "b": false,
+      "programHash": "5b8cc561a1fa3540ba0dce926f51170807518b190f116dc1191091af58e122f9"
+    },
+    {
+      "index": 1,
+      "name": "paragraph_two_starts_with_it",
+      "source_quote": "Paragraph 2 must start with the word",
+      "a": true,
+      "b": false,
+      "programHash": "d4f1459cc6ea31761171e142af79ff675568e1646bd65c29162e80b12ee27fa1"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-KpFdh1",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:44.010Z",
+      "latencyMs": 153.18
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "73fb4b25e96e9512f4cedc70c5a6e1713b12bed7c12c6bacd6626db56cb22a6e"
+  },
+  "contractAudit": {
+    "key": "8f7a286d8692198dd4e2",
+    "costUsd": 0.0009019,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal instruction of exactly 4 paragraphs split on \\n\\n, with non-empty paragraphs. Its source quote is grounded, and its positive and negative fixtures are correct.",
+        "Check 1 implements the literal instruction that paragraph 2 starts with 'it', case-insensitively and ignoring punctuation. Its source quote is grounded, and its positive and negative fixtures are correct.",
+        "execution is null, so execution_valid is false per the contract. Validity rests on the two valid C1 checks."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-fL5cFc",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"exactly_four_paragraphs_separated_by_double_newline\", \"source_quote\": \"There should be exactly 4 paragraphs.\", \"a\": false, \"b\": false}, {\"index\": 1, \"name\": \"paragraph_two_starts_with_it\", \"source_quote\": \"Paragraph 2 must start with the word\", \"a\": true, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:58:01.743Z",
+      "latencyMs": 200.229
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "exactly_four_paragraphs_separated_by_double_newline",
+          "source_quote": "There should be exactly 4 paragraphs.",
+          "a": false,
+          "b": false
+        },
+        {
+          "index": 1,
+          "name": "paragraph_two_starts_with_it",
+          "source_quote": "Paragraph 2 must start with the word",
+          "a": true,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "8f7a286d8692198dd4e2"
+  ]
+}

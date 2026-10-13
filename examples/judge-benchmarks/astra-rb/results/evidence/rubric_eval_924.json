@@ -1,0 +1,62 @@
+{
+  "id": "rubric_eval_924",
+  "protocolVersion": 4,
+  "planKey": "b926e945d2264035f5fe",
+  "questionPlanKey": "85dbb42d42116d8c7d38",
+  "at": "2026-10-13T04:30:50.688Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-wbg2Gs",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:23:05.726Z",
+      "latencyMs": 363.627
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "51822b518436b2c2808b86abfec5ad5d08372fefc839b094036aef696f8929dd"
+  },
+  "contractAudit": {
+    "key": "8828ab21fee53eb62641",
+    "costUsd": 0.00083412,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "execution is null, so execution_valid must be false",
+        "check 0 is a regex proxy for class structure: it does not verify the literal instruction (a file named ProximityTrigger.cs), and its source_quote grounds the filename, not the class declaration",
+        "check 0 would accept the pattern inside comments or strings, so it does not confirm a real class declaration",
+        "check 0 does not verify the 'public' modifier named in the rubric",
+        "the observed positive and negative fixtures agree with the regex, but agreement on two fixtures does not validate a regex proxy",
+        "no other C1 checks exist, so no check independently validates the UnityEvent, distance threshold, or proximity logic"
+      ],
+      "invalid_checks": [
+        0
+      ],
+      "execution_valid": false
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "8828ab21fee53eb62641"
+  ],
+  "callKeys": [
+    "8828ab21fee53eb62641"
+  ]
+}

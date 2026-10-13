@@ -1,0 +1,25 @@
+{
+  "commit": "76f4f6a6a3acaf105a9f1e0849becf9cf9a3efc5",
+  "frozenAt": "2026-10-13T02:28:08.534Z",
+  "frozenBy0430": true,
+  "configSha256": "fe3cd82389305387e89b53062ac3818b04a80c5ea19896c62e10b4b7f4e9b2d3",
+  "contestant": "driftbench-rb-binary-canonical-executed",
+  "devScore": 0.8235294117647058,
+  "usdPer100": 0.16717063025210088,
+  "uniqueCalls": 357,
+  "devItems": 357,
+  "throughput": {
+    "start": {
+      "observedAt": "2026-10-12T22:19:40.614800+00:00",
+      "recordedCalls": 649,
+      "recordedUsd": 0.93147633,
+      "campaignSession": 48666,
+      "freezeByLocal": "2026-10-13T04:30:00+02:00",
+      "testDeadlineLocal": "2026-10-13T06:30:00+02:00"
+    },
+    "measuredAt": "2026-10-13T02:28:08.875Z",
+    "measuredNewCalls": 1479,
+    "elapsedSeconds": 14908.261,
+    "secondsPerCall": 10.079960108181204
+  }
+}

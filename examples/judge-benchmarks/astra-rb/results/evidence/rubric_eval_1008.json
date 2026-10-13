@@ -1,0 +1,85 @@
+{
+  "id": "rubric_eval_1008",
+  "planKey": "a0dfb01a2e44220371e4",
+  "at": "2026-10-13T03:56:13.588Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "exactly_12_paragraphs",
+      "source_quote": "Write 12 paragraphs of Nebula's taunting.",
+      "a": false,
+      "b": false,
+      "programHash": "713f7b232dd069ec8ec269a8607ef6b3d40a8429451f23af9c816a3d83bb1238"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-fLA2ki",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:43.263Z",
+      "latencyMs": 140.968
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "9079b61bc533ea848ee98f3fb9fa984aef706a2c9222def8e85cd27b9be1f677"
+  },
+  "contractAudit": {
+    "key": "78147ec9163acfbfe7a1",
+    "costUsd": 0.0009976,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (exactly_12_paragraphs) implements the literal instruction 'Write 12 paragraphs', and its source_quote matches the question text.",
+        "The check splits on blank lines and requires exactly 12 non-empty blocks. The positive fixture has 12 blocks and passes; the negative fixture has 11 and fails, so both fixtures are correct.",
+        "Empty input yields 0 blocks and fails, which is the expected result.",
+        "The observed positive/negative results for check 0 match the expected outcomes.",
+        "Execution is null, so execution_valid is false. Validity rests on the single valid C1 check."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-vqtwiI",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"exactly_12_paragraphs\", \"source_quote\": \"Write 12 paragraphs of Nebula's taunting.\", \"a\": false, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:56:21.714Z",
+      "latencyMs": 156.037
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "exactly_12_paragraphs",
+          "source_quote": "Write 12 paragraphs of Nebula's taunting.",
+          "a": false,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "78147ec9163acfbfe7a1"
+  ]
+}

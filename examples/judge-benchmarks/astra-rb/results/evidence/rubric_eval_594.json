@@ -1,0 +1,84 @@
+{
+  "id": "rubric_eval_594",
+  "planKey": "773154bb7fbf456ce915",
+  "at": "2026-10-13T04:03:17.505Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "exactly_25_words",
+      "source_quote": "Create a short (25 word) description",
+      "a": false,
+      "b": true,
+      "programHash": "ff8e492ccd5928c3ca1d25c026c93a2249ffdcf3a00545dc2c06d455eef8de3a"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-0M0cti",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:46.578Z",
+      "latencyMs": 144.584
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "18520fb65f034a09f7dc0aa28c91954b1a8cddfa2bace94e8c0a76cf8ae6f3fa"
+  },
+  "contractAudit": {
+    "key": "e5d5a84b6a0c3fdc8146",
+    "costUsd": 0.0008187,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal instruction 'Create a short (25 word) description' by requiring exactly 25 whitespace-delimited words.",
+        "The positive fixture counts to exactly 25 words and the negative fixture counts to 23, so the observed positive=true and negative=false results match.",
+        "Empty and whitespace-only inputs return False under split(), which is the correct behavior for this check.",
+        "execution is null, so execution_valid is false; validity rests on the C1 check alone."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-ZcDAV5",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"exactly_25_words\", \"source_quote\": \"Create a short (25 word) description\", \"a\": false, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:03:24.688Z",
+      "latencyMs": 141.655
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "exactly_25_words",
+          "source_quote": "Create a short (25 word) description",
+          "a": false,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "e5d5a84b6a0c3fdc8146"
+  ]
+}

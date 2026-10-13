@@ -1,0 +1,149 @@
+{
+  "id": "rubric_eval_494",
+  "planKey": "9c48686f76484559e878",
+  "at": "2026-10-13T04:01:58.981Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "exactly_three_paragraphs_double_newline_separated",
+      "source_quote": "exactly 3 paragraphs, separated by two new lines",
+      "a": true,
+      "b": true,
+      "programHash": "bfb2e4f60646b97b5ddd8973e1bbf549044dda36306d9506eed5851c8664959d"
+    },
+    {
+      "index": 1,
+      "name": "paragraph_one_starts_with_punched",
+      "source_quote": "Paragraph 1 must start with word punched.",
+      "a": true,
+      "b": true,
+      "programHash": "a9a2c0046bd15eca0af4e0627671e359302ce0915b7a88291d2bbbdf942fc758"
+    },
+    {
+      "index": 2,
+      "name": "no_commas",
+      "source_quote": "without using any commas",
+      "a": true,
+      "b": true,
+      "programHash": "ac319fc6a8c82ad88176a6748eb990189e6e318527f35a7ad8a2c51de18e87a9"
+    },
+    {
+      "index": 3,
+      "name": "at_least_two_square_bracket_placeholders",
+      "source_quote": "must contain at least 2 placeholders represented by square brackets",
+      "a": true,
+      "b": false,
+      "programHash": "3bf5e75992b6075686c95a94b13521a0cf2786752b75d6963255e7251ca09a0e"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-5cSZ4Z",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 2, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 3, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:46.139Z",
+      "latencyMs": 163.31
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 2,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 3,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "7219a4aad0410a032ca2e6eafe181f389be916f47517de3d2abd3d8a32a773d1"
+  },
+  "contractAudit": {
+    "key": "afab0f4c55871704beff",
+    "costUsd": 0.0010747,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "All four C1 checks implement literal instructions from the question and are grounded in source quotes.",
+        "Check 0 correctly enforces exactly three non-empty paragraphs split by a blank line, and its positive and negative fixtures agree with that rule.",
+        "Check 1 correctly requires the response to begin with 'punched' using case-insensitive matching, which is a reasonable convention. Its positive fixture matches and its negative fixture does not.",
+        "Check 2 correctly rejects any comma. Its positive fixture has no comma and its negative fixture has one.",
+        "Check 3 counts bracketed placeholders and requires at least two. Its positive fixture has two and its negative fixture has one, so both fixtures are correct.",
+        "The plan has no execution (null), so execution_valid is false. Validity rests on the individually valid C1 checks."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-7cpmBz",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"exactly_three_paragraphs_double_newline_separated\", \"source_quote\": \"exactly 3 paragraphs, separated by two new lines\", \"a\": true, \"b\": true}, {\"index\": 1, \"name\": \"paragraph_one_starts_with_punched\", \"source_quote\": \"Paragraph 1 must start with word punched.\", \"a\": true, \"b\": true}, {\"index\": 2, \"name\": \"no_commas\", \"source_quote\": \"without using any commas\", \"a\": true, \"b\": true}, {\"index\": 3, \"name\": \"at_least_two_square_bracket_placeholders\", \"source_quote\": \"must contain at least 2 placeholders represented by square brackets\", \"a\": true, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:02:08.185Z",
+      "latencyMs": 176.468
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "exactly_three_paragraphs_double_newline_separated",
+          "source_quote": "exactly 3 paragraphs, separated by two new lines",
+          "a": true,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "paragraph_one_starts_with_punched",
+          "source_quote": "Paragraph 1 must start with word punched.",
+          "a": true,
+          "b": true
+        },
+        {
+          "index": 2,
+          "name": "no_commas",
+          "source_quote": "without using any commas",
+          "a": true,
+          "b": true
+        },
+        {
+          "index": 3,
+          "name": "at_least_two_square_bracket_placeholders",
+          "source_quote": "must contain at least 2 placeholders represented by square brackets",
+          "a": true,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "afab0f4c55871704beff"
+  ]
+}

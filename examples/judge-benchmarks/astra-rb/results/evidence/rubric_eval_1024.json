@@ -1,0 +1,272 @@
+{
+  "id": "rubric_eval_1024",
+  "protocolVersion": 4,
+  "planKey": "15485aa61b37b2e236ac",
+  "questionPlanKey": "97cc5e6e7fde08755077",
+  "at": "2026-10-13T04:26:00.099Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-WfYHoR",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"clipboard_text\": \"https://example.com\"}, \"expected\": \"url\", \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"clipboard_text\": \"http://example.com/path?q=1\"}, \"expected\": \"url\", \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"clipboard_text\": \"HTTPS://EXAMPLE.COM\"}, \"expected\": \"url\", \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"clipboard_text\": \"https://127.0.0.1:8080/x\"}, \"expected\": \"url\", \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"clipboard_text\": \"http://localhost:8000/\"}, \"expected\": \"url\", \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"clipboard_text\": \"ftp://example.com/file\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"clipboard_text\": \"example.com\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"clipboard_text\": \"www.example.com/page\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"clipboard_text\": \"\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"clipboard_text\": \"   \"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"clipboard_text\": \"not a url\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"clipboard_text\": \"https://\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"clipboard_text\": \"https://exa mple.com\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"clipboard_text\": \"https://example.com\\nhttps://b.example.org\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"clipboard_text\": \"javascript:alert(1)\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"clipboard_text\": \"mailto:a@example.com\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"clipboard_text\": \"file:///C:/Windows/win.ini\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"clipboard_text\": \"https://example.com/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/\"}, \"expected\": \"url\", \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": {\"clipboard_text\": \"https://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com\"}, \"expected\": \"url\", \"oracle\": \"reference\"}, {\"id\": \"t19\", \"input\": {\"clipboard_text\": \"https://example.com/caf\\u00e9\"}, \"expected\": \"url\", \"oracle\": \"reference\"}, {\"id\": \"t20\", \"input\": {\"clipboard_text\": \"1234567890\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t21\", \"input\": {\"clipboard_text\": \"https://example.com:99999/\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t22\", \"input\": {\"clipboard_text\": \"https:example.com\"}, \"expected\": \"not_url\", \"oracle\": \"reference\"}, {\"id\": \"t23\", \"input\": {\"clipboard_text\": \"https://user:pass@example.com/\"}, \"expected\": \"url\", \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:08:07.602Z",
+      "latencyMs": 257.197
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "clipboard_text": "https://example.com"
+          },
+          "expected": "url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "clipboard_text": "http://example.com/path?q=1"
+          },
+          "expected": "url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "clipboard_text": "HTTPS://EXAMPLE.COM"
+          },
+          "expected": "url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "clipboard_text": "https://127.0.0.1:8080/x"
+          },
+          "expected": "url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "clipboard_text": "http://localhost:8000/"
+          },
+          "expected": "url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "clipboard_text": "ftp://example.com/file"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "clipboard_text": "example.com"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "clipboard_text": "www.example.com/page"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "clipboard_text": ""
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "clipboard_text": "   "
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "clipboard_text": "not a url"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "clipboard_text": "https://"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "clipboard_text": "https://exa mple.com"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "clipboard_text": "https://example.com\nhttps://b.example.org"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "clipboard_text": "javascript:alert(1)"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "clipboard_text": "mailto:a@example.com"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "clipboard_text": "file:///C:/Windows/win.ini"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "clipboard_text": "https://example.com/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/p/"
+          },
+          "expected": "url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "clipboard_text": "https://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"
+          },
+          "expected": "url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t19",
+          "input": {
+            "clipboard_text": "https://example.com/café"
+          },
+          "expected": "url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t20",
+          "input": {
+            "clipboard_text": "1234567890"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t21",
+          "input": {
+            "clipboard_text": "https://example.com:99999/"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t22",
+          "input": {
+            "clipboard_text": "https:example.com"
+          },
+          "expected": "not_url",
+          "oracle": "reference"
+        },
+        {
+          "id": "t23",
+          "input": {
+            "clipboard_text": "https://user:pass@example.com/"
+          },
+          "expected": "url",
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "dcea426459b1a17a38f09947a421077fbf156c2ffc80281d713d89cad6b6310f"
+  },
+  "contractAudit": {
+    "key": "0f243c7063a052d7bb66",
+    "costUsd": 0.0023817,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "The plan has no C1 checks, so validity rests on the execution alone.",
+        "The stated oracle_basis treats any absolute http/https URL with a host as a URL, but the reference additionally requires the host to contain a dot or be 'localhost'. This is an unrequested restriction and a reference/oracle conflict: a single-label host such as 'http://intranet/' is 'url' under the oracle but 'not_url' under the reference.",
+        "The listed inputs do not exercise the single-label-host case, so the observed expectations agree with the reference; the mismatch is in the contract text and the reference, not in a tested example.",
+        "The remaining reference behavior matches the oracle on all listed cases: scheme and host checks, whitespace rejection, the port range via ValueError, and urlsplit handling of 'https:example.com' and 'https://'.",
+        "The validator correctly accepts only a dict with exactly the key 'clipboard_text', a string, and length at most 5000, and rejects the null, empty, list, int, bool and string probes. The generated inputs all satisfy it.",
+        "Because the reference does not implement the stated oracle, execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "executionAbstention": "invalid_contract_or_reference",
+  "status": "evaluated",
+  "priorCallKeys": [
+    "0f243c7063a052d7bb66"
+  ],
+  "callKeys": [
+    "0f243c7063a052d7bb66"
+  ]
+}

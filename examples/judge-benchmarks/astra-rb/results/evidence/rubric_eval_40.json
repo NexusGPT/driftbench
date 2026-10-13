@@ -1,0 +1,106 @@
+{
+  "id": "rubric_eval_40",
+  "planKey": "fe67f6a985565b185fb2",
+  "at": "2026-10-13T04:01:14.200Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "no_html_tags",
+      "source_quote": "Don't include HTML or '<br/>' for formatting",
+      "a": true,
+      "b": true,
+      "programHash": "70df695dee8bde781fc3878f4bb4cc09e293406937959f075dd486981d82935f"
+    },
+    {
+      "index": 1,
+      "name": "dimensions_literal_1080x1080",
+      "source_quote": "Include details on dimensions: 1080x1080 and has 3 image variations.",
+      "a": true,
+      "b": true,
+      "programHash": "b7c6cdec418817b6a227a39ba74c55626e6f376db3553c6620dfdf93824da556"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-cPv0Td",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:45.809Z",
+      "latencyMs": 157.27
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "624be1a957a8edd467d5e7c9fb2d33557380f14971335de56d0001d32cb12961"
+  },
+  "contractAudit": {
+    "key": "383baf76d47f6348c871",
+    "costUsd": 0.0010639,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (no_html_tags) implements the literal instruction 'Don't include HTML or <br/>'. Its source_quote is grounded in the question, the regex flags tag-like markup, and the positive and negative fixtures are correct.",
+        "Check 1 (dimensions_literal_1080x1080) implements the literal dimension requirement '1080x1080'. Its source_quote is grounded, and the positive fixture contains the literal while the negative fixture ('1080 x 1080') correctly fails. It covers only the dimension part of the instruction, not the '3 image variations' part.",
+        "Execution is null (no reference implementation or oracle outputs), so execution_valid is false.",
+        "Validity rests on the two valid C1 checks. Rubric items for keywords/SEO, prose description, full commercial and resale rights, and the closing platform list have no checks, which is a coverage gap but not an invalidating error.",
+        "No supplied examples or inputs exist to conflict with the checks, and the checks handle empty text without error."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-8rFXBC",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"no_html_tags\", \"source_quote\": \"Don't include HTML or '<br/>' for formatting\", \"a\": true, \"b\": true}, {\"index\": 1, \"name\": \"dimensions_literal_1080x1080\", \"source_quote\": \"Include details on dimensions: 1080x1080 and has 3 image variations.\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:01:23.427Z",
+      "latencyMs": 142.24
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "no_html_tags",
+          "source_quote": "Don't include HTML or '<br/>' for formatting",
+          "a": true,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "dimensions_literal_1080x1080",
+          "source_quote": "Include details on dimensions: 1080x1080 and has 3 image variations.",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "383baf76d47f6348c871"
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "id": "rubric_eval_315",
+  "protocolVersion": 4,
+  "planKey": "8c98335222df258fc208",
+  "questionPlanKey": "de3dfca4f43403e6269a",
+  "at": "2026-10-13T04:27:37.112Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-Gru1DG",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [{\"id\": \"t0\", \"input\": {\"start\": \"2026-03-05T09:07\", \"end\": \"2026-03-09T23:59\"}, \"expected\": {\"Start\": \"03/05/2026 09:07\", \"End\": \"03/09/2026 23:59\"}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"start\": \"2026-01-01T00:00\", \"end\": \"2026-12-31T23:59\"}, \"expected\": {\"Start\": \"01/01/2026 00:00\", \"End\": \"12/31/2026 23:59\"}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"start\": \"2028-02-29T12:30\", \"end\": \"2028-03-01T00:00\"}, \"expected\": {\"Start\": \"02/29/2028 12:30\", \"End\": \"03/01/2028 00:00\"}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"start\": \"2026-07-04T15:45\", \"end\": \"2026-07-04T15:45\"}, \"expected\": {\"Start\": \"07/04/2026 15:45\", \"End\": \"07/04/2026 15:45\"}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"start\": \"2025-12-31T23:30\", \"end\": \"2026-01-01T00:15\"}, \"expected\": {\"Start\": \"12/31/2025 23:30\", \"End\": \"01/01/2026 00:15\"}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"start\": \"1999-10-10T10:10\", \"end\": \"2000-01-02T03:04\"}, \"expected\": {\"Start\": \"10/10/1999 10:10\", \"End\": \"01/02/2000 03:04\"}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"start\": \"2026-11-01T08:00\", \"end\": \"2026-11-30T17:00\"}, \"expected\": {\"Start\": \"11/01/2026 08:00\", \"End\": \"11/30/2026 17:00\"}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:11:17.038Z",
+      "latencyMs": 206.916
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "start": "2026-03-05T09:07",
+            "end": "2026-03-09T23:59"
+          },
+          "expected": {
+            "Start": "03/05/2026 09:07",
+            "End": "03/09/2026 23:59"
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "start": "2026-01-01T00:00",
+            "end": "2026-12-31T23:59"
+          },
+          "expected": {
+            "Start": "01/01/2026 00:00",
+            "End": "12/31/2026 23:59"
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "start": "2028-02-29T12:30",
+            "end": "2028-03-01T00:00"
+          },
+          "expected": {
+            "Start": "02/29/2028 12:30",
+            "End": "03/01/2028 00:00"
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "start": "2026-07-04T15:45",
+            "end": "2026-07-04T15:45"
+          },
+          "expected": {
+            "Start": "07/04/2026 15:45",
+            "End": "07/04/2026 15:45"
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "start": "2025-12-31T23:30",
+            "end": "2026-01-01T00:15"
+          },
+          "expected": {
+            "Start": "12/31/2025 23:30",
+            "End": "01/01/2026 00:15"
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "start": "1999-10-10T10:10",
+            "end": "2000-01-02T03:04"
+          },
+          "expected": {
+            "Start": "10/10/1999 10:10",
+            "End": "01/02/2000 03:04"
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "start": "2026-11-01T08:00",
+            "end": "2026-11-30T17:00"
+          },
+          "expected": {
+            "Start": "11/01/2026 08:00",
+            "End": "11/30/2026 17:00"
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "212d875edb3216402ea2367a8c13f2e5ff131f501444026db946a5182a595a1f"
+  },
+  "contractAudit": {
+    "key": "835c6cd1757888c40b7b",
+    "costUsd": 0.00177682,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "C1 checks 0 and 1 are regex proxies for HTML attribute semantics. The pattern `\\bid\\s*=\\s*\\W?Start\\b` over `<input>` tag text misreads valid HTML, such as `data-id=\"Start\"` (the \\b matches after the hyphen) and `id=\"Start-date\"`. The rubric rejects regex proxies for HTML semantics, so neither check is a valid fixture-backed check.",
+        "The execution contract depends on 'moment2', which is not a verified local runtime (only moment is listed for Node). The candidate's behavior therefore runs against an unsupported runtime claim.",
+        "The reference correctly implements the MM/DD/YYYY HH:mm formatting, the generator and validator are consistent, and the validator probes reject null, {}, [], 1, true and malformed strings. These parts are sound, but they do not rescue the execution because of the unsupported runtime. Inputs t0 and t7 are duplicates, which is harmless but redundant.",
+        "No examples are supplied, so there is no reference/example conflict."
+      ],
+      "invalid_checks": [
+        0,
+        1
+      ],
+      "execution_valid": false
+    }
+  },
+  "executionAbstention": "invalid_contract_or_reference",
+  "status": "evaluated",
+  "priorCallKeys": [
+    "835c6cd1757888c40b7b"
+  ],
+  "callKeys": [
+    "835c6cd1757888c40b7b"
+  ]
+}

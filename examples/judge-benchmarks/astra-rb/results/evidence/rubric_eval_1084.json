@@ -1,0 +1,1997 @@
+{
+  "id": "rubric_eval_1084",
+  "protocolVersion": 4,
+  "planKey": "efdf66d1045105fb1c95",
+  "questionPlanKey": "1f3687df7a7c5ba8d99a",
+  "at": "2026-10-13T04:26:00.392Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "unsupported_candidate",
+      "side": "b",
+      "adapter": {
+        "key": "52b7e94df393a3f1c7ed",
+        "costUsd": 0.00130706,
+        "value": {
+          "runnable": false,
+          "reason": "The candidate snippet (block 0) is an elided skeleton. Its handler bodies and JSX return value are replaced by '// ...' placeholders, so it is not a complete implementation. The full FoodList source appears only in the question text, not in a fenced snippet that can be saved verbatim. Writing a harness would require recreating the component from prose, which is not permitted. A complete, verbatim FoodList source block is needed to build the harness.",
+          "command": "",
+          "files": {},
+          "uses": [],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    },
+    {
+      "status": "no_executable_snippet",
+      "side": "a",
+      "retainedObservation": true
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-X6voKu",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"actions\": []}, \"expected\": {\"formVisible\": false, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"actions\": [{\"type\": \"open\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"save\"}]}, \"expected\": {\"formVisible\": false, \"foods\": [{\"itemName\": \"Ramen\", \"foodType\": \"Non-veg\", \"spicinessLevel\": \"Hot\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"save\"}]}, \"expected\": {\"formVisible\": false, \"foods\": [{\"itemName\": \"\", \"foodType\": \"\", \"spicinessLevel\": \"\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"save\"}]}, \"expected\": {\"formVisible\": false, \"foods\": [{\"itemName\": \"Dal\", \"foodType\": \"\", \"spicinessLevel\": \"\"}, {\"itemName\": \"\", \"foodType\": \"\", \"spicinessLevel\": \"\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}]}, \"expected\": {\"formVisible\": false, \"foods\": [{\"itemName\": \"Tacos\", \"foodType\": \"Veg\", \"spicinessLevel\": \"Mild\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_spice\", \"value\": \"Medium\"}, {\"type\": \"save\"}]}, \"expected\": {\"formVisible\": false, \"foods\": [{\"itemName\": \"Dal\", \"foodType\": \"Veg\", \"spicinessLevel\": \"Medium\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"A\"}, {\"type\": \"set_name\", \"value\": \"B\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"save\"}]}, \"expected\": {\"formVisible\": false, \"foods\": [{\"itemName\": \"B\", \"foodType\": \"Veg\", \"spicinessLevel\": \"\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Salad\"}, {\"type\": \"set_type\", \"value\": \"Vegan\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}]}, \"expected\": {\"formVisible\": false, \"foods\": [{\"itemName\": \"Salad\", \"foodType\": \"Vegan\", \"spicinessLevel\": \"Mild\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"set_type\", \"value\": \"Vegan\"}, {\"type\": \"set_type\", \"value\": \"Vegan\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Vegan\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}]}, \"expected\": {\"formVisible\": true, \"foods\": [{\"itemName\": \"\", \"foodType\": \"\", \"spicinessLevel\": \"\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Paneer Tikka\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Vegan\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"set_type\", \"value\": \"Vegan\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"set_type\", \"value\": \"Vegan\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"set_type\", \"value\": \"Vegan\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}]}, \"expected\": {\"formVisible\": true, \"foods\": [{\"itemName\": \"Dal\", \"foodType\": \"Non-veg\", \"spicinessLevel\": \"\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"set_type\", \"value\": \"\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Medium\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_spice\", \"value\": \"Medium\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"set_spice\", \"value\": \"\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}]}, \"expected\": {\"formVisible\": false, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Medium\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}]}, \"expected\": {\"formVisible\": true, \"foods\": [{\"itemName\": \"\", \"foodType\": \"\", \"spicinessLevel\": \"Medium\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t19\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Paneer Tikka\"}, {\"type\": \"set_spice\", \"value\": \"Medium\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"set_name\", \"value\": \"Paneer Tikka\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Paneer Tikka\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"delete\", \"index\": 1}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t20\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_name\", \"value\": \"Salad\"}, {\"type\": \"save\"}]}, \"expected\": {\"formVisible\": false, \"foods\": [{\"itemName\": \"Salad\", \"foodType\": \"\", \"spicinessLevel\": \"\"}]}, \"oracle\": \"reference\"}, {\"id\": \"t21\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Medium\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Vegan\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t22\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Salad\"}, {\"type\": \"set_spice\", \"value\": \"Medium\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}]}, \"expected\": {\"formVisible\": true, \"foods\": []}, \"oracle\": \"reference\"}, {\"id\": \"t23\", \"input\": {\"actions\": [{\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Salad\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 2}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 4}, {\"type\": \"delete\", \"index\": 2}, {\"type\": \"delete\", \"index\": 2}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 1}, {\"type\": \"delete\", \"index\": 1}, {\"type\": \"delete\", \"index\": 1}, {\"type\": \"open\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 1}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_spice\", \"value\": \"Hot\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"set_name\", \"value\": \"Paneer Tikka\"}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Salad\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Salad\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_type\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"set_name\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_name\", \"value\": \"Paneer Tikka\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_name\", \"value\": \"Salad\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_name\", \"value\": \"Salad\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"open\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"set_spice\", \"value\": \"Medium\"}, {\"type\": \"delete\", \"index\": 1}, {\"type\": \"set_type\", \"value\": \"Vegan\"}, {\"type\": \"set_spice\", \"value\": \"Mild\"}, {\"type\": \"open\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_spice\", \"value\": \"Extra Hot\"}, {\"type\": \"set_type\", \"value\": \"Veg\"}, {\"type\": \"set_name\", \"value\": \"Ramen\"}, {\"type\": \"delete\", \"index\": 1}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"set_spice\", \"value\": \"Medium\"}, {\"type\": \"save\"}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"set_type\", \"value\": \"Non-veg\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Dal\"}, {\"type\": \"save\"}, {\"type\": \"delete\", \"index\": 0}, {\"type\": \"open\"}, {\"type\": \"set_name\", \"value\": \"Salad\"}, {\"type\": \"set_name\", \"value\": \"Tacos\"}, {\"type\": \"save\"}]}, \"expected\": {\"formVisible\": false, \"foods\": [{\"itemName\": \"Tacos\", \"foodType\": \"\", \"spicinessLevel\": \"\"}]}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:08:07.678Z",
+      "latencyMs": 598.034
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "actions": []
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "save"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": [
+              {
+                "itemName": "Ramen",
+                "foodType": "Non-veg",
+                "spicinessLevel": "Hot"
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": [
+              {
+                "itemName": "",
+                "foodType": "",
+                "spicinessLevel": ""
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": [
+              {
+                "itemName": "Dal",
+                "foodType": "",
+                "spicinessLevel": ""
+              },
+              {
+                "itemName": "",
+                "foodType": "",
+                "spicinessLevel": ""
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": [
+              {
+                "itemName": "Tacos",
+                "foodType": "Veg",
+                "spicinessLevel": "Mild"
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Medium"
+              },
+              {
+                "type": "save"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": [
+              {
+                "itemName": "Dal",
+                "foodType": "Veg",
+                "spicinessLevel": "Medium"
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "A"
+              },
+              {
+                "type": "set_name",
+                "value": "B"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "save"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": [
+              {
+                "itemName": "B",
+                "foodType": "Veg",
+                "spicinessLevel": ""
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Salad"
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": [
+              {
+                "itemName": "Salad",
+                "foodType": "Vegan",
+                "spicinessLevel": "Mild"
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": [
+              {
+                "itemName": "",
+                "foodType": "",
+                "spicinessLevel": ""
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Paneer Tikka"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": [
+              {
+                "itemName": "Dal",
+                "foodType": "Non-veg",
+                "spicinessLevel": ""
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Medium"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Medium"
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Medium"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": [
+              {
+                "itemName": "",
+                "foodType": "",
+                "spicinessLevel": "Medium"
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t19",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Paneer Tikka"
+              },
+              {
+                "type": "set_spice",
+                "value": "Medium"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "set_name",
+                "value": "Paneer Tikka"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Paneer Tikka"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "delete",
+                "index": 1
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t20",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_name",
+                "value": "Salad"
+              },
+              {
+                "type": "save"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": [
+              {
+                "itemName": "Salad",
+                "foodType": "",
+                "spicinessLevel": ""
+              }
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t21",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Medium"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t22",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Salad"
+              },
+              {
+                "type": "set_spice",
+                "value": "Medium"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": true,
+            "foods": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t23",
+          "input": {
+            "actions": [
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Salad"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 2
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 4
+              },
+              {
+                "type": "delete",
+                "index": 2
+              },
+              {
+                "type": "delete",
+                "index": 2
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 1
+              },
+              {
+                "type": "delete",
+                "index": 1
+              },
+              {
+                "type": "delete",
+                "index": 1
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 1
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_spice",
+                "value": "Hot"
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "set_name",
+                "value": "Paneer Tikka"
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Salad"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Salad"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_type",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "set_name",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_name",
+                "value": "Paneer Tikka"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_name",
+                "value": "Salad"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": ""
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_name",
+                "value": "Salad"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "set_spice",
+                "value": "Medium"
+              },
+              {
+                "type": "delete",
+                "index": 1
+              },
+              {
+                "type": "set_type",
+                "value": "Vegan"
+              },
+              {
+                "type": "set_spice",
+                "value": "Mild"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_spice",
+                "value": "Extra Hot"
+              },
+              {
+                "type": "set_type",
+                "value": "Veg"
+              },
+              {
+                "type": "set_name",
+                "value": "Ramen"
+              },
+              {
+                "type": "delete",
+                "index": 1
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "set_spice",
+                "value": "Medium"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "set_type",
+                "value": "Non-veg"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Dal"
+              },
+              {
+                "type": "save"
+              },
+              {
+                "type": "delete",
+                "index": 0
+              },
+              {
+                "type": "open"
+              },
+              {
+                "type": "set_name",
+                "value": "Salad"
+              },
+              {
+                "type": "set_name",
+                "value": "Tacos"
+              },
+              {
+                "type": "save"
+              }
+            ]
+          },
+          "expected": {
+            "formVisible": false,
+            "foods": [
+              {
+                "itemName": "Tacos",
+                "foodType": "",
+                "spicinessLevel": ""
+              }
+            ]
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "f87f5d8efb8609c27958af81efa449a24b80e6fe041ea3e4664c918aaf852f59"
+  },
+  "contractAudit": {
+    "key": "4f6465e05b7115a2a87e",
+    "costUsd": 0.00451502,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "No C1 checks are supplied (plan.checks and observed.checks are empty), so validity rests on the execution contract.",
+        "The validator accepts only well-formed action sequences: fields are set only while open, saves require an open form, and delete indices are within the current row count. The validator probes (null, {}, [], 1, true, 'malformed') are all rejected.",
+        "The reference matches the validator's model. Saves append the current fields even when empty, clear the fields, and close the form. Deletes remove the row at the given index. Repeated opens are idempotent and do not clear fields, which matches the React state logic.",
+        "Hand-tracing several expected outputs (t2, t3, t13, t17) against the reference semantics gives the stated results.",
+        "The generator is deterministic (fixed seeds), has no external dependencies, and produces 24 cases, including the empty sequence, duplicate opens, empty-string values, and a 150-action random sequence.",
+        "Caveat: the pasted JSX has its inputs and buttons stripped to text, so the 'Add Food' control is not visibly wired to handleAddFood. The Spiciness Level control may also be a select that cannot take the '' value. These are adapter wiring concerns, not reference errors, and the reference's observable semantics are self-consistent."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "4f6465e05b7115a2a87e",
+    "7cef937b921ecfb6ae7d"
+  ],
+  "callKeys": [
+    "4f6465e05b7115a2a87e",
+    "52b7e94df393a3f1c7ed",
+    "7cef937b921ecfb6ae7d"
+  ]
+}

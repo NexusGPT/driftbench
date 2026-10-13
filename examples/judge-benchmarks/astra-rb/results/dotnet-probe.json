@@ -1,0 +1,14 @@
+{
+  "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-lc5Ur1",
+  "record": {
+    "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 probe.py 2>&1'",
+    "exitCode": 0,
+    "stdout": " \n{\"probe\":123}\n \n",
+    "stderr": "",
+    "startedAt": "2026-10-13T04:24:39.935Z",
+    "latencyMs": 3424.987
+  },
+  "output": {
+    "probe": 123
+  }
+}

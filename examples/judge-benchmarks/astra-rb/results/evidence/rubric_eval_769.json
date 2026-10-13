@@ -1,0 +1,55 @@
+{
+  "id": "rubric_eval_769",
+  "planKey": "e7c0137be1e08277ee92",
+  "at": "2026-10-13T04:05:26.850Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-32tPPB",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:46.955Z",
+      "latencyMs": 341.242
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "5608d7e2da9b4c1a104ec64d3d1811d16990a835201fea77ca649668491c0998"
+  },
+  "contractAudit": {
+    "key": "912c8d27aaecda093aca",
+    "costUsd": 0.0010079,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "execution is null, so execution_valid is false",
+        "check 0 tests only for the presence of the substring \"```python\"; it does not verify that the code is enclosed in a closed fenced block, which the source quote requires",
+        "the positive fixture \"```python\\nimport spacy\\nprint(spacy.__version__)\\n```\" is not an unclosed-fence case, but the check would also pass a text with an opening \"```python\" and no closing fence, so it does not implement 'enclosed'",
+        "the negative fixture (plain \"```\" fence) correctly returns false, and the observed outputs agree with the fixtures"
+      ],
+      "invalid_checks": [
+        0
+      ],
+      "execution_valid": false
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "912c8d27aaecda093aca"
+  ]
+}

@@ -1,0 +1,493 @@
+{
+  "id": "rubric_eval_1099",
+  "protocolVersion": 4,
+  "planKey": "bcaddbddf6bb7b3e40f7",
+  "questionPlanKey": "9a500a086337c644ef79",
+  "at": "2026-10-13T04:26:00.460Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "unsupported_candidate",
+      "side": "a",
+      "adapter": {
+        "key": "ae565822d8a4cefaa6c7",
+        "costUsd": 0.00229166,
+        "value": {
+          "runnable": false,
+          "reason": "The input contract names ten fixed snippet ids taken from the course material, but no supplied block contains the exact source for them. Block 0 is a rewritten example, not the material's snippets. It has no zip_dict_after_list case (dict(mapping) after mapping has been consumed by list(mapping)), and it does not match the material's literal statements for the other ids. Writing the snippet bodies into the harness would mean authoring the code under test rather than executing supplied candidate code, so the harness cannot be built faithfully from the provided snippets.",
+          "command": "",
+          "files": {},
+          "uses": [],
+          "extraction": []
+        }
+      },
+      "attempt": 1
+    },
+    {
+      "status": "unsupported_candidate",
+      "side": "b",
+      "adapter": {
+        "key": "253f1b8c92b27109a7cd",
+        "costUsd": 0.0016442599999999998,
+        "value": {
+          "runnable": false,
+          "reason": "No applicable candidate code for the contract. The contract's snippet ids (zip_list, zip_dict_after_list, zip_dict_direct, fromkeys_none, fromkeys_value, get_missing, get_missing_keyword_default, subscript_missing, get_existing, subscript_existing) name snippets from the course material, not from the candidate. The candidate's two fenced blocks are only its activity solutions. Block 0 covers zip-to-dict and reverse zip, and block 1 covers get/subscript on a fixed dict. Neither block contains the fromkeys snippets, the list-then-dict zip case, or the subscript KeyError case. Building those snippets would mean authoring new code from the prose, which the harness rules do not allow. The candidate's prose review is also not an executable candidate.",
+          "command": "",
+          "files": {},
+          "uses": [],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-ZwsvfF",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"snippet\": \"zip_list\"}, \"expected\": {\"status\": \"ok\", \"value\": [[1, \"python\"], [2, \"wiley\"], [3, \"dictionaries\"]]}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"snippet\": \"zip_dict_after_list\"}, \"expected\": {\"status\": \"ok\", \"value\": {\"items\": []}}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"snippet\": \"zip_dict_direct\"}, \"expected\": {\"status\": \"ok\", \"value\": {\"items\": [[1, \"python\"], [2, \"wiley\"], [3, \"dictionaries\"]]}}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"snippet\": \"fromkeys_none\"}, \"expected\": {\"status\": \"ok\", \"value\": {\"items\": [[\"age\", null], [\"date\", null]]}}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"snippet\": \"fromkeys_value\"}, \"expected\": {\"status\": \"ok\", \"value\": {\"items\": [[\"age\", 0], [\"date\", 0]]}}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"snippet\": \"get_missing\"}, \"expected\": {\"status\": \"ok\", \"value\": null}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"snippet\": \"get_missing_keyword_default\"}, \"expected\": {\"status\": \"exception\", \"type\": \"TypeError\"}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"snippet\": \"subscript_missing\"}, \"expected\": {\"status\": \"exception\", \"type\": \"KeyError\"}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"snippet\": \"get_existing\"}, \"expected\": {\"status\": \"ok\", \"value\": \"value2\"}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"snippet\": \"subscript_existing\"}, \"expected\": {\"status\": \"ok\", \"value\": \"value1\"}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [{\"input\": {\"snippet\": \"zip_list\"}, \"expected\": {\"status\": \"ok\", \"value\": [[1, \"python\"], [2, \"wiley\"], [3, \"dictionaries\"]]}, \"actual\": {\"status\": \"ok\", \"value\": [[1, \"python\"], [2, \"wiley\"], [3, \"dictionaries\"]]}, \"pass\": true}, {\"input\": {\"snippet\": \"zip_dict_direct\"}, \"expected\": {\"status\": \"ok\", \"value\": {\"items\": [[1, \"python\"], [2, \"wiley\"], [3, \"dictionaries\"]]}}, \"actual\": {\"status\": \"ok\", \"value\": {\"items\": [[1, \"python\"], [2, \"wiley\"], [3, \"dictionaries\"]]}}, \"pass\": true}, {\"input\": {\"snippet\": \"fromkeys_none\"}, \"expected\": {\"status\": \"ok\", \"value\": {\"items\": [[\"age\", null], [\"date\", null]]}}, \"actual\": {\"status\": \"ok\", \"value\": {\"items\": [[\"age\", null], [\"date\", null]]}}, \"pass\": true}, {\"input\": {\"snippet\": \"fromkeys_value\"}, \"expected\": {\"status\": \"ok\", \"value\": {\"items\": [[\"age\", 0], [\"date\", 0]]}}, \"actual\": {\"status\": \"ok\", \"value\": {\"items\": [[\"age\", 0], [\"date\", 0]]}}, \"pass\": true}, {\"input\": {\"snippet\": \"get_missing\"}, \"expected\": {\"status\": \"ok\", \"value\": null}, \"actual\": {\"status\": \"ok\", \"value\": null}, \"pass\": true}, {\"input\": {\"snippet\": \"get_existing\"}, \"expected\": {\"status\": \"ok\", \"value\": \"value2\"}, \"actual\": {\"status\": \"ok\", \"value\": \"value2\"}, \"pass\": true}, {\"input\": {\"snippet\": \"subscript_existing\"}, \"expected\": {\"status\": \"ok\", \"value\": \"value1\"}, \"actual\": {\"status\": \"ok\", \"value\": \"value1\"}, \"pass\": true}, {\"input\": {\"snippet\": \"subscript_missing\"}, \"expected\": {\"status\": \"exception\", \"type\": \"KeyError\"}, \"actual\": {\"status\": \"exception\", \"type\": \"KeyError\"}, \"pass\": true}], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:08:08.290Z",
+      "latencyMs": 350.846
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "snippet": "zip_list"
+          },
+          "expected": {
+            "status": "ok",
+            "value": [
+              [
+                1,
+                "python"
+              ],
+              [
+                2,
+                "wiley"
+              ],
+              [
+                3,
+                "dictionaries"
+              ]
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "snippet": "zip_dict_after_list"
+          },
+          "expected": {
+            "status": "ok",
+            "value": {
+              "items": []
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "snippet": "zip_dict_direct"
+          },
+          "expected": {
+            "status": "ok",
+            "value": {
+              "items": [
+                [
+                  1,
+                  "python"
+                ],
+                [
+                  2,
+                  "wiley"
+                ],
+                [
+                  3,
+                  "dictionaries"
+                ]
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "snippet": "fromkeys_none"
+          },
+          "expected": {
+            "status": "ok",
+            "value": {
+              "items": [
+                [
+                  "age",
+                  null
+                ],
+                [
+                  "date",
+                  null
+                ]
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "snippet": "fromkeys_value"
+          },
+          "expected": {
+            "status": "ok",
+            "value": {
+              "items": [
+                [
+                  "age",
+                  0
+                ],
+                [
+                  "date",
+                  0
+                ]
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "snippet": "get_missing"
+          },
+          "expected": {
+            "status": "ok",
+            "value": null
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "snippet": "get_missing_keyword_default"
+          },
+          "expected": {
+            "status": "exception",
+            "type": "TypeError"
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "snippet": "subscript_missing"
+          },
+          "expected": {
+            "status": "exception",
+            "type": "KeyError"
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "snippet": "get_existing"
+          },
+          "expected": {
+            "status": "ok",
+            "value": "value2"
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "snippet": "subscript_existing"
+          },
+          "expected": {
+            "status": "ok",
+            "value": "value1"
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [
+        {
+          "input": {
+            "snippet": "zip_list"
+          },
+          "expected": {
+            "status": "ok",
+            "value": [
+              [
+                1,
+                "python"
+              ],
+              [
+                2,
+                "wiley"
+              ],
+              [
+                3,
+                "dictionaries"
+              ]
+            ]
+          },
+          "actual": {
+            "status": "ok",
+            "value": [
+              [
+                1,
+                "python"
+              ],
+              [
+                2,
+                "wiley"
+              ],
+              [
+                3,
+                "dictionaries"
+              ]
+            ]
+          },
+          "pass": true
+        },
+        {
+          "input": {
+            "snippet": "zip_dict_direct"
+          },
+          "expected": {
+            "status": "ok",
+            "value": {
+              "items": [
+                [
+                  1,
+                  "python"
+                ],
+                [
+                  2,
+                  "wiley"
+                ],
+                [
+                  3,
+                  "dictionaries"
+                ]
+              ]
+            }
+          },
+          "actual": {
+            "status": "ok",
+            "value": {
+              "items": [
+                [
+                  1,
+                  "python"
+                ],
+                [
+                  2,
+                  "wiley"
+                ],
+                [
+                  3,
+                  "dictionaries"
+                ]
+              ]
+            }
+          },
+          "pass": true
+        },
+        {
+          "input": {
+            "snippet": "fromkeys_none"
+          },
+          "expected": {
+            "status": "ok",
+            "value": {
+              "items": [
+                [
+                  "age",
+                  null
+                ],
+                [
+                  "date",
+                  null
+                ]
+              ]
+            }
+          },
+          "actual": {
+            "status": "ok",
+            "value": {
+              "items": [
+                [
+                  "age",
+                  null
+                ],
+                [
+                  "date",
+                  null
+                ]
+              ]
+            }
+          },
+          "pass": true
+        },
+        {
+          "input": {
+            "snippet": "fromkeys_value"
+          },
+          "expected": {
+            "status": "ok",
+            "value": {
+              "items": [
+                [
+                  "age",
+                  0
+                ],
+                [
+                  "date",
+                  0
+                ]
+              ]
+            }
+          },
+          "actual": {
+            "status": "ok",
+            "value": {
+              "items": [
+                [
+                  "age",
+                  0
+                ],
+                [
+                  "date",
+                  0
+                ]
+              ]
+            }
+          },
+          "pass": true
+        },
+        {
+          "input": {
+            "snippet": "get_missing"
+          },
+          "expected": {
+            "status": "ok",
+            "value": null
+          },
+          "actual": {
+            "status": "ok",
+            "value": null
+          },
+          "pass": true
+        },
+        {
+          "input": {
+            "snippet": "get_existing"
+          },
+          "expected": {
+            "status": "ok",
+            "value": "value2"
+          },
+          "actual": {
+            "status": "ok",
+            "value": "value2"
+          },
+          "pass": true
+        },
+        {
+          "input": {
+            "snippet": "subscript_existing"
+          },
+          "expected": {
+            "status": "ok",
+            "value": "value1"
+          },
+          "actual": {
+            "status": "ok",
+            "value": "value1"
+          },
+          "pass": true
+        },
+        {
+          "input": {
+            "snippet": "subscript_missing"
+          },
+          "expected": {
+            "status": "exception",
+            "type": "KeyError"
+          },
+          "actual": {
+            "status": "exception",
+            "type": "KeyError"
+          },
+          "pass": true
+        }
+      ],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "7677fcfa4f01b51759cb1fe1b7632953b8da528c4bb1d1068cc3c92db6bbdb3b"
+  },
+  "contractAudit": {
+    "key": "af6bd3e2b2d9978af59d",
+    "costUsd": 0.0017028999999999998,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "No C1 checks are defined, so validity rests on execution.",
+        "The reference implements the stated snippet semantics under Python 3: zip is consumed by list() so dict(m) is empty, dict.get rejects keyword 'default' with TypeError, and subscript raises KeyError.",
+        "The supplied examples agree with the reference outputs.",
+        "The validator accepts only the ten declared snippet ids with exactly the 'snippet' key, and rejects null, {}, [], 1, true, and a string probe.",
+        "The generator covers all ten declared ids, and the observable format is deterministic and local with no external behavior."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "af6bd3e2b2d9978af59d",
+    "e6eb2c179bda7587dc6f",
+    "63b233871b0dd1f1e5ed"
+  ],
+  "callKeys": [
+    "af6bd3e2b2d9978af59d",
+    "a9eac87ebfa1e8bbd275",
+    "ae565822d8a4cefaa6c7",
+    "253f1b8c92b27109a7cd"
+  ]
+}

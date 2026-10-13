@@ -1,0 +1,1141 @@
+{
+  "id": "rubric_eval_506",
+  "protocolVersion": 4,
+  "planKey": "98d587477b2eba791353",
+  "questionPlanKey": "c1ceb4149eacaebd5de9",
+  "at": "2026-10-13T04:28:56.046Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "4d274e74e9e18a1ae84a",
+        "costUsd": 0.00623156,
+        "value": {
+          "runnable": true,
+          "reason": "Block 0 is a complete static method, but it cannot compile at top level in C#. The harness extracts that exact method with literal anchors, places it verbatim inside a wrapper class, and adds a driver that reads inputs.json and calls CompareVersions(a, b) on every case. Nothing has been executed. Overflowing components are not clamped or repaired; any exception the candidate throws is reported per case as an error.",
+          "command": "python3 harness.py",
+          "files": {
+            "harness.py": "import glob\nimport json\nimport os\nimport subprocess\nimport sys\n\nSTART = 'public static int CompareVersions(string version1, string version2)'\nEND = 'return ver1.CompareTo(ver2);\\n}'\n\nDRIVER = r'''using System;\nusing System.Collections.Generic;\nusing System.IO;\nusing System.Text.Json;\n\npublic static class CandidateHost\n{\n@@FN@@\n}\n\npublic static class Driver\n{\n    public static int Main(string[] args)\n    {\n        var results = new List<Dictionary<string, object>>();\n        try\n        {\n            string json = File.ReadAllText(\"inputs.json\");\n            using JsonDocument doc = JsonDocument.Parse(json);\n            foreach (JsonElement item in doc.RootElement.EnumerateArray())\n            {\n                var r = new Dictionary<string, object>();\n                r[\"id\"] = item.GetProperty(\"id\").GetString();\n                JsonElement inp = item.GetProperty(\"input\");\n                string a = inp.GetProperty(\"a\").GetString();\n                string b = inp.GetProperty(\"b\").GetString();\n                TextWriter saved = Console.Out;\n                try\n                {\n                    Console.SetOut(new StringWriter());\n                    int v = CandidateHost.CompareVersions(a, b);\n                    r[\"actual\"] = v;\n                }\n                catch (Exception ex)\n                {\n                    r[\"error\"] = ex.GetType().Name + \": \" + ex.Message;\n                }\n                finally\n                {\n                    Console.SetOut(saved);\n                }\n                results.Add(r);\n            }\n            var outObj = new Dictionary<string, object> { { \"results\", results } };\n            Console.WriteLine(JsonSerializer.Serialize(outObj));\n        }\n        catch (Exception ex)\n        {\n            var outObj = new Dictionary<string, object> { { \"results\", results }, { \"harness_error\", ex.GetType().Name + \": \" + ex.Message } };\n            Console.WriteLine(JsonSerializer.Serialize(outObj));\n        }\n        return 0;\n    }\n}\n'''\n\n\ndef emit(obj):\n    sys.stdout.write(json.dumps(obj) + '\\n')\n\n\ndef fail(msg, detail=''):\n    if detail:\n        msg = msg + ': ' + detail[-400:]\n    emit({'results': [], 'harness_error': msg})\n    sys.exit(0)\n\n\ndef main():\n    here = os.getcwd()\n    try:\n        with open(os.path.join(here, 'block-0.txt'), encoding='utf-8') as fh:\n            src = fh.read()\n    except OSError as exc:\n        fail('cannot read block-0.txt: ' + str(exc))\n    s = src.find(START)\n    e = src.find(END)\n    if s < 0 or e < s:\n        fail('candidate anchors not found in block-0.txt')\n    fn = src[s:e + len(END)]\n    with open(os.path.join(here, 'Driver.cs'), 'w', encoding='utf-8') as fh:\n        fh.write(DRIVER.replace('@@FN@@', fn))\n\n    dotnet_root = os.environ.get('DOTNET_ROOT')\n    if not dotnet_root:\n        fail('DOTNET_ROOT is not set')\n    csc = sorted(glob.glob(os.path.join(dotnet_root, 'sdk', '*', 'Roslyn', 'bincore', 'csc.dll')))\n    if not csc:\n        fail('Roslyn csc.dll not found under DOTNET_ROOT')\n    packs = sorted(glob.glob(os.path.join(dotnet_root, 'packs', 'Microsoft.NETCore.App.Ref', '*')))\n    if not packs:\n        fail('Microsoft.NETCore.App.Ref pack not found')\n    dlls = sorted(glob.glob(os.path.join(packs[-1], 'ref', 'net8.0', '*.dll')))\n    if not dlls:\n        fail('net8.0 reference assemblies not found')\n    with open(os.path.join(here, 'refs.rsp'), 'w', encoding='utf-8') as fh:\n        for d in dlls:\n            fh.write('-r:' + d + '\\n')\n    with open(os.path.join(here, 'Candidate.runtimeconfig.json'), 'w', encoding='utf-8') as fh:\n        json.dump({'runtimeOptions': {'tfm': 'net8.0', 'framework': {'name': 'Microsoft.NETCore.App', 'version': '8.0.0'}}}, fh)\n\n    try:\n        comp = subprocess.run(['dotnet', csc[-1], '-nologo', '-target:exe', '-out:Candidate.dll', '@refs.rsp', 'Driver.cs'], capture_output=True, text=True, timeout=5, cwd=here)\n    except subprocess.TimeoutExpired:\n        fail('compile timed out')\n    if comp.returncode != 0:\n        fail('compile failed', comp.stdout + comp.stderr)\n\n    try:\n        run = subprocess.run(['dotnet', 'Candidate.dll'], capture_output=True, text=True, timeout=5, cwd=here)\n    except subprocess.TimeoutExpired:\n        fail('driver timed out')\n    lines = [ln for ln in run.stdout.splitlines() if ln.strip()]\n    if not lines:\n        fail('driver produced no output', run.stderr)\n    try:\n        obj = json.loads(lines[-1])\n    except ValueError:\n        fail('driver output was not JSON', run.stdout)\n    emit(obj)\n\n\nif __name__ == '__main__':\n    main()\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": [
+            {
+              "block": 0,
+              "start": "public static int CompareVersions(string version1, string version2)",
+              "end": "return ver1.CompareTo(ver2);\n}"
+            }
+          ]
+        }
+      },
+      "audit": {
+        "key": "b150fe9f0e83e168e666",
+        "costUsd": 0.00170419,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "The adapter reads the candidate's block-0 file and extracts the original CompareVersions method verbatim using literal anchors, without rewriting or replacing its body.",
+            "The candidate's only omitted line is `using System;`, which the driver supplies, so this is a permitted standard-import omission.",
+            "The driver calls CompareVersions(a, b) with values taken from inputs.json and records the returned integer as 'actual'. It does not compute expected or actual results itself.",
+            "Exceptions thrown by the candidate, such as Version parse or overflow errors, are caught per case and reported as errors, which preserves them as candidate observations.",
+            "Missing setup is not masked as a candidate error. A compile failure or missing anchors produce a harness_error instead of per-case results.",
+            "The runtime and dependencies are supported: C# on .NET 8, with csc from the Roslyn SDK and net8.0 reference assemblies resolved from DOTNET_ROOT.",
+            "The output is organized as a results array keyed by id, with actual or error per case, which matches the intended observation structure.",
+            "The candidate's System.Version approach may be wrong for some inputs, but that is a candidate defect and does not justify rejecting the adapter."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-G5OwLN",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 harness.py 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\": [{\"id\": \"t0\", \"actual\": 0}, {\"id\": \"t1\", \"actual\": -1}, {\"id\": \"t2\", \"actual\": 1}, {\"id\": \"t3\", \"actual\": 1}, {\"id\": \"t4\", \"actual\": 1}, {\"id\": \"t5\", \"actual\": 1}, {\"id\": \"t6\", \"actual\": 0}, {\"id\": \"t7\", \"actual\": 1}, {\"id\": \"t8\", \"actual\": 1}, {\"id\": \"t9\", \"actual\": 1}, {\"id\": \"t10\", \"actual\": 1}, {\"id\": \"t11\", \"actual\": -1}, {\"id\": \"t12\", \"actual\": -1}, {\"id\": \"t13\", \"actual\": -1}, {\"id\": \"t14\", \"actual\": -1}, {\"id\": \"t15\", \"actual\": -1}, {\"id\": \"t16\", \"actual\": 1}, {\"id\": \"t17\", \"actual\": -1}, {\"id\": \"t18\", \"actual\": -1}, {\"id\": \"t19\", \"actual\": -1}, {\"id\": \"t20\", \"actual\": 1}, {\"id\": \"t21\", \"actual\": -1}, {\"id\": \"t22\", \"actual\": -1}, {\"id\": \"t23\", \"actual\": -1}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:29:58.117Z",
+          "latencyMs": 3818.128
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": 0
+            },
+            {
+              "id": "t1",
+              "actual": -1
+            },
+            {
+              "id": "t2",
+              "actual": 1
+            },
+            {
+              "id": "t3",
+              "actual": 1
+            },
+            {
+              "id": "t4",
+              "actual": 1
+            },
+            {
+              "id": "t5",
+              "actual": 1
+            },
+            {
+              "id": "t6",
+              "actual": 0
+            },
+            {
+              "id": "t7",
+              "actual": 1
+            },
+            {
+              "id": "t8",
+              "actual": 1
+            },
+            {
+              "id": "t9",
+              "actual": 1
+            },
+            {
+              "id": "t10",
+              "actual": 1
+            },
+            {
+              "id": "t11",
+              "actual": -1
+            },
+            {
+              "id": "t12",
+              "actual": -1
+            },
+            {
+              "id": "t13",
+              "actual": -1
+            },
+            {
+              "id": "t14",
+              "actual": -1
+            },
+            {
+              "id": "t15",
+              "actual": -1
+            },
+            {
+              "id": "t16",
+              "actual": 1
+            },
+            {
+              "id": "t17",
+              "actual": -1
+            },
+            {
+              "id": "t18",
+              "actual": -1
+            },
+            {
+              "id": "t19",
+              "actual": -1
+            },
+            {
+              "id": "t20",
+              "actual": 1
+            },
+            {
+              "id": "t21",
+              "actual": -1
+            },
+            {
+              "id": "t22",
+              "actual": -1
+            },
+            {
+              "id": "t23",
+              "actual": -1
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "a": "1.2.3",
+            "b": "1.2.3"
+          },
+          "expected": 0,
+          "oracle": "reference",
+          "actual": 0,
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "a": "1.2.3",
+            "b": "1.2.4"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "a": "1.2.4",
+            "b": "1.2.3"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "a": "0.0.10",
+            "b": "0.0.9"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "a": "1.10.0",
+            "b": "1.9.0"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "a": "2.0.0",
+            "b": "1.99.99"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "a": "0.0.0",
+            "b": "0.0.0"
+          },
+          "expected": 0,
+          "oracle": "reference",
+          "actual": 0,
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "a": "123456.789.1000",
+            "b": "123456.789.999"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "a": "1000000.0.0",
+            "b": "999999.9.9"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "a": "10.0.0",
+            "b": "9.0.0"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "a": "0.10.0",
+            "b": "0.9.5"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "a": "0.0.0",
+            "b": "0.0.1"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "a": "3.2.1",
+            "b": "3.2.10"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "a": "0.0.0",
+            "b": "1.0.0"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "a": "1.3.7",
+            "b": "2.5.2"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "a": "2.6.1",
+            "b": "3.10.4"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "a": "3.9.8",
+            "b": "0.4.6"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "a": "0.1.2",
+            "b": "1.9.8"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "a": "1.4.9",
+            "b": "2.3.10"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t19",
+          "input": {
+            "a": "2.7.3",
+            "b": "3.8.12"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t20",
+          "input": {
+            "a": "3.10.10",
+            "b": "0.2.1"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t21",
+          "input": {
+            "a": "0.2.4",
+            "b": "1.7.3"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t22",
+          "input": {
+            "a": "1.5.11",
+            "b": "2.1.5"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t23",
+          "input": {
+            "a": "2.8.5",
+            "b": "3.6.7"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        }
+      ]
+    },
+    {
+      "status": "executed",
+      "side": "b",
+      "adapter": {
+        "key": "3b62d4ca470838eb9f68",
+        "costUsd": 0.00655566,
+        "value": {
+          "runnable": true,
+          "reason": "Compiles the verbatim candidate class (block-0) with a separate Main.cs driver via the Roslyn csc.dll route, then runs one process that reads inputs.json and calls CompareVersions on every case. The candidate is not modified. Per-case candidate exceptions are reported as errors; infrastructure failures are reported as harness_error. Not executed here.",
+          "command": "python3 -I harness.py",
+          "files": {
+            "harness.py": "import glob, json, os, subprocess, sys\n\nENV = dict(os.environ)\nENV.update({\"DOTNET_CLI_TELEMETRY_OPTOUT\": \"1\", \"DOTNET_NOLOGO\": \"1\", \"DOTNET_SKIP_FIRST_TIME_EXPERIENCE\": \"1\", \"DOTNET_CLI_HOME\": os.getcwd()})\n\ndef fail(msg):\n    sys.stdout.write(json.dumps({\"results\": [], \"harness_error\": msg}) + \"\\n\")\n    sys.exit(0)\n\ndef run(args):\n    try:\n        return subprocess.run(args, cwd=os.getcwd(), env=ENV, capture_output=True, text=True, timeout=5)\n    except subprocess.TimeoutExpired:\n        fail(\"timeout (5s) running: \" + \" \".join(os.path.basename(a) for a in args))\n    except OSError as e:\n        fail(\"cannot start process: %s\" % e)\n\ndef main():\n    try:\n        with open(\"inputs.json\", encoding=\"utf-8\") as f:\n            json.load(f)\n    except Exception as e:\n        fail(\"cannot read inputs.json: %s\" % e)\n    try:\n        with open(\"block-0.txt\", encoding=\"utf-8\") as f:\n            cand = f.read()\n    except Exception as e:\n        fail(\"cannot read block-0.txt: %s\" % e)\n    root = os.environ.get(\"DOTNET_ROOT\") or \"/usr/local/share/dotnet\"\n    csc = sorted(glob.glob(os.path.join(root, \"sdk\", \"*\", \"Roslyn\", \"bincore\", \"csc.dll\")))\n    refdirs = sorted(glob.glob(os.path.join(root, \"packs\", \"Microsoft.NETCore.App.Ref\", \"*\", \"ref\", \"net8.0\")))\n    if not csc or not refdirs:\n        fail(\"Roslyn csc.dll or net8.0 reference pack not found under \" + root)\n    refs = sorted(glob.glob(os.path.join(refdirs[-1], \"*.dll\")))\n    dotnet = os.path.join(root, \"dotnet\")\n    if not os.path.exists(dotnet):\n        dotnet = \"dotnet\"\n    with open(\"Candidate.cs\", \"w\", encoding=\"utf-8\") as f:\n        f.write(cand)\n    with open(\"refs.rsp\", \"w\", encoding=\"utf-8\") as f:\n        for r in refs:\n            f.write('-r:\"' + r + '\"\\n')\n    with open(\"Candidate.runtimeconfig.json\", \"w\", encoding=\"utf-8\") as f:\n        json.dump({\"runtimeOptions\": {\"tfm\": \"net8.0\", \"framework\": {\"name\": \"Microsoft.NETCore.App\", \"version\": \"8.0.0\"}}}, f)\n    c = run([dotnet, csc[-1], \"-nologo\", \"-target:exe\", \"-out:Candidate.dll\", \"@refs.rsp\", \"Candidate.cs\", \"Main.cs\"])\n    if c.returncode != 0:\n        fail(\"compile failed: \" + (c.stdout + c.stderr)[-3000:])\n    r = run([dotnet, \"Candidate.dll\"])\n    if r.returncode != 0 or not r.stdout.strip():\n        fail(\"run failed (exit %s): %s\" % (r.returncode, (r.stderr or r.stdout)[-2000:]))\n    try:\n        obj = json.loads(r.stdout.strip().splitlines()[-1])\n    except Exception:\n        fail(\"unparseable harness output: \" + r.stdout[-1000:])\n    sys.stdout.write(json.dumps(obj) + \"\\n\")\n\nmain()\n",
+            "Main.cs": "using System;\nusing System.Collections.Generic;\nusing System.IO;\nusing System.Text.Json;\n\npublic static class HarnessMain\n{\n    public static int Main(string[] args)\n    {\n        var results = new List<Dictionary<string, object>>();\n        var top = new Dictionary<string, object>();\n        try\n        {\n            string json = File.ReadAllText(\"inputs.json\");\n            using (JsonDocument doc = JsonDocument.Parse(json))\n            {\n                foreach (JsonElement item in doc.RootElement.EnumerateArray())\n                {\n                    var entry = new Dictionary<string, object>();\n                    entry[\"id\"] = item.GetProperty(\"id\").GetString();\n                    string a = item.GetProperty(\"input\").GetProperty(\"a\").GetString();\n                    string b = item.GetProperty(\"input\").GetProperty(\"b\").GetString();\n                    TextWriter saved = Console.Out;\n                    try\n                    {\n                        Console.SetOut(TextWriter.Null);\n                        entry[\"actual\"] = VersionComparer.CompareVersions(a, b);\n                    }\n                    catch (Exception ex)\n                    {\n                        entry.Remove(\"actual\");\n                        entry[\"error\"] = ex.GetType().Name + \": \" + ex.Message;\n                    }\n                    finally\n                    {\n                        Console.SetOut(saved);\n                    }\n                    results.Add(entry);\n                }\n            }\n            top[\"results\"] = results;\n        }\n        catch (Exception ex)\n        {\n            top[\"results\"] = results;\n            top[\"harness_error\"] = ex.GetType().Name + \": \" + ex.Message;\n        }\n        Console.Out.Write(JsonSerializer.Serialize(top));\n        return 0;\n    }\n}\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "ab6259039d8131b41e31",
+        "costUsd": 0.00220959,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "Compiles only the verbatim candidate class from block-0.txt, with blocks [0] listed as its source. The candidate's CompareVersions method is not modified or replaced.",
+            "The driver (Main.cs) only reads the supplied inputs.json, calls CompareVersions(a, b) for each case, and records the returned int. It computes no expected or actual results itself.",
+            "Per-case candidate exceptions are caught and reported as per-case errors. Infrastructure failures (compile, run, timeout, unparseable output) are reported as harness_error, so missing setup is not misattributed to the candidate.",
+            "The unused demo block (block-1) and the candidate's prose are excluded. Excluding them is permitted scaffolding because the final answer is the single standalone function, and the demo's top-level calls are replaced by the driver.",
+            "Dependencies are present and supported: .NET 8 SDK Roslyn csc.dll, the Microsoft.NETCore.App net8.0 reference pack (which includes System.Text.Json), and dotnet. The runtimeconfig written for net8.0 is consistent.",
+            "Output organization matches the contract: each result has id and actual as a number, which fits the anyOf number schema. Candidate-produced wrong types or nulls would be preserved, not repaired.",
+            "Minor operational risk: the 5-second timeout may be tight for a cold Roslyn compile. A timeout would surface as harness_error rather than a candidate failure, so it does not invalidate the adapter."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-SJIYjN",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I harness.py 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\": [{\"id\": \"t0\", \"actual\": 0}, {\"id\": \"t1\", \"actual\": -1}, {\"id\": \"t2\", \"actual\": 1}, {\"id\": \"t3\", \"actual\": 1}, {\"id\": \"t4\", \"actual\": 1}, {\"id\": \"t5\", \"actual\": 1}, {\"id\": \"t6\", \"actual\": 0}, {\"id\": \"t7\", \"actual\": 1}, {\"id\": \"t8\", \"actual\": 1}, {\"id\": \"t9\", \"actual\": 1}, {\"id\": \"t10\", \"actual\": 1}, {\"id\": \"t11\", \"actual\": -1}, {\"id\": \"t12\", \"actual\": -1}, {\"id\": \"t13\", \"actual\": -1}, {\"id\": \"t14\", \"actual\": -1}, {\"id\": \"t15\", \"actual\": -1}, {\"id\": \"t16\", \"actual\": 1}, {\"id\": \"t17\", \"actual\": -1}, {\"id\": \"t18\", \"actual\": -1}, {\"id\": \"t19\", \"actual\": -1}, {\"id\": \"t20\", \"actual\": 1}, {\"id\": \"t21\", \"actual\": -1}, {\"id\": \"t22\", \"actual\": -1}, {\"id\": \"t23\", \"actual\": -1}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:31:09.317Z",
+          "latencyMs": 3625.099
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": 0
+            },
+            {
+              "id": "t1",
+              "actual": -1
+            },
+            {
+              "id": "t2",
+              "actual": 1
+            },
+            {
+              "id": "t3",
+              "actual": 1
+            },
+            {
+              "id": "t4",
+              "actual": 1
+            },
+            {
+              "id": "t5",
+              "actual": 1
+            },
+            {
+              "id": "t6",
+              "actual": 0
+            },
+            {
+              "id": "t7",
+              "actual": 1
+            },
+            {
+              "id": "t8",
+              "actual": 1
+            },
+            {
+              "id": "t9",
+              "actual": 1
+            },
+            {
+              "id": "t10",
+              "actual": 1
+            },
+            {
+              "id": "t11",
+              "actual": -1
+            },
+            {
+              "id": "t12",
+              "actual": -1
+            },
+            {
+              "id": "t13",
+              "actual": -1
+            },
+            {
+              "id": "t14",
+              "actual": -1
+            },
+            {
+              "id": "t15",
+              "actual": -1
+            },
+            {
+              "id": "t16",
+              "actual": 1
+            },
+            {
+              "id": "t17",
+              "actual": -1
+            },
+            {
+              "id": "t18",
+              "actual": -1
+            },
+            {
+              "id": "t19",
+              "actual": -1
+            },
+            {
+              "id": "t20",
+              "actual": 1
+            },
+            {
+              "id": "t21",
+              "actual": -1
+            },
+            {
+              "id": "t22",
+              "actual": -1
+            },
+            {
+              "id": "t23",
+              "actual": -1
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "a": "1.2.3",
+            "b": "1.2.3"
+          },
+          "expected": 0,
+          "oracle": "reference",
+          "actual": 0,
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "a": "1.2.3",
+            "b": "1.2.4"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "a": "1.2.4",
+            "b": "1.2.3"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "a": "0.0.10",
+            "b": "0.0.9"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "a": "1.10.0",
+            "b": "1.9.0"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "a": "2.0.0",
+            "b": "1.99.99"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "a": "0.0.0",
+            "b": "0.0.0"
+          },
+          "expected": 0,
+          "oracle": "reference",
+          "actual": 0,
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "a": "123456.789.1000",
+            "b": "123456.789.999"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "a": "1000000.0.0",
+            "b": "999999.9.9"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "a": "10.0.0",
+            "b": "9.0.0"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "a": "0.10.0",
+            "b": "0.9.5"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "a": "0.0.0",
+            "b": "0.0.1"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "a": "3.2.1",
+            "b": "3.2.10"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "a": "0.0.0",
+            "b": "1.0.0"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "a": "1.3.7",
+            "b": "2.5.2"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "a": "2.6.1",
+            "b": "3.10.4"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "a": "3.9.8",
+            "b": "0.4.6"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "a": "0.1.2",
+            "b": "1.9.8"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "a": "1.4.9",
+            "b": "2.3.10"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t19",
+          "input": {
+            "a": "2.7.3",
+            "b": "3.8.12"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t20",
+          "input": {
+            "a": "3.10.10",
+            "b": "0.2.1"
+          },
+          "expected": 1,
+          "oracle": "reference",
+          "actual": 1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t21",
+          "input": {
+            "a": "0.2.4",
+            "b": "1.7.3"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t22",
+          "input": {
+            "a": "1.5.11",
+            "b": "2.1.5"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        },
+        {
+          "id": "t23",
+          "input": {
+            "a": "2.8.5",
+            "b": "3.6.7"
+          },
+          "expected": -1,
+          "oracle": "reference",
+          "actual": -1,
+          "verdict": "pass"
+        }
+      ]
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-I9oOye",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"a\": \"1.2.3\", \"b\": \"1.2.3\"}, \"expected\": 0, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"a\": \"1.2.3\", \"b\": \"1.2.4\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"a\": \"1.2.4\", \"b\": \"1.2.3\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"a\": \"0.0.10\", \"b\": \"0.0.9\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"a\": \"1.10.0\", \"b\": \"1.9.0\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"a\": \"2.0.0\", \"b\": \"1.99.99\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"a\": \"0.0.0\", \"b\": \"0.0.0\"}, \"expected\": 0, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"a\": \"123456.789.1000\", \"b\": \"123456.789.999\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"a\": \"1000000.0.0\", \"b\": \"999999.9.9\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"a\": \"10.0.0\", \"b\": \"9.0.0\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"a\": \"0.10.0\", \"b\": \"0.9.5\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"a\": \"0.0.0\", \"b\": \"0.0.1\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"a\": \"3.2.1\", \"b\": \"3.2.10\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"a\": \"0.0.0\", \"b\": \"1.0.0\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"a\": \"1.3.7\", \"b\": \"2.5.2\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"a\": \"2.6.1\", \"b\": \"3.10.4\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"a\": \"3.9.8\", \"b\": \"0.4.6\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"a\": \"0.1.2\", \"b\": \"1.9.8\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": {\"a\": \"1.4.9\", \"b\": \"2.3.10\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t19\", \"input\": {\"a\": \"2.7.3\", \"b\": \"3.8.12\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t20\", \"input\": {\"a\": \"3.10.10\", \"b\": \"0.2.1\"}, \"expected\": 1, \"oracle\": \"reference\"}, {\"id\": \"t21\", \"input\": {\"a\": \"0.2.4\", \"b\": \"1.7.3\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t22\", \"input\": {\"a\": \"1.5.11\", \"b\": \"2.1.5\"}, \"expected\": -1, \"oracle\": \"reference\"}, {\"id\": \"t23\", \"input\": {\"a\": \"2.8.5\", \"b\": \"3.6.7\"}, \"expected\": -1, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:20:30.751Z",
+      "latencyMs": 214.596
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "a": "1.2.3",
+            "b": "1.2.3"
+          },
+          "expected": 0,
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "a": "1.2.3",
+            "b": "1.2.4"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "a": "1.2.4",
+            "b": "1.2.3"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "a": "0.0.10",
+            "b": "0.0.9"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "a": "1.10.0",
+            "b": "1.9.0"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "a": "2.0.0",
+            "b": "1.99.99"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "a": "0.0.0",
+            "b": "0.0.0"
+          },
+          "expected": 0,
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "a": "123456.789.1000",
+            "b": "123456.789.999"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "a": "1000000.0.0",
+            "b": "999999.9.9"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "a": "10.0.0",
+            "b": "9.0.0"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "a": "0.10.0",
+            "b": "0.9.5"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "a": "0.0.0",
+            "b": "0.0.1"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "a": "3.2.1",
+            "b": "3.2.10"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "a": "0.0.0",
+            "b": "1.0.0"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "a": "1.3.7",
+            "b": "2.5.2"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "a": "2.6.1",
+            "b": "3.10.4"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "a": "3.9.8",
+            "b": "0.4.6"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "a": "0.1.2",
+            "b": "1.9.8"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "a": "1.4.9",
+            "b": "2.3.10"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t19",
+          "input": {
+            "a": "2.7.3",
+            "b": "3.8.12"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t20",
+          "input": {
+            "a": "3.10.10",
+            "b": "0.2.1"
+          },
+          "expected": 1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t21",
+          "input": {
+            "a": "0.2.4",
+            "b": "1.7.3"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t22",
+          "input": {
+            "a": "1.5.11",
+            "b": "2.1.5"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        },
+        {
+          "id": "t23",
+          "input": {
+            "a": "2.8.5",
+            "b": "3.6.7"
+          },
+          "expected": -1,
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "fb0f88bd2303e7576c717dd6e56765ee17a0e55159345990fec68f163f411f39"
+  },
+  "contractAudit": {
+    "key": "8af924b396030102d6c4",
+    "costUsd": 0.0018453200000000001,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Reference computes the sign of the lexicographic tuple comparison of (major, minor, patch), which is correct for the validated domain.",
+        "All 24 expected outputs in observed.inputs match the reference and independent hand-checks (e.g., 3.2.1 vs 3.2.10 is -1, 123456.789.1000 vs 123456.789.999 is 1).",
+        "The validator accepts exactly the x.y.z non-negative integer strings used by the generator and rejects all probes (null, {}, [], 1, true, 'malformed').",
+        "The generator is deterministic, produces 24 valid pairs, and covers equal, adjacent, multi-digit, and boundary cases.",
+        "examples is empty, so there is no reference/example conflict.",
+        "Non-blocking note: the adapter's 'records the returned integer sign' step is what makes the exact -1/0/1 observable compatible with the rubric's negative/zero/positive convention.",
+        "Non-blocking note: the validator accepts unbounded digit lengths and rejects leading zeros, which narrows the question's implicit domain. Neither affects the observed tests, which stay within int range."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "8af924b396030102d6c4",
+    "40b704408a5045a27a92",
+    "050f6b763be3b0d526bd",
+    "354e099bd5f58065862b",
+    "ac8c4bf67ac97ba8dd4d",
+    "87a4e3a4cb6efb9adceb",
+    "f14021df3cec38920583"
+  ],
+  "callKeys": [
+    "8af924b396030102d6c4",
+    "4d274e74e9e18a1ae84a",
+    "b150fe9f0e83e168e666",
+    "3b62d4ca470838eb9f68",
+    "ab6259039d8131b41e31"
+  ]
+}

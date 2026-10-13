@@ -1,0 +1,327 @@
+{
+  "id": "rubric_eval_433",
+  "protocolVersion": 4,
+  "planKey": "dc54593163ecaf9aa251",
+  "questionPlanKey": "f546927b5929ed6bead8",
+  "at": "2026-10-13T04:28:39.378Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "unsupported_candidate",
+      "side": "a",
+      "adapter": {
+        "key": "80e6e8a0660676e12554",
+        "costUsd": 0.0012068600000000001,
+        "value": {
+          "runnable": false,
+          "reason": "Go is not among the supported harness runtimes, and the supplied code cannot run without context that was not provided: the package-level scheme and host variables, the goctx, gopkg, errors, m800log, and intercom packages, and the stubs that the contract describes for ctx.GetCID, intercom.HTTPNewRequest, and intercom.HTTPDo. No harness was written. Separately, the candidate's diagnosis misses the likely root cause, which is that url.URL.Query() returns a freshly parsed copy of the query on each call, so link.Query().Set(\"source\", ...) mutates a temporary value and the change is discarded. The candidate's proposed rewrite repeats the same pattern and would not fix the bug. A correct approach is to take values := link.Query(), call values.Set(\"source\", source.String()), then assign link.RawQuery = values.Encode() before calling link.String().",
+          "command": "",
+          "files": {},
+          "uses": [],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    },
+    {
+      "status": "unsupported_candidate",
+      "side": "b",
+      "adapter": {
+        "key": "6b5f466746187fd72de4",
+        "costUsd": 0.00112846,
+        "value": {
+          "runnable": false,
+          "reason": "Not runnable: the candidate is a fragment and Go is not among the supported harness runtimes. The function depends on context not supplied: package-level scheme and host, the intercom, gopkg, m800log and errors packages, ctx.GetCID, the SuspendSubscriptionSource type, and the url2 import. The candidate's two blocks are also not complete implementations. Its diagnosis is likely wrong: if SuspendSubscriptionSource is a named string type, comparing it to an untyped \"\" compiles and works. The actual bug is that url.URL.Query() returns a freshly parsed copy of the query each time, so link.Query().Set(\"source\", ...) mutates a temporary map that is discarded and link.RawQuery is never updated. A correct fix would be q := link.Query(); q.Set(\"source\", source.String()); link.RawQuery = q.Encode(), or building the URL with url.Values and Encode(). Verifying this requires the full Go package with its dependencies, which were not provided.",
+          "command": "",
+          "files": {},
+          "uses": [],
+          "extraction": []
+        }
+      },
+      "attempt": 0
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-DJ5m2o",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"serviceId\": \"svc-123\", \"source\": \"portal\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/svc-123/suspend\", \"query\": {\"source\": [\"portal\"]}}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"serviceId\": \"svc-123\", \"source\": \"\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/svc-123/suspend\", \"query\": {}}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"serviceId\": \"svc-123\", \"source\": \"a b&c=d\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/svc-123/suspend\", \"query\": {\"source\": [\"a b&c=d\"]}}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"serviceId\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", \"source\": \"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/suspend\", \"query\": {\"source\": [\"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss\"]}}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"serviceId\": \"A_b-9\", \"source\": \"100%/ok?#+;\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/A_b-9/suspend\", \"query\": {\"source\": [\"100%/ok?#+;\"]}}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"serviceId\": \"s1\", \"source\": \"\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/s1/suspend\", \"query\": {}}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"serviceId\": \"s1\", \"source\": \"portal\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/s1/suspend\", \"query\": {\"source\": [\"portal\"]}}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"serviceId\": \"s1\", \"source\": \"x&y=z\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/s1/suspend\", \"query\": {\"source\": [\"x&y=z\"]}}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"serviceId\": \"s1\", \"source\": \"q?#%+\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/s1/suspend\", \"query\": {\"source\": [\"q?#%+\"]}}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"serviceId\": \"svc-9\", \"source\": \"\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/svc-9/suspend\", \"query\": {}}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"serviceId\": \"svc-9\", \"source\": \"portal\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/svc-9/suspend\", \"query\": {\"source\": [\"portal\"]}}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"serviceId\": \"svc-9\", \"source\": \"x&y=z\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/svc-9/suspend\", \"query\": {\"source\": [\"x&y=z\"]}}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"serviceId\": \"svc-9\", \"source\": \"q?#%+\"}, \"expected\": {\"method\": \"POST\", \"path\": \"/internal/v1/zuora/subscription/svc-9/suspend\", \"query\": {\"source\": [\"q?#%+\"]}}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:11:47.252Z",
+      "latencyMs": 173.609
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "serviceId": "svc-123",
+            "source": "portal"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/svc-123/suspend",
+            "query": {
+              "source": [
+                "portal"
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "serviceId": "svc-123",
+            "source": ""
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/svc-123/suspend",
+            "query": {}
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "serviceId": "svc-123",
+            "source": "a b&c=d"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/svc-123/suspend",
+            "query": {
+              "source": [
+                "a b&c=d"
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "serviceId": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "source": "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/suspend",
+            "query": {
+              "source": [
+                "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "serviceId": "A_b-9",
+            "source": "100%/ok?#+;"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/A_b-9/suspend",
+            "query": {
+              "source": [
+                "100%/ok?#+;"
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "serviceId": "s1",
+            "source": ""
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/s1/suspend",
+            "query": {}
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "serviceId": "s1",
+            "source": "portal"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/s1/suspend",
+            "query": {
+              "source": [
+                "portal"
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "serviceId": "s1",
+            "source": "x&y=z"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/s1/suspend",
+            "query": {
+              "source": [
+                "x&y=z"
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "serviceId": "s1",
+            "source": "q?#%+"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/s1/suspend",
+            "query": {
+              "source": [
+                "q?#%+"
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "serviceId": "svc-9",
+            "source": ""
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/svc-9/suspend",
+            "query": {}
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "serviceId": "svc-9",
+            "source": "portal"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/svc-9/suspend",
+            "query": {
+              "source": [
+                "portal"
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "serviceId": "svc-9",
+            "source": "x&y=z"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/svc-9/suspend",
+            "query": {
+              "source": [
+                "x&y=z"
+              ]
+            }
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "serviceId": "svc-9",
+            "source": "q?#%+"
+          },
+          "expected": {
+            "method": "POST",
+            "path": "/internal/v1/zuora/subscription/svc-9/suspend",
+            "query": {
+              "source": [
+                "q?#%+"
+              ]
+            }
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "08df9f2b59f2800716f72a37a98c92b35c06d7d96e8bdb61a75b21babf8d0edb"
+  },
+  "contractAudit": {
+    "key": "0c7d9652785aec34a484",
+    "costUsd": 0.00156222,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "The plan has no C1 checks, so validity rests on the execution contract, which is sufficient.",
+        "The reference implements the original intent: a non-empty source is added as query parameter 'source' and an empty source adds no parameter. The expected observable (method, path, parsed query dict) matches that intent.",
+        "The validator covers the input domain: serviceId regex, source printable ASCII up to 64 chars with empty allowed, and rejection of null, dict, list, int, bool, and malformed string inputs.",
+        "Generated cases stay within the validator's domain, including boundary lengths (32-char serviceId, 64-char source), empty source, and reserved characters (&, =, ?, #, %, +, /, ;, space).",
+        "Parsing the query into a dict of lists avoids dependence on encoding order or escaping style, so the observable is deterministic.",
+        "Examples are empty and reference_errors and rejected are empty, so there are no reference/example conflicts."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "0c7d9652785aec34a484",
+    "5fea9273119d049f8aee",
+    "73f2468da6675defe876"
+  ],
+  "callKeys": [
+    "0c7d9652785aec34a484",
+    "80e6e8a0660676e12554",
+    "6b5f466746187fd72de4"
+  ]
+}

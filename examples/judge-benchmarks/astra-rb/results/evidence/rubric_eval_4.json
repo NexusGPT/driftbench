@@ -1,0 +1,1013 @@
+{
+  "id": "rubric_eval_4",
+  "protocolVersion": 4,
+  "planKey": "ddc394ffdc5bdffa4ed5",
+  "questionPlanKey": "797e59220998637b7b91",
+  "at": "2026-10-13T04:27:37.195Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "caf0419b9172fdcceed1",
+        "costUsd": 0.00846616,
+        "value": {
+          "runnable": true,
+          "reason": "Block 0 is a complete C program with next_token and main. The C driver includes block-0.txt verbatim, renaming only its main via a macro, and calls next_token unchanged. Python compiles the driver once and runs one process per inputs.json case, passing hex-encoded text. Each case collects tokens until NULL, flags a non-NULL token that leaves index unchanged as a candidate error, and enforces a 5 second per-case timeout.",
+          "command": "python3 harness.py",
+          "files": {
+            "driver.c": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#define main candidate_main\n#include \"block-0.txt\"\n#undef main\n\nstatic int hexval(int c)\n{\n    if (c >= '0' && c <= '9') return c - '0';\n    if (c >= 'a' && c <= 'f') return c - 'a' + 10;\n    if (c >= 'A' && c <= 'F') return c - 'A' + 10;\n    return -1;\n}\n\nstatic void put_hex(const char *s, size_t n)\n{\n    size_t i;\n    for (i = 0; i < n; i++) printf(\"%02x\", (unsigned char)s[i]);\n}\n\nstatic int fail_out(const char *msg)\n{\n    printf(\"err \");\n    put_hex(msg, strlen(msg));\n    putchar(10);\n    return 0;\n}\n\nint main(int argc, char **argv)\n{\n    size_t len, n, i, count = 0, cap = 64;\n    char *buf;\n    char **toks;\n    int index = 0;\n\n    if (argc != 2) return fail_out(\"bad driver arguments\");\n    len = strlen(argv[1]);\n    if (len % 2) return fail_out(\"odd hex length\");\n    n = len / 2;\n    buf = malloc(n + 1);\n    if (!buf) return fail_out(\"out of memory\");\n    for (i = 0; i < n; i++) {\n        int hi = hexval(argv[1][2 * i]);\n        int lo = hexval(argv[1][2 * i + 1]);\n        if (hi < 0 || lo < 0) return fail_out(\"bad hex input\");\n        buf[i] = (char)(hi * 16 + lo);\n    }\n    buf[n] = 0;\n    toks = malloc(cap * sizeof(char *));\n    if (!toks) return fail_out(\"out of memory\");\n    for (;;) {\n        int before = index;\n        char *t = next_token(buf, &index);\n        if (t == NULL) break;\n        if (index == before) {\n            free(t);\n            return fail_out(\"non-advancing lexer: index unchanged on non-NULL token\");\n        }\n        if (count == cap) {\n            cap *= 2;\n            toks = realloc(toks, cap * sizeof(char *));\n            if (!toks) return fail_out(\"out of memory\");\n        }\n        toks[count++] = t;\n        if (count > 100000) return fail_out(\"too many tokens: possible non-terminating lexer\");\n    }\n    printf(\"ok\");\n    for (i = 0; i < count; i++) {\n        putchar(32);\n        put_hex(toks[i], strlen(toks[i]));\n        free(toks[i]);\n    }\n    putchar(10);\n    free(toks);\n    free(buf);\n    return 0;\n}\n",
+            "harness.py": "import json\nimport subprocess\nimport sys\n\n\ndef emit(obj):\n    sys.stdout.write(json.dumps(obj) + chr(10))\n\n\ndef get_text(case):\n    inp = case.get('input') if isinstance(case, dict) else None\n    if isinstance(inp, dict):\n        return inp.get('text')\n    return inp\n\n\ndef main():\n    try:\n        with open('inputs.json', 'r', encoding='utf-8') as f:\n            cases = json.load(f)\n    except Exception as e:\n        emit({'results': [], 'harness_error': 'cannot read inputs.json: ' + str(e)})\n        return\n    if not isinstance(cases, list):\n        emit({'results': [], 'harness_error': 'inputs.json is not a list'})\n        return\n    compile_error = None\n    try:\n        cp = subprocess.run(['cc', '-o', 'driver', 'driver.c'], capture_output=True, encoding='utf-8', errors='replace', timeout=5)\n        if cp.returncode != 0:\n            compile_error = (cp.stderr or cp.stdout)[-1500:]\n    except Exception as e:\n        emit({'results': [], 'harness_error': 'compiler invocation failed: ' + str(e)})\n        return\n    results = []\n    for case in cases:\n        cid = case.get('id') if isinstance(case, dict) else None\n        if compile_error is not None:\n            results.append({'id': cid, 'error': 'candidate failed to compile: ' + compile_error})\n            continue\n        text = get_text(case)\n        if not isinstance(text, str) or chr(0) in text:\n            results.append({'id': cid, 'error': 'input text missing, not a string, or contains NUL'})\n            continue\n        arg = text.encode('utf-8').hex()\n        try:\n            rp = subprocess.run(['./driver', arg], capture_output=True, encoding='utf-8', errors='replace', timeout=5)\n        except subprocess.TimeoutExpired:\n            results.append({'id': cid, 'error': 'candidate timeout after 5 seconds'})\n            continue\n        except Exception as e:\n            results.append({'id': cid, 'error': 'driver execution failed: ' + str(e)})\n            continue\n        if rp.returncode != 0:\n            results.append({'id': cid, 'error': 'candidate process exited with code ' + str(rp.returncode)})\n            continue\n        first = rp.stdout.split(chr(10))[0]\n        parts = first.split(' ')\n        try:\n            if parts[0] == 'ok':\n                toks = [bytes.fromhex(h).decode('utf-8', 'replace') for h in parts[1:]]\n                results.append({'id': cid, 'actual': toks})\n            elif parts[0] == 'err':\n                msg = bytes.fromhex(parts[1]).decode('utf-8', 'replace') if len(parts) > 1 else ''\n                results.append({'id': cid, 'error': msg})\n            else:\n                results.append({'id': cid, 'error': 'unexpected driver output'})\n        except Exception as e:\n            results.append({'id': cid, 'error': 'could not decode driver output: ' + str(e)})\n    emit({'results': results})\n\n\nif __name__ == '__main__':\n    main()\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "b535c55bcceb1f88ded3",
+        "costUsd": 0.00245159,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "Block 0 is the complete candidate C program, including next_token and main, and the driver includes it verbatim with only main renamed via a macro.",
+            "next_token is called unchanged. The driver does not reimplement lexing, alter internals, or compute expected tokens.",
+            "The driver's only candidate-facing behavior is the non-advancing check, which reports a non-NULL token that leaves index unchanged as a candidate error. This is a genuine defect signal, not a repair, and it is consistent with the contract's timeout/non-advancing requirement.",
+            "Input handling matches the contract: text is hex-encoded, NUL-containing input is rejected, index starts at 0, tokens are collected until NULL, and each token is freed.",
+            "Required dependencies are standard C and Python stdlib only, and both are available for this subset.",
+            "Candidate compile failures and runtime failures are reported as candidate errors without masking adapter setup problems. Output is a sequence of decoded token strings, consistent with the output schema.",
+            "Minor ambiguity: block-0.txt is referenced but not listed in files. It is assumed to be supplied by the pipeline from the verbatim fenced block, which is permitted."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-9tCpEu",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 harness.py 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\": [{\"id\": \"t0\", \"actual\": []}, {\"id\": \"t1\", \"actual\": []}, {\"id\": \"t2\", \"actual\": [\"echo\"]}, {\"id\": \"t3\", \"actual\": [\"a_b.c1\"]}, {\"id\": \"t4\", \"actual\": [\"a\", \";\", \"b\"]}, {\"id\": \"t5\", \"actual\": [\"a\", \">\", \"b\"]}, {\"id\": \"t6\", \"actual\": [\"if\", \"echo\", \"ok\", \";\", \"then\", \"echo\", \"foobar\", \">\", \"example.txt\", \";\", \"fi\"]}, {\"id\": \"t7\", \"actual\": [\"x\", \"y\"]}, {\"id\": \"t8\", \"actual\": [\"ab\", \">\", \"cd\"]}, {\"id\": \"t9\", \"actual\": [\"a\", \";\", \"b\"]}, {\"id\": \"t10\", \"actual\": [\"Z9._\"]}, {\"id\": \"t11\", \"actual\": []}, {\"id\": \"t12\", \"actual\": [\";\"]}, {\"id\": \"t13\", \"actual\": [\"a\", \";\"]}, {\"id\": \"t14\", \"actual\": [\"a\", \"b\"]}, {\"id\": \"t15\", \"actual\": [\"x\", \">\", \"y\", \";\", \"z\", \"w\"]}, {\"id\": \"t16\", \"actual\": [\"a\", \"b\"]}, {\"id\": \"t17\", \"actual\": [\"lone\"]}, {\"id\": \"t18\", \"actual\": [\"a0\", \"a1\", \"a2\", \"a3\", \"a4\", \"a5\", \"a6\", \"a7\", \"a8\", \"a9\", \"a10\", \"a11\", \"a12\", \"a13\", \"a14\", \"a15\", \"a16\", \"a17\", \"a18\", \"a19\", \"a20\", \"a21\", \"a22\", \"a23\", \"a24\", \"a25\", \"a26\", \"a27\", \"a28\", \"a29\", \"a30\", \"a31\", \"a32\", \"a33\", \"a34\", \"a35\", \"a36\", \"a37\", \"a38\", \"a39\", \"a40\", \"a41\", \"a42\", \"a43\", \"a44\", \"a45\", \"a46\", \"a47\", \"a48\", \"a49\"]}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:28:54.033Z",
+          "latencyMs": 2001.152
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": []
+            },
+            {
+              "id": "t1",
+              "actual": []
+            },
+            {
+              "id": "t2",
+              "actual": [
+                "echo"
+              ]
+            },
+            {
+              "id": "t3",
+              "actual": [
+                "a_b.c1"
+              ]
+            },
+            {
+              "id": "t4",
+              "actual": [
+                "a",
+                ";",
+                "b"
+              ]
+            },
+            {
+              "id": "t5",
+              "actual": [
+                "a",
+                ">",
+                "b"
+              ]
+            },
+            {
+              "id": "t6",
+              "actual": [
+                "if",
+                "echo",
+                "ok",
+                ";",
+                "then",
+                "echo",
+                "foobar",
+                ">",
+                "example.txt",
+                ";",
+                "fi"
+              ]
+            },
+            {
+              "id": "t7",
+              "actual": [
+                "x",
+                "y"
+              ]
+            },
+            {
+              "id": "t8",
+              "actual": [
+                "ab",
+                ">",
+                "cd"
+              ]
+            },
+            {
+              "id": "t9",
+              "actual": [
+                "a",
+                ";",
+                "b"
+              ]
+            },
+            {
+              "id": "t10",
+              "actual": [
+                "Z9._"
+              ]
+            },
+            {
+              "id": "t11",
+              "actual": []
+            },
+            {
+              "id": "t12",
+              "actual": [
+                ";"
+              ]
+            },
+            {
+              "id": "t13",
+              "actual": [
+                "a",
+                ";"
+              ]
+            },
+            {
+              "id": "t14",
+              "actual": [
+                "a",
+                "b"
+              ]
+            },
+            {
+              "id": "t15",
+              "actual": [
+                "x",
+                ">",
+                "y",
+                ";",
+                "z",
+                "w"
+              ]
+            },
+            {
+              "id": "t16",
+              "actual": [
+                "a",
+                "b"
+              ]
+            },
+            {
+              "id": "t17",
+              "actual": [
+                "lone"
+              ]
+            },
+            {
+              "id": "t18",
+              "actual": [
+                "a0",
+                "a1",
+                "a2",
+                "a3",
+                "a4",
+                "a5",
+                "a6",
+                "a7",
+                "a8",
+                "a9",
+                "a10",
+                "a11",
+                "a12",
+                "a13",
+                "a14",
+                "a15",
+                "a16",
+                "a17",
+                "a18",
+                "a19",
+                "a20",
+                "a21",
+                "a22",
+                "a23",
+                "a24",
+                "a25",
+                "a26",
+                "a27",
+                "a28",
+                "a29",
+                "a30",
+                "a31",
+                "a32",
+                "a33",
+                "a34",
+                "a35",
+                "a36",
+                "a37",
+                "a38",
+                "a39",
+                "a40",
+                "a41",
+                "a42",
+                "a43",
+                "a44",
+                "a45",
+                "a46",
+                "a47",
+                "a48",
+                "a49"
+              ]
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "text": ""
+          },
+          "expected": [],
+          "oracle": "reference",
+          "actual": [],
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "text": " \t "
+          },
+          "expected": [],
+          "oracle": "reference",
+          "actual": [],
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "text": "echo"
+          },
+          "expected": [
+            "echo"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "echo"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "text": "a_b.c1"
+          },
+          "expected": [
+            "a_b.c1"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "a_b.c1"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "text": "a;b"
+          },
+          "expected": [
+            "a",
+            ";",
+            "b"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "a",
+            ";",
+            "b"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "text": "a > b"
+          },
+          "expected": [
+            "a",
+            ">",
+            "b"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "a",
+            ">",
+            "b"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "text": "if echo ok; then echo foobar > example.txt; fi"
+          },
+          "expected": [
+            "if",
+            "echo",
+            "ok",
+            ";",
+            "then",
+            "echo",
+            "foobar",
+            ">",
+            "example.txt",
+            ";",
+            "fi"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "if",
+            "echo",
+            "ok",
+            ";",
+            "then",
+            "echo",
+            "foobar",
+            ">",
+            "example.txt",
+            ";",
+            "fi"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "text": "x\ny"
+          },
+          "expected": [
+            "x",
+            "\n",
+            "y"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "x",
+            "y"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "text": "ab>cd"
+          },
+          "expected": [
+            "ab",
+            ">",
+            "cd"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "ab",
+            ">",
+            "cd"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "text": "a  ;  b"
+          },
+          "expected": [
+            "a",
+            ";",
+            "b"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "a",
+            ";",
+            "b"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "text": "Z9._"
+          },
+          "expected": [
+            "Z9._"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Z9._"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "text": "\n"
+          },
+          "expected": [
+            "\n"
+          ],
+          "oracle": "reference",
+          "actual": [],
+          "verdict": "fail"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "text": ";"
+          },
+          "expected": [
+            ";"
+          ],
+          "oracle": "reference",
+          "actual": [
+            ";"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "text": "a;"
+          },
+          "expected": [
+            "a",
+            ";"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "a",
+            ";"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "text": "a\n b\n"
+          },
+          "expected": [
+            "a",
+            "\n",
+            "b",
+            "\n"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "a",
+            "b"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "text": "x>y;z\nw"
+          },
+          "expected": [
+            "x",
+            ">",
+            "y",
+            ";",
+            "z",
+            "\n",
+            "w"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "x",
+            ">",
+            "y",
+            ";",
+            "z",
+            "w"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "text": "a\tb"
+          },
+          "expected": [
+            "a",
+            "b"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "a",
+            "b"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "text": "   lone"
+          },
+          "expected": [
+            "lone"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "lone"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "text": "a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a17 a18 a19 a20 a21 a22 a23 a24 a25 a26 a27 a28 a29 a30 a31 a32 a33 a34 a35 a36 a37 a38 a39 a40 a41 a42 a43 a44 a45 a46 a47 a48 a49"
+          },
+          "expected": [
+            "a0",
+            "a1",
+            "a2",
+            "a3",
+            "a4",
+            "a5",
+            "a6",
+            "a7",
+            "a8",
+            "a9",
+            "a10",
+            "a11",
+            "a12",
+            "a13",
+            "a14",
+            "a15",
+            "a16",
+            "a17",
+            "a18",
+            "a19",
+            "a20",
+            "a21",
+            "a22",
+            "a23",
+            "a24",
+            "a25",
+            "a26",
+            "a27",
+            "a28",
+            "a29",
+            "a30",
+            "a31",
+            "a32",
+            "a33",
+            "a34",
+            "a35",
+            "a36",
+            "a37",
+            "a38",
+            "a39",
+            "a40",
+            "a41",
+            "a42",
+            "a43",
+            "a44",
+            "a45",
+            "a46",
+            "a47",
+            "a48",
+            "a49"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "a0",
+            "a1",
+            "a2",
+            "a3",
+            "a4",
+            "a5",
+            "a6",
+            "a7",
+            "a8",
+            "a9",
+            "a10",
+            "a11",
+            "a12",
+            "a13",
+            "a14",
+            "a15",
+            "a16",
+            "a17",
+            "a18",
+            "a19",
+            "a20",
+            "a21",
+            "a22",
+            "a23",
+            "a24",
+            "a25",
+            "a26",
+            "a27",
+            "a28",
+            "a29",
+            "a30",
+            "a31",
+            "a32",
+            "a33",
+            "a34",
+            "a35",
+            "a36",
+            "a37",
+            "a38",
+            "a39",
+            "a40",
+            "a41",
+            "a42",
+            "a43",
+            "a44",
+            "a45",
+            "a46",
+            "a47",
+            "a48",
+            "a49"
+          ],
+          "verdict": "pass"
+        }
+      ]
+    },
+    {
+      "status": "no_executable_snippet",
+      "side": "b",
+      "retainedObservation": true
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-gl4jIW",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"text\": \"\"}, \"expected\": [], \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"text\": \" \\t \"}, \"expected\": [], \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"text\": \"echo\"}, \"expected\": [\"echo\"], \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"text\": \"a_b.c1\"}, \"expected\": [\"a_b.c1\"], \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"text\": \"a;b\"}, \"expected\": [\"a\", \";\", \"b\"], \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"text\": \"a > b\"}, \"expected\": [\"a\", \">\", \"b\"], \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"text\": \"if echo ok; then echo foobar > example.txt; fi\"}, \"expected\": [\"if\", \"echo\", \"ok\", \";\", \"then\", \"echo\", \"foobar\", \">\", \"example.txt\", \";\", \"fi\"], \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"text\": \"x\\ny\"}, \"expected\": [\"x\", \"\\n\", \"y\"], \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"text\": \"ab>cd\"}, \"expected\": [\"ab\", \">\", \"cd\"], \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"text\": \"a  ;  b\"}, \"expected\": [\"a\", \";\", \"b\"], \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"text\": \"Z9._\"}, \"expected\": [\"Z9._\"], \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"text\": \"\\n\"}, \"expected\": [\"\\n\"], \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"text\": \";\"}, \"expected\": [\";\"], \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"text\": \"a;\"}, \"expected\": [\"a\", \";\"], \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"text\": \"a\\n b\\n\"}, \"expected\": [\"a\", \"\\n\", \"b\", \"\\n\"], \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"text\": \"x>y;z\\nw\"}, \"expected\": [\"x\", \">\", \"y\", \";\", \"z\", \"\\n\", \"w\"], \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"text\": \"a\\tb\"}, \"expected\": [\"a\", \"b\"], \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": {\"text\": \"   lone\"}, \"expected\": [\"lone\"], \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": {\"text\": \"a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a17 a18 a19 a20 a21 a22 a23 a24 a25 a26 a27 a28 a29 a30 a31 a32 a33 a34 a35 a36 a37 a38 a39 a40 a41 a42 a43 a44 a45 a46 a47 a48 a49\"}, \"expected\": [\"a0\", \"a1\", \"a2\", \"a3\", \"a4\", \"a5\", \"a6\", \"a7\", \"a8\", \"a9\", \"a10\", \"a11\", \"a12\", \"a13\", \"a14\", \"a15\", \"a16\", \"a17\", \"a18\", \"a19\", \"a20\", \"a21\", \"a22\", \"a23\", \"a24\", \"a25\", \"a26\", \"a27\", \"a28\", \"a29\", \"a30\", \"a31\", \"a32\", \"a33\", \"a34\", \"a35\", \"a36\", \"a37\", \"a38\", \"a39\", \"a40\", \"a41\", \"a42\", \"a43\", \"a44\", \"a45\", \"a46\", \"a47\", \"a48\", \"a49\"], \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:11:39.476Z",
+      "latencyMs": 479.14
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "text": ""
+          },
+          "expected": [],
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "text": " \t "
+          },
+          "expected": [],
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "text": "echo"
+          },
+          "expected": [
+            "echo"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "text": "a_b.c1"
+          },
+          "expected": [
+            "a_b.c1"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "text": "a;b"
+          },
+          "expected": [
+            "a",
+            ";",
+            "b"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "text": "a > b"
+          },
+          "expected": [
+            "a",
+            ">",
+            "b"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "text": "if echo ok; then echo foobar > example.txt; fi"
+          },
+          "expected": [
+            "if",
+            "echo",
+            "ok",
+            ";",
+            "then",
+            "echo",
+            "foobar",
+            ">",
+            "example.txt",
+            ";",
+            "fi"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "text": "x\ny"
+          },
+          "expected": [
+            "x",
+            "\n",
+            "y"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "text": "ab>cd"
+          },
+          "expected": [
+            "ab",
+            ">",
+            "cd"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "text": "a  ;  b"
+          },
+          "expected": [
+            "a",
+            ";",
+            "b"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "text": "Z9._"
+          },
+          "expected": [
+            "Z9._"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "text": "\n"
+          },
+          "expected": [
+            "\n"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "text": ";"
+          },
+          "expected": [
+            ";"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "text": "a;"
+          },
+          "expected": [
+            "a",
+            ";"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "text": "a\n b\n"
+          },
+          "expected": [
+            "a",
+            "\n",
+            "b",
+            "\n"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "text": "x>y;z\nw"
+          },
+          "expected": [
+            "x",
+            ">",
+            "y",
+            ";",
+            "z",
+            "\n",
+            "w"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "text": "a\tb"
+          },
+          "expected": [
+            "a",
+            "b"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": {
+            "text": "   lone"
+          },
+          "expected": [
+            "lone"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": {
+            "text": "a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a17 a18 a19 a20 a21 a22 a23 a24 a25 a26 a27 a28 a29 a30 a31 a32 a33 a34 a35 a36 a37 a38 a39 a40 a41 a42 a43 a44 a45 a46 a47 a48 a49"
+          },
+          "expected": [
+            "a0",
+            "a1",
+            "a2",
+            "a3",
+            "a4",
+            "a5",
+            "a6",
+            "a7",
+            "a8",
+            "a9",
+            "a10",
+            "a11",
+            "a12",
+            "a13",
+            "a14",
+            "a15",
+            "a16",
+            "a17",
+            "a18",
+            "a19",
+            "a20",
+            "a21",
+            "a22",
+            "a23",
+            "a24",
+            "a25",
+            "a26",
+            "a27",
+            "a28",
+            "a29",
+            "a30",
+            "a31",
+            "a32",
+            "a33",
+            "a34",
+            "a35",
+            "a36",
+            "a37",
+            "a38",
+            "a39",
+            "a40",
+            "a41",
+            "a42",
+            "a43",
+            "a44",
+            "a45",
+            "a46",
+            "a47",
+            "a48",
+            "a49"
+          ],
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "ef2f654a634318059dcb38358b2c44726f2756728484014f704697fc75936997"
+  },
+  "contractAudit": {
+    "key": "7d44c2be2d1384aba1f5",
+    "costUsd": 0.00248642,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "The checks array is empty, so there are no C1 checks to invalidate.",
+        "The execution's input domain covers the empty string, whitespace-only text, single and adjacent operators, newlines, tabs, the question's example sentence, and a long input under the 400-character limit.",
+        "The reference is a deterministic regex tokenizer over the stated subset, and its outputs match the supplied expected values for every input.",
+        "The validator accepts only inputs whose tokens equal the non-whitespace text, so it rejects digit-initial words, bare dots and underscores, and adjacent operators.",
+        "The subset is narrow (no quotes, pipes, digits at token start, or '>>'), but it is a necessary behavioral requirement for the lexer and is not an unrequested requirement.",
+        "Newline as a token is supported by the candidate's own '\\n' branch and is relevant to POSIX shell tokenization, so it is not an unrequested requirement.",
+        "No examples are supplied, so there is no reference/example conflict, and there is no nondeterministic or external behavior.",
+        "Validator probes correctly reject null, dict, list, integer, boolean, and string non-dict inputs."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "7d44c2be2d1384aba1f5",
+    "02c0f24ab72d31f01a40",
+    "f59c7e819f0f685a337c",
+    "99242df9df4830ab196a",
+    "62b774d2a58adfdb0cd8"
+  ],
+  "callKeys": [
+    "7d44c2be2d1384aba1f5",
+    "caf0419b9172fdcceed1",
+    "b535c55bcceb1f88ded3",
+    "02c0f24ab72d31f01a40",
+    "f59c7e819f0f685a337c",
+    "99242df9df4830ab196a",
+    "62b774d2a58adfdb0cd8"
+  ]
+}

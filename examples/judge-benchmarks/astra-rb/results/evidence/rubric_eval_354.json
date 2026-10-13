@@ -1,0 +1,60 @@
+{
+  "id": "rubric_eval_354",
+  "protocolVersion": 4,
+  "planKey": "4e8e5555a2d60c82962f",
+  "questionPlanKey": "5db40fa890ec7e8a85ac",
+  "at": "2026-10-13T04:27:37.155Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-iWGrEC",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:11:30.758Z",
+      "latencyMs": 265.264
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "e6f076672dfeffcb5982f50d7812fa14d15cca2fe249e2a17dd137b36142cb8f"
+  },
+  "contractAudit": {
+    "key": "b0ce8515f941191388e0",
+    "costUsd": 0.00074832,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "Check 0 (uses_get_aduser_cmdlet) is a bare substring test for 'Get-ADUser'. It passes any text that merely mentions the cmdlet in prose, such as 'do not use Get-ADUser', so it does not implement the literal instruction to use Get-ADUser to query records.",
+        "The check does not test the question's core condition, that returned records have non-blank email fields.",
+        "plan.execution is null, so there is no executable validation and execution_valid must be false.",
+        "With no valid C1 check and no valid execution, the contract as a whole is invalid."
+      ],
+      "invalid_checks": [
+        0
+      ],
+      "execution_valid": false
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "b0ce8515f941191388e0"
+  ],
+  "callKeys": [
+    "b0ce8515f941191388e0"
+  ]
+}

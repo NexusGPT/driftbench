@@ -1,0 +1,1234 @@
+{
+  "id": "rubric_eval_569",
+  "protocolVersion": 4,
+  "planKey": "b1cc1023ea770490856b",
+  "questionPlanKey": "9f6b9a8bb34facb53bec",
+  "at": "2026-10-13T04:28:58.246Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "a377086366dd950ea66f",
+        "costUsd": 0.00415101,
+        "value": {
+          "runnable": true,
+          "reason": "The candidate is a single complete Pyomo model-building snippet (block 0) that reads the globals gb_courses and df_TT_instructors_FALL. The harness reads block-0.txt verbatim and executes it per input, supplying adapter objects that expose only the attributes the contract names: gb_courses.groups.keys() and df_TT_instructors_FALL['V_ID_NAME_CONCAT'].tolist(). It then reports the observed constraint index count and the number of 0/1 assignments satisfying all active constraints, using exhaustive enumeration over the model's variables. No algorithm is reimplemented and no expected values are emitted.",
+          "command": "python3 harness.py",
+          "files": {
+            "harness.py": "import contextlib\nimport io\nimport itertools\nimport json\nimport sys\nfrom types import SimpleNamespace\n\nCODE_PATH = \"block-0.txt\"\nCASES_PATH = \"inputs.json\"\nTOL = 1e-9\nMAX_VARS = 24\n\n\ndef emit(obj):\n    sys.stdout.write(json.dumps(obj))\n    sys.stdout.write(\"\\n\")\n    sys.stdout.flush()\n\n\nclass _Groups:\n    def __init__(self, classes):\n        self._keys = list(classes)\n\n    def keys(self):\n        return list(self._keys)\n\n\nclass _Series:\n    def __init__(self, values):\n        self._values = list(values)\n\n    def tolist(self):\n        return list(self._values)\n\n\nclass _Frame:\n    def __init__(self, instructors):\n        self._instructors = list(instructors)\n\n    def __getitem__(self, key):\n        if key != \"V_ID_NAME_CONCAT\":\n            raise KeyError(key)\n        return _Series(self._instructors)\n\n\ndef measure(pyo, m):\n    constraints = list(\n        m.component_data_objects(pyo.Constraint, active=True, descend_into=True)\n    )\n    variables = list(m.component_data_objects(pyo.Var, descend_into=True))\n    n = len(variables)\n    if n > MAX_VARS:\n        raise RuntimeError(\"too many variables for exhaustive check: %d\" % n)\n\n    feasible = 0\n    for bits in itertools.product((0, 1), repeat=n):\n        for v, b in zip(variables, bits):\n            v.set_value(b, skip_validation=True)\n        ok = True\n        for con in constraints:\n            body = pyo.value(con.body)\n            if con.lower is not None and body < pyo.value(con.lower) - TOL:\n                ok = False\n                break\n            if con.upper is not None and body > pyo.value(con.upper) + TOL:\n                ok = False\n                break\n        if ok:\n            feasible += 1\n\n    return {\n        \"constraint_count\": len(constraints),\n        \"feasible_assignments\": feasible,\n    }\n\n\ndef run_candidate(pyo, code, classes, instructors):\n    ns = {\"__name__\": \"__candidate__\"}\n    ns[\"gb_courses\"] = SimpleNamespace(groups=_Groups(classes))\n    ns[\"df_TT_instructors_FALL\"] = _Frame(instructors)\n    exec(compile(code, CODE_PATH, \"exec\"), ns)\n    m = ns.get(\"m\")\n    if m is None:\n        raise RuntimeError(\"candidate did not define m\")\n    return measure(pyo, m)\n\n\ndef main():\n    try:\n        with open(CASES_PATH, \"r\", encoding=\"utf-8\") as fh:\n            cases = json.load(fh)\n    except Exception as exc:\n        emit({\"results\": [], \"harness_error\": \"failed to read inputs.json: \" + repr(exc)})\n        return\n\n    try:\n        with open(CODE_PATH, \"r\", encoding=\"utf-8\") as fh:\n            code = fh.read()\n    except Exception as exc:\n        emit({\"results\": [], \"harness_error\": \"failed to read block-0.txt: \" + repr(exc)})\n        return\n\n    try:\n        with contextlib.redirect_stdout(io.StringIO()):\n            import pyomo.environ as pyo\n    except Exception as exc:\n        emit({\"results\": [], \"harness_error\": \"failed to import pyomo: \" + repr(exc)})\n        return\n\n    results = []\n    for case in cases:\n        cid = case.get(\"id\") if isinstance(case, dict) else None\n        try:\n            inp = case[\"input\"]\n            classes = list(inp[\"classes\"])\n            instructors = list(inp[\"instructors\"])\n        except Exception as exc:\n            results.append({\"id\": cid, \"error\": \"bad input: \" + repr(exc)})\n            continue\n\n        buf = io.StringIO()\n        try:\n            with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):\n                actual = run_candidate(pyo, code, classes, instructors)\n            results.append({\"id\": cid, \"actual\": actual})\n        except Exception as exc:\n            results.append({\"id\": cid, \"error\": type(exc).__name__ + \": \" + str(exc)})\n\n    emit({\"results\": results})\n\n\nif __name__ == \"__main__\":\n    main()\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "8389360a2b8d94a5b9dc",
+        "costUsd": 0.0019674799999999997,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "Block 0 is the complete, self-contained candidate snippet and is read verbatim from block-0.txt. The harness executes it with exec and does not modify, repair, or reimplement the model-building logic.",
+            "The only supplied objects are gb_courses.groups.keys() and df_TT_instructors_FALL['V_ID_NAME_CONCAT'].tolist(), which are the input-contract substitutes the candidate actually uses. These are permitted fixture/type-serialization scaffolding.",
+            "The harness does not compute expected values. It reports observed constraint_count (active constraint data objects) and feasible_assignments (0/1 assignments satisfying all active constraints, checked by exhaustive enumeration of the candidate's own variables), which are observations of the candidate model.",
+            "Required dependencies (pyomo) are supported and imported; a failed import is reported as a harness_error rather than a candidate error.",
+            "Each successful result has an actual object with constraint_count and feasible_assignments as numbers, matching output_schema. Error entries arise only from exceptions while running the candidate's code, which is a legitimate candidate outcome given the provided setup stubs.",
+            "The harness does not catch missing setup as a candidate error, since the required globals are always provided, and the input cases (up to 3 classes by 3 instructors, at most 9 variables) fit within MAX_VARS."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-2Ux3gr",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 harness.py 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\": [{\"id\": \"t0\", \"actual\": {\"constraint_count\": 0, \"feasible_assignments\": 1}}, {\"id\": \"t1\", \"actual\": {\"constraint_count\": 0, \"feasible_assignments\": 1}}, {\"id\": \"t2\", \"error\": \"InvalidConstraintError: Invalid constraint expression. The constraint expression resolved to a trivial Boolean (True) instead of a Pyomo object. Please modify your rule to return Constraint.Feasible instead of True.\\n\\nError thrown for Constraint 'one_instructor_constraint[C1]'\"}, {\"id\": \"t3\", \"actual\": {\"constraint_count\": 1, \"feasible_assignments\": 2}}, {\"id\": \"t4\", \"actual\": {\"constraint_count\": 1, \"feasible_assignments\": 3}}, {\"id\": \"t5\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 4}}, {\"id\": \"t6\", \"actual\": {\"constraint_count\": 1, \"feasible_assignments\": 4}}, {\"id\": \"t7\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 9}}, {\"id\": \"t8\", \"actual\": {\"constraint_count\": 3, \"feasible_assignments\": 8}}, {\"id\": \"t9\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 16}}, {\"id\": \"t10\", \"actual\": {\"constraint_count\": 3, \"feasible_assignments\": 27}}, {\"id\": \"t11\", \"actual\": {\"constraint_count\": 3, \"feasible_assignments\": 64}}, {\"id\": \"t12\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 9}}, {\"id\": \"t13\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 9}}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:22:01.809Z",
+          "latencyMs": 3699.873
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": {
+                "constraint_count": 0,
+                "feasible_assignments": 1
+              }
+            },
+            {
+              "id": "t1",
+              "actual": {
+                "constraint_count": 0,
+                "feasible_assignments": 1
+              }
+            },
+            {
+              "id": "t2",
+              "error": "InvalidConstraintError: Invalid constraint expression. The constraint expression resolved to a trivial Boolean (True) instead of a Pyomo object. Please modify your rule to return Constraint.Feasible instead of True.\n\nError thrown for Constraint 'one_instructor_constraint[C1]'"
+            },
+            {
+              "id": "t3",
+              "actual": {
+                "constraint_count": 1,
+                "feasible_assignments": 2
+              }
+            },
+            {
+              "id": "t4",
+              "actual": {
+                "constraint_count": 1,
+                "feasible_assignments": 3
+              }
+            },
+            {
+              "id": "t5",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 4
+              }
+            },
+            {
+              "id": "t6",
+              "actual": {
+                "constraint_count": 1,
+                "feasible_assignments": 4
+              }
+            },
+            {
+              "id": "t7",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 9
+              }
+            },
+            {
+              "id": "t8",
+              "actual": {
+                "constraint_count": 3,
+                "feasible_assignments": 8
+              }
+            },
+            {
+              "id": "t9",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 16
+              }
+            },
+            {
+              "id": "t10",
+              "actual": {
+                "constraint_count": 3,
+                "feasible_assignments": 27
+              }
+            },
+            {
+              "id": "t11",
+              "actual": {
+                "constraint_count": 3,
+                "feasible_assignments": 64
+              }
+            },
+            {
+              "id": "t12",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 9
+              }
+            },
+            {
+              "id": "t13",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 9
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "classes": [],
+            "instructors": []
+          },
+          "expected": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "classes": [],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": []
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 1
+          },
+          "oracle": "reference",
+          "error": "InvalidConstraintError: Invalid constraint expression. The constraint expression resolved to a trivial Boolean (True) instead of a Pyomo object. Please modify your rule to return Constraint.Feasible instead of True.\n\nError thrown for Constraint 'one_instructor_constraint[C1]'",
+          "verdict": "fail"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 2
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 1,
+            "feasible_assignments": 2
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": [
+              "I1",
+              "I2"
+            ]
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 3
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 1,
+            "feasible_assignments": 3
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "classes": [
+              "C1",
+              "C2"
+            ],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 4
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 4
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": [
+              "I1",
+              "I2",
+              "I3"
+            ]
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 4
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 1,
+            "feasible_assignments": 4
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "classes": [
+              "C1",
+              "C2"
+            ],
+            "instructors": [
+              "I1",
+              "I2"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "classes": [
+              "C1",
+              "C2",
+              "C3"
+            ],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 3,
+            "feasible_assignments": 8
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 3,
+            "feasible_assignments": 8
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "classes": [
+              "C1",
+              "C2"
+            ],
+            "instructors": [
+              "I1",
+              "I2",
+              "I3"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 16
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 16
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "classes": [
+              "C1",
+              "C2",
+              "C3"
+            ],
+            "instructors": [
+              "I1",
+              "I2"
+            ]
+          },
+          "expected": {
+            "constraint_count": 3,
+            "feasible_assignments": 27
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 3,
+            "feasible_assignments": 27
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "classes": [
+              "C1",
+              "C2",
+              "C3"
+            ],
+            "instructors": [
+              "I1",
+              "I2",
+              "I3"
+            ]
+          },
+          "expected": {
+            "constraint_count": 3,
+            "feasible_assignments": 64
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 3,
+            "feasible_assignments": 64
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "classes": [
+              "CS 101",
+              "MATH-200"
+            ],
+            "instructors": [
+              "Smith, J",
+              "Lee, K"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "classes": [
+              "A",
+              "B"
+            ],
+            "instructors": [
+              "007",
+              "010"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "verdict": "pass"
+        }
+      ],
+      "retainedObservation": true
+    },
+    {
+      "status": "executed",
+      "side": "b",
+      "adapter": {
+        "key": "e2c2f1774e95fae23ef3",
+        "costUsd": 0.0029351100000000003,
+        "value": {
+          "runnable": true,
+          "reason": "The candidate block is a complete, self-contained Pyomo model-building snippet. Its two external names, gb_courses.groups and df_TT_instructors_FALL['V_ID_NAME_CONCAT'], are supplied by the harness as stand-ins built from each input's classes and instructors lists, so the candidate's own model code runs unchanged. The harness reads block-0.txt verbatim and executes it per input. It reports the number of constraint indices and the number of 0/1 assignments that satisfy every active constraint, checked by evaluating each constraint body with Pyomo. Candidate exceptions are recorded as per-case errors. Requires pyomo to be importable.",
+          "command": "python3 harness.py",
+          "files": {
+            "harness.py": "import json\nimport sys\nimport io\nimport itertools\nimport contextlib\nfrom types import SimpleNamespace\n\n\ndef run_candidate(classes, instructors, src, pyo):\n    gb = SimpleNamespace(groups=list(classes))\n    df = {'V_ID_NAME_CONCAT': list(instructors)}\n    g = {'__name__': '__candidate__', 'gb_courses': gb, 'df_TT_instructors_FALL': df}\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):\n        exec(compile(src, 'block-0.txt', 'exec'), g)\n        m = g['m']\n        var = m.class_assignments\n        cons = m.one_instructor_constraint\n        var_keys = list(var.keys())\n        constraint_count = len(cons)\n        feasible = 0\n        for combo in itertools.product((0, 1), repeat=len(var_keys)):\n            for k, v in zip(var_keys, combo):\n                var[k].set_value(v)\n            ok = True\n            for idx in list(cons.keys()):\n                c = cons[idx]\n                body = pyo.value(c.body)\n                if c.lower is not None and body < pyo.value(c.lower) - 1e-9:\n                    ok = False\n                if c.upper is not None and body > pyo.value(c.upper) + 1e-9:\n                    ok = False\n            if ok:\n                feasible += 1\n    return {'constraint_count': constraint_count, 'feasible_assignments': feasible}\n\n\ndef main():\n    try:\n        with open('block-0.txt', 'r', encoding='utf-8') as f:\n            src = f.read()\n        with open('inputs.json', 'r', encoding='utf-8') as f:\n            items = json.load(f)\n        import pyomo.environ as pyo\n    except Exception as e:\n        sys.stdout.write(json.dumps({'results': [], 'harness_error': 'setup failed: ' + type(e).__name__ + ': ' + str(e)}) + '\\n')\n        return\n\n    results = []\n    for item in items:\n        iid = item.get('id')\n        inp = item.get('input') or {}\n        try:\n            actual = run_candidate(inp.get('classes', []), inp.get('instructors', []), src, pyo)\n            results.append({'id': iid, 'actual': actual})\n        except Exception as e:\n            results.append({'id': iid, 'error': type(e).__name__ + ': ' + str(e)})\n    sys.stdout.write(json.dumps({'results': results}) + '\\n')\n\n\nif __name__ == '__main__':\n    main()\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "5f6f7488f3bed246dfc1",
+        "costUsd": 0.00234768,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "The candidate block is the complete final recommended code, and block index 0 matches the fenced Python block verbatim.",
+            "The harness reads block-0.txt from disk and execs it unchanged, with no edits, repairs, or removed statements.",
+            "Injected names gb_courses.groups and df_TT_instructors_FALL['V_ID_NAME_CONCAT'] are scaffolding that supplies the input lists in the shape the candidate indexes, so the candidate's own model code runs as written.",
+            "The harness computes constraint_count from len(m.one_instructor_constraint) and feasible_assignments by evaluating the candidate-built constraints with Pyomo, so it observes the candidate's model rather than reimplementing its algorithm.",
+            "Every successful actual has exactly the output_schema fields (constraint_count and feasible_assignments, both numeric).",
+            "Candidate exceptions are recorded per case, while missing setup (file reads or the pyomo import) is reported separately as harness_error and not as a candidate result.",
+            "The required dependency pyomo is listed as needed and is supported; no solver is required because the harness only evaluates expressions.",
+            "The block-0.txt and inputs.json fixtures are not in the files map but are runtime fixtures the harness reads, which is permitted scaffolding."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-QRXJlQ",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 harness.py 2>&1'",
+          "exitCode": 0,
+          "stdout": "ERROR: Rule failed when generating expression for Constraint\none_instructor_constraint with index C1: InvalidConstraintError: Invalid\nconstraint expression. The constraint expression resolved to a trivial Boolean\n(True) instead of a Pyomo object. Please modify your rule to return\nConstraint.Feasible instead of True.\n\n    Error thrown for Constraint 'one_instructor_constraint[C1]'\nERROR: Constructing component 'one_instructor_constraint' from data=None\nfailed:\n        InvalidConstraintError: Invalid constraint expression. The constraint\n        expression resolved to a trivial Boolean (True) instead of a Pyomo\n        object. Please modify your rule to return Constraint.Feasible instead\n        of True.\n\n    Error thrown for Constraint 'one_instructor_constraint[C1]'\n{\"results\": [{\"id\": \"t0\", \"actual\": {\"constraint_count\": 0, \"feasible_assignments\": 1}}, {\"id\": \"t1\", \"actual\": {\"constraint_count\": 0, \"feasible_assignments\": 1}}, {\"id\": \"t2\", \"error\": \"InvalidConstraintError: Invalid constraint expression. The constraint expression resolved to a trivial Boolean (True) instead of a Pyomo object. Please modify your rule to return Constraint.Feasible instead of True.\\n\\nError thrown for Constraint 'one_instructor_constraint[C1]'\"}, {\"id\": \"t3\", \"actual\": {\"constraint_count\": 1, \"feasible_assignments\": 2}}, {\"id\": \"t4\", \"actual\": {\"constraint_count\": 1, \"feasible_assignments\": 3}}, {\"id\": \"t5\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 4}}, {\"id\": \"t6\", \"actual\": {\"constraint_count\": 1, \"feasible_assignments\": 4}}, {\"id\": \"t7\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 9}}, {\"id\": \"t8\", \"actual\": {\"constraint_count\": 3, \"feasible_assignments\": 8}}, {\"id\": \"t9\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 16}}, {\"id\": \"t10\", \"actual\": {\"constraint_count\": 3, \"feasible_assignments\": 27}}, {\"id\": \"t11\", \"actual\": {\"constraint_count\": 3, \"feasible_assignments\": 64}}, {\"id\": \"t12\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 9}}, {\"id\": \"t13\", \"actual\": {\"constraint_count\": 2, \"feasible_assignments\": 9}}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:22:51.695Z",
+          "latencyMs": 2723.849
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": {
+                "constraint_count": 0,
+                "feasible_assignments": 1
+              }
+            },
+            {
+              "id": "t1",
+              "actual": {
+                "constraint_count": 0,
+                "feasible_assignments": 1
+              }
+            },
+            {
+              "id": "t2",
+              "error": "InvalidConstraintError: Invalid constraint expression. The constraint expression resolved to a trivial Boolean (True) instead of a Pyomo object. Please modify your rule to return Constraint.Feasible instead of True.\n\nError thrown for Constraint 'one_instructor_constraint[C1]'"
+            },
+            {
+              "id": "t3",
+              "actual": {
+                "constraint_count": 1,
+                "feasible_assignments": 2
+              }
+            },
+            {
+              "id": "t4",
+              "actual": {
+                "constraint_count": 1,
+                "feasible_assignments": 3
+              }
+            },
+            {
+              "id": "t5",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 4
+              }
+            },
+            {
+              "id": "t6",
+              "actual": {
+                "constraint_count": 1,
+                "feasible_assignments": 4
+              }
+            },
+            {
+              "id": "t7",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 9
+              }
+            },
+            {
+              "id": "t8",
+              "actual": {
+                "constraint_count": 3,
+                "feasible_assignments": 8
+              }
+            },
+            {
+              "id": "t9",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 16
+              }
+            },
+            {
+              "id": "t10",
+              "actual": {
+                "constraint_count": 3,
+                "feasible_assignments": 27
+              }
+            },
+            {
+              "id": "t11",
+              "actual": {
+                "constraint_count": 3,
+                "feasible_assignments": 64
+              }
+            },
+            {
+              "id": "t12",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 9
+              }
+            },
+            {
+              "id": "t13",
+              "actual": {
+                "constraint_count": 2,
+                "feasible_assignments": 9
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "classes": [],
+            "instructors": []
+          },
+          "expected": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "classes": [],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": []
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 1
+          },
+          "oracle": "reference",
+          "error": "InvalidConstraintError: Invalid constraint expression. The constraint expression resolved to a trivial Boolean (True) instead of a Pyomo object. Please modify your rule to return Constraint.Feasible instead of True.\n\nError thrown for Constraint 'one_instructor_constraint[C1]'",
+          "verdict": "fail"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 2
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 1,
+            "feasible_assignments": 2
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": [
+              "I1",
+              "I2"
+            ]
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 3
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 1,
+            "feasible_assignments": 3
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "classes": [
+              "C1",
+              "C2"
+            ],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 4
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 4
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": [
+              "I1",
+              "I2",
+              "I3"
+            ]
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 4
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 1,
+            "feasible_assignments": 4
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "classes": [
+              "C1",
+              "C2"
+            ],
+            "instructors": [
+              "I1",
+              "I2"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "classes": [
+              "C1",
+              "C2",
+              "C3"
+            ],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 3,
+            "feasible_assignments": 8
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 3,
+            "feasible_assignments": 8
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "classes": [
+              "C1",
+              "C2"
+            ],
+            "instructors": [
+              "I1",
+              "I2",
+              "I3"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 16
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 16
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "classes": [
+              "C1",
+              "C2",
+              "C3"
+            ],
+            "instructors": [
+              "I1",
+              "I2"
+            ]
+          },
+          "expected": {
+            "constraint_count": 3,
+            "feasible_assignments": 27
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 3,
+            "feasible_assignments": 27
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "classes": [
+              "C1",
+              "C2",
+              "C3"
+            ],
+            "instructors": [
+              "I1",
+              "I2",
+              "I3"
+            ]
+          },
+          "expected": {
+            "constraint_count": 3,
+            "feasible_assignments": 64
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 3,
+            "feasible_assignments": 64
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "classes": [
+              "CS 101",
+              "MATH-200"
+            ],
+            "instructors": [
+              "Smith, J",
+              "Lee, K"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "classes": [
+              "A",
+              "B"
+            ],
+            "instructors": [
+              "007",
+              "010"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "oracle": "reference",
+          "actual": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "verdict": "pass"
+        }
+      ],
+      "retainedObservation": true
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-VgLoSH",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"classes\": [], \"instructors\": []}, \"expected\": {\"constraint_count\": 0, \"feasible_assignments\": 1}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"classes\": [], \"instructors\": [\"I1\"]}, \"expected\": {\"constraint_count\": 0, \"feasible_assignments\": 1}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"classes\": [\"C1\"], \"instructors\": []}, \"expected\": {\"constraint_count\": 1, \"feasible_assignments\": 1}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"classes\": [\"C1\"], \"instructors\": [\"I1\"]}, \"expected\": {\"constraint_count\": 1, \"feasible_assignments\": 2}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"classes\": [\"C1\"], \"instructors\": [\"I1\", \"I2\"]}, \"expected\": {\"constraint_count\": 1, \"feasible_assignments\": 3}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"classes\": [\"C1\", \"C2\"], \"instructors\": [\"I1\"]}, \"expected\": {\"constraint_count\": 2, \"feasible_assignments\": 4}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"classes\": [\"C1\"], \"instructors\": [\"I1\", \"I2\", \"I3\"]}, \"expected\": {\"constraint_count\": 1, \"feasible_assignments\": 4}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"classes\": [\"C1\", \"C2\"], \"instructors\": [\"I1\", \"I2\"]}, \"expected\": {\"constraint_count\": 2, \"feasible_assignments\": 9}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"classes\": [\"C1\", \"C2\", \"C3\"], \"instructors\": [\"I1\"]}, \"expected\": {\"constraint_count\": 3, \"feasible_assignments\": 8}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"classes\": [\"C1\", \"C2\"], \"instructors\": [\"I1\", \"I2\", \"I3\"]}, \"expected\": {\"constraint_count\": 2, \"feasible_assignments\": 16}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"classes\": [\"C1\", \"C2\", \"C3\"], \"instructors\": [\"I1\", \"I2\"]}, \"expected\": {\"constraint_count\": 3, \"feasible_assignments\": 27}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"classes\": [\"C1\", \"C2\", \"C3\"], \"instructors\": [\"I1\", \"I2\", \"I3\"]}, \"expected\": {\"constraint_count\": 3, \"feasible_assignments\": 64}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"classes\": [\"CS 101\", \"MATH-200\"], \"instructors\": [\"Smith, J\", \"Lee, K\"]}, \"expected\": {\"constraint_count\": 2, \"feasible_assignments\": 9}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"classes\": [\"A\", \"B\"], \"instructors\": [\"007\", \"010\"]}, \"expected\": {\"constraint_count\": 2, \"feasible_assignments\": 9}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:20:58.111Z",
+      "latencyMs": 257.332
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "classes": [],
+            "instructors": []
+          },
+          "expected": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "classes": [],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 0,
+            "feasible_assignments": 1
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": []
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 1
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 2
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": [
+              "I1",
+              "I2"
+            ]
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 3
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "classes": [
+              "C1",
+              "C2"
+            ],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 4
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "classes": [
+              "C1"
+            ],
+            "instructors": [
+              "I1",
+              "I2",
+              "I3"
+            ]
+          },
+          "expected": {
+            "constraint_count": 1,
+            "feasible_assignments": 4
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "classes": [
+              "C1",
+              "C2"
+            ],
+            "instructors": [
+              "I1",
+              "I2"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "classes": [
+              "C1",
+              "C2",
+              "C3"
+            ],
+            "instructors": [
+              "I1"
+            ]
+          },
+          "expected": {
+            "constraint_count": 3,
+            "feasible_assignments": 8
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "classes": [
+              "C1",
+              "C2"
+            ],
+            "instructors": [
+              "I1",
+              "I2",
+              "I3"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 16
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "classes": [
+              "C1",
+              "C2",
+              "C3"
+            ],
+            "instructors": [
+              "I1",
+              "I2"
+            ]
+          },
+          "expected": {
+            "constraint_count": 3,
+            "feasible_assignments": 27
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "classes": [
+              "C1",
+              "C2",
+              "C3"
+            ],
+            "instructors": [
+              "I1",
+              "I2",
+              "I3"
+            ]
+          },
+          "expected": {
+            "constraint_count": 3,
+            "feasible_assignments": 64
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "classes": [
+              "CS 101",
+              "MATH-200"
+            ],
+            "instructors": [
+              "Smith, J",
+              "Lee, K"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "classes": [
+              "A",
+              "B"
+            ],
+            "instructors": [
+              "007",
+              "010"
+            ]
+          },
+          "expected": {
+            "constraint_count": 2,
+            "feasible_assignments": 9
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "00e21685e4c0ec7b152d064858907daf62357d2b4441219897c2c1949150414b"
+  },
+  "contractAudit": {
+    "key": "145a8707978d706fda47",
+    "costUsd": 0.0018459199999999998,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Reference brute force matches the stated semantics: each class row independently takes 0 or one of n instructors, so feasible grids = (n+1)^c. All 14 supplied inputs, including empty classes and empty instructors, produce the expected counts.",
+        "Constraint_count equals the number of classes in every case, and the constraint index set is exactly the given classes, as specified.",
+        "Validator accepts all generated inputs and rejects the probes (null, {}, [], 1, true, 'malformed'). Its checks (list type, length at most 3, non-empty stripped strings, no duplicates) match the input contract.",
+        "The fictional keys and IDs with spaces, punctuation, and leading zeros ('CS 101', 'Smith, J', '007') are valid per the contract and exercise string handling without relying on external data or nondeterminism.",
+        "Observables are deterministic and implement the literal instruction (at most one instructor per class), not an unrequested requirement.",
+        "Edge note, not a contract defect: with an empty instructor list, a naive sum over an empty set yields a Python bool, which Pyomo may reject as a constraint rule return value. The reference is well-defined, so this is a candidate-side pitfall, not an invalid expectation."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "145a8707978d706fda47",
+    "a377086366dd950ea66f",
+    "8389360a2b8d94a5b9dc",
+    "e2c2f1774e95fae23ef3",
+    "5f6f7488f3bed246dfc1"
+  ],
+  "callKeys": [
+    "145a8707978d706fda47",
+    "a377086366dd950ea66f",
+    "8389360a2b8d94a5b9dc",
+    "e2c2f1774e95fae23ef3",
+    "5f6f7488f3bed246dfc1"
+  ]
+}

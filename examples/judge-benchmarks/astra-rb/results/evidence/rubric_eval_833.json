@@ -1,0 +1,84 @@
+{
+  "id": "rubric_eval_833",
+  "planKey": "d64ea02d6934ae2593e1",
+  "at": "2026-10-13T04:05:50.119Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "exactly_four_numbers",
+      "source_quote": "Include exactly 4 numbers in the response.",
+      "a": false,
+      "b": true,
+      "programHash": "0b933696a25da76eef8885742883e82d9c5ca1b7c546481fcc1c96360868b36a"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-3Cffuh",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:47.364Z",
+      "latencyMs": 423.891
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "d85b140620f8b91d36b2c6d9a0b98d4e4a7f9fa22c0c8ee5c6d0f0ed968bc4f4"
+  },
+  "contractAudit": {
+    "key": "fba56abde8553cf88060",
+    "costUsd": 0.0011295,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal instruction 'Include exactly 4 numbers'. Its source_quote matches the question text exactly.",
+        "The positive fixture contains exactly four numerals (2024, 3, 45, 12) and passes. The negative fixture contains one numeral (45) and fails.",
+        "Limitation: the regex counts '1,000' as two numbers and ignores spelled-out numbers such as 'Three'. This is a minor convention gap that does not affect the tested fixtures, so the check is kept valid.",
+        "execution_valid is false because the execution is null, as the contract requires."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-xsptn8",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"exactly_four_numbers\", \"source_quote\": \"Include exactly 4 numbers in the response.\", \"a\": false, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:06:00.187Z",
+      "latencyMs": 131.166
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "exactly_four_numbers",
+          "source_quote": "Include exactly 4 numbers in the response.",
+          "a": false,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "fba56abde8553cf88060"
+  ]
+}

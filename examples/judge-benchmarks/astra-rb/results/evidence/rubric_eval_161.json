@@ -1,0 +1,105 @@
+{
+  "id": "rubric_eval_161",
+  "planKey": "e9a181203f7b909cf0b7",
+  "at": "2026-10-13T03:58:44.226Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "all_caps",
+      "source_quote": "the response should be in all capital letters",
+      "a": false,
+      "b": true,
+      "programHash": "27479e72b659b6c8361344e18d74bc9b463257dfcd3a64df30e5fa48a8144f3c"
+    },
+    {
+      "index": 1,
+      "name": "forbidden_word_rock",
+      "source_quote": "The word \"rock\" should not appear in your response.",
+      "a": true,
+      "b": true,
+      "programHash": "521f934dc5c54046769050e3405ca41fd43298723d88511fa8b601f17d2004a1"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-fpmjNR",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:44.470Z",
+      "latencyMs": 153.306
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "59576a875f68466a5f0ddf3647a7a702e8ab99106e1dbed0aaeb03737a2ae07a"
+  },
+  "contractAudit": {
+    "key": "4eaa027b0de6e6d062dc",
+    "costUsd": 0.0011866,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (all_caps) implements the literal instruction 'the response should be in all capital letters'. Its source_quote matches the question, the positive fixture is all caps, the negative fixture has lowercase, and empty or non-string input fails safely.",
+        "Check 1 (forbidden_word_rock) implements 'The word \"rock\" should not appear'. Its source_quote matches the question, and its fixtures are correct under the regex (the negative contains ROCK and returns False, the positive does not).",
+        "Check 1 uses word-boundary matching, so forms like ROCKIN' pass, while \"ROCK'N'ROLL\" also passes because the apostrophe is a boundary. This is a narrow convention gap, not a fixture error, and it does not invalidate the check.",
+        "execution is null, so execution_valid is false. Validity rests on the two valid C1 checks."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-jAlbJ2",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"all_caps\", \"source_quote\": \"the response should be in all capital letters\", \"a\": false, \"b\": true}, {\"index\": 1, \"name\": \"forbidden_word_rock\", \"source_quote\": \"The word \\\"rock\\\" should not appear in your response.\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:58:55.732Z",
+      "latencyMs": 209.081
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "all_caps",
+          "source_quote": "the response should be in all capital letters",
+          "a": false,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "forbidden_word_rock",
+          "source_quote": "The word \"rock\" should not appear in your response.",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "4eaa027b0de6e6d062dc"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "id": "rubric_eval_279",
+  "planKey": "e0e577966cbb7acbfcde",
+  "at": "2026-10-13T04:00:43.198Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "no_commas",
+      "source_quote": "Please do not use commas in your response.",
+      "a": false,
+      "b": true,
+      "programHash": "ac319fc6a8c82ad88176a6748eb990189e6e318527f35a7ad8a2c51de18e87a9"
+    },
+    {
+      "index": 1,
+      "name": "more_than_800_words",
+      "source_quote": "Answer with more than 800 words.",
+      "a": true,
+      "b": true,
+      "programHash": "e1e691cbe62c51caa2a7d1d7914ff4ecfd970635be4c46d3e6af2f2820b78437"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-aCrxtV",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:44.956Z",
+      "latencyMs": 276.339
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "277a788854a4a160e19b7d9606c97591329dde022e832bc3ba3206828d3f9299"
+  },
+  "contractAudit": {
+    "key": "6710dbefcaa7256ab43b",
+    "costUsd": 0.0011331,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (no_commas) is grounded in the source quote 'Please do not use commas in your response.' Its positive fixture contains no commas and returns True. Its negative fixture contains commas and returns False.",
+        "Check 1 (more_than_800_words) is grounded in 'Answer with more than 800 words.' The literal rule len(text.split()) > 800 matches 'more than 800 words'. The negative fixture 'Too short.' returns False. The positive fixture appears long enough to pass, but its exact word count was not verified.",
+        "Execution is null, so execution_valid is false. At least one C1 check is valid, so the contract is valid."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-opJraG",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"no_commas\", \"source_quote\": \"Please do not use commas in your response.\", \"a\": false, \"b\": true}, {\"index\": 1, \"name\": \"more_than_800_words\", \"source_quote\": \"Answer with more than 800 words.\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:00:52.347Z",
+      "latencyMs": 197.15
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "no_commas",
+          "source_quote": "Please do not use commas in your response.",
+          "a": false,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "more_than_800_words",
+          "source_quote": "Answer with more than 800 words.",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "6710dbefcaa7256ab43b"
+  ]
+}

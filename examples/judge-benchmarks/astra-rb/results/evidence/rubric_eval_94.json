@@ -1,0 +1,928 @@
+{
+  "id": "rubric_eval_94",
+  "protocolVersion": 4,
+  "planKey": "435486f12c813001585b",
+  "questionPlanKey": "1ef041c556dba64a2f32",
+  "at": "2026-10-13T04:30:51.297Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "b",
+      "adapter": {
+        "key": "f1d4ef7eaf6806b27726",
+        "costUsd": 0.00509386,
+        "value": {
+          "runnable": true,
+          "reason": "Candidate is a complete HTML page (block-0) plus its complete script (block-2). The harness parses the HTML with linkedom, finds fields by label text (normalizing curly and straight apostrophes), sets values, dispatches a click on Submit, and reads the output textarea. Each case gets a fresh DOM and a fresh vm context, so state is restored. The candidate script runs verbatim in node:vm with console stubbed, so only the final JSON is printed. Extraction is empty because no snippet needed trimming.",
+          "command": "node harness.cjs",
+          "files": {
+            "harness.cjs": "const fs = require('fs');\nconst path = require('path');\nconst vm = require('vm');\n\nfunction emit(obj) {\n  process.stdout.write(JSON.stringify(obj));\n}\n\nfunction norm(s) {\n  return String(s == null ? '' : s).replace(/[\\u2018\\u2019]/g, \"'\").replace(/\\s+/g, ' ').trim().toLowerCase();\n}\n\nconst LABEL_KEYS = {};\nLABEL_KEYS[norm('What\\u2019s the Job Title?')] = 'job_title';\nLABEL_KEYS[norm('Company Name?')] = 'company_name';\nLABEL_KEYS[norm('Link the Job Description here:')] = 'job_link';\nLABEL_KEYS[norm('Tone')] = 'tone';\nLABEL_KEYS[norm('Use Emojis?')] = 'use_emojis';\n\nconst TEXT_KEYS = ['job_title', 'company_name', 'job_link', 'tone'];\n\nfunction runCase(linkedom, html, js, inp) {\n  const parsed = linkedom.parseHTML(html);\n  const window = parsed.window;\n  const document = parsed.document;\n\n  const fields = {};\n  const labels = Array.from(document.querySelectorAll('label'));\n  for (const lab of labels) {\n    const key = LABEL_KEYS[norm(lab.textContent)];\n    if (!key) continue;\n    let el = null;\n    const forId = lab.getAttribute('for');\n    if (forId) el = document.getElementById(forId);\n    if (!el) el = lab.querySelector('input,textarea,select');\n    if (el) fields[key] = el;\n  }\n  const needed = TEXT_KEYS.concat(['use_emojis']);\n  for (const k of needed) {\n    if (!fields[k]) throw new Error('field not found for label: ' + k);\n  }\n\n  for (const k of TEXT_KEYS) {\n    fields[k].value = inp[k] == null ? '' : String(inp[k]);\n  }\n  fields.use_emojis.checked = !!inp.use_emojis;\n\n  let btn = Array.from(document.querySelectorAll('button')).find(b => norm(b.textContent) === 'submit');\n  if (!btn) btn = document.getElementById('submit-button');\n  if (!btn) btn = document.querySelector('input[type=submit]');\n  if (!btn) throw new Error('submit button not found');\n\n  const noop = function () {};\n  const silentConsole = { log: noop, warn: noop, error: noop, info: noop, debug: noop };\n  const EvCtor = window.Event || globalThis.Event;\n  const ctx = vm.createContext({\n    window: window,\n    document: document,\n    console: silentConsole,\n    Event: EvCtor,\n    CustomEvent: window.CustomEvent || globalThis.CustomEvent\n  });\n\n  vm.runInContext(js, ctx, { timeout: 2000, filename: 'block-2.txt' });\n\n  btn.dispatchEvent(new EvCtor('click', { bubbles: true, cancelable: true }));\n\n  const out = document.getElementById('output-text') || document.querySelector('textarea') || document.querySelector('output');\n  if (!out) throw new Error('output field not found');\n  const actual = typeof out.value === 'string' ? out.value : out.textContent;\n  if (typeof actual !== 'string') throw new Error('output value is not a string');\n  return actual;\n}\n\nfunction main() {\n  let linkedom, inputs, html, js;\n  try {\n    linkedom = require('linkedom');\n    inputs = JSON.parse(fs.readFileSync(path.join(__dirname, 'inputs.json'), 'utf8'));\n    html = fs.readFileSync(path.join(__dirname, 'block-0.txt'), 'utf8');\n    js = fs.readFileSync(path.join(__dirname, 'block-2.txt'), 'utf8');\n  } catch (e) {\n    emit({ results: [], harness_error: 'setup failed: ' + String((e && e.message) || e) });\n    return;\n  }\n  if (!Array.isArray(inputs)) {\n    emit({ results: [], harness_error: 'inputs.json is not an array' });\n    return;\n  }\n\n  const results = [];\n  for (const item of inputs) {\n    const id = item && item.id;\n    try {\n      const actual = runCase(linkedom, html, js, (item && item.input) || {});\n      results.push({ id: id, actual: actual });\n    } catch (e) {\n      results.push({ id: id, error: String((e && e.message) || e) });\n    }\n  }\n  emit({ results: results });\n}\n\nmain();\n"
+          },
+          "uses": [
+            0,
+            2
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "258519604bb82505faeb",
+        "costUsd": 0.00251819,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "The adapter runs the candidate's HTML (block-0) and script (block-2) verbatim, with no replaced internals and no computed expected output.",
+            "Field discovery is by visible label text, with curly and straight apostrophes normalized, so the candidate's straight-apostrophe 'What's the Job Title?' label matches the contract label.",
+            "Only permitted scaffolding is present: linkedom DOM setup, a vm context supplying document/window/Event, and a fresh DOM and context per case.",
+            "Dependencies are supported: Node with linkedom is permitted, and no unsupported runtime or library is used.",
+            "The submit button is located by its normalized 'Submit' text, and the click is dispatched through the DOM, so the candidate's own listener performs the generation.",
+            "The output is read from the output-text textarea's value, which preserves whatever the candidate actually produced, including wrong content or type.",
+            "Per-case errors are recorded as results and are not used to repair or substitute candidate behavior."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-ChN2qo",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; node harness.cjs 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Senior Data Engineer for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\"},{\"id\":\"t1\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Product Designer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\"},{\"id\":\"t2\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\"},{\"id\":\"t3\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Account Executive, EMEA for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\"},{\"id\":\"t4\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Head of People & Culture for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\"},{\"id\":\"t5\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Senior Data Engineer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\"},{\"id\":\"t6\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Product Designer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\"},{\"id\":\"t7\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Staff ML Researcher for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\"},{\"id\":\"t8\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Account Executive, EMEA for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\"},{\"id\":\"t9\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Head of People & Culture for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\"},{\"id\":\"t10\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Senior Data Engineer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\"},{\"id\":\"t11\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Product Designer for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\"},{\"id\":\"t12\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called B, we're hiring A for our new projects, use a C tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website D.\"},{\"id\":\"t13\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, we're hiring TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. Use relevant emojis.\"},{\"id\":\"t14\",\"actual\":\"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\"}]}",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:31:39.763Z",
+          "latencyMs": 1187.577
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Senior Data Engineer for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042."
+            },
+            {
+              "id": "t1",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Product Designer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis."
+            },
+            {
+              "id": "t2",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042."
+            },
+            {
+              "id": "t3",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Account Executive, EMEA for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis."
+            },
+            {
+              "id": "t4",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Head of People & Culture for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042."
+            },
+            {
+              "id": "t5",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Senior Data Engineer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis."
+            },
+            {
+              "id": "t6",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Product Designer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042."
+            },
+            {
+              "id": "t7",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Staff ML Researcher for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis."
+            },
+            {
+              "id": "t8",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Account Executive, EMEA for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042."
+            },
+            {
+              "id": "t9",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Head of People & Culture for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis."
+            },
+            {
+              "id": "t10",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Senior Data Engineer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042."
+            },
+            {
+              "id": "t11",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Product Designer for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis."
+            },
+            {
+              "id": "t12",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called B, we're hiring A for our new projects, use a C tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website D."
+            },
+            {
+              "id": "t13",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, we're hiring TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. Use relevant emojis."
+            },
+            {
+              "id": "t14",
+              "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis."
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "job_title": "Senior Data Engineer",
+            "company_name": "Brightwave Labs",
+            "tone": "friendly",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Senior Data Engineer for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Senior Data Engineer for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "job_title": "Product Designer",
+            "company_name": "Nimbus Forge",
+            "tone": "professional",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Product Designer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Product Designer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "job_title": "Staff ML Researcher",
+            "company_name": "Kestrel & Co.",
+            "tone": "casual",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "job_title": "Account Executive, EMEA",
+            "company_name": "Oakline Health",
+            "tone": "witty",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Account Executive, EMEA for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Account Executive, EMEA for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "job_title": "Head of People & Culture",
+            "company_name": "Brightwave Labs",
+            "tone": "friendly",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Head of People & Culture for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Head of People & Culture for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "job_title": "Senior Data Engineer",
+            "company_name": "Nimbus Forge",
+            "tone": "professional",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Senior Data Engineer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Senior Data Engineer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "job_title": "Product Designer",
+            "company_name": "Kestrel & Co.",
+            "tone": "casual",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Product Designer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Product Designer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "job_title": "Staff ML Researcher",
+            "company_name": "Oakline Health",
+            "tone": "witty",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Staff ML Researcher for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Staff ML Researcher for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "job_title": "Account Executive, EMEA",
+            "company_name": "Brightwave Labs",
+            "tone": "friendly",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Account Executive, EMEA for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Account Executive, EMEA for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "job_title": "Head of People & Culture",
+            "company_name": "Nimbus Forge",
+            "tone": "professional",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Head of People & Culture for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Head of People & Culture for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "job_title": "Senior Data Engineer",
+            "company_name": "Kestrel & Co.",
+            "tone": "casual",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Senior Data Engineer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Senior Data Engineer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "job_title": "Product Designer",
+            "company_name": "Oakline Health",
+            "tone": "witty",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Product Designer for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Product Designer for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "job_title": "A",
+            "company_name": "B",
+            "tone": "C",
+            "job_link": "D",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called B, we're hiring A for our new projects, use a C tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website D.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called B, we're hiring A for our new projects, use a C tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website D.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "job_title": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+            "company_name": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+            "tone": "professional",
+            "job_link": "https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, we're hiring TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. Use relevant emojis.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, we're hiring TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. Use relevant emojis.",
+          "verdict": "pass"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "job_title": "Staff ML Researcher",
+            "company_name": "Nimbus Forge",
+            "tone": "casual",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "actual": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "verdict": "pass"
+        }
+      ]
+    },
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "b7a3d9adfcdca237987f",
+        "costUsd": 0.010023859999999999,
+        "value": {
+          "runnable": true,
+          "reason": "Blocks 0, 1 and 2 form a complete HTML/CSS/JS app, so they are used verbatim. The harness loads block-0.txt (HTML) with block-1.txt injected as a style element, then runs block-2.txt (JS) in node:vm against a fresh linkedom document for each input. Fields are bound by visible label text, the 'Use Emojis?' checkbox is set, the Submit button is clicked (with a direct submit fallback if linkedom does not run button activation), and the output textarea value is read. The candidate label is 'What's the Job Title?' with a straight apostrophe while the contract uses a curly one, so label matching folds apostrophes on both sides. This is input binding only and does not change the algorithm. Block 3 is a stylesheet link outside the behaviour under test and is not used. No extraction is needed because the blocks are complete and contain no example invocations.",
+          "command": "node harness.cjs",
+          "files": {
+            "harness.cjs": "const fs = require('fs');\nconst path = require('path');\nconst vm = require('vm');\n\nfunction emit(obj) { process.stdout.write(JSON.stringify(obj)); }\n\nconst CURLY = String.fromCharCode(8217);\nconst SQ = String.fromCharCode(39);\nconst LABELS = {\n  job_title: 'What' + CURLY + 's the Job Title?',\n  company_name: 'Company Name?',\n  job_link: 'Link the Job Description here:',\n  tone: 'Tone',\n  use_emojis: 'Use Emojis?'\n};\n\nfunction squash(s) { return String(s).replace(/\\s+/g, ' ').trim(); }\nfunction fold(s) { return squash(s).split(CURLY).join(SQ); }\n\nfunction findControl(doc, text) {\n  const labels = Array.from(doc.querySelectorAll('label'));\n  let lab = labels.find(l => squash(l.textContent) === text);\n  if (!lab) lab = labels.find(l => fold(l.textContent) === fold(text));\n  if (!lab) return null;\n  const forId = lab.getAttribute('for');\n  if (forId) return doc.getElementById(forId);\n  return lab.querySelector('input, select, textarea');\n}\n\nfunction fire(el, type) {\n  const W = el.ownerDocument.defaultView;\n  const Ctor = (W && W.Event) || Event;\n  el.dispatchEvent(new Ctor(type, { bubbles: true, cancelable: true }));\n}\n\nfunction setField(doc, key, value) {\n  const label = LABELS[key];\n  const ctl = findControl(doc, label);\n  if (!ctl) throw new Error('control not found for label: ' + label);\n  const tag = ctl.tagName.toUpperCase();\n  const type = String(ctl.getAttribute('type') || '').toLowerCase();\n  if (tag === 'INPUT' && type === 'checkbox') { ctl.checked = Boolean(value); return; }\n  if (tag === 'SELECT') {\n    Array.from(ctl.querySelectorAll('option')).forEach(o => {\n      const v = o.getAttribute('value');\n      o.selected = (v !== null ? v : squash(o.textContent)) === String(value);\n    });\n  }\n  ctl.value = String(value);\n  try { fire(ctl, 'input'); fire(ctl, 'change'); } catch (e) { /* optional events */ }\n}\n\nfunction findSubmit(doc) {\n  return Array.from(doc.querySelectorAll('button, input')).find(b => {\n    const t = b.tagName.toUpperCase();\n    const ty = String(b.getAttribute('type') || '').toLowerCase();\n    return (t === 'BUTTON' && (ty === '' || ty === 'submit')) || (t === 'INPUT' && ty === 'submit');\n  }) || null;\n}\n\nfunction readOutput(doc) {\n  const areas = Array.from(doc.querySelectorAll('textarea'));\n  let el = areas.find(t => t.getAttribute('id') === 'output') || areas[0] || null;\n  if (!el) el = Array.from(doc.querySelectorAll('input')).find(i => i.hasAttribute('readonly')) || null;\n  if (!el) el = doc.getElementById('output');\n  if (!el) throw new Error('output field not found');\n  const tag = el.tagName.toUpperCase();\n  if ((tag === 'TEXTAREA' || tag === 'INPUT') && typeof el.value === 'string') return el.value;\n  return el.textContent;\n}\n\nfunction runCase(linkedom, js, page, input) {\n  const parsed = linkedom.parseHTML(page);\n  const doc = parsed.document;\n  const W = parsed.window || doc.defaultView;\n  const logs = [];\n  const sink = (...a) => { logs.push(a); };\n  const ctx = vm.createContext({\n    document: doc,\n    window: W,\n    console: { log: sink, info: sink, warn: sink, error: sink, debug: sink },\n    setTimeout: () => 0,\n    clearTimeout: () => {},\n    setInterval: () => 0,\n    clearInterval: () => {}\n  });\n  vm.runInContext(js, ctx, { filename: 'script.js', timeout: 3000 });\n\n  const form = doc.getElementById('outreach-form') || doc.querySelector('form');\n  if (!form) throw new Error('form not found');\n  const btn = findSubmit(doc);\n  if (!btn) throw new Error('submit button not found');\n\n  let submitted = false;\n  form.addEventListener('submit', () => { submitted = true; });\n\n  setField(doc, 'job_title', input.job_title ?? '');\n  setField(doc, 'company_name', input.company_name ?? '');\n  setField(doc, 'job_link', input.job_link ?? '');\n  setField(doc, 'tone', input.tone ?? '');\n  setField(doc, 'use_emojis', Boolean(input.use_emojis));\n\n  fire(btn, 'click');\n  if (!submitted) fire(form, 'submit');\n\n  return readOutput(doc);\n}\n\nfunction main() {\n  let inputs, html, css, js, linkedom;\n  try {\n    const dir = process.cwd();\n    inputs = JSON.parse(fs.readFileSync(path.join(dir, 'inputs.json'), 'utf8'));\n    if (!Array.isArray(inputs)) throw new Error('inputs.json must be an array');\n    html = fs.readFileSync(path.join(dir, 'block-0.txt'), 'utf8');\n    css = fs.readFileSync(path.join(dir, 'block-1.txt'), 'utf8');\n    js = fs.readFileSync(path.join(dir, 'block-2.txt'), 'utf8');\n    linkedom = require('linkedom');\n  } catch (e) {\n    emit({ results: [], harness_error: 'setup failed: ' + String((e && e.message) || e) });\n    return;\n  }\n  const page = html.replace('</head>', () => '<style>' + css + '</style></head>');\n  const results = [];\n  for (const item of inputs) {\n    const id = item && item.id;\n    try {\n      const actual = runCase(linkedom, js, page, (item && item.input) || {});\n      results.push({ id, actual });\n    } catch (e) {\n      results.push({ id, error: String((e && e.message) || e) });\n    }\n  }\n  emit({ results });\n}\n\nmain();\n"
+          },
+          "uses": [
+            0,
+            1,
+            2
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "2d7196c7a44427c8d4fc",
+        "costUsd": 0.00248269,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "The adapter runs the candidate's original HTML (block-0), CSS (block-1) and JavaScript (block-2) verbatim, reading the exact block files without modifying the candidate's algorithm.",
+            "The harness does not compute or hard-code any expected output; it only binds inputs to the form fields, sets the checkbox, triggers submit, and reads the output field.",
+            "Label matching folds the curly and straight apostrophes on both sides. This is input binding and does not change the candidate's logic.",
+            "The submit fallback fires a submit event on the form only if the click did not already submit. This dispatches the candidate's own handler and does not implement the requested behaviour.",
+            "The stylesheet injection and the stubbed timers are permitted scaffolding. Block-3 is a CDN link outside the tested behaviour and is correctly excluded.",
+            "Dependencies are supported: Node with linkedom and the standard vm module. Any failure to produce output, such as a missing form.elements or textarea value support in linkedom, would come from the candidate or runtime, not from missing adapter setup, and the harness preserves such failures as per-case errors rather than masking them.",
+            "Setup problems (missing files or invalid inputs.json) are reported as harness setup errors, not as candidate errors, and each per-case exception is preserved as an observation."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-qybZUa",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; node harness.cjs 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t1\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t2\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t3\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t4\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t5\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t6\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t7\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t8\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t9\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t10\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t11\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t12\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t13\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"},{\"id\":\"t14\",\"error\":\"Cannot read properties of undefined (reading 'job-title')\"}]}",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:33:10.756Z",
+          "latencyMs": 985.225
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t1",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t2",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t3",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t4",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t5",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t6",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t7",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t8",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t9",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t10",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t11",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t12",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t13",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            },
+            {
+              "id": "t14",
+              "error": "Cannot read properties of undefined (reading 'job-title')"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "job_title": "Senior Data Engineer",
+            "company_name": "Brightwave Labs",
+            "tone": "friendly",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Senior Data Engineer for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "job_title": "Product Designer",
+            "company_name": "Nimbus Forge",
+            "tone": "professional",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Product Designer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "job_title": "Staff ML Researcher",
+            "company_name": "Kestrel & Co.",
+            "tone": "casual",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "job_title": "Account Executive, EMEA",
+            "company_name": "Oakline Health",
+            "tone": "witty",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Account Executive, EMEA for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "job_title": "Head of People & Culture",
+            "company_name": "Brightwave Labs",
+            "tone": "friendly",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Head of People & Culture for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "job_title": "Senior Data Engineer",
+            "company_name": "Nimbus Forge",
+            "tone": "professional",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Senior Data Engineer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "job_title": "Product Designer",
+            "company_name": "Kestrel & Co.",
+            "tone": "casual",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Product Designer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "job_title": "Staff ML Researcher",
+            "company_name": "Oakline Health",
+            "tone": "witty",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Staff ML Researcher for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "job_title": "Account Executive, EMEA",
+            "company_name": "Brightwave Labs",
+            "tone": "friendly",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Account Executive, EMEA for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "job_title": "Head of People & Culture",
+            "company_name": "Nimbus Forge",
+            "tone": "professional",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Head of People & Culture for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "job_title": "Senior Data Engineer",
+            "company_name": "Kestrel & Co.",
+            "tone": "casual",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Senior Data Engineer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "job_title": "Product Designer",
+            "company_name": "Oakline Health",
+            "tone": "witty",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Product Designer for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "job_title": "A",
+            "company_name": "B",
+            "tone": "C",
+            "job_link": "D",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called B, we're hiring A for our new projects, use a C tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website D.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "job_title": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+            "company_name": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+            "tone": "professional",
+            "job_link": "https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, we're hiring TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. Use relevant emojis.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "job_title": "Staff ML Researcher",
+            "company_name": "Nimbus Forge",
+            "tone": "casual",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'job-title')",
+          "verdict": "fail"
+        }
+      ]
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-WJH3ZN",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [{\"id\": \"t0\", \"input\": {\"job_title\": \"Senior Data Engineer\", \"company_name\": \"Brightwave Labs\", \"tone\": \"friendly\", \"job_link\": \"https://careers.example.com/jobs/1042\", \"use_emojis\": false}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Senior Data Engineer for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\", \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"job_title\": \"Product Designer\", \"company_name\": \"Nimbus Forge\", \"tone\": \"professional\", \"job_link\": \"https://jobs.example.org/posting?id=007\", \"use_emojis\": true}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Product Designer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\", \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"job_title\": \"Staff ML Researcher\", \"company_name\": \"Kestrel & Co.\", \"tone\": \"casual\", \"job_link\": \"https://careers.example.com/jobs/1042\", \"use_emojis\": false}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\", \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"job_title\": \"Account Executive, EMEA\", \"company_name\": \"Oakline Health\", \"tone\": \"witty\", \"job_link\": \"https://jobs.example.org/posting?id=007\", \"use_emojis\": true}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Account Executive, EMEA for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\", \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"job_title\": \"Head of People & Culture\", \"company_name\": \"Brightwave Labs\", \"tone\": \"friendly\", \"job_link\": \"https://careers.example.com/jobs/1042\", \"use_emojis\": false}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Head of People & Culture for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\", \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"job_title\": \"Senior Data Engineer\", \"company_name\": \"Nimbus Forge\", \"tone\": \"professional\", \"job_link\": \"https://jobs.example.org/posting?id=007\", \"use_emojis\": true}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Senior Data Engineer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\", \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"job_title\": \"Product Designer\", \"company_name\": \"Kestrel & Co.\", \"tone\": \"casual\", \"job_link\": \"https://careers.example.com/jobs/1042\", \"use_emojis\": false}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Product Designer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\", \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"job_title\": \"Staff ML Researcher\", \"company_name\": \"Oakline Health\", \"tone\": \"witty\", \"job_link\": \"https://jobs.example.org/posting?id=007\", \"use_emojis\": true}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Staff ML Researcher for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\", \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"job_title\": \"Account Executive, EMEA\", \"company_name\": \"Brightwave Labs\", \"tone\": \"friendly\", \"job_link\": \"https://careers.example.com/jobs/1042\", \"use_emojis\": false}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Account Executive, EMEA for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\", \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"job_title\": \"Head of People & Culture\", \"company_name\": \"Nimbus Forge\", \"tone\": \"professional\", \"job_link\": \"https://jobs.example.org/posting?id=007\", \"use_emojis\": true}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Head of People & Culture for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\", \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"job_title\": \"Senior Data Engineer\", \"company_name\": \"Kestrel & Co.\", \"tone\": \"casual\", \"job_link\": \"https://careers.example.com/jobs/1042\", \"use_emojis\": false}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Senior Data Engineer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.\", \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"job_title\": \"Product Designer\", \"company_name\": \"Oakline Health\", \"tone\": \"witty\", \"job_link\": \"https://jobs.example.org/posting?id=007\", \"use_emojis\": true}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Product Designer for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\", \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"job_title\": \"A\", \"company_name\": \"B\", \"tone\": \"C\", \"job_link\": \"D\", \"use_emojis\": false}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called B, we're hiring A for our new projects, use a C tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website D.\", \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"job_title\": \"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\", \"company_name\": \"CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\", \"tone\": \"professional\", \"job_link\": \"https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", \"use_emojis\": true}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, we're hiring TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. Use relevant emojis.\", \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"job_title\": \"Staff ML Researcher\", \"company_name\": \"Nimbus Forge\", \"tone\": \"casual\", \"job_link\": \"https://jobs.example.org/posting?id=007\", \"use_emojis\": true}, \"expected\": \"Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.\", \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:23:16.709Z",
+      "latencyMs": 603.019
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "job_title": "Senior Data Engineer",
+            "company_name": "Brightwave Labs",
+            "tone": "friendly",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Senior Data Engineer for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "job_title": "Product Designer",
+            "company_name": "Nimbus Forge",
+            "tone": "professional",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Product Designer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "job_title": "Staff ML Researcher",
+            "company_name": "Kestrel & Co.",
+            "tone": "casual",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "job_title": "Account Executive, EMEA",
+            "company_name": "Oakline Health",
+            "tone": "witty",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Account Executive, EMEA for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "job_title": "Head of People & Culture",
+            "company_name": "Brightwave Labs",
+            "tone": "friendly",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Head of People & Culture for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "job_title": "Senior Data Engineer",
+            "company_name": "Nimbus Forge",
+            "tone": "professional",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Senior Data Engineer for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "job_title": "Product Designer",
+            "company_name": "Kestrel & Co.",
+            "tone": "casual",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Product Designer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "job_title": "Staff ML Researcher",
+            "company_name": "Oakline Health",
+            "tone": "witty",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Staff ML Researcher for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "job_title": "Account Executive, EMEA",
+            "company_name": "Brightwave Labs",
+            "tone": "friendly",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Brightwave Labs, we're hiring Account Executive, EMEA for our new projects, use a friendly tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "job_title": "Head of People & Culture",
+            "company_name": "Nimbus Forge",
+            "tone": "professional",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Head of People & Culture for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "job_title": "Senior Data Engineer",
+            "company_name": "Kestrel & Co.",
+            "tone": "casual",
+            "job_link": "https://careers.example.com/jobs/1042",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Kestrel & Co., we're hiring Senior Data Engineer for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://careers.example.com/jobs/1042.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "job_title": "Product Designer",
+            "company_name": "Oakline Health",
+            "tone": "witty",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Oakline Health, we're hiring Product Designer for our new projects, use a witty tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "job_title": "A",
+            "company_name": "B",
+            "tone": "C",
+            "job_link": "D",
+            "use_emojis": false
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called B, we're hiring A for our new projects, use a C tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website D.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "job_title": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+            "company_name": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+            "tone": "professional",
+            "job_link": "https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, we're hiring TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT for our new projects, use a professional tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://example.com/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. Use relevant emojis.",
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "job_title": "Staff ML Researcher",
+            "company_name": "Nimbus Forge",
+            "tone": "casual",
+            "job_link": "https://jobs.example.org/posting?id=007",
+            "use_emojis": true
+          },
+          "expected": "Write me an outreach email with subject line, followed by 4 step follow up emails, to a passive candidate. I work for a company called Nimbus Forge, we're hiring Staff ML Researcher for our new projects, use a casual tone, create a new subject line for each follow up email, include a small segment in the first email about the company and job using information from this website https://jobs.example.org/posting?id=007. Use relevant emojis.",
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "27815955dee1aac5a42df4e82cc3a6931d9a89587fef3c7497ecd99275a28644"
+  },
+  "contractAudit": {
+    "key": "2188673df98628de7a8a",
+    "costUsd": 0.0029476199999999998,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Execution contract is valid: the reference implements the original template with the four placeholders filled, the ' Use relevant emojis.' suffix (with leading space) appended only when use_emojis is true, and the trailing period after the link.",
+        "Validator accepts only non-empty, untrimmed-free string fields up to 500 characters plus a boolean checkbox, and rejects all probe inputs (null, {}, [], 1, true, 'malformed'). The spec gives no empty-field behavior, so excluding those inputs is acceptable.",
+        "Supplied observed expected outputs match the reference for all generated inputs, including duplicates and long-field boundary cases, and the input labels match the question text including the curly apostrophe.",
+        "The adapter's linkedom/Node DOM approach and output reading are within the verified runtimes."
+      ],
+      "invalid_checks": [
+        0
+      ],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "2188673df98628de7a8a",
+    "44fa280deffae9c96cd8",
+    "21cdbcda781636942e6c",
+    "a82a2eb313f41f0bec08",
+    "226daca5543b4543c1d1",
+    "5d9c4da35b9f518cf325",
+    "c5ec6fadca1d41dfb2c7"
+  ],
+  "callKeys": [
+    "2188673df98628de7a8a",
+    "f1d4ef7eaf6806b27726",
+    "258519604bb82505faeb",
+    "b7a3d9adfcdca237987f",
+    "2d7196c7a44427c8d4fc"
+  ],
+  "executionRejected": "The linkedom emulator lacks standard HTMLFormElement.elements; a fictional jsdom control verifies the required API.",
+  "executionAbstention": "browser_emulator_api_gap"
+}

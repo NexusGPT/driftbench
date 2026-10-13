@@ -1,0 +1,86 @@
+{
+  "id": "rubric_eval_580",
+  "planKey": "9762d3f4a945ca781ea4",
+  "at": "2026-10-13T04:03:04.987Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "declarative_to_interrogative_ratio_2_to_1",
+      "source_quote": "Maintain a 2:1 ratio of declarative to interrogative sentences in your response.",
+      "a": false,
+      "b": true,
+      "programHash": "1a10b6f0517fb57527ba140fc40b704b29c166f0ff5aad585c5afe8dcba331d1",
+      "validationRejected": "Three declarative sentences and one question do not satisfy a 2:1 ratio. A closing quote must not hide a sentence."
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-QGTPCs",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:46.163Z",
+      "latencyMs": 411.633
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "929b27d28f320c0686330cd1d006189eccdebaf4c81b58e8ac34ae2bbb102fa6"
+  },
+  "contractAudit": {
+    "key": "f32bd8e07186075e65ac",
+    "costUsd": 0.0013427,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the literal instruction 'Maintain a 2:1 ratio of declarative to interrogative sentences'. Its source_quote appears verbatim in the question.",
+        "Check 0 has a correct positive fixture ('Alpha is clear. Beta follows here. Is gamma done?' gives 2 declarative to 1 interrogative) and a correct negative fixture ('Alpha is clear. Is beta done? Is gamma done?' fails), and the observed results match both.",
+        "The splitter is a reasonable sentence convention for this instruction but has edge-case limits: sentences ending in closing quotes or parentheses, abbreviations, and decimals may be miscounted. This does not invalidate the check.",
+        "execution is null, so execution_valid is false.",
+        "The rubric's other items (integrated questions, reflective questions, distinct answers to a–d) have no corresponding C1 check in the plan and are not validated here."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-ce0L62",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"declarative_to_interrogative_ratio_2_to_1\", \"source_quote\": \"Maintain a 2:1 ratio of declarative to interrogative sentences in your response.\", \"a\": false, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:03:17.345Z",
+      "latencyMs": 158.199
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "declarative_to_interrogative_ratio_2_to_1",
+          "source_quote": "Maintain a 2:1 ratio of declarative to interrogative sentences in your response.",
+          "a": false,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "f32bd8e07186075e65ac"
+  ]
+}

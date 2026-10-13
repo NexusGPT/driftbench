@@ -1,0 +1,55 @@
+{
+  "id": "rubric_eval_1062",
+  "planKey": "9d1b39e44b8bc5da8e4c",
+  "at": "2026-10-13T03:56:58.748Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-N22p5h",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": false, \"negative\": false, \"valid\": false}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:43.592Z",
+      "latencyMs": 161.004
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": false,
+          "negative": false,
+          "valid": false
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "3402a5d61a213961faec148ac61d6112e2cb45edb9c99bc49e4cc6f0a62ab87e"
+  },
+  "contractAudit": {
+    "key": "4a1dd0e8df35b364a245",
+    "costUsd": 0.0009502,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "Check 0 (word_count_600_to_700) is the only check and its source_quote matches the literal instruction, but its positive fixture returned false in the observed run, so the check fails its own positive case and is not validated.",
+        "The negative fixture returns false as expected, but this does not offset the positive-fixture failure.",
+        "execution is null, so execution_valid must be false.",
+        "No reference implementation, examples, or validator probes are supplied, so no other checks can be validated."
+      ],
+      "invalid_checks": [
+        0
+      ],
+      "execution_valid": false
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "4a1dd0e8df35b364a245"
+  ]
+}

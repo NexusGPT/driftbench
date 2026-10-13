@@ -1,0 +1,54 @@
+{
+  "id": "rubric_eval_952",
+  "planKey": "0cd35b90a44bccb68604",
+  "at": "2026-10-13T04:07:28.895Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-azd41o",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": false, \"negative\": false, \"valid\": false}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:48.690Z",
+      "latencyMs": 133.046
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": false,
+          "negative": false,
+          "valid": false
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "f24f68af9d8d55593de9a6765030cab1a66d747118c3bc428f015481ba5bbc7d"
+  },
+  "contractAudit": {
+    "key": "b4a369cb96daeb96842c",
+    "costUsd": 0.0010425,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "Check 0 (common_fraction_format) is invalid. Its positive fixture \"The probability is 20/27.\" fails because the lookahead (?![\\d.]) rejects a fraction followed by a sentence-final period, so the check cannot detect a common fraction at the end of a sentence.",
+        "The negative fixture behaves correctly, but a passing negative does not offset the failing positive fixture.",
+        "No reference implementation, examples, or execution results are supplied (execution is null, examples and inputs are empty), so there is no independent semantic validation of the probability answer 20/27."
+      ],
+      "invalid_checks": [
+        0
+      ],
+      "execution_valid": false
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "b4a369cb96daeb96842c"
+  ]
+}

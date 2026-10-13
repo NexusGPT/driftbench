@@ -1,0 +1,87 @@
+{
+  "id": "rubric_eval_409",
+  "planKey": "8d72cc8bae61fc2e9ebf",
+  "at": "2026-10-13T04:01:23.571Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "starts_with_required_phrase",
+      "source_quote": "The purpose of this project is to",
+      "a": false,
+      "b": false,
+      "programHash": "04b8d15e48064a89d325f685e6d6174fb7f73fe0e1e940752735b909e97399b7"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-B4MrhW",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:45.808Z",
+      "latencyMs": 328.828
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "bcb84a92be25bace3e50bba1d243d81f291a0cc4c950029edc2f0bdc9436f1b1"
+  },
+  "contractAudit": {
+    "key": "15ad77a399935d873fb9",
+    "costUsd": 0.0011341,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "C1 check 0 implements the literal instruction to begin with the exact phrase 'The purpose of this project is to'.",
+        "The source_quote is grounded in the question text.",
+        "The positive fixture starts with the required phrase and returns True; the negative fixture does not and returns False.",
+        "The empty-string input returns False, which is correct for a required leading phrase.",
+        "Non-string inputs return None rather than a boolean. This is a minor robustness note and does not invalidate the check, since the input domain is text.",
+        "The execution block is null, so execution_valid is false.",
+        "valid is true because check 0 is a valid C1 check."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-fSuFSY",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"starts_with_required_phrase\", \"source_quote\": \"The purpose of this project is to\", \"a\": false, \"b\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:01:31.806Z",
+      "latencyMs": 144.99
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "starts_with_required_phrase",
+          "source_quote": "The purpose of this project is to",
+          "a": false,
+          "b": false
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "15ad77a399935d873fb9"
+  ]
+}

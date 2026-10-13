@@ -1,0 +1,106 @@
+{
+  "id": "rubric_eval_1109",
+  "planKey": "2c93275b39fb70e1c020",
+  "at": "2026-10-13T03:57:44.404Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "enctype_multipart_literal",
+      "source_quote": "enctype=\"multipart/form-data\"",
+      "a": false,
+      "b": true,
+      "programHash": "175baaecefaf2ee5e89604f0e4dd1f198bf04902d43e5fb8642e282e1a055173",
+      "validationRejected": "An unquoted HTML attribute value has the same enctype semantics."
+    },
+    {
+      "index": 1,
+      "name": "upload_folder_name_literal",
+      "source_quote": "\"upload\" folder",
+      "a": true,
+      "b": true,
+      "programHash": "2e8107e004c4c4eb9bff9baee651bc0b93e037a765276e544ba7ceb2f1b80d64"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-XnudM3",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:43.626Z",
+      "latencyMs": 381.168
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "7686d3b23c205ce476487acebd194198c9da38afe02cbd9a32615832920fa68f"
+  },
+  "contractAudit": {
+    "key": "ffb5a8a54b8fb39176a5",
+    "costUsd": 0.0007816000000000001,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Both C1 checks implement literal instructions from the question/rubric and have correct positive and negative fixtures.",
+        "enctype check: the source quote appears in the rubric, the regex matches the literal enctype=\"multipart/form-data\" attribute, and the negative fixture correctly fails.",
+        "upload-folder check: the source quote appears in the question, the positive fixture matches and the negative fixture ('files') correctly fails. The regex is loose, since it would also match any quoted 'upload' string such as a route path, but it is still a valid check.",
+        "Execution is null (no reference, no examples, no inputs), so execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-HvKRwF",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"enctype_multipart_literal\", \"source_quote\": \"enctype=\\\"multipart/form-data\\\"\", \"a\": false, \"b\": true}, {\"index\": 1, \"name\": \"upload_folder_name_literal\", \"source_quote\": \"\\\"upload\\\" folder\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:57:52.629Z",
+      "latencyMs": 202.3
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "enctype_multipart_literal",
+          "source_quote": "enctype=\"multipart/form-data\"",
+          "a": false,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "upload_folder_name_literal",
+          "source_quote": "\"upload\" folder",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "ffb5a8a54b8fb39176a5"
+  ]
+}

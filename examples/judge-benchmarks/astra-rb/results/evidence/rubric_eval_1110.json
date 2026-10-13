@@ -1,0 +1,83 @@
+{
+  "id": "rubric_eval_1110",
+  "planKey": "c3861c7deba63fda09ea",
+  "at": "2026-10-13T03:57:52.834Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "requires_opencv_import",
+      "source_quote": "Is the response a full Python program that uses the OpenCV library?",
+      "a": true,
+      "b": true,
+      "programHash": "4a8fdd697b8e8ce7fb3c5054c1da175097811b97eb52fcfccb45728d0b9fdd36"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-RSG80r",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:43.630Z",
+      "latencyMs": 376.681
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "e3c33a8124de0ae786713a7ad7bb427c7ec82dc69d3d6b1426d910b85a065de0"
+  },
+  "contractAudit": {
+    "key": "d39c45cb351efde3cec7",
+    "costUsd": 0.0010703,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 implements the OpenCV-usage clause of the rubric as a regex for `import cv2` or `from cv2`. Its positive and negative fixtures are correct, and the observed results match them.",
+        "Check 0 is a proxy. It does not test the 'full, complete, runnable program' clause, and it would also match a commented-out `# import cv2`. These are limitations, not contract failures.",
+        "No execution was defined (plan.execution is null), and there are no reference implementation or examples, so execution_valid is false."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-BlvIVi",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"requires_opencv_import\", \"source_quote\": \"Is the response a full Python program that uses the OpenCV library?\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:58:04.065Z",
+      "latencyMs": 259.145
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "requires_opencv_import",
+          "source_quote": "Is the response a full Python program that uses the OpenCV library?",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "d39c45cb351efde3cec7"
+  ]
+}

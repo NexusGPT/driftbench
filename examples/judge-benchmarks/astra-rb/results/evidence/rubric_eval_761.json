@@ -1,0 +1,1226 @@
+{
+  "id": "rubric_eval_761",
+  "protocolVersion": 4,
+  "planKey": "542f68c8ecfbb74cf480",
+  "questionPlanKey": "65b7b9d7d54ee7a1e49b",
+  "at": "2026-10-13T04:29:28.646Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "b",
+      "adapter": {
+        "key": "fb271a4529c201526219",
+        "costUsd": 0.0026070600000000005,
+        "value": {
+          "runnable": true,
+          "reason": "The candidate is a complete top-level TypeScript snippet (block 0) that is already valid JavaScript after type-free syntax, so it is run verbatim in node:vm. The only change is input binding: the literal demo assignment `let input = \"19/20\";` is replaced per case with the fixture string from inputs.json, and a completion expression `[firstValue, secondValue];` is appended so the candidate's own variables are observed. The candidate's console.log calls are silenced. Each case gets a fresh vm context. The harness reports observed values as produced by the candidate (parseInt yields numbers) and does not compare against any expectation.",
+          "command": "node harness.cjs",
+          "files": {
+            "harness.cjs": "const fs = require('fs');\nconst vm = require('vm');\n\nconst ANCHOR = 'let input = \"19/20\";';\n\nfunction run() {\n  let inputs;\n  try {\n    inputs = JSON.parse(fs.readFileSync('inputs.json', 'utf8'));\n    if (!Array.isArray(inputs)) throw new Error('inputs.json is not an array');\n  } catch (e) {\n    return { results: [], harness_error: 'failed to read inputs.json: ' + String((e && e.message) || e) };\n  }\n\n  let src;\n  try {\n    src = fs.readFileSync('block-0.txt', 'utf8');\n  } catch (e) {\n    return { results: [], harness_error: 'failed to read block-0.txt: ' + String((e && e.message) || e) };\n  }\n\n  if (src.split(ANCHOR).length !== 2) {\n    return { results: [], harness_error: 'input anchor not found exactly once in block-0.txt' };\n  }\n\n  const results = [];\n  for (const item of inputs) {\n    const id = item && item.id;\n    try {\n      const code = src.replace(ANCHOR, () => 'let input = ' + JSON.stringify(item.input) + ';') +\n        '\\n;[firstValue, secondValue];';\n      const quiet = () => {};\n      const sandbox = { console: { log: quiet, info: quiet, warn: quiet, error: quiet } };\n      const ctx = vm.createContext(sandbox);\n      const val = vm.runInContext(code, ctx, { timeout: 5000, filename: 'candidate.js' });\n      results.push({ id: id, actual: JSON.parse(JSON.stringify(Array.from(val))) });\n    } catch (e) {\n      results.push({ id: id, error: String((e && e.message) || e) });\n    }\n  }\n  return { results: results };\n}\n\ntry {\n  process.stdout.write(JSON.stringify(run()) + '\\n');\n} catch (e) {\n  process.stdout.write(JSON.stringify({ results: [], harness_error: String((e && e.message) || e) }) + '\\n');\n}\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "1ee67302c367a76c7542",
+        "costUsd": 0.0012559900000000002,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "The adapter runs the original block-0 source verbatim in node:vm. The block is plain JavaScript, so no type stripping is needed, and it uses only standard built-ins (split, parseInt, console).",
+            "The only source change is replacing the literal demo assignment `let input = \"19/20\";` with the per-case fixture string. This is the permitted replacement of a demo input with the supplied test input. The anchor is checked to occur exactly once.",
+            "The appended `[firstValue, secondValue];` only observes the candidate's own variables. It does not reimplement, repair, or replace any candidate logic, and the adapter computes no expected or actual values itself.",
+            "Silencing console.log does not change candidate behavior or results, so it is acceptable scaffolding.",
+            "Values are reported as the candidate produces them. parseInt yields numbers rather than the strings the contract requires, and leading zeros are lost (e.g., '007' becomes 7). This is a genuine candidate defect and is correctly preserved, not repaired by the adapter.",
+            "Runtime and dependencies are supported: Node with the built-in vm, fs, and JSON modules. No unsupported library is used.",
+            "The per-case try/catch reports only errors thrown while running the candidate code. Missing setup is reported separately as harness_error, so candidate exceptions are not confused with adapter setup failures.",
+            "The candidate block is a complete, self-contained top-level snippet and is the single final answer, not a concatenation of contradictory fragments. Its failure to address the regex request is a candidate quality issue, not an adapter defect."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-yHjAvg",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; node harness.cjs 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"actual\":[19,20]},{\"id\":\"t1\",\"actual\":[0,0]},{\"id\":\"t2\",\"actual\":[7,20]},{\"id\":\"t3\",\"actual\":[1,1]},{\"id\":\"t4\",\"actual\":[0,5]},{\"id\":\"t5\",\"actual\":[100,0]},{\"id\":\"t6\",\"actual\":[12,3456]},{\"id\":\"t7\",\"actual\":[999999,1]},{\"id\":\"t8\",\"actual\":[0,0]},{\"id\":\"t9\",\"actual\":[0,1e+30]},{\"id\":\"t10\",\"actual\":[2,4]},{\"id\":\"t11\",\"actual\":[3,9]},{\"id\":\"t12\",\"actual\":[4,16]},{\"id\":\"t13\",\"actual\":[5,25]},{\"id\":\"t14\",\"actual\":[6,36]},{\"id\":\"t15\",\"actual\":[7,49]},{\"id\":\"t16\",\"actual\":[8,64]},{\"id\":\"t17\",\"actual\":[9,81]},{\"id\":\"t18\",\"actual\":[10,100]},{\"id\":\"t19\",\"actual\":[11,121]}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:30:04.862Z",
+          "latencyMs": 1339.212
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": [
+                19,
+                20
+              ]
+            },
+            {
+              "id": "t1",
+              "actual": [
+                0,
+                0
+              ]
+            },
+            {
+              "id": "t2",
+              "actual": [
+                7,
+                20
+              ]
+            },
+            {
+              "id": "t3",
+              "actual": [
+                1,
+                1
+              ]
+            },
+            {
+              "id": "t4",
+              "actual": [
+                0,
+                5
+              ]
+            },
+            {
+              "id": "t5",
+              "actual": [
+                100,
+                0
+              ]
+            },
+            {
+              "id": "t6",
+              "actual": [
+                12,
+                3456
+              ]
+            },
+            {
+              "id": "t7",
+              "actual": [
+                999999,
+                1
+              ]
+            },
+            {
+              "id": "t8",
+              "actual": [
+                0,
+                0
+              ]
+            },
+            {
+              "id": "t9",
+              "actual": [
+                0,
+                1e+30
+              ]
+            },
+            {
+              "id": "t10",
+              "actual": [
+                2,
+                4
+              ]
+            },
+            {
+              "id": "t11",
+              "actual": [
+                3,
+                9
+              ]
+            },
+            {
+              "id": "t12",
+              "actual": [
+                4,
+                16
+              ]
+            },
+            {
+              "id": "t13",
+              "actual": [
+                5,
+                25
+              ]
+            },
+            {
+              "id": "t14",
+              "actual": [
+                6,
+                36
+              ]
+            },
+            {
+              "id": "t15",
+              "actual": [
+                7,
+                49
+              ]
+            },
+            {
+              "id": "t16",
+              "actual": [
+                8,
+                64
+              ]
+            },
+            {
+              "id": "t17",
+              "actual": [
+                9,
+                81
+              ]
+            },
+            {
+              "id": "t18",
+              "actual": [
+                10,
+                100
+              ]
+            },
+            {
+              "id": "t19",
+              "actual": [
+                11,
+                121
+              ]
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": "19/20",
+          "expected": [
+            "19",
+            "20"
+          ],
+          "oracle": "reference",
+          "actual": [
+            19,
+            20
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t1",
+          "input": "0/0",
+          "expected": [
+            "0",
+            "0"
+          ],
+          "oracle": "reference",
+          "actual": [
+            0,
+            0
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t2",
+          "input": "007/020",
+          "expected": [
+            "007",
+            "020"
+          ],
+          "oracle": "reference",
+          "actual": [
+            7,
+            20
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t3",
+          "input": "1/1",
+          "expected": [
+            "1",
+            "1"
+          ],
+          "oracle": "reference",
+          "actual": [
+            1,
+            1
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t4",
+          "input": "0/5",
+          "expected": [
+            "0",
+            "5"
+          ],
+          "oracle": "reference",
+          "actual": [
+            0,
+            5
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t5",
+          "input": "100/0",
+          "expected": [
+            "100",
+            "0"
+          ],
+          "oracle": "reference",
+          "actual": [
+            100,
+            0
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t6",
+          "input": "12/3456",
+          "expected": [
+            "12",
+            "3456"
+          ],
+          "oracle": "reference",
+          "actual": [
+            12,
+            3456
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t7",
+          "input": "999999/1",
+          "expected": [
+            "999999",
+            "1"
+          ],
+          "oracle": "reference",
+          "actual": [
+            999999,
+            1
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t8",
+          "input": "00/00",
+          "expected": [
+            "00",
+            "00"
+          ],
+          "oracle": "reference",
+          "actual": [
+            0,
+            0
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t9",
+          "input": "000000000000000000000000000000/999999999999999999999999999999",
+          "expected": [
+            "000000000000000000000000000000",
+            "999999999999999999999999999999"
+          ],
+          "oracle": "reference",
+          "actual": [
+            0,
+            1e+30
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t10",
+          "input": "2/4",
+          "expected": [
+            "2",
+            "4"
+          ],
+          "oracle": "reference",
+          "actual": [
+            2,
+            4
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t11",
+          "input": "3/9",
+          "expected": [
+            "3",
+            "9"
+          ],
+          "oracle": "reference",
+          "actual": [
+            3,
+            9
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t12",
+          "input": "4/16",
+          "expected": [
+            "4",
+            "16"
+          ],
+          "oracle": "reference",
+          "actual": [
+            4,
+            16
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t13",
+          "input": "5/25",
+          "expected": [
+            "5",
+            "25"
+          ],
+          "oracle": "reference",
+          "actual": [
+            5,
+            25
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t14",
+          "input": "6/36",
+          "expected": [
+            "6",
+            "36"
+          ],
+          "oracle": "reference",
+          "actual": [
+            6,
+            36
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t15",
+          "input": "7/49",
+          "expected": [
+            "7",
+            "49"
+          ],
+          "oracle": "reference",
+          "actual": [
+            7,
+            49
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t16",
+          "input": "8/64",
+          "expected": [
+            "8",
+            "64"
+          ],
+          "oracle": "reference",
+          "actual": [
+            8,
+            64
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t17",
+          "input": "9/81",
+          "expected": [
+            "9",
+            "81"
+          ],
+          "oracle": "reference",
+          "actual": [
+            9,
+            81
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t18",
+          "input": "10/100",
+          "expected": [
+            "10",
+            "100"
+          ],
+          "oracle": "reference",
+          "actual": [
+            10,
+            100
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t19",
+          "input": "11/121",
+          "expected": [
+            "11",
+            "121"
+          ],
+          "oracle": "reference",
+          "actual": [
+            11,
+            121
+          ],
+          "verdict": "fail"
+        }
+      ]
+    },
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "8d2d626f34e2d49b53f4",
+        "costUsd": 0.0029371600000000003,
+        "value": {
+          "runnable": true,
+          "reason": "Block-1 is the complete candidate example and is runnable as-is. Block-0 is a bare regex fragment already contained in block-1, so only block-1 is used. The candidate returns no value; its only observable output is console.log, so the harness captures those log lines per input as the actual array of strings. The single input-binding change replaces the literal demo assignment `const input = \"19/20\";` with each supplied input, and all other candidate code is kept verbatim. The source has no type annotations, but it is still compiled with the installed TypeScript transpiler rather than hand-translated. Each case runs in a fresh vm context with a 5 second timeout. Candidate exceptions are recorded as per-case errors. No expected values are computed or compared.",
+          "command": "node harness.cjs",
+          "files": {
+            "harness.cjs": "const fs = require('fs');\nconst path = require('path');\nconst vm = require('vm');\n\nfunction finish(obj) {\n  process.stdout.write(JSON.stringify(obj));\n}\n\nfunction main() {\n  let ts;\n  let cases;\n  let src;\n  try {\n    ts = require('typescript');\n  } catch (e) {\n    return finish({ results: [], harness_error: 'typescript not available: ' + String(e) });\n  }\n  try {\n    cases = JSON.parse(fs.readFileSync(path.join(__dirname, 'inputs.json'), 'utf8'));\n    src = fs.readFileSync(path.join(__dirname, 'block-1.txt'), 'utf8');\n  } catch (e) {\n    return finish({ results: [], harness_error: 'read failure: ' + String(e) });\n  }\n  if (!Array.isArray(cases)) {\n    return finish({ results: [], harness_error: 'inputs.json is not an array' });\n  }\n  // Input binding anchor: exact literal demo assignment in block-1 (input binding only).\n  const anchor = 'const input = \"19/20\";';\n  if (src.indexOf(anchor) < 0) {\n    return finish({ results: [], harness_error: 'input binding anchor not found in block-1' });\n  }\n  const results = [];\n  for (const c of cases) {\n    const bound = src.replace(anchor, 'const input = ' + JSON.stringify(c.input) + ';');\n    const lines = [];\n    try {\n      const js = ts.transpileModule(bound, {\n        compilerOptions: { target: ts.ScriptTarget.ES2019, module: ts.ModuleKind.None }\n      }).outputText;\n      const sandbox = {\n        console: {\n          log: function () {\n            lines.push(Array.prototype.slice.call(arguments).map(String).join(' '));\n          }\n        }\n      };\n      vm.createContext(sandbox);\n      vm.runInContext(js, sandbox, { timeout: 5000 });\n      results.push({ id: c.id, actual: lines.slice() });\n    } catch (e) {\n      results.push({ id: c.id, error: String(e && e.message ? e.message : e) });\n    }\n  }\n  finish({ results: results });\n}\n\nmain();\n"
+          },
+          "uses": [
+            1
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "8f2ef55192f0a3099ad6",
+        "costUsd": 0.0016325899999999997,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "Runs block-1, the complete candidate example, which is the final recommended answer. Block-0 is a bare fragment contained in block-1 and is correctly not used separately.",
+            "Reads block-1.txt and inputs.json from disk. The source is the verbatim fenced block, so the adapter does not substitute its own code.",
+            "The only input change is replacing the literal demo assignment `const input = \"19/20\";` with the test input. The anchor is checked before binding. All candidate logic is kept verbatim, and the adapter does not implement the regex, splitting, or formatting itself.",
+            "Does not compute or compare expected values. Captures the candidate's console.log lines as the actual observation, which matches the array-of-strings output schema without reshaping the candidate's output.",
+            "Missing typescript or read failures are reported as harness_error, not as candidate errors. Candidate runtime exceptions are recorded per case.",
+            "TypeScript is an available Node dependency. The candidate uses only plain JavaScript built-ins (regex, parseInt, template literals, console.log), which the vm sandbox supports. The adapter uses a 5 second timeout.",
+            "The candidate's use of parseInt drops leading zeros, which conflicts with the contract. This is a genuine candidate defect and is not a reason to reject the adapter; the adapter preserves the wrong output as an observation.",
+            "The fence label \"typesyntax\" is nonstandard, but the code is valid TypeScript and transpiles unchanged, so the fragment is not ambiguous."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-GCr8BA",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; node harness.cjs 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"actual\":[\"Left value: 19\",\"Right value: 20\"]},{\"id\":\"t1\",\"actual\":[\"Left value: 0\",\"Right value: 0\"]},{\"id\":\"t2\",\"actual\":[\"Left value: 7\",\"Right value: 20\"]},{\"id\":\"t3\",\"actual\":[\"Left value: 1\",\"Right value: 1\"]},{\"id\":\"t4\",\"actual\":[\"Left value: 0\",\"Right value: 5\"]},{\"id\":\"t5\",\"actual\":[\"Left value: 100\",\"Right value: 0\"]},{\"id\":\"t6\",\"actual\":[\"Left value: 12\",\"Right value: 3456\"]},{\"id\":\"t7\",\"actual\":[\"Left value: 999999\",\"Right value: 1\"]},{\"id\":\"t8\",\"actual\":[\"Left value: 0\",\"Right value: 0\"]},{\"id\":\"t9\",\"actual\":[\"Left value: 0\",\"Right value: 1e+30\"]},{\"id\":\"t10\",\"actual\":[\"Left value: 2\",\"Right value: 4\"]},{\"id\":\"t11\",\"actual\":[\"Left value: 3\",\"Right value: 9\"]},{\"id\":\"t12\",\"actual\":[\"Left value: 4\",\"Right value: 16\"]},{\"id\":\"t13\",\"actual\":[\"Left value: 5\",\"Right value: 25\"]},{\"id\":\"t14\",\"actual\":[\"Left value: 6\",\"Right value: 36\"]},{\"id\":\"t15\",\"actual\":[\"Left value: 7\",\"Right value: 49\"]},{\"id\":\"t16\",\"actual\":[\"Left value: 8\",\"Right value: 64\"]},{\"id\":\"t17\",\"actual\":[\"Left value: 9\",\"Right value: 81\"]},{\"id\":\"t18\",\"actual\":[\"Left value: 10\",\"Right value: 100\"]},{\"id\":\"t19\",\"actual\":[\"Left value: 11\",\"Right value: 121\"]}]}",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:30:47.405Z",
+          "latencyMs": 2435.587
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": [
+                "Left value: 19",
+                "Right value: 20"
+              ]
+            },
+            {
+              "id": "t1",
+              "actual": [
+                "Left value: 0",
+                "Right value: 0"
+              ]
+            },
+            {
+              "id": "t2",
+              "actual": [
+                "Left value: 7",
+                "Right value: 20"
+              ]
+            },
+            {
+              "id": "t3",
+              "actual": [
+                "Left value: 1",
+                "Right value: 1"
+              ]
+            },
+            {
+              "id": "t4",
+              "actual": [
+                "Left value: 0",
+                "Right value: 5"
+              ]
+            },
+            {
+              "id": "t5",
+              "actual": [
+                "Left value: 100",
+                "Right value: 0"
+              ]
+            },
+            {
+              "id": "t6",
+              "actual": [
+                "Left value: 12",
+                "Right value: 3456"
+              ]
+            },
+            {
+              "id": "t7",
+              "actual": [
+                "Left value: 999999",
+                "Right value: 1"
+              ]
+            },
+            {
+              "id": "t8",
+              "actual": [
+                "Left value: 0",
+                "Right value: 0"
+              ]
+            },
+            {
+              "id": "t9",
+              "actual": [
+                "Left value: 0",
+                "Right value: 1e+30"
+              ]
+            },
+            {
+              "id": "t10",
+              "actual": [
+                "Left value: 2",
+                "Right value: 4"
+              ]
+            },
+            {
+              "id": "t11",
+              "actual": [
+                "Left value: 3",
+                "Right value: 9"
+              ]
+            },
+            {
+              "id": "t12",
+              "actual": [
+                "Left value: 4",
+                "Right value: 16"
+              ]
+            },
+            {
+              "id": "t13",
+              "actual": [
+                "Left value: 5",
+                "Right value: 25"
+              ]
+            },
+            {
+              "id": "t14",
+              "actual": [
+                "Left value: 6",
+                "Right value: 36"
+              ]
+            },
+            {
+              "id": "t15",
+              "actual": [
+                "Left value: 7",
+                "Right value: 49"
+              ]
+            },
+            {
+              "id": "t16",
+              "actual": [
+                "Left value: 8",
+                "Right value: 64"
+              ]
+            },
+            {
+              "id": "t17",
+              "actual": [
+                "Left value: 9",
+                "Right value: 81"
+              ]
+            },
+            {
+              "id": "t18",
+              "actual": [
+                "Left value: 10",
+                "Right value: 100"
+              ]
+            },
+            {
+              "id": "t19",
+              "actual": [
+                "Left value: 11",
+                "Right value: 121"
+              ]
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": "19/20",
+          "expected": [
+            "19",
+            "20"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 19",
+            "Right value: 20"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t1",
+          "input": "0/0",
+          "expected": [
+            "0",
+            "0"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 0",
+            "Right value: 0"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t2",
+          "input": "007/020",
+          "expected": [
+            "007",
+            "020"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 7",
+            "Right value: 20"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t3",
+          "input": "1/1",
+          "expected": [
+            "1",
+            "1"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 1",
+            "Right value: 1"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t4",
+          "input": "0/5",
+          "expected": [
+            "0",
+            "5"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 0",
+            "Right value: 5"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t5",
+          "input": "100/0",
+          "expected": [
+            "100",
+            "0"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 100",
+            "Right value: 0"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t6",
+          "input": "12/3456",
+          "expected": [
+            "12",
+            "3456"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 12",
+            "Right value: 3456"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t7",
+          "input": "999999/1",
+          "expected": [
+            "999999",
+            "1"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 999999",
+            "Right value: 1"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t8",
+          "input": "00/00",
+          "expected": [
+            "00",
+            "00"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 0",
+            "Right value: 0"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t9",
+          "input": "000000000000000000000000000000/999999999999999999999999999999",
+          "expected": [
+            "000000000000000000000000000000",
+            "999999999999999999999999999999"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 0",
+            "Right value: 1e+30"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t10",
+          "input": "2/4",
+          "expected": [
+            "2",
+            "4"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 2",
+            "Right value: 4"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t11",
+          "input": "3/9",
+          "expected": [
+            "3",
+            "9"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 3",
+            "Right value: 9"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t12",
+          "input": "4/16",
+          "expected": [
+            "4",
+            "16"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 4",
+            "Right value: 16"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t13",
+          "input": "5/25",
+          "expected": [
+            "5",
+            "25"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 5",
+            "Right value: 25"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t14",
+          "input": "6/36",
+          "expected": [
+            "6",
+            "36"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 6",
+            "Right value: 36"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t15",
+          "input": "7/49",
+          "expected": [
+            "7",
+            "49"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 7",
+            "Right value: 49"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t16",
+          "input": "8/64",
+          "expected": [
+            "8",
+            "64"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 8",
+            "Right value: 64"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t17",
+          "input": "9/81",
+          "expected": [
+            "9",
+            "81"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 9",
+            "Right value: 81"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t18",
+          "input": "10/100",
+          "expected": [
+            "10",
+            "100"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 10",
+            "Right value: 100"
+          ],
+          "verdict": "fail"
+        },
+        {
+          "id": "t19",
+          "input": "11/121",
+          "expected": [
+            "11",
+            "121"
+          ],
+          "oracle": "reference",
+          "actual": [
+            "Left value: 11",
+            "Right value: 121"
+          ],
+          "verdict": "fail"
+        }
+      ]
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-kdaC3B",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": \"19/20\", \"expected\": [\"19\", \"20\"], \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": \"0/0\", \"expected\": [\"0\", \"0\"], \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": \"007/020\", \"expected\": [\"007\", \"020\"], \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": \"1/1\", \"expected\": [\"1\", \"1\"], \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": \"0/5\", \"expected\": [\"0\", \"5\"], \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": \"100/0\", \"expected\": [\"100\", \"0\"], \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": \"12/3456\", \"expected\": [\"12\", \"3456\"], \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": \"999999/1\", \"expected\": [\"999999\", \"1\"], \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": \"00/00\", \"expected\": [\"00\", \"00\"], \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": \"000000000000000000000000000000/999999999999999999999999999999\", \"expected\": [\"000000000000000000000000000000\", \"999999999999999999999999999999\"], \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": \"2/4\", \"expected\": [\"2\", \"4\"], \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": \"3/9\", \"expected\": [\"3\", \"9\"], \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": \"4/16\", \"expected\": [\"4\", \"16\"], \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": \"5/25\", \"expected\": [\"5\", \"25\"], \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": \"6/36\", \"expected\": [\"6\", \"36\"], \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": \"7/49\", \"expected\": [\"7\", \"49\"], \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": \"8/64\", \"expected\": [\"8\", \"64\"], \"oracle\": \"reference\"}, {\"id\": \"t17\", \"input\": \"9/81\", \"expected\": [\"9\", \"81\"], \"oracle\": \"reference\"}, {\"id\": \"t18\", \"input\": \"10/100\", \"expected\": [\"10\", \"100\"], \"oracle\": \"reference\"}, {\"id\": \"t19\", \"input\": \"11/121\", \"expected\": [\"11\", \"121\"], \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [{\"input\": \"19/20\", \"expected\": [\"19\", \"20\"], \"actual\": [\"19\", \"20\"], \"pass\": true}], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:22:03.975Z",
+      "latencyMs": 172.346
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": "19/20",
+          "expected": [
+            "19",
+            "20"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": "0/0",
+          "expected": [
+            "0",
+            "0"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": "007/020",
+          "expected": [
+            "007",
+            "020"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": "1/1",
+          "expected": [
+            "1",
+            "1"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": "0/5",
+          "expected": [
+            "0",
+            "5"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": "100/0",
+          "expected": [
+            "100",
+            "0"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": "12/3456",
+          "expected": [
+            "12",
+            "3456"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": "999999/1",
+          "expected": [
+            "999999",
+            "1"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": "00/00",
+          "expected": [
+            "00",
+            "00"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": "000000000000000000000000000000/999999999999999999999999999999",
+          "expected": [
+            "000000000000000000000000000000",
+            "999999999999999999999999999999"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": "2/4",
+          "expected": [
+            "2",
+            "4"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": "3/9",
+          "expected": [
+            "3",
+            "9"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": "4/16",
+          "expected": [
+            "4",
+            "16"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": "5/25",
+          "expected": [
+            "5",
+            "25"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": "6/36",
+          "expected": [
+            "6",
+            "36"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": "7/49",
+          "expected": [
+            "7",
+            "49"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": "8/64",
+          "expected": [
+            "8",
+            "64"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t17",
+          "input": "9/81",
+          "expected": [
+            "9",
+            "81"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t18",
+          "input": "10/100",
+          "expected": [
+            "10",
+            "100"
+          ],
+          "oracle": "reference"
+        },
+        {
+          "id": "t19",
+          "input": "11/121",
+          "expected": [
+            "11",
+            "121"
+          ],
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [
+        {
+          "input": "19/20",
+          "expected": [
+            "19",
+            "20"
+          ],
+          "actual": [
+            "19",
+            "20"
+          ],
+          "pass": true
+        }
+      ],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "c42eaf1d717e96437ba63cc8ca4f99ab92624d157904450d898b8baa769786d2"
+  },
+  "contractAudit": {
+    "key": "c77ef3c27e7d8fa62a83",
+    "costUsd": 0.00135732,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Validator matches the reference domain: non-string, empty-part, extra-slash, and non-digit inputs are rejected, and the probes (null, {}, [], 1, true, 'malformed') are all invalid.",
+        "Reference implements the task: it splits on the single slash and returns the two digit strings in order, preserving leading zeros as text.",
+        "The supplied example '19/20' -> ['19','20'] agrees with the reference and with the observed oracle output.",
+        "Generated inputs are within the validator's domain. Duplicates from the generator ('19/20', and the i/i*i cases for 0 and 1) are removed in the observed set, and the 30-digit boundary case is within the 200-character limit.",
+        "Restricting inputs to non-negative digit runs is a reasonable narrowing of 'two numbers' that the example supports; it does not conflict with the reference."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "c77ef3c27e7d8fa62a83",
+    "fb6f90c91253a120d50c",
+    "e5bcb2a32a12f4d37fe0"
+  ],
+  "callKeys": [
+    "c77ef3c27e7d8fa62a83",
+    "fb271a4529c201526219",
+    "1ee67302c367a76c7542",
+    "8d2d626f34e2d49b53f4",
+    "8f2ef55192f0a3099ad6"
+  ]
+}

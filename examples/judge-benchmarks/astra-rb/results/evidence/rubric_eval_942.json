@@ -1,0 +1,149 @@
+{
+  "id": "rubric_eval_942",
+  "planKey": "faca0341e6b1dc78564b",
+  "at": "2026-10-13T04:07:22.822Z",
+  "checks": [
+    {
+      "index": 0,
+      "name": "headline_max_40_chars",
+      "source_quote": "Headline (max 40 characters)",
+      "a": true,
+      "b": true,
+      "programHash": "0f98ebf210a5cd1a86a647e4239fe7cf643e6cb6a2eb1dd394c9f56906e8402d"
+    },
+    {
+      "index": 1,
+      "name": "primary_text_125_to_300_chars",
+      "source_quote": "Primary text (125-300 characters)",
+      "a": true,
+      "b": false,
+      "programHash": "21d1ece026d26e3fe99cd7e83becf9f8d9cfc1120c24163a78fe2339f84cfba6"
+    },
+    {
+      "index": 2,
+      "name": "description_max_30_chars",
+      "source_quote": "Description (max 30 characters)",
+      "a": false,
+      "b": true,
+      "programHash": "e38636694ad0365ac7e83c64b00b338ff3c5ed9a8df3d936037e37ca77df5adf"
+    },
+    {
+      "index": 3,
+      "name": "two_ad_variations",
+      "source_quote": "Generate 2 Facebook ad copy variations",
+      "a": true,
+      "b": true,
+      "programHash": "d942192c25a9184b8045afaf785dc6f240dafc6f5e67553508a3720e239a9aa5"
+    }
+  ],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-InrWxJ",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [{\"index\": 0, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 1, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 2, \"positive\": true, \"negative\": false, \"valid\": true}, {\"index\": 3, \"positive\": true, \"negative\": false, \"valid\": true}], \"inputs\": [], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": []}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T03:39:48.293Z",
+      "latencyMs": 393.188
+    },
+    "output": {
+      "checks": [
+        {
+          "index": 0,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 1,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 2,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        },
+        {
+          "index": 3,
+          "positive": true,
+          "negative": false,
+          "valid": true
+        }
+      ],
+      "inputs": [],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": []
+    },
+    "planHash": "5c011d6debbeb42d8d65c453c73950b8bc6986d9cbf208ab3519d66fd9bab127"
+  },
+  "contractAudit": {
+    "key": "aa4b68454a2150346f3c",
+    "costUsd": 0.0012847,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "Check 0 (headline_max_40_chars) implements the literal 40-character limit. Its positive fixture (33 chars) passes and its negative fixture (68 chars) fails, and the source quote is grounded.",
+        "Check 1 (primary_text_125_to_300_chars) implements the 125-300 range. Its positive fixture (about 170 chars) passes and its negative fixture ('Short ad.', 9 chars) fails.",
+        "Check 2 (description_max_30_chars) implements the 30-character limit. Its positive fixture ('Book a free demo', 16 chars) passes and its negative fixture (over 30 chars) fails.",
+        "Check 3 (two_ad_variations) counts headline lines to verify exactly two variations. It is a reasonable proxy for the literal instruction. Its positive fixture has two headlines and passes, and its negative fixture has one and fails.",
+        "Execution is null, so execution_valid is false. Validity rests on the C1 checks alone, which is permitted.",
+        "Minor limitations: checks return None when labels are absent, so empty and duplicate-label inputs are not explicitly tested. The label-based line parsing could misfire if prose lines begin with a label word. Neither affects the validity of the checks shown."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "checkRun": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-GNNQyh",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I checks.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"results\": [{\"index\": 0, \"name\": \"headline_max_40_chars\", \"source_quote\": \"Headline (max 40 characters)\", \"a\": true, \"b\": true}, {\"index\": 1, \"name\": \"primary_text_125_to_300_chars\", \"source_quote\": \"Primary text (125-300 characters)\", \"a\": true, \"b\": false}, {\"index\": 2, \"name\": \"description_max_30_chars\", \"source_quote\": \"Description (max 30 characters)\", \"a\": false, \"b\": true}, {\"index\": 3, \"name\": \"two_ad_variations\", \"source_quote\": \"Generate 2 Facebook ad copy variations\", \"a\": true, \"b\": true}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:07:31.331Z",
+      "latencyMs": 163.313
+    },
+    "output": {
+      "results": [
+        {
+          "index": 0,
+          "name": "headline_max_40_chars",
+          "source_quote": "Headline (max 40 characters)",
+          "a": true,
+          "b": true
+        },
+        {
+          "index": 1,
+          "name": "primary_text_125_to_300_chars",
+          "source_quote": "Primary text (125-300 characters)",
+          "a": true,
+          "b": false
+        },
+        {
+          "index": 2,
+          "name": "description_max_30_chars",
+          "source_quote": "Description (max 30 characters)",
+          "a": false,
+          "b": true
+        },
+        {
+          "index": 3,
+          "name": "two_ad_variations",
+          "source_quote": "Generate 2 Facebook ad copy variations",
+          "a": true,
+          "b": true
+        }
+      ]
+    }
+  },
+  "status": "evaluated",
+  "callKeys": [
+    "aa4b68454a2150346f3c"
+  ]
+}

@@ -1,0 +1,1500 @@
+{
+  "id": "rubric_eval_1131",
+  "protocolVersion": 4,
+  "planKey": "02a7917cffc807d31e6e",
+  "questionPlanKey": "731ac4d3c6765d5950d3",
+  "at": "2026-10-13T04:26:00.666Z",
+  "checks": [],
+  "execution": [
+    {
+      "status": "executed",
+      "side": "b",
+      "adapter": {
+        "key": "33dc9b85c0a581b3de41",
+        "costUsd": 0.0042114000000000006,
+        "value": {
+          "runnable": true,
+          "reason": "The candidate is a complete browser-DOM JavaScript function (block 0). The harness extracts only checkRequiredInputs by literal anchors, leaves its internals unchanged, and runs it in a jsdom window (runScripts outside-only). The harness attaches the function to the #submit button from input.button_id, since the original example attach line is a top-level example call and is stripped. Each inputs.json case gets a fresh DOM and a click dispatch. Candidate exceptions, including those reported through window error events, are recorded as per-case errors. Observed output is the DOM state as {flagged_ids, unflagged_ids}: flagged means the input's next sibling is a SPAN with non-empty text after the click. Nothing is compared against expected values.",
+          "command": "node harness.cjs",
+          "files": {
+            "harness.cjs": "const fs = require('fs');\nconst path = require('path');\nconst { JSDOM, VirtualConsole } = require('jsdom');\n\nfunction out(obj) {\n  process.stdout.write(JSON.stringify(obj) + '\\n');\n}\n\nlet inputs;\ntry {\n  inputs = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'inputs.json'), 'utf8'));\n} catch (e) {\n  out({ results: [], harness_error: 'failed to read inputs.json: ' + String((e && e.message) || e) });\n  process.exit(0);\n}\n\nlet src;\ntry {\n  src = fs.readFileSync(path.join(process.cwd(), 'block-0.txt'), 'utf8');\n} catch (e) {\n  out({ results: [], harness_error: 'failed to read block-0.txt: ' + String((e && e.message) || e) });\n  process.exit(0);\n}\n\nconst START = 'function checkRequiredInputs() {';\nconst END = 'scrolling to the first error message\\n  }\\n}';\nconst si = src.indexOf(START);\nconst ei = si < 0 ? -1 : src.indexOf(END, si);\nif (si < 0 || ei < 0) {\n  out({ results: [], harness_error: 'candidate function anchors not found in block-0.txt' });\n  process.exit(0);\n}\nconst candidate = src.slice(si, ei + END.length);\n\nfunction runCase(input) {\n  const vc = new VirtualConsole();\n  const errs = [];\n  vc.on('jsdomError', (e) => { errs.push(String((e && e.message) || e)); });\n  const html = String(input.html || '');\n  const buttonId = String(input.button_id || 'submit');\n  const dom = new JSDOM('<!DOCTYPE html><html><body>' + html + '</body></html>', {\n    runScripts: 'outside-only',\n    virtualConsole: vc\n  });\n  const w = dom.window;\n  w.addEventListener('error', (e) => {\n    errs.push(String((e.error && e.error.message) || e.message || e));\n  });\n  try {\n    const attach = '\\ndocument.getElementById(' + JSON.stringify(buttonId) +\n      ').addEventListener(\"click\", checkRequiredInputs);';\n    w.eval(candidate + attach);\n    const btn = w.document.getElementById(buttonId);\n    if (!btn) {\n      return { error: 'button with id ' + buttonId + ' not found in html' };\n    }\n    btn.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true }));\n    if (errs.length > 0) {\n      return { error: errs[0] };\n    }\n    const flagged_ids = [];\n    const unflagged_ids = [];\n    w.document.querySelectorAll('input[id]').forEach((inp) => {\n      const nx = inp.nextElementSibling;\n      const has = !!nx && nx.tagName === 'SPAN' && nx.textContent.trim().length > 0;\n      if (has) { flagged_ids.push(inp.id); } else { unflagged_ids.push(inp.id); }\n    });\n    return { actual: { flagged_ids: flagged_ids, unflagged_ids: unflagged_ids } };\n  } catch (e) {\n    return { error: String((e && e.message) || e) };\n  } finally {\n    try { w.close(); } catch (_) { /* ignore */ }\n  }\n}\n\nconst results = [];\nfor (const item of inputs) {\n  let r;\n  try {\n    r = runCase(item.input || {});\n  } catch (e) {\n    r = { error: String((e && e.message) || e) };\n  }\n  if (Object.prototype.hasOwnProperty.call(r, 'error')) {\n    results.push({ id: item.id, error: r.error });\n  } else {\n    results.push({ id: item.id, actual: r.actual });\n  }\n}\n\nout({ results: results });\n"
+          },
+          "uses": [
+            0
+          ],
+          "extraction": [
+            {
+              "block": 0,
+              "start": "function checkRequiredInputs() {",
+              "end": "scrolling to the first error message\n  }\n}"
+            }
+          ]
+        }
+      },
+      "audit": {
+        "key": "8e0067a09eaa0f8f60a8",
+        "costUsd": 0.00249368,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "The adapter extracts the original checkRequiredInputs function from block-0 by literal anchors and runs it unchanged. It does not rewrite the function's internals or compute expected results.",
+            "The stripped top-level attach lines are replaced by a harness attach to contract.button_id ('submit'). This is entry-point scaffolding, and in every case the input HTML has exactly one button, so the candidate's own querySelector('button') would select the same element.",
+            "The observation is a normalized {flagged_ids, unflagged_ids} object based on the DOM after the click, matching the fourth output_schema variant. It is not a raw DOM snapshot.",
+            "Candidate exceptions raised during the click are recorded as per-case errors. The candidate's own null dereference on input.nextElementSibling when no span exists is a genuine candidate failure, not a harness setup failure.",
+            "A missing button with the given id is reported as a per-case error rather than a harness error. The input contract guarantees the #submit button is present, so this does not mask real setup failures in practice, though it could be classified more strictly.",
+            "Required runtime dependencies (Node with jsdom) are supported. Missing or unreadable inputs.json or block-0.txt, and missing anchors, are reported as harness_error rather than candidate errors.",
+            "The candidate answer is a single coherent code block, not a concatenation of contradictory snippets."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-0DOBui",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; node harness.cjs 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[]}},{\"id\":\"t1\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"a\"]}},{\"id\":\"t2\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"a\"]}},{\"id\":\"t3\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"a\"]}},{\"id\":\"t4\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"a\"]}},{\"id\":\"t5\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"a\"]}},{\"id\":\"t6\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"r0\",\"r1\",\"r2\"]}},{\"id\":\"t7\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"r0\",\"r1\",\"r2\"]}},{\"id\":\"t8\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"r0\",\"r1\",\"r2\"]}},{\"id\":\"t9\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"r0\",\"r1\",\"r2\"]}},{\"id\":\"t10\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"r0\",\"r1\",\"r2\"]}},{\"id\":\"t11\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"r0\",\"r1\",\"r2\"]}},{\"id\":\"t12\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"r0\",\"r1\",\"r2\"]}},{\"id\":\"t13\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"r0\",\"r1\",\"r2\"]}},{\"id\":\"t14\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"o\",\"r\"]}},{\"id\":\"t15\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"r1\",\"r2\",\"r3\"]}},{\"id\":\"t16\",\"actual\":{\"flagged_ids\":[],\"unflagged_ids\":[\"f0\",\"f1\",\"f2\",\"f3\",\"f4\",\"f5\",\"f6\",\"f7\",\"f8\",\"f9\",\"f10\",\"f11\",\"f12\",\"f13\",\"f14\",\"f15\",\"f16\",\"f17\",\"f18\",\"f19\"]}}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:16:11.003Z",
+          "latencyMs": 3620.776
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": []
+              }
+            },
+            {
+              "id": "t1",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "a"
+                ]
+              }
+            },
+            {
+              "id": "t2",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "a"
+                ]
+              }
+            },
+            {
+              "id": "t3",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "a"
+                ]
+              }
+            },
+            {
+              "id": "t4",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "a"
+                ]
+              }
+            },
+            {
+              "id": "t5",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "a"
+                ]
+              }
+            },
+            {
+              "id": "t6",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "r0",
+                  "r1",
+                  "r2"
+                ]
+              }
+            },
+            {
+              "id": "t7",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "r0",
+                  "r1",
+                  "r2"
+                ]
+              }
+            },
+            {
+              "id": "t8",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "r0",
+                  "r1",
+                  "r2"
+                ]
+              }
+            },
+            {
+              "id": "t9",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "r0",
+                  "r1",
+                  "r2"
+                ]
+              }
+            },
+            {
+              "id": "t10",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "r0",
+                  "r1",
+                  "r2"
+                ]
+              }
+            },
+            {
+              "id": "t11",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "r0",
+                  "r1",
+                  "r2"
+                ]
+              }
+            },
+            {
+              "id": "t12",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "r0",
+                  "r1",
+                  "r2"
+                ]
+              }
+            },
+            {
+              "id": "t13",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "r0",
+                  "r1",
+                  "r2"
+                ]
+              }
+            },
+            {
+              "id": "t14",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "o",
+                  "r"
+                ]
+              }
+            },
+            {
+              "id": "t15",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "r1",
+                  "r2",
+                  "r3"
+                ]
+              }
+            },
+            {
+              "id": "t16",
+              "actual": {
+                "flagged_ids": [],
+                "unflagged_ids": [
+                  "f0",
+                  "f1",
+                  "f2",
+                  "f3",
+                  "f4",
+                  "f5",
+                  "f6",
+                  "f7",
+                  "f8",
+                  "f9",
+                  "f10",
+                  "f11",
+                  "f12",
+                  "f13",
+                  "f14",
+                  "f15",
+                  "f16",
+                  "f17",
+                  "f18",
+                  "f19"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "html": "<form><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": []
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": []
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required value=\"\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "a"
+            ],
+            "unflagged_ids": []
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "a"
+            ],
+            "unflagged_ids": []
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required value=\"0\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ],
+            "unflagged_ids": []
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r1",
+              "r2"
+            ],
+            "unflagged_ids": [
+              "r0"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0",
+              "r2"
+            ],
+            "unflagged_ids": [
+              "r1"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r2"
+            ],
+            "unflagged_ids": [
+              "r0",
+              "r1"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0",
+              "r1"
+            ],
+            "unflagged_ids": [
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r1"
+            ],
+            "unflagged_ids": [
+              "r0",
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0"
+            ],
+            "unflagged_ids": [
+              "r1",
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "verdict": "pass"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "html": "<form><input id=\"o\" type=\"text\" value=\"\"><input id=\"r\" type=\"text\" required value=\"\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r"
+            ],
+            "unflagged_ids": [
+              "o"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "o",
+              "r"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "html": "<form><input id=\"r1\" type=\"text\" required value=\"same\"><input id=\"r2\" type=\"text\" required value=\"same\"><input id=\"r3\" type=\"text\" required value=\"\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r3"
+            ],
+            "unflagged_ids": [
+              "r1",
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r1",
+              "r2",
+              "r3"
+            ]
+          },
+          "verdict": "fail"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "html": "<form><input id=\"f0\" type=\"text\" required value=\"\"><input id=\"f1\" type=\"text\" required value=\"v\"><input id=\"f2\" type=\"text\" required value=\"\"><input id=\"f3\" type=\"text\" required value=\"v\"><input id=\"f4\" type=\"text\" required value=\"\"><input id=\"f5\" type=\"text\" required value=\"v\"><input id=\"f6\" type=\"text\" required value=\"\"><input id=\"f7\" type=\"text\" required value=\"v\"><input id=\"f8\" type=\"text\" required value=\"\"><input id=\"f9\" type=\"text\" required value=\"v\"><input id=\"f10\" type=\"text\" required value=\"\"><input id=\"f11\" type=\"text\" required value=\"v\"><input id=\"f12\" type=\"text\" required value=\"\"><input id=\"f13\" type=\"text\" required value=\"v\"><input id=\"f14\" type=\"text\" required value=\"\"><input id=\"f15\" type=\"text\" required value=\"v\"><input id=\"f16\" type=\"text\" required value=\"\"><input id=\"f17\" type=\"text\" required value=\"v\"><input id=\"f18\" type=\"text\" required value=\"\"><input id=\"f19\" type=\"text\" required value=\"v\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "f0",
+              "f10",
+              "f12",
+              "f14",
+              "f16",
+              "f18",
+              "f2",
+              "f4",
+              "f6",
+              "f8"
+            ],
+            "unflagged_ids": [
+              "f1",
+              "f11",
+              "f13",
+              "f15",
+              "f17",
+              "f19",
+              "f3",
+              "f5",
+              "f7",
+              "f9"
+            ]
+          },
+          "oracle": "reference",
+          "actual": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "f0",
+              "f1",
+              "f2",
+              "f3",
+              "f4",
+              "f5",
+              "f6",
+              "f7",
+              "f8",
+              "f9",
+              "f10",
+              "f11",
+              "f12",
+              "f13",
+              "f14",
+              "f15",
+              "f16",
+              "f17",
+              "f18",
+              "f19"
+            ]
+          },
+          "verdict": "fail"
+        }
+      ],
+      "retainedObservation": true
+    },
+    {
+      "status": "executed",
+      "side": "a",
+      "adapter": {
+        "key": "7f5e26bb484235c23b88",
+        "costUsd": 0.0051269,
+        "value": {
+          "runnable": true,
+          "reason": "Block 1 is a complete jQuery script. The harness loads it verbatim from block-1.txt into node:vm with a linkedom window and the jquery package (both expected via NODE_PATH). The candidate binds its handler to #checkBtn, not the #submit button named in the contract, and the harness does not rewrite that. Each case therefore reports what the unmodified candidate actually does when #submit is clicked. Observed flagged/unflagged ids are returned without any pass/fail judgment.",
+          "command": "node harness.cjs",
+          "files": {
+            "harness.cjs": "const fs = require('fs');\nconst path = require('path');\nconst vm = require('vm');\n\nconst realStdoutWrite = process.stdout.write.bind(process.stdout);\nconsole.log = function () {};\nconsole.info = function () {};\nconsole.warn = function () {};\nconsole.error = function () {};\n\nfunction emit(obj) {\n  realStdoutWrite(JSON.stringify(obj) + '\\n');\n}\n\nfunction wait(ms) {\n  return new Promise(function (resolve) { setTimeout(resolve, ms); });\n}\n\nfunction observe(document) {\n  const els = Array.from(document.querySelectorAll('input'));\n  const textInputs = els.filter(function (el) {\n    const t = (el.getAttribute('type') || 'text').toLowerCase();\n    return !!el.getAttribute('id') && t === 'text';\n  });\n  const flagged_ids = [];\n  const unflagged_ids = [];\n  textInputs.forEach(function (el) {\n    let nx = el.nextSibling;\n    while (nx && nx.nodeType !== 1) nx = nx.nextSibling;\n    const hit = !!(nx && nx.tagName && String(nx.tagName).toUpperCase() === 'SPAN' &&\n      String(nx.textContent || '').trim() !== '');\n    if (hit) flagged_ids.push(el.getAttribute('id'));\n    else unflagged_ids.push(el.getAttribute('id'));\n  });\n  return { flagged_ids: flagged_ids, unflagged_ids: unflagged_ids };\n}\n\nasync function runCase(input, deps) {\n  const parsed = deps.parseHTML('<!doctype html><html><head></head><body>' + String(input.html) + '</body></html>');\n  const document = parsed.document;\n  const window = parsed.window || document.defaultView;\n  window.setTimeout = setTimeout;\n  window.clearTimeout = clearTimeout;\n\n  const $ = deps.jqFactory(window);\n  const sandbox = {\n    window: window,\n    document: document,\n    $: $,\n    jQuery: $,\n    setTimeout: setTimeout,\n    clearTimeout: clearTimeout,\n    alert: function () {},\n    console: { log: function () {}, info: function () {}, warn: function () {}, error: function () {} }\n  };\n  vm.createContext(sandbox);\n  vm.runInContext(deps.src, sandbox, { timeout: 4000 });\n\n  await wait(20);\n\n  const btn = document.getElementById(String(input.button_id));\n  if (!btn) throw new Error('button not found: ' + String(input.button_id));\n  btn.dispatchEvent(new window.Event('click', { bubbles: true }));\n\n  await wait(20);\n  return observe(document);\n}\n\nasync function main() {\n  let deps;\n  let cases;\n  try {\n    const cwd = process.cwd();\n    cases = JSON.parse(fs.readFileSync(path.join(cwd, 'inputs.json'), 'utf8'));\n    deps = {\n      src: fs.readFileSync(path.join(cwd, 'block-1.txt'), 'utf8'),\n      parseHTML: require('linkedom').parseHTML,\n      jqFactory: require('jquery')\n    };\n  } catch (e) {\n    emit({ results: [], harness_error: 'setup failed: ' + (e && e.message ? e.message : String(e)) });\n    return;\n  }\n  if (!Array.isArray(cases)) {\n    emit({ results: [], harness_error: 'inputs.json is not an array' });\n    return;\n  }\n\n  const results = [];\n  for (const c of cases) {\n    try {\n      const actual = await runCase(c.input, deps);\n      results.push({ id: c.id, actual: actual });\n    } catch (e) {\n      results.push({ id: c.id, error: e && e.message ? String(e.message) : String(e) });\n    }\n  }\n  emit({ results: results });\n}\n\nmain().catch(function (e) {\n  emit({ results: [], harness_error: String((e && e.message) || e) });\n});\n"
+          },
+          "uses": [
+            1
+          ],
+          "extraction": []
+        }
+      },
+      "audit": {
+        "key": "d605a146bcd842111cf2",
+        "costUsd": 0.00214059,
+        "value": {
+          "valid": true,
+          "reasons": [
+            "The adapter executes the candidate's block-1 script verbatim from block-1.txt and does not replace or rewrite its internals.",
+            "The #checkBtn vs #submit mismatch and the selector '#myForm' that the input html does not define are candidate defects. The adapter preserves them and does not repair them.",
+            "The harness supplies only scaffolding: an entry point, a linkedom DOM, a jQuery factory bound to that window, no-op alert and console stubs, and the input html and button_id from the test input. It computes no expected results.",
+            "The observation returns flagged_ids and unflagged_ids, which matches the output_schema organization, and it reports what the DOM contains after the click without judging pass or fail.",
+            "Dependencies linkedom and jquery are on the permitted list. The jquery package version is not pinned to 3.x, which is a minor ambiguity to confirm.",
+            "runCase errors such as 'button not found' are recorded as per-case errors rather than as harness setup errors. This could misattribute a setup failure to the candidate, but no current input triggers it, so it is a minor concern."
+          ]
+        }
+      },
+      "run": {
+        "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-g1wOr6",
+        "record": {
+          "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; node harness.cjs 2>&1'",
+          "exitCode": 0,
+          "stdout": "{\"results\":[{\"id\":\"t0\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t1\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t2\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t3\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t4\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t5\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t6\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t7\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t8\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t9\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t10\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t11\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t12\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t13\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t14\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t15\",\"error\":\"Cannot read properties of undefined (reading 'href')\"},{\"id\":\"t16\",\"error\":\"Cannot read properties of undefined (reading 'href')\"}]}\n",
+          "stderr": "",
+          "startedAt": "2026-10-13T04:26:56.225Z",
+          "latencyMs": 2163.844
+        },
+        "output": {
+          "results": [
+            {
+              "id": "t0",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t1",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t2",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t3",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t4",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t5",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t6",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t7",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t8",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t9",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t10",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t11",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t12",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t13",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t14",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t15",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            },
+            {
+              "id": "t16",
+              "error": "Cannot read properties of undefined (reading 'href')"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "id": "t0",
+          "input": {
+            "html": "<form><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": []
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required value=\"\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "a"
+            ],
+            "unflagged_ids": []
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "a"
+            ],
+            "unflagged_ids": []
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required value=\"0\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ],
+            "unflagged_ids": []
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r1",
+              "r2"
+            ],
+            "unflagged_ids": [
+              "r0"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0",
+              "r2"
+            ],
+            "unflagged_ids": [
+              "r1"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r2"
+            ],
+            "unflagged_ids": [
+              "r0",
+              "r1"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0",
+              "r1"
+            ],
+            "unflagged_ids": [
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r1"
+            ],
+            "unflagged_ids": [
+              "r0",
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0"
+            ],
+            "unflagged_ids": [
+              "r1",
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "html": "<form><input id=\"o\" type=\"text\" value=\"\"><input id=\"r\" type=\"text\" required value=\"\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r"
+            ],
+            "unflagged_ids": [
+              "o"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "html": "<form><input id=\"r1\" type=\"text\" required value=\"same\"><input id=\"r2\" type=\"text\" required value=\"same\"><input id=\"r3\" type=\"text\" required value=\"\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r3"
+            ],
+            "unflagged_ids": [
+              "r1",
+              "r2"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "html": "<form><input id=\"f0\" type=\"text\" required value=\"\"><input id=\"f1\" type=\"text\" required value=\"v\"><input id=\"f2\" type=\"text\" required value=\"\"><input id=\"f3\" type=\"text\" required value=\"v\"><input id=\"f4\" type=\"text\" required value=\"\"><input id=\"f5\" type=\"text\" required value=\"v\"><input id=\"f6\" type=\"text\" required value=\"\"><input id=\"f7\" type=\"text\" required value=\"v\"><input id=\"f8\" type=\"text\" required value=\"\"><input id=\"f9\" type=\"text\" required value=\"v\"><input id=\"f10\" type=\"text\" required value=\"\"><input id=\"f11\" type=\"text\" required value=\"v\"><input id=\"f12\" type=\"text\" required value=\"\"><input id=\"f13\" type=\"text\" required value=\"v\"><input id=\"f14\" type=\"text\" required value=\"\"><input id=\"f15\" type=\"text\" required value=\"v\"><input id=\"f16\" type=\"text\" required value=\"\"><input id=\"f17\" type=\"text\" required value=\"v\"><input id=\"f18\" type=\"text\" required value=\"\"><input id=\"f19\" type=\"text\" required value=\"v\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "f0",
+              "f10",
+              "f12",
+              "f14",
+              "f16",
+              "f18",
+              "f2",
+              "f4",
+              "f6",
+              "f8"
+            ],
+            "unflagged_ids": [
+              "f1",
+              "f11",
+              "f13",
+              "f15",
+              "f17",
+              "f19",
+              "f3",
+              "f5",
+              "f7",
+              "f9"
+            ]
+          },
+          "oracle": "reference",
+          "error": "Cannot read properties of undefined (reading 'href')",
+          "verdict": "fail"
+        }
+      ]
+    }
+  ],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-MCciA1",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"html\": \"<form><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [], \"unflagged_ids\": []}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"html\": \"<form><input id=\\\"a\\\" type=\\\"text\\\" required value=\\\"\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"a\"], \"unflagged_ids\": []}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"html\": \"<form><input id=\\\"a\\\" type=\\\"text\\\" required value=\\\"x\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [], \"unflagged_ids\": [\"a\"]}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"html\": \"<form><input id=\\\"a\\\" type=\\\"text\\\" required><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"a\"], \"unflagged_ids\": []}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"html\": \"<form><input id=\\\"a\\\" type=\\\"text\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [], \"unflagged_ids\": [\"a\"]}, \"oracle\": \"reference\"}, {\"id\": \"t5\", \"input\": {\"html\": \"<form><input id=\\\"a\\\" type=\\\"text\\\" required value=\\\"0\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [], \"unflagged_ids\": [\"a\"]}, \"oracle\": \"reference\"}, {\"id\": \"t6\", \"input\": {\"html\": \"<form><input id=\\\"r0\\\" type=\\\"text\\\" required><input id=\\\"r1\\\" type=\\\"text\\\" required><input id=\\\"r2\\\" type=\\\"text\\\" required><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"r0\", \"r1\", \"r2\"], \"unflagged_ids\": []}, \"oracle\": \"reference\"}, {\"id\": \"t7\", \"input\": {\"html\": \"<form><input id=\\\"r0\\\" type=\\\"text\\\" required value=\\\"x\\\"><input id=\\\"r1\\\" type=\\\"text\\\" required><input id=\\\"r2\\\" type=\\\"text\\\" required><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"r1\", \"r2\"], \"unflagged_ids\": [\"r0\"]}, \"oracle\": \"reference\"}, {\"id\": \"t8\", \"input\": {\"html\": \"<form><input id=\\\"r0\\\" type=\\\"text\\\" required><input id=\\\"r1\\\" type=\\\"text\\\" required value=\\\"x\\\"><input id=\\\"r2\\\" type=\\\"text\\\" required><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"r0\", \"r2\"], \"unflagged_ids\": [\"r1\"]}, \"oracle\": \"reference\"}, {\"id\": \"t9\", \"input\": {\"html\": \"<form><input id=\\\"r0\\\" type=\\\"text\\\" required value=\\\"x\\\"><input id=\\\"r1\\\" type=\\\"text\\\" required value=\\\"x\\\"><input id=\\\"r2\\\" type=\\\"text\\\" required><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"r2\"], \"unflagged_ids\": [\"r0\", \"r1\"]}, \"oracle\": \"reference\"}, {\"id\": \"t10\", \"input\": {\"html\": \"<form><input id=\\\"r0\\\" type=\\\"text\\\" required><input id=\\\"r1\\\" type=\\\"text\\\" required><input id=\\\"r2\\\" type=\\\"text\\\" required value=\\\"x\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"r0\", \"r1\"], \"unflagged_ids\": [\"r2\"]}, \"oracle\": \"reference\"}, {\"id\": \"t11\", \"input\": {\"html\": \"<form><input id=\\\"r0\\\" type=\\\"text\\\" required value=\\\"x\\\"><input id=\\\"r1\\\" type=\\\"text\\\" required><input id=\\\"r2\\\" type=\\\"text\\\" required value=\\\"x\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"r1\"], \"unflagged_ids\": [\"r0\", \"r2\"]}, \"oracle\": \"reference\"}, {\"id\": \"t12\", \"input\": {\"html\": \"<form><input id=\\\"r0\\\" type=\\\"text\\\" required><input id=\\\"r1\\\" type=\\\"text\\\" required value=\\\"x\\\"><input id=\\\"r2\\\" type=\\\"text\\\" required value=\\\"x\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"r0\"], \"unflagged_ids\": [\"r1\", \"r2\"]}, \"oracle\": \"reference\"}, {\"id\": \"t13\", \"input\": {\"html\": \"<form><input id=\\\"r0\\\" type=\\\"text\\\" required value=\\\"x\\\"><input id=\\\"r1\\\" type=\\\"text\\\" required value=\\\"x\\\"><input id=\\\"r2\\\" type=\\\"text\\\" required value=\\\"x\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [], \"unflagged_ids\": [\"r0\", \"r1\", \"r2\"]}, \"oracle\": \"reference\"}, {\"id\": \"t14\", \"input\": {\"html\": \"<form><input id=\\\"o\\\" type=\\\"text\\\" value=\\\"\\\"><input id=\\\"r\\\" type=\\\"text\\\" required value=\\\"\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"r\"], \"unflagged_ids\": [\"o\"]}, \"oracle\": \"reference\"}, {\"id\": \"t15\", \"input\": {\"html\": \"<form><input id=\\\"r1\\\" type=\\\"text\\\" required value=\\\"same\\\"><input id=\\\"r2\\\" type=\\\"text\\\" required value=\\\"same\\\"><input id=\\\"r3\\\" type=\\\"text\\\" required value=\\\"\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"r3\"], \"unflagged_ids\": [\"r1\", \"r2\"]}, \"oracle\": \"reference\"}, {\"id\": \"t16\", \"input\": {\"html\": \"<form><input id=\\\"f0\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f1\\\" type=\\\"text\\\" required value=\\\"v\\\"><input id=\\\"f2\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f3\\\" type=\\\"text\\\" required value=\\\"v\\\"><input id=\\\"f4\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f5\\\" type=\\\"text\\\" required value=\\\"v\\\"><input id=\\\"f6\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f7\\\" type=\\\"text\\\" required value=\\\"v\\\"><input id=\\\"f8\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f9\\\" type=\\\"text\\\" required value=\\\"v\\\"><input id=\\\"f10\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f11\\\" type=\\\"text\\\" required value=\\\"v\\\"><input id=\\\"f12\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f13\\\" type=\\\"text\\\" required value=\\\"v\\\"><input id=\\\"f14\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f15\\\" type=\\\"text\\\" required value=\\\"v\\\"><input id=\\\"f16\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f17\\\" type=\\\"text\\\" required value=\\\"v\\\"><input id=\\\"f18\\\" type=\\\"text\\\" required value=\\\"\\\"><input id=\\\"f19\\\" type=\\\"text\\\" required value=\\\"v\\\"><button id=\\\"submit\\\" type=\\\"button\\\">Submit</button></form>\", \"button_id\": \"submit\"}, \"expected\": {\"flagged_ids\": [\"f0\", \"f10\", \"f12\", \"f14\", \"f16\", \"f18\", \"f2\", \"f4\", \"f6\", \"f8\"], \"unflagged_ids\": [\"f1\", \"f11\", \"f13\", \"f15\", \"f17\", \"f19\", \"f3\", \"f5\", \"f7\", \"f9\"]}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:08:18.108Z",
+      "latencyMs": 147.684
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "html": "<form><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required value=\"\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "a"
+            ],
+            "unflagged_ids": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "a"
+            ],
+            "unflagged_ids": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t5",
+          "input": {
+            "html": "<form><input id=\"a\" type=\"text\" required value=\"0\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "a"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t6",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ],
+            "unflagged_ids": []
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t7",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r1",
+              "r2"
+            ],
+            "unflagged_ids": [
+              "r0"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t8",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0",
+              "r2"
+            ],
+            "unflagged_ids": [
+              "r1"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t9",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r2"
+            ],
+            "unflagged_ids": [
+              "r0",
+              "r1"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t10",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0",
+              "r1"
+            ],
+            "unflagged_ids": [
+              "r2"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t11",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r1"
+            ],
+            "unflagged_ids": [
+              "r0",
+              "r2"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t12",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r0"
+            ],
+            "unflagged_ids": [
+              "r1",
+              "r2"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t13",
+          "input": {
+            "html": "<form><input id=\"r0\" type=\"text\" required value=\"x\"><input id=\"r1\" type=\"text\" required value=\"x\"><input id=\"r2\" type=\"text\" required value=\"x\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [],
+            "unflagged_ids": [
+              "r0",
+              "r1",
+              "r2"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t14",
+          "input": {
+            "html": "<form><input id=\"o\" type=\"text\" value=\"\"><input id=\"r\" type=\"text\" required value=\"\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r"
+            ],
+            "unflagged_ids": [
+              "o"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t15",
+          "input": {
+            "html": "<form><input id=\"r1\" type=\"text\" required value=\"same\"><input id=\"r2\" type=\"text\" required value=\"same\"><input id=\"r3\" type=\"text\" required value=\"\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "r3"
+            ],
+            "unflagged_ids": [
+              "r1",
+              "r2"
+            ]
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t16",
+          "input": {
+            "html": "<form><input id=\"f0\" type=\"text\" required value=\"\"><input id=\"f1\" type=\"text\" required value=\"v\"><input id=\"f2\" type=\"text\" required value=\"\"><input id=\"f3\" type=\"text\" required value=\"v\"><input id=\"f4\" type=\"text\" required value=\"\"><input id=\"f5\" type=\"text\" required value=\"v\"><input id=\"f6\" type=\"text\" required value=\"\"><input id=\"f7\" type=\"text\" required value=\"v\"><input id=\"f8\" type=\"text\" required value=\"\"><input id=\"f9\" type=\"text\" required value=\"v\"><input id=\"f10\" type=\"text\" required value=\"\"><input id=\"f11\" type=\"text\" required value=\"v\"><input id=\"f12\" type=\"text\" required value=\"\"><input id=\"f13\" type=\"text\" required value=\"v\"><input id=\"f14\" type=\"text\" required value=\"\"><input id=\"f15\" type=\"text\" required value=\"v\"><input id=\"f16\" type=\"text\" required value=\"\"><input id=\"f17\" type=\"text\" required value=\"v\"><input id=\"f18\" type=\"text\" required value=\"\"><input id=\"f19\" type=\"text\" required value=\"v\"><button id=\"submit\" type=\"button\">Submit</button></form>",
+            "button_id": "submit"
+          },
+          "expected": {
+            "flagged_ids": [
+              "f0",
+              "f10",
+              "f12",
+              "f14",
+              "f16",
+              "f18",
+              "f2",
+              "f4",
+              "f6",
+              "f8"
+            ],
+            "unflagged_ids": [
+              "f1",
+              "f11",
+              "f13",
+              "f15",
+              "f17",
+              "f19",
+              "f3",
+              "f5",
+              "f7",
+              "f9"
+            ]
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "2ed9addaff4a4890274e2396201f10c9d0909b27fbe950467dcaf5012adf5685"
+  },
+  "contractAudit": {
+    "key": "e99ee6952d2bb708c8fa",
+    "costUsd": 0.00254062,
+    "value": {
+      "valid": true,
+      "reasons": [
+        "The reference classifies inputs by required-attribute presence and empty or missing value, which matches the stated oracle basis of flagged versus unflagged ids.",
+        "Hand-checked observed expectations t0–t16 agree with the reference, including the sorted-order cases in t6 and t16 and the non-required empty input in t14.",
+        "The validator rejects duplicate ids, non-text types, whitespace-only values, and malformed or non-dict inputs, and its probes return false as expected.",
+        "The domain covers empty, missing, zero-string, duplicate-value, non-required, and larger mixed cases, with no nondeterministic or external behavior.",
+        "The 'span immediately after input with non-empty text' interpretation is a reasonable reading of the question and is documented in the plan."
+      ],
+      "invalid_checks": [],
+      "execution_valid": true
+    }
+  },
+  "status": "evaluated",
+  "priorCallKeys": [
+    "e99ee6952d2bb708c8fa",
+    "33dc9b85c0a581b3de41",
+    "8e0067a09eaa0f8f60a8",
+    "d6ef857d31f6a8404e7a",
+    "30e0e93874e6ab342d16",
+    "d36da3c8e00f57010e9f",
+    "4dce0773a115395a4a1b"
+  ],
+  "callKeys": [
+    "e99ee6952d2bb708c8fa",
+    "33dc9b85c0a581b3de41",
+    "8e0067a09eaa0f8f60a8",
+    "d6ef857d31f6a8404e7a",
+    "30e0e93874e6ab342d16",
+    "d36da3c8e00f57010e9f",
+    "4dce0773a115395a4a1b",
+    "7f5e26bb484235c23b88",
+    "d605a146bcd842111cf2"
+  ]
+}

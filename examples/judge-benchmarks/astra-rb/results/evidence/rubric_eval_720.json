@@ -1,0 +1,144 @@
+{
+  "id": "rubric_eval_720",
+  "protocolVersion": 4,
+  "planKey": "b5d8f7f346d258060961",
+  "questionPlanKey": "bb0f17f321e58ce06bdb",
+  "at": "2026-10-13T04:29:07.811Z",
+  "checks": [],
+  "execution": [],
+  "preflight": {
+    "folder": "<worktree>/.cache/astra-rb/sandboxes/driftbench-8m0C6c",
+    "record": {
+      "command": "/usr/bin/sandbox-exec -f policy.sb /bin/sh -c 'ulimit -t 15; ulimit -f 16384; python3 -I preflight.py 2>&1'",
+      "exitCode": 0,
+      "stdout": "{\"checks\": [], \"inputs\": [{\"id\": \"t0\", \"input\": {\"viewport_width\": 1280, \"viewport_height\": 800}, \"expected\": {\"background_is_sky_blue\": true, \"input_count\": 1, \"input_centered_within_5_percent\": true}, \"oracle\": \"reference\"}, {\"id\": \"t1\", \"input\": {\"viewport_width\": 800, \"viewport_height\": 600}, \"expected\": {\"background_is_sky_blue\": true, \"input_count\": 1, \"input_centered_within_5_percent\": true}, \"oracle\": \"reference\"}, {\"id\": \"t2\", \"input\": {\"viewport_width\": 390, \"viewport_height\": 844}, \"expected\": {\"background_is_sky_blue\": true, \"input_count\": 1, \"input_centered_within_5_percent\": true}, \"oracle\": \"reference\"}, {\"id\": \"t3\", \"input\": {\"viewport_width\": 1920, \"viewport_height\": 1080}, \"expected\": {\"background_is_sky_blue\": true, \"input_count\": 1, \"input_centered_within_5_percent\": true}, \"oracle\": \"reference\"}, {\"id\": \"t4\", \"input\": {\"viewport_width\": 1024, \"viewport_height\": 768}, \"expected\": {\"background_is_sky_blue\": true, \"input_count\": 1, \"input_centered_within_5_percent\": true}, \"oracle\": \"reference\"}], \"rejected\": [], \"reference_errors\": [], \"examples\": [], \"validator_probes\": [{\"input\": null, \"valid\": false}, {\"input\": {}, \"valid\": false}, {\"input\": [], \"valid\": false}, {\"input\": 1, \"valid\": false}, {\"input\": true, \"valid\": false}, {\"input\": \"malformed\", \"valid\": false}]}\n",
+      "stderr": "",
+      "startedAt": "2026-10-13T04:21:49.852Z",
+      "latencyMs": 285.198
+    },
+    "output": {
+      "checks": [],
+      "inputs": [
+        {
+          "id": "t0",
+          "input": {
+            "viewport_width": 1280,
+            "viewport_height": 800
+          },
+          "expected": {
+            "background_is_sky_blue": true,
+            "input_count": 1,
+            "input_centered_within_5_percent": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t1",
+          "input": {
+            "viewport_width": 800,
+            "viewport_height": 600
+          },
+          "expected": {
+            "background_is_sky_blue": true,
+            "input_count": 1,
+            "input_centered_within_5_percent": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t2",
+          "input": {
+            "viewport_width": 390,
+            "viewport_height": 844
+          },
+          "expected": {
+            "background_is_sky_blue": true,
+            "input_count": 1,
+            "input_centered_within_5_percent": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t3",
+          "input": {
+            "viewport_width": 1920,
+            "viewport_height": 1080
+          },
+          "expected": {
+            "background_is_sky_blue": true,
+            "input_count": 1,
+            "input_centered_within_5_percent": true
+          },
+          "oracle": "reference"
+        },
+        {
+          "id": "t4",
+          "input": {
+            "viewport_width": 1024,
+            "viewport_height": 768
+          },
+          "expected": {
+            "background_is_sky_blue": true,
+            "input_count": 1,
+            "input_centered_within_5_percent": true
+          },
+          "oracle": "reference"
+        }
+      ],
+      "rejected": [],
+      "reference_errors": [],
+      "examples": [],
+      "validator_probes": [
+        {
+          "input": null,
+          "valid": false
+        },
+        {
+          "input": {},
+          "valid": false
+        },
+        {
+          "input": [],
+          "valid": false
+        },
+        {
+          "input": 1,
+          "valid": false
+        },
+        {
+          "input": true,
+          "valid": false
+        },
+        {
+          "input": "malformed",
+          "valid": false
+        }
+      ]
+    },
+    "planHash": "8a9103dc39b099f742179eba6cb514261bd668176c2bb011a349639497e569f6"
+  },
+  "contractAudit": {
+    "key": "a386fc36666147a429f2",
+    "costUsd": 0.00148782,
+    "value": {
+      "valid": false,
+      "reasons": [
+        "The execution runs in jsdom or linkedom, which do not perform CSS layout. getBoundingClientRect returns zeros there, so the centering oracle (input center within 5% of viewport center at each viewport size) cannot be measured. This is an unsupported runtime claim.",
+        "The oracle requires layout from the real candidate DOM, but the stated Node DOM runtimes cannot provide it, so the centering expectation is not verifiable.",
+        "The background check depends on computed background-color resolved through the candidate's stylesheet cascade, which jsdom/linkedom only partially implement. The contract does not establish that this check is reliable across candidate CSS approaches.",
+        "No C1 checks are provided (checks is empty), so validity depends entirely on the execution, which is invalid.",
+        "Input domain, validator probes (null, {}, [], 1, true, 'malformed' all rejected), generator sizes, and the constant reference agree with the stated expected observables. These parts are sound but do not rescue the execution because the centering measurement is infeasible."
+      ],
+      "invalid_checks": [],
+      "execution_valid": false
+    }
+  },
+  "executionAbstention": "invalid_contract_or_reference",
+  "status": "evaluated",
+  "priorCallKeys": [
+    "a386fc36666147a429f2"
+  ],
+  "callKeys": [
+    "a386fc36666147a429f2"
+  ]
+}
