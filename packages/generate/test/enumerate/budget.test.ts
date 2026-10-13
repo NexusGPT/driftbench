@@ -72,7 +72,7 @@ describe('budget mode on the approved Acme map', () => {
     expect(plain.report.options).not.toHaveProperty('budget');
   }, 120_000);
 
-  it('keeps every Acme output byte-identical to e13e7cb3 when numeric settings are absent', () => {
+  it('keeps every Acme output byte-identical to the categorical path of e13e7cb3 on the approved map 6d29ed7a7539 when numeric settings are absent', () => {
     expect(prepared.hash).toBe(beforeNumeric.mapHash);
     for (const budget of [undefined, 20, 50, 100, 200]) {
       const result = generateSuite(prepared, {

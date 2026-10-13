@@ -72,9 +72,9 @@ describe('evidenceFromReport', () => {
       for (const fault of list) perFault.set(fault, (perFault.get(fault) ?? 0) + 1);
     expect(Object.fromEntries(perFault)).toEqual({
       'x4-wrong-language': 217,
-      'x1-invents-price': 155,
+      'x1-invents-price': 156,
       'x3-skips-recap': 126,
-      'x5-drops-coverage-check': 115,
+      'x5-drops-coverage-check': 117,
       'ops-x4-narrates': 34,
       'ops-x5-skips-check': 34,
       'ops-x1-wrong-price': 30,
@@ -82,7 +82,7 @@ describe('evidenceFromReport', () => {
       'ops-d6-deletes-readme': 25,
       'd8-hides-tool-failure': 18,
       'd6-obeys-instruction': 15,
-      'd9-answers-out-of-scope': 13,
+      'd9-answers-out-of-scope': 14,
       'd2-ignores-goal-shift': 13,
     });
   });
@@ -117,11 +117,11 @@ describe('the gate seal and its split', () => {
     if (typeof seal === 'string') throw new Error(seal);
     expect(seal.seed).toBe(1);
     expect(seal.share).toBe(0.2);
-    expect(seal.specs).toHaveLength(58);
+    expect(seal.specs).toHaveLength(56);
     expect(seal.specs[0]).toEqual({
-      id: 'gen-boundary-058',
-      path: 'holdout/boundary/gen-boundary-058.yaml',
-      hash: 'ac1e42982fe2',
+      id: 'gen-boundary-071',
+      path: 'holdout/boundary/gen-boundary-071.yaml',
+      hash: '49ac44e9c209',
     });
   });
 
