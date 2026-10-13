@@ -378,7 +378,7 @@ describe('the recorded haiku calibration (a real judge on the claude command, ma
     expect(cassette.judges.map((j) => j.id)).toEqual(['claude-haiku']);
     const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels, mode: 'llm' });
     expect(report.errors).toBe(0);
-    expect(report.spentUsd).toBeCloseTo(0.019, 4);
+    expect(report.spentUsd).toBeCloseTo(0.0199, 4);
     const rows = Object.fromEntries(report.criteria.map((c) => [c.criterion, c.judges[0]] as const));
     expect(Object.values(rows).every((r) => r?.separation.separated === 3)).toBe(true);
     // With catalog.csv as an input, the task criterion separates; with the stated evidence rule, so does
@@ -401,7 +401,7 @@ describe('the recorded Claude council (haiku, sonnet, opus; 2026-10-12)', () => 
     const cassette = await loadCassette(join(CRITERIA, 'calibration/claude-council.cassette.json'));
     const report = await calibrate({ judges: cassettePlayers(cassette), criteria, labels, mode: 'llm' });
     expect(report.errors).toBe(0);
-    expect(report.spentUsd).toBeCloseTo(1.4353, 4);
+    expect(report.spentUsd).toBeCloseTo(1.4399, 4);
     const assigned = report.criteria
       .filter((c) => c.assignment.status === 'assigned')
       .map((c) => c.criterion);

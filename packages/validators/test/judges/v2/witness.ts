@@ -1137,7 +1137,7 @@ const googleWitness = chatClient(
   (request) => ({
     generationConfig: {
       temperature: 0,
-      responseSchema: request.answerContract === 'legacy' ? ANSWER_SCHEMA : LEDGER_SCHEMA,
+      responseSchema: request.answerContract === 'legacy' ? ANSWER_SCHEMA : GOOGLE_LEDGER_SCHEMA,
     },
     contents: buildPrompt(request),
   }),
@@ -1203,6 +1203,24 @@ const LEDGER_SCHEMA = {
     },
   },
   required: ['checks'],
+};
+
+/** Gemini takes one type plus nullable: a null type or a type list is a 400. */
+const GOOGLE_LEDGER_SCHEMA = {
+  ...LEDGER_SCHEMA,
+  properties: {
+    checks: {
+      ...LEDGER_SCHEMA.properties.checks,
+      items: {
+        ...LEDGER_SCHEMA.properties.checks.items,
+        properties: {
+          ...LEDGER_SCHEMA.properties.checks.items.properties,
+          evidence: { type: 'string', nullable: true },
+          met: { type: 'boolean', nullable: true },
+        },
+      },
+    },
+  },
 };
 
 const ANSWER_SCHEMA = {

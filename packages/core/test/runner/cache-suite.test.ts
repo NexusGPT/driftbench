@@ -24,3 +24,14 @@ describe('the cache key per suite', () => {
     expect(blockCacheKey({ ...parts, suite: 'nightly-1' })).not.toBe(blockCacheKey(parts));
   });
 });
+
+describe('each block records the cache key it was stored under', () => {
+  // The run that stores a block under this key and reads it back is in run.test.ts. A resolved Given
+  // always carries its prefix, the list the key reads message by message.
+  it('the block key is the block prefix and a SHA-256 digest, the form a block result carries', () => {
+    expect(
+      blockCacheKey({ ...parts, given: { ...parts.given, prefix: [{ role: 'user', content: 'x' }] } }),
+    ).toMatch(/^block:[0-9a-f]{64}$/);
+    expect(blockCacheKey(parts)).toMatch(/^block:[0-9a-f]{64}$/);
+  });
+});

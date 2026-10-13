@@ -2,6 +2,7 @@ import { existsSync, statSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { portFromEnv } from '@agent-nexus/driftbench-generate';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import {
   type AttackRecording,
   type AttackResult,
@@ -252,18 +253,6 @@ function findPack(specPath: string): string | undefined {
     if (existsSync(candidate) && statSync(candidate).isDirectory()) return candidate;
     if (dirname(dir) === dir) return undefined;
   }
-}
-
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
 }
 
 function collect(value: string, previous: string[] = []): string[] {

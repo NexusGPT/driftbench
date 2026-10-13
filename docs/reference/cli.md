@@ -1285,10 +1285,12 @@ New flags always gate, and so does an underpowered criterion whose regression Be
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--json]
 ```
 
 `--route` sends the specs carrying a tag to another target, as in `campaign run`: with a fault candidate on a mixed suite, `--target fault:<id>` runs the conversations and `--route flow:price-sheet=process:acme-ops` keeps the task specs on the code agent.
+
+`--process-command` runs the candidate of any `process:<name>` target other than `process:acme-ops` with your own command, as in [`campaign run`](../running.md): a JSON list of strings or words split on spaces. Run the baseline campaign with the same option, then gate: `driftbench ci --specs specs --target process:my-agent --process-command "[\"node\",\"$PWD/agent.mjs\"]" --baseline baseline --store runs.db`. Without it, `ci` reaches the bundled Acme targets only.
 
 A failing `--aggregate` criterion gives the verdict `AGGREGATE FAILED` and exit 1. See [campaign-level criteria](../aggregates.md).
 
@@ -1342,6 +1344,8 @@ driftbench monitor --source traces <path> --metric latency|cost|tokens|tool_call
 | 1 | a shift: two or three detectors alarmed |
 | 2 | bad input: an unknown metric for the source, no store or no path, a bad `--every` or `--window`, too few points |
 
+Too few points is what a young store answers, not a broken one: the series needs two windows, 40 campaigns at the default `--window 20`. The message names the largest window the store allows, and the smallest window, `--window 2`, needs 4 campaigns. The example below runs on a store of six campaigns with `--window 2`.
+
 On a store:
 
 ```
@@ -1367,7 +1371,7 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 
 `select` chooses the golden set from the gated specs: the fewest conversations covering the cells of the map on every subset of `--t` dimensions, then the `--k` best. Sealed specs never count. Exit 0 when the set is written and covers every required cell, 1 when it is written and a required cell stays empty, 2 on a usage or input error.
 
-`holdout seal` seals a share of the gated specs (the gate's own sealed split when it has one). `holdout score` runs the sealed specs once through the runner and prints the pass rate with its Wilson interval, never which spec passed; each score spends one query of the budget. Seal: exit 0 when written, 2 on bad input. Score: exit 0 when scored, 1 when the budget is spent, 2 on bad input.
+`holdout seal` seals a share of the gated specs (the gate's own sealed split when it has one). Give `--specs` the gate's output folder, the one that holds `specs/` and `holdout/`, such as `examples/acme/gated`: its `specs/` subfolder alone does not hold the sealed files, and `holdout seal` refuses it and names the folder to pass. `holdout score` runs the sealed specs once through the runner and prints the pass rate with its Wilson interval, never which spec passed; each score spends one query of the budget. Seal: exit 0 when written, 2 on bad input. Score: exit 0 when scored, 1 when the budget is spent, 2 on bad input.
 
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
@@ -1405,10 +1409,10 @@ The review queue of blocks to label, kept beside the labels as `queue.json`. `cr
 ## `driftbench view`
 
 ```
-driftbench view [--store <file>] [--port <n>] [--labels <dir>] [--labelled-by <name>]
+driftbench view [--store <file>] [--port <n>] [--labels <dir>] [--labelled-by <name>] [--config <file>]
 ```
 
-Serves a store on `127.0.0.1` as a local website: the campaigns, each campaign's scorecard with its spread view, one page per run with every block in full, and the comparison of two campaigns. Under every block a form saves a pass or fail label per criterion, with a note, to the labels folder `judge calibrate --labels` reads. `--store` defaults to `driftbench.db`, `--port` to `4317` (`0` picks a free one), `--labels` to `labels`. It runs until Ctrl+C. Exit 0 after a stop; 2 when the store is missing, the port is not a number, or the port cannot be opened. See [viewer](../viewer.md).
+Serves a store on `127.0.0.1` as a local website: the campaigns, each campaign's scorecard with its spread view, one page per run with every block in full, and the comparison of two campaigns. Under every block a form saves a pass or fail label per criterion, with a note, to the labels folder `judge calibrate --labels` reads. `--store` defaults to `driftbench.db`, `--port` to `4317` (`0` picks a free one), `--labels` to `labels`. `--config` names the config whose `scales:` bound each criterion's queue score; it defaults to `driftbench.yaml` when that file exists, and a config that does not parse exits 2. It runs until Ctrl+C. Exit 0 after a stop; 2 when the store is missing, the port is not a number, or the port cannot be opened. See [viewer](../viewer.md).
 
 ## `driftbench import`
 

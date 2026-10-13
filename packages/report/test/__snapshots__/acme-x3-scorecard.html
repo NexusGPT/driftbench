@@ -498,6 +498,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 0, spec block 0. Stage expected port_number, observed port_number.</p>
 <p class="label">User</p><pre class="msg">Hi, I want to switch to Acme and keep my phone number.</pre>
 <p class="label">Agent</p><pre class="msg">Hi, I&#39;m the Acme Telecom sales assistant. Happy to help you switch and keep your number. Which number do you want to bring to Acme?</pre>
+<p class="label">Cache key</p><pre class="mono">block:37ca1aed80461c16a23c7583cb3e69caf94139f0375e449ba61b70ddf52273e8</pre>
 <p class="label">Tool calls</p><p class="muted">No tool call.</p>
 
 <p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">forbidden.coverage.check, forbidden.notify_sales, forbidden.port.check, forbidden.max_calls.port.check, forbidden.max_calls.order.create, must.0, must.1, must_not.0, lang.stable, pii.iban, pii.national_number, pii.phone, pii.email, cards.one_message_per_turn, stage.reached</span></p>
@@ -506,6 +507,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 1, spec block 1. Stage expected offer, observed offer.</p>
 <p class="label">User</p><pre class="msg">It&#39;s +1 202 555 0150</pre>
 <p class="label">Agent</p><pre class="msg">Good news: +1 202 555 0150 can move to Acme. The transfer takes one business day after your order. Our mobile plans: Acme Mobile S, 10 GB for $15 a month; Acme Mobile M, 40 GB for $25 a month; Acme Mobile L, unlimited data for $35 a month. Which one would you like: Acme Mobile S, Acme Mobile M or Acme Mobile L?</pre>
+<p class="label">Cache key</p><pre class="mono">block:ad7015466cbd16e939efe85788410a256b43b2486f0263e0b379f387e04809f3</pre>
 <p class="label">Tool calls</p><details><summary>port.check, catalog.search</summary><div class="call"><p class="mono">port.check</p><pre>{
   &quot;input&quot;: {
     &quot;number&quot;: &quot;+12025550150&quot;
@@ -551,6 +553,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 2, spec block 2. Stage expected details, observed details.</p>
 <p class="label">User</p><pre class="msg">Mobile M please</pre>
 <p class="label">Agent</p><pre class="msg">Good choice: Acme Mobile M, 40 GB for $25 a month. To set up the order I need your full name and email address.</pre>
+<p class="label">Cache key</p><pre class="mono">block:c91adc4cc35b3fac51e4c0dd01564c3a46351738b8c6b1079709cb1f2e19b228</pre>
 <p class="label">Tool calls</p><p class="muted">No tool call.</p>
 
 <p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">forbidden.coverage.check, forbidden.notify_sales, forbidden.max_calls.port.check, forbidden.max_calls.order.create, must.0, must.1, lang.stable, pii.iban, pii.national_number, pii.phone, pii.email, cards.one_message_per_turn, stage.reached</span></p>
@@ -559,6 +562,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge bad">fail</span> Block 3, spec block 3, drift X1_local, X3_flow, X5_tool. Stage expected recap, observed order_placed.</p>
 <p class="label">User</p><pre class="msg">Dana Brooks, dana.brooks@example.com</pre>
 <p class="label">Agent</p><pre class="msg">Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your number +1 202 555 0150 moves to Acme one business day after the order.</pre>
+<p class="label">Cache key</p><pre class="mono">block:fa5595d38f4dace1f02ffea8d7c85d5bf3a403f2da99811acedd733e2d1c62bd</pre>
 <p class="label">Tool calls</p><div class="call"><p class="mono">order.create</p><pre>{
   &quot;input&quot;: {
     &quot;type&quot;: &quot;new&quot;,
@@ -592,6 +596,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 4, spec block 4. Stage expected order_placed, observed order_placed.</p>
 <p class="label">User</p><pre class="msg">Confirm</pre>
 <p class="label">Agent</p><pre class="msg">Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your number +1 202 555 0150 moves to Acme one business day after the order.</pre>
+<p class="label">Cache key</p><pre class="mono">block:6c962cfdd10195c6068e8ef290277dcf1a4e95f24521c5e4240769eb2cefd7dc</pre>
 <p class="label">Tool calls</p><details><summary>order.create</summary><div class="call"><p class="mono">order.create</p><pre>{
   &quot;input&quot;: {
     &quot;type&quot;: &quot;new&quot;,
@@ -622,6 +627,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 0, spec block 0. Stage expected port_number, observed port_number.</p>
 <p class="label">User</p><pre class="msg">Hi, I want to switch to Acme and keep my phone number.</pre>
 <p class="label">Agent</p><pre class="msg">Hi, I&#39;m the Acme Telecom sales assistant. Happy to help you switch and keep your number. Which number do you want to bring to Acme?</pre>
+<p class="label">Cache key</p><pre class="mono">block:e10ec06cc48f579b5a9404b8299c7cc99bce5b022aabf1769ee140825c2ff05c</pre>
 <p class="label">Tool calls</p><p class="muted">No tool call.</p>
 
 <p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">forbidden.coverage.check, forbidden.notify_sales, forbidden.port.check, forbidden.max_calls.port.check, forbidden.max_calls.order.create, must.0, must.1, must_not.0, lang.stable, pii.iban, pii.national_number, pii.phone, pii.email, cards.one_message_per_turn, stage.reached</span></p>
@@ -630,6 +636,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 1, spec block 1. Stage expected offer, observed offer.</p>
 <p class="label">User</p><pre class="msg">It&#39;s +1 202 555 0150</pre>
 <p class="label">Agent</p><pre class="msg">Good news: +1 202 555 0150 can move to Acme. The transfer takes one business day after your order. Our mobile plans: Acme Mobile S, 10 GB for $15 a month; Acme Mobile M, 40 GB for $25 a month; Acme Mobile L, unlimited data for $35 a month. Which one would you like: Acme Mobile S, Acme Mobile M or Acme Mobile L?</pre>
+<p class="label">Cache key</p><pre class="mono">block:9a64ce3281c6e7bb44d56c81e7de5f757390e594d25adbee827bf1888f8357e2</pre>
 <p class="label">Tool calls</p><details><summary>port.check, catalog.search</summary><div class="call"><p class="mono">port.check</p><pre>{
   &quot;input&quot;: {
     &quot;number&quot;: &quot;+12025550150&quot;
@@ -675,6 +682,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 2, spec block 2. Stage expected details, observed details.</p>
 <p class="label">User</p><pre class="msg">Mobile M please</pre>
 <p class="label">Agent</p><pre class="msg">Good choice: Acme Mobile M, 40 GB for $25 a month. To set up the order I need your full name and email address.</pre>
+<p class="label">Cache key</p><pre class="mono">block:9ed0bbb94780b9bb7fd2c3f92a0176cd33ee2c03351004d19338f47baa8b7b25</pre>
 <p class="label">Tool calls</p><p class="muted">No tool call.</p>
 
 <p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">forbidden.coverage.check, forbidden.notify_sales, forbidden.max_calls.port.check, forbidden.max_calls.order.create, must.0, must.1, lang.stable, pii.iban, pii.national_number, pii.phone, pii.email, cards.one_message_per_turn, stage.reached</span></p>
@@ -683,6 +691,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge bad">fail</span> Block 3, spec block 3, drift X1_local, X3_flow, X5_tool. Stage expected recap, observed order_placed.</p>
 <p class="label">User</p><pre class="msg">Dana Brooks, dana.brooks@example.com</pre>
 <p class="label">Agent</p><pre class="msg">Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your number +1 202 555 0150 moves to Acme one business day after the order.</pre>
+<p class="label">Cache key</p><pre class="mono">block:14a523728f776142f316f3c54e5bf6e793bb9a0155ff042a7722ac97379d7219</pre>
 <p class="label">Tool calls</p><div class="call"><p class="mono">order.create</p><pre>{
   &quot;input&quot;: {
     &quot;type&quot;: &quot;new&quot;,
@@ -716,6 +725,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 4, spec block 4. Stage expected order_placed, observed order_placed.</p>
 <p class="label">User</p><pre class="msg">Confirm</pre>
 <p class="label">Agent</p><pre class="msg">Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your number +1 202 555 0150 moves to Acme one business day after the order.</pre>
+<p class="label">Cache key</p><pre class="mono">block:04b84e2277150a47148acb3b82692d8015a936394a565165f17615469a17b31b</pre>
 <p class="label">Tool calls</p><details><summary>order.create</summary><div class="call"><p class="mono">order.create</p><pre>{
   &quot;input&quot;: {
     &quot;type&quot;: &quot;new&quot;,
@@ -746,6 +756,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 0, spec block 0. Stage expected port_number, observed port_number.</p>
 <p class="label">User</p><pre class="msg">Hi, I want to switch to Acme and keep my phone number.</pre>
 <p class="label">Agent</p><pre class="msg">Hi, I&#39;m the Acme Telecom sales assistant. Happy to help you switch and keep your number. Which number do you want to bring to Acme?</pre>
+<p class="label">Cache key</p><pre class="mono">block:37ca1aed80461c16a23c7583cb3e69caf94139f0375e449ba61b70ddf52273e8</pre>
 <p class="label">Tool calls</p><p class="muted">No tool call.</p>
 
 <p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">forbidden.coverage.check, forbidden.notify_sales, forbidden.port.check, forbidden.max_calls.port.check, forbidden.max_calls.order.create, must.0, must.1, must_not.0, lang.stable, pii.iban, pii.national_number, pii.phone, pii.email, cards.one_message_per_turn, stage.reached</span></p>
@@ -754,6 +765,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 1, spec block 1. Stage expected offer, observed offer.</p>
 <p class="label">User</p><pre class="msg">It&#39;s +1 202 555 0150</pre>
 <p class="label">Agent</p><pre class="msg">Good news: +1 202 555 0150 can move to Acme. The transfer takes one business day after your order. Our mobile plans: Acme Mobile S, 10 GB for $15 a month; Acme Mobile M, 40 GB for $25 a month; Acme Mobile L, unlimited data for $35 a month. Which one would you like: Acme Mobile S, Acme Mobile M or Acme Mobile L?</pre>
+<p class="label">Cache key</p><pre class="mono">block:858daaa4225a7d2b3f801a06c8bc53d55b8c16d36f4483168dea3ae9bdb90418</pre>
 <p class="label">Tool calls</p><details><summary>port.check, catalog.search</summary><div class="call"><p class="mono">port.check</p><pre>{
   &quot;input&quot;: {
     &quot;number&quot;: &quot;+12025550150&quot;
@@ -799,6 +811,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge ok">pass</span> Block 2, spec block 2. Stage expected details, observed details.</p>
 <p class="label">User</p><pre class="msg">Mobile M please</pre>
 <p class="label">Agent</p><pre class="msg">Good choice: Acme Mobile M, 40 GB for $25 a month. To set up the order I need your full name and email address.</pre>
+<p class="label">Cache key</p><pre class="mono">block:b2a5000252e2c70c08bfcb1bbf3524fa7cba2acf7639fc678ef25d1039b07241</pre>
 <p class="label">Tool calls</p><p class="muted">No tool call.</p>
 
 <p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">forbidden.coverage.check, forbidden.notify_sales, forbidden.max_calls.port.check, forbidden.max_calls.order.create, must.0, must.1, lang.stable, pii.iban, pii.national_number, pii.phone, pii.email, cards.one_message_per_turn, stage.reached</span></p>
@@ -807,6 +820,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge bad">fail</span> Block 3, spec block 3, drift X1_local, X3_flow, X5_tool. Stage expected recap, observed order_placed.</p>
 <p class="label">User</p><pre class="msg">Dana Brooks, dana.brooks@example.com</pre>
 <p class="label">Agent</p><pre class="msg">Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your number +1 202 555 0150 moves to Acme one business day after the order.</pre>
+<p class="label">Cache key</p><pre class="mono">block:8d0da7805651c8ceed8f4d1f056479d9e7c491d48a4cbcf5415619b1e69bad83</pre>
 <p class="label">Tool calls</p><div class="call"><p class="mono">order.create</p><pre>{
   &quot;input&quot;: {
     &quot;type&quot;: &quot;new&quot;,
@@ -840,6 +854,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <p class="block-head"><span class="badge bad">fail</span> Block 4, spec block 4, drift X1_local, X5_tool. Stage expected order_placed, observed order_placed.</p>
 <p class="label">User</p><pre class="msg">Confirm</pre>
 <p class="label">Agent</p><pre class="msg">Sorry, I did not get that. Is there anything else I can help with?</pre>
+<p class="label">Cache key</p><pre class="mono">block:b27b04f8f46bd91d36a380ff3f64472edcb819a62fc29dec77e0747fbb272fe5</pre>
 <p class="label">Tool calls</p><p class="muted">No tool call.</p>
 <div class="table-wrap"><table>
 <caption>Verdicts with evidence: every one that did not pass, every judged one</caption>

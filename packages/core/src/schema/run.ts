@@ -26,6 +26,8 @@ export type ResolvedGiven = z.infer<typeof ResolvedGiven>;
 
 export const ToolCall = z.strictObject({
   id: z.string().optional(),
+  /** The trace span the call ran in, when the adapter has one (an OpenTelemetry span id). */
+  spanId: z.string().optional(),
   label: z.string().min(1),
   input: z.unknown(),
   output: z.unknown().optional(),
@@ -226,6 +228,8 @@ export const BlockResult = z.strictObject({
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
   givenHash: z.string().min(1),
+  /** The key the block's observed record is cached under: what a replay looked up. */
+  cacheKey: z.string().min(1).optional(),
   observed: Observed,
   verdicts: z.array(Verdict),
   stageObserved: z.string().optional(),
@@ -272,6 +276,7 @@ export const RunEvent = z.discriminatedUnion('type', [
     type: z.literal('tool_call'),
     index: z.number().int().min(0),
     label: z.string().min(1),
+    spanId: z.string().optional(),
     error: z.string().optional(),
     at: z.string().min(1),
   }),
