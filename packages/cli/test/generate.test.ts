@@ -108,6 +108,32 @@ relations:
 `;
 
 describe('driftbench generate', () => {
+  it('builds --tasks instances per task family the map names', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-tasks-'));
+    const taskSpecs = async (tasks: string) => {
+      const result = await run(
+        [
+          'generate',
+          '--map',
+          `${ACME}map/approved.yaml`,
+          '--out',
+          `t${tasks}`,
+          '--t',
+          '2',
+          '--tasks',
+          tasks,
+          '--json',
+        ],
+        dir,
+      );
+      expect(result.code).toBe(1);
+      return (JSON.parse(result.out) as { seeders: { task: { specs: number } } }).seeders.task.specs;
+    };
+    const one = await taskSpecs('1');
+    expect(one).toBeGreaterThan(0);
+    expect(await taskSpecs('2')).toBe(2 * one);
+  }, 120_000);
+
   it('writes the Acme suite, refuses to overwrite it, and writes it again byte for byte with --force', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
     const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'], dir);
