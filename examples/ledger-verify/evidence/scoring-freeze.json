@@ -32,7 +32,7 @@
     "examples/ledger-verify/output_limits.py": "e497c931f8a4f395cd5edb9d3bf7ec8250b334d358d758d605cb3a23dfa2d8c6",
     "examples/ledger-verify/trace-requests.ts": "72e5253798d6d3b23f7a866a51b450027b23ce71fe240d775b3709d5318dd33e",
     "examples/ledger-verify/summarize.py": "1cd18ffa8da398404528c3ffd71c351c6f67248e67b2110cd612789168dcf840",
-    "examples/ledger-verify/render_report.py": "686438bb111e36f37744e2a457a8babfdfc80f074b5326e4141d23a1ffe016cb",
+    "examples/ledger-verify/render_report.py": "1afb7d8cebcd12e5ed7c0801a99efce7bb990487d7251a5ed7259802aad4355f",
     "examples/ledger-verify/test_output_limits.py": "7fa2fcdcb82a720af7d78f6de052a6ee6d6cb347d545bac35b4a148c7b3cb726"
   },
   "costAccounting": "Known native error fees are included in the affected contestant unique-prompt cost. Unknown charges are disclosed separately, including a conservative budget hold.",
@@ -43,5 +43,6 @@
     "runtime": "ee96e47757aa837860fe",
     "change": "Stable recording namespace preserved across runtime pacing change. Scoring rules unchanged."
   },
-  "runtimePolicyFinalizedAt": "2026-10-13T09:34:20.523734+00:00"
+  "runtimePolicyFinalizedAt": "2026-10-13T09:34:20.523734+00:00",
+  "tableRenderingFinalizedAt": "2026-10-13T09:52:32.451126+00:00"
 }

@@ -1,0 +1,22 @@
+# Verify execution checkpoint
+
+- Pushed execution amendment: 34f76183. Branch research/ledger-verify.
+- Active runtime: ee96e47757aa837860fe. Recording namespace stays 2869d4d1f750545a2c7d.
+- Owner pacing: Luna eight plain HTTP calls, Gemini two, Haiku two; no global four-call limit.
+- Actual provider timeout is 300 seconds; API reasoning medium; global money cap 40 USD includes unresolved holds.
+- Gemini is STOPPED after 20 explicit HTTP 402 rejections. Owner says wait for top-up, then resume missing-only.
+- evidence/billing-reconciliation.json releases only those 20 rejection holds, totaling 20 USD. Unknown network holds remain.
+- Gemini noise-1 retains its stopped report and twenty no-answer records. Archive that partial before recovery; remove only proven no-answer records from the active cassette, preserving their archive. Never retry returned answers.
+- Luna noise-1 briefly stopped because rejection holds consumed the conservative cap. Its partial is noise-1/gpt-6-luna.pre-billing-release.partial.json. Two returned answers remain cached.
+- Luna missing-only continuation runs in exec session 1821, then starts supervise.py for noise-2 and TEST. Eight HTTP workers observed.
+- Haiku supervisor remains alive from session 22934, PID 39438; its current phase is noise-0. Two native calls observed.
+- Gemini supervisor has exited. Do not restart until owner signals prepaid credit replenishment.
+- No TEST has started at 09:39 UTC. Both strict and product-final scoring were frozen before TEST.
+- Official and audited tables remain pending. Strict output-limit errors are headline; product-final includes existing fallback.
+- Three pilots and all mutation checks are finished. Every model/contestant has 12/12 preserve, 12/12 flip, zero injection changes.
+- Free replay verifies eight finished phases with identical decisions and zero new calls.
+- Four native output-limit envelopes observed so far; three await attribution until Haiku noise-0 finishes. Two historical native error causes remain unclassified.
+- status.py is read-only. trace-requests.ts --all, output_limits.py, check-replays.py, summarize.py and render_report.py complete reporting without provider calls.
+- Final target: /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-verify.md.
+- Keep running both unblocked models through all 379 units unless the cap is reached. Do not report completion while their phases are pending.
+- All writes stay in this worktree, the named report, and append-only spend-ledger rows. No other key files or worktrees may be written.

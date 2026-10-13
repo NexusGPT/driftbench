@@ -26,16 +26,18 @@ def main():
     for variant in ['strict','productFinal']:
         for label in ['official','audited']:
             lines += [f"### {'Strict headline' if variant=='strict' else 'Product-final sensitivity'}, {label} labels",'',
-              '| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Wins / losses | Exact p | Holm p | Status |',
-              '|---|---|---|---|---|---|---|---|']
+              '| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |',
+              '|---|---|---|---|---|---|---|---|---|']
             for cell in cells['cells']:
                 d=(cell if variant=='strict' else cell.get('productFinal',{})).get(label)
                 if d is None:
-                    lines.append(f"| {cell['model']} | pending | pending | pending | pending | pending | pending | TEST pending |");continue
+                    lines.append(f"| {cell['model']} | pending | pending | pending | pending | pending | pending | pending | TEST pending |");continue
                 values=[f"{d['correct'][i]}/221, {pct(d['accuracy'][i])} [{pct(d['wilson95'][i][0])}, {pct(d['wilson95'][i][1])}]" for i in [0,1]]
                 status='INCOMPLETE' if d['provisional'] else d['verdict']
                 limits=' / '.join(str(cell['outputLimitErrors'][c]['test']['answerEnvelopes']) for c in ['driftbench-verify-uncertainty-cascade','promptfoo'])
-                lines.append(f"| {cell['model']} | {values[0]} | {values[1]} | {limits} | {d['wins']} / {d['losses']} | {d['twoSidedExactMcNemarP']:.8g} | pending | {status} |")
+                interval=d['deltaRequestClusterBootstrap95']
+                delta=f"{pct(d['delta'])} [{pct(interval[0])}, {pct(interval[1])}]"
+                lines.append(f"| {cell['model']} | {values[0]} | {values[1]} | {limits} | {delta} | {d['wins']} / {d['losses']} | {d['twoSidedExactMcNemarP']:.8g} | pending | {status} |")
             lines+=['']
     lines += ['Holm correction belongs to the prespecified 18-cell family and remains pending at this handoff. No local WIN or overall superiority claim is made.',
       'Per-item strict decisions: results/<model>.strict.json. Original product-final decisions: results/<model>.json.',
@@ -51,13 +53,13 @@ def main():
       'Counts refer to observed completion envelopes. Native internal attempts are not inferred from aggregate turn counts.',
       'Receipt ids, exact reasons and request-to-item attribution: evidence/output-limit-errors.json. The strict rule is frozen in evidence/scoring-freeze.json.','',
       '## Cost, cheaters and validation','',
-      '| Model | TEST cost per 100: cascade / promptfoo | Mutation preserve / flip / injection changes | Noise items with any change: cascade / promptfoo |',
+      '| Model | TEST cost per 100: cascade / promptfoo | Mutation preserve, flip, injection changes: cascade / promptfoo | Noise items with any change: cascade / promptfoo |',
       '|---|---|---|---|']
     for cell in cells['cells']:
-        v=cell['validation']; a=v['mutationChecks'].get('driftbench-verify-uncertainty-cascade',{})
+        v=cell['validation']
         cost=cell.get('costPer100UniqueKeys',{})
         c=' / '.join(money(cost[k]) if k in cost else 'pending' for k in ['driftbench-verify-uncertainty-cascade','promptfoo'])
-        mutation=f"{a['preserved']}/{a['baseItems']} / {a['flipped']}/{a['baseItems']} / {a['injectionMovedOrMissing']}" if a else 'pending'
+        mutation=' / '.join(f"{a['preserved']}/{a['baseItems']}, {a['flipped']}/{a['baseItems']}, {a['injectionMovedOrMissing']}" if a else 'pending' for a in [v['mutationChecks'].get(k,{}) for k in ['driftbench-verify-uncertainty-cascade','promptfoo']])
         noise=' / '.join(f"{v['noise'][k]['itemsWithAnyFlip']}/{v['noise'][k]['items']}" if k in v['noise'] else 'pending' for k in ['driftbench-verify-uncertainty-cascade','promptfoo'])
         lines.append(f"| {cell['model']} | {c} | {mutation} | {noise} |")
     c=cells['cheaters'];fees=cells['fees']
