@@ -387,6 +387,7 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
       stage_after: recovery.stageAfter,
       ...(recovery.must ? { must: [...recovery.must] } : {}),
       ...(recovery.mustNot ? { must_not: [...recovery.mustNot] } : {}),
+      ...(recovery.guards ? { guards: recovery.guards.map((guard) => ({ ...guard })) } : {}),
       ...(recovery.tools
         ? { tools: recovery.tools.map((tool) => ({ tool: tool.tool, count: tool.count })) }
         : {}),

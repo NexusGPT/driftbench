@@ -669,6 +669,54 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
 });
 
 describe('pilot iteration 10: a deviation on the first turn', () => {
+  function opening(recovery: Partial<Extract<ProposalRelation, { kind: 'recovery' }>>) {
+    const prepared = prepare((draft) => {
+      draft.relations?.push({
+        kind: 'recovery',
+        class: 'D5_language_switch',
+        flows: ['balance'],
+        stage_after: 'pending',
+        ...recovery,
+        ...by,
+      });
+    });
+    return buildScenario(prepared, rngFor(1, 'guard'), {
+      path: path(prepared, 'balance-found'),
+      fixed: [],
+      probe: { classId: 'D5_language_switch', stage: 'greet' },
+    });
+  }
+
+  it.each([undefined, 1, { min: 1 }, { min: 1, max: 2 }])(
+    'accepts a required policy guard firing with count %j',
+    (count) => {
+      const guards = [{ name: 'reply_language', verdict: 'en', ...(count === undefined ? {} : { count }) }];
+      const built = opening({ guards });
+      expect(built.ok).toBe(true);
+      if (!built.ok) throw new Error(built.reason);
+      expect(built.blocks[0]).toMatchObject({ stage: 'greet', guards });
+    },
+  );
+
+  it.each([0, { max: 2 }, { min: 0, max: 2 }])(
+    'rejects a guard that permits no firing with count %j',
+    (count) => {
+      expect(opening({ guards: [{ name: 'reply_language', verdict: 'en', count }] }).ok).toBe(false);
+    },
+  );
+
+  it.each([0, { max: 2 }, { min: 0, max: 2 }])(
+    'rejects a tool count that permits no call with count %j',
+    (count) => {
+      expect(opening({ tools: [{ tool: 'lookup', count }] }).ok).toBe(false);
+    },
+  );
+
+  it('still rejects literal reply words and a pending stage without a required event', () => {
+    expect(opening({ must: ['I can only help in English'] }).ok).toBe(false);
+    expect(opening({}).ok).toBe(false);
+  });
+
   it('probes the start stage when the recovery keeps the conversation there and asks for a call', () => {
     const prepared = prepare((draft) => {
       draft.relations = [
