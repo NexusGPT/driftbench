@@ -75,5 +75,13 @@
       "4050",
       "2357"
     ]
-  }
+  },
+  "criteria": {
+    "judgebench": "The response gives the correct answer to the question. Only objective correctness counts: a correct answer beats a fluent wrong one.",
+    "mmeval": "The response is the better reply to the user's request: correct, helpful and safe, and in the language the user wrote in.",
+    "writing": "The response is the better piece of writing for the instruction: it follows every requirement of the instruction and is of higher quality."
+  },
+  "input_snapshot": "results/checklist/practice-v1",
+  "split_version": "moj-split-v1",
+  "integration_note": "Remote expanded the input files and adopted group-v2 during collection. This experiment preserves its original 26469740 inputs and split; no validation-driven reselection."
 }

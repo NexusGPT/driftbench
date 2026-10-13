@@ -2402,6 +2402,8 @@
    }
   }
  },
+ "input_version": "26469740",
+ "split_version": "moj-split-v1",
  "interval": "Wilson 95%, pair as unit, fractional tie credit (harness convention)",
  "s1_usd": null,
  "repeat_incremental_s2_usd": 0

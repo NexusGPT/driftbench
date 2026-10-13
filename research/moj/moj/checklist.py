@@ -4,6 +4,7 @@ Run from research/moj: python3 -m moj.checklist run [--half tune|valid] [--offli
 Then: python3 -m moj.checklist report. No base collection is invoked.
 """
 import argparse
+import hashlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import fcntl
 import json
@@ -16,10 +17,12 @@ import time
 import urllib.error
 
 from . import client
-from .benches import BENCHES, HERE, load
+from .benches import HERE
 from .policy import score_games, score_verdict, wilson
 
 ROOT = Path(HERE) / 'results' / 'checklist'
+BENCHES = ('judgebench', 'mmeval', 'writing')
+EXPERIMENT = json.loads((ROOT / 'experiment.json').read_text())
 VERSION = 'checklist-v1'
 BUDGET = 8.0
 MAX_TOKENS = 8192
@@ -51,9 +54,30 @@ def variant(effort, mode, weighting):
     return f'checklist-{effort}-{mode}-{weighting}'
 
 
+def load(bench):
+    """The frozen original practice cohort; shared data and split changes cannot alter replay."""
+    path = ROOT / 'practice-v1' / f'{bench}.json'
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != EXPERIMENT['input_files'][f'data/{bench}.json']:
+        raise ValueError('frozen practice input hash mismatch')
+    items = json.loads(raw)
+    flip = {'A': 'B', 'B': 'A', 'tie': 'tie', None: None}
+    for item in items:
+        item['bench'] = bench
+        item['id'], item['question'] = str(item['id']), str(item['question'])
+        item['half'] = 'tune' if int(hashlib.sha256(('moj-split-v1:' + item['id']).encode()).hexdigest(), 16) % 2 == 0 else 'valid'
+        item['swapped'] = int(hashlib.sha256(('moj-swap-v1:' + item['id']).encode()).hexdigest(), 16) % 2 == 1
+        if item['swapped']:
+            item['a'], item['b'] = item['b'], item['a']
+            item['label'] = flip[item['label']]
+            for baseline in item.get('baselines', {}).values():
+                baseline['games'] = [flip.get(game) for game in baseline['games']]
+    return items
+
+
 def generation_request(item, effort):
     # This allowlist is the candidate/label leakage boundary.
-    source = {'question': item['question'], 'rubric': BENCHES[item['bench']]['criterion']}
+    source = {'question': item['question'], 'rubric': EXPERIMENT['criteria'][item['bench']]}
     return {'client': 'openai', 'version': VERSION, 'body': {
         'model': 'gpt-6-luna', 'reasoning_effort': effort,
         'max_completion_tokens': MAX_TOKENS, 'response_format': {'type': 'json_object'},
@@ -303,7 +327,7 @@ def one(item, effort, mode, recorder):
 def practice_items(half=None, limit=None):
     items = []
     for bench in BENCHES:
-        # Only explicit practice adapters are loaded, no discovery outside data/.
+        # Only the frozen original practice adapters are loaded, never newer or sealed inputs.
         current = load(bench)
         if any('test' in str(i['split']).lower() for i in current):
             raise ValueError('sealed/test data is forbidden')
@@ -419,9 +443,10 @@ def report(select=False):
         return
     selection = json.loads((ROOT / 'selection.json').read_text())
     dump(ROOT / 'scoreboard.json', {'selection': selection['selected'], 'cells': results,
+                                  'input_version': '26469740', 'split_version': 'moj-split-v1',
                                   'interval': 'Wilson 95%, pair as unit, fractional tie credit (harness convention)',
                                   's1_usd': None, 'repeat_incremental_s2_usd': 0})
-    lines = ['# Checklist validation', '', '| Variant | Benchmark | Accuracy [95% CI] | n | S1 calls/100 | S1 s/pair | S2 calls/100 | S2 USD/100 | Short | Missing | Strict accuracy |',
+    lines = ['# Checklist validation: original 26469740 pilot, item split v1', '', '| Variant | Benchmark | Accuracy [95% CI] | n | S1 calls/100 | S1 s/pair | S2 calls/100 | S2 USD/100 | Short | Missing | Strict accuracy |',
              '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
     for name in names + ['ledger', 'promptfoo']:
         for b in BENCHES:

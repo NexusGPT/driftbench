@@ -1,4 +1,4 @@
-# Checklist validation
+# Checklist validation: original 26469740 pilot, item split v1
 
 | Variant | Benchmark | Accuracy [95% CI] | n | S1 calls/100 | S1 s/pair | S2 calls/100 | S2 USD/100 | Short | Missing | Strict accuracy |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|

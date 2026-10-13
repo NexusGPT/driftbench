@@ -55,8 +55,10 @@ validation collection. All variants are reported on validation without reselecti
 
 ## Data and interpretation
 
-Only the three practice adapters in `moj/benches.py` are read. The fixed hash split
-is unchanged. JudgeBench has 41 tuning and 27 validation pairs. MM-Eval has 24 and 26 rows, but five exact duplicate IDs collapse to
+Only the original three practice files from commit `26469740` are read, frozen
+under `results/checklist/practice-v1`. Their item-ID hash split v1 is unchanged.
+The shared branch adopted a larger cohort and group split v2 during this run;
+those newer inputs are outside this completed pilot. They are not overwritten. JudgeBench has 41 tuning and 27 validation pairs. MM-Eval has 24 and 26 rows, but five exact duplicate IDs collapse to
 22 and 23 unique pairs under the harness ID-keyed scoring convention. Writing has 22 and 28. Six writing prompt hashes occur in both halves, so the
 writing estimate is not independent at the prompt level. No checklist uses labels.
 
