@@ -1,5 +1,6 @@
 /** Blast radius: which blocks a change to the agent can affect. See docs/concepts/blast-radius.md. */
 export { type AuditVerdict, auditBound, auditSample, auditVerdict } from './audit';
+export { type BlockReuse, END_STATE_FULL_RERUN, planBlockRerun } from './blocks';
 export {
   type CarriedCell,
   type CarryLimits,

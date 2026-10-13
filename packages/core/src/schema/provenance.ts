@@ -1,8 +1,22 @@
 import { z } from 'zod';
 import { Stimulus } from './spec';
 
+export const EndStateSnapshot = z.discriminatedUnion('kind', [
+  z.strictObject({ kind: z.literal('unavailable') }),
+  z.strictObject({
+    kind: z.literal('read'),
+    values: z.array(
+      z.discriminatedUnion('kind', [
+        z.strictObject({ source: z.string(), kind: z.literal('undefined') }),
+        z.strictObject({ source: z.string(), kind: z.literal('value'), value: z.unknown() }),
+      ]),
+    ),
+  }),
+]);
+
 /** Optional stamps: old records remain readable, but cannot prove observation compatibility. */
 export const BlockProvenance = z.strictObject({
+  endState: EndStateSnapshot.optional(),
   specIndex: z.number().int().min(0),
   stimulus: Stimulus,
   ledgerHash: z.string().min(1),
@@ -18,6 +32,7 @@ export const RunProvenance = z.strictObject({
 });
 export const CampaignProvenance = z.strictObject({
   version: z.literal(1),
+  endStateSnapshots: z.literal(true).optional(),
   adapters: z.array(
     z.strictObject({
       target: z.string(),

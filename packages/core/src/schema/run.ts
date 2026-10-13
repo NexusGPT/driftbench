@@ -226,7 +226,7 @@ export type Verdict = z.infer<typeof Verdict>;
 
 export const BlockResult = z.strictObject({
   provenance: BlockProvenance.optional(),
-  carried: z.lazy(() => CarriedFrom).optional(),
+  carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
   rejudged: RejudgedFrom.optional(),
   index: z.number().int().min(0),
   blockId: z.string().optional(),
@@ -321,6 +321,13 @@ export type CarriedFrom = z.infer<typeof CarriedFrom>;
 
 export const RunResult = z.strictObject({
   provenance: RunProvenance.optional(),
+  blockRerun: z
+    .strictObject({
+      selected: z.array(z.number().int().nonnegative()),
+      downstreamNotRerun: z.array(z.number().int().nonnegative()),
+      reason: z.string(),
+    })
+    .optional(),
   rejudged: RejudgedFrom.optional(),
   runId: z.string().min(1),
   specId: z.string().min(1),
