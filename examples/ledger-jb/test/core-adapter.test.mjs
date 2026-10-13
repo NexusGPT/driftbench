@@ -14,15 +14,23 @@ test('adapter runs the actual core in both orders and does not consume the label
   assert.equal(seen[0].prompt.user.indexOf(item.a)<seen[0].prompt.user.indexOf(item.b),true);
   assert.equal(seen[1].prompt.user.indexOf(item.b)<seen[1].prompt.user.indexOf(item.a),true);
 });
-test('a returned malformed answer never triggers a paid schema re-ask',async()=>{
+test('core retains its one schema re-ask, independently of transport retries',async()=>{
   const attempts=[];
   const result=await judgePair({item,requirements:REQUIREMENTS,model:'gpt-6-luna',settings:settingsFor('gpt-6-luna'),
     call:async(_,meta)=>{attempts.push(`${meta.order}:${meta.attempt}`);return {text:attempts.length===1?'broken':ledger(meta.order),costUsd:0};}});
-  assert.deepEqual(attempts,['AB:0','BA:0']); assert.equal(result.graderErrors,1);
-  assert.equal(result.suppressedReasks,1); assert.equal(result.calls,2);
+  assert.deepEqual(attempts,['AB:0','AB:1','BA:0']); assert.equal(result.graderErrors,0);
 });
 test('missing usage is never zero cost, cached input is priced separately',()=>{
   assert.equal(costFromCompletion('gpt-6-luna',{}),undefined);
   const cost=costFromCompletion('gpt-6-luna',{usage:{input:1000,output:100},raw:JSON.stringify({usage:{prompt_tokens_details:{cached_tokens:500}}})});
   assert.ok(Math.abs(cost-.000105)<1e-12);
+});
+
+
+test('exhausted transport failures never gain more tries through core re-ask',async()=>{
+  const attempts=[];
+  const result=await judgePair({item,requirements:REQUIREMENTS,model:'gpt-6-luna',settings:settingsFor('gpt-6-luna'),
+    call:async(_,meta)=>{attempts.push(`${meta.order}:${meta.attempt}`);return {text:'',costUsd:.1,transportFailure:true,graderError:true};}});
+  assert.deepEqual(attempts,['AB:0','BA:0']);assert.equal(result.calls,2);
+  assert.equal(result.transportExhaustedReasksSuppressed,2);assert.equal(result.status,'unparsed');
 });

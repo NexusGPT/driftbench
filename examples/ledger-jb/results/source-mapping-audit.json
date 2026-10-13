@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-13T08:23:27.078602+00:00",
+  "audit": {
+    "pool": {
+      "count": 270,
+      "exactMapping": true
+    },
+    "fixtures": {
+      "count": 18,
+      "exactMapping": true
+    },
+    "noise": {
+      "count": 30,
+      "exactMapping": true
+    },
+    "pilot": {
+      "count": 20,
+      "exactMapping": true
+    },
+    "fixtureLabelAudit": {
+      "pair_id": "82a6f9e6-aa7f-5380-8503-2227e0455f1e",
+      "originalLabel": "A>B",
+      "originalABoxed264_5": true,
+      "originalBBoxed264_5": true
+    }
+  }
+}

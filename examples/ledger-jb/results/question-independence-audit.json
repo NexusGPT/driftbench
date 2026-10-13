@@ -1,0 +1,11 @@
+{
+  "pairs": 270,
+  "uniqueExactQuestions": 269,
+  "duplicateQuestionGroups": [
+    [
+      "c0b98b73-d73d-5bfd-a34f-59d68457e992",
+      "8e1df938-fb37-5c27-8a0d-aedee854251a"
+    ]
+  ],
+  "note": "Registered comparison unit remains the response pair. Any repeated exact question groups are disclosed."
+}

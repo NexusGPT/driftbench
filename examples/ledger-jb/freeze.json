@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "createdAt": "2026-10-13T08:12:27.121522+00:00",
+  "version": 4,
+  "createdAt": "2026-10-13T08:31:32.633309+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
@@ -54,14 +54,14 @@
   "ledgerEndpoint": "Code-reconciled decision in both games; raw order decisions also published. Canonical third read uses the same model. No unearned cross-vendor seat.",
   "hashes": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-jb/src/core-adapter.mjs": "b8bab2c0f04d4dab55ec9484139a07f06aea722d5602287adedfda7f8c191673",
-    "examples/ledger-jb/src/harness.mjs": "7aba17516767c9cf6f2e8866a069146c795285e8719a5cf0eaf745fdbf3df882",
+    "examples/ledger-jb/src/core-adapter.mjs": "ca4bb42eba778c3489fd4ef337d6482d570cf7d4acc552158159cad7add7381d",
+    "examples/ledger-jb/src/harness.mjs": "2436d4b2135d1917f19ab45a1c33d77124e8175104a306ac94600390e7b9fd8f",
     "examples/ledger-jb/src/report.mjs": "ec0190720961f830863036c8fb5f9d5f6ff5e3c8abc63450ca4f75d51deac368",
-    "examples/ledger-jb/src/run.mjs": "07c86d56bd98c62a14ddbb5319b83de5f171ddaf4ce4f03508c50f93248dea60",
+    "examples/ledger-jb/src/run.mjs": "0db131e49fa0b1f1bdc8bad88665c52708d3eabe2b77f0fb83a0f3cf88867070",
     "examples/ledger-jb/src/seal.py": "67996a4242a2856364eb193f3912708848c41a29972979941f0fcbe0a05ec706",
     "examples/ledger-jb/src/statistics.mjs": "898081d2408c2045ac9efe3d3b550ff6b45cacb2493f192d96b2328175e9db6f",
-    "examples/ledger-jb/test/core-adapter.test.mjs": "a8515a1013af952d631cb607979af174faa39de84ab9bec858605971a57313de",
-    "examples/ledger-jb/test/harness.test.mjs": "f903f0cfff4b93b1a0e3ca415a75ab35d482a7a0d03f79fcaec4795a36e3c217",
+    "examples/ledger-jb/test/core-adapter.test.mjs": "8397d704df9a49e8e902a6adfe48b220983a0c4a523b63523ab3656ef07a1181",
+    "examples/ledger-jb/test/harness.test.mjs": "517e406d636210cadc72a5eb3fe4610419754a672cac3430a1ef8daa93645074",
     "examples/ledger-jb/test/statistics.test.mjs": "5e150346ca3a38310b2f7f59b267fee4c52cccab239fbdc15f746cb0bd6d1e53",
     "packages/checks/src/checks/artifacts.ts": "92958e17bd8b47cca97eebe1641c56241d59a73f7b7f39feaa84e9584d00fad1",
     "packages/checks/src/checks/budget.ts": "b63238ecb106d9c9e68a4116c9f3a04dda9c5f7f2ab41a6e7710c0a714b6ceef",
@@ -157,16 +157,17 @@
     "examples/ledger-jb/data/validity-seal.json": "045f7282e15a35d2fee0384b79c7db78d76fc90c5ab52336fba2e70fe36b3f14",
     "examples/ledger-jb/data/validity.json": "1b1412dfbecdc614529a3381027c7df7987e4320da2db8da56b6e7c9743dea13",
     "examples/ledger-jb/data/promptfoo-select-best.txt": "f5d991e93bb0f5fefba9eb241f0feddae57276f8196f3c4e53137b5f4177562c",
-    "examples/ledger-jb/README.md": "83583a99c7eb03ca4d599f622a680fb5b7b2f92662e1d0227e7c3e055e18ebe5",
+    "examples/ledger-jb/README.md": "80dabd070ed17fa655792d3336790d4b015b92ed084b9a8b590221efc60149f0",
     "pnpm-lock.yaml": "f7178145e417f8f11e28bc7cf1943db901077492226de4d172bd49994e213e04",
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
-    "examples/ledger-jb/run-driver.py": "60d1d1bccdb77cf2bee5a47f28fd6262d7a63473d80215606d09b6448b573a7b"
+    "examples/ledger-jb/run-driver.py": "162639c760a66ee0483b0ccd2bf0ea30154bb53f073530c2917bce9c1e97060c",
+    "examples/ledger-jb/summarize-reasks.mjs": "e1b1378d21912b6899bc181904442cb74a2b568493f67d3ecadd98f61998c482"
   },
   "amendment": {
-    "previousFreezeSha256": "08dc8d1f4763960ab36c1a606a734141f5dadc3016140664fc81fed4c2a51aa9",
-    "reason": "Owner reconnect instruction: max four calls, transport failures up to three tries, 300 s timeouts, never retry a returned answer.",
-    "cacheIdentity": "Original request keys retain execution-v2 model settings solely for replay identity. Timeout changes do not authorize duplicate answers. Actual transport settings use models above.",
-    "core": "Unchanged at requested 35f07309; only caller retry and timeout policy changes."
+    "previousFreezeSha256": "909e1296e3b6d969efaccd0cb1b4ca5bd507c7f731c9b9b0e43118738b6a6f5d",
+    "reason": "Owner clarifies core single schema re-ask stays enabled, while Gemini concurrency drops to two with 60/120/240 s quota waits.",
+    "temporarySuppressionImpact": "Luna noise finishes under v3 with zero suppressed schema re-asks; no TEST calls precede restoration.",
+    "core": "Unchanged 35f07309; request, score and sealed input definitions unchanged."
   },
   "cacheIdentityModels": {
     "claude-haiku-5-5": {
@@ -198,10 +199,21 @@
     }
   },
   "transportPolicy": {
-    "maxAttempts": 3,
+    "maxNonQuotaAttempts": 3,
     "timeoutMs": 300000,
-    "retryOnly": "network failures and explicitly retryable HTTP failures",
-    "returnedAnswerPolicy": "Never issue a paid retry or schema re-ask after an answer returns. Invalid answers remain grader errors.",
-    "costPolicy": "Reserve each attempt separately. Unknown usage keeps the full conservative reservation."
+    "quotaBackoffMs": [
+      60000,
+      120000,
+      240000
+    ],
+    "quotaExhaustion": "Pause the cell without a judge failure after three 429 waits. Quota attempts are separate from non-quota transport attempts.",
+    "retryOnly": "No-answer network and retryable HTTP failures. Never retry returned content in the transport wrapper.",
+    "schemaReask": "PR 168 single schema re-ask retained after malformed JSON. Exhausted no-answer transport failures cannot trigger additional core re-ask calls.",
+    "costPolicy": "Every attempt retains measured cost or its conservative reservation."
+  },
+  "modelConcurrency": {
+    "gpt-6-luna": 4,
+    "claude-haiku-5-5": 4,
+    "gemini-3.8-flash": 2
   }
 }

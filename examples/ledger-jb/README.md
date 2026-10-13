@@ -85,4 +85,15 @@ A transport error retains its reservation until reconciled.
 
 Do not copy `node_modules`. If core integration needs dependencies, install with
 `pnpm install --frozen-lockfile`. Keys are read inside the invoking command and
-never written to artifacts. Gemini billing was enabled by the owner before the execution freeze. It uses medium reasoning and a 180-second timeout under the same lane cap.
+never written to artifacts. Gemini billing was enabled by the owner before the execution freeze. It uses medium reasoning and a 300-second timeout under the same lane cap.
+
+
+## Current execution policy
+
+The owner keeps PR 168's single schema re-ask after malformed model JSON. Transport
+wrappers never retry a returned answer. Each non-quota transport failure permits
+at most three attempts with a 300-second timeout. HTTP 429 adds quota waits of
+60, 120 and 240 seconds, then pauses without recording a judge failure. Every
+attempt retains its usage cost or conservative reservation. Concurrency is four
+for Luna and Haiku and two for Gemini; a single process owns paid calls at a time.
+Prior operational freezes and crash receipts remain in `freezes/` and `results/`.

@@ -1,12 +1,12 @@
 {
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
   "poolSha256": "489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236",
-  "coreFreeze": "909e1296e3b6d969efaccd0cb1b4ca5bd507c7f731c9b9b0e43118738b6a6f5d",
-  "totalCalls": 427,
-  "receivedCalls": 417,
+  "coreFreeze": "8155e7ad58a9aa795ede81389e104177f181c2a9016b6ffba71ae59815e035d8",
+  "totalCalls": 727,
+  "receivedCalls": 717,
   "interruptedCalls": 10,
   "interruptionReserveUsd": 0.45450825,
-  "measuredUsd": 0.7520728799999994,
+  "measuredUsd": 0.9144540799999994,
   "unresolvedCalls": 0,
   "reservedUsd": 0,
   "cells": [
@@ -652,20 +652,20 @@
       "noise": {
         "ledger": {
           "planned": 30,
-          "completed": 5,
+          "completed": 30,
           "changedItems": 0,
           "gameFlips": 0,
-          "comparisons": 20,
+          "comparisons": 120,
           "rate": 0,
           "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
         },
         "promptfoo": {
           "planned": 30,
-          "completed": 5,
-          "changedItems": 0,
-          "gameFlips": 0,
-          "comparisons": 20,
-          "rate": 0,
+          "completed": 30,
+          "changedItems": 4,
+          "gameFlips": 5,
+          "comparisons": 120,
+          "rate": 0.041666666666666664,
           "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
         }
       },
@@ -1135,8 +1135,8 @@
           "passed": false
         }
       },
-      "cheaterGate": false,
-      "prepAccuracy": null,
+      "cheaterGate": true,
+      "prepAccuracy": 0.9411764705882353,
       "cheaters": {
         "dev": {
           "constant-first": {

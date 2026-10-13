@@ -25,7 +25,7 @@ const dossierPath = flag('--core-dossier'), spendPath = flag('--spend-ledger');
 if (!dossierPath || !spendPath) throw new Error('Both --core-dossier and --spend-ledger are required');
 const freezePath = join(root,'freeze.json');
 if (!existsSync(freezePath)) throw new Error('No execution freeze: core contract must land before any paid call');
-const freeze = readJson(freezePath);
+const freeze = readJson(freezePath), freezeSha256 = hash(readFileSync(freezePath));
 verifyFreeze(root, repo, freeze, readFileSync(dossierPath,'utf8'));
 if (Date.now() >= Date.parse(freeze.lastCallCutoff)) throw new Error('Frozen last-call cutoff reached');
 if (phase === 'test') {
@@ -77,7 +77,7 @@ async function runJob(job) {
   }
   if (!Array.isArray(result.games) || result.games.length !== 2 || result.games.some(x=>!['A','B','tie',null].includes(x))) throw new Error('Invalid adapter pair result');
   const row = { ...result, key: job.key, itemId: job.itemId, group: job.item.group, label: job.item.label,
-    phase, model, repeat: job.repeat, contestant: job.contestant, freezeSha256: hash(readFileSync(freezePath)) };
+    phase, model, repeat: job.repeat, contestant: job.contestant, freezeSha256 };
   appendFileSync(outputPath, `${JSON.stringify(row)}\n`); completed.add(job.key); current++;
   console.log(JSON.stringify({ phase, model, completed: current, planned: planned.length, liabilityUsd: journal.liability() }));
 }
@@ -87,7 +87,7 @@ async function worker() {
     try { await runJob(job); } catch (error) { stopped ??= error; }
   }
 }
-const concurrency = freeze.concurrency ?? 4;
+const concurrency = freeze.modelConcurrency?.[model] ?? freeze.concurrency ?? 4;
 if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw new Error('Invalid frozen concurrency');
 await Promise.all(Array.from({ length: concurrency }, worker));
 if (stopped) throw stopped;

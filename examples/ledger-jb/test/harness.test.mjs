@@ -71,3 +71,24 @@ test('three failed attempts exhaust and returned content is never retried', asyn
   const unpriced=await journal.transportCall('c',.1,async()=>{calls++;return {text:'answer'};});
   assert.equal(calls,5);assert.equal(unpriced.costEstimated,true);
 });
+
+
+test('429 waits 60, 120 and 240 seconds, then stops without a judge error',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-quota-')),'calls.jsonl');
+  const journal=new Journal(path);let calls=0;const waits=[];
+  await assert.rejects(journal.transportCall('quota',.1,async()=>{
+    calls++;throw Object.assign(new Error('quota'),{code:'http',status:429,retryable:true});
+  },{}, {sleep:async ms=>{waits.push(ms);}}),/QUOTA_STOP/);
+  assert.equal(calls,4);assert.deepEqual(waits,[60000,120000,240000]);
+  assert.equal([...journal.finishes.values()].every(x=>x.quotaResponse&&!x.graderError),true);
+});
+test('a successful quota retry returns exactly one answer and preserves accounting',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-quota-')),'calls.jsonl');
+  const journal=new Journal(path);let calls=0;const waits=[];
+  const response=await journal.transportCall('quota',.1,async()=>{
+    calls++;if(calls===1)throw Object.assign(new Error('quota'),{code:'http',status:429,retryable:true});
+    return {text:'0',costUsd:.001};
+  },{}, {sleep:async ms=>{waits.push(ms);}});
+  assert.equal(response.text,'0');assert.equal(calls,2);assert.deepEqual(waits,[60000]);
+  assert.ok(Math.abs(journal.liability()-.101)<1e-9);
+});

@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-13T08:17:12.041632+00:00",
+  "status": "current-noise-phase-draining",
+  "model": "gpt-6-luna",
+  "phase": "noise",
+  "activeNodePid": 81421,
+  "stoppedDriverPid": 77405,
+  "reason": "Restore frozen core schema re-ask at phase boundary before any TEST call. Existing in-flight calls continue."
+}

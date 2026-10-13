@@ -61,14 +61,14 @@ export async function createTransport({ model, settings }) {
 
 export async function judgePair({ item, requirements, model, call, settings }) {
   let nonRetry=0, previousOrder, previousResponse;
-  let physicalReads=0, suppressedReasks=0;
+  let physicalReads=0, transportExhaustedReasksSuppressed=0;
   const client={ id:`ledger-${model}`, cls:'system2',family:PROVIDERS[model].family, model,cost:10,
     dialect:settings.dialect,...(settings.reasoning?{reasoning:settings.reasoning}:{}),
     async judge(request) {
       const attempt=request.budget==='large'?1:0;
-      if (attempt && previousResponse) {
-        suppressedReasks++;
-        return {...parsePairLedgerText(previousResponse.text,request),costUsd:0,metadata:{schemaReaskSuppressed:true}};
+      if (attempt && previousResponse?.transportFailure) {
+        transportExhaustedReasksSuppressed++;
+        return {...parsePairLedgerText(previousResponse.text,request),costUsd:0,metadata:{transportExhaustedReaskSuppressed:true}};
       }
       const order=attempt?previousOrder:['AB','BA','canonical'][nonRetry++];
       previousOrder=order;
@@ -90,6 +90,6 @@ export async function judgePair({ item, requirements, model, call, settings }) {
   });
   return {games:[decision,decision],decision,rawGames,graderErrors:result.reads.filter(x=>x.result.unparsed).length,
     repairedAttempts:result.reads.flatMap(x=>x.attempts).filter(x=>x.repaired).length,
-    stage0:result.stage0,verdict:result.verdict??null,reads:result.reads,status:result.status,calls:physicalReads,coreReadInvocations:result.calls,suppressedReasks,
+    stage0:result.stage0,verdict:result.verdict??null,reads:result.reads,status:result.status,calls:physicalReads,coreReadInvocations:result.calls,transportExhaustedReasksSuppressed,
     endpoint:'Official pair-net score applied to the code-reconciled pair decision in both games. Raw order games retained separately.'};
 }

@@ -86,9 +86,10 @@ export class Journal {
     return [...this.starts.values()].reduce((sum, row) => sum + (this.finishes.get(row.key)?.costUsd ?? row.reserveUsd), 0);
   }
   append(row) { appendFileSync(this.path, `${JSON.stringify(row)}\n`); this.rows.push(row); }
-  async transportCall(key, reserveUsd, operation, metadata, { maxAttempts = 3, sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) } = {}) {
+  async transportCall(key, reserveUsd, operation, metadata, { maxAttempts = 3, quotaBackoffMs = [60000, 120000, 240000], sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) } = {}) {
     if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 3) throw new Error('At most three transport attempts');
-    for (let transportAttempt = 1; transportAttempt <= maxAttempts; transportAttempt++) {
+    let nonQuotaAttempts=0, quotaRetries=0;
+    for (let transportAttempt = 1; transportAttempt <= maxAttempts + quotaBackoffMs.length; transportAttempt++) {
       const attemptKey = transportAttempt === 1 ? key : `${key}:transport:${transportAttempt}`;
       const response = await this.call(attemptKey, reserveUsd, async () => {
         try {
@@ -99,15 +100,21 @@ export class Journal {
         } catch (error) {
           if (!['network', 'http', 'bad_response'].includes(error.code)) throw error;
           const retryable = error.code === 'network' || (error.code === 'http' && error.retryable === true);
-          return { text: '', rawProvider: error.raw ?? null, graderError: true, transportFailure: true,
+          return { text: '', rawProvider: error.raw ?? null, graderError: error.status !== 429, transportFailure: true, quotaResponse: error.status === 429,
             retryable, returnedAnswer: error.code === 'bad_response', errorCode: error.code, status: error.status ?? null,
             error: error.message, retryAfterMs: error.retryAfterMs ?? null,
             costUsd: Number.isFinite(error.costUsd) ? error.costUsd : reserveUsd,
             costEstimated: !Number.isFinite(error.costUsd), usage: error.usage ?? null };
         }
       }, { ...metadata, transportAttempt });
-      if (!response.transportFailure || !response.retryable || response.returnedAnswer || transportAttempt === maxAttempts) return response;
-      await sleep(Math.min(response.retryAfterMs ?? transportAttempt * 1000, 30000));
+      if (response.status === 429) {
+        if (quotaRetries >= quotaBackoffMs.length) throw new Error('QUOTA_STOP: three quota waits exhausted; no judge decision is recorded');
+        await sleep(quotaBackoffMs[quotaRetries++]);
+        continue;
+      }
+      nonQuotaAttempts++;
+      if (!response.transportFailure || !response.retryable || response.returnedAnswer || nonQuotaAttempts === maxAttempts) return response;
+      await sleep(Math.min(response.retryAfterMs ?? nonQuotaAttempts * 1000, 30000));
     }
   }
   async call(key, reserveUsd, operation, metadata) {

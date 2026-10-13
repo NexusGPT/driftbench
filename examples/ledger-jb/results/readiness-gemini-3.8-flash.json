@@ -1,6 +1,6 @@
 {
   "model": "gemini-3.8-flash",
-  "freezeSha256": "909e1296e3b6d969efaccd0cb1b4ca5bd507c7f731c9b9b0e43118738b6a6f5d",
+  "freezeSha256": "8155e7ad58a9aa795ede81389e104177f181c2a9016b6ffba71ae59815e035d8",
   "pilotComplete": true,
   "noiseComplete": false,
   "fixturesComplete": false,
