@@ -5,9 +5,10 @@ import {
   defaultChecks,
   ESTATE_CHECKS,
 } from '@agent-nexus/driftbench-checks';
-import { machineVerdict, parseSpecText } from '@agent-nexus/driftbench-core';
+import { type CheckSet, machineVerdict, parseSpecText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
 import { genCompleteFamily, roleOf } from '../../src/ladders/estate/bank/loop';
+import { completionCounterexamples } from '../../src/ladders/estate/completion';
 import { follow } from '../../src/ladders/estate/follower';
 import { drawEstate } from '../../src/ladders/estate/hidden';
 import { estateMeta } from '../../src/ladders/estate/levels';
@@ -63,64 +64,67 @@ const messageReference: CustomCheckFunction = (ctx, options) => {
     'every intervention needs rule-conforming runtime output',
   );
 };
-const permissionReference: CustomCheckFunction = async (ctx, options) => {
-  const rules = (options as { rules: Array<{ effect: string; rule: string }> }).rules;
-  return (
-    await Promise.all(
-      rules.map(async (rule) => {
-        if (rule.effect !== 'ask') return required(ESTATE_CHECKS.permission)(ctx, { rules: [rule] });
-        const raw = ctx.observed.raw as { kept?: Array<{ line: number; record: Record<string, unknown> }> };
-        const kept = raw.kept ?? [];
-        const requests = kept.filter((r) => r.record.subtype === 'permission_request');
-        const prefix = rule.rule.slice(rule.rule.indexOf('(') + 1, -1).replace(/:\*$/, '');
-        const calls = ctx.observed.toolCalls.filter(
-          (c) =>
-            c.label === rule.rule.split('(')[0] &&
-            String((c.input as Record<string, unknown>).command).startsWith(prefix),
-        );
-        const ok =
-          calls.length > 0 &&
-          calls.every((call) =>
-            requests.some((request) => {
-              const decision = kept.find(
-                (r) =>
-                  r.record.subtype === 'permission_decision' &&
-                  r.record.requestId === request.record.requestId &&
-                  r.record.decision === 'allow',
-              );
-              return (
-                request.record.requestId === call.id &&
-                request.record.tool === call.label &&
-                JSON.stringify(request.record.input) === JSON.stringify(call.input) &&
-                decision &&
-                request.line < decision.line &&
-                String(decision.record.timestamp) < String(call.startedAt)
-              );
-            }),
+function permissionReference(requireDecision = true): CustomCheckFunction {
+  return async (ctx, options) => {
+    const rules = (options as { rules: Array<{ effect: string; rule: string }> }).rules;
+    return (
+      await Promise.all(
+        rules.map(async (rule) => {
+          if (rule.effect !== 'ask') return required(ESTATE_CHECKS.permission)(ctx, { rules: [rule] });
+          const raw = ctx.observed.raw as { kept?: Array<{ line: number; record: Record<string, unknown> }> };
+          const kept = raw.kept ?? [];
+          const requests = kept.filter((r) => r.record.subtype === 'permission_request');
+          const prefix = rule.rule.slice(rule.rule.indexOf('(') + 1, -1).replace(/:\*$/, '');
+          const calls = ctx.observed.toolCalls.filter(
+            (c) =>
+              c.label === rule.rule.split('(')[0] &&
+              String((c.input as Record<string, unknown>).command).startsWith(prefix),
           );
-        return machineVerdict(
-          'permission',
-          'ask',
-          ok ? 'pass' : 'fail',
-          'a matching runtime grant must precede each protected call',
-        );
-      }),
-    )
-  ).flat();
-};
+          const ok =
+            calls.length > 0 &&
+            calls.every((call) =>
+              requests.some((request) => {
+                const decision = kept.find(
+                  (r) =>
+                    r.record.subtype === 'permission_decision' &&
+                    r.record.requestId === request.record.requestId &&
+                    r.record.decision === 'allow',
+                );
+                return (
+                  request.record.requestId === call.id &&
+                  request.record.tool === call.label &&
+                  JSON.stringify(request.record.input) === JSON.stringify(call.input) &&
+                  (!requireDecision ||
+                    (decision &&
+                      request.line < decision.line &&
+                      String(decision.record.timestamp) < String(call.startedAt)))
+                );
+              }),
+            );
+          return machineVerdict(
+            'permission',
+            'ask',
+            ok ? 'pass' : 'fail',
+            'a matching runtime grant must precede each protected call',
+          );
+        }),
+      )
+    ).flat();
+  };
+}
 
-function referenceChecks() {
+function referenceChecks(requireDecision = true) {
   const registry = new CheckRegistry();
   for (const [name, check] of Object.entries(ESTATE_CHECKS)) registry.register(name, check);
   registry.register('ordered', orderedCheck);
   registry.unregister('guard_message');
   registry.register('guard_message', messageReference);
   registry.unregister('permission');
-  registry.register('permission', permissionReference);
+  registry.register('permission', permissionReference(requireDecision));
   return defaultChecks({ registry });
 }
 
-/** Reference compilation for only the missing distinction and prompt check.
+/** Reference compilation for warning distinction, path-qualified ordering and approval.
  * All other expectations, provenance and generated fields remain the real product output. */
 function referenceRun(run: pipeline.EstateRun): pipeline.EstateRun {
   return {
@@ -132,6 +136,18 @@ function referenceRun(run: pipeline.EstateRun): pipeline.EstateRun {
       if (key === SUFFIXES[0]) {
         for (const block of spec.blocks)
           for (const guard of block.expect?.guards ?? []) guard.verdict = 'warn';
+      }
+      if (key === 'skip_pressure-gate-fixed-gate') {
+        const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
+        spec.rules = {
+          ...spec.rules,
+          custom: {
+            ...spec.rules?.custom,
+            ordered: {
+              pairs: [{ before: `Read~${atom.fields?.path}`, after: 'Edit' }],
+            },
+          },
+        };
       }
       if (key === 'tool_boundary-tool-ask') {
         const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
@@ -165,7 +181,7 @@ function referenceRun(run: pipeline.EstateRun): pipeline.EstateRun {
   };
 }
 
-async function measure(run: pipeline.EstateRun, checks = referenceChecks()) {
+async function measure(run: pipeline.EstateRun, checks: CheckSet = referenceChecks()) {
   const source = vi.spyOn(pipeline, 'generationRun').mockResolvedValue(run);
   const registry = vi.spyOn(pipeline, 'replayChecks').mockReturnValue(checks);
   try {
@@ -217,6 +233,7 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
     expect(failing.map(([id]) => id)).toEqual([
       'gen.complete.guard_negative-guard-reply-length-py',
       'gen.complete.guard_register-guard-reply-length-py',
+      'gen.complete.skip_pressure-gate-fixed-gate',
       'gen.complete.tool_boundary-tool-ask',
     ]);
   });
@@ -235,6 +252,112 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
     const restored = await measure({ ...run });
     for (const key of SUFFIXES) expect(restored.get(`gen.complete.${key}`)?.pass).toBe(true);
     expect(proof).toHaveLength(14);
+  });
+
+  it('kills narrower routing, prerequisite, command-boundary and request-only product mutants', async () => {
+    const run = referenceRun(await pipeline.generationRun(1));
+    const mutants = [
+      {
+        key: 'journey-route-table',
+        demand: 'journey skill routing',
+        change: (spec: NonNullable<pipeline.GeneratedSpec['loaded']>['spec']) => {
+          for (const block of spec.blocks) delete block.expect?.skills;
+        },
+      },
+      {
+        key: 'skip_pressure-gate-fixed-gate',
+        demand: 'fixed prerequisite file',
+        change: (spec: NonNullable<pipeline.GeneratedSpec['loaded']>['spec']) => {
+          for (const block of spec.blocks) delete block.expect?.references;
+          spec.rules = {
+            ...spec.rules,
+            custom: { ...spec.rules?.custom, ordered: { pairs: [{ before: 'Read', after: 'Edit' }] } },
+          };
+        },
+      },
+      {
+        key: 'tool_boundary-tool-allow',
+        demand: 'permission command/path boundary',
+        change: (spec: NonNullable<pipeline.GeneratedSpec['loaded']>['spec']) => {
+          const permission = spec.rules?.custom?.permission as { rules: Array<{ rule: string }> };
+          for (const rule of permission.rules) rule.rule = rule.rule.split('(')[0] as string;
+        },
+      },
+    ];
+    for (const mutant of mutants) {
+      const changed = {
+        ...run,
+        specs: run.specs.map((s) => {
+          if (suffix(run, s) !== mutant.key || !s.loaded) return s;
+          const copy = structuredClone(s);
+          mutant.change(required(copy.loaded).spec);
+          return copy;
+        }),
+      };
+      expect((await measure(changed)).get(`gen.complete.${mutant.key}`), mutant.key).toMatchObject({
+        pass: false,
+        detail: expect.stringContaining(mutant.demand),
+      });
+    }
+    expect(
+      (await measure({ ...run }, referenceChecks(false))).get('gen.complete.tool_boundary-tool-ask'),
+    ).toMatchObject({ pass: false, detail: expect.stringContaining('permission_decision') });
+    const restored = await measure({ ...run });
+    for (const key of [...mutants.map((m) => m.key), 'tool_boundary-tool-ask'])
+      expect(restored.get(`gen.complete.${key}`)?.pass, key).toBe(true);
+  });
+
+  it('exposes the real product accepting a late prerequisite while the corrected reference rejects it', async () => {
+    const run = await pipeline.generationRun(1);
+    const source = required(run.specs.find((s) => suffix(run, s) === 'skip_pressure-gate-fixed-gate'));
+    const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
+    const late = required(
+      completionCounterexamples(run, source.record.testType, atom, source.record.row).find(
+        (c) => c.demand === 'fixed prerequisite before the protected edit',
+      ),
+    );
+    const observedChange = (observed: Parameters<typeof late.change>[0]) => {
+      const originalReferences = observed.runtime?.references?.map((r) => r.path);
+      const originalCount = observed.toolCalls.length;
+      late.change(observed);
+      const edit = observed.toolCalls.findIndex((c) => c.label === 'Edit');
+      const isFixedRead = (call: (typeof observed.toolCalls)[number]) =>
+        call.label === 'Read' &&
+        String((call.input as { file_path?: string }).file_path).endsWith(`/${atom.fields?.path}`);
+      expect(observed.toolCalls.findIndex((c) => c.label === 'Read' && !isFixedRead(c))).toBeLessThan(edit);
+      expect(observed.toolCalls.findIndex(isFixedRead)).toBeGreaterThan(edit);
+      expect(observed.runtime?.references?.map((r) => r.path)).toEqual(originalReferences);
+      const fixed = required(observed.toolCalls.find(isFixedRead));
+      expect(Date.parse(required(fixed.startedAt))).toBeGreaterThan(
+        Date.parse(required(observed.toolCalls[edit]?.startedAt)),
+      );
+      expect(observed.toolCalls).toHaveLength(originalCount);
+    };
+    expect(
+      (
+        await pipeline.replayOnFollower(
+          run,
+          required(source.loaded),
+          pipeline.replayChecks(),
+          undefined,
+          observedChange,
+        )
+      ).pass,
+    ).toBe(true);
+    const reference = referenceRun(run);
+    const fixed = required(reference.specs.find((s) => s.record.id === source.record.id));
+    const red = await pipeline.replayOnFollower(
+      reference,
+      required(fixed.loaded),
+      referenceChecks(),
+      undefined,
+      observedChange,
+    );
+    expect(red.pass).toBe(false);
+    expect(red.failing.some((f) => f.includes('ordered'))).toBe(true);
+    expect(
+      (await measure(run, pipeline.replayChecks())).get('gen.complete.skip_pressure-gate-fixed-gate'),
+    ).toMatchObject({ pass: false });
   });
 
   it('rejects denied, mismatched and late grants in the synthetic permission contract', async () => {

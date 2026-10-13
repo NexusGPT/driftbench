@@ -6,7 +6,7 @@ import {
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
 import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
-import { completionCounterexample } from '../completion';
+import { completionCounterexamples } from '../completion';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
 import { type EstateMutant, estateMutants } from '../mutants';
 import {
@@ -225,21 +225,25 @@ export function genCompleteFamily(): Family {
         if (bad.length === 0)
           for (const verdict of list) {
             const head = atoms.get(estateMeta(verdict.spec).atoms?.[0] ?? '');
-            const counter =
-              head &&
-              completionCounterexample(run, verdict.spec.record.testType, head, verdict.spec.record.row);
-            if (counter && verdict.spec.loaded) {
-              const result = await replayOnFollower(
-                run,
-                verdict.spec.loaded,
-                replayChecks(),
-                undefined,
-                counter,
-              );
-              if (result.pass)
-                bad.push(`${verdict.spec.record.id}: accepts a trace without the target capability`);
-            }
+            const counters = head
+              ? completionCounterexamples(run, verdict.spec.record.testType, head, verdict.spec.record.row)
+              : [];
+            for (const counter of counters)
+              if (verdict.spec.loaded) {
+                const result = await replayOnFollower(
+                  run,
+                  verdict.spec.loaded,
+                  replayChecks(),
+                  undefined,
+                  counter.change,
+                );
+                if (result.pass) {
+                  bad.push(`${verdict.spec.record.id}: accepts a trace violating ${counter.demand}`);
+                  break;
+                }
+              }
           }
+
         out.set(`${family}.${keyOf(cls)}`, {
           pass: bad.length === 0,
           detail:
