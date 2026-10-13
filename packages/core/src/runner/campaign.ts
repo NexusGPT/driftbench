@@ -288,6 +288,7 @@ export type CampaignRunOptions = {
   cacheSuite?: string;
   /** Each run keeps its events on its record, for the viewer's timeline. */
   recordEvents?: boolean;
+  recordProvenance?: boolean;
   retry?: RetryOptions;
   now?: () => Date;
   /** Cells that run at the same time. Default 4. */
@@ -405,6 +406,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       target: cell.target,
       ...(cell.perturbationId === undefined ? {} : { perturbationId: cell.perturbationId }),
       store: options.store,
+      recordProvenance: options.recordProvenance,
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),
       ...(options.cacheSuite === undefined ? {} : { suite: options.cacheSuite }),

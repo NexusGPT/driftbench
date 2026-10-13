@@ -76,6 +76,7 @@ import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { noStoreAt } from '../store-path';
+import { campaignProvenance } from './campaign-provenance';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
@@ -742,6 +743,10 @@ export async function campaignRunCommand(
         repeats,
         // 0 when no budget was given: the schema has no field for "no budget".
         budgetUsd: pool.budgetUsd ?? 0,
+        provenance: campaignProvenance(
+          runs.flatMap((run) => run.targets),
+          (target) => required(adapters.get(showTarget(target)), 'adapter'),
+        ),
         judge: { mode: 'system1', judges: [] },
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
@@ -760,6 +765,7 @@ export async function campaignRunCommand(
                 const outcomes = await runCampaign({
                   campaignId,
                   cells,
+                  recordProvenance: true,
                   recordEvents: true,
                   specFor: (cell) =>
                     required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
@@ -1018,6 +1024,7 @@ async function executeCampaign(
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
     cells: plan.cells,
+    recordProvenance: campaign.provenance !== undefined,
     recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
@@ -1112,11 +1119,17 @@ async function radiusPlan(
     manifest.manifest,
     { modes: campaign.modes },
   );
+  const baselineRuns = await store.listRuns({ campaignId: baseline.campaignId });
+  if (
+    !baseline.provenance ||
+    baselineRuns.some((run) => !run.provenance || run.blocks.some((block) => !block.provenance))
+  )
+    radius.whole = { change: 'legacy', reason: 'the baseline has no execution provenance' };
   let plan = planRadiusCampaign(
     cells,
     radius,
     manifest.manifest,
-    { campaignId: baseline.campaignId, runs: await store.listRuns({ campaignId: baseline.campaignId }) },
+    { campaignId: baseline.campaignId, runs: baselineRuns },
     {
       now: deps.now(),
       ...(maxCarry === undefined ? {} : { maxCarry }),

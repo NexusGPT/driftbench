@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { DriftClass, Message, TargetRef, WorldState } from './common';
+import { BlockProvenance, CampaignProvenance, RunProvenance } from './provenance';
 
 /**
  * Run records written by the runner. Keys are camelCase. A run is one spec, on one target, in one
@@ -224,6 +225,7 @@ export const Verdict = z.strictObject({
 export type Verdict = z.infer<typeof Verdict>;
 
 export const BlockResult = z.strictObject({
+  provenance: BlockProvenance.optional(),
   index: z.number().int().min(0),
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
@@ -316,6 +318,7 @@ export const CarriedFrom = z.strictObject({
 export type CarriedFrom = z.infer<typeof CarriedFrom>;
 
 export const RunResult = z.strictObject({
+  provenance: RunProvenance.optional(),
   runId: z.string().min(1),
   specId: z.string().min(1),
   specHash: z.string().min(1),
@@ -406,6 +409,7 @@ export type CampaignRadius = z.infer<typeof CampaignRadius>;
 
 /** A campaign pins spec versions, targets, modes and repeats. A re-run is a new campaign. */
 export const Campaign = z.strictObject({
+  provenance: CampaignProvenance.optional(),
   campaignId: z.string().min(1),
   specs: z
     .array(
