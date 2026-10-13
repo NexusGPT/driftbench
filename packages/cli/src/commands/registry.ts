@@ -12,6 +12,7 @@ import {
   type SqliteStore,
 } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
+import { reason as describe } from '../files';
 import type { Io } from '../io';
 
 type StoreOption = { store: string; json?: boolean };
@@ -321,8 +322,4 @@ function label(version: RegistryVersion): string {
 function show(io: Io, path: string): string {
   const rel = relative(io.cwd, path);
   return rel === '' || rel.startsWith('..') ? path : rel;
-}
-
-function describe(cause: unknown): string {
-  return cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
 }
