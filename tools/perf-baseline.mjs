@@ -242,6 +242,15 @@ process.on('exit', () => {
       const name = inside[0].startsWith('@') ? inside[0] + '/' + inside[1] : inside[0];
       byPackage[name] = (byPackage[name] ?? 0) + 1;
     }
+    const byWorkspace = {};
+    for (const file of modules.workspace) {
+      const match = /\/(packages|examples)\/([^/]+)\//.exec(file);
+      const name = match ? match[1] + '/' + match[2] : 'other';
+      byWorkspace[name] = (byWorkspace[name] ?? 0) + 1;
+    }
+    report.modules_by_workspace = Object.fromEntries(
+      Object.entries(byWorkspace).sort((a, b) => (a[0] < b[0] ? -1 : 1)),
+    );
     report.modules_by_package = Object.fromEntries(
       Object.entries(byPackage).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)),
     );
@@ -599,6 +608,7 @@ export function measure(row, { runs, countRuns }) {
   if (counted.length > 0) {
     result.counts = counted[0].counts;
     result.modules_by_package = counted[0].modules_by_package;
+    result.modules_by_workspace = counted[0].modules_by_workspace;
     const unstable = Object.keys(result.counts).filter((key) =>
       counted.some((report) => report.counts[key] !== result.counts[key]),
     );

@@ -11,7 +11,12 @@ import { ROOT, runNode, writeProbe } from '../perf-baseline.mjs';
 function loaded(args) {
   const run = runNode(['--import', 'tsx', ...args], { probe: 'full' });
   expect(run.report, run.stderr).toBeDefined();
-  return { status: run.status, stdout: run.stdout, packages: run.report.modules_by_package };
+  return {
+    status: run.status,
+    stdout: run.stdout,
+    packages: run.report.modules_by_package,
+    workspace: run.report.modules_by_workspace,
+  };
 }
 
 const importOnly = (entry) => [
@@ -58,4 +63,17 @@ describe('what loads at start', () => {
       expect(packages[name], name).toBeUndefined();
     }
   }, 120_000);
+
+  it('loads the validators package for validate, and for no other command', () => {
+    const help = loaded([join(ROOT, 'packages/cli/src/bin.ts'), '--help']);
+    expect(help.status).toBe(0);
+    expect(help.stdout).toContain('validate [options] <component> [level]');
+    expect(help.workspace['packages/validators']).toBeUndefined();
+    expect(help.workspace['packages/cli']).toBeGreaterThan(0);
+
+    // An unknown component is refused by the command itself, after it loaded the ladders: exit 64.
+    const validate = loaded([join(ROOT, 'packages/cli/src/bin.ts'), 'validate', 'no-such-component']);
+    expect(validate.status).toBe(64);
+    expect(validate.workspace['packages/validators']).toBeGreaterThan(0);
+  }, 240_000);
 });
