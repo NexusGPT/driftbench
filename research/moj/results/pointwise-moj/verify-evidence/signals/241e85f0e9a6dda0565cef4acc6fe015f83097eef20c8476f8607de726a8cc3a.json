@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "So, the SVG path draws a figure that includes a square, a rectangle, triangles, and a parallelogram.",
+    "explanation": "The claimed left rectangle is not closed: although its top and bottom edges are drawn, the segment along x=0 from y=14.67885 to y=22.67885 is missing. The supposed triangles and parallelogram are likewise inferred from incomplete boundaries. Thus the candidate’s shape inventory, and its conclusion that none of the listed combinations fits, is unsupported.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "02a690854a26218ddf5f1d9d75acef0be87d85b9695bbd00736efd9b2528c649",
+      "count": 1,
+      "usd": 0.0014812
+    },
+    {
+      "provider": "jev",
+      "key": "edb738a335f2fa3c3bd13b60cb1a217cb4e58f127cda8a6be6867eb2ace30d3e",
+      "seconds": 0.794,
+      "usd": 0
+    }
+  ]
+}

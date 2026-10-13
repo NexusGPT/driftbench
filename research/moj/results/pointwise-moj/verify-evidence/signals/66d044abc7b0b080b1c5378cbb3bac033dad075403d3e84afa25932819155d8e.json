@@ -1,0 +1,25 @@
+{
+  "pA": 0.20999999999999996,
+  "detail": {
+    "error_found": true,
+    "quote": "Expanding and simplifying, we get:\n\n\\[E = \\frac{x^3y + x^3z + x^2yz + x^2y^2 + x^3y + x^3z + x^2yz + xy^2z + x^2y^2 + x^2z^2 + xy^2z + xyz^2 + y^3z + y^2z^2 + x^2yz + x^2z^2 + xy^2z + xyz^2 + y^3z + y^2z^2}{(x + y)(x + z)(y + z)}\\]",
+    "explanation": "The claimed numerator expansion is incorrect. For example, at x=y=z=1, the actual common-denominator numerator is 3·(2·2·2)=24, while the displayed numerator sums to 20. The later simplification is also invalid: it turns degree-4 terms into degree-3 terms. This undermines the attempted solution, which ultimately does not provide the requested minimum.",
+    "changes_final_answer": true,
+    "error_type": "arithmetic"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "ad26f41d565c47f9730700e95b9b8353057049d0cb6007d177597b0a79703b1e",
+      "count": 1,
+      "usd": 0.0004816
+    },
+    {
+      "provider": "jev",
+      "key": "8e0c960e134a9d193942d3d3e261b585926908d907c1b63df6a4b992b9f62552",
+      "seconds": 0.948,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The final solution set, \\((-∞,-\\tfrac13)\\cup(1,\\infty)\\), is correct. The final explanation briefly describes the strict inequality as holding on inclusive intervals, but then correctly excludes the endpoints; this does not change the final answer.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "194275b9cebb513eef25c721655ce807d8a6040e9f35ffd85930a6803c81238a",
+      "count": 1,
+      "usd": 0.0007186
+    },
+    {
+      "provider": "jev",
+      "key": "5baac4e5fd265d622fc39ee2a0574f46e26a503a8fdaed1c5775ede025582bfa",
+      "seconds": 0.502,
+      "usd": 0
+    }
+  ]
+}

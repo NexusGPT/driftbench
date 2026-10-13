@@ -1,0 +1,25 @@
+{
+  "pA": 0.20999999999999996,
+  "detail": {
+    "error_found": true,
+    "quote": "8. Evaluate not not (True): This is false.",
+    "explanation": "Double negation preserves the truth value: not not True is True, not False. This is the first substantive error in the candidate’s evaluation and can affect the expression’s truth value.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "2f16522257395fd14fb5274b3a745f2fdaf3c43ed2c4d440cfff375086afcf19",
+      "count": 1,
+      "usd": 0.0005475
+    },
+    {
+      "provider": "jev",
+      "key": "a35c134c821961255f86712add7fc5ae3e915824843d54ec0a737a18a4650245",
+      "seconds": 0.748,
+      "usd": 0
+    }
+  ]
+}

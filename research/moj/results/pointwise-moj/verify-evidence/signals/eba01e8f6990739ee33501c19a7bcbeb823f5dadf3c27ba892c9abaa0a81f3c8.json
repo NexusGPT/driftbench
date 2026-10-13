@@ -1,0 +1,25 @@
+{
+  "pA": 0.07999999999999996,
+  "detail": {
+    "error_found": true,
+    "quote": "Third sale: $38.4(1 - 0.15) = 38.4(0.85) = 32.44$.",
+    "explanation": "This multiplication is incorrect: $38.4 \\times 0.85 = 32.64$. The correct final price is 54.4% of the original price, not the boxed 54%.",
+    "changes_final_answer": true,
+    "error_type": "arithmetic"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "dd55e6d60f7863f33afbfc952a633a861076e7256f2811f75821851e92fce642",
+      "count": 1,
+      "usd": 0.00044220000000000007
+    },
+    {
+      "provider": "jev",
+      "key": "5b372d3fcc6baafc8647bed86cf468183b3d5788a36b487564e464e1d3223291",
+      "seconds": 0.445,
+      "usd": 0
+    }
+  ]
+}

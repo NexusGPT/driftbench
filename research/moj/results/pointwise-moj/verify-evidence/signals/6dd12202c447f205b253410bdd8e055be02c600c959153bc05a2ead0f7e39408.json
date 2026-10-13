@@ -1,0 +1,25 @@
+{
+  "pA": 0.08999999999999997,
+  "detail": {
+    "error_found": true,
+    "quote": "We are not given the number of cups of soda, so we need to assume that each person ordered the same number of cups of soda.",
+    "explanation": "Equal bill-splitting does not imply that the friends ordered equal numbers of sodas. The given information determines only the total soda cost, $2.50, not the number of cups or the price per cup. The later choice of one cup per person is therefore unsupported, and the per-cup price is not uniquely determined.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "708ab0730e43a820103b0ed74b6ecc26a4fc630539b06e34be9a20dd197ff4ef",
+      "count": 1,
+      "usd": 0.0002476
+    },
+    {
+      "provider": "jev",
+      "key": "73ec668f28870f1be9d17c98e52c7358f9c7a335191e60f09f0cc50c8172d09e",
+      "seconds": 0.562,
+      "usd": 0
+    }
+  ]
+}

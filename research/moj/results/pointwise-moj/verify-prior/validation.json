@@ -1,0 +1,23 @@
+{
+  "cell": {
+    "n": 49,
+    "accuracy": 0.7142857142857143,
+    "balanced": 0.7142857142857143,
+    "sensitivity": 0.7142857142857143,
+    "specificity": 0.7142857142857143,
+    "positive_n": 7,
+    "negative_n": 42,
+    "ci95": [
+      0.5759085079389967,
+      0.8215056506027583
+    ],
+    "s2_per_100": 212.24489795918367,
+    "s1_per_100": 112.24489795918367,
+    "known_usd_per_100": 0.1119657142857143
+  },
+  "second_solves": 6,
+  "constant_fail": 0.8571428571428571,
+  "noise_floor_points": 3.3,
+  "bar_met": false,
+  "config_digest": "aff3c0f11ef7cbaff779da3e7fb21f4797b2132b44c730dec12cb4f249cc38ce"
+}

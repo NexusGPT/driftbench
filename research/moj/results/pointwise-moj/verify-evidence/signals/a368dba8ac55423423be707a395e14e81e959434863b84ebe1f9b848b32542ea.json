@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "Option A: massive (size), hiking (purpose), wool (material), old-fashioned (age), green (color), silly (opinion). So order is Size, Purpose, Material, Age, Color, Opinion. Incorrect because Opinion should be first.",
+    "explanation": "The examples show that this variant does not use the assumed opinion-first order: “maroon good bottle” and “violet good bag” put color before opinion. Option A follows the ordering relationships supported by the examples: size before purpose, material before age, and color before opinion. So A is valid, and the final answer cannot be K.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "13c019628624ed349f8485ab2168c19c32192f816e17521f7aaa9899ebf93bae",
+      "count": 1,
+      "usd": 0.0010451
+    },
+    {
+      "provider": "jev",
+      "key": "47c99c8cf0c241452d5b308ef440e3f8897fbf3f970523ec152bd5a8024ce163",
+      "seconds": 0.589,
+      "usd": 0
+    }
+  ]
+}

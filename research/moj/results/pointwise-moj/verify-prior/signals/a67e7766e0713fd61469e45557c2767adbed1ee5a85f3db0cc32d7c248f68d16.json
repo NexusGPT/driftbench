@@ -1,0 +1,22 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "3, 7, 131, and 12049",
+    "reasoning": "33146799 = 3 × 11048933 = 3 × 7 × 1578419 = 3 × 7 × 131 × 12049. The factors 131 and 12049 are prime; for 12049, trial division by primes up to √12049 < 110 finds no divisor.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "de2af39a52395d105d449b79fd7f9ba3c7217be57d003217faa432947fa6f02e",
+      "count": 1,
+      "usd": 0.0006164
+    },
+    {
+      "provider": "jev",
+      "key": "72bfeb7c5501b58079e7e4e8598571ce036fddbd4c6b2a7e975f6683bfb5543e",
+      "seconds": 0.306,
+      "usd": 0
+    }
+  ]
+}

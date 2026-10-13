@@ -1,0 +1,22 @@
+{
+  "pA": 0.81,
+  "detail": {
+    "reference": "disproved",
+    "reasoning": "The gadwall’s blue card matches a color in France’s flag, so Rule 4 says it builds a power plant; Rule 12 then says it never hugs the pelikan. The badger has a couch, so Rule 7 says it does not trade a piece with the mannikin, and Rule 3 implies the mannikin does not unite with the pelikan. Both conditions of Rule 5 therefore hold, concluding that the pelikan never swears to the lizard.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "38d30cc97d2645980f69a1fc54caf25515f5d99333831aef98845a12c521d6f2",
+      "count": 1,
+      "usd": 0.00028010000000000003
+    },
+    {
+      "provider": "jev",
+      "key": "3eff8cab3da9023af09b39000ada5b403ffc958aba771ce6742b64d703f4ffa4",
+      "seconds": 0.955,
+      "usd": 0
+    }
+  ]
+}

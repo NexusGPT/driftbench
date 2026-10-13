@@ -1,0 +1,25 @@
+{
+  "pA": 0.06999999999999995,
+  "detail": {
+    "error_found": true,
+    "quote": "**Answer:** Proven.",
+    "explanation": "The question asks whether the pelikan swears to the lizard. The derived conclusion is that it will *never* swear to the lizard, which means swearing is disproved—not proved. The candidate establishes the negative conclusion but gives the wrong status label.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "4be48efdb0ce22dfc1696855654755a988b6cb6dd21c518d6803eba4e3c9bd63",
+      "count": 1,
+      "usd": 0.0004095
+    },
+    {
+      "provider": "jev",
+      "key": "354f6e0aa7723080f826d69fe6f196b77627b3a1621c407d3ad62ec70cc45aef",
+      "seconds": 0.761,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The final answer “yes” is correct: a holomorphic function on the unit disk can tend to infinity at multiple distinct boundary points. The candidate’s proposed formulas are flawed, but those exploratory attempts do not make its final conclusion incorrect.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "53d24c05233a3e2523ffc307795117faa034420463a17bac7050d9c45f013e7b",
+      "count": 1,
+      "usd": 0.00033120000000000003
+    },
+    {
+      "provider": "jev",
+      "key": "4d60f195fe06e2ee8341146efc3ffd66f5d5377b67a43dd866aecdb9ae14eea2",
+      "seconds": 0.556,
+      "usd": 0
+    }
+  ]
+}

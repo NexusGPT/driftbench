@@ -1,0 +1,25 @@
+{
+  "pA": 0.20999999999999996,
+  "detail": {
+    "error_found": true,
+    "quote": "If the goat neglects (from Rule6), it doesn't surrender (Rule5 doesn't apply), so Basenji doesn't hide (Rule4 doesn't apply).",
+    "explanation": "Rule5 says that not neglecting the goose implies surrendering. It does not say that neglecting implies not surrendering; that reverses the implication. Nor does the absence of a derivation of surrender establish that nobody surrenders. This unsupported inference is used in the candidate’s final explanation. Separately, its final Rule7 argument assumes the basenji does not destroy the wall, which is also not given.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "d456cd1a8ff85c1c35c3f98836d2cfb21476d9ec5929b210248b88683419f463",
+      "count": 1,
+      "usd": 0.0007072000000000001
+    },
+    {
+      "provider": "jev",
+      "key": "c6977de059e236fdde725c2f597691316c40c41fedad2a515fddfbb38f92d30e",
+      "seconds": 0.855,
+      "usd": 0
+    }
+  ]
+}

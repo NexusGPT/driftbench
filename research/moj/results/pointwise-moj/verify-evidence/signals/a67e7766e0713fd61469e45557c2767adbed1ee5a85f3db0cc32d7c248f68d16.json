@@ -1,0 +1,25 @@
+{
+  "pA": 0.19999999999999996,
+  "detail": {
+    "error_found": true,
+    "quote": "It turns out that 1578419 is prime.",
+    "explanation": "The candidate gives √1578419 ≈ 1256 but checks only a small subset of primes, ending at 131. That does not establish primality; divisibility by primes between 131 and 1256 remains unchecked, so the asserted prime factorization is unsupported.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "b73876426bb6223b636f666122d1a9a9e7a0b913f7c63f5529574b216c08672f",
+      "count": 1,
+      "usd": 0.0008343
+    },
+    {
+      "provider": "jev",
+      "key": "450edc59e97672114cf7689c620f5f9f89f6404266f338bdc3114abd6a8bbde4",
+      "seconds": 0.516,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "pA": null,
+  "detail": {
+    "reference": null,
+    "reasoning": null,
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "aa05d1ee81245fed1c261aab1bdcecc9a31063a70d7d77ab68c6048ebca12134",
+      "count": 3,
+      "usd": 0
+    }
+  ]
+}

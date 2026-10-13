@@ -1,0 +1,22 @@
+{
+  "pA": 0.07,
+  "detail": {
+    "reference": "(1) \\(\\frac{16}{81}\\). (2) \\(P(A)=\\frac23\\), \\(P(B)=\\frac13\\); the events are independent.",
+    "reasoning": "For (1), the valid ordered draws are one red 1 with a blue 2, or one red 2 with a blue 1. These give \\(2\\cdot2\\cdot2+4\\cdot1\\cdot2=16\\) outcomes out of \\(9^2=81\\). For (2), symmetry gives \\(P(B)=3/9\\), and \\(P(A\\cap B)=(6\\cdot3-2)/(9\\cdot8)=2/9=P(A)P(B)\\). Thus \\(A\\) and \\(B\\) are independent.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "aa5ecc191b0d91816f13f0a3031cb4e7115cd21f776bdc323ab5acddaac91006",
+      "count": 1,
+      "usd": 0.0002441
+    },
+    {
+      "provider": "jev",
+      "key": "b0d727cb928342568f3175cbeaec3c728196e37ee29bb77d5d6d4f597343194b",
+      "seconds": 1.025,
+      "usd": 0
+    }
+  ]
+}

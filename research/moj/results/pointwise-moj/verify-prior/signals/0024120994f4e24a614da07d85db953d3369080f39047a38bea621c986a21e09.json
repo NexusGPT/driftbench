@@ -1,0 +1,22 @@
+{
+  "pA": 0.17,
+  "detail": {
+    "reference": "D",
+    "reasoning": "A large amount of capital is necessary for the transition, so the transition implies capital support. A high savings rate is necessary for obtaining that capital, so capital support implies a high savings rate. Therefore, without a high savings rate, the transition cannot be achieved.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "3c3f05e4898cee78e366f2b386db3fafb7e4b37c68902d581696c243a022ddae",
+      "count": 1,
+      "usd": 0.000108
+    },
+    {
+      "provider": "jev",
+      "key": "115cb49101f881228a9a4c8cb2788a17566041bd3681d37666b48ad0d1388dea",
+      "seconds": 1.945,
+      "usd": 0
+    }
+  ]
+}

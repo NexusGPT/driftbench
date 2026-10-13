@@ -1,0 +1,119 @@
+[
+  {
+    "index": 41,
+    "id": "daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "Thursday",
+    "candidate_final": "unanswerable",
+    "evidence": {
+      "date1": "2021-05-13",
+      "P": 6,
+      "Q": 5,
+      "Qprime": 2,
+      "hours": 24,
+      "days_added": 1
+    },
+    "reason": "Exact Gregorian calendar / rational duration arithmetic; final answer compared, not intermediate reasoning."
+  },
+  {
+    "index": 44,
+    "id": "ea0320de605869a0838201660ae8105e_1e8bfac1a4b21fd6f1399ff208f493fd",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "unanswerable",
+    "candidate_final": "unanswerable",
+    "evidence": {
+      "average1": [
+        1,
+        26,
+        50
+      ],
+      "average2": [
+        2,
+        43,
+        50
+      ],
+      "invalid_or_valid_date_fields": [
+        1991,
+        6,
+        34
+      ]
+    },
+    "reason": "Exact Gregorian calendar / rational duration arithmetic; final answer compared, not intermediate reasoning."
+  },
+  {
+    "index": 55,
+    "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": [
+      "Emma",
+      "Jenny",
+      "Joe",
+      "Kyle",
+      "Jason"
+    ],
+    "candidate_final": "February 14, 1879 at 14:46",
+    "evidence": {
+      "X": 2013,
+      "Y": 2767,
+      "Z": 6,
+      "Joe_actual_date": "1879-11-21",
+      "correct_order": [
+        "Emma",
+        "Jenny",
+        "Joe",
+        "Kyle",
+        "Jason"
+      ]
+    },
+    "reason": "Candidate final list has the correct relative person order but an incorrect Joe date. Whether this invalidates the requested ordering is a grading interpretation; no label correction."
+  },
+  {
+    "index": 68,
+    "id": "6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "same_day, 09:01",
+    "candidate_final": "same_day, 09:00",
+    "evidence": {
+      "date1": "2014-09-26",
+      "UTC_offsets": [
+        0,
+        0
+      ],
+      "time_fields": [
+        9,
+        1
+      ]
+    },
+    "reason": "Exact Gregorian calendar / rational duration arithmetic; final answer compared, not intermediate reasoning."
+  },
+  {
+    "index": 90,
+    "id": "ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "unanswerable",
+    "candidate_final": "1-10",
+    "evidence": {
+      "average1": [
+        1,
+        40,
+        30
+      ],
+      "average2": [
+        1,
+        39,
+        5
+      ],
+      "invalid_or_valid_date_fields": [
+        2022,
+        1,
+        34
+      ]
+    },
+    "reason": "Exact Gregorian calendar / rational duration arithmetic; final answer compared, not intermediate reasoning."
+  }
+]

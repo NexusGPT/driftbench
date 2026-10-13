@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The matrix inversion, squaring, determinant, and final inverse are all correct.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "c882c97b08cfb9f8613a1178807fb44b18f81b2d3663242c3ee0345f2e2079dc",
+      "count": 1,
+      "usd": 0.0003256
+    },
+    {
+      "provider": "jev",
+      "key": "007644e2e3d4df6c62965416edb8a1451c6efb70257d748def0430355ed3c57d",
+      "seconds": 0.794,
+      "usd": 0
+    }
+  ]
+}

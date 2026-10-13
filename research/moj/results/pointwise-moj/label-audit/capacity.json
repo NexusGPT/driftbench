@@ -1,0 +1,138 @@
+{
+  "warning": "Gold-label per-item oracle; not an implementable route or a general bound. Computed checks are hand formalized diagnostics, not a learned judge. No validation-based routing is introduced.",
+  "computed_validation_coverage": 32,
+  "cells": {
+    "official": {
+      "old_experts": {
+        "n": 49,
+        "accuracy": 0.8571428571428571,
+        "balanced": 0.7976190476190477,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.8809523809523809,
+        "positive_n": 7,
+        "negative_n": 42,
+        "ci95": [
+          0.7333202681083708,
+          0.9290366627945541
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 0.0,
+        "known_usd_per_100": 0.0
+      },
+      "old_plus_error_hunt": {
+        "n": 49,
+        "accuracy": 0.8979591836734694,
+        "balanced": 0.8214285714285714,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.9285714285714286,
+        "positive_n": 7,
+        "negative_n": 42,
+        "ci95": [
+          0.7824337583502992,
+          0.9556211075129601
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 0.0,
+        "known_usd_per_100": 0.0
+      },
+      "old_plus_computed": {
+        "n": 49,
+        "accuracy": 0.8775510204081632,
+        "balanced": 0.8095238095238095,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.9047619047619048,
+        "positive_n": 7,
+        "negative_n": 42,
+        "ci95": [
+          0.7575533759811903,
+          0.9426525224019018
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 0.0,
+        "known_usd_per_100": 0.0
+      },
+      "old_plus_both": {
+        "n": 49,
+        "accuracy": 0.8979591836734694,
+        "balanced": 0.8214285714285714,
+        "sensitivity": 0.7142857142857143,
+        "specificity": 0.9285714285714286,
+        "positive_n": 7,
+        "negative_n": 42,
+        "ci95": [
+          0.7824337583502992,
+          0.9556211075129601
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 0.0,
+        "known_usd_per_100": 0.0
+      }
+    },
+    "proof_corrected_only": {
+      "old_experts": {
+        "n": 49,
+        "accuracy": 0.9387755102040817,
+        "balanced": 0.9194444444444444,
+        "sensitivity": 0.8888888888888888,
+        "specificity": 0.95,
+        "positive_n": 9,
+        "negative_n": 40,
+        "ci95": [
+          0.8347925657791229,
+          0.9789602350444708
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 0.0,
+        "known_usd_per_100": 0.0
+      },
+      "old_plus_error_hunt": {
+        "n": 49,
+        "accuracy": 0.9795918367346939,
+        "balanced": 0.9444444444444444,
+        "sensitivity": 0.8888888888888888,
+        "specificity": 1.0,
+        "positive_n": 9,
+        "negative_n": 40,
+        "ci95": [
+          0.8930623153224584,
+          0.9963884204614692
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 0.0,
+        "known_usd_per_100": 0.0
+      },
+      "old_plus_computed": {
+        "n": 49,
+        "accuracy": 0.9591836734693877,
+        "balanced": 0.9319444444444445,
+        "sensitivity": 0.8888888888888888,
+        "specificity": 0.975,
+        "positive_n": 9,
+        "negative_n": 40,
+        "ci95": [
+          0.8628671652316889,
+          0.9887346030720717
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 0.0,
+        "known_usd_per_100": 0.0
+      },
+      "old_plus_both": {
+        "n": 49,
+        "accuracy": 0.9795918367346939,
+        "balanced": 0.9444444444444444,
+        "sensitivity": 0.8888888888888888,
+        "specificity": 1.0,
+        "positive_n": 9,
+        "negative_n": 40,
+        "ci95": [
+          0.8930623153224584,
+          0.9963884204614692
+        ],
+        "s2_per_100": 0.0,
+        "s1_per_100": 0.0,
+        "known_usd_per_100": 0.0
+      }
+    }
+  }
+}

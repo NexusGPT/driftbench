@@ -1,0 +1,22 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "(B) 1 and 8",
+    "reasoning": "The horizontal and vertical segments between (0,0), (10.35209,0), (10.35209,7), and (0,7) form a non-square rectangle (#1). The segments from (0,0) through (2.33608,-1.34873), (6.14757,-3.5493), (2.5205,-5.64339), and (0,-7.0986), then back to (0,0), form a concave pentagon (#8). The other listed shape types are not formed by the drawn segments.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "8714972118db5ddc952496c2576c7ead929545ae8c4ba7d3d9cb9371276963c3",
+      "count": 3,
+      "usd": 0.0009421
+    },
+    {
+      "provider": "jev",
+      "key": "45ee03d2ca2be44c00835d53cd43258c635d0a5f5af0c6a79a5fda88251b031b",
+      "seconds": 0.686,
+      "usd": 0
+    }
+  ]
+}

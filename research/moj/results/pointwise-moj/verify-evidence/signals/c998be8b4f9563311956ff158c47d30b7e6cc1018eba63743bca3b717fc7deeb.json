@@ -1,0 +1,25 @@
+{
+  "pA": 0.09999999999999998,
+  "detail": {
+    "error_found": true,
+    "quote": "So, the completed sequence is:\n\n{ [ [ ] [ ] ] ] }\n\n**Final Answer:**  \n\\boxed{ ] ] }",
+    "explanation": "The input already ends with a `]`: `{ [ [ ] [ ]`. That closes the most recently opened square bracket, leaving only the first `[` and the `{` open. The completion should therefore be `] }`, not `] ] }`; the proposed answer adds one extra `]`.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "35121cad28bff4c5271c664d88f8e82af9e9fc184cfd01bb8ae207255741e11f",
+      "count": 1,
+      "usd": 0.0003
+    },
+    {
+      "provider": "jev",
+      "key": "d60b9a2e700c4c76b08d23df884445c1f2e217c8cdc30382b223d009d67e36ff",
+      "seconds": 0.469,
+      "usd": 0
+    }
+  ]
+}

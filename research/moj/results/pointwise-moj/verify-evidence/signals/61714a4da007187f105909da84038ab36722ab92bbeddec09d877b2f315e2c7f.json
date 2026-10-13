@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The final answer, $4,698, matches the calculation: 35% of 450 gerbils at $12 each, plus the remaining 65% at the discounted price of $9.60 each. The candidate makes an arithmetic error in an intermediate calculation but later corrects it, and that error does not affect the final answer.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "900e2f555018d659f92cecf74381e8b478e9cff46c4e716fd62bf8e0212463de",
+      "count": 1,
+      "usd": 0.00034260000000000003
+    },
+    {
+      "provider": "jev",
+      "key": "8ad550b62b36494c43ddeacc7e6edf16d129d21984deadaed805c972957fa6bc",
+      "seconds": 0.541,
+      "usd": 0
+    }
+  ]
+}

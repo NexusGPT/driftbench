@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The expected value is correctly calculated as 4.5 + 4.5 = 9. The pair-counting verification also gives 135/15 = 9, and the final answer is correct.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "436915e79ac1f5ac4eea2658ad8a8d0b681cbd14f055b354b80c287b6adc1c33",
+      "count": 1,
+      "usd": 0.0003621
+    },
+    {
+      "provider": "jev",
+      "key": "b0c64c97ab0f8e9e5a3db6b954ac0112b83872362498ab744bf7ce0b382bbfc8",
+      "seconds": 0.498,
+      "usd": 0
+    }
+  ]
+}

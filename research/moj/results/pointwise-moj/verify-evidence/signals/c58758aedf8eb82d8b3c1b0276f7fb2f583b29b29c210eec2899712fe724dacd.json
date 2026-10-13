@@ -1,0 +1,25 @@
+{
+  "pA": 0.040000000000000036,
+  "detail": {
+    "error_found": true,
+    "quote": "**Completed Sequence:**\n\n< { ( { } ) < > } } >",
+    "explanation": "The input already ends with a `}`: `< { ( { } ) < > }`. The candidate’s stack trace omits that final character, so it incorrectly leaves both `<` and `{` open. In the actual input, the final `}` closes the remaining `{`, leaving only `<` to close. The completion should add just `>`, not `} >`; the proposed sequence has an extra unmatched `}`.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "a01a5c83457c36fdbfe49c10052da57dc74563d6948b6b41fb149c7b4d9f0dd3",
+      "count": 1,
+      "usd": 0.0003575
+    },
+    {
+      "provider": "jev",
+      "key": "3e14e16a0420c2501732481e0c592f02501c95c05133561cec39cca2f1210568",
+      "seconds": 0.807,
+      "usd": 0
+    }
+  ]
+}

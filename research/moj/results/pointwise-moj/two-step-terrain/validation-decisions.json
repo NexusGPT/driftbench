@@ -1,0 +1,6322 @@
+{
+  "rubricbench|rubric_eval_161": {
+    "pA": 0.6208333333333333,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_776": {
+    "pA": 0.488125,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_769": {
+    "pA": 0.609,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_602": {
+    "pA": 0.4527777777777778,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_283": {
+    "pA": 0.22125,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_1143": {
+    "pA": 0.5164285714285715,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_46": {
+    "pA": 0.47583333333333333,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_263": {
+    "pA": 0.465,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_1008": {
+    "pA": 0.6108333333333333,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_699": {
+    "pA": 0.45125000000000004,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_616": {
+    "pA": 0.5508333333333333,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_744": {
+    "pA": 0.5366666666666666,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_933": {
+    "pA": 0.47800000000000004,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_453": {
+    "pA": 0.617,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_836": {
+    "pA": 0.3983333333333333,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_973": {
+    "pA": 0.5605,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_382": {
+    "pA": 0.426,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_754": {
+    "pA": 0.5557142857142857,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_557": {
+    "pA": 0.4825,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_279": {
+    "pA": 0.429,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_569": {
+    "pA": 0.493,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_244": {
+    "pA": 0.494375,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_753": {
+    "pA": 0.023333333333333317,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_794": {
+    "pA": 0.6685714285714286,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_1141": {
+    "pA": 0.7929999999999999,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_889": {
+    "pA": 0.38833333333333336,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_942": {
+    "pA": 0.531,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_1011": {
+    "pA": 0.361,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_766": {
+    "pA": 0.49874999999999997,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_209": {
+    "pA": 0.655,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_621": {
+    "pA": 0.6225,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_409": {
+    "pA": 0.4464285714285714,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_368": {
+    "pA": 0.5800000000000001,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_689": {
+    "pA": 0.257,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_336": {
+    "pA": 0.49874999999999997,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_458": {
+    "pA": 0.6375,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_739": {
+    "pA": 0.385,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_237": {
+    "pA": 0.259,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_384": {
+    "pA": 0.6060000000000001,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_107": {
+    "pA": 0.35250000000000004,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_334": {
+    "pA": 0.1825,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_21": {
+    "pA": 0.446875,
+    "verdict": "B",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_393": {
+    "pA": 0.71375,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_142": {
+    "pA": 0.506875,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_267": {
+    "pA": 0.595,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "rubricbench|rubric_eval_40": {
+    "pA": 0.5391666666666666,
+    "verdict": "A",
+    "usage": [
+      {
+        "provider": "jev",
+        "count": 2,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 0,
+        "usd": 0.0
+      }
+    ],
+    "path": [
+      "commit-rubric-rows"
+    ],
+    "level": "commit"
+  },
+  "hardrows|rubric.094": {
+    "pA": 0.05,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b34c3e5533163264724d63b7f85084ed835e260b3cba62c912fbaeabdfaa0cfc",
+        "seconds": 0.367,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "a989fef1ec2757639c2e125e24262d5fb3da719960a1a6c11303f21d95d229fe",
+        "seconds": 0.496,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.115": {
+    "pA": 0.98,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c34d02c3d63f043c82cae4af77ab9b1c98534b3b173e62d608bcdc71b30b61f5",
+        "seconds": 0.687,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "6c29156486e54d305e8e94e10c66b1c460f8e8f45db4d77d56399f1bf6549bc1",
+        "seconds": 0.476,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.053": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "583e770161c12ff9186a1ee8971e4be7832be80547a0f40232bfe0cadde69648",
+        "seconds": 0.35,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "a74d5d6b14fd44a02c614bb42a49b375fcdb0b0159b2653c6c0cc1d86292febb",
+        "seconds": 0.475,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.074": {
+    "pA": 0.88,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "dd06fef3f46dc2df4c8e82dffa9b34b1930a66a3e5822db364de1bace3034ac5",
+        "seconds": 0.386,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "7891d960a7eae59bca9f39c454adc61e626def7b9437e5f12aa17d83f8e300da",
+        "seconds": 1.077,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.025": {
+    "pA": 0.9,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "dd8fda289fdc6e64023a05fd8b95002147f93ce06d8ce6da65659aa188d08a06",
+        "seconds": 0.82,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c670bed0a7d0db50d7344e53018f32107b775e83ad01e375309b7570cf8ffee7",
+        "seconds": 1.077,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.034": {
+    "pA": 0.04,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "85dadf5b23afb85fed9b654633b8df8317d0b9b4dfa1f0247e76201925f1c9aa",
+        "seconds": 0.3,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c2a570f8a819667528605bf2c17c4e36d586fdd404b8ea53e12ff9d457050071",
+        "seconds": 1.074,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.065": {
+    "pA": 0.88,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "f1adebc2a26842cf6e3483f89cc73d21ade4746a142057c626249787e656b564",
+        "seconds": 1.454,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "f5ca577de10439d5f1a204619636aae4a96b39995f3a10e952e5e22c6f6ea819",
+        "seconds": 1.477,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.012": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "72fe4c9cfcc21283c4d90acd3f3f42432eca26dec4e7bb421ad22705284513c5",
+        "seconds": 3.845,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "5b7e27ab159b7d06ef8c86c0f8fdddf8337a3361454b6de2ef5441966adf23fc",
+        "seconds": 1.466,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.009": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "5a5b93abc5ed67b3cf247a256d0da98811f47a313fadb95e4812c361afb09164",
+        "seconds": 1.612,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "3d77094f7c62d7a6cebffa648f0b68fbff8f384026bff2885616196aaf0db069",
+        "seconds": 0.993,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.109": {
+    "pA": 0.96,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "24076e6a9535723ec6358054b382f8eb319847a730f50fb932f880b09631deb9",
+        "seconds": 1.347,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "ab2c9fb16624209e02371184f1afbb899b4873374ffc1c7673de633a4156827f",
+        "seconds": 3.623,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.072": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "26d6be15edfb32b2a8061d423e802b00d272641c89375867755aa1174cad77aa",
+        "seconds": 1.366,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "1e5f97522323bb39bb6c1783c64da5b6b00b00dc97fdd7d6bd828da73d7c27a5",
+        "seconds": 5.296,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.030": {
+    "pA": 0.83,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e9ed59f110aaf4aaf0d7e7d1ba065d714547ef4081476f1e7b0c109d18bbeced",
+        "seconds": 1.31,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "5e259884e7c21d865965d96c1ea36ead23e54a8098950f10d1ccc2cd39ed568d",
+        "seconds": 1.216,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.002": {
+    "pA": 0.83,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "6eebcf1d394a45db5051e240c7d24e665024d15c1770792e02b1099c3641ed11",
+        "seconds": 1.746,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d6dea640bfb1eaf7a817878f425448a3560e582aa2851f7a4a5419cf9aa6465d",
+        "seconds": 1.496,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.078": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "868f05e4098706173b60547c248cf34eef2c981eb9d99c54394bda311225e8bb",
+        "seconds": 0.758,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "bed7ddf9227c5880e59ef372a430f847acb0b849934cd47b8ba5ebba19842fab",
+        "seconds": 1.884,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.088": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d0b5570f548fbc57e3fd0fb7d8fb98088bef54a0c4828970af6d8850afb1699b",
+        "seconds": 1.049,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "4b6656cc2fd207081142adbe23e98cbad951a0bf01de0be2141edf794c631516",
+        "seconds": 1.494,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.090": {
+    "pA": 0.91,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e99382dbb3b5fd02155468a98567d46aba6746f142b17694c86d3389bbff86d8",
+        "seconds": 1.045,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "1ed395eb6a100cb5c6d012a961e04f37228d0250cdc78d8f655d2c87694584a0",
+        "seconds": 0.579,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.077": {
+    "pA": 0.88,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "2fe7123e315c13916bbe957270f577a43ddfae83856d84185c01957ea31fb282",
+        "seconds": 0.958,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "9569d5fd88d8f6990aa6949cac1d8bf98aa5faefab7b1e4e8b090a8466c7fa9e",
+        "seconds": 1.847,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.104": {
+    "pA": 0.97,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "1c2dc80cbd7ac0fc47ecdd8c11d735ca79a47473d46a6a330b82af8fd2935f70",
+        "seconds": 1.104,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "194be2b1431b887c0124ef28c6f66158dfc1e2c20f56902db05470c7a94d226c",
+        "seconds": 2.299,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.113": {
+    "pA": 0.97,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "1918331068d7aa83fdb240c69ff7b87daeb2f66204b015694c141f11699a516c",
+        "seconds": 1.073,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c4421a70579c0d8e05ad96f297500a0e394c177e5e094552f7d1a6a7b5870d3b",
+        "seconds": 4.988,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.093": {
+    "pA": 0.88,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b32ec5927dc6a7e2a99171b0f643f29d378cb68dd0de2e9eedee7d33df54d0bf",
+        "seconds": 0.759,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d3791b4a641528d1bded2590b01ab1c62cb86e36a0bd4f24113c885af70db88d",
+        "seconds": 2.9,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.110": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "7c53a8fba16e314dc80b66df469f0f33a9a4fd3ee6076499c2a57662e98b6e27",
+        "seconds": 1.305,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "9d766f018f0bfc34f7bd42facd890413b475a846cf52af5d6718bf40002e3bd8",
+        "seconds": 0.3,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.119": {
+    "pA": 0.95,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "9cbca2e752fd826602a2f35a71a90ac43e9c4b09e8ce846a52fcd368d9308ff1",
+        "seconds": 1.884,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d02ff9d07036088d21c80548dd3d01730e7bb30861b0d79771d96c27a8884dd9",
+        "seconds": 3.478,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.026": {
+    "pA": 0.05,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "07148406ce3501c702821d398c7f1503a330aa0179794f537f63ec0b63a3d71e",
+        "seconds": 1.857,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "1c68323fe4ee0dcbc08e3c7690d2eabd5fa3629e46be72ebda3b911b02e9eade",
+        "seconds": 3.17,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|rubric.024": {
+    "pA": 0.88,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "61d6640b4f33363ec0dc50b5bbafe661d4fa72ba3e1b8e079fa1216a55200a96",
+        "seconds": 1.039,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b13a64992e81599c43327ac7f3694feccf36a236ec8e8fc2814e107db75657dd",
+        "seconds": 3.954,
+        "usd": 0
+      }
+    ],
+    "path": [
+      "terrain",
+      "commit-agreement"
+    ],
+    "level": "commit",
+    "agreement": true
+  },
+  "hardrows|factuality.064": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "2932f2b70033bc9f0a1ff70fd651c18a2520c6155549ccdadabb79042b80a36a",
+        "seconds": 1.033,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "a2a9f9579325d6a13e5ff3f28e73013259fa9cfde1d2c528e4aca0ce4e79bdd6",
+        "seconds": 0.298,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "462ef9cba5b476741ddaa24191c3f27e9350ce024bb1dd2dab1e093a4f12bed8",
+        "seconds": 3.209,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "2a8e3656cc1d54243244110a44b01c92b7d67b69f1b0f060c60fdfb95e3bf75d",
+        "seconds": 1.131,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000114
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.013": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.37499999999999795,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "9109582e9acbe71072112fc82297925d2b0513e49b7606cb68b6058e34db21b1",
+        "seconds": 1.03,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "cba3862cc9be32a7506f6bdaa1fbd73d03c973c3de90457de528357bb57cb4c1",
+        "seconds": 0.292,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "50c4865a0084276c5d7d9c9a46631fac6dd7eebf02b1f2fe1c8e303137d2a0eb",
+        "seconds": 3.499,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "6028885e9b073f9127594c113b1b4aaf81c462031a17dc5c2be760c019fe1af5",
+        "seconds": 0.959,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000102
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.075": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "fceb7b89574b624acf554b1f695350d0a2d1e8dd313e39c0165a608168cdbd78",
+        "seconds": 1.032,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "58b8fddee3979f7351b012e7e82cd254a52e654621ff64408094fdc8afa2f4c2",
+        "seconds": 0.373,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b8275de2ae6fd2c04d4a108f00e460104d706fa19a5e2673991e534115ee8c5f",
+        "seconds": 2.347,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d6fd869732d52a4aeacf7e0e2ee41e905951cd6f6a0646674334bd90c3e1eeb7",
+        "seconds": 0.901,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000131
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.041": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "66fe1bae5dbc59f6078113428225fef35cd316c35069916913ff7f123bba2924",
+        "seconds": 3.18,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "9c214c5050c50b0b07b74ab335658bfe0cb4fa47f894486e868e9925c66d1bab",
+        "seconds": 1.265,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d65a744a5f2ec0d4a81b0d070d0d080ec5a9442f4d76a32680f297f3b44405d6",
+        "seconds": 2.058,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "a0e58913934b38f68e8f1dc2e889ceeea15765cb3476826ab118ee89a0e67ea2",
+        "seconds": 0.496,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000129
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.116": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "507bd8e37ecaf0c1f52b51656acf48c77b693da5b4c476b52e2f967145cf7908",
+        "seconds": 2.746,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "97d18570db1795c2a6cc663c218f9c04d8114566f0913d3b968fff8f6719a6d6",
+        "seconds": 6.861,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "26ee3de509438911de19b96dd3f32fe89ee930bf2b7c8447bedd7caba1b53e0d",
+        "seconds": 2.889,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "cfc4f0cbaf8960a2298a549e835429eb4f30fde334c31718aeb82f38705bd1b3",
+        "seconds": 0.577,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000101
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.068": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "32d71600d292d03c2aace7247989526a61be47b59d0094dcda44009231b3cc27",
+        "seconds": 2.74,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "5da8c458185b776bb6120b83942c167e9ef445316ff76b7103ad80c1fe504151",
+        "seconds": 0.339,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "9ea84b0a7293e588163a1966654b7e3e2cf31549ed92bced1e2b122ca34a6c4e",
+        "seconds": 1.942,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "cf1b860f76d50a7b6a2e969d4b6faaa6dd7c5df2005d95e45a06af3a897b853e",
+        "seconds": 0.853,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00013
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.101": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "785165edaa1e41a1859b01d09d99ea94f190b94bfde8a57ebbc9b9403a1ff2f8",
+        "seconds": 3.259,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "adb5ad7b4f271a418bc68230f7d3eec92738e864ef1b8c2476b21d1a8ad7215e",
+        "seconds": 0.538,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "28b57eb481188ac2171846918b454d64f69019806115ab8122e071426cf7a78e",
+        "seconds": 1.033,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "17f279888597932124a1304d197f1c277469dd906201b942100d8af2177e488b",
+        "seconds": 1.201,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 8.4e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.062": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "2bad043d16b5509fce8db262e96055e01461b0b85cdc80793f681641544e12fe",
+        "seconds": 3.691,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "119fb8a6f32943a2b7bd775f541d02fa2f9c56c7509dc46a1c2ddc20395faf54",
+        "seconds": 0.539,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "472fee3429cd071e9e1f9ec15c237c5b1c9342f28ae0f2aadb5de1e421269ba2",
+        "seconds": 2.673,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "a3875c7c1d3dfa0f76ecc35241989c89798deceae363a9435d8246228f6ce290",
+        "seconds": 0.473,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 7.5e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.015": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d3ab7d514c9b828ff5883a8d7e0614bad39e4d27f511a0f3614d8c335db70b24",
+        "seconds": 1.715,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "dd454c5defa06ff27d89fe4142762b59f8db9b992c791b535aa8c27b984354e4",
+        "seconds": 0.533,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "50b03c43efbe44ffbeab39b79641a57d3ca78db71e2ca213081fb992bbf942a8",
+        "seconds": 3.001,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c907d9e64534f28fb68bcf1e7912645419367c6789592665669b74aff56c28b6",
+        "seconds": 0.866,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 7.4e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.099": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.75,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "28606320c5523badb789c1de00333ff0b2bcbda38c3ff30837f57ed3ec3666ad",
+        "seconds": 2.703,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "48689baf7175c8cdac945b9f548e9b58a7b6b54887c6b514d80efe2ae6d49400",
+        "seconds": 0.594,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "15bd2166a1270fb89c2610c956d5a0fc6e37b1edaabc994dee3484faebbb23bf",
+        "seconds": 0.548,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "99eb754ce0ecc945ee260aff79fc1df43ebe22201f011f703310ab2c4468ad17",
+        "seconds": 0.964,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 7.2e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.086": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "70552b0379bc76e285036d6b4f844faa47bdfdef02d12021ab957318be1f29f4",
+        "seconds": 2.681,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0d87abea96b29d461e9f214bd045f77ccb13e0994188a9e7891d760a631d22fc",
+        "seconds": 1.585,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d752b76d7c90dd2172f4cb4b7370564bd9568ed90a99cab383fc28759ed2855c",
+        "seconds": 2.105,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0410a873a6986673ff249646c7d56d79a29349301e1dc5f36fc055780763fcde",
+        "seconds": 1.167,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 7.9e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.105": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0ebb168628a0a9c1f27b61f27c1c5399ed6876089da3a726a2c5ad4d4e4ce62b",
+        "seconds": 0.437,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "3d0cec6012baa2bd7461bf00439cb13c0ce7b11fe6d2a33cdb6c8cff53f0b594",
+        "seconds": 1.558,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "4e67588e78ee29380dc4ec394dbd2af4703664950ef696baf5d57f17d5eec887",
+        "seconds": 2.101,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "32558ce36b811423023d00c1c4bdb51b2ab29970f68ac32d618ccf3956947f95",
+        "seconds": 1.338,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 7.2e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.065": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3ec2dcaaa630f9939707b1d9909b3a5ebbd1477175b18d2b92362242506ff790",
+        "seconds": 1.47,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0cc6c06d70b133dd2efa44c980b0585b4b3b645656fbfe88223cbfaee15ef717",
+        "seconds": 1.304,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d2adb783e3db361ca9a83ae2ad0657bfc7362db067f732bf493658f654077f85",
+        "seconds": 1.047,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c61916f9fb0617e3345ae870767fe0007434a156e5ee7b6078dc54f033f0ba01",
+        "seconds": 0.458,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.5e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.011": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "1cc8c1c9525da2a4c8c05cb4440065cc4eaa5e9c59be549221a92453faf4abc7",
+        "seconds": 1.405,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "ca0bca68def40fb9b6f3e7f8fbba5cbbf1a090ce2830ffd568a06490cde5facd",
+        "seconds": 3.211,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "8860d205fe2c491defa93518a330a52887faa5fe44b6c6bb314fa62b5d37e20d",
+        "seconds": 0.957,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "e67b59b4b1d5a5f35cac0a9825c424f53dc15ba5e33bcbac7e7563c54fd52c4e",
+        "seconds": 0.519,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 8.2e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.032": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.75,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "38da93fbc2cd10f478c55336617928f0c48d7fc2b066836e0334f6794f8e9fad",
+        "seconds": 1.058,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "dd208d7e24f5333564d03db0a9cf94ec37d42cc58569b9a0e76b2d8361dae564",
+        "seconds": 1.909,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "357daf8624295d5ed06a727b2004e3e24e07e91112b77afa53c2b3fff62b4451",
+        "seconds": 1.927,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d0bce9f7907613d00c54a76bf9f48db11fe05cbcead530398c0c2a24b73949b4",
+        "seconds": 0.459,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.1e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.070": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "4bf0a38007b51b0fbcba1a3e5b90431838b82afa68e326cee2cb4188486b06c1",
+        "seconds": 1.679,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b3b489320434295761521339110b175ea992a51d46e9c45d5984487958c70092",
+        "seconds": 3.448,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "116b7a4266db443f107857758cfb4ef004913f2c1c6b9093938c2e25235b9caf",
+        "seconds": 1.004,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "092f0851f53cf4b3552d1a760f6a2d34a32a19ef8cfe39e9cbc5b7890dd18b9d",
+        "seconds": 0.647,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000106
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.115": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "6e48b1b2e95d98c182c1263c955c504bc9e24b10116fbbda8de08e88b68fed0c",
+        "seconds": 2.607,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "4cd2a48aa30417810cfda39e7ba446bf8bae80a510770f99efb6f08e066719a6",
+        "seconds": 0.546,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "39af544838357c4da998d4d28b2a332ba8cf4284bef1c3d6a25991b7eb375450",
+        "seconds": 1.572,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "74ceedafc3d0ab677477c83035e6eaf0b02f9172fec9eac6b74d91526a9f6204",
+        "seconds": 0.921,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.6e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.014": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "425f7c808070ba039fad7732ce962654fbe057ddb6e78173284590ec426dd1ab",
+        "seconds": 2.174,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0adc8f5fe5e440801573e58ddabe0ac4716003516e4c1d7be45e6a722ef3b45b",
+        "seconds": 0.28,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "633bb2c972080587251f2b1d40e823fe62d083eda7b271249cdc0400349a960e",
+        "seconds": 1.326,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c01ba71e2b56588b253c54779110be1b56fb4cf4184859281cbbb7404c97055b",
+        "seconds": 0.829,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000143
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.081": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c98eeb9613b115be4f7b69273f5543789b160e093c89fc7541e9144cdb408a54",
+        "seconds": 2.111,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "174005d8f893e1ebd53f3d60bd651ae56c2d5fec4636cad0728f99e65d30319e",
+        "seconds": 2.307,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b98bd4b962285f82eb0deb3cc08514050dc1bf52bb51836e583c57f92bf1afbb",
+        "seconds": 0.966,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "7f1423455bb8fb79f052217f458f5e988f68291cab3295049c596ed8007e528f",
+        "seconds": 0.603,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000266
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.006": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "13fbb94b3f930a8bc928710b88a2aa15f37405976aedc583be1054854c948858",
+        "seconds": 1.725,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "92e4429e6d79a86e2dc88bca6dc2d822b0ec1b66842029e3e9a7eaeb645ddea7",
+        "seconds": 0.983,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "3c41926b62ae2c154f0973e50869bf1de9fd4cdef47426febbfd247a30ede452",
+        "seconds": 1.671,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "bb30c19168549dc56da8a45342ed81a3a84e172a472d94d72826c49eb9f3b92f",
+        "seconds": 0.648,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000372
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.040": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.3750000000000021,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "90c15c2532cabbf6415ffd6610722d6b4d2f83127237521b15acc028779d8a88",
+        "seconds": 1.179,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "4c3a0357125bc1e5a2078f1fc5ab9092374634aef4d58edcc10eccd6673cc6fb",
+        "seconds": 1.368,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "a50dc278c9cdda45c7a2dd6461c5965321c8c5d48b052c18cedee2822b1aba66",
+        "seconds": 1.745,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d860fadd4a65e065ba7b04f6161ef238d4cb655c31ffd1ec2de9e3bc20713107",
+        "seconds": 0.398,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 6.8e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.042": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d2c6e072c0b492ba5c93fc2a20b82f58276385eec6eb8f86c79b56a24a355ea2",
+        "seconds": 0.643,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "85b5ae4dfc044644195f60b2bfa3d0311f73dc109de2b0bb5dc5f2b823fc5004",
+        "seconds": 3.971,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b98453b04fb8ae35901b1b28a74ffb0d74360212af696bffe7fd6a7ae2a35dfa",
+        "seconds": 1.295,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "bc9dcf2ebcfeba6979dbeb92232113156eb7f586b5dbb0fae8242c3c90f5dc96",
+        "seconds": 0.78,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 7.5e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.063": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "4b1d45c072cbd3f1d8fd29daf62cded5a19a91ba1ecc0131bee654d6f13d76dd",
+        "seconds": 0.621,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "51ab948dd047873d5d8c5468d43ad2253a2e197eafd93726edc760318f6fe745",
+        "seconds": 2.735,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b19d402c6657ad02e1ed7ba9b88188be9d90e3011edde27fe583865524269646",
+        "seconds": 2.123,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0e5f2985607815e27efa0c54dc534a230efad848078bb9e546ea432ac511fa95",
+        "seconds": 0.464,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 7.4e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.037": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.875,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "f6da039ded9635851fe10e17238412e472ffb05d9ff9c62fcad2ead328cd16bf",
+        "seconds": 1.421,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "2902e4123ac4653398cc66dc7ee22d3ce07fea5432f552fffc342886c844ee10",
+        "seconds": 2.147,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "03cdd12546d71bb64ba262977f6db134a68c94fd2b155895aaade89533bf71e8",
+        "seconds": 2.235,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "e7b6dd8c0986a8ef6b0325ac21b1254a9c3bb2e8167d6ad6a1db6566267a99af",
+        "seconds": 0.533,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 6.9e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.027": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.75,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e67ddcd1ab1721146297b7c9d25d3f81e91bcaf7b89f227e2c469d63cec67e42",
+        "seconds": 1.408,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "47377fcde3fe63a7069a144c0a77a96739992c76f7b65c10d76b8b8eee64adfe",
+        "seconds": 0.483,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "2f757c848933ac6ef3609298e36140baf38e42d892084d75f65d3a8f2ee5db46",
+        "seconds": 2.028,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "60efba70f7b5dcf662722f5f684ba0b6d143899bcc5806e0603b34045490cd3c",
+        "seconds": 0.516,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 7.5e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.083": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c494df2ba1651e2617f3379a8c2809469138bbc7d23d47b4fbdb08f70dea75d0",
+        "seconds": 1.407,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "8a3357f61f8e824006c8410dfb586c8c12aeeb63fe4625f17b663e8eb7a369a5",
+        "seconds": 2.137,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "decc7e225db5b0c7b49e56191a72da4fc2b46592e2d7f6da3127cd9f5484de7d",
+        "seconds": 2.616,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "e176e75a44f3b090fc47ac7e483bfef20c7724c8714f63c8cfae64fe9251dd58",
+        "seconds": 1.095,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 7.1e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.067": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0ab93207049bb8fa4608bfb1a762d5f8859acce9f3ff517ce93817f413b2fbb8",
+        "seconds": 2.516,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "e343c72bdce0527a0c23b1482906dbd4e314fec2a2bcda5545a1c192c3c4a612",
+        "seconds": 2.169,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "ef767d36abab7e763267a716376c61ec36638b4d95c051d9f3d546b2d7ec64d0",
+        "seconds": 2.562,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "cee9c142d8a3eacc79b0fbef15f3261477ded1283323cec4764847c8c0e0a87d",
+        "seconds": 3.028,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 6.8e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.097": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "40fcfd134b70235814e241daa4f40d5554f3ded5a558d00671a2cb49690f943e",
+        "seconds": 1.455,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0f7dab3a5f5c57e558f86b1a2817bac86c45abda9b85383c614a3f8270c08aec",
+        "seconds": 3.639,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "35deba580d662d530c583a86fbf83d2ef45dbaaef711cf892ccfd4427145d2c9",
+        "seconds": 1.939,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "7dd446d58fe54ca2164c49cecf8f28a95aa178c48a4b944482c7fb0c0131de96",
+        "seconds": 1.274,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.1e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.010": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d26513a96a0d36b3aa0df4d8783429b2f5250087f64f75549dfe3881709fde05",
+        "seconds": 1.087,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "f00702af05871a0abea7baf2e10f9105770c9d8c9184910dda082a056ec0c23a",
+        "seconds": 1.062,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "a43af4bb503ef78ce334c8ec8e6efda00e979ee8018b65835bb9bb732b65807d",
+        "seconds": 2.508,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "47190fc1073a06e8bcef9abafd91f500abe2a861d3f1cb91f197622b723c3312",
+        "seconds": 0.893,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 8.3e-05
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "hardrows|factuality.074": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 1.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "026704ae5192402564fb34d3fdfbac3b010bcd1c36ec0d6d2814257764ce3cfe",
+        "seconds": 1.551,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "1f48242cd945e1082603a89f98bc5738c1a76108f02a43b2483e32373101181d",
+        "seconds": 1.073,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "a25bea83640dd793b97c2267f66e84770f4ea6ef95e2f35749149dbc22b33eb7",
+        "seconds": 2.366,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "215cd4b2836f4917f6d342d89ae912e7281d4985ca6b4c350c5b1fb477b2a48b",
+        "seconds": 0.349,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000219
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "dbb05199e9fd3ad1cb7da49882274fef019caa53b3ebf3f9a55bd8ecc584b0c4",
+        "seconds": 1.15,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "2b3da87fc24743bb682237782cc4fab0221a5e5e42bf8bdf00d61b0133c14f08",
+        "seconds": 2.939,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000642
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001101
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.5334584115071915
+  },
+  "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960": {
+    "pA": 0.7,
+    "verdict": "A",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "67e64bb30f94552f07dc607f286cd9a7d6a852458e9038ed1b030aa047582505",
+        "seconds": 1.093,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "7d575e19406efc9e6dec04dfd9244d473e9fd6004e602849b0647173702d55c3",
+        "seconds": 2.132,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000206
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000297
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "44a49feb77fef324f890ed341784387aa82ec39e3e085b41128bea23ec84279f",
+        "seconds": 1.264,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "bd5f6518f71b94ce89e9bb6642ae60270dd6de7dd791d6386ccc39b3dbcb1784",
+        "seconds": 0.443,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000206
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.6335209505941212
+  },
+  "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "4e5a2ec33ad37bfcc6ceefa00b617fcf50fbfed67bd8ecca6a4f8b7269d754a9",
+        "seconds": 1.55,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "993e6cc4bb3e66c9761e7bf9c56f907a7be79d67bc417e3ca456809c27e9ff13",
+        "seconds": 1.843,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000255
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000626
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "4c47fe05acdd8820c568cf9b3b64036abe55cc5b5f00b32ab017d8af17e24c3e",
+        "seconds": 2.929,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c83ecce005e2140ac0cb6e641968674435c30db70b8bce74c8e0dd59e9a9e586",
+        "seconds": 1.522,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000143
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.0
+  },
+  "verify|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "8e7e1c7e39756fec07199933409356fc2557dbd4d5191d8c3ba761aea3a1488d",
+        "seconds": 1.527,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "3cb15ca66859a5e70b9a2c35a91adfceeeeb814cc34eb066d7c2ea69cf7248fb",
+        "seconds": 0.667,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001689
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "606332689bc020f9ae0c5676d67668eee5332a46258d3a2aa9baf0a05364f6a5",
+        "seconds": 1.11,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "45df974ecdd9da1e00ffb6aa6044623cba22991f249c7ca827e711ba50c62916",
+        "seconds": 0.432,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000891
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "ee71a4fd9d6a98c0f0b7e7191b11926fd365d0fccdde84645c2d7a5dabf63e42",
+        "seconds": 0.527,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c87275c6d247d238c79e464b7a4eabba1bc5343c815fa960eecb5fc110122bf5",
+        "seconds": 3.001,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00013
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "46e835bf68841455a53d2a3b74f9126b40885d089f15983c4a0db1533a03ce41",
+        "seconds": 1.047,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "5665b8cabd53ea4a4a2f7aee3b95c594847964e8c683874c27988369022897de",
+        "seconds": 0.369,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.002901
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000284
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "ca2e26c6eff18bddfa784ef924adc524d44ab60653d05fe025028c0d786fc6df",
+        "seconds": 1.435,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "6a83a9be532ec311898b10e2a17a61e857340e3882a6e2c64b8bc302416d9722",
+        "seconds": 1.196,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000534
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000746
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "1590d305bc48b07680f3e800096f2b971c55adc06adee12e47a98b37cd1efccb",
+        "seconds": 0.377,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "fa0b75829da443dc6c9c00eba6873a7b9387b66fd0a58e5f18449c59b9114559",
+        "seconds": 0.453,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000625
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b407f1e9afe3830793f7e93eb6ea8479e84b2fd4de69d39406c5ef62891e7020",
+        "seconds": 0.894,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "41b2d81b43e6786c81b783e12d66ad68c87c7515fc55f5821814205baaf5c34c",
+        "seconds": 0.344,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00151
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001733
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "9c41a0201be36ef5150c79ecb0a5377e19d39dabf9e6fcd06537f58846c03b65",
+        "seconds": 1.03,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0d8f6a698c217c3a8105f47efbe9920f2f40221bfd0b66440c2f7e5473c2436b",
+        "seconds": 1.981,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000465
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001206
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 0.75,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "a9baf32dbae3926d2948aee7c99585a3ddf11fbc1b7047c6ddf2c8696c1f13ed",
+        "seconds": 0.493,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "fe13caa2227ebb582661ecdad73a8b741fac011477c2b0f80e46304cb2114fca",
+        "seconds": 1.98,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000191
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c9b0151f3d8e70335b566b4bba206a840c40dc36d0dd68e0919e0b826a6545f6",
+        "seconds": 1.846,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "efe3e97786b2eb3919a035670d6cd131297f10cb6a7b4344c7f5349afc1de3c0",
+        "seconds": 1.246,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000274
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000451
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+    "pA": 0.97,
+    "verdict": "A",
+    "confidence": 0.75,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b257a907f593acf99879743f749b6008aecfddd0df44bf23c28dae2dff18f0e1",
+        "seconds": 1.092,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "31728fdeb9cbf91543bac4bd474022ac5c2aac893e8c735fdb933158901272be",
+        "seconds": 2.254,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001558
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.7726704190118826
+  },
+  "verify|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "367023345c5da74f0747df384b167a349ecdd98811aea87ce3a25ffc6de7e619",
+        "seconds": 0.422,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "8df7d3bd3843b5fb818b630b16f73ed21b219eb0281b88479ac67ac1d3183e75",
+        "seconds": 3.492,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001246
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "26895e6052efb0d75b7c6ecc8488897bd619989e0825609fa4f6967c0c604a80",
+        "seconds": 1.7,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "1d3df540ac09bffcef0ade52bcc08c30bfb2dea140a6866ce9f9279c40de768d",
+        "seconds": 0.411,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000365
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "38208722528ec7a8a3f3275a75393a7d0e9e100596137487493dad48b1a9d2a2",
+        "seconds": 0.44,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "02aceec28fe637eff06c272cee09a3c1cc9fda94fecf3e8e9e1328b5c7c2d5ff",
+        "seconds": 0.67,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 4.4e-05
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000216
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "644b5a39822edc768753290b4afdbcaf1272107bee2a51e2e600765152c7593b",
+        "seconds": 1.696,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d1ec9c5eb4a213130258a18a5dfd898218e2a4156b7317555a61666e1f5ae992",
+        "seconds": 1.259,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000378
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "41f227eb89ecccdbe6654381a7a6eb4c0acc0d06de3502c1352db966862a5cb0",
+        "seconds": 0.422,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "98bc5ce680b0d3361e17db7aac39ffc4118c7d91d336d9092fc6688535b68a47",
+        "seconds": 1.264,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000331
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000446
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "84759987d5ae10152c1e03079ea5f304803ea62322d1225e7457da1229129649",
+        "seconds": 1.037,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "441acbd306f4b0be1a8965e5d9a09c63bf43ebe4978758f80523174777284a5f",
+        "seconds": 4.674,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000194
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "effcd314bc3f1ccfbbab5cf2294c7c6dd9a5723205a9dd960a13893d01db031e",
+        "seconds": 1.253,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d7d743da35c250be66cf64db1bd34da900bd645d5e07d17fcd856e82fa66d15d",
+        "seconds": 1.696,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000149
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000519
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "afdde0791d5ea1ef4fbe9278b20872eafd98c6f6da614d70e42937c4126d2042",
+        "seconds": 1.504,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "6d032694aac954c5086e7ce96124f426905f256cd2752bd1144b686b529157e9",
+        "seconds": 1.76,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 6.3e-05
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000296
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+    "pA": 0.98,
+    "verdict": "A",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c7b10e150780477b922bab80967546b236d4cbc0d25eb761865ca39cfbfcfeed",
+        "seconds": 1.609,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "e84b9dd368e0cc3bf6a10b98d1f4a45a6ba7579e0ddf599f9a58e94de988807f",
+        "seconds": 1.87,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000616
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.0
+  },
+  "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+    "pA": 0.99,
+    "verdict": "A",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b7ba0e6f196df4818767f2f3d2f538e747883a80aa93a822e0d96e31ac416556",
+        "seconds": 2.519,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "20718af0c8400d2f4d40b5a897f5bef40ad10efcf16eddcb37802b2973079bb8",
+        "seconds": 2.068,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000692
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "a89798488993d9b1631c73b2af90f3812aab352a2b620166bc71d3c593854dc3",
+        "seconds": 2.083,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "ce781c961729b272ff47a90c4debbe874232987d433f3daaaf3018c4b296db46",
+        "seconds": 0.321,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000194
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000194
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.0
+  },
+  "verify|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+    "pA": 0.1,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c2f63bbf2a56f1066ec0077112b1e83ab07de118c73358082fc2741caaa165ba",
+        "seconds": 4.147,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c3ce12116c8028895bf1a758ed7faed80daefc764028da45ef4f43278d71d964",
+        "seconds": 1.709,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000129
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000407
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "dcabfc6f45a0a0ab3e49f4a0f945b5794ac98a5f880a3305167e7b7fe9b0fd23",
+        "seconds": 2.284,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "295af1735e4e85be8a97b4c3e8d89326755f0c59aa41143ff3cbb88d75a881ec",
+        "seconds": 1.064,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00022
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0a076ab4a7b264c5cd773348fce064119b2d8d2b51d551f721b1957a3b60504f",
+        "seconds": 3.141,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "f3f713aec183597b46dce69b103bafd0a050294274b5102db51cb07ff76c3922",
+        "seconds": 0.821,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000246
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "6e9b1c2798691208159ea81adb3cebbcf22fba2a098f99d62889aab6b1d376c4",
+        "seconds": 2.598,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "10301c86044509e7857ddf9be7fe60fa24014af86686896ee4ef92510d98a244",
+        "seconds": 0.441,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.3e-05
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000383
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174": {
+    "pA": 1,
+    "verdict": "A",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d94978506dc42f5de7c8fcb06f537dafcaac400151035dfbf2c3fa0ba0fe8ca1",
+        "seconds": 0.323,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "f4004711e94a842880ffa131188578964e560c62f0874ff449f64684930afb1d",
+        "seconds": 0.972,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 4.7e-05
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0cea48d282eb4a6edcebdcbf89cb946e2462992c3ec7f69821d24f99a9feff8b",
+        "seconds": 0.537,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "3e30d778691be4b746135a38f90b035f82ebf3be8ccb682de0b48871d6a35d19",
+        "seconds": 1.078,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.6e-05
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "21829cce174ac746b63345cfb62f499091082314333541856dc37f77b8a9ae6a",
+        "seconds": 1.376,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "6b2eb49cecaed4fa95d293aa237908de52da2174c1cda48cec1248e11975ceca",
+        "seconds": 0.444,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 4.9e-05
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000228
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1": {
+    "pA": 0.98,
+    "verdict": "A",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "2dedede696de1cd02c51801c1c116b7b449d86eba4e0d3955899ef76107eac02",
+        "seconds": 2.128,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b90b7eafc70b5b16802ec6a140dd5fc14f6019f3067a91098c43a49d22c41139",
+        "seconds": 0.622,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000115
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 0.75,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "5de7ad9a1d3db82075d9ae2d5a6be69fc579386ea1fdc5639f3f68c54acb587f",
+        "seconds": 1.28,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b187b71a443522d83c6e72f21b27d6dc9faefbd3a63914e2a63e3bae12499ba2",
+        "seconds": 1.665,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00029
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c2897088fdb927a8ed1e2797abf495d197f14f9a16d4b2ad19589d8d10623478",
+        "seconds": 1.013,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "554ef2c42b2b10ab2b4c2773f8c49ebc1605116774ae8c9a3335fd986c6b9733",
+        "seconds": 1.979,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000126
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "a8ba0ace9efabdbb245d634316501be686356913193cbbe6a1cb098ab397c5a5",
+        "seconds": 1.552,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "eb529f691fe2a127089f5d4a788b71131e72262475198e59497475c9e1c509d5",
+        "seconds": 1.9,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000201
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001166
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+    "pA": 0.99,
+    "verdict": "A",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "d3447a50783d899d473354d70d5d28bf767c4ce365a908b56ec7c87a0fa6daee",
+        "seconds": 2.571,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "267257e9407af56749728c46012a41689eb48688f9a04ffbf800d58e42c1ab65",
+        "seconds": 0.802,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000711
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "fec2cd47dd2c7f4e2bd8992612385deff505964c3aa2efe1bed7860a98329dd4",
+        "seconds": 1.252,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "1116b5cd9993536b46bea192ea01f069fa791c3cbd945433a1bea5eb838aebaa",
+        "seconds": 2.413,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000266
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000875
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "fd681ec48a86ac41e3627fd0c0faf67c01ea70ae80b6488e637387bfb8e8d8d6",
+        "seconds": 1.936,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "cf1a8078f8bbd17cce296873930f8f6f5f9a1bb7d59511051c516a4bd63d2ee0",
+        "seconds": 0.532,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.0001
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000247
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "1eed6685bcec47389f4535a8e8520a1a6a363bc9a6e77b7d8c4ce940d3eb1e1f",
+        "seconds": 3.159,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "454d51ed052ee3c27f01ce98c745da2213491e6fcd3ab39133559315437bc5e3",
+        "seconds": 0.884,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9.7e-05
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000383
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "cf6f7513d10b93e072453e6e042c6a1350cfc091ad75f89d845069aa17ba296e",
+        "seconds": 1.52,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "4bc6844af2fdfe4a149c517db7e3124513b13f4f8d6177ba70ad16083fa9429f",
+        "seconds": 0.812,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001355
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c37f0dfb20a18ea137c3caec96938131e0d9cdb1a0ec2359bf729673e014485b",
+        "seconds": 1.138,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "680d060c412122906ca0fbaaea73fa50d56cf972419fc625bb60ab49a9a889ec",
+        "seconds": 1.026,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000233
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000562
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "0b4b12263105b8de6f749dbaaa9cd404dd32f9b5ae60f9771f9b22114921c0ce",
+        "seconds": 0.773,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "ea09bd20a3480c5089d912ab741cf56365fdfc4b48322cf289e9e07f19b5a833",
+        "seconds": 1.576,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000335
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000347
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+    "pA": 1.0,
+    "verdict": "A",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3fc0657941ef81eb1711d3e9351ca6659f4805db482bfc805c24a091b0c09e5b",
+        "seconds": 0.309,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "4068e28875a15aa59b636a5259db3464f7cfb2f14b3a1dedcb3391f722e19d64",
+        "seconds": 1.198,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 4.6e-05
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00018
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+    "pA": 0.98,
+    "verdict": "A",
+    "confidence": 1.0,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "a84a4b66af60c4ef6d621de075e164cbcc7d037d3c596078fec97de6081cbd35",
+        "seconds": 0.697,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "5608caff0cd96d8928306a482c29ecf77d67d30f69eb289958b053fb63cd83e1",
+        "seconds": 1.921,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 9e-05
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "f51aa8b52cf0693c2da38c2cf4246992018684d53ed1ed0f6c097f25e2dc3e01",
+        "seconds": 1.097,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "1859f6554de0936864a4a2b7776a48ab7dfda266598275de34ba7d772afebae2",
+        "seconds": 0.335,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000332
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.00045
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.3333333333333333
+  },
+  "verify|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99": {
+    "pA": 0.21,
+    "verdict": "B",
+    "confidence": 0.5,
+    "path": [
+      "abstain",
+      "route",
+      "pw_ref_luna",
+      "pw_s2v_luna"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "f8d775f2c4b0d4dca6f1806b78f30ae121b16a7bcd3b1ad8dadd10262c938943",
+        "seconds": 1.447,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "ce381955961ffcdc54c3e0970ae9e547a7ec043642716424e986cd1d6553ef9d",
+        "seconds": 0.59,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 1,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.001549
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000257
+      }
+    ],
+    "level": "routed",
+    "commit_confidence": 0.8461538461538461
+  },
+  "verify-with-reference|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+    "pA": 0.05,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "ddcd91fdeeb3942cfdf087a6e41bfcf04e6fdb06f3145ba404aa184f8ef63039",
+        "seconds": 3.588,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "69e48899bc9af5e1d12513593b9192fdea2fc8495ca86c818e544567b12fe82b",
+        "seconds": 0.319,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+    "pA": 0.18,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c0677fc999ab99d2eb9b86d8852d43ffeec374f58d64f0475c4c23e9fcdd12a2",
+        "seconds": 2.118,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "26453d04e36e1d6d37cf042817ec6e0e12dfc7b5eeafe414aabd562da51dff66",
+        "seconds": 0.356,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec": {
+    "pA": 0.29,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c4698629c2d75b917237647c7f89c230a94a4f202b3268495e9e8785a9ff47e8",
+        "seconds": 0.646,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "eb67a70fff07801f0545d5c399e40031f5d136d6a33d161ea7fab4e1b151be7e",
+        "seconds": 0.732,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277": {
+    "pA": 0.06,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e15e2948869baa63052d574e0d12683534e1ae63d8b0e207ad561ab694c013a6",
+        "seconds": 1.61,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "dbf956e0021d55196d513cde5acf41fae2c5adaf5b0b03eec62be5790d57f685",
+        "seconds": 0.765,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+    "pA": 0.1,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3ccfd6a3e015959ba35db3f0af421dc2d9c0a37960b08cf8815370005b83cbb9",
+        "seconds": 0.722,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "8d261959a8a91ee539d91bbbcef66a84c8cfbbde0d35ecb34303df90c8e66558",
+        "seconds": 0.38,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec": {
+    "pA": 0.84,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "cc31098d22c85432cb0e00807d280a4652ba53f8c3733a1ffd46bb5e939aae29",
+        "seconds": 1.073,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "7f98c0398a7570855161ebec4396b62d8feceaeb527d47f50c515912deab426b",
+        "seconds": 0.683,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a": {
+    "pA": 0.95,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3ca8f944b847c1c5425b798a3e86dab3086e9b45f1a933dbf0d50c8decce8cf0",
+        "seconds": 0.59,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "f817ed85d69e7bff2166bc43999ce58155246fb589f8eb3107fd9748eed8c876",
+        "seconds": 1.046,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+    "pA": 0.25,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "9a48679834d4e4c03d505a681aacd726803c7b872d57cd320673e52809fc49aa",
+        "seconds": 1.258,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "e6903ce6eac4baf56cdfcc45f9e58a7dbd874f6cd7b471e426dfb9a125bc5d65",
+        "seconds": 1.003,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "fbbbca6e42740003d292581740adf069eb97db62acba5c40e8f30f79487f97b2",
+        "seconds": 3.241,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "26d7ad917ddae7cc128b23d0611bba0152cce5f2aa2a6d4121b23c9ef4b0979e",
+        "seconds": 0.927,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "eb72d7e5e20a91fc7a408281b0c7dd2056a966b7609f6e22186b85c6b983815a",
+        "seconds": 2.318,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "af9f5c89996dad02f8824227eb32039f32234e6668c19979f2bd63095dd147df",
+        "seconds": 0.903,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "5277b2de8e1b3e9b405c97186c34c2992cce38309d92ea1f1781403a218ed3aa",
+        "seconds": 0.562,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "ab5415e2c909dd90109f1a3feeaa21a540390fc8b0d2046b24f644570f4eda2a",
+        "seconds": 0.863,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "af40b5c64bfff813b2340704cba208d76e03cb76fd51465e52c579233f003d54",
+        "seconds": 1.774,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0750936bbfd1277f028483aa22e786a14752133903641077c4dcd4c93da14326",
+        "seconds": 1.026,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "986cfc165c7282a1cd7f4df603ebf01d61878db8e7ed385a8106e3eea387a134",
+        "seconds": 1.573,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "2f5968e4c6feaa31934c8c438c205fc5e6f87ffb323665e42a2c3ba47369f9b0",
+        "seconds": 0.778,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+    "pA": 0.15,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "cc7961f44f915f149f9d52fd2781298d4acfe4a7c063a747f73781b60275f4c7",
+        "seconds": 0.728,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "dd93b8224b8f8ce6d369f470d3607b906c89f401c820d92142e6224e796ef9ea",
+        "seconds": 1.128,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "fd9228ac628da36722f3bd5ffdca3904c317af140e23ee6cbf441b22be634fec",
+        "seconds": 0.477,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "268b44a95c3cbdd6f83ac4dd06cb9b0f85e81a072725b7b9de1703ef49acacb5",
+        "seconds": 0.806,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "f5dae0af00ce8859e95af6cddf79e411bdd08bcd66cdb7be257512ac22f65738",
+        "seconds": 5.143,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b831a321c63a41f24d167f8e8ff80a1313eba9f75af7a7ecc5e08c5124a454b0",
+        "seconds": 0.771,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+    "pA": 0.12,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "e9094b524c96cd23b63ed0b7d7d7e6845a30b0518ead15a93c83401f2136fa3c",
+        "seconds": 5.386,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "08a1cad48c1ce093dd63b6072ef3bc9a52c90d3f8596bad3ee9ca66efe90b6cd",
+        "seconds": 0.788,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+    "pA": 0.93,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "17be7732ece833b8b3156e68383148c7022f8f07e6f603b67520391ffc2a5eca",
+        "seconds": 2.803,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "675db9745a6f104cc4fe2950dc45dce5af78e2789ddea85ae8f31b8ec9a2d6f0",
+        "seconds": 0.333,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "1ef18da8342c979c91614dbcdb958b62f1e7c8992553bfceafe384a29f8ab1de",
+        "seconds": 0.538,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "9bab5f4a49f1a521dc2af42fef4ee7c8b8a79df91908dc50b0d7bcb18aed283e",
+        "seconds": 0.884,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e": {
+    "pA": 0.0,
+    "verdict": "B",
+    "confidence": 0.0,
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "53091ad12427f8ac364c10840f8ae8101002e947cc33cfa7f912cbf78301b6f9",
+        "seconds": 1.953,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "59e2fbecd95af2bd914c342ad6cfb6ec0c6adb211d9ed3b10878afddf64b1369",
+        "seconds": 0.866,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "cf70f79f3e2331e7fb6331c26f24ba7542eee2a7a6984b52bc81ee387097cb17",
+        "seconds": 1.693,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "41e4660e783da09855759fcf0c4b46e1528edf4fdff199b81189656e02a3092a",
+        "seconds": 0.594,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "count": 0,
+        "usd": 0
+      },
+      {
+        "provider": "luna",
+        "count": 1,
+        "usd": 0.000348
+      }
+    ],
+    "path": [
+      "terrain",
+      "abstain",
+      "route",
+      "pw_s2v_luna"
+    ],
+    "level": "routed",
+    "agreement": true
+  },
+  "verify-with-reference|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "257f63ae196b51ad680e96eaaa52888f5812db85d32124b506f91563ba1458f8",
+        "seconds": 0.451,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "cce5a8b10f6365623211d22bd41b683723c067eecefe76c57ecc41a994c9b4be",
+        "seconds": 0.881,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+    "pA": 0.78,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "28c2e6c97052edd18cc77400fa0051a906d2f106e456b63090fc86b6cb022fc5",
+        "seconds": 0.625,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0997fe8cbc06e9ab21c24b502547d5673e2b0a57da486614ee618c9c0d686c98",
+        "seconds": 1.055,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21": {
+    "pA": 0.37,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "3bda9f6955b6f2c1856817f7e0a05540f0212e6c101ac567167becfd81ccb7c9",
+        "seconds": 0.638,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "e5bcd6504244e46c4e94d6c4770ff87eab2dc824a256ba0744e118204534e763",
+        "seconds": 0.929,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "cbacf1a0a2e1c5e8b2b127aa5dfcbf26b103256a02d9bac5e4a65c6a446b722d",
+        "seconds": 1.803,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "e63cd45ad4ba9e24cf8eb13ae60bbfffe60867f3c2f1f88123887d3dbbf6f78e",
+        "seconds": 0.834,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+    "pA": 0.06,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "7983de3e8307091b6cc03e5ffb3b81acd46c4e8c37776baf438d43cb7852d18b",
+        "seconds": 2.74,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "41ca57ceb36c325cd363a92926483826fbb583e958deae74051e3a5f6f1b2905",
+        "seconds": 1.048,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0": {
+    "pA": 0.82,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "1e1a187704e3b51094f490f7658484054576826a292f0e59e9825d8724b83d58",
+        "seconds": 1.426,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "510b6d3eab567b0c9ee8409676038b2498927249da3d0c5f33a36ab71473378a",
+        "seconds": 1.02,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9": {
+    "pA": 0.05,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c4a35adb135ebaa63f9d846894c208b5719515cb19da6a84e8e1e50eb8bb0d85",
+        "seconds": 0.838,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "de0850fd75af38b47c98e58921d2a9a6651aa00ab867cbdc43f682ada370a6f6",
+        "seconds": 0.917,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+    "pA": 0.07,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "99fde9d154622f0bb40f4559f1ae6388fa2d83e28899be1f590f46746a75b405",
+        "seconds": 1.342,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "7bd3aba62d5aa00d456ac22f58c8a25223a0fbe8c9a5c461ae69467db625ca92",
+        "seconds": 0.934,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+    "pA": 0.92,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "adf9a36bea2c387e3811c1ce6cf051fb7174865713c00738245e8bd7e4576051",
+        "seconds": 1.782,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "b505b9d96c734433f59a27ca5ad4b300ca784a4ae507a23108cedce2cfed72ca",
+        "seconds": 0.898,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014": {
+    "pA": 0.61,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c938edf33dc028d057940151f73e425914e7ba64c3dede17e8f1c3a0d7ebe4d3",
+        "seconds": 0.624,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "ee7bf5305e04ec945e33b40ba460b0f8fe45121a14cdd87a1bb2909c89262140",
+        "seconds": 2.444,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+    "pA": 0.17,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "c093fe3b01961c4a584991cda50bbbb197a6a20dc9c72f2d236377fdd918e056",
+        "seconds": 0.709,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "3acdb36ec9e61137f8a5d8d643760a393cb7d9fdcbf00571253beba53213d031",
+        "seconds": 1.949,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+    "pA": 0.23,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "6f46ac3c31a781516eeefb55d6efb8ba91bfd647425189f760715030ef859c44",
+        "seconds": 0.36,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "34cae90ff46500aa6e3c7d68d87d4615f21045b61755e97360e9a196924ef9f9",
+        "seconds": 2.168,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "54bb94cf92e8834cba211eabb24a0a3f3a41b433f2b221d5be898af12d39ed13",
+        "seconds": 2.06,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "504bc223242b7abc9f43fef727a78f562518b0dcf3fec8ea141aaa68dd0d3e2c",
+        "seconds": 1.333,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914": {
+    "pA": 0.23,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "df218c9cabf62860de3fb558bab666992964420700846579c7b7c7d5eff60c21",
+        "seconds": 2.115,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "af7a1335e077d115fef96cb37ffacc7f95cc715280446742c8eeb9d5294d0592",
+        "seconds": 2.478,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|8afa540116fbcf61b6a65125a1272a82_10a36a85dc46ca3ce4659c52bd553f22": {
+    "pA": 0.03,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "02ffa0d64a8d43b20dd514c4df441cd7311628bc6cbc7366611a3f5152c4c498",
+        "seconds": 2.195,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "9b6836c6dd3a01dcbf8808f66b70853980c3f39ab78de278b7a0ac3fbb6876f7",
+        "seconds": 2.246,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|8d5e34bb0c4ae72f49a999d4950d0d50_b386787e81fc71a19aeff29ecb5b7cae": {
+    "pA": 0.04,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "f7d3e1e0c8e3f647e5a9d006583aeec1f9b8f95e01f172e74cccc2e615a34c45",
+        "seconds": 2.471,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d829598481e5f573b7597cd75045f2542bcbeb720276ad019f94ed1bb7f85127",
+        "seconds": 0.383,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "b470d4d6669ab6656aacf08dadd07e889f9641073894bae9b7d172105ff29071",
+        "seconds": 2.639,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "a89f807606dc95545afe186a2c75de45845a1a0bba4d2bae9a72703bcffd3e60",
+        "seconds": 1.655,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+    "pA": 0.32,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "a6898cdd0dcbffff26c49f59c1e5cff6fecbc0bef4df76bcc5ce78de47d8bfd5",
+        "seconds": 2.447,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "6bfa7a4668aacfc2516625bb20a2b3ecddf21cb8974d5e572db26aafffdd2f1a",
+        "seconds": 0.34,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|9627c5098f4185184311edb8a3ccb640_116a5adea8a225f8c8542f0576808a6e": {
+    "pA": 0.05,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "ae0fadf2d3215fc9f0f735578672c2e8a5beb99302bfc0059325336ec2fd3fed",
+        "seconds": 2.733,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "0e977a8cc7d5724ef9bc895493ee3af69a4c688322ae9b032916296c8c2cb802",
+        "seconds": 0.363,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590": {
+    "pA": 0.97,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "6041de6ab2edac551933645c3e4cf4c21fb03e4e25fbbf224641ad2bede1cd1c",
+        "seconds": 5.078,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d3a6e85e47f9f10776371ff331abfcb5ed566a6c8b1ddd2d263becebcf5ad21e",
+        "seconds": 1.312,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50": {
+    "pA": 0.97,
+    "verdict": "A",
+    "confidence": 0.9570116078885915,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "8b69451f2ece2314235d4f1b481a0a88ce82a436526b0a05a351effe22901e38",
+        "seconds": 3.962,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c2f8174cbe39c8b3a6458787c6d5d2b70e4c032f75b74f516a008814b7fb35e2",
+        "seconds": 1.053,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "a87b67bd74e825e94cb6e2a4c38671a0eb263bd05c416fd3ee9e62cef791b85f",
+        "seconds": 4.424,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "951bc2dab5c138512ca60e15d7d28b30ad5fd5111b7e360997f46cb406a42dc4",
+        "seconds": 0.94,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "6ab2b5d5aa3d792eb2723ec8031fdda4611679943878f9cf28eab0da4ffa8f76",
+        "seconds": 3.238,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "93bf188163745e0f63f205a014bbb196de9c7de98b6da8bf13ea7b3fea6e9fbb",
+        "seconds": 1.6,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d": {
+    "pA": 0.06,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "fd3c5b5dcbcfbf53599ca32c308cce472e42ae3b42fb344ecf7a2d6128f59991",
+        "seconds": 2.631,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c3c559a9054bead555d2b1542d0e042049678abed2dac847edfb096b95055621",
+        "seconds": 0.799,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|aeffde6db44b11ba884385c6d3330778_86ab71bcb255a4099f268a5af4548add": {
+    "pA": 0.02,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "dbca9d73cb093a4b60b7898c082b9cb9efc46d8744ed4d88be0614890eed1d25",
+        "seconds": 2.632,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "9c35781b1e249d7141cff78113a2179332b2cb07995439a65f29acadae6c3eb6",
+        "seconds": 0.861,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+    "pA": 0.19,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "557cf93d67b8438992074719c5834078bc2f9e5f15704a1bc0a5ff684354c9f1",
+        "seconds": 1.421,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "44eff6e206e9cd05cceafa0dbbd510a824543e2f0e1e902d2ee02f2f6e3bec20",
+        "seconds": 0.988,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54": {
+    "pA": 0.26,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "71f2f4e6db46f029f3c53284cc81e94f1cb588fa7830a456960eaf3a0821de6e",
+        "seconds": 0.948,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "24608de696b58a1a6a65a76f626a13341de72e9afb339b042f4c8a76c0657c48",
+        "seconds": 0.299,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+    "pA": 0.04,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "16afd1ec90a14a9831e04a81dc1ac943dd017ae1f73905de01f7593490a5144a",
+        "seconds": 1.638,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "1dfd7e7da3f61d26a64bc5533e8c9bf03424b6043169ffb2cf914871783ca3e4",
+        "seconds": 0.83,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+    "pA": 0.24,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "8fc540a77bc806dba9ccf32b52c0c3ec0bd33b38a145f6acc5d261202bdf2ee7",
+        "seconds": 3.756,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "d37f628243b41489deecdd70766edb6d68fea0f60f9a329552e8d3b484594aeb",
+        "seconds": 1.349,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "40e0bf90aae4ada36efb14f9bf3568ecccaa510c78d3d8188cf811d57e7fd62f",
+        "seconds": 1.474,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c5be15c5e6a7ec594a739b10751ef324d2a048eeec5d1c0690e6ab60d1cb71b3",
+        "seconds": 0.942,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9": {
+    "pA": 0.88,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "7d824234c7c6547b54fb2336c81bc49326994e292c42f3c03126f131a765ce06",
+        "seconds": 1.653,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "4d96d83ab4980a3e183afad68626e2465332f73f4320e1855572676b0c572a14",
+        "seconds": 1.274,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|e05c879fa8330428d5f4c60e2165c671_a1cf5c7e22209a7dde60b811f14dcfa3": {
+    "pA": 0.1,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "4b3c790ddbfd1595a1b6099a503e3a2c1ea79108ebfd0085acd982fa4de2eebc",
+        "seconds": 1.825,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "02f3e6133796dcf0cfd40337ba8ab455411b27a199fe817482489630270f21e5",
+        "seconds": 1.003,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+    "pA": 0.93,
+    "verdict": "A",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "da429c11cb81d1e427f2e6b3a387d7ad34323f7cd256eb05f571be2f5f6f5ab1",
+        "seconds": 1.825,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "c41e7fc889a8a37c8486d296cb4d9d3a7e8bb8a88963c00c74546284b09706e0",
+        "seconds": 0.394,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|e33318504a7ac7627d557aa1c8a28757_2773ef67563d0ff7b53513d4038a7626": {
+    "pA": 0.01,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "265058e34cc605c0becbd113d2df4e1b116003d76bab7d87562a2558fb26665e",
+        "seconds": 0.467,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "1de3c66e1c141e4a3bd88800dd5da24f74321d49e59a42f3028853dfc8c80c76",
+        "seconds": 0.443,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  },
+  "verify-with-reference|f7f4f5882b9c712068cbeac5acb4a0a4_7294b3b236c33212fbbe5aa24dbd47f4": {
+    "pA": 0.05,
+    "verdict": "B",
+    "confidence": 0.9310344827586207,
+    "path": [
+      "commit"
+    ],
+    "usage": [
+      {
+        "provider": "jev",
+        "key": "73405f265e27a912566508924f413cbd9e39bc60030153e2c37c25f404fae6c6",
+        "seconds": 2.541,
+        "usd": 0
+      },
+      {
+        "provider": "jev",
+        "key": "183c76ec4f8e29309a68083998b4bfa1624930df9db6a1ee56e6c046f7aa7907",
+        "seconds": 0.988,
+        "usd": 0
+      }
+    ],
+    "level": "commit"
+  }
+}

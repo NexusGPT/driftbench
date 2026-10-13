@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The final answer, $5+\\sqrt{21}$, is correct. The candidate’s earlier setup and calculations contain errors, but they do not change the final answer.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "8cdffac674e08de3f46034d99888968b1f7a5313036508f14f27fdef57444421",
+      "count": 1,
+      "usd": 0.0006018999999999999
+    },
+    {
+      "provider": "jev",
+      "key": "550dd9aedd8809096dc868de749a677e85fbf4ecf679af6dd733962e9d45ff29",
+      "seconds": 0.865,
+      "usd": 0
+    }
+  ]
+}

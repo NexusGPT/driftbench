@@ -1,0 +1,22 @@
+{
+  "pA": 0.04,
+  "detail": {
+    "reference": "(I) 4 and 5",
+    "reasoning": "The segments form a right triangle with vertices (0,0), (4.5,4.71833), and (12.43049,−11.8553): the two sides meeting at the origin have dot product approximately 0. They also form a parallelogram with vertices (0,0), (4.5,4.71833), (4.5,16.71833), and (0,12); opposite sides are parallel, and adjacent sides are not perpendicular. Thus the visible listed shapes are 4 and 5.",
+    "independent": true
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "1d26c5e90cd438729f3a260cb8cbd98a49b8b9d281fff654a6a43dc388ba4beb",
+      "count": 1,
+      "usd": 0.0009232999999999999
+    },
+    {
+      "provider": "jev",
+      "key": "8e28f8956268fe3f2d08e23f62dd81a968f77ab3089563549266851d3eebf70c",
+      "seconds": 0.358,
+      "usd": 0
+    }
+  ]
+}

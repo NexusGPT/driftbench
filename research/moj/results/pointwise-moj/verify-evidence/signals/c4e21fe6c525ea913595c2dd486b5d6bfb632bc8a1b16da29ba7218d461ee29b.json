@@ -1,0 +1,25 @@
+{
+  "pA": 0.45999999999999996,
+  "detail": {
+    "error_found": true,
+    "quote": "According to the order, Opinion should come first. Here, Opinion is \"mysterious\" after Color and Origin, which is incorrect. So D is incorrect.",
+    "explanation": "The examples establish that opinion adjectives precede purpose adjectives, but none establishes that opinion precedes material, shape, origin, or color. Thus the candidate cannot use the examples to rule out D on the basis that “mysterious” follows those adjectives; its inferred complete ordering adds an unsupported constraint. This affects the final answer because D is excluded for that reason.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "a676372b42d3ddf4b970799ac2aa97f6dd9c2549d2dcbbb747637f1efc1b51d9",
+      "count": 1,
+      "usd": 0.001381
+    },
+    {
+      "provider": "jev",
+      "key": "096da0da0008f16c66cae81a6b09c085e779727d15fd0d6c0bb2435bdb418a3b",
+      "seconds": 0.639,
+      "usd": 0
+    }
+  ]
+}

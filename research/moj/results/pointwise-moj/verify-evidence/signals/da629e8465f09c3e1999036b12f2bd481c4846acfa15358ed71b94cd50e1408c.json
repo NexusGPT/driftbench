@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "However, we are given that the sum of the interior angles of the polygon is $1070^{\\circ}$.",
+    "explanation": "The question says the sum of all but one interior angle is 1070°, not the sum of all the interior angles. The omitted angle must be included when applying the polygon angle-sum formula. The final answer 8 is correct, but the reasoning reaches it by treating 1070° as the total and then effectively rounding a non-integer side count.",
+    "changes_final_answer": false,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "85ea5eb08d0525e2ab7b2fc2e48beb5fc44222cad76702d80826755f8affcaf0",
+      "count": 1,
+      "usd": 0.00045139999999999997
+    },
+    {
+      "provider": "jev",
+      "key": "fbbb28f5e148f6044aaf659768d556021d43554f185021d5b66a5f383aaffeea",
+      "seconds": 0.482,
+      "usd": 0
+    }
+  ]
+}

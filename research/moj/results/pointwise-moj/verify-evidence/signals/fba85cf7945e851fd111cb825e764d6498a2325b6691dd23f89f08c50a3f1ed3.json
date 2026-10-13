@@ -1,0 +1,25 @@
+{
+  "pA": 0.07999999999999996,
+  "detail": {
+    "error_found": true,
+    "quote": "Next, we find the day of the week 24 days before Monday.",
+    "explanation": "The date answer to Question1 is 05/13/2021, so X is 05. Therefore X' = X + 24 = 29, not 24. The candidate uses the wrong offset in Question2, which changes the subsequent values and leads to an incorrect Question4 answer; with the specified values, Z' is 24 hours and the day 24 hours after Q' is determinable.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "d65ac8b903b89c6f49912a51be315c654a31a70b98741a614feb268d3793f995",
+      "count": 1,
+      "usd": 0.00037820000000000003
+    },
+    {
+      "provider": "jev",
+      "key": "338fe81edff704de5c6e1e970b743ac91d09fc2220b2a2d867ad8ef9840dd27b",
+      "seconds": 1.261,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "**Proto *ə** (schwa) often becomes **ɨ** in Phan Rang Cham (e.g., *lima → limɨ).",
+    "explanation": "*lima contains no Proto-Chamic schwa: its vowels are *i and final *a. Thus it does not support the claimed change *ə → ɨ. The candidate uses this faulty correspondence to justify the final form tapɨ; the supplied examples do not establish that form.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "1fcafa3de9cb15cdd61204bb2d7ee74094d1e2b9eed54f722625b65d5575332c",
+      "count": 2,
+      "usd": 0.0011142
+    },
+    {
+      "provider": "jev",
+      "key": "5da80f401cef32f980debbd599701d692f32ec5f03411fd68926f62fff27d754",
+      "seconds": 33.201,
+      "usd": 0
+    }
+  ]
+}

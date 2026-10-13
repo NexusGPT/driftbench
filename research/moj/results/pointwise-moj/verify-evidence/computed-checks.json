@@ -1,0 +1,49 @@
+{
+  "marbles": {
+    "pairs": 15,
+    "total": 135,
+    "expected": "9",
+    "candidate_final": "9",
+    "candidate_matches": true
+  },
+  "paintings": {
+    "arrangements_enumerated": 40320,
+    "legal_arrangements": 48,
+    "options_possible": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0,
+      "E": 12
+    },
+    "candidate_witness": [
+      "Ho",
+      "Fw",
+      "Gw",
+      "Fo",
+      "Go",
+      "Iw",
+      "Hw",
+      "Io"
+    ],
+    "candidate_witness_valid": true,
+    "candidate_answer_E_valid": true
+  },
+  "adjectives": {
+    "consistent_total_orders": 28,
+    "opinion_must_be_first": false,
+    "purpose_must_be_last": false,
+    "counterexample_order": [
+      "size",
+      "opinion",
+      "purpose",
+      "age",
+      "material",
+      "shape",
+      "origin",
+      "color"
+    ],
+    "verdict": "The candidate adds unsupported global ordering assumptions; the examples leave relative placement underdetermined."
+  },
+  "scope": "Question-derived diagnostic calculations, no reference solution or gold label input; no per-item routing rule."
+}

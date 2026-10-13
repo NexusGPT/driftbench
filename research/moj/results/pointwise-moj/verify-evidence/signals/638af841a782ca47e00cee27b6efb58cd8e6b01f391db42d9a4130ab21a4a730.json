@@ -1,0 +1,25 @@
+{
+  "pA": 0.06999999999999995,
+  "detail": {
+    "error_found": true,
+    "quote": "Specifically, we need to express \\(p \\mathbf{b} + q \\mathbf{c}\\) as a linear combination of \\(\\mathbf{a} - 2 \\mathbf{b} + 3 \\mathbf{c}\\) and \\(2 \\mathbf{a} + 3 \\mathbf{b} - 4 \\mathbf{c}\\).",
+    "explanation": "Being a linear combination of the first two vectors only establishes linear dependence of the three vectors, not that they are collinear. In fact, for arbitrary independent \\(\\mathbf a,\\mathbf b,\\mathbf c\\), the first two vectors are not collinear, regardless of \\(p,q\\). Thus no ordered pair can make the stated condition hold for all vectors.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "6a82c3b4ce9cb45a7dfc46f423f670e706098981fb48bd32c01636c4df35259a",
+      "count": 1,
+      "usd": 0.000329
+    },
+    {
+      "provider": "jev",
+      "key": "c4b93a0e7dadab5ad56701bec02633686976eab886950458a688bd756f89023d",
+      "seconds": 0.575,
+      "usd": 0
+    }
+  ]
+}

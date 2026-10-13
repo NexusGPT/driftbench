@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The context gives no color for Bernhard. The candidate correctly answers that it is not specified; its optional white guess is explicitly labeled as unsupported and does not change the answer.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "5e2f2f539f34f37cfa398ea5cb3582acb20147f42ef119a2e58c9799d0fea082",
+      "count": 1,
+      "usd": 0.0002631
+    },
+    {
+      "provider": "jev",
+      "key": "7068fe8a0ac6f1c04ebde0360695793b83a993588b4a11b5b957be755bd9c7b3",
+      "seconds": 0.518,
+      "usd": 0
+    }
+  ]
+}

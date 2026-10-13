@@ -1,0 +1,25 @@
+{
+  "pA": 0.050000000000000044,
+  "detail": {
+    "error_found": true,
+    "quote": "Therefore, the minimum value of \\( g(x) \\) for \\( x > 1 \\) is 2. Hence, \\( a \\) must be less than 2.",
+    "explanation": "The value 2 is the infimum of g on x>1, not an attained minimum: g(x)>2 for every x>1. Thus a=2 also satisfies a<g(x) for every x>1, so the range is (-∞, 2], not (-∞, 2).",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "dbbc7998961f89a1e0eea2a379692821af67721190e62724e67fe0e72537191f",
+      "count": 1,
+      "usd": 0.0003366
+    },
+    {
+      "provider": "jev",
+      "key": "34f0568ec94b107ed90138a6a8fe2f9b6b39fa0428bd052b368d779d0c940c07",
+      "seconds": 0.523,
+      "usd": 0
+    }
+  ]
+}

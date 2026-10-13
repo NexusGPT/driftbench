@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The final answer correctly states that Greg’s color is not specified. Brian’s color does not establish Greg’s color, and the context gives no rule that rhinos share a color.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "6a85b8f730b07c9b3a228830497d46f34b2ffd2fc480eed28b49e450c6b535b2",
+      "count": 1,
+      "usd": 0.00021660000000000003
+    },
+    {
+      "provider": "jev",
+      "key": "f52dccf1b1dfd8bf7c7e8a84eacfb7205823c0d20953a3170a80b4c85bfa1d05",
+      "seconds": 0.754,
+      "usd": 0
+    }
+  ]
+}

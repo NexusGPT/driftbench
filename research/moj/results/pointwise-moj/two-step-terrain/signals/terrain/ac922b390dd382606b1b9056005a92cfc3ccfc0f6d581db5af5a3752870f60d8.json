@@ -1,0 +1,14 @@
+{
+  "pA": null,
+  "detail": {
+    "source_facts": 0.04
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "cc7961f44f915f149f9d52fd2781298d4acfe4a7c063a747f73781b60275f4c7",
+      "seconds": 0.728,
+      "usd": 0
+    }
+  ]
+}

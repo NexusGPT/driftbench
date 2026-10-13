@@ -1,0 +1,25 @@
+{
+  "pA": 0.13,
+  "detail": {
+    "error_found": true,
+    "quote": "The graph of $y = 2^{x-1} + 2$ is obtained by translating the graph of $y = 2^x$ by $1$ unit to the right.",
+    "explanation": "A shift 1 unit to the right gives $y=2^{x-1}$, not $y=2^{x-1}+2$. The added $+2$ also requires shifting the graph up 2 units. The candidate’s final answer does not state the translation asked about.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "1b2a997282093b9649d2cc89d1ae58cdc75237844f31d8bd9dda8a3f36b6887c",
+      "count": 1,
+      "usd": 0.0002667
+    },
+    {
+      "provider": "jev",
+      "key": "4f90098f85305a6b3f7bfbd7523c9b1942928a52c13795e38141418a8f9510eb",
+      "seconds": 0.51,
+      "usd": 0
+    }
+  ]
+}

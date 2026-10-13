@@ -1,0 +1,25 @@
+{
+  "pA": 0.12,
+  "detail": {
+    "error_found": true,
+    "quote": "The figure does not form a rectangle without diagonals, a square, a triangle without a right angle, a parallelogram without diagonals, a trapezoid with exactly one pair of parallel sides, a regular pentagon, or a regular hexagon.",
+    "explanation": "A non-right triangle is formed by the vertical segment from (12.75, 10.61117) to (12.75, 17.61117) and the two sloping sides from (12.75, 10.61117) to (18.81218, 14.11117), then to (12.75, 17.61117). The intermediate point (16.20544, 15.61617) lies on the latter side. This triangle has no right angle, so shape 3 is present and the final answer cannot be “only 8.”",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "45120ce8be059ab8eaaa13bf1b8e30de02c765ecb4571b5ea3884c3529f742f8",
+      "count": 1,
+      "usd": 0.0017187
+    },
+    {
+      "provider": "jev",
+      "key": "e39078648375380b3d84f97f66da1862aa97a9ac55b84f148c6e89b6c125c686",
+      "seconds": 0.83,
+      "usd": 0
+    }
+  ]
+}

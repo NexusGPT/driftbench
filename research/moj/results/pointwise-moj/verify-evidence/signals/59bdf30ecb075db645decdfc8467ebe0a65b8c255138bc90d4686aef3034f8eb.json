@@ -1,0 +1,13 @@
+{
+  "pA": null,
+  "detail": {},
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "f584d7a89098dedf4786470f691b7b60f2e027c627db6ba47597e84531ed59bf",
+      "count": 1,
+      "usd": 0.000779
+    }
+  ]
+}

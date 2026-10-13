@@ -1,0 +1,25 @@
+{
+  "pA": 0.16000000000000003,
+  "detail": {
+    "error_found": true,
+    "quote": "So, from the Korean's perspective, they can't communicate with anyone, which fits their statement.",
+    "explanation": "In the proposed final arrangement D, the Korean is next to the British, who speaks Korean. The Korean speaks Korean as their native language, so they can communicate with the British in Korean. The arrangement therefore contradicts the Korean's statement that they cannot communicate with their neighbors.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "83f707e5dbd3c8b17759e2822a72bc322010e5794d7fdaa99678f5afb8efacb3",
+      "count": 1,
+      "usd": 0.0014579
+    },
+    {
+      "provider": "jev",
+      "key": "5d4625dd967777bebb629f8544bb729d374065ea2eaf5d532b7e78a0dbdd371f",
+      "seconds": 1.343,
+      "usd": 0
+    }
+  ]
+}

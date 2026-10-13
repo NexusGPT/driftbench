@@ -1,0 +1,25 @@
+{
+  "pA": 0.040000000000000036,
+  "detail": {
+    "error_found": true,
+    "quote": "- Move to (-9.79426, -10.18059) (line 2)",
+    "explanation": "The SVG command `M -9.79426,-10.18059` starts a new subpath; it does not draw a line from the previous endpoint `(0.41351, 0.42982)`. The candidate’s sequential line numbering therefore invents connecting segments, and its later shape identifications and answer rely on treating separate subpaths as connected.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "cd80a798d08301d8c5048695e1c9546bcb368e624c86a911586d86e6cf31a167",
+      "count": 1,
+      "usd": 0.0006834
+    },
+    {
+      "provider": "jev",
+      "key": "2173d0fa065508100c67d7d29815e7eba22638bde95194420d2d074a808f0f60",
+      "seconds": 0.6,
+      "usd": 0
+    }
+  ]
+}

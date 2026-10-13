@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "\\(\\displaystyle \\frac{1}{2i} \\oint_{|z|=1} \\frac{\\frac{z^2 + z^{-2}}{2}}{5 + 2z + 2z^{-1}} \\frac{dz}{z}\\)",
+    "explanation": "This contour-integral expression has an extra factor of 1/2. The factor 1/2 from \\(\\cos 2x=(z^2+z^{-2})/2\\) is already included in the numerator; the change of variables contributes only \\(dx=dz/(iz)\\). Thus the prefactor should be \\(1/i\\), not \\(1/(2i)\\). The subsequent algebra also misstates the powers of \\(z\\), and the residue calculation later fails to cancel the vanishing factor. The resulting boxed value is therefore not justified and is incorrect.",
+    "changes_final_answer": true,
+    "error_type": "arithmetic"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "c17dd00a0bb76258010f71ae90fa005a4cb6408993f20ebb23bfbfedc88c5752",
+      "count": 1,
+      "usd": 0.0006376
+    },
+    {
+      "provider": "jev",
+      "key": "5d7ad2afc149f4f509bf737b563b96edc33e2228434945fa5e9d7b64e8f0cf4a",
+      "seconds": 0.474,
+      "usd": 0
+    }
+  ]
+}

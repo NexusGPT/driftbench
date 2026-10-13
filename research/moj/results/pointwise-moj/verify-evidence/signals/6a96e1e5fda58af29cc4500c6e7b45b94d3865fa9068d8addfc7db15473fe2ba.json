@@ -1,0 +1,25 @@
+{
+  "pA": 0.06000000000000005,
+  "detail": {
+    "error_found": true,
+    "quote": "**Total game duration:** 2:55:30 + 0:40:00 + 1:55:40 + 1:10:50 = 5:36:20",
+    "explanation": "The sum is 6:42:00, not 5:36:20. This makes the stated average and the derived X, Y, and Z incorrect, affecting the values used in the later questions.",
+    "changes_final_answer": true,
+    "error_type": "arithmetic"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "3f32a7967c4183fddbbc819c14c74fe1e4ce12bee26f44252957bd1c9207e5ee",
+      "count": 1,
+      "usd": 0.00033489999999999995
+    },
+    {
+      "provider": "jev",
+      "key": "fdcdbd03008e8cb7ca3de97fdf9747ed2cf2c802d1a9051fc815a752312f3ddc",
+      "seconds": 0.51,
+      "usd": 0
+    }
+  ]
+}

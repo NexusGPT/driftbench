@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The candidate makes an early exponent-equating error, but later corrects it: from $3^{4(x-y)}=3$, it uses $4(x-y)=1$. The resulting values $x=17/8$ and $y=15/8$ give $xy=255/64$, which is correct.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "b92fe771f06a42f1191b3477ec6433399954aa90f16fafef797a4fa1f9551195",
+      "count": 1,
+      "usd": 0.00028010000000000003
+    },
+    {
+      "provider": "jev",
+      "key": "11bfd6e7016346848ef34ea29cd0a6bc49e8baa1b12860102a4c9c7e982ec5e9",
+      "seconds": 0.673,
+      "usd": 0
+    }
+  ]
+}

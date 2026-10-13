@@ -1,0 +1,25 @@
+{
+  "pA": 0.15000000000000002,
+  "detail": {
+    "error_found": true,
+    "quote": "The translation replaces the proper name \"Čertovy skály\" with the generic term \"the town,\" which is a **Named Entities** error.",
+    "explanation": "This does not demonstrate that the name was changed to a different named entity: “the town” is generic, not another entity name. The translation does explicitly change the unit from 0.15 ha to 0.15 km, which falls under Numerical Values. The final choice of Named Entities is therefore unsupported.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "4c787b423faacae3282afe281fdb7cbd4c7dc487be08673cb5ccd5691a51f703",
+      "count": 2,
+      "usd": 0.0008917
+    },
+    {
+      "provider": "jev",
+      "key": "05f0be82a7273f24cc496a807490639550d9665303eb575e173881721b5657a9",
+      "seconds": 34.105,
+      "usd": 0
+    }
+  ]
+}

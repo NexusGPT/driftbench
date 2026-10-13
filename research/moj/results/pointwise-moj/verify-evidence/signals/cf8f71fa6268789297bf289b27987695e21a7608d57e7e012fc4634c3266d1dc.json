@@ -1,0 +1,25 @@
+{
+  "pA": 0.050000000000000044,
+  "detail": {
+    "error_found": true,
+    "quote": "Final Answer: The final answer is $\\boxed{12}$",
+    "explanation": "The stated conditions are inconsistent, so 12 is not a valid answer. If there are 17 quarters, 29 coins total leaves 12 pennies, whose combined value is only $4.37, not $5.45. Using the total count and value directly gives 7.5 pennies, which is impossible. Also, 12 is a coin count, not the value requested.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "8e8a0f17c606288a512c009aa9a3d8794c7181d65cff6ae7caeb7eed27ef4da3",
+      "count": 1,
+      "usd": 0.0004966
+    },
+    {
+      "provider": "jev",
+      "key": "51a2d1d4179be2f7e2dab54990410eee6f412323372bbe2a9bc57c707ac90729",
+      "seconds": 0.777,
+      "usd": 0
+    }
+  ]
+}

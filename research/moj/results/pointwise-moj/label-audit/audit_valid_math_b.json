@@ -1,0 +1,379 @@
+[
+  {
+    "index": 75,
+    "id": "892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": [
+      0,
+      1
+    ],
+    "candidate_final": "(-2, -1)",
+    "evidence": {
+      "endpoint_values": {
+        "-2": -1,
+        "-1": 1,
+        "0": -1,
+        "1": -1,
+        "2": 7
+      },
+      "root_intervals_by_IVT": [
+        [
+          -2,
+          -1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "degree": 3
+    },
+    "reason": "Three disjoint sign-changing intervals exhaust the cubic roots; the final interval chosen has a root.",
+    "question_sha256": "ab88a569680ea6ffff2adb606ce3fa1d254170bb8dc08e6de08e240332b5ccd1",
+    "candidate_sha256": "d0e0bf6f4ee248c11f9f534ee942427b79d3d984d3db6978bf520c93f8f76694"
+  },
+  {
+    "index": 77,
+    "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "9",
+    "candidate_final": "9",
+    "evidence": {
+      "pairs": [
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          7
+        ]
+      ],
+      "sum_of_pair_sums": 135,
+      "count": 15
+    },
+    "reason": "Exact exhaustive average over every equally likely unordered draw.",
+    "question_sha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+    "candidate_sha256": "e2e30bfdaa00c59c5e6295e74321b78def12c6734f429d017c50809476ee790b"
+  },
+  {
+    "index": 78,
+    "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "5, b, 1",
+    "candidate_final": "sqrt(10)",
+    "evidence": {
+      "n": "14",
+      "f": "4",
+      "q": "-2",
+      "b": "2",
+      "b_squared": "4",
+      "candidate_squared": "10"
+    },
+    "reason": "The unique linear-system solution gives b=2 and order 5,b,1. The candidate invents b=5/f and does not return the requested ordering.",
+    "question_sha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+    "candidate_sha256": "84854293095793f4591bb17689b0af9de87dfafdc747e932486e2f748bdd1f21"
+  },
+  {
+    "index": 79,
+    "id": "9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "Translation right 1 and up 2, if that was the intended task",
+    "candidate_final": "2^{x-1} + 2",
+    "evidence": {
+      "question": "The graph of $y = 2^{x-1} + 2$ can be obtained by translating the graph of $y = 2^x$.",
+      "translation_counterexample_at_x_1": {
+        "right_only": 1,
+        "target": 3
+      }
+    },
+    "reason": "Question ends with a declarative sentence. The final expression repeats it; omitted translation data make final-answer acceptance ambiguous. No label correction.",
+    "question_sha256": "2efc0e89190d20ce442442011505d9995312718580b90dca9a23f6f02c410062",
+    "candidate_sha256": "5d9b139769634588b6afbcad32e1dd45dba22cae1e5fd0154c4215bab65051cb"
+  },
+  {
+    "index": 80,
+    "id": "a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "yes",
+    "candidate_final": "yes",
+    "evidence": {
+      "witness": "1/(1-z^2)",
+      "denominator_coefficients": [
+        "1",
+        "0",
+        "-1"
+      ],
+      "all_denominator_roots": [
+        -1,
+        1
+      ],
+      "root_modulus_squared": [
+        1,
+        1
+      ],
+      "derivative_at_roots": [
+        2,
+        -2
+      ],
+      "numerator_at_roots": [
+        1,
+        1
+      ]
+    },
+    "reason": "Factorization exhausts denominator roots; both lie on the boundary and are simple poles. Final yes is correct, although the candidate reasoning contains false statements.",
+    "question_sha256": "c297832d2306e7b1ac576c8662c436f45f455e5da893e8df4ef36c1d58c53cd5",
+    "candidate_sha256": "533a81bf3c10323f3a1fa083149104ea8329fc6bd5beb7c5d63556b5f5f5093d"
+  },
+  {
+    "index": 82,
+    "id": "a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "1/6 * pi",
+    "candidate_final": "0",
+    "evidence": {
+      "division_quotient": [
+        "-5/8",
+        "1/2"
+      ],
+      "division_remainder": "17/8",
+      "verified_numerator": [
+        "-1",
+        "0",
+        "2"
+      ],
+      "base_integral_certificate": "t=tan(x/2): integral over R of 2/(t^2+9); antiderivative (2/3) arctan(t/3), limits +/-pi/2",
+      "result_pi_coefficient": "1/6"
+    },
+    "reason": "Exact polynomial identity and elementary arctangent integral give a nonzero result; no quadrature or sampling.",
+    "question_sha256": "970aa4f77baa5b2bc6bbb17a4399358ff79c3eb57a3658c7019add4365e10feb",
+    "candidate_sha256": "55329a154b0396c0b6f9d7e90d621e5e42aba1e8732c010510dc8a83590ff325"
+  },
+  {
+    "index": 83,
+    "id": "adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": null,
+    "candidate_final": "E",
+    "evidence": {
+      "Hector_distance": "27/4",
+      "Jane_distance": "81/4"
+    },
+    "reason": "The question omits the diagram and positions of A through E. Distances are determined, but closest named point is not.",
+    "question_sha256": "ea3d62f278a16a6bd2c8fa4bf13a6b778021fb7d0d9d8a8bf9dfaa28a91fe769",
+    "candidate_sha256": "551e185b7ef34bada7621d00e6825955218d4ef5c124479d85c07f32d1709517"
+  },
+  {
+    "index": 85,
+    "id": "b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": 821,
+    "candidate_final": "701",
+    "evidence": {
+      "all_matchings": 10395,
+      "favorable": 1920,
+      "favorable_by_G_partner": {
+        "L": 360,
+        "K": 360,
+        "J": 360,
+        "I": 360,
+        "H": 360,
+        "F": 120
+      },
+      "probability": "128/693"
+    },
+    "reason": "Exhaustive enumeration includes G paired with a later letter, a case the candidate excludes.",
+    "question_sha256": "e5391454ee1ae2dba04ebe27493b09e17d0681305dea39eab9ef7da22434c818",
+    "candidate_sha256": "cd50183191ef22052310c83a99aa970cb195caa5d6258f8f462e074e40895f7c"
+  },
+  {
+    "index": 86,
+    "id": "b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "0",
+    "candidate_final": "No expression supplied",
+    "evidence": {
+      "inverse_identity": "(sqrt(x^2+1)+x)*(sqrt(x^2+1)-x)=1",
+      "x_laurent": {
+        "1": "1/2",
+        "-1": "-1/2"
+      },
+      "y_laurent": {
+        "1": "-1/2",
+        "-1": "1/2"
+      },
+      "sum_coefficients": {
+        "1": "0",
+        "-1": "0"
+      }
+    },
+    "reason": "Exact inverse substitution forces x+y=0. The candidate never states a result to contradict. Output-completeness grading is outside this strict label audit.",
+    "question_sha256": "552ac3db1e4f4ae7cd59dbce34a8df4992251a6686bba755995f71e899e8083a",
+    "candidate_sha256": "bd77d91fca46ef9b7e55ad479d0039705615c4c8ed3b1333345bdb5181e40702",
+    "provisional_candidate_correct": false
+  },
+  {
+    "index": 88,
+    "id": "c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "9",
+    "candidate_final": "Cannot compute the exact value",
+    "evidence": {
+      "sum_of_equations": "9*((x-2/3)^2+(y-1/3)^2+(z-2/3)^2)=0",
+      "unique_solution": [
+        "2/3",
+        "1/3",
+        "2/3"
+      ],
+      "target": "9"
+    },
+    "reason": "Exact sum-of-squares certificate proves a unique solution and exact value. The candidate declines to state a result. Output-completeness grading is outside this strict label audit.",
+    "question_sha256": "bb363636b157e8a84ef8608c7bbc7f4f9195b349e7fb0906eb2c3b94c886a3f1",
+    "candidate_sha256": "6b4619cb07c32111d8dfad073a245ef39426a153d82f9f62861de7105cc1d3f6",
+    "provisional_candidate_correct": false
+  },
+  {
+    "index": 89,
+    "id": "c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "candidate_final": "1",
+    "evidence": {
+      "verified_difference_numerator": [
+        "0",
+        "-1",
+        "2",
+        "-1"
+      ],
+      "factorization": "-t*(t-1)^2",
+      "missing_solution": [
+        0,
+        0,
+        0
+      ]
+    },
+    "reason": "The final answer omits the zero solution. Nonnegative cyclic inequalities also certify that only the two displayed triples solve the system.",
+    "question_sha256": "69fee374d4d01ab684ce823ee8e7af1fa0102ca07921771ba74d03d2b4ae89d4",
+    "candidate_sha256": "8d6aced0566300ffd46e8cbeebc4d5788d79131c97fe0d5591dc91afea9eab5b"
+  },
+  {
+    "index": 92,
+    "id": "e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": [
+      8
+    ],
+    "candidate_final": "8",
+    "evidence": {
+      "strict_lower_n": "143/18",
+      "strict_upper_n": "161/18",
+      "admissible_n": [
+        8
+      ],
+      "missing_angles": [
+        [
+          8,
+          10
+        ]
+      ]
+    },
+    "reason": "Convexity bounds the omitted angle strictly between 0 and 180 degrees. Exact integer enumeration leaves eight sides, despite errors in the reasoning.",
+    "question_sha256": "6756a2e74b25f765ebfd60f72381373865d3c8f04d4c4fc9bcb3954ea2fbef1e",
+    "candidate_sha256": "833e0ac2f5eb883e73c9b9a9ab42a9476220b3701ffe68b0a9a29dd1a60f4ba4"
+  },
+  {
+    "index": 94,
+    "id": "e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "An enumeration must include every rational, including -1",
+    "candidate_final": "r_n=1/n",
+    "evidence": {
+      "omitted_rational": "-1",
+      "only_possible_index": "-1",
+      "index_in_positive_integers": false
+    },
+    "reason": "An exact omitted-rational witness disproves the submitted construction, regardless of its interval union.",
+    "question_sha256": "a1f99fabbd70ec836f27b2dccac5e7e9adb290193dd7d2685cad5d109b0d916e",
+    "candidate_sha256": "5d624cd1b3ad22c33d7aafde590744dbe9d00a4dcf8ee57a4358e700c637f957"
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "pA": 0.050000000000000044,
+  "detail": {
+    "error_found": true,
+    "quote": "Therefore, if they have Meyer, they can't have given up two class 2s to get Garza, because Meyer is still there. Therefore, it's impossible for Trustcorp to have both Garza and Meyer",
+    "explanation": "Trustcorp initially owns three class 2 buildings: King, Meyer, and Ortiz. It can trade King and Ortiz for Garza, retaining Meyer. That is an allowed trade (one class 1 for two class 2s), so Trustcorp can own both Garza and Meyer. The candidate’s conclusion that E cannot be true is therefore wrong.",
+    "changes_final_answer": true,
+    "error_type": "inference"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "6635ed7ca025c6d7c15d47dd219a5b55500376845ec8f89a6015211c68c8c050",
+      "count": 1,
+      "usd": 0.000681
+    },
+    {
+      "provider": "jev",
+      "key": "bb75b35f8d25b7641d3a12e313944b52d64b2368208386192a150756ccfdce23",
+      "seconds": 1.209,
+      "usd": 0
+    }
+  ]
+}

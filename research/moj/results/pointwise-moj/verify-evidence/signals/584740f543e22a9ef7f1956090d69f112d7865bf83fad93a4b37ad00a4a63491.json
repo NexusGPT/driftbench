@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": true,
+    "quote": "The first part is `not (not not ((not (True) and (-8 * -8 + -6 * -8) <= -5 * 9)) or (not (-3 * 3 + -6 * 7) is less than or equal to 9 * -7) or (The capital of Nepal is Pokhara))`. This expression evaluates to `True`.",
+    "explanation": "This does not match option A: the actual option has a larger nested expression and, crucially, the outer connective between its two main parts is `and`, not the `or` shown in the candidate’s transcription. Also, in the quoted fragment, the negated comparison is true: −3×3 + −6×7 = −51, and −51 is not ≤ −63. Thus the disjunction inside the outer `not` is true, making the quoted expression false, not true.",
+    "changes_final_answer": false,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "6c4b6abe10b5d65efdde3644b67a01db958e6e36e302255c0a32337c4eb89aa9",
+      "count": 1,
+      "usd": 0.001052
+    },
+    {
+      "provider": "jev",
+      "key": "7851d36de7f45d48de3b40e83318861127ee29c242b434a47c4387f9bc9a3b64",
+      "seconds": 0.453,
+      "usd": 0
+    }
+  ]
+}

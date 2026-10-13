@@ -1,0 +1,25 @@
+{
+  "pA": 1.0,
+  "detail": {
+    "error_found": false,
+    "quote": "",
+    "explanation": "The cost expressions and arithmetic are correct under the natural reading that the discount-day quantities are measured against the initially planned quantities. The initial quantities are unspecified, so a symbolic expression is appropriate; the expression gives the discount-day total minus the increased-price-day total, which is positive.",
+    "changes_final_answer": false,
+    "error_type": "none"
+  },
+  "quote_is_verbatim": false,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e2dc07c5278578a73424e9922c9b7f8b4233e36a76119ba314321b6b121957ae",
+      "count": 1,
+      "usd": 0.0004725
+    },
+    {
+      "provider": "jev",
+      "key": "ae184e31dfdeedd332a2e2f479d04cb055230f2f6d9de1450da8e529619369c7",
+      "seconds": 0.576,
+      "usd": 0
+    }
+  ]
+}

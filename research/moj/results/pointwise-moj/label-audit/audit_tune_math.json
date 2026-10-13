@@ -1,0 +1,307 @@
+[
+  {
+    "index": 0,
+    "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "MN=4sqrt(5); intersections depend on polar-ray versus signed-radius line convention",
+    "candidate_final": "(4,pi/6), (4,7pi/6); MN=4sqrt(5)",
+    "evidence": {
+      "chord_squared": "80",
+      "direction_norm_squared": "1",
+      "both_points_on_hyperbola": true
+    },
+    "reason": "Part II is exactly correct. Part I names two points although theta=pi/6 with nonnegative radius is a ray. The opposite point is on the signed-radius line interpretation, not that ray. No complete unconditional correctness verdict."
+  },
+  {
+    "index": 8,
+    "id": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "18-2*(196+9*r)/(126-r), r=-12+(26/9)*sqrt(39)",
+    "candidate_final": "No minimum supplied; candidate states it cannot find one",
+    "evidence": {
+      "maximum_xyz": [
+        "-12",
+        "26/9"
+      ],
+      "discriminant_at_bound": [
+        "0",
+        "0"
+      ],
+      "objective_derivative_numerator": -2660,
+      "attaining_triple": [
+        [
+          "3",
+          "-1/3"
+        ],
+        [
+          "3",
+          "-1/3"
+        ],
+        [
+          "3",
+          "2/3"
+        ]
+      ]
+    },
+    "reason": "Exact discriminant and equality certificate calculate the minimum. Candidate gives no final value to compare; this is an incomplete response, not a computed contradiction of a stated numeric answer."
+  },
+  {
+    "index": 18,
+    "id": "73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "Solution set includes x=pi/3",
+    "candidate_final": "x=+/-pi/6+k*pi",
+    "evidence": {
+      "x_over_pi": "1/3",
+      "lhs": "0",
+      "rhs": "0",
+      "outside_candidate_set": true
+    },
+    "reason": "The proposed general solution omits an exact root."
+  },
+  {
+    "index": 19,
+    "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": [
+      [
+        "23/2",
+        "-6"
+      ],
+      [
+        "2",
+        "-1/2"
+      ]
+    ],
+    "candidate_final": [
+      [
+        "23/2",
+        "-6"
+      ],
+      [
+        "2",
+        "-1/2"
+      ]
+    ],
+    "evidence": {
+      "A": [
+        [
+          "-4/5",
+          "3/5"
+        ],
+        [
+          "-1/5",
+          "2/5"
+        ]
+      ],
+      "squared": [
+        [
+          "-2/25",
+          "24/25"
+        ],
+        [
+          "-8/25",
+          "46/25"
+        ]
+      ],
+      "inverse_product": [
+        [
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "1"
+        ]
+      ]
+    },
+    "reason": "Exact rational matrix inversion and identity multiplication verify every entry."
+  },
+  {
+    "index": 21,
+    "id": "876a5a4c146362bead527dec85ffd338_523e2ac6241ab9c964a3a5116ebd7389",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "5+sqrt(21), if B and C are the two foci",
+    "candidate_final": "5+sqrt(21)",
+    "evidence": {
+      "product_with_focal_distance_difference": [
+        "4",
+        "0"
+      ],
+      "focal_separation": 4,
+      "squared_b": 25,
+      "squared_c": 21
+    },
+    "reason": "The answer matches the exact nondegenerate B,C-foci interpretation. The question literally assigns the triangle vertices as foci without specifying two vertices. Keep this wording ambiguity outside unconditional label corrections."
+  },
+  {
+    "index": 22,
+    "id": "8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "Depends on whether additional purchases are 110/115/120% or 10/15/20% of original quantities",
+    "candidate_final": "5.5q_A+17.25q_B+36q_C",
+    "evidence": {
+      "increased_coefficients": [
+        "99",
+        "1173/8",
+        "192"
+      ],
+      "full_additional_difference": [
+        "11/2",
+        "69/4",
+        "36"
+      ],
+      "only_extra_difference": [
+        "179/2",
+        "501/4",
+        "154"
+      ]
+    },
+    "reason": "Exact arithmetic agrees under the 110/115/120% reading. Additional amounts and 10/15/20% more do not uniquely specify that reading. No label correction on this ambiguity."
+  },
+  {
+    "index": 23,
+    "id": "8afa540116fbcf61b6a65125a1272a82_10a36a85dc46ca3ce4659c52bd553f22",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "Center must have equal squared distance to A,B,C",
+    "candidate_final": [
+      2,
+      3,
+      4
+    ],
+    "evidence": {
+      "squared_distances": [
+        16,
+        8,
+        24
+      ]
+    },
+    "reason": "Candidate fails the necessary equal-distance invariant, independently of orientation."
+  },
+  {
+    "index": 25,
+    "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "200000/3746171",
+    "candidate_final": "200000/3746171",
+    "evidence": {
+      "favorable_subsets": 7000000,
+      "total_subsets": 131115985,
+      "independent_sequential_check": "200000/3746171"
+    },
+    "reason": "Exact counting and sequential without-replacement calculation agree with the fraction."
+  },
+  {
+    "index": 30,
+    "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "255/64",
+    "candidate_final": "255/64",
+    "evidence": {
+      "x": "17/8",
+      "y": "15/8",
+      "sum": "4",
+      "four_times_difference": "1"
+    },
+    "reason": "Equal positive bases reduce the equations to an exact rational linear system."
+  },
+  {
+    "index": 31,
+    "id": "a9bf5e02651e58020b9f909519b5e4b2_1f4b04cd993f71f517fac248bc184f7e",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "No coin collection satisfies the literal counts",
+    "candidate_final": 12,
+    "evidence": {
+      "total_required": 29,
+      "total_from_each_count": 34,
+      "denomination_if_17_quarters_and_12_other": "10"
+    },
+    "reason": "17 of each of two types requires 34 coins, contradicting 29. Repairing the statement would change the task; no correctness label is inferred."
+  },
+  {
+    "index": 32,
+    "id": "aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "4698 in a divisible-inventory model; no exact integer inventory satisfies 35%",
+    "candidate_final": 4698,
+    "evidence": {
+      "first_quantity": "315/2",
+      "rest_quantity": "585/2",
+      "idealized_revenue": "4698"
+    },
+    "reason": "Candidate arithmetic is correct under the usual continuous-percentage idealization, but the literal gerbil count is impossible. Do not correct a label using an unstated idealization."
+  },
+  {
+    "index": 35,
+    "id": "be36325bac0fa5963c9cae9d74dab91a_3001a5b03a832d025f4e8b9b44ef99a1",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": "No exterior-F configuration with E on AC and G on side DC has EF=15, GF=20",
+    "candidate_final": "5sqrt(21)",
+    "evidence": {
+      "EF": 15,
+      "GF": 20,
+      "EF_minus_GF_over_BF": "1/(t*(t+1)), t>1",
+      "exact_numerator": [
+        1,
+        0,
+        0
+      ]
+    },
+    "reason": "The given lengths reverse the necessary EF>GF order. The drawing also places E before G. No correction from an inconsistent specification."
+  },
+  {
+    "index": 40,
+    "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "y^2=8x",
+    "candidate_final": "y^2=8x",
+    "evidence": {
+      "positive_branch_polynomial": [
+        0,
+        8,
+        0
+      ],
+      "negative_branch_polynomial": [
+        12,
+        12,
+        0
+      ],
+      "negative_branch_maximum": -36,
+      "positive_branch_domain": "x>=0"
+    },
+    "reason": "Exact polynomial identities plus the nonnegative-distance domain prove both necessity and sufficiency."
+  },
+  {
+    "index": 45,
+    "id": "f7f4f5882b9c712068cbeac5acb4a0a4_7294b3b236c33212fbbe5aa24dbd47f4",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "n=16 fails at p=1/2",
+    "candidate_final": 16,
+    "evidence": {
+      "p": "1/2",
+      "n": 16,
+      "allowed_head_counts": [
+        7,
+        8,
+        9
+      ],
+      "exact_probability": "17875/32768",
+      "required_probability": "9/10"
+    },
+    "reason": "Exact binomial counterexample disproves the proposed guarantee for both strict and non-strict within conventions."
+  }
+]

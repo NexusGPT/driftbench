@@ -1,0 +1,81 @@
+{
+  "status": "Frozen by owner before final blind evidence round",
+  "cells": [
+    "rubricbench",
+    "hardrows",
+    "verify-with-reference"
+  ],
+  "files": {
+    "configs/pw-two-step-terrain-frozen.json": "5f7f8ef80e4c7cdcd1a7fd73e3ce6ba9b80bc8171cf8b6ccb4b62478b85e2db9",
+    "moj/two_step_terrain.py": "d90b7626ac6e2f3832c7643a889f3d30d3de6f127db9b64cf6dfa29f559e8261",
+    "moj/two_step.py": "040565b779eef19d1e592075a4b5e60713be9ef627171b6b9d7c857a2215aebd",
+    "results/pointwise-moj/two-step-terrain/validation.json": "f79bcea39f8279c86b745662e40e92edc15d95238beff52396aaa698ccad5554",
+    "results/pointwise-moj/two-step-terrain/validation-decisions.json": "3e7940252118a64ab312e9bf57c437194f468ef208057df6f0ccc3a0e15198b2"
+  },
+  "results": {
+    "rubricbench": {
+      "n": 46,
+      "accuracy": 0.9347826086956522,
+      "balanced": 0.9375,
+      "sensitivity": 0.875,
+      "specificity": 1.0,
+      "positive_n": 24,
+      "negative_n": 22,
+      "ci95": [
+        0.8249699089621865,
+        0.9775725455336564
+      ],
+      "s2_per_100": 0.0,
+      "s1_per_100": 200.0,
+      "known_usd_per_100": 0.0
+    },
+    "hardrows": {
+      "n": 54,
+      "accuracy": 0.9629629629629629,
+      "balanced": 0.96,
+      "sensitivity": 1.0,
+      "specificity": 0.92,
+      "positive_n": 29,
+      "negative_n": 25,
+      "ci95": [
+        0.8746459065659669,
+        0.9897838464145869
+      ],
+      "s2_per_100": 55.55555555555556,
+      "s1_per_100": 311.1111111111111,
+      "known_usd_per_100": 0.006124074074074074
+    },
+    "verify": {
+      "n": 49,
+      "accuracy": 0.7959183673469388,
+      "balanced": 0.7619047619047619,
+      "sensitivity": 0.7142857142857143,
+      "specificity": 0.8095238095238095,
+      "positive_n": 7,
+      "negative_n": 42,
+      "ci95": [
+        0.6636272988905616,
+        0.885182729571862
+      ],
+      "s2_per_100": 151.0204081632653,
+      "s1_per_100": 300.0,
+      "known_usd_per_100": 0.07513877551020409
+    },
+    "verify-with-reference": {
+      "n": 55,
+      "accuracy": 0.9818181818181818,
+      "balanced": 0.9888888888888889,
+      "sensitivity": 1.0,
+      "specificity": 0.9777777777777777,
+      "positive_n": 10,
+      "negative_n": 45,
+      "ci95": [
+        0.9039399953951678,
+        0.9967833024077472
+      ],
+      "s2_per_100": 1.8181818181818181,
+      "s1_per_100": 203.63636363636363,
+      "known_usd_per_100": 0.0006327272727272727
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "pA": 0.040000000000000036,
+  "detail": {
+    "error_found": true,
+    "quote": "Let $I = \\int_{2}^{2+\\epsilon} \\int_{3-\\epsilon}^{3}\\frac{\\ln(x-1)}{(x-2)^2} dx$.",
+    "explanation": "The question is the sum of two one-dimensional integrals, not a nested integral. More importantly, the first integral is improper and diverges: near $x=2$, writing $x=2+t$ gives $\\ln(1+t)/t^2\\sim 1/t$, whose integral from $0$ to $\\epsilon$ diverges. The second integral is finite, so the proposed final answer $1$ is incorrect; the limit is $+\\infty$.",
+    "changes_final_answer": true,
+    "error_type": "constraint"
+  },
+  "quote_is_verbatim": true,
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "52f8fe9244fe463348ba0e81995065924e14f007167ab19fa12c159641f2bab9",
+      "count": 1,
+      "usd": 0.00039339999999999997
+    },
+    {
+      "provider": "jev",
+      "key": "ea399a53dcbd664297f855602baa4e7d890a6afaf025727e92ae3d3eecce41f5",
+      "seconds": 0.564,
+      "usd": 0
+    }
+  ]
+}

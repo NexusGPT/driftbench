@@ -1,0 +1,1019 @@
+[
+  {
+    "index": 1,
+    "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": [
+      "BDEFHI",
+      "E",
+      "EG",
+      "EI"
+    ],
+    "candidate_final": "K",
+    "question_sha256": "a2f89ff9bef026004501243226e82808bf982fa7199eb16c768047a6880fde7f",
+    "candidate_sha256": "d177dabf145ab3d8d5ab22f764adfd877b07b000145984c07df9410b49d590f5",
+    "evidence": {
+      "provisional_candidate_correct_under_assumption": false,
+      "semantic_assumption": "Adjectives have the stated conventional semantic categories, and the variant uses one strict category order.",
+      "examples": 98,
+      "category_dictionary": {
+        "opinion": "good nice lovely wonderful silly terrible ridiculous repulsive awful mysterious obnoxious",
+        "size": "big little huge large small tiny massive enormous midsize medium-size normal-size",
+        "age": "new old ancient archaic brand-new old-fashioned",
+        "shape": "square rectangular circular triangular spherical pyramidal prismlike",
+        "color": "yellow violet aqua crimson green maroon magenta cyan brown pink blue indigo red gray black white teal orange",
+        "origin": "american japanese chinese filipino nigerian bangladeshi indian ethiopian russian indonesian german brazilian egyptian turkish vietnamese mexican iranian thai pakistani congolese",
+        "material": "plastic wood wool iron fiberglass cardboard glass leather cloth rubber paper steel",
+        "purpose": "typing whittling walking smoking hiking snorkeling drinking exercise driving eating"
+      },
+      "explicit_precedence_edges": [
+        [
+          "age",
+          "color"
+        ],
+        [
+          "age",
+          "purpose"
+        ],
+        [
+          "material",
+          "opinion"
+        ],
+        [
+          "material",
+          "origin"
+        ],
+        [
+          "material",
+          "purpose"
+        ],
+        [
+          "opinion",
+          "color"
+        ],
+        [
+          "origin",
+          "age"
+        ],
+        [
+          "origin",
+          "color"
+        ],
+        [
+          "purpose",
+          "opinion"
+        ],
+        [
+          "size",
+          "shape"
+        ]
+      ],
+      "admitted_total_orders": 28,
+      "answer_set_counts": {
+        "BDEFHI": 1,
+        "E": 15,
+        "EG": 6,
+        "EI": 6
+      },
+      "one_total_order_per_answer_set": {
+        "EG": [
+          "size",
+          "shape",
+          "material",
+          "origin",
+          "age",
+          "purpose",
+          "opinion",
+          "color"
+        ],
+        "E": [
+          "size",
+          "material",
+          "origin",
+          "age",
+          "shape",
+          "purpose",
+          "opinion",
+          "color"
+        ],
+        "EI": [
+          "size",
+          "material",
+          "origin",
+          "age",
+          "purpose",
+          "opinion",
+          "color",
+          "shape"
+        ],
+        "BDEFHI": [
+          "material",
+          "origin",
+          "age",
+          "purpose",
+          "opinion",
+          "color",
+          "size",
+          "shape"
+        ]
+      }
+    },
+    "reason": "Inconclusive under strict proof policy: the question does not state that one universal semantic-category order governs all phrases. The enumeration is conditional evidence only, including any provisional false verdict."
+  },
+  {
+    "index": 9,
+    "id": "4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "B",
+    "candidate_final": "A",
+    "question_sha256": "a71a1240a8513f62fdd98061d78b2e40b6c642c4e8abf635460f737686774955",
+    "candidate_sha256": "d62790672f768c85e5e7cd7df8cf3c399f4caa8d7ca9f919ea4e9593274ba850",
+    "evidence": {
+      "satisfying_assignments": [
+        [
+          [
+            "G",
+            "H",
+            "J",
+            "F"
+          ],
+          [
+            "J",
+            "F",
+            "H",
+            "G"
+          ]
+        ],
+        [
+          [
+            "H",
+            "F",
+            "J",
+            "G"
+          ],
+          [
+            "J",
+            "G",
+            "H",
+            "F"
+          ]
+        ],
+        [
+          [
+            "H",
+            "G",
+            "J",
+            "F"
+          ],
+          [
+            "J",
+            "F",
+            "H",
+            "G"
+          ]
+        ]
+      ],
+      "option_satisfying_counts": {
+        "A": 0,
+        "B": 1,
+        "C": 0,
+        "D": 0,
+        "E": 0
+      }
+    },
+    "reason": "Complete finite enumeration of the stated constraints."
+  },
+  {
+    "index": 12,
+    "id": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "C",
+    "candidate_final": "D",
+    "question_sha256": "c2c5af1b933c81fce31f771bc7bde5a46a81c870fbb688c09d125925ba749547",
+    "candidate_sha256": "49859fd23291791e88f490b42f96914c07ba245772d5853cda008ca8c58f7de5",
+    "evidence": {
+      "satisfying_orders": [
+        [
+          "G",
+          "B",
+          "F",
+          "K"
+        ]
+      ],
+      "languages": {
+        "K": [
+          "K"
+        ],
+        "F": [
+          "F",
+          "G"
+        ],
+        "B": [
+          "B",
+          "K"
+        ],
+        "G": [
+          "B",
+          "F",
+          "G",
+          "K"
+        ]
+      },
+      "candidate_D_violations": [
+        "Korean neighbors British, who speaks Korean.",
+        "British neighbors both German and Korean, and shares a language with both."
+      ]
+    },
+    "reason": "Complete finite enumeration of the stated constraints."
+  },
+  {
+    "index": 33,
+    "id": "aeffde6db44b11ba884385c6d3330778_86ab71bcb255a4099f268a5af4548add",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "A",
+    "candidate_final": "E",
+    "question_sha256": "0255eca1f646c9572c20060b725efd5be7fc4a0d3abedf7e242206617c9c4d8f",
+    "candidate_sha256": "e14f6667608c452c90a14f43a58c69131672d63d7843bc2f2e3d5d7dfcbef992",
+    "evidence": {
+      "reachable_ownership_states": 120,
+      "option_reachable_counts": {
+        "A": 0,
+        "B": 8,
+        "C": 8,
+        "D": 8,
+        "E": 8
+      },
+      "trade_witnesses": {
+        "B": [
+          {
+            "exchange": [
+              [
+                "Lynch"
+              ],
+              [
+                "Meyer"
+              ]
+            ],
+            "owners_after": {
+              "Garza": 0,
+              "Yates": 0,
+              "Zimmer": 0,
+              "Flores": 1,
+              "Lynch": 2,
+              "King": 2,
+              "Meyer": 1,
+              "Ortiz": 2
+            }
+          }
+        ],
+        "C": [
+          {
+            "exchange": [
+              [
+                "Garza"
+              ],
+              [
+                "Flores"
+              ]
+            ],
+            "owners_after": {
+              "Garza": 1,
+              "Yates": 0,
+              "Zimmer": 0,
+              "Flores": 0,
+              "Lynch": 1,
+              "King": 2,
+              "Meyer": 2,
+              "Ortiz": 2
+            }
+          }
+        ],
+        "D": [
+          {
+            "exchange": [
+              [
+                "Flores"
+              ],
+              [
+                "King",
+                "Meyer"
+              ]
+            ],
+            "owners_after": {
+              "Garza": 0,
+              "Yates": 0,
+              "Zimmer": 0,
+              "Flores": 2,
+              "Lynch": 1,
+              "King": 1,
+              "Meyer": 1,
+              "Ortiz": 2
+            }
+          }
+        ],
+        "E": [
+          {
+            "exchange": [
+              [
+                "Garza"
+              ],
+              [
+                "Flores"
+              ]
+            ],
+            "owners_after": {
+              "Garza": 1,
+              "Yates": 0,
+              "Zimmer": 0,
+              "Flores": 0,
+              "Lynch": 1,
+              "King": 2,
+              "Meyer": 2,
+              "Ortiz": 2
+            }
+          },
+          {
+            "exchange": [
+              [
+                "Garza"
+              ],
+              [
+                "King",
+                "Ortiz"
+              ]
+            ],
+            "owners_after": {
+              "Garza": 2,
+              "Yates": 0,
+              "Zimmer": 0,
+              "Flores": 0,
+              "Lynch": 1,
+              "King": 1,
+              "Meyer": 2,
+              "Ortiz": 1
+            }
+          }
+        ]
+      },
+      "owner_ids": {
+        "0": "RealProp",
+        "1": "Southco",
+        "2": "Trustcorp"
+      },
+      "value_invariant": {
+        "class1": 4,
+        "class2": 2,
+        "class3": 1,
+        "initial_each_company": 6
+      }
+    },
+    "reason": "Complete finite enumeration of the stated constraints."
+  },
+  {
+    "index": 43,
+    "id": "e33318504a7ac7627d557aa1c8a28757_2773ef67563d0ff7b53513d4038a7626",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "8",
+    "candidate_final": "E",
+    "question_sha256": "5609c81f75cfe145656e4238a3a72ae61aa5a0b02df948963f9fa2c441d603d8",
+    "candidate_sha256": "21c50052afa7af1c0f60c54b4dcc5c7e4d4b9d6af5f3b4797782535a34debeb5",
+    "evidence": {
+      "valid_orders": [
+        "OBGRY",
+        "OBGYR",
+        "BOYGR",
+        "BOGRY",
+        "BOGYR",
+        "BGORY",
+        "BGOYR",
+        "BGYOR"
+      ],
+      "key": {
+        "O": "orange",
+        "R": "red",
+        "B": "blue",
+        "Y": "yellow",
+        "G": "green"
+      },
+      "option_numbers": {
+        "A": 2,
+        "B": 3,
+        "C": 4,
+        "D": 5,
+        "E": 6
+      },
+      "candidate_final_number": 6
+    },
+    "reason": "Complete finite enumeration of the stated constraints. The computed count is absent from the offered choices; choosing 6 still gives the wrong count."
+  },
+  {
+    "index": 51,
+    "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": [
+      "ACDEGJ",
+      "CJ",
+      "J"
+    ],
+    "candidate_final": "K",
+    "question_sha256": "0873a45f21d1c954f07f1decbc7be5fdb87edfc61574ff7de31050c766a5d8d7",
+    "candidate_sha256": "e2a0ebe381088442c1134aac311f789e6830d19e161809777739fc5117ecda79",
+    "evidence": {
+      "provisional_candidate_correct_under_assumption": false,
+      "semantic_assumption": "Adjectives have the stated conventional semantic categories, and the variant uses one strict category order.",
+      "examples": 204,
+      "category_dictionary": {
+        "opinion": "good nice lovely wonderful silly terrible ridiculous repulsive awful mysterious obnoxious",
+        "size": "big little huge large small tiny massive enormous midsize medium-size normal-size",
+        "age": "new old ancient archaic brand-new old-fashioned",
+        "shape": "square rectangular circular triangular spherical pyramidal prismlike",
+        "color": "yellow violet aqua crimson green maroon magenta cyan brown pink blue indigo red gray black white teal orange",
+        "origin": "american japanese chinese filipino nigerian bangladeshi indian ethiopian russian indonesian german brazilian egyptian turkish vietnamese mexican iranian thai pakistani congolese",
+        "material": "plastic wood wool iron fiberglass cardboard glass leather cloth rubber paper steel",
+        "purpose": "typing whittling walking smoking hiking snorkeling drinking exercise driving eating"
+      },
+      "explicit_precedence_edges": [
+        [
+          "color",
+          "opinion"
+        ],
+        [
+          "material",
+          "age"
+        ],
+        [
+          "origin",
+          "material"
+        ],
+        [
+          "origin",
+          "purpose"
+        ],
+        [
+          "origin",
+          "shape"
+        ],
+        [
+          "purpose",
+          "material"
+        ],
+        [
+          "shape",
+          "age"
+        ],
+        [
+          "shape",
+          "size"
+        ],
+        [
+          "size",
+          "age"
+        ],
+        [
+          "size",
+          "purpose"
+        ]
+      ],
+      "admitted_total_orders": 28,
+      "answer_set_counts": {
+        "ACDEGJ": 1,
+        "CJ": 6,
+        "J": 21
+      },
+      "one_total_order_per_answer_set": {
+        "J": [
+          "color",
+          "opinion",
+          "origin",
+          "shape",
+          "size",
+          "purpose",
+          "material",
+          "age"
+        ],
+        "CJ": [
+          "color",
+          "origin",
+          "shape",
+          "size",
+          "purpose",
+          "material",
+          "age",
+          "opinion"
+        ],
+        "ACDEGJ": [
+          "origin",
+          "shape",
+          "size",
+          "purpose",
+          "material",
+          "age",
+          "color",
+          "opinion"
+        ]
+      }
+    },
+    "reason": "Inconclusive under strict proof policy: the question does not state that one universal semantic-category order governs all phrases. The enumeration is conditional evidence only, including any provisional false verdict."
+  },
+  {
+    "index": 62,
+    "id": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": [
+      "ABGI",
+      "BG",
+      "G"
+    ],
+    "candidate_final": "K",
+    "question_sha256": "90e76a5bf90e087ebb5960b45130b00fd306bf02e6edc86f905bd22273a1cd98",
+    "candidate_sha256": "a2d78784ed13a0353bd41f6c571bd803f141e6932ac61af0b70a26d4a99ba4bd",
+    "evidence": {
+      "provisional_candidate_correct_under_assumption": false,
+      "semantic_assumption": "Adjectives have the stated conventional semantic categories, and the variant uses one strict category order.",
+      "examples": 150,
+      "category_dictionary": {
+        "opinion": "good nice lovely wonderful silly terrible ridiculous repulsive awful mysterious obnoxious",
+        "size": "big little huge large small tiny massive enormous midsize medium-size normal-size",
+        "age": "new old ancient archaic brand-new old-fashioned",
+        "shape": "square rectangular circular triangular spherical pyramidal prismlike",
+        "color": "yellow violet aqua crimson green maroon magenta cyan brown pink blue indigo red gray black white teal orange",
+        "origin": "american japanese chinese filipino nigerian bangladeshi indian ethiopian russian indonesian german brazilian egyptian turkish vietnamese mexican iranian thai pakistani congolese",
+        "material": "plastic wood wool iron fiberglass cardboard glass leather cloth rubber paper steel",
+        "purpose": "typing whittling walking smoking hiking snorkeling drinking exercise driving eating"
+      },
+      "explicit_precedence_edges": [
+        [
+          "age",
+          "shape"
+        ],
+        [
+          "color",
+          "age"
+        ],
+        [
+          "material",
+          "origin"
+        ],
+        [
+          "opinion",
+          "age"
+        ],
+        [
+          "opinion",
+          "color"
+        ],
+        [
+          "opinion",
+          "purpose"
+        ],
+        [
+          "purpose",
+          "shape"
+        ],
+        [
+          "purpose",
+          "size"
+        ],
+        [
+          "size",
+          "color"
+        ],
+        [
+          "size",
+          "shape"
+        ]
+      ],
+      "admitted_total_orders": 28,
+      "answer_set_counts": {
+        "ABGI": 1,
+        "BG": 6,
+        "G": 21
+      },
+      "one_total_order_per_answer_set": {
+        "G": [
+          "opinion",
+          "material",
+          "origin",
+          "purpose",
+          "size",
+          "color",
+          "age",
+          "shape"
+        ],
+        "BG": [
+          "opinion",
+          "material",
+          "purpose",
+          "size",
+          "color",
+          "age",
+          "shape",
+          "origin"
+        ],
+        "ABGI": [
+          "opinion",
+          "purpose",
+          "size",
+          "color",
+          "age",
+          "shape",
+          "material",
+          "origin"
+        ]
+      }
+    },
+    "reason": "Inconclusive under strict proof policy: the question does not state that one universal semantic-category order governs all phrases. The enumeration is conditional evidence only, including any provisional false verdict."
+  },
+  {
+    "index": 63,
+    "id": "57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "A",
+    "candidate_final": "D",
+    "question_sha256": "e2b38dcf48950d0594a5fa043611988af4da5073086df66c04dd3089a335980b",
+    "candidate_sha256": "a2c2cdcece0a0a497c1421f249d195bd042366369c5721913a09579109eb617f",
+    "evidence": {
+      "satisfying_year_assignments": [
+        [
+          "O",
+          "R",
+          "L",
+          "Y"
+        ],
+        [
+          "O",
+          "R",
+          "T",
+          "Y"
+        ]
+      ],
+      "years": [
+        1921,
+        1922,
+        1923,
+        1924
+      ],
+      "option_satisfying_counts": {
+        "A": 1,
+        "B": 0,
+        "C": 0,
+        "D": 0,
+        "E": 0
+      },
+      "student_key": {
+        "L": "Louis",
+        "M": "Mollie",
+        "O": "Onyx",
+        "R": "Ryan",
+        "T": "Tiffany",
+        "Y": "Yoshio"
+      }
+    },
+    "reason": "Complete finite enumeration of the stated constraints."
+  },
+  {
+    "index": 65,
+    "id": "5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31",
+    "status": "proved",
+    "candidate_correct": false,
+    "expected": "A",
+    "candidate_final": "E",
+    "question_sha256": "848934fdbe71d4059b8f372b6c6f233f16a8f5e78d50870116e6efcdfcbae599",
+    "candidate_sha256": "0b777d496fad51717bb7d669d3ce85810a7d47c61aa114f671ddfb85479058d8",
+    "evidence": {
+      "base_count": 108,
+      "original_count": 27,
+      "alternatives": {
+        "A": {
+          "allowed_count": 27,
+          "same_set": true,
+          "added_orders": [],
+          "removed_orders": []
+        },
+        "B": {
+          "allowed_count": 36,
+          "same_set": false,
+          "added_orders": [
+            "VWYUXZ",
+            "VWYXUZ",
+            "VWYXZU",
+            "VXYUWZ",
+            "VXYWUZ",
+            "VXYWZU",
+            "VYWUXZ",
+            "VYWXUZ",
+            "VYWXZU",
+            "VYXUWZ",
+            "VYXWUZ",
+            "VYXWZU",
+            "XVYUWZ",
+            "XVYWUZ",
+            "XVYWZU",
+            "XYVUWZ",
+            "XYVWUZ",
+            "XYVWZU",
+            "YVWUXZ",
+            "YVWXUZ",
+            "YVWXZU",
+            "YVXUWZ",
+            "YVXWUZ",
+            "YVXWZU",
+            "YXVUWZ",
+            "YXVWUZ",
+            "YXVWZU"
+          ],
+          "removed_orders": [
+            "VYZUWX",
+            "VYZWUX",
+            "VYZWXU",
+            "VZYUWX",
+            "VZYWUX",
+            "VZYWXU",
+            "WVYUZX",
+            "WVYZUX",
+            "WVYZXU",
+            "WYVUZX",
+            "WYVZUX",
+            "WYVZXU",
+            "YVZUWX",
+            "YVZWUX",
+            "YVZWXU",
+            "YWVUZX",
+            "YWVZUX",
+            "YWVZXU"
+          ]
+        },
+        "C": {
+          "allowed_count": 45,
+          "same_set": false,
+          "added_orders": [
+            "VWYUXZ",
+            "VWYXUZ",
+            "VWYXZU",
+            "VYWUXZ",
+            "VYWXUZ",
+            "VYWXZU",
+            "WVYUXZ",
+            "WVYXUZ",
+            "WVYXZU",
+            "WYVUXZ",
+            "WYVXUZ",
+            "WYVXZU",
+            "YVWUXZ",
+            "YVWXUZ",
+            "YVWXZU",
+            "YWVUXZ",
+            "YWVXUZ",
+            "YWVXZU"
+          ],
+          "removed_orders": []
+        },
+        "D": {
+          "allowed_count": 42,
+          "same_set": false,
+          "added_orders": [
+            "VWYUXZ",
+            "VWYXUZ",
+            "VYWUXZ",
+            "VYWXUZ",
+            "VYXUWZ",
+            "VYXUZW",
+            "VYZUXW",
+            "VYZXUW",
+            "VZYUXW",
+            "VZYXUW",
+            "WVYUXZ",
+            "WVYXUZ",
+            "WYVUXZ",
+            "WYVXUZ",
+            "WYXUVZ",
+            "YVWUXZ",
+            "YVWXUZ",
+            "YVXUWZ",
+            "YVXUZW",
+            "YVZUXW",
+            "YVZXUW",
+            "YWVUXZ",
+            "YWVXUZ",
+            "YWXUVZ"
+          ],
+          "removed_orders": [
+            "VWYUZX",
+            "VYWUZX",
+            "VYZUWX",
+            "VZYUWX",
+            "WVYUZX",
+            "WYVUZX",
+            "YVWUZX",
+            "YVZUWX",
+            "YWVUZX"
+          ]
+        },
+        "E": {
+          "allowed_count": 36,
+          "same_set": false,
+          "added_orders": [
+            "VWYUXZ",
+            "VYWUXZ",
+            "VYZUXW",
+            "VZYUXW",
+            "WVYUXZ",
+            "WYVUXZ",
+            "YVWUXZ",
+            "YVZUXW",
+            "YWVUXZ"
+          ],
+          "removed_orders": []
+        }
+      },
+      "band_key": {
+        "U": "Uneasy",
+        "V": "Vegemite",
+        "W": "Wellspring",
+        "X": "Xpert",
+        "Y": "Yardsign",
+        "Z": "Zircon"
+      }
+    },
+    "reason": "Complete finite enumeration of the stated constraints."
+  },
+  {
+    "index": 71,
+    "id": "848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7",
+    "status": "inconclusive",
+    "candidate_correct": null,
+    "expected": [
+      "ABCD",
+      "BC",
+      "C",
+      "CI"
+    ],
+    "candidate_final": "BC",
+    "question_sha256": "dcf82437f4c77a9675ef1ebdc210d7dcde27743d67d4db37cc4e8d4c53fde8f0",
+    "candidate_sha256": "766d50340d2cd30ad53aa44f0c4a973b7a97b96f1dce664c8915bd57fce85d66",
+    "evidence": {
+      "provisional_candidate_correct_under_assumption": null,
+      "semantic_assumption": "Adjectives have the stated conventional semantic categories, and the variant uses one strict category order.",
+      "examples": 112,
+      "category_dictionary": {
+        "opinion": "good nice lovely wonderful silly terrible ridiculous repulsive awful mysterious obnoxious",
+        "size": "big little huge large small tiny massive enormous midsize medium-size normal-size",
+        "age": "new old ancient archaic brand-new old-fashioned",
+        "shape": "square rectangular circular triangular spherical pyramidal prismlike",
+        "color": "yellow violet aqua crimson green maroon magenta cyan brown pink blue indigo red gray black white teal orange",
+        "origin": "american japanese chinese filipino nigerian bangladeshi indian ethiopian russian indonesian german brazilian egyptian turkish vietnamese mexican iranian thai pakistani congolese",
+        "material": "plastic wood wool iron fiberglass cardboard glass leather cloth rubber paper steel",
+        "purpose": "typing whittling walking smoking hiking snorkeling drinking exercise driving eating"
+      },
+      "explicit_precedence_edges": [
+        [
+          "age",
+          "color"
+        ],
+        [
+          "age",
+          "material"
+        ],
+        [
+          "material",
+          "color"
+        ],
+        [
+          "material",
+          "shape"
+        ],
+        [
+          "opinion",
+          "purpose"
+        ],
+        [
+          "origin",
+          "color"
+        ],
+        [
+          "shape",
+          "origin"
+        ],
+        [
+          "size",
+          "age"
+        ],
+        [
+          "size",
+          "origin"
+        ],
+        [
+          "size",
+          "shape"
+        ]
+      ],
+      "admitted_total_orders": 28,
+      "answer_set_counts": {
+        "ABCD": 1,
+        "BC": 6,
+        "C": 15,
+        "CI": 6
+      },
+      "one_total_order_per_answer_set": {
+        "BC": [
+          "opinion",
+          "size",
+          "age",
+          "material",
+          "shape",
+          "origin",
+          "color",
+          "purpose"
+        ],
+        "C": [
+          "opinion",
+          "size",
+          "age",
+          "material",
+          "shape",
+          "origin",
+          "purpose",
+          "color"
+        ],
+        "CI": [
+          "opinion",
+          "size",
+          "age",
+          "purpose",
+          "material",
+          "shape",
+          "origin",
+          "color"
+        ],
+        "ABCD": [
+          "size",
+          "age",
+          "material",
+          "shape",
+          "origin",
+          "color",
+          "opinion",
+          "purpose"
+        ]
+      }
+    },
+    "reason": "Inconclusive under strict proof policy: the question does not state that one universal semantic-category order governs all phrases. The enumeration is conditional evidence only, including any provisional false verdict."
+  },
+  {
+    "index": 84,
+    "id": "aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a",
+    "status": "proved",
+    "candidate_correct": true,
+    "expected": "E",
+    "candidate_final": "E",
+    "question_sha256": "a75d07cc7c11262e705e9ce10036b34069208c99dd4ab853cedcd8064ad8ca52",
+    "candidate_sha256": "306424ceaa82a660622cdae080a941931bf0e8bf11838191d10975487102ee17",
+    "evidence": {
+      "satisfying_arrangements": 48,
+      "option_satisfying_counts": {
+        "A": 0,
+        "B": 0,
+        "C": 0,
+        "D": 0,
+        "E": 12
+      },
+      "candidate_explicit_witness": [
+        "Ho",
+        "Fw",
+        "Gw",
+        "Fo",
+        "Go",
+        "Iw",
+        "Hw",
+        "Io"
+      ],
+      "slot_order": [
+        "wall1_upper",
+        "wall1_lower",
+        "wall2_upper",
+        "wall2_lower",
+        "wall3_upper",
+        "wall3_lower",
+        "wall4_upper",
+        "wall4_lower"
+      ],
+      "key": {
+        "F": "Franz",
+        "G": "Greene",
+        "H": "Hidalgo",
+        "I": "Isaacs",
+        "o": "oil",
+        "w": "watercolor"
+      }
+    },
+    "reason": "Complete finite enumeration of the stated constraints."
+  }
+]
