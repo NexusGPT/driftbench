@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { requestKey } from '../src/cassette';
 import type { ClientOptions } from '../src/client';
 import { createAnthropicJudge, createGoogleJudge, createOpenAiJudge } from '../src/clients/chat';
+import { createHttpJudge } from '../src/clients/http-json';
+import { createJevJudge, createOpenAiDecisionsJudge } from '../src/clients/system1';
 import type { JudgeRequest } from '../src/contract';
 
 const REQUEST: JudgeRequest = {
@@ -102,4 +104,27 @@ describe('explicit reasoning on chat clients', () => {
   it('rejects unsupported Anthropic reasoning before any request', () => {
     expect(() => createAnthropicJudge({ env, reasoning: 'high' })).toThrow(/reasoning.*not supported/i);
   });
+  it('rejects unsupported HTTP reasoning before any request', () => {
+    expect(() =>
+      createHttpJudge({ url: 'https://judge.example.test', family: 'custom', reasoning: 'high' }),
+    ).toThrow('reasoning is not supported by the HTTP judge client');
+  });
+  for (const [name, make] of [
+    ['Jev', createJevJudge],
+    ['OpenAI Decisions', createOpenAiDecisionsJudge],
+  ] as const) {
+    it(`rejects unsupported ${name} reasoning before any request`, () => {
+      expect(() =>
+        make({
+          env: {
+            ...env,
+            OPENAI_DECISIONS_MODEL: 'm',
+            JEV_URL: 'https://jev.example.test/x',
+            JEV_API_KEY: 'k',
+          },
+          reasoning: 'high',
+        }),
+      ).toThrow(`reasoning is not supported by the ${name} client`);
+    });
+  }
 });
