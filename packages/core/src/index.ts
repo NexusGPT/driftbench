@@ -188,6 +188,7 @@ export {
   type PlannedCell,
   type PlanOptions,
   planCampaign,
+  preflightTargetPrices,
   type RecoveryMetrics,
   type RecoveryOptions,
   type RetryOptions,
@@ -207,6 +208,8 @@ export {
   stageSignatures,
   stimulusMessages,
   succession,
+  TokenPriceError,
+  TokenPrices,
   type TranscriptBlock,
   type TranscriptComparison,
   transcriptOf,
@@ -231,6 +234,7 @@ export {
   WorldState,
 } from './schema/common';
 export { CampaignConfig, CampaignRetryConfig } from './schema/config';
+export { parameterSchema, unsupportedSchemaKeywords } from './schema/json-schema';
 export {
   ArtifactRef,
   BlockResult,

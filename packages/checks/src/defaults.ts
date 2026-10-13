@@ -16,7 +16,7 @@ import { length } from './checks/length';
 import { markup } from './checks/markup';
 import { must, mustNot } from './checks/must';
 import { bleu, rougeL } from './checks/overlap';
-import { createPiiCheck, pii } from './checks/pii';
+import { createPiiCheck, type PiiCheckOptions, pii } from './checks/pii';
 import { references } from './checks/references';
 import { refusal } from './checks/refusal';
 import { regex } from './checks/regex';
@@ -41,7 +41,7 @@ import { workspace } from './checks/workspace';
  * `judge` check), or any object that makes a check the same way. The checks package does not depend on
  * the judges package; it only asks the council for its check.
  */
-export type JudgeCheckSource = { check(): Check };
+export type JudgeCheckSource = { check(): Check; piiJudge?: PiiCheckOptions['judge'] };
 
 export type DefaultChecksOptions = {
   /** Where `rules.custom` names are resolved. The default registry when absent. */
@@ -52,6 +52,8 @@ export type DefaultChecksOptions = {
   embedder?: Embedder;
   /** The owner's own values the pii check leaves out (see `createPiiCheck`). Empty when absent. */
   piiOwner?: readonly string[];
+  /** Personal-data judge for `expect.pii_judge: true`; otherwise the council's hook, when present. */
+  piiJudge?: PiiCheckOptions['judge'];
   /** A run-wide tool policy over the recorded calls of every block. Off when absent. */
   toolPolicy?: readonly ToolRule[];
 };
@@ -63,6 +65,7 @@ export type DefaultChecksOptions = {
  * verdicts and never replace one. The list is new on each call; the checks themselves hold no state.
  */
 export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
+  const piiJudge = options.piiJudge ?? options.judges?.piiJudge;
   return [
     tools,
     toolsOffered,
@@ -86,7 +89,7 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     relevancy,
     knowledgeRetention,
     lang,
-    options.piiOwner?.length ? createPiiCheck({ owner: options.piiOwner }) : pii,
+    options.piiOwner?.length || piiJudge ? createPiiCheck({ owner: options.piiOwner, judge: piiJudge }) : pii,
     cards,
     ...(options.toolPolicy?.length ? [createToolPolicyCheck(options.toolPolicy)] : []),
     stage,

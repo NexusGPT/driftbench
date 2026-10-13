@@ -939,7 +939,7 @@ Family acme-price-sheet: 3 instances, seed 1, 13 specs.
   i02  seed 1269359653  categories=2 column_order=shuffled language=EN line_endings=crlf plans=25 planted=without readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change
   i03  seed 1252582034  categories=4 column_order=catalog language=EN line_endings=lf plans=15 planted=without readme_name=readme.txt seed_format=json start=catalog-only summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
 Style invariant: 17 style alternatives rebuilt; none changed the expected outcome.
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
+Review: signed by owner on 2026-10-13.
 Wrote 13 specs and family-report.json to _captures/docs3/cli/family.
 ```
 
@@ -960,13 +960,12 @@ Verify _captures/docs3/cli/family on the reference process:acme-ops: 13 specs.
   ✓ i03/header-order.yaml
   ✓ i03/unit-change.yaml
 ✓ The reference passes all 13 specs: 3 instances may ship.
-Release also waits for a person to sign the review of acme-price-sheet (3 instances wait on it).
 Wrote _captures/docs3/cli/family/verify-report.json.
 ```
 
 ```
 $ pnpm -s driftbench family review examples/acme/families/price-sheet
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
+Review: signed by owner on 2026-10-13.
 ```
 
 | Exit code | `instances` | `verify` | `review` |
@@ -1118,7 +1117,7 @@ A map that does not load reports `MAP_PARSE`, `MAP_NOT_OBJECT`, `MAP_DUPLICATE_A
 driftbench replay <sessions...> --suite <dir> [--decisions <logs...>] [--steps <feeds...>] [--store <db>] [--owner <values...>] [--owner-file <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 ```
 
-Runs a spec suite over recorded sessions, offline, with no model call. Each spec is aligned with a session by its metadata, or by order; a spec that names a session not given is skipped with a note. The run is the runner's own in mode F, with the scripted driver, the default checks plus the ordered-pair check and the estate checks, and no cache. Judged criteria are judged by `--judge claude:<model>` (one call of the local claude command per criterion and block, its cost added to the run); with no judge each is inconclusive and gates as the criterion does, never a pass. A judge command that is not a stand-in is billed and needs `--judge-budget <usd>`. Every run is stored under one replay campaign. See [estate](../estate.md).
+Runs a spec suite over recorded sessions, with no model call unless judging is enabled. Each spec is aligned with a session by its metadata, or by order; a spec that names a session not given is skipped with a note. The run is the runner's own in mode F, with the scripted driver, the default checks plus the ordered-pair check and the estate checks, and no cache. Judged criteria are judged by `--judge claude:<model>` (one call of the local claude command per criterion and block, its cost added to the run); with no judge each is inconclusive and gates as the criterion does, never a pass. A judge command that is not a stand-in is billed and needs `--judge-budget <usd>`. Blocks with `expect.pii_judge: true` also use this judge for names and personal addresses, sharing its budget and reported cost. Missing or failed personal-data judging is gating inconclusive; absent or false opt-in makes no call. Every run is stored under one replay campaign. See [estate](../estate.md).
 
 | Option | Effect |
 |---|---|
@@ -1587,3 +1586,7 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 ## `driftbench campaign run --cache-suite`
 
 `--cache-suite <name>` names the cache suite of a campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without the flag, the keys are the ones earlier caches used.
+
+## Token prices for campaign budgets
+
+`campaign run` and `campaign resume` accept `--prices <file>` for a standalone dated USD token price table. Without the flag, they read `prices:` from `driftbench.yaml`. See [the budget](../running.md#the-budget) for the format, model lookup, and preflight refusal listing every declared target model without a price. Models first reported at runtime can only be checked after that first call. A budget counts target-adapter reports only; simulated-user and judge calls are excluded. The CLI prints that scope on stderr when those roles are used with a budget.

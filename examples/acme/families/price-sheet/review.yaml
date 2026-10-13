@@ -11,5 +11,5 @@ questions:
   - The reader checks the family emits are the ones that decide the task; nothing that matters is left unchecked.
   - Each corner-case kind keeps the workspace inside the task contract, and the planted variant keeps the same expected outcome.
   - The style knobs change nothing the oracle expects (the generator checks it on every instance).
-signed_by: null
-signed_on: null
+signed_by: owner
+signed_on: 2026-10-13

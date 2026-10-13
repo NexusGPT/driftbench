@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { acmeExample, acmeExampleInstalled, loadAcmeExample, requireAcmeExample } from '../src/acme-example';
 import { acmeOpsAgent, defaultDeps, knownTargets, noAdapter } from '../src/commands/campaign';
 import { pilotDeps, pilotNoAdapter } from '../src/commands/pilot';
+import { BUILTIN_TARGETS_NOTE } from '../src/targets';
 
 const NAME = '@agent-nexus/driftbench-example-acme';
 
@@ -47,7 +48,7 @@ describe('the Acme example package', () => {
   it('in a checkout the refusals name the example targets, as before', () => {
     expect(acmeExampleInstalled()).toBe(true);
     expect(noAdapter({ adapter: 'function', agent: 'nobody' })).toBe(
-      'No adapter is set up for function:nobody. The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent.',
+      `No adapter is set up for function:nobody. The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent. ${BUILTIN_TARGETS_NOTE}`,
     );
     expect(pilotNoAdapter({ adapter: 'http', agent: 'zed' })).toBe(
       'No adapter is set up for http:zed. The pilot reaches function:acme (the Acme sales assistant) and function:acme-random or function:acme-random-<seed> (its seeded random control).',
