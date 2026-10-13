@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "at": "2026-10-13T08:56:59.852740+00:00",
+  "authorization": "Report two scores per contestant, both pre-declared now in the freeze record before TEST scoring: (a) strict, where any output-limit hit is an error; (b) product-final, the verdict each product actually returns to a user, including its own built-in fallback. Same rule for both contestants. The headline is (a).",
+  "runtime": "2869d4d1f750545a2c7d",
+  "sealedTestItems": 221,
+  "primary": "strict",
+  "strict": "For each contestant and item, any confirmed output-limit completion used by its execution makes the item an error (wrong), even if a later fallback returns a verdict. Other missing or unparsed final verdicts remain errors. No returned answer is retried.",
+  "productFinal": "Use the untouched final per-item verdict returned by the frozen product runner, including its built-in fallback. Other missing or unparsed final verdicts remain errors.",
+  "symmetric": true,
+  "labels": [
+    "official",
+    "unchanged 23-correction audited sensitivity"
+  ],
+  "limitEvidence": [
+    "API completion metadata truncated=true or finishReason length/MAX_TOKENS/max_tokens",
+    "Native CLI JSON result explicitly reports the output-token maximum was exceeded"
+  ],
+  "attribution": "Reconstruct each recorded request fingerprint by free replay of frozen prompt functions. Join provider receipts to contestant, item and step. Reused limited outputs affect every consuming item.",
+  "counts": "Separate per-model and per-contestant columns: number of observed completion envelopes hitting an output limit and number of affected items, with TEST and all-phase counts kept separate. Native internal retries are not inferred from aggregate num_turns.",
+  "unknownCauses": "Do not infer output-limit hits from generic historical errors or timeouts. Report unclassified errors separately.",
+  "statistics": "Apply the frozen exact McNemar, Wilson rates and request-cluster bootstrap to both score variants. The headline strict endpoint is supplied for the prespecified 18-cell Holm family; product-final is secondary.",
+  "testStartedAtDeclaration": false,
+  "sourceHashes": {
+    "examples/judge-benchmarks/src/run.ts": "41d295290938673a96c796be95391ef2a6b1b71039145d3a18cfcc77507dfed0",
+    "examples/judge-benchmarks/src/contestants.ts": "7f6c6e9a3ab8b7f6ff49ce5b032fce1bfd6c8d5e04e1c949444d0110d040f43a",
+    "examples/ledger-verify/stats.py": "53aa9de5e9c869e3dce17e597ba8fa7efe0a022861b99f7fd60f48d6ad3ad3ac"
+  }
+}
