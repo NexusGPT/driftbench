@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 478" width="520" height="478" role="img" aria-label="From a map of situations to a verdict a pull request can gate on">
+<title>From a map of situations to a verdict a pull request can gate on</title>
+<desc>1. Map: What the agent can face: stages, values, tools, rules. A person approves it. 2. Tests: Code writes blocks from the map. A gate rejects tests that cannot fail. 3. Run: One adapter reaches your agent. Three run modes, repeats, record and replay. 4. Checks: 29 machine checks read the reply, the tool calls, the files. A fail is final. 5. Judges: A model judges the rest, quoting its evidence. A panel votes when unsure. 6. Statistics: An interval on every rate, the noise floor, paired tests between two runs. 7. Verdict: A scorecard, and an exit code CI can gate on: parity or regression.</desc>
+<rect x="0.5" y="0.5" width="519" height="477" rx="14" fill="#F6F8FB" stroke="#DCE1E8"/>
+<text x="22" y="45" font-family="'Libre Caslon Text', 'Libre Caslon Display', Georgia, 'Times New Roman', serif" font-size="19" fill="#0E1116" letter-spacing="-0.2">From a map to a verdict.</text>
+<rect x="22" y="64" width="230" height="96" rx="10" fill="#FFFFFF" stroke="#DCE1E8" stroke-width="1"/>
+<text x="36" y="88" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" fill="#6B7280">1</text>
+<text x="52" y="89" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#0E1116">Map</text>
+<text x="36" y="110" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">What the agent can face:</text>
+<text x="36" y="126.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">stages, values, tools, rules.</text>
+<text x="36" y="143" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">A person approves it.</text>
+<path d="M254 112h9M260 108.5l4 3.5l-4 3.5" stroke="#6B7280" stroke-width="1.3" fill="none"/>
+<rect x="268" y="64" width="230" height="96" rx="10" fill="#FFFFFF" stroke="#DCE1E8" stroke-width="1"/>
+<text x="282" y="88" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" fill="#6B7280">2</text>
+<text x="298" y="89" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#0E1116">Tests</text>
+<text x="282" y="110" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">Code writes blocks from</text>
+<text x="282" y="126.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">the map. A gate rejects</text>
+<text x="282" y="143" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">tests that cannot fail.</text>
+<path d="M260 162v9M256.5 168l3.5 4l3.5 -4" stroke="#6B7280" stroke-width="1.3" fill="none"/>
+<rect x="22" y="174" width="230" height="96" rx="10" fill="#FFFFFF" stroke="#DCE1E8" stroke-width="1"/>
+<text x="36" y="198" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" fill="#6B7280">3</text>
+<text x="52" y="199" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#0E1116">Run</text>
+<text x="36" y="220" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">One adapter reaches your</text>
+<text x="36" y="236.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">agent. Three run modes,</text>
+<text x="36" y="253" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">repeats, record and replay.</text>
+<path d="M254 222h9M260 218.5l4 3.5l-4 3.5" stroke="#6B7280" stroke-width="1.3" fill="none"/>
+<rect x="268" y="174" width="230" height="96" rx="10" fill="#FFFFFF" stroke="#DCE1E8" stroke-width="1"/>
+<text x="282" y="198" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" fill="#6B7280">4</text>
+<text x="298" y="199" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#0E1116">Checks</text>
+<text x="282" y="220" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">29 machine checks read</text>
+<text x="282" y="236.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">the reply, the tool calls,</text>
+<text x="282" y="253" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">the files. A fail is final.</text>
+<path d="M260 272v9M256.5 278l3.5 4l3.5 -4" stroke="#6B7280" stroke-width="1.3" fill="none"/>
+<rect x="22" y="284" width="230" height="96" rx="10" fill="#FFFFFF" stroke="#DCE1E8" stroke-width="1"/>
+<text x="36" y="308" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" fill="#6B7280">5</text>
+<text x="52" y="309" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#0E1116">Judges</text>
+<text x="36" y="330" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">A model judges the rest,</text>
+<text x="36" y="346.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">quoting its evidence. A</text>
+<text x="36" y="363" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">panel votes when unsure.</text>
+<path d="M254 332h9M260 328.5l4 3.5l-4 3.5" stroke="#6B7280" stroke-width="1.3" fill="none"/>
+<rect x="268" y="284" width="230" height="96" rx="10" fill="#FFFFFF" stroke="#DCE1E8" stroke-width="1"/>
+<text x="282" y="308" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" fill="#6B7280">6</text>
+<text x="298" y="309" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#0E1116">Statistics</text>
+<text x="282" y="330" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">An interval on every rate,</text>
+<text x="282" y="346.5" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">the noise floor, paired</text>
+<text x="282" y="363" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">tests between two runs.</text>
+<path d="M260 382v9M256.5 388l3.5 4l3.5 -4" stroke="#6B7280" stroke-width="1.3" fill="none"/>
+<rect x="22" y="394" width="476" height="62" rx="10" fill="#FFFFFF" stroke="#2F5FD0" stroke-width="1.5"/>
+<text x="36" y="418" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" fill="#6B7280">7</text>
+<text x="52" y="419" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#0E1116">Verdict</text>
+<text x="36" y="440" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3F4651">A scorecard, and an exit code CI can gate on: parity or regression.</text>
+</svg>

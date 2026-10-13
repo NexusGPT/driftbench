@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 487" width="520" height="487" role="img" aria-label="driftbench tests itself on 7,453 planted-truth items in 6 suites; 4 suites have a floor that CI refuses to go below.">
+<title>driftbench tests itself on 7,453 planted-truth items in 6 suites; 4 suites have a floor that CI refuses to go below.</title>
+<desc>Whole pipeline: 2383 items, floor level 7. Test generator: 2033 items, no floor yet. Code-agent estates: 1170 items, no floor yet. Statistics: 651 items, floor level 7. Judges: 638 items, floor level 7. Map extraction: 578 items, floor level 8.</desc>
+<rect x="0.5" y="0.5" width="519" height="486" rx="14" fill="#F6F8FB" stroke="#DCE1E8"/>
+<text x="22" y="49" font-family="'Libre Caslon Text', 'Libre Caslon Display', Georgia, 'Times New Roman', serif" font-size="19" fill="#0E1116" letter-spacing="-0.2">driftbench tests itself on 7,453 planted-truth</text>
+<text x="22" y="74" font-family="'Libre Caslon Text', 'Libre Caslon Display', Georgia, 'Times New Roman', serif" font-size="19" fill="#0E1116" letter-spacing="-0.2">items in 6 suites; 4 suites have a floor that CI</text>
+<text x="22" y="99" font-family="'Libre Caslon Text', 'Libre Caslon Display', Georgia, 'Times New Roman', serif" font-size="19" fill="#0E1116" letter-spacing="-0.2">refuses to go below.</text>
+<line x1="220" y1="121" x2="220" y2="289" stroke="#DCE1E8" stroke-width="1" stroke-dasharray="2 4"/>
+<line x1="280" y1="121" x2="280" y2="289" stroke="#DCE1E8" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="22" y="134" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#0E1116">Whole pipeline</text>
+<path d="M160 122h140.98a2 2 0 0 1 2 2v11a2 2 0 0 1 -2 2h-140.98z" fill="#2F5FD0"/>
+<text x="309.98" y="134" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#0E1116">2,383<tspan font-weight="400" fill="#3F4651">  floor: level 7, ladder v5</tspan></text>
+<text x="22" y="162" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#0E1116">Test generator</text>
+<path d="M160 150h119.98a2 2 0 0 1 2 2v11a2 2 0 0 1 -2 2h-119.98z" fill="#AEB6C2"/>
+<text x="288.98" y="162" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#0E1116">2,033<tspan font-weight="400" fill="#3F4651">  no floor yet</tspan></text>
+<text x="22" y="190" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#0E1116">Code-agent estates</text>
+<path d="M160 178h68.2a2 2 0 0 1 2 2v11a2 2 0 0 1 -2 2h-68.2z" fill="#AEB6C2"/>
+<text x="237.2" y="190" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#0E1116">1,170<tspan font-weight="400" fill="#3F4651">  no floor yet</tspan></text>
+<text x="22" y="218" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#0E1116">Statistics</text>
+<path d="M160 206h37.06a2 2 0 0 1 2 2v11a2 2 0 0 1 -2 2h-37.06z" fill="#2F5FD0"/>
+<text x="206.06" y="218" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#0E1116">651<tspan font-weight="400" fill="#3F4651">  floor: level 7, ladder v2</tspan></text>
+<text x="22" y="246" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#0E1116">Judges</text>
+<path d="M160 234h36.28a2 2 0 0 1 2 2v11a2 2 0 0 1 -2 2h-36.28z" fill="#2F5FD0"/>
+<text x="205.28" y="246" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#0E1116">638<tspan font-weight="400" fill="#3F4651">  floor: level 7, ladder v1</tspan></text>
+<text x="22" y="274" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#0E1116">Map extraction</text>
+<path d="M160 262h32.68a2 2 0 0 1 2 2v11a2 2 0 0 1 -2 2h-32.68z" fill="#2F5FD0"/>
+<text x="201.68" y="274" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#0E1116">578<tspan font-weight="400" fill="#3F4651">  floor: level 8, ladder v2</tspan></text>
+<line x1="160" y1="289" x2="310" y2="289" stroke="#6B7280" stroke-width="1"/>
+<line x1="160" y1="289" x2="160" y2="293" stroke="#6B7280" stroke-width="1"/>
+<text x="160" y="305" text-anchor="middle" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#6B7280">0</text>
+<line x1="220" y1="289" x2="220" y2="293" stroke="#6B7280" stroke-width="1"/>
+<text x="220" y="305" text-anchor="middle" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#6B7280">1,000</text>
+<line x1="280" y1="289" x2="280" y2="293" stroke="#6B7280" stroke-width="1"/>
+<text x="280" y="305" text-anchor="middle" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#6B7280">2,000</text>
+<text x="235" y="322" text-anchor="middle" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#6B7280">planted-truth items in the suite</text>
+<line x1="22" y1="339" x2="498" y2="339" stroke="#DCE1E8" stroke-width="1"/>
+<text x="22" y="360" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">A planted-truth item is a case built by code with a known answer: a</text>
+<text x="22" y="375" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">fault, a recovery or an effect put in at a known place. Bars: items in</text>
+<text x="22" y="390" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">each suite. A suite runs as a ladder of levels, cheapest check first;</text>
+<text x="22" y="405" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">a floor is the level every seed must reach in CI, for the ladder</text>
+<text x="22" y="420" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">version named. No pass rate is quoted until a suite passes its</text>
+<text x="22" y="435" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">independent audit; the open gaps are listed in each GATE.md.</text>
+<text x="22" y="450" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">Sources: validators/*/GATE.md, validators/system/HANDOVER.md,</text>
+<text x="22" y="465" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#6B7280">validators/floors.json.</text>
+</svg>

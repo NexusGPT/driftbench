@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 992" width="520" height="992" role="img" aria-label="On 18 held-out tests against four frameworks' default judges, the shipped judge is clearly ahead on 5, clearly behind on 2, and within error on 11.">
+<title>On 18 held-out tests against four frameworks' default judges, the shipped judge is clearly ahead on 5, clearly behind on 2, and within error on 11.</title>
+<desc>Hallucination: driftbench 71 of 72, other 36 of 72. Faithfulness: driftbench 71 of 72, other 36 of 72. Turn relevancy: driftbench 65 of 72, other 36 of 72. Completeness: driftbench 70 of 72, other 46 of 72. Role adherence: driftbench 72 of 72, other 63 of 72. DAG, one node: driftbench 65 of 72, other 65 of 72. Task completion: driftbench 72 of 72, other 72 of 72. Knowledge retention: driftbench 68 of 72, other 69 of 72. G-Eval, strict: driftbench 65 of 72, other 70 of 72. LLM rubric: driftbench 71 of 72, other 69 of 72. Personal data: driftbench 72 of 72, other 71 of 72. Goal success: driftbench 72 of 72, other 71 of 72. Factuality: driftbench 70 of 72, other 70 of 72. Reference correctness: driftbench 116 of 120, other 115 of 120. Grader panel: driftbench 59 of 60, other 59 of 60. Model-graded QA: driftbench 48 of 60, other 57 of 60. Model-graded fact: driftbench 48 of 60, other 59 of 60. Panel, borderline: driftbench 49 of 60, other 60 of 60.</desc>
+<rect x="0.5" y="0.5" width="519" height="991" rx="14" fill="#0E1218" stroke="#2A313C"/>
+<text x="22" y="49" font-family="'Libre Caslon Text', 'Libre Caslon Display', Georgia, 'Times New Roman', serif" font-size="19" fill="#F5F3F0" letter-spacing="-0.2">On 18 held-out tests against four frameworks'</text>
+<text x="22" y="74" font-family="'Libre Caslon Text', 'Libre Caslon Display', Georgia, 'Times New Roman', serif" font-size="19" fill="#F5F3F0" letter-spacing="-0.2">default judges, the shipped judge is clearly ahead</text>
+<text x="22" y="99" font-family="'Libre Caslon Text', 'Libre Caslon Display', Georgia, 'Times New Roman', serif" font-size="19" fill="#F5F3F0" letter-spacing="-0.2">on 5, clearly behind on 2, and within error on 11.</text>
+<rect x="22" y="116" width="11" height="11" rx="2" fill="#6E9BF0"/>
+<text x="38" y="126" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#C5CBD3">driftbench, shipped judge</text>
+<rect x="228.5" y="116" width="11" height="11" rx="2" fill="#6B7482"/>
+<text x="244.5" y="126" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#C5CBD3">the other tool's default</text>
+<line x1="272" y1="153" x2="272" y2="805" stroke="#2A313C" stroke-width="1" stroke-dasharray="2 4"/>
+<line x1="372" y1="153" x2="372" y2="805" stroke="#2A313C" stroke-width="1" stroke-dasharray="2 4"/>
+<text x="22" y="167" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" letter-spacing="0.6" fill="#8D96A3">DEEPEVAL 4.2.8, DEFAULT METRICS, 72 CASES EACH</text>
+<text x="22" y="190" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Hallucination</text>
+<path d="M172 177h195.22a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-195.22z" fill="#6E9BF0"/>
+<path d="M357.09 178.5v6M357.09 181.5H371.51M371.51 178.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 188h98a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-98z" fill="#6B7482"/>
+<path d="M249.49 189.5v6M249.49 192.5H294.51M294.51 189.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="190" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">71 <tspan fill="#8D96A3" font-weight="500">v</tspan> 36</text>
+<text x="498" y="190" text-anchor="end" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#6E9BF0">ahead</text>
+<text x="22" y="220" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Faithfulness</text>
+<path d="M172 207h195.22a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-195.22z" fill="#6E9BF0"/>
+<path d="M357.09 208.5v6M357.09 211.5H371.51M371.51 208.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 218h98a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-98z" fill="#6B7482"/>
+<path d="M249.49 219.5v6M249.49 222.5H294.51M294.51 219.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="220" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">71 <tspan fill="#8D96A3" font-weight="500">v</tspan> 36</text>
+<text x="498" y="220" text-anchor="end" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#6E9BF0">ahead</text>
+<text x="22" y="250" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Turn relevancy</text>
+<path d="M172 237h178.56a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-178.56z" fill="#6E9BF0"/>
+<path d="M334.53 238.5v6M334.53 241.5H362.42M362.42 238.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 248h98a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-98z" fill="#6B7482"/>
+<path d="M249.49 249.5v6M249.49 252.5H294.51M294.51 249.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="250" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">65 <tspan fill="#8D96A3" font-weight="500">v</tspan> 36</text>
+<text x="498" y="250" text-anchor="end" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#6E9BF0">ahead</text>
+<text x="22" y="280" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Completeness</text>
+<path d="M172 267h192.44a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-192.44z" fill="#6E9BF0"/>
+<path d="M352.85 268.5v6M352.85 271.5H370.47M370.47 268.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 278h125.78a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-125.78z" fill="#6B7482"/>
+<path d="M276.7 279.5v6M276.7 282.5H320.04M320.04 279.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="280" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">70 <tspan fill="#8D96A3" font-weight="500">v</tspan> 46</text>
+<text x="498" y="280" text-anchor="end" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#6E9BF0">ahead</text>
+<text x="22" y="310" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Role adherence</text>
+<path d="M172 297h198a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-198z" fill="#6E9BF0"/>
+<path d="M361.87 298.5v6M361.87 301.5H372M372 298.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 308h173a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-173z" fill="#6B7482"/>
+<path d="M327.84 309.5v6M327.84 312.5H358.56M358.56 309.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="310" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">72 <tspan fill="#8D96A3" font-weight="500">v</tspan> 63</text>
+<text x="498" y="310" text-anchor="end" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#6E9BF0">ahead</text>
+<text x="22" y="340" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">DAG, one node</text>
+<path d="M172 327h178.56a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-178.56z" fill="#6E9BF0"/>
+<path d="M334.53 328.5v6M334.53 331.5H362.42M362.42 328.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 338h178.56a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-178.56z" fill="#6B7482"/>
+<path d="M334.53 339.5v6M334.53 342.5H362.42M362.42 339.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="340" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">65 <tspan fill="#8D96A3" font-weight="500">v</tspan> 65</text>
+<text x="22" y="370" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Task completion</text>
+<path d="M172 357h198a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-198z" fill="#6E9BF0"/>
+<path d="M361.87 358.5v6M361.87 361.5H372M372 358.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 368h198a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-198z" fill="#6B7482"/>
+<path d="M361.87 369.5v6M361.87 372.5H372M372 369.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="370" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">72 <tspan fill="#8D96A3" font-weight="500">v</tspan> 72</text>
+<text x="22" y="400" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Knowledge retention</text>
+<path d="M172 387h186.89a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-186.89z" fill="#6E9BF0"/>
+<path d="M345.14 388.5v6M345.14 391.5H367.64M367.64 388.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 398h189.67a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-189.67z" fill="#6B7482"/>
+<path d="M348.9 399.5v6M348.9 402.5H369.15M369.15 399.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="400" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">68 <tspan fill="#8D96A3" font-weight="500">v</tspan> 69</text>
+<text x="22" y="430" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">G-Eval, strict</text>
+<path d="M172 417h178.56a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-178.56z" fill="#6E9BF0"/>
+<path d="M334.53 418.5v6M334.53 421.5H362.42M362.42 418.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 428h192.44a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-192.44z" fill="#6B7482"/>
+<path d="M352.85 429.5v6M352.85 432.5H370.47M370.47 429.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="430" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">65 <tspan fill="#8D96A3" font-weight="500">v</tspan> 70</text>
+<text x="22" y="467" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" letter-spacing="0.6" fill="#8D96A3">PROMPTFOO, DEFAULT GRADERS, 72 CASES EACH</text>
+<text x="22" y="490" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">LLM rubric</text>
+<path d="M172 477h195.22a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-195.22z" fill="#6E9BF0"/>
+<path d="M357.09 478.5v6M357.09 481.5H371.51M371.51 478.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 488h189.67a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-189.67z" fill="#6B7482"/>
+<path d="M348.9 489.5v6M348.9 492.5H369.15M369.15 489.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="490" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">71 <tspan fill="#8D96A3" font-weight="500">v</tspan> 69</text>
+<text x="22" y="520" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Personal data</text>
+<path d="M172 507h198a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-198z" fill="#6E9BF0"/>
+<path d="M361.87 508.5v6M361.87 511.5H372M372 508.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 518h195.22a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-195.22z" fill="#6B7482"/>
+<path d="M357.09 519.5v6M357.09 522.5H371.51M371.51 519.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="520" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">72 <tspan fill="#8D96A3" font-weight="500">v</tspan> 71</text>
+<text x="22" y="550" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Goal success</text>
+<path d="M172 537h198a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-198z" fill="#6E9BF0"/>
+<path d="M361.87 538.5v6M361.87 541.5H372M372 538.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 548h195.22a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-195.22z" fill="#6B7482"/>
+<path d="M357.09 549.5v6M357.09 552.5H371.51M371.51 549.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="550" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">72 <tspan fill="#8D96A3" font-weight="500">v</tspan> 71</text>
+<text x="22" y="580" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Factuality</text>
+<path d="M172 567h192.44a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-192.44z" fill="#6E9BF0"/>
+<path d="M352.85 568.5v6M352.85 571.5H370.47M370.47 568.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 578h192.44a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-192.44z" fill="#6B7482"/>
+<path d="M352.85 579.5v6M352.85 582.5H370.47M370.47 579.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="580" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">70 <tspan fill="#8D96A3" font-weight="500">v</tspan> 70</text>
+<text x="22" y="617" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" letter-spacing="0.6" fill="#8D96A3">LANGFUSE, CORRECTNESS TEMPLATE, 120 CASES</text>
+<text x="22" y="640" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Reference correctness</text>
+<path d="M172 627h191.33a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-191.33z" fill="#6E9BF0"/>
+<path d="M355.48 628.5v6M355.48 631.5H369.39M369.39 628.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 638h189.67a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-189.67z" fill="#6B7482"/>
+<path d="M353.23 639.5v6M353.23 642.5H368.41M368.41 639.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="640" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">116 <tspan fill="#8D96A3" font-weight="500">v</tspan> 115</text>
+<text x="22" y="677" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" letter-spacing="0.6" fill="#8D96A3">INSPECT 0.3.278, DEFAULT GRADERS, 60 CASES EACH</text>
+<text x="22" y="700" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Grader panel</text>
+<path d="M172 687h194.67a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-194.67z" fill="#6E9BF0"/>
+<path d="M354.29 688.5v6M354.29 691.5H371.41M371.41 688.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 698h194.67a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-194.67z" fill="#6B7482"/>
+<path d="M354.29 699.5v6M354.29 702.5H371.41M371.41 699.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="700" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">59 <tspan fill="#8D96A3" font-weight="500">v</tspan> 59</text>
+<text x="22" y="730" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Model-graded QA</text>
+<path d="M172 717h158a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-158z" fill="#6E9BF0"/>
+<path d="M308.44 718.5v6M308.44 721.5H348.34M348.34 718.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 728h188a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-188z" fill="#6B7482"/>
+<path d="M344.6 729.5v6M344.6 732.5H368.57M368.57 729.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="730" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">48 <tspan fill="#8D96A3" font-weight="500">v</tspan> 57</text>
+<text x="22" y="760" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Model-graded fact</text>
+<path d="M172 747h158a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-158z" fill="#6E9BF0"/>
+<path d="M308.44 748.5v6M308.44 751.5H348.34M348.34 748.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 758h194.67a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-194.67z" fill="#6B7482"/>
+<path d="M354.29 759.5v6M354.29 762.5H371.41M371.41 759.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="760" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">48 <tspan fill="#8D96A3" font-weight="500">v</tspan> 59</text>
+<text x="498" y="760" text-anchor="end" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#F5F3F0">behind</text>
+<text x="22" y="790" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" fill="#F5F3F0">Panel, borderline</text>
+<path d="M172 777h161.33a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-161.33z" fill="#6E9BF0"/>
+<path d="M312.16 778.5v6M312.16 781.5H350.88M350.88 778.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<path d="M172 788h198a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2h-198z" fill="#6B7482"/>
+<path d="M359.97 789.5v6M359.97 792.5H372M372 789.5v6" stroke="#F5F3F0" stroke-width="1.2" fill="none" opacity="0.85"/>
+<text x="382" y="790" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F5F3F0">49 <tspan fill="#8D96A3" font-weight="500">v</tspan> 60</text>
+<text x="498" y="790" text-anchor="end" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#F5F3F0">behind</text>
+<line x1="172" y1="809" x2="372" y2="809" stroke="#8D96A3" stroke-width="1"/>
+<line x1="172" y1="809" x2="172" y2="813" stroke="#8D96A3" stroke-width="1"/>
+<text x="172" y="825" text-anchor="middle" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#8D96A3">0%</text>
+<line x1="272" y1="809" x2="272" y2="813" stroke="#8D96A3" stroke-width="1"/>
+<text x="272" y="825" text-anchor="middle" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#8D96A3">50%</text>
+<line x1="372" y1="809" x2="372" y2="813" stroke="#8D96A3" stroke-width="1"/>
+<text x="372" y="825" text-anchor="middle" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#8D96A3">100%</text>
+<text x="272" y="842" text-anchor="middle" font-family="Geist, Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#8D96A3">correct verdicts, % of cases</text>
+<line x1="22" y1="859" x2="498" y2="859" stroke="#2A313C" stroke-width="1"/>
+<text x="22" y="880" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">Correct verdicts on held-out cases with fixed labels, one judge model</text>
+<text x="22" y="895" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">for both sides (Claude Haiku 5.5). Whiskers: 95% Wilson interval.</text>
+<text x="22" y="910" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">Ahead or behind means the two intervals do not overlap.</text>
+<text x="22" y="925" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">Goal success and task completion give both judges the same evidence;</text>
+<text x="22" y="940" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">with default inputs the other tools score 36 and 44 of 72.</text>
+<text x="22" y="955" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">Sources: comparisons/{deepeval,promptfoo,langfuse,inspect}/hard.</text>
+<text x="22" y="970" font-family="'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#8D96A3">Redraw: node tools/readme-charts.mjs</text>
+</svg>

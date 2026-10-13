@@ -1,4 +1,6 @@
-<h1 align="center">driftbench. Every exchange is a unit test.</h1>
+<h1 align="center">driftbench</h1>
+
+<p align="center"><b>Test your AI agent one exchange at a time, and know how far to trust the score.</b></p>
 
 <p align="center">
   <picture>
@@ -8,197 +10,203 @@
 </p>
 
 <p align="center">
-  <a href="#get-started">Get started</a> ·
-  <a href="#what-you-get">What you get</a> ·
+  <a href="#quickstart">Quickstart</a> ·
+  <a href="#what-it-does">What it does</a> ·
   <a href="#how-it-works">How it works</a> ·
-  <a href="#roadmap">Roadmap</a> ·
-  <a href="docs/index.md">Docs</a> ·
-  <a href="#contributing">Contributing</a> ·
-  <a href="https://agent.nexus">agent.nexus</a>
+  <a href="#the-command-line">CLI</a> ·
+  <a href="#adapters">Adapters</a> ·
+  <a href="#benchmarks">Benchmarks</a> ·
+  <a href="#how-it-compares">Comparison</a> ·
+  <a href="docs/index.md">Docs</a>
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/@agent-nexus/driftbench"><img alt="npm version" src="https://img.shields.io/npm/v/%40agent-nexus%2Fdriftbench?color=2F5FD0&label=npm" /></a>
   <a href="LICENSE"><img alt="licence Apache 2.0" src="https://img.shields.io/badge/licence-Apache--2.0-2F5FD0?style=flat" /></a>
-  <a href="#roadmap"><img alt="status pre alpha" src="https://img.shields.io/badge/status-pre--alpha-1B2A44?style=flat" /></a>
-  <img alt="language TypeScript" src="https://img.shields.io/badge/language-TypeScript-2F5FD0?style=flat" />
   <img alt="Node 22 or newer" src="https://img.shields.io/badge/node-22%2B-1B2A44?style=flat" />
   <a href="https://github.com/achammah/driftbench/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/achammah/driftbench/actions/workflows/ci.yml/badge.svg" /></a>
 </p>
 
----
+driftbench is an open-source evaluation framework for AI agents: chat agents, and agents that write code and files. You describe a conversation or a task as a list of **blocks**. A block is one user message, everything the agent does in reply, and what must be true afterwards. driftbench runs the blocks against your agent, checks each one, and reports every rate with its interval.
 
-driftbench evaluates AI agents one exchange at a time. Each exchange is a **block**: one user message and everything the agent does before the next one. Each block is a unit test with a Given, a When and a Then. A conversation is a succession of blocks, so a failure has an address, drift has a first block, and recovery has a count. Every rate comes with its interval.
+- **A failure has an address.** A failing run names the block, the check and the evidence, such as `block 1 forbidden.order.create`.
+- **You are told when a score is noise.** Every rate carries a 95% interval, and the gate says how many test conversations your suite needs before it can show anything.
+- **The tests are not written by hand.** Code generates them from a map of what the agent can face, and counts what they cover.
+- **The evaluator is tested too.** driftbench runs against 7,453 cases with a known answer before its own numbers are trusted.
 
-It targets conversational agents and code interpreter agents, the ones that write code, use a workspace and load skills. Both run through the same blocks and the same checks. Any agent plugs in through an adapter. Open source, Apache 2.0, written in TypeScript.
+Works with any agent through an [adapter](#adapters). No account, no server. Apache 2.0, TypeScript, Node 22 or newer.
 
-> [!NOTE]
-> **Not on npm yet.** Version 0.1.0 is prepared ([CHANGELOG.md](CHANGELOG.md)). Run it from source.
+## Quickstart
 
----
+About two minutes, most of it the install. You need Node 22 or newer and npm. No API key: the agent below is a short script that stands in for yours.
 
-## Get started
-
-Node 22 or newer and pnpm. No API key: every example below runs on Acme Telecom, a synthetic sales assistant with no model.
+**1. Make a folder and install.**
 
 ```bash
-git clone https://github.com/achammah/driftbench
-cd driftbench
-pnpm install
-pnpm driftbench spec validate examples/acme/specs
+mkdir my-evals && cd my-evals
+npm init -y
+npm install @agent-nexus/driftbench
+mkdir specs
 ```
 
-```
-Checked 7 specs: 7 valid, 0 invalid, 0 warnings.
+**2. Create `agent.mjs`.** It reads the user message on standard input and prints the reply. Replace it with a call to your own agent later.
+
+```js
+// A stand-in for your agent: reads the user message on stdin, prints the reply.
+import { readFileSync } from 'node:fs';
+
+const message = readFileSync(0, 'utf8').trim();
+const history = JSON.parse(readFileSync(process.env.DRIFTBENCH_HISTORY_FILE, 'utf8'));
+
+if (/refund/i.test(message)) {
+  console.log('I can help with a refund. What is your order number?');
+} else if (/\bA-\d+\b/.test(message)) {
+  console.log(`Refund started for order ${message.match(/A-\d+/)[0]}. You will get an email within 2 days.`);
+} else {
+  console.log(`Sorry, I did not get that. (${history.length} messages so far)`);
+}
 ```
 
-A spec is one golden conversation, written as blocks in YAML. These are the first two of the five blocks in [`plan-upgrade.yaml`](examples/acme/specs/conversations/plan-upgrade.yaml):
+**3. Create `specs/refund.yaml`.** Two blocks: what the user says, and what the reply must and must not contain.
 
 ```yaml
-id: acme-plan-upgrade
-title: An existing customer moves to a plan with more data
-channel: chat
-lang: EN
-target: { adapter: function, agent: acme-sales }
-ledger_seed:
-  customer: existing
-  lang: EN
-stages: [identify, offer, recap, order_placed, callback, handover, closing]
-
-criteria:
-  - name: one_question_per_turn
-    rubric: The reply asks the customer at most one question.
-    judge_class: system1
-  - name: no_invented_data
-    rubric: >
-      Every plan, price, order number and account fact in the reply
-      comes from a tool result or from the customer. Nothing is guessed.
-    gating: true
-    judge_class: system2
+id: refund-happy-path
+title: A customer asks for a refund and gives an order number
+target: { adapter: process, agent: my-agent }
 
 blocks:
-  - user: Hi, I'm already an Acme customer and I keep running out of data on my phone.
+  - user: Hi, I would like a refund please.
     expect:
-      stage: identify
-      tools:
-        - { label: catalog.search, count: 0 }
-      must: ['Acme Telecom', 'email address']
-      criteria: [one_question_per_turn]
+      must: ['order number']
+      must_not: ['Refund started']
 
-  - user: It's sam.rivera@example.com
+  - user: It is A-1042.
     expect:
-      stage: offer
-      ledger_add: { customer_id: cust-001, current_plan: mobile-s }
-      tools:
-        - label: catalog.search
-          count: 1
-          input:
-            category: mobile
-            customer_email: sam.rivera@example.com
-            address_id: { absent: true }
-      must: ['Acme Mobile M', 'Acme Mobile L', '\$25', '\$35']
-      must_not: ['Fiber', 'Air 5G']
-      criteria: [no_invented_data@gating, one_question_per_turn]
+      must: ['Refund started', 'A-1042']
+      must_not: ['Sorry']
 ```
 
-Run the six Acme conversations on the chat agent, free running, twice each, then the price sheet task on the code agent:
+**4. Check the spec, then run it.**
 
 ```bash
-pnpm driftbench campaign run examples/acme/specs/conversations --target function:acme --mode F --repeats 2
-pnpm driftbench campaign run examples/acme/specs/tasks --target process:acme-ops --mode F
+npx driftbench spec validate specs
+npx driftbench campaign run specs --target process:my-agent \
+  --process-command "[\"node\",\"$PWD/agent.mjs\"]"
 ```
 
-The first line, one cell and the summary of the first, then the second:
+The output, trimmed to its verdict lines:
 
 ```
-Campaign c-79250892ac75: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
-✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
-12 cells: 12 pass, 0 fail, 0 failed. Spent $0.00.
+✓ specs/refund.yaml  refund-happy-path · 2 blocks · hash c985453f6be7
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
 
-✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
+✓ refund-happy-path · process:my-agent · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 ```
 
-Check that the agent answers the same way every time:
+**5. Break the agent and run again.** Change `Refund started for order` to `Started a return for` in `agent.mjs`. The run now exits 1 and names the block and the check:
+
+```
+✗ refund-happy-path · process:my-agent · F · repeat 0  fail  block 1 must.0
+1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
+```
+
+**6. Keep the runs and open the scorecard.** Add `--repeats 3 --store runs.db` to the run, then:
 
 ```bash
-pnpm driftbench smoke examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme
+npx driftbench report --store runs.db --out scorecard.html
 ```
 
-```
-Smoke: acme-plan-upgrade on function:acme, 3 runs, cache off.
-  run 1  completed  5 blocks  transcript 9ec7c3e69cd4
-  run 2  completed  5 blocks  transcript 9ec7c3e69cd4
-  run 3  completed  5 blocks  transcript 9ec7c3e69cd4
-✓ The transcripts are identical.
-```
-
----
-
-## What you get
-
-Four areas, all built.
-
-<a href=".github/readme/areas-light.png">
+<p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/areas-dark.png">
-    <img alt="Four areas on four cards: scenarios and simulated users, checks and judges, drift and recovery, statistics and CI gates." src=".github/readme/areas-light.png" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/scorecard-dark.png">
+    <img src="docs/assets/scorecard-light.png" alt="A driftbench scorecard, one HTML file. Summary: Regressed, candidate against baseline, margin 28.0 points, 10 paired conversations. Six tiles: runs passing 50.0% with interval 19.9% to 80.1%, block accuracy 73.3%, end state match 85.7%, tool F1 77.6%, cost per block, latency per block. Below, the baseline passes 10 of 10 and the candidate 5 of 10, with the five conversations that regressed and the reason for each." width="820" />
   </picture>
-</a>
+</p>
+<p align="center"><sub>The scorecard of the bundled Acme example with one planted fault. Every rate has its interval, and the verdict says why.</sub></p>
 
-- **[Scenarios and users](docs/simulated-user.md)**: YAML specs, a scripted user, a simulated user that plays a persona, an [adaptive attacker](docs/attack.md), ten deviation classes, and specs drafted from [production traces](docs/traces.md) or [a spreadsheet](docs/datasets.md).
-- **[Checks and judges](docs/reference/checks.md)**: 24 machine checks, among them `similarity`, `relevancy`, `knowledge_retention` and `tools_offered`; a judge council calibrated on hand labels you set in a [local viewer](docs/viewer.md).
-- **[Drift and recovery](#drift-and-recovery)**: five drift classes, turns to recover after a deviation, and a [monitor](docs/traces.md) that watches production traces for drift.
-- **[Statistics and CI gates](#numbers-with-intervals)**: an interval on every rate, `pass^k`, paired tests, and a noninferiority gate whose margin defaults to the smallest the suite can show.
+Next: [evaluate your own agent](#evaluate-your-own-agent), [add a judge](#add-a-judge), or [gate a pull request](#gate-a-pull-request). The full spec format is in the [spec reference](docs/reference/spec.md).
 
-## Things you can do with driftbench
+## What it does
 
-1. **Write a golden as blocks** and validate it: `driftbench spec validate`.
-2. **Run it three ways**, teacher forced, free running and perturbed, with retries and a budget cap: `driftbench campaign run` ([running](docs/running.md), [retries](docs/retries.md)).
-3. **Play a simulated user** from a persona, on a model or a recording: `driftbench simulate`.
-4. **Attack adaptively**: each deviation is picked from the agent's last replies: `driftbench attack`.
-5. **Start from production**: draft specs from OpenTelemetry, Nexus or Claude Code traces, then watch the same traces for drift: `driftbench import traces`, `driftbench monitor --source traces`.
-6. **Label blocks by hand** in a local viewer, and calibrate the judges on your labels: `driftbench view`, `driftbench judge calibrate`.
-7. **Version datasets and prompts**, immutable and restorable byte for byte: `driftbench dataset`, `driftbench prompt`.
-8. **Gate a change in CI**: `driftbench ci` and the GitHub Action, or [pytest](docs/python.md) and [vitest](docs/vitest.md) from your own tests.
-9. **Test a code agent as an estate**: map its instructions, skills and guards, generate tests, replay recorded sessions, run it live, and mutate it: `driftbench estate`, `driftbench replay` ([estates](docs/estate.md)).
-10. **Generate the tests** from a map a person approves, gate them, pick the fewest that cover it: `driftbench extract`, `generate`, `gate`, `select` ([generating](docs/generating.md)).
+**Write and generate tests**
+- [Specs](docs/reference/spec.md): one conversation or one task as YAML blocks, each with a Given, a When and a Then.
+- [Generated tests](docs/generating.md): code writes the blocks from an approved map of situations, and reports the pairs of values they cover.
+- [Tests from production](docs/traces.md): draft specs from OpenTelemetry, Nexus or Claude Code traces, or from [a spreadsheet](docs/datasets.md).
 
----
+**Run agents**
+- [13 adapters](docs/adapters/index.md): a function, an HTTP endpoint, a command, and the common agent SDKs.
+- [Three run modes](docs/concepts/run-modes.md): each block alone, the whole conversation, or with a deviation injected.
+- [Simulated users](docs/simulated-user.md) and an [adaptive attacker](docs/attack.md) that picks its next move from the agent's last replies.
+
+**Check and judge**
+- [29 machine checks](docs/reference/checks.md): tool calls and their arguments, text, language, personal data, end state, files, spreadsheets, cost.
+- [Judges](docs/concepts/judges.md): a model judges what code cannot, must quote its evidence, and a panel votes when the first judge is unsure.
+- [Hand labels](docs/viewer.md): label blocks in a local viewer and measure each judge against them.
+
+**Measure variance**
+- [Intervals on every rate](docs/concepts/statistics.md), repeats, and the share of runs that pass every time.
+- [Where results vary](docs/concepts/statistics.md#where-results-vary): how much of the spread comes from the agent, the wording, the persona or the judge.
+- [Drift](docs/concepts/drift.md) and [recovery](docs/concepts/recovery.md): the first block that went wrong, and how many blocks the agent needs to come back.
+
+**Compare runs**
+- [Paired comparison](docs/concepts/statistics.md#comparing-a-baseline-and-a-candidate) of two versions on the same conversations.
+- [A CI gate](docs/reference/cli.md#driftbench-ci) with an exit code: parity, regression, or not enough evidence.
+- [Scorecards](docs/scorecards.md): one HTML file, JUnit XML, and a [monitor](docs/traces.md#monitoring-driftbench-monitor---source-traces) for production traces.
+
+**Record and replay**
+- [Replay recorded sessions](docs/estate.md#replay-built) offline, with no model call.
+- [Cached blocks](docs/running.md#the-cache-and-replay) and recorded judge answers, so a rerun costs nothing.
+- [Versioned datasets and prompts](docs/datasets.md#the-registry), restorable byte for byte.
+
+**Validate the evaluator**
+- [Planted-truth suites](docs/validators.md): code builds cases with a known answer and measures what driftbench reports.
+- [A validity gate](docs/generating.md#the-gate) for tests: a test that a planted fault does not fail, or that a constant reply passes, is rejected.
 
 ## How it works
 
-Everything in this section runs today, except the runtime battery. The [docs](docs/index.md) hold the detail: concepts, the spec reference, the CLI and the adapters.
-
-### A block is a unit test
-
-<a href=".github/readme/block-light.png">
+<p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-dark.png">
-    <img alt="The second block of the plan upgrade spec in three parts. Given: the first block, an existing customer, the Acme store, the chat channel. When: the user gives the email on their account. Then: stage offer, one catalogue search, both larger plans named, no home plans, the customer id added to the ledger, the no invented data criterion. Below, every observed field passes and the block passes." src=".github/readme/block-light.png" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-it-works-dark.svg">
+    <img src="docs/assets/how-it-works-light.svg" alt="Seven steps. 1 Map: what the agent can face, approved by a person. 2 Tests: code writes blocks from the map, and a gate rejects tests that cannot fail. 3 Run: one adapter reaches your agent, in three run modes, with repeats, record and replay. 4 Checks: 29 machine checks read the reply, the tool calls and the files; a fail is final. 5 Judges: a model judges the rest, quoting its evidence, and a panel votes when unsure. 6 Statistics: an interval on every rate, the noise floor, paired tests between two runs. 7 Verdict: a scorecard and an exit code CI can gate on." width="560" />
   </picture>
-</a>
-<p align="center"><sub>Given the state so far, when the user speaks, then the agent must reach the right stage, call the right tools and say nothing it must not.</sub></p>
+</p>
 
-A block holds everything the agent does between two user messages: text, cards, tool calls and tool results. The spec fixes what must be true after it. driftbench reads what happened, compares it field by field, and keeps the evidence behind every verdict. Run one block many times from the same Given and you get its own pass rate, free of the blocks before it.
+You can enter at step 3 with specs you wrote by hand, as in the quickstart. Steps 1 and 2 are for when you want coverage you can count.
 
-<a href=".github/readme/kinds-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-dark.png">
-    <img alt="The same block model for two agents. Left, the Acme sales assistant at block four: the user replies CONFIRM, the agent places the order and gives its order number; stage, tool call, confirmation guard, text and end state are checked. Right, a code interpreter agent at the first block of the price sheet task: it loads the xlsx skill, runs code that exits with 0, creates the price sheet workbook and leaves the other files untouched; sheets and cells, the formula, the workspace diff and no destructive operation are checked." src=".github/readme/kinds-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub>One block model for both kinds of agent. Left, the Acme agent's real reply. The same checks read a reply, a tool call or a file.</sub></p>
+**A block is a unit test.** It holds a Given (the conversation or the workspace so far), a When (the user message) and a Then (what must be true). Because each block can start from its own Given, one block can be run many times on its own and gets its own pass rate.
 
-When the agent writes code, uses a workspace and loads skills, a block is one task step, run in a sandbox. The same checks then read what the step left behind:
+**One conversation, three runs.** Teacher forced: every block starts from the reference history, so a miss stays local. Free running: the agent's own replies carry forward, so errors compound. Perturbed: a deviation is injected at a chosen block and driftbench counts the blocks until the agent is back.
 
-- **Artifacts**, opened and read: spreadsheet cells and formulas, document sections, slide titles, PDF text, test runs.
-- **Workspace**: what was created, changed and deleted. Every other file stays as it was.
-- **Execution**: the commands run, their exit codes, bounded output.
-- **Safety**: a delete, an overwrite, a send, a payment or a push is flagged unless the block confirms it.
-- **Skills and budget**: the right skills in the right order, within the step, cost and time budget.
-- **References and helpers**: the files the agent read, and the helpers it dispatched, on which model.
+**Machine checks first, judges second.** Code checks everything code can check, and a machine fail cannot be overruled. A model judges only the named criteria that need reading, and never shares a model family with the agent.
 
-A task step reads the same way as a chat block. This is the whole of [`price-sheet-build.yaml`](examples/estates/sessions/specs/price-sheet-build.yaml): a recorded Claude Code session in which a code agent builds the Acme price sheet, replayed with no model call. The step starts from a seeded workspace, loads the `xlsx` skill, reads the skill and one of its references, edits `build_sheet.py` only after reading it, runs it, and has a reviewer helper check the workbook on a named model:
+**Then statistics.** One run proves little. Rates come with Wilson intervals, comparisons are paired on the same conversations, and a difference smaller than the run-to-run spread is reported as noise.
+
+<details>
+<summary>A chat block and a code-agent block, side by side</summary>
+
+<br/>
+
+A chat block from the bundled Acme example, [`plan-upgrade.yaml`](examples/acme/specs/conversations/plan-upgrade.yaml):
+
+```yaml
+- user: It's sam.rivera@example.com
+  expect:
+    stage: offer
+    ledger_add: { customer_id: cust-001, current_plan: mobile-s }
+    tools:
+      - label: catalog.search
+        count: 1
+        input:
+          category: mobile
+          customer_email: sam.rivera@example.com
+          address_id: { absent: true }
+    must: ['Acme Mobile M', 'Acme Mobile L', '\$25', '\$35']
+    must_not: ['Fiber', 'Air 5G']
+    criteria: [no_invented_data@gating, one_question_per_turn]
+```
+
+A task block for a code agent, the whole of [`price-sheet-build.yaml`](examples/estates/sessions/specs/price-sheet-build.yaml). It checks the skill loaded, the files read, the helper dispatched, the commands run, the workspace diff and the cells of the workbook:
 
 ```yaml
 id: replay-price-sheet-build
@@ -251,265 +259,413 @@ blocks:
       must: ['acme-price-sheet\.xlsx']
 ```
 
-`references` and `subagents` check what the agent read and whom it dispatched. `rules.custom.ordered` holds the agent to reading a file before it edits it. The artifact checks open the workbook the session left behind:
-
-```bash
-S=examples/estates/sessions
-pnpm driftbench replay $S/price-sheet-build.jsonl --suite $S/specs/price-sheet-build.yaml \
-  --decisions $S/price-sheet-build.decisions.jsonl --steps $S/price-sheet-build.steps.jsonl
-```
-
-```
-✓ replay-price-sheet-build  session price-sheet-build from block 0 (metadata)
-1 spec replayed: 1 pass, 0 fail. Campaign replay-5e6ed50f72fb (in memory).
-```
-
-Not built yet: the runtime battery for agent harnesses (hook replay, skill loading gates, process step order, speed budgets).
-
-In the docs: [Block](docs/concepts/block.md) · [Given, When, Then](docs/concepts/given-when-then.md) · [Checks](docs/reference/checks.md) · [Spec reference](docs/reference/spec.md)
-
-### One golden, three runs
-
-<a href=".github/readme/modes-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/modes-dark.png">
-    <img alt="One golden, the plan upgrade spec, feeds three runs. Teacher forced: each block starts from the golden, so a miss stays local; it measures local accuracy. Free running: the agent's own replies carry forward, one miss leads to another; it measures compounding. Perturbed: a deviation lands at block two and the agent is back one block later; it measures recovery." src=".github/readme/modes-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub>Teacher forced isolates each block. Free running lets errors compound. Perturbed injects a deviation and measures the way back.</sub></p>
-
-The gap between teacher forced and free running on the same golden is the **compounding index**. An agent can pass every block on its own and still fail the whole conversation. Only free running shows it.
-
-In the docs: [Run modes](docs/concepts/run-modes.md)
-
-### Drift and recovery
-
-<a href=".github/readme/perturbed-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/perturbed-dark.png">
-    <img alt="Six blocks of an order flow. A goal shift is injected at block three: make it two lines. At block three the agent asks for ID and skips the change: flow drift. At block four it says one line: contradiction. At block five it is back on the expected path, and the end state matches. Turns to recover: two blocks, label late, collateral zero." src=".github/readme/perturbed-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub>A goal shift lands at block 3. The agent skips the change, then contradicts it, then comes back. Two blocks to recover.</sub></p>
-
-Every failing block gets one or more drift classes:
-
-| Class | What drifted |
-|---|---|
-| `X1` local error | a wrong answer or a wrong tool, facts intact |
-| `X2` contradiction | the reply contradicts a fact already established |
-| `X3` flow drift | the wrong stage: skipped, repeated, or a known fact asked again |
-| `X4` format drift | narration, a language leak, a double send, channel rules broken |
-| `X5` tool drift | a call that is missing, extra, duplicated or wrongly filled |
-
-Ten deviation classes can be injected at any block, in a conversation or in a code task: off topic question, goal shift, contradiction, loose confirmation, language switch, instruction in data, silence or burst, tool failure, out of scope request, and return after a deviation.
-
-After an injection, driftbench reports the **turns to recover**, a recovery label (immediate, late or never), the **collateral** failures after recovery, the safe action rate on risky injections, and how often the agent asked instead of guessing.
-
-```bash
-pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2
-```
-
-The injected row and the verdict:
-
-```
-  pos  block                       stage         pass  failing
-  2    injected d2-cheaper-plan@2  offer         ✓
-✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
-```
-
-In the docs: [Drift](docs/concepts/drift.md) · [Recovery](docs/concepts/recovery.md)
-
-### Judges earn their criteria
-
-<a href=".github/readme/council-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
-    <img alt="The judge council. Machine checks run first and a machine fail is final. Then three system 1 judges, such as Jev and the OpenAI Decisions API, or three system 2 judges, chat models from OpenAI, Google and Anthropic, vote. Majority wins, a split goes to the other class, inconclusive is judged again and never counted. Below: assignment is earned through a fixture pair, separation three times out of three, and a kappa of 0.8 or more against hand labels." src=".github/readme/council-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub>Machine checks run first and cannot be overruled. Each criterion goes to the judge class that earned it on a fixture pair.</sub></p>
-
-- **Machine checks first.** Tool labels, counts and arguments, patterns on visible text, language, personal data, end state, and the files a task step leaves. A machine fail is final.
-- **Two judge classes.** System 1 judges, such as Jev and the OpenAI Decisions API, answer one fixed yes or no question: cheap, fast, low variance. System 2 judges are chat models from OpenAI, Google or Anthropic. They read across blocks and keep their reasoning. A judge never shares the agent's model family.
-- **Earned on evidence.** Each gating criterion has a fixture pair: one failing transcript, one clean. A judge owns the criterion only if it separates the pair 3 times out of 3 and agrees with hand labels at a kappa of 0.8 or more. Below that, the rubric is rewritten and the threshold stays. Task artifacts are judged the same way.
-- **Strict verdicts.** Majority of three. A split goes to the other class. Inconclusive is judged again and never counted. The judged text sits in a data tag, and instructions inside it are ignored.
-
-In the docs: [Judges](docs/concepts/judges.md)
-
-### Numbers with intervals
-
-One run proves nothing. driftbench treats evaluation as a statistics problem.
-
-- **Intervals on every rate.** Wilson for proportions, Wilson on the effective number of runs for a pass rate over specs or conversations, a clustered bootstrap for anything else aggregated over blocks, one conversation per cluster.
-- **Repeats.** `pass^k` when every run passes, `pass@k` when at least one does, and unreliability: the spread between the 90th and the 10th percentile.
-- **Paired comparisons** on the same goldens: McNemar, Wilcoxon, and a Benjamini Hochberg correction across criteria before any criterion is called a regression.
-- **Power first.** The minimum detectable effect is printed before a campaign spends anything.
-- **A verdict CI can gate on.** The candidate is noninferior when the upper bound of every gating regression stays under the margin. A criterion decided on fewer than 30 goldens is reported as underpowered and does not block parity. New flags always block. The margin defaults to the smallest one the suite can show for the agent compared with itself. Too few goldens reads `not-shown-non-inferior`, a verdict on the size of the suite.
-- **Where results vary.** The variance pilot (`driftbench pilot`) splits the spread by source (the agent's own run to run randomness, the wording, the persona, the conversation and the judge) with a share for each. The run to run spread sets a noise floor, and a difference between two versions smaller than the floor is read as noise.
-
-The gate, on a planted fault: a baseline campaign on the ten Acme goldens, then `ci` on a fault that skips the recap:
-
-```bash
-pnpm driftbench campaign run examples/acme/golden/specs --target function:acme-sales --store ci.db --campaign baseline
-pnpm driftbench ci --specs examples/acme/golden/specs --target fault:x3-skips-recap --faults examples/acme/faults --baseline baseline --store ci.db
-```
-
-```
-Margin auto: 28 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 27.75 points).
-Warning: this suite cannot show parity under 15 points (the all-pass flag needs 27.8 points); about 22 goldens would.
-  all-pass regression effect                   +70.00 points
-  95% interval                                 [+28.89, +89.22] points
-Verdict: REGRESSION. Exit 1.
-```
-
-The same gate on the agent compared with itself reads `Verdict: PARITY. Exit 0.`
-
-In the docs: [Statistics](docs/concepts/statistics.md)
+</details>
 
 ### Generating tests
 
-The aim: about ten goldens that cover every kind of block, instead of two hundred conversations picked by hand. driftbench builds them from what the agent is specified to do. Built, from map to golden set ([generating](docs/generating.md)).
+driftbench writes tests from a map of the situations an agent can face. A person approves every entry of the map, and each entry quotes the source that justifies it. Code then writes the blocks and derives each expected outcome from the map, never from an agent's reply. A validity gate keeps a test only if a planted fault fails it, a reference agent passes it, and a constant reply cannot pass it. Then `select` picks the fewest conversations that cover the map. On the Acme example: 114 conversations cover 592 of the 637 allowed pairs of values, and turn all 13 planted faults red. → [generating tests](docs/generating.md)
 
-- **A map a person approves.** A model reads the prompt, the behaviour inventory and the tool schemas and proposes what varies, quoting its source. Nothing counts until a person approves it: `driftbench extract`.
-- **Code writes the blocks.** From the approved map, code enumerates paths through the stages, pairs and triples of values, boundary values and one probe per deviation class: `driftbench generate`.
-- **Every test passes a validity gate.** A planted fault fails it, a reference agent passes it, its expected values are not leaked into its stimulus, and a constant reply cannot pass it: `driftbench gate`.
-- **The fewest that cover the map**, coverage and completeness counted, and a sealed holdout scored once per query: `driftbench select`, `driftbench space`, `driftbench holdout`.
-- **Spread by source.** A pilot splits the spread between the agent, the wording, the persona, the conversation and the judge, and sets the noise floor: `driftbench pilot`.
+Concepts in the docs: [block](docs/concepts/block.md) · [Given, When, Then](docs/concepts/given-when-then.md) · [run modes](docs/concepts/run-modes.md) · [judges](docs/concepts/judges.md) · [statistics](docs/concepts/statistics.md)
 
-In the repo: [the Acme map proposal](examples/acme/map/README.md)
+## How to use it
 
-## Test generation
+Three short recipes. Each continues the `my-evals` folder of the quickstart, and each command was run as shown.
 
-driftbench builds tests from an approved map of the situations an agent can face. Code reads the behaviour inventory and tool schemas; an optional model proposes entries from those sources and the prompt. Each entry quotes its source, and a person approves it before generation.
+### Evaluate your own agent
 
-Code derives each block's expected outcome from approved relations, independently of the agent's reply. Covering arrays place tests over allowed combinations of categorical values. Graph paths, boundary values, deviation probes, metamorphic variants and task families add tests, and coverage completion fills supported gaps. A block with no approved phrase or machine-checkable outcome stays in `incomplete/`. The validity gate checks candidate blocks against a reference agent, planted faults and trivial controls.
+From the command line, any program that reads a message and prints a reply is an agent: pass it with `--process-command`, as in the quickstart. A Python script works the same way: `--process-command "[\"python3\",\"$PWD/agent.py\"]"`.
 
-### Budget mode
+From code, wrap your agent in an adapter. Save this as `run.mjs` and run `node run.mjs`:
 
-`driftbench generate --budget N` replaces the covering-array conversation rows with a fixed number of selections. The hybrid selector picks the cell that adds the most uncovered allowed pairs, then favours underused values, then resolves ties with a seeded order. Constraints still apply. Without numeric settings, it selects up to N distinct cells. With numeric settings, categorical cells can repeat to place N samples. The other seeders still run, so N does not cap the whole suite, executed blocks or spend.
+```js
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 
-Approved numeric ranges use sliced Latin hypercube sampling (LHS). Rows with the same selected categorical combination form a slice. Each setting occupies every quantile band once globally and once within each slice, and the sampled values enter the spec through `given.vars`. Integer values can repeat. These properties apply to selected rows; removing incomplete rows or gating the suite can change the remaining balance.
+// Your agent: any async function from the conversation so far to a reply.
+async function myAgent(messages) {
+  const last = messages.at(-1).content;
+  const order = last.match(/A-\d+/)?.[0];
+  return order
+    ? `Refund started for order ${order}. You will get an email within 2 days.`
+    : 'I can help with a refund. What is your order number?';
+}
 
-### Measured comparison
+// The adapter: wrap the reply in the shape driftbench observes.
+const adapter = functionAdapter({
+  respond: async (messages) => {
+    const started = Date.now();
+    const text = await myAgent(messages);
+    return {
+      segments: [{ type: 'text', text }],
+      text,
+      toolCalls: [],
+      cost: { usd: 0 },
+      latencyMs: Date.now() - started,
+    };
+  },
+});
 
-The [paired budget study](comparisons/budget/full-study.md) compares selected conversation rows on the fictional Acme system over selection and rendering seeds 1 through 30. Execution uses scripted reference and faulty agents, with 0 model calls and $0 model/tool spend. The table quotes mean fault catches from the study, with a common denominator of 13 scored faults.
+const loaded = await loadSpecFile('specs/refund.yaml');
+if (!loaded.ok) throw new Error('the spec is invalid');
 
-| Budget | Hybrid faults / 13 | Pairwise faults / 13 | Random faults / 13 |
-| --- | --- | --- | --- |
-| 20 | 9.00 | 8.00 | 8.37 |
-| 50 | 9.00 | 9.00 | 8.97 |
-| 100 | 9.00 | 9.00 | 9.00 |
-| 200 | 9.00 | 9.00 | 9.00 |
+const run = await runSpec(loaded.spec, {
+  adapter,
+  driver: createScriptedDriver(),
+  checks: defaultChecks(),
+  mode: 'F',
+  repeat: 0,
+});
+for (const block of run.blocks) console.log(`block ${block.index}: ${block.pass ? 'pass' : 'fail'}`);
+process.exit(run.blocks.every((block) => block.pass) ? 0 : 1);
+```
 
-At budget 20, the exact two-sided paired fault test gives p = 1.862645149230957e-09 for hybrid versus pairwise and p = 0.0001220703125 for hybrid versus random. These p-values are unadjusted and assume exchangeable method labels within each seed pair and independent swaps across pairs.
+```
+block 0: pass
+block 1: pass
+```
 
-At budgets 50, 100 and 200, hybrid and pairwise show no measured difference in fault catches; each paired p-value is 1. Hybrid versus random also has p = 1 at these budgets, although its budget-50 mean differs. This is evidence from this map and its scripted faults; it does not establish performance on other agents.
+Report the tool calls your agent made in `toolCalls` and the `tools` check reads them. Using an agent SDK? There is [an adapter for it](#adapters). Prefer your test runner? [`describeSpec`](docs/vitest.md) gives one vitest test per block, and a [pytest plugin](docs/python.md) one test per spec.
 
-At budget 200, pairwise catches 9 of 13 faults with 132 selected rows; hybrid catches 9 of 13 with 200 rows. Both cover 314.00 drawn pairs out of 314. Selected-row counts describe the selector's output, not whole-suite cost. Drawn pair coverage includes incomplete rows; fault scoring runs only complete rows.
+### Add a judge
 
-### Faults that need task specs
+Some rules cannot be checked by a pattern. Write the rule as a criterion, with one transcript that passes and one that fails. Save this as `criteria/asks_before_acting.yaml`:
 
-The selected conversation space cannot reach these four operations faults. The full generator catches them through task-family specs, with the witness `acme-price-sheet-i01-base#build`:
+```yaml
+criterion:
+  name: asks_before_acting
+  rubric: >
+    The agent starts a refund only after the customer has given an order number.
+    A refund started with no order number in the conversation fails.
+  pass: The refund starts in a turn after the customer gave an order number.
+  fail: The refund starts before any order number appears.
+  gating: true
+  scope: conversation
+  judge_class: system2
+fixtures:
+  pass:
+    note: The agent asks first, then acts on the number it was given.
+    transcript:
+      - { role: user, text: "I would like a refund." }
+      - { role: agent, text: "What is your order number?" }
+      - { role: user, text: "A-1042" }
+      - { role: agent, text: "Refund started for order A-1042." }
+  fail:
+    note: The agent starts a refund with no order number.
+    transcript:
+      - { role: user, text: "I would like a refund." }
+      - { role: agent, text: "Refund started. You will get an email within 2 days." }
+```
 
-| Fault | What the task checks |
-| --- | --- |
-| `ops-x1-wrong-price` | The first Mobile workbook price and its yearly result are wrong while the reply stays unchanged. |
-| `ops-x4-narrates` | The reply narrates internal steps and omits the file name. |
-| `ops-x5-skips-check` | The block records no read-back command. |
-| `ops-d6-deletes-readme` | An instruction planted in the workspace makes the agent remove README.txt. |
+```bash
+npx driftbench judge check criteria
+```
 
-The numeric ablation measures global and within-slice stratification against uniform sampling. It measures no numeric fault-detection outcome. See [Generating tests](docs/generating.md) for the approved map, covering arrays, budget reports, task families, validity gate and commands. The [full study](comparisons/budget/full-study.md) retains intervals, raw records, fault witnesses and reproduction commands.
+```
+ok  asks_before_acting [system2, gating]: pass fixture 4 line(s), fail fixture 2 line(s)
 
-## The anatomy of driftbench
+1 valid criteria, 0 issue(s).
+```
 
-<a href=".github/readme/anatomy-light.webp">
+A judge owns a criterion only after it tells the two transcripts apart 3 times out of 3 and agrees with your hand labels: `driftbench judge calibrate` measures that and writes which judge owns what. In a run, the judges come in through code, `defaultChecks({ judges: council })`, with a judge client for OpenAI, Anthropic, Google or any HTTP endpoint. `campaign run` on the command line applies the machine checks only; loading judges from the command line is not built yet. See [judges](docs/concepts/judges.md#the-judge-check-in-a-run).
+
+To see a panel of judges at work with no key and no model call, clone the repository and replay recorded answers on the 12 Acme criteria:
+
+```bash
+pnpm driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json
+```
+
+```
+separated  explicit_confirmation [system1, gating]: pass fixture pass, fail fixture fail
+separated  holds_instructions [system1, gating]: pass fixture pass, fail fixture fail (split, re-judged)
+separated  no_invented_data [system2, gating]: pass fixture pass, fail fixture fail
+
+12 of 12 criteria separated in mode hybrid.
+```
+
+### Gate a pull request
+
+Run the suite on the main branch and keep it as the baseline. Run it again on the pull request. `compare` pairs the two, conversation by conversation, and its exit code is the gate: 0 for parity, 1 for a regression or for a suite too small to tell.
+
+```bash
+AGENT="[\"node\",\"$PWD/agent.mjs\"]"
+npx driftbench campaign run specs --target process:my-agent --process-command "$AGENT" \
+  --repeats 3 --store runs.db --campaign baseline
+# ...change the agent, then:
+npx driftbench campaign run specs --target process:my-agent --process-command "$AGENT" \
+  --repeats 3 --store runs.db --campaign candidate
+npx driftbench compare --store runs.db --baseline baseline --candidate candidate
+```
+
+With the broken agent of quickstart step 5 as the candidate:
+
+```
+Warning: this suite cannot show parity under 15 points (the all-pass flag needs 79.3 points); about 22 goldens would.
+  side       passing  rate    95% interval
+  baseline   1 of 1   100.0%  [20.7%, 100.0%]
+  candidate  0 of 1   0.0%    [0.0%, 79.3%]
+Verdict: NOT SHOWN NON-INFERIOR.
+```
+
+A golden is one reference conversation. With one golden, driftbench will not call it parity and will not call it a proven regression either: it says the suite needs about 22. That honesty is the point of the gate.
+
+On the bundled Acme example, with ten goldens and a planted fault that skips the order recap, `driftbench ci` does the run and the comparison in one step:
+
+```
+  goldens paired                               10
+  regressed                                    5
+  all-pass regression effect                   +50.00 points
+  95% interval                                 [+11.74, +76.34] points
+  margin                                       28 points (auto)
+Verdict: REGRESSION. Exit 1.
+```
+
+The same command on the unchanged agent prints `Verdict: PARITY. Exit 0.` A [GitHub Action](action/action.yml) wraps `driftbench ci`; a workflow that uses it is in [examples/acme/ci](examples/acme/ci/driftbench-ci.yml). Today `driftbench ci` and the Action reach the bundled example targets only. For your own agent, use the two runs and `compare` above.
+
+## The command line
+
+`driftbench <command> --help` prints every option. The examples below run from a clone (`git clone https://github.com/achammah/driftbench && cd driftbench && pnpm install`), on the fictional Acme Telecom agent, with no model call. From a clone, write `pnpm driftbench` where your project writes `npx driftbench`.
+
+Exit codes are verdicts: 0 when the thing holds, 1 for a failing cell or a finding, 2 for bad input.
+
+**Write and check specs**
+
+| Command | What it does | Example |
+|---|---|---|
+| `spec validate` | Parse and validate specs | `driftbench spec validate examples/acme/specs` |
+| `spec lint` | Validate and print advice | `driftbench spec lint examples/acme/specs` |
+| `import csv`, `import xlsx` | Turn rows of a table into specs | `driftbench import csv examples/acme/import/cases.csv --mapping examples/acme/import/mapping.yaml --out imported` |
+| `import traces` | Draft specs from production traces | `driftbench import traces packages/adapters/test/traces/fixtures/otel-semconv.json --from otel --out drafts` |
+
+**Run an agent**
+
+| Command | What it does | Example |
+|---|---|---|
+| `campaign plan` | List the runs and print the smallest effect they can detect, before spending | `driftbench campaign plan examples/acme/specs/conversations --target function:acme --mode T,F --repeats 3` |
+| `campaign run` | Run specs × targets × modes × repeats | `driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2` |
+| `campaign status` | Print the state of every run of a stored campaign | `driftbench campaign status baseline --store ci.db` |
+| `smoke` | Run one spec several times and say whether the transcripts differ | `driftbench smoke examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme` |
+| `perturb` | Inject one deviation and print the recovery | `driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` |
+| `simulate` | Let a simulated user play a persona | `driftbench simulate examples/acme/specs/conversations/plan-upgrade.yaml --persona examples/acme/personas/sam-upgrader.yaml --recording examples/acme/personas/recordings/sam-upgrader.yaml --target function:acme` |
+| `attack` | Attack adaptively, each move picked from the agent's last replies | `driftbench attack examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --rounds 3 --seed 1` |
+| `replay` | Run a spec suite over recorded sessions, offline | `driftbench replay examples/estates/sessions/price-sheet-build.jsonl --suite examples/estates/sessions/specs/price-sheet-build.yaml` |
+
+**Judge**
+
+| Command | What it does | Example |
+|---|---|---|
+| `judge check` | Validate criteria and their pass and fail transcripts | `driftbench judge check examples/acme/criteria` |
+| `judge run` | Replay a panel of judges on recorded answers | `driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json` |
+| `queue create` | Queue the blocks of a campaign for hand labels | `driftbench queue create --store ci.db --campaign baseline` |
+| `view` | Serve a local viewer of a store, with hand labelling | `driftbench view --store ci.db` |
+
+**Report and compare**
+
+| Command | What it does | Example |
+|---|---|---|
+| `report` | Write the scorecard as one HTML file, and JUnit XML | `driftbench report --store ci.db --out scorecard.html` |
+| `compare` | Compare a candidate campaign with a baseline | `driftbench compare --store ci.db --baseline baseline --candidate <id>` |
+| `ci` | Run, compare and gate in one step | `driftbench ci --specs examples/acme/golden/specs --target function:acme-sales --route flow:price-sheet=process:acme-ops --baseline baseline --store ci.db` |
+| `dataset push`, `dataset list` | Version a folder of specs, immutably | `driftbench dataset push acme-conversations examples/acme/specs/conversations --store reg.db` |
+
+<details>
+<summary>Generate tests, test code agents, and check driftbench itself: 12 more commands</summary>
+
+<br/>
+
+| Command | What it does | Example |
+|---|---|---|
+| `extract approve` | Review the proposed map of situations, entry by entry | `driftbench extract approve examples/acme/map/proposal.yaml` |
+| `generate` | Write specs from an approved map, by code | `driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2` |
+| `gate` | Reject tests that cannot fail, leak their answer, or pass a constant reply | `driftbench gate examples/acme/specs --reference function:acme-sales --reference process:acme-ops --faults examples/acme/faults --date 2026-10-11 --out gated` |
+| `select` | Pick the fewest gated conversations that cover the map | `driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated/specs --out golden` |
+| `space coverage` | Count the cells of the map the specs cover | `driftbench space coverage examples/acme/specs --map examples/acme/map/space.yaml --t 2` |
+| `pilot plan` | Plan the measurement of where results vary | `driftbench pilot plan --map examples/acme/map/approved.yaml --suite examples/acme/generated/specs` |
+| `intake interview` | Write the questionnaire that collects real user wordings | `driftbench intake interview --map examples/acme/map/approved.yaml --out questions.yaml` |
+| `family instances`, `family verify` | Build variants of a code-agent task, and verify them on a reference build | `driftbench family instances examples/acme/families/price-sheet --n 3 --seed 1 --out family` |
+| `estate scan` | Read a code agent's instructions, skills and settings into testable rules | `driftbench estate scan examples/estates/fixture --no-model --out estate-map.yaml` |
+| `estate lint` | Find orphan files, unreachable agents and missing references | `driftbench estate lint examples/estates/fixture/approved.yaml` |
+| `estate mutate` | Delete one rule, so the tests must notice | `driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to mutant` |
+| `validate floors` | Print the level each self-test suite must hold in CI | `driftbench validate floors` |
+
+`generate`, `space coverage` and `estate lint` exit 1 on the bundled example, by design: they report tests still incomplete, cells not yet covered, and six findings planted in the fixture. `monitor`, `holdout`, `prompt` and the other subcommands are in the [CLI reference](docs/reference/cli.md).
+
+</details>
+
+## Adapters
+
+An adapter is the one piece of code between driftbench and your agent: it opens a session, sends a block, and returns what the agent did. Thirteen ship today in `@agent-nexus/driftbench-adapters`, and every one passes the same [contract suite](docs/adapters/index.md#the-contract-suite).
+
+| Reach your agent as | Adapter |
+|---|---|
+| A function in your process | [function](docs/adapters/function.md) |
+| An HTTP endpoint | [http](docs/adapters/http.md) |
+| A command, in a sandbox with a workspace | [process](docs/adapters/process.md) |
+| An SDK agent | [OpenAI Agents](docs/adapters/openai-agents.md) · [Anthropic](docs/adapters/anthropic.md) · [Google](docs/adapters/google.md) · [LangGraph](docs/adapters/langgraph.md) · [CrewAI](docs/adapters/crewai.md) · [Vercel AI SDK](docs/adapters/vercel-ai.md) · [Pydantic AI](docs/adapters/pydantic-ai.md) · [LiteLLM](docs/adapters/litellm.md) |
+| A code agent, replayed or live | [Claude Code](docs/adapters/claude-code.md) |
+| A hosted agent platform | [Nexus](docs/adapters/nexus.md) |
+
+A minimal complete adapter is the `functionAdapter` of [Evaluate your own agent](#evaluate-your-own-agent): a dozen lines around your function. To write one from scratch, implement the [contract](docs/adapters/index.md#the-contract): `open`, `send` and `close`.
+
+**The other extension points**
+
+| You want to add | How | Where |
+|---|---|---|
+| A check | `registerCheck(name, fn)`: a function from the observed block to verdicts, switched on per spec under `rules.custom` | [custom checks](docs/reference/checks.md#custom-checks) |
+| A judge | A client with one method that answers a judge request; clients for OpenAI, Anthropic, Google and HTTP ship | [judge clients](docs/concepts/judges.md#judge-clients) |
+| A criterion | One YAML file: a rubric, a pass transcript, a fail transcript | [criteria folders](docs/concepts/judges.md#criteria-folders-and-fixture-pairs) |
+| A similarity model | `denseEmbedder({ id, embed })`: one call from texts to vectors | [similarity](docs/reference/checks.md#similarity-relevancy-and-knowledge-retention) |
+| A file reader for artifacts | A reader per file kind; spreadsheets, documents, decks and PDF ship | [artifacts](docs/reference/checks.md#code-files-and-workspace) |
+| A map of situations | A YAML file of dimensions, values and constraints, proposed by `extract` or written by hand | [the map](docs/generating.md#the-map-of-situations) |
+| A store or a report | Runs live in one SQLite file with a versioned JSON export; reports are HTML, JUnit XML and JSON | [the store](docs/running.md#the-store) · [scorecards](docs/scorecards.md) |
+
+## What makes it different
+
+Eight ideas. Each line says what it does for you and where the proof is.
+
+1. **Tests are generated by code from a map, with coverage you can count.** You approve a map of what the agent can face; code writes the blocks and their expected outcomes. On the Acme example it writes 326 files and covers 624 of 637 allowed pairs of values (98.0%). → [generating tests](docs/generating.md), [budget study](comparisons/budget/full-study.md)
+2. **The evaluator is proven on planted truth.** Six suites of cases built by code, 7,453 in all, each with an exact right answer, and a floor in CI that only rises. → [validators](docs/validators.md), [chart](#driftbench-tests-itself)
+3. **Blocks carry their starting state, so a failure is located.** A block starts from a stated Given, so it can be run alone. A regression is reported as a block and a check, not as "the conversation failed". → [block](docs/concepts/block.md), [run modes](docs/concepts/run-modes.md)
+4. **A judge must show its evidence.** A judge answers per requirement and quotes the passage it relied on. Code checks that the quote exists in the transcript, then computes the verdict. A quote that cannot be found is not a verdict. → [strict grounding](docs/concepts/judges.md#strict-grounding)
+5. **A panel is asked only when the first judge is unsure.** On MM-Eval's sealed test set, 48 of 1,212 items went to the panel and the score rose by 2.05 points. → [escalation](docs/concepts/judges.md#label-blind-escalation), [chart](#a-panel-only-when-unsure)
+6. **Noise is measured, and reported.** driftbench splits the spread of results by source and sets a noise floor. A suite too small to show parity is told so, with the number of conversations it needs. → [where results vary](docs/concepts/statistics.md#where-results-vary)
+7. **Code agents are first class.** The same blocks check what a code agent left behind: the cells and formulas of a workbook, the workspace diff, the commands run, the skills loaded, destructive operations. → [testing a code agent](docs/estate.md), [checks on files](docs/reference/checks.md#code-files-and-workspace)
+8. **Record once, replay for free.** Recorded agent sessions and recorded judge answers replay with zero model calls, so CI is fast and costs nothing. → [replay](docs/estate.md#replay-built), [cassettes](docs/concepts/judges.md#cassettes-recorded-answers)
+
+## Benchmarks
+
+Every chart below is drawn by [`tools/readme-charts.mjs`](tools/readme-charts.mjs) from result files in this repository. `node tools/readme-charts.mjs --check` fails when a chart no longer matches its source. Each number, with its file, is listed in [chart-facts.csv](docs/assets/data/chart-facts.csv).
+
+The cases in the first two charts are fictional and built to be hard: near misses, paraphrases, long distractors. They share construction templates, so the intervals describe these sets, not every agent.
+
+### The judge, against four frameworks' defaults
+
+<p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/anatomy-dark.webp">
-    <img alt="driftbench drawn as one machine, an indexing test line on a bench. On the left, a hopper takes generated blocks from three inlets on its lid, a stack of prompt cards, a specification binder and a reel of past conversations, with a coverage pegboard on its magazine and a validity gate that sends rejected blocks down a chute into a tray. Each block is a carriage carrying its Given as a state capsule or a workspace of files, its When as a card, and its Then as a plate of nine test pads. The carriages index along a track through a deviation punch whose lamp is lit, the agent cell with a conversation adapter and a code interpreter adapter with its workspace drawer, a gantry of nine check pins, and a council of six judge balances with a fixture pair, then into a store. A mode lever at the front, beside a rack of golden Givens, sets teacher forced, free running or perturbed. On the console at the back, a chart pen traces drift and recovery, a dial shows a pass rate of 0.38 with its interval from 0.14 to 0.69 and the gate threshold, counters show 3 of 8 runs passed, a pass^3 of 0.02 and 7 of 8 recovered, and the CI gate arm stays down until the tenth run." src=".github/readme/anatomy-light.webp" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/judge-heldout-dark.svg">
+    <img src="docs/assets/judge-heldout-light.svg" alt="Paired bars for 18 held-out judge tests: driftbench's shipped judge against the default judge of DeepEval, promptfoo, Langfuse and Inspect, with 95% Wilson intervals. driftbench is clearly ahead on five DeepEval rows: hallucination 71 against 36 of 72, faithfulness 71 against 36, turn relevancy 65 against 36, completeness 70 against 46, role adherence 72 against 63. It is clearly behind on two Inspect rows: model-graded fact 48 against 59 of 60, and the panel on borderline cases 49 against 60. The other eleven rows are within each other's intervals." width="560" />
   </picture>
-</a>
-<p align="center"><sub>One block per carriage: generated blocks pass the agent, nine machine checks and the judge council, and the console turns what they leave into drift, recovery and the interval the CI gate reads.</sub></p>
+</p>
 
-[Open the interactive figure (from a clone)](.github/readme/anatomy/index.html) to run the campaign in each mode and hover a part to see what it does.
+Same model on both sides (Claude Haiku 5.5), same cases, labels fixed before the run, each tool's own default prompt copied unchanged. This is the judge that ships today, on held-out cases. One caveat: the Langfuse set was already known when this judge version was measured.
 
----
+- **Where it is behind.** On Inspect's default graders the shipped judge loses three of four rows: 48 against 57, 48 against 59 and 49 against 60, of 60. On DeepEval it trails by one case on knowledge retention and by five on strict G-Eval; both are inside the intervals.
+- **Where it ties.** Eleven of the 18 rows are too close to call, including all four promptfoo rows and the Langfuse row (116 against 115 of 120).
+- **What is next.** A candidate judge that answers per requirement scores 60 of 60 on the three Inspect rows where the shipped judge trails. It is not the default yet, so it is not in the chart. → [Inspect results](comparisons/inspect/hard/results.md)
 
-## Integrations
+Reproduce from recorded answers, with no model call: `python3 comparisons/promptfoo/hard/score.py`, and the replay commands in [comparisons/deepeval/hard](comparisons/deepeval/hard/README.md), [comparisons/langfuse/hard](comparisons/langfuse/hard/README.md) and [comparisons/inspect/hard](comparisons/inspect/hard/README.md).
 
-Every adapter passes the same [contract suite](docs/adapters/index.md). The system 1 judge clients (Jev, the OpenAI Decisions API) follow the providers' public descriptions; no live call has confirmed them yet.
+### What a judgement costs
 
-**Agents, 13 adapters:** [function](docs/adapters/function.md) · [HTTP](docs/adapters/http.md) · [Nexus](docs/adapters/nexus.md) · [process](docs/adapters/process.md) · [OpenAI Agents](docs/adapters/openai-agents.md) · [Anthropic](docs/adapters/anthropic.md) · [Google](docs/adapters/google.md) · [LangGraph](docs/adapters/langgraph.md) · [CrewAI](docs/adapters/crewai.md) · [Vercel AI SDK](docs/adapters/vercel-ai.md) · [Pydantic AI](docs/adapters/pydantic-ai.md) · [LiteLLM](docs/adapters/litellm.md) · [Claude Code, replayed or live](docs/adapters/claude-code.md)<br/>
-**Judges:** Jev · OpenAI Decisions API · OpenAI · Google · Anthropic · any HTTP endpoint<br/>
-**Traces in:** OpenTelemetry · Nexus · Claude Code sessions<br/>
-**Reports:** HTML scorecard · run diff (`driftbench compare`) · JUnit XML · a local viewer with hand labels<br/>
-**CI and tests:** exit codes on the verdict · GitHub Action · [pytest plugin](docs/python.md) · [vitest](docs/vitest.md)<br/>
-**Store:** SQLite · versioned JSON export · immutable dataset and prompt versions
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/judge-cost-dark.svg">
+    <img src="docs/assets/judge-cost-light.svg" alt="Recorded cost in US dollars per 100 judged cases, driftbench's shipped judge against the other tool's default. Inspect grader panel: 0.076 against 0.138. Inspect panel on borderline cases: 0.078 against 0.125. Inspect model-graded QA: 0.048 against 0.062. Inspect model-graded fact: 0.048 against 0.060. Langfuse Correctness template: 0.054 against 0.052." width="560" />
+  </picture>
+</p>
+
+Cost is not accuracy: on three of these Inspect rows the cheaper judge is also the less accurate one. On the panel row the two score the same, 59 of 60, and driftbench spends $0.076 where the default spends $0.138. On the Langfuse row driftbench costs slightly more.
+
+Reproduce: `node tools/readme-charts.mjs --check` reads `comparisons/inspect/hard/summary.json` and `comparisons/langfuse/hard/pr115-scores.json`.
+
+### A panel, only when unsure
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/mm-eval-sealed-test-dark.svg">
+    <img src="docs/assets/mm-eval-sealed-test-light.svg" alt="MM-Eval sealed test set, 1,212 items. Accuracy of the first judge alone against the first judge followed by a panel when unsure. Mean of five subsets: 89.49 against 91.54. Linguistics: 90.56 against 94.44. Safety: 89.74 against 92.31. Chat: 72.83 against 75.00. Reasoning: 95.37 against 96.59. Language mixing: 98.95 against 99.36." width="560" />
+  </picture>
+</p>
+
+MM-Eval is a public benchmark for judges (arXiv 2410.17578). The 1,212 items were sealed before the first call and scored once. The gain is 2.05 points, 95% interval 1.02 to 3.29, with 36 items won and 2 lost. Three of the five subset gains have intervals that touch zero. Both bars are driftbench: this chart shows what escalation adds, not a comparison with another tool. Recorded cost rose from $0.2471 to $0.2646 per 100 items.
+
+Reproduce: the development-set replay on main runs with no model call, `pnpm exec tsx examples/escalation/replay.ts` (89.65 to 91.16 on 400 items). The sealed run and its seal are on the [research branch](https://github.com/achammah/driftbench/blob/a7800af8d82459d2850f6478b0d3e5e5fde6edfb/research/astra-mm/RESULT.md); provenance in [docs/assets/data](docs/assets/data/README.md).
+
+### Faults found on a budget
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/testgen-budget-dark.svg">
+    <img src="docs/assets/testgen-budget-light.svg" alt="Planted faults caught, of 13, by number of generated tests. At 20 tests: driftbench's selector 9, random sampling 8.37, pairwise covering 8. At 50 tests: 9, 9 and 8.97. At 100 and 200 tests all three catch 9." width="560" />
+  </picture>
+</p>
+
+`driftbench generate --budget 20` picks each test to cover the most new pairs of values. On the Acme example it catches one more planted fault than a pairwise covering array in each of 30 seeds (p = 1.86e-09, exact paired test, unadjusted). From 50 tests up the three methods tie. Four of the 13 faults cannot be reached by conversations at all: they need task specs, which the full generator adds. This is one map with scripted faults, not a result on other agents.
+
+Reproduce, with no model call: `pnpm exec tsx comparisons/budget/check-analysis.ts` checks the analysis, and [the study](comparisons/budget/full-study.md) lists the commands that rerun it.
+
+### driftbench tests itself
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/self-tests-dark.svg">
+    <img src="docs/assets/self-tests-light.svg" alt="Planted-truth items per self-test suite. Whole pipeline 2,383, with a CI floor at level 7. Test generator 2,033, no floor yet. Code-agent estates 1,170, no floor yet. Statistics 651, floor at level 7. Judges 638, floor at level 7. Map extraction 578, floor at level 8." width="560" />
+  </picture>
+</p>
+
+A planted-truth item is a case built by code with a known answer. The suites are built to find gaps in driftbench, not to flatter it. Two suites have no floor yet, and no pass rate is quoted here until a suite passes an independent audit. The open items are written down, suite by suite, in [`validators/`](validators).
+
+Reproduce: `pnpm driftbench validate floors` prints the floors. `pnpm driftbench validate judges --seed 1` runs one suite.
 
 ## How it compares
 
-What the other tools' docs describe, read on 11 October 2026, and what driftbench does today:
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/capability-matrix-dark.svg">
+    <img src="docs/assets/capability-matrix-light.svg" alt="Of 30 evaluation capabilities: driftbench 30 built. Documented in full, in part, not found: deepeval 12, 14, 4. langwatch 12, 11, 7. promptfoo 10, 15, 5. langfuse 10, 7, 13. inspect_ai 9, 14, 7. opik 9, 10, 11. braintrust 2, 11, 17." width="560" />
+  </picture>
+</p>
 
-| Tool, and what its docs describe | driftbench, built |
-|---|---|
-| **[LangWatch Scenario](https://langwatch.ai/scenario/advanced/how-judging-works/)**<br/>A judge that marks each criterion passed, failed or inconclusive. | The same three outcomes, per block. Inconclusive is judged again and never counted. |
-| **[promptfoo](https://www.promptfoo.dev/docs/configuration/expected-outputs/)**<br/>Trajectory assertions: which tools ran, with which arguments, in which order. | Tool checks on label, count, arguments and order, the tools offered, plus end state, workspace and file checks. |
-| **[DeepEval](https://deepeval.com/docs/conversation-simulator)**<br/>A conversation simulator that plays a user from a scenario and a persona. | A simulated user from a persona, plus deviations at a chosen block and an adaptive attacker. |
-| **[Inspect](https://inspect.aisi.org.uk/metrics.html)**<br/>Wilson intervals for binary scores, clustered standard errors, and a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample. | Intervals on every rate with one conversation per cluster, paired tests, and judges that run cheapest first. |
-| **[Langfuse](https://langfuse.com/docs/evaluation/overview)**<br/>A GitHub Action that fails the job when a score violates your threshold. | A noninferiority verdict with an auto margin, as an exit code and a GitHub Action. |
-| **[Opik](https://www.comet.com/docs/opik/evaluation/evaluate_threads)**<br/>A function that scores whole conversation threads. | Verdicts per block, then drift and recovery across them. |
+The [comparison page](docs/comparison.md) reads seven tools over 30 capabilities, one cited page per cell, read on 11 October 2026. "Not found" means the page where a capability would be documented does not show it. It is not proof that the tool lacks it. In six rows no other tool shows the capability in full: end state assertions, judge calibration, drift across turns, recovery metrics, intervals with significance tests, and multi-language handling.
 
-The [comparison page](docs/comparison.md) covers seven tools and six code agent benchmarks over 30 capabilities, every cell with a source, every driftbench cell with the test that proves it, and [where driftbench is ahead](docs/comparison.md#where-driftbench-is-ahead): the block model, validators that check driftbench's own numbers, estate testing and measured recovery.
+Then the detail, tool by tool, row by row. Each row is measured head to head, measured against our own earlier version, or read from the other tool's docs or code, and says which:
 
----
+| Tool | Rows ahead | Equal | Behind | In progress | Not comparable | Page |
+|---|---|---|---|---|---|---|
+| promptfoo | 22 | 5 | 1 | 1 | 7 | [promptfoo](docs/comparison/promptfoo.md) |
+| Inspect | 20 | 0 | 0 | 0 | 3 | [Inspect](docs/comparison/inspect.md) |
+| DeepEval | 11 | 1 | 0 | 0 | 2 | [DeepEval](docs/comparison/deepeval.md) |
+| Langfuse | 10 | 2 | 0 | 0 | 3 | [Langfuse](docs/comparison/langfuse.md) |
+| LangWatch | 8 | 5 | 0 | 1 | 2 | [LangWatch](docs/comparison/langwatch.md) |
 
-## Roadmap
+Read these counts with three cautions, all stated on the pages. The judged rows for DeepEval, Inspect and promptfoo count the candidate judge, not the shipped one; the chart above shows the shipped one. Every Langfuse row but one is read from documentation, with no Langfuse instance run. And there are things driftbench does not do: retrieval metrics for RAG, promptfoo's catalogue of red-team plugins, a hosted platform with a team UI.
 
-Each phase has a command that shows it working on the bundled examples, in the [docs index](docs/index.md#roadmap).
+## Status
 
-| Phase | Status |
-|---|---|
-| **0** · Foundations: spec format, validation, coverage, the Acme example | built |
-| **1** · Runner, checks, store, sandbox, adapters | built |
-| **2** · Judge council and calibration | built |
-| **3** · Simulated user, perturbation, drift and recovery | built |
-| **4** · Statistics, scorecard, CI gate, monitor, viewer | built; the runtime battery is not |
-| **G** · Test generation: map, generate, gate, select, pilot | built |
-| **E** · Estates: scan, plan, generate, replay, live runner, mutants | built; the unit runner is not |
-| **V** · Validators | in progress: version 2 ladders, each merged only after an independent audit |
-| **Release** · SDK adapters, Python package, docs site, 0.1.0 | in progress: built; publishing to npm and PyPI is next |
+Version 0.1.0 is on npm as [`@agent-nexus/driftbench`](https://www.npmjs.com/package/@agent-nexus/driftbench), with one package per part (`-core`, `-checks`, `-judges`, `-adapters`, `-stats`, `-store`, `-report`, `-generate` and more). The project is young: expect changes between minor versions, listed in the [changelog](CHANGELOG.md).
 
----
+Not built yet: judges loaded from the command line in `campaign run`, `driftbench ci` on your own process agent, the unit runner for code-agent guards, and a hosted UI. The Python package installs from a clone (`python/driftbench`); see [Python](docs/python.md).
+
+## Docs
+
+- **Start:** [docs index](docs/index.md) · [running](docs/running.md) · [spec reference](docs/reference/spec.md) · [CLI reference](docs/reference/cli.md)
+- **Concepts:** [block](docs/concepts/block.md) · [run modes](docs/concepts/run-modes.md) · [drift](docs/concepts/drift.md) · [recovery](docs/concepts/recovery.md) · [judges](docs/concepts/judges.md) · [statistics](docs/concepts/statistics.md)
+- **Guides:** [generating tests](docs/generating.md) · [testing a code agent](docs/estate.md) · [simulated users](docs/simulated-user.md) · [attacker](docs/attack.md) · [traces](docs/traces.md) · [datasets and prompts](docs/datasets.md) · [viewer and labels](docs/viewer.md) · [retries](docs/retries.md)
+- **Evidence:** [comparison](docs/comparison.md) · [per-tool pages](docs/comparison/index.md) · [validators](docs/validators.md) · [comparisons folder](comparisons/README.md)
+- **Explore:** the [anatomy figure](.github/readme/anatomy/index.html), interactive from a clone
 
 ## Contributing
 
-Issues and pull requests are welcome. The project is young, so the most useful contributions right now are specs, checks and adapters.
+Issues and pull requests are welcome. The most useful contributions right now are specs, checks and adapters.
 
 1. Fork the repo and run `pnpm install`.
 2. Make your change with its tests, then run `pnpm lint`, `pnpm typecheck` and `pnpm test`.
 3. Open a pull request. CI runs the same checks, the build, the docs checks and a leak guard. Keep every example synthetic: no real customer, prompt or conversation data.
 
-Questions and ideas go in [GitHub issues](https://github.com/achammah/driftbench/issues).
+Questions and ideas go in [GitHub issues](https://github.com/achammah/driftbench/issues). Report a vulnerability privately through [GitHub security advisories](https://github.com/achammah/driftbench/security).
 
-## Security
+## Licence
 
-Report a vulnerability privately through [GitHub security advisories](https://github.com/achammah/driftbench/security). Public issues are for everything else.
-
----
-
-## Made by Nexus
+Apache 2.0. See [LICENSE](LICENSE).
 
 <p>
   <a href="https://agent.nexus">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset=".github/readme/nexus-logo-white.svg">
-      <img src=".github/readme/nexus-logo-ink.svg" alt="Nexus" height="28" />
+      <img src=".github/readme/nexus-logo-ink.svg" alt="Nexus" height="24" />
     </picture>
   </a>
 </p>
 
-Nexus makes Self Operating Procedures: what your best people know, turned into procedures that run themselves. We built driftbench to test the agents we build, and we share it under Apache 2.0.
-
-## Licence
-
-Apache 2.0. See [LICENSE](LICENSE).
+Made by [Nexus](https://agent.nexus). We built driftbench to test the agents we build, and we share it under Apache 2.0.
