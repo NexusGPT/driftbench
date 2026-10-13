@@ -1,6 +1,6 @@
 {
-  "status": "stopped-on-error",
-  "pid": 86382,
+  "status": "finished-available-models",
+  "pid": 14373,
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "concurrency": 20,
   "models": {
@@ -21,10 +21,13 @@
     },
     "gemini-3.5-flash-lite": {
       "phase": "test",
-      "status": "phase-running",
+      "status": "phase-finished",
       "concurrency": 8
     }
   },
-  "at": "2026-10-13T12:34:27.330Z",
-  "error": "OPERATOR_DRAIN: finish active requests and stop dispatching"
+  "at": "2026-10-13T12:44:34.529Z",
+  "pausedModels": {
+    "gemini-3.8-flash": "not run: daily quota; resume only on explicit owner word in a committed unpause amendment; no reset watcher"
+  },
+  "blocked": []
 }

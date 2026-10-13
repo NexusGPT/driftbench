@@ -1,20 +1,22 @@
 {
-  "asOf": "2026-10-13T12:35:37.123963+00:00",
+  "asOf": "2026-10-13T12:44:56.484504+00:00",
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "freezeSha256": "dd1651267a1f6cd7a8c66ae6858bc51c9b4ac3c0843a274c61ef942d410561d8",
   "allExpectedDecisionsComplete": false,
-  "starts": 5426,
-  "finishes": 5426,
+  "starts": 6238,
+  "finishes": 6238,
   "unresolvedCalls": 0,
   "maximumHistoricalConcurrentCalls": 8,
-  "maximumCurrentFreezeConcurrentCalls": 0,
-  "maximumCurrentFreezeConcurrentCallsByModel": {},
-  "knownUsd": 10.34250842,
+  "maximumCurrentFreezeConcurrentCalls": 8,
+  "maximumCurrentFreezeConcurrentCallsByModel": {
+    "gemini-3.5-flash-lite": 8
+  },
+  "knownUsd": 12.97963972,
   "unknownReserveUsd": 1.135219,
   "activeReserveUsd": 0,
-  "liabilityUsd": 11.477727420000013,
+  "liabilityUsd": 14.114858720000028,
   "billingRejectionsStillMissing": 0,
-  "maximumLiabilityUsd": 11.794659320000013,
+  "maximumLiabilityUsd": 14.393084120000028,
   "models": {
     "claude-haiku-5-5": {
       "pilot": {
@@ -740,69 +742,69 @@
         "descriptiveGroups": {}
       },
       "test": {
-        "decisions": 155,
+        "decisions": 540,
         "expectedDecisions": 540,
-        "complete": false,
-        "callsStarted": 332,
-        "callsFinished": 332,
-        "schemaReasks": 1,
+        "complete": true,
+        "callsStarted": 1144,
+        "callsFinished": 1144,
+        "schemaReasks": 2,
         "schemaReaskPreviousResponse": {
-          "returned_nonempty_text": 1
+          "returned_nonempty_text": 2
         },
         "transportRetryAttempts": 0,
         "quotaResponses": 0,
         "billingRejections": 0,
-        "decisionGraderErrors": 0,
+        "decisionGraderErrors": 2,
         "transportSuppressedCoreReasks": 0,
         "schemaReasksSuppressed": 0,
-        "ledgerPairs": 78,
-        "ledgerPhysicalReads": 175,
-        "ledgerMachinePairs": 0,
+        "ledgerPairs": 270,
+        "ledgerPhysicalReads": 604,
+        "ledgerMachinePairs": 1,
         "cost": {
           "ledger": {
-            "decisions": 78,
-            "knownUsd": 0.5945935,
+            "decisions": 270,
+            "knownUsd": 2.0950215,
             "unknownReserveUsd": 0,
-            "knownPer100": 0.762299358974359,
-            "upperPer100": 0.762299358974359
+            "knownPer100": 0.7759338888888889,
+            "upperPer100": 0.7759338888888889
           },
           "promptfoo": {
-            "decisions": 77,
-            "knownUsd": 0.4261307,
+            "decisions": 270,
+            "knownUsd": 1.562834,
             "unknownReserveUsd": 0,
-            "knownPer100": 0.5534164935064935,
-            "upperPer100": 0.5534164935064935
+            "knownPer100": 0.5788274074074075,
+            "upperPer100": 0.5788274074074075
           }
         },
         "descriptiveGroups": {
           "livebench": {
             "ledger": {
-              "n": 21,
-              "correct": 18
+              "n": 85,
+              "correct": 66
             },
             "promptfoo": {
-              "n": 21,
-              "correct": 19
+              "n": 85,
+              "correct": 69
             }
           },
           "livecodebench": {
             "ledger": {
-              "n": 8,
-              "correct": 8
+              "n": 31,
+              "correct": 28
             },
             "promptfoo": {
-              "n": 8,
-              "correct": 8
+              "n": 31,
+              "correct": 27
             }
           },
           "mmlu": {
             "ledger": {
-              "n": 49,
-              "correct": 36
+              "n": 154,
+              "correct": 121
             },
             "promptfoo": {
-              "n": 48,
-              "correct": 36
+              "n": 154,
+              "correct": 119
             }
           }
         }
@@ -813,7 +815,7 @@
     "claude-haiku-5-5": 2.21569891,
     "gpt-6-luna": 0.93643036,
     "gemini-3.8-flash": 4.76596125,
-    "gemini-3.5-flash-lite": 3.5596369
+    "gemini-3.5-flash-lite": 6.1967682
   },
   "modelCapsUsd": {
     "gemini-3.5-flash-lite": 8

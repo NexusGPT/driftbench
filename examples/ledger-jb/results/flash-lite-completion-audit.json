@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-13T12:46:04.669267+00:00",
+  "model": "gemini-3.5-flash-lite",
+  "providerReportedModelVersions": {
+    "gemini-3.5-flash-lite": 1835
+  },
+  "receivedRequests": 1835,
+  "transportFailures": 0,
+  "transportRetries": 0,
+  "unknownCostHolds": 0,
+  "knownUsd": 6.1967682,
+  "subCapUsd": 8,
+  "totalCapUsd": 25,
+  "preAmendmentJournalPreservedAsExactPrefix": true,
+  "preAmendmentCommit": "5a2008d3",
+  "allFrozenSourceHashesMatch": true,
+  "otherModelsReceivedNoCallsSinceLiteStarted": true,
+  "freezeSha256": "dd1651267a1f6cd7a8c66ae6858bc51c9b4ac3c0843a274c61ef942d410561d8",
+  "callsSha256": "9f44a0f3760903b0494b4efd260b6aee0b465e9908b72a8494fe32176c8a129f",
+  "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12"
+}

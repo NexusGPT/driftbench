@@ -1,8 +1,8 @@
 {
-  "at": "2026-10-13T12:14:24.580289+00:00",
+  "at": "2026-10-13T12:44:57.272660+00:00",
   "historicalReceiptsPreservedExceptAuthorized402Correction": true,
   "unresolvedCalls": 0,
-  "liabilityUsd": 7.918090519999992,
+  "liabilityUsd": 14.114858720000028,
   "cells": [
     {
       "model": "claude-haiku-5-5",
@@ -21,11 +21,20 @@
       "wins": 18,
       "losses": 12,
       "exactTwoSidedMcNemar": 0.361594608053565
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "n": 270,
+      "ledgerCorrect": 215,
+      "promptfooCorrect": 215,
+      "wins": 26,
+      "losses": 26,
+      "exactTwoSidedMcNemar": 1
     }
   ],
   "pending": {
     "gemini-3.8-flash": {
-      "reason": "not run: daily quota; resume only on owner word or after 2026-10-14T00:00:00Z in a committed unpause amendment",
+      "reason": "not run: daily quota; resume only on explicit owner word in a committed unpause amendment; no reset watcher",
       "phases": {
         "pilot": {
           "decisions": 40,
