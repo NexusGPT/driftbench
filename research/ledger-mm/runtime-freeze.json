@@ -95,7 +95,7 @@
     "research/ledger-mm/test_exec.mjs": "13169a8ab9d48d6c8933ad4e5cbd93e5736bf543eccdc6d58a0cd6fa95be4b70",
     "research/ledger-mm/eligibility.json": "84b05992165f14a4bc4e130a793f52ac2204fec691d0f43ce33916579c82bdeb",
     "research/ledger-mm/test_eligibility.py": "a84b5aeef9b7c796310442328d9529705a5faf32d720c21bdbb36a70b1009e60",
-    "research/ledger-mm/test_report.py": "34e58998f914b6e6bc4c4840dfab2188e1ea7466ea100a20a6c7609938e944c0",
+    "research/ledger-mm/test_report.py": "f3099ee8a5dd618ed9d3e48efe3ecad962a4a6b90383d9aa599844bb8a14dd5f",
     "research/ledger-mm/supervise.sh": "48009290f0265ce5158fc987818a454d851dd50da7f81e619520170e3902b21c",
     "research/ledger-mm/eligibility-haiku.json": "0524da8d2a0feba7e21c76f38d01ae06f395fe73909fc4ee0cbd6378d9275a63",
     "research/ledger-mm/supervise2.sh": "47cde99250d4c10ece72e8f7c88ef2cf302f3cd9c1863a13d4bab62d7ae3d1e8"
@@ -235,5 +235,13 @@
     "loggedUtc": "2026-10-13T15:56Z",
     "by": "owner via coordinator",
     "text": "Supervisor restarted after the 15:40 to 15:52 UTC host outage, missing-only, under the same frozen rules. Version 2 never exits on an outage: a link pause waits and repeats the probe gate with no cycle limit. The Haiku post-close addendum runs behind it."
+  },
+  "dropped": {
+    "gemini-3.8-flash": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score"
+  },
+  "amendment12": {
+    "loggedUtc": "2026-10-13",
+    "by": "owner, by card, via coordinator",
+    "text": "gemini-3.8-flash is dropped from MM-Eval. It was parked at 393 of 600 pairs. It is never resumed, its partial recordings are kept, and it is not reported as a score. Its eligibility round (amendment 4) is void. gemini-3.5-flash-lite stays the Gemini result."
   }
 }

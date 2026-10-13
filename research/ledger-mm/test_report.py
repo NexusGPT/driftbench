@@ -14,6 +14,7 @@ HERE = Path(__file__).parent
 MODELS = ['haiku', 'gpt-6-luna', 'gemini-3.8-flash', 'gemini-3.5-flash-lite']
 CELLS = ['claude-sonnet-5-5', 'gpt-6.1-sol']  # separate folders under cells/, each with its own gate
 CONTESTANTS = ['ledger', 'promptfoo']
+DROPPED = {'gemini-3.8-flash': 'dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score'}
 CLOSED = ['haiku']  # official result frozen at close (amendment 10)
 
 
@@ -54,6 +55,9 @@ def report(iterations=20000):
                      'capUsd': json.loads((HERE / 'runtime-freeze.json').read_text()).get('capUsd', 20)}}
     out['spend']['note'] = 'laneTotal covers recordings/ only; each folder under cells/ has its own 25 USD gate'
     for model in MODELS + CELLS:
+        if model in DROPPED:
+            out['models'][model] = {'status': DROPPED[model], 'recordedDecisions': sum(1 for r in decisions if r['model'] == model)}
+            continue
         rows = [r for r in decisions if r['model'] == model]
         if not rows:
             out['models'][model] = {'status': 'not run'}
