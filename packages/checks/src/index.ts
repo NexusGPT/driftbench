@@ -54,6 +54,18 @@ export { createSimilarityCheck, similarity } from './checks/similarity';
 export { skills } from './checks/skills';
 export { singleReadStatement, sqlEquivalence } from './checks/sql';
 export { stage } from './checks/stage';
+export {
+  countLengthUnits,
+  type LengthUnit,
+  parseStatedLength,
+  preferByStatedLength,
+  STATED_LENGTH_DEFAULTS,
+  type StatedLength,
+  type StatedLengthOptions,
+  type StatedLengthResult,
+  statedLength,
+  statedLengthVerdict,
+} from './checks/stated_length';
 export { subagents } from './checks/subagents';
 export { tools } from './checks/tools';
 export { toolsOffered } from './checks/tools_offered';

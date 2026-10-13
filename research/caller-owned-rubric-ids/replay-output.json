@@ -1,0 +1,491 @@
+{
+  "method": "offline replay of human-mapped recorded rows through production parseJudgeValue",
+  "fixtureSha256": "47c31cba6695c13f7fcd4be294e9c1c692e57b73f8a004f213cae2a3b1059b55",
+  "productionAssessmentSha256": "adc05195908a454a124ecfa322b6fba9a8ad803a1d1766badd31e7ba953f1de1",
+  "scoreAdapter": {
+    "recordedMaximum": 2,
+    "productionMaximum": 4,
+    "multiplier": 2
+  },
+  "modelCalls": 0,
+  "mapped": {
+    "pairs": 17,
+    "cleanAccepted": 17,
+    "defectsRejected": 16,
+    "unresolvedIds": ["rb-bank-036"]
+  },
+  "blindId1": {
+    "pairs": 17,
+    "cleanAccepted": 17,
+    "defectsRejected": 14,
+    "unresolvedIds": ["rb-bank-025", "rb-bank-036", "rb-bank-046"]
+  },
+  "ignoredRows": 22,
+  "negativeControls": {
+    "missingRequiredRejected": 34,
+    "duplicateRequiredRejected": 34
+  },
+  "unresolvedConflict": "rb-bank-036 retains structured 2/2 as 4/4; the parser does not repair score/prose disagreement or inherit the recorded winner.",
+  "scope": "These 17 archived failures only. No fresh prompt, retry, grounding, or generalization performance is measured.",
+  "cases": [
+    {
+      "id": "rb-bank-006",
+      "recordingDigest": "5d29b45da5be03e43e81",
+      "recordingLine": 7,
+      "rawSha256": "66dc69c36f1ad4122931694cf3d3269ec0a319dcb75629e8792e13f3b56f4efe",
+      "stableRubricItemId": "rubric:rubric_eval_279",
+      "recordedWinner": "B",
+      "canonicalClean": "B",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-006:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-006:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-007",
+      "recordingDigest": "c31a170e96173488d262",
+      "recordingLine": 8,
+      "rawSha256": "45e1a5664068b2bc34255b0e070bc7fb8687de45578908dcca80930c8d3fb655",
+      "stableRubricItemId": "rubric:rubric_eval_833",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-007:legacy-row-2", "unknown:rb-bank-007:legacy-row-3"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-007:legacy-row-2", "unknown:rb-bank-007:legacy-row-3"]
+      }
+    },
+    {
+      "id": "rb-bank-014",
+      "recordingDigest": "d07091094485d9d1f466",
+      "recordingLine": 15,
+      "rawSha256": "ca9879dc8ea9b23c4e79aa000e4c266beb57bfa69fe49aca867baf3351a52bda",
+      "stableRubricItemId": "rubric:rubric_eval_161",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-014:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-014:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-015",
+      "recordingDigest": "14f6c5394b0e6d5e8bd0",
+      "recordingLine": 16,
+      "rawSha256": "2859063889bc2636791586fcb5632a7f42815ff67479f460ab55c1ed5abfe782",
+      "stableRubricItemId": "rubric:rubric_eval_201",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-015:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-015:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-017",
+      "recordingDigest": "6ff3105bd1578b8d7af5",
+      "recordingLine": 18,
+      "rawSha256": "a9e5524ab5cd1e8f5ce6b48f042787a8597235d233d8b213cb1d9b734568cb38",
+      "stableRubricItemId": "rubric:rubric_eval_833",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-017:legacy-row-2", "unknown:rb-bank-017:legacy-row-3"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-017:legacy-row-2", "unknown:rb-bank-017:legacy-row-3"]
+      }
+    },
+    {
+      "id": "rb-bank-025",
+      "recordingDigest": "d2906d8b57d5e86432f8",
+      "recordingLine": 26,
+      "rawSha256": "a27d230c8bc6d6eff1bc57271fb4d8a09b198433dc1a31bac9affeafd66dfc57",
+      "stableRubricItemId": "rubric:rubric_eval_201",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 2,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-025:legacy-row-1"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 4,
+        "cleanAccepted": true,
+        "defectRejected": false,
+        "winner": "tie",
+        "ignoredRequirementIds": ["unknown:rb-bank-025:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-026",
+      "recordingDigest": "afb5d971f889541308fd",
+      "recordingLine": 27,
+      "rawSha256": "a6c169d18543d92620e822354882fe67caee553689b8d4abeabef1dfc4c59120",
+      "stableRubricItemId": "rubric:rubric_eval_279",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-026:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-026:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-027",
+      "recordingDigest": "d99114533d754c75f785",
+      "recordingLine": 28,
+      "rawSha256": "eb911a9ba371d970e9dbc0a08f29001c8e4acf5e16eea5090a8694ca8af59957",
+      "stableRubricItemId": "rubric:rubric_eval_833",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-027:legacy-row-2", "unknown:rb-bank-027:legacy-row-3"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-027:legacy-row-2", "unknown:rb-bank-027:legacy-row-3"]
+      }
+    },
+    {
+      "id": "rb-bank-035",
+      "recordingDigest": "997cd23d02d1b18981f8",
+      "recordingLine": 37,
+      "rawSha256": "49f3abe4d4af7a29aa189d2fc9b3dc30c65990009a1819d22c69d91341057d65",
+      "stableRubricItemId": "rubric:rubric_eval_201",
+      "recordedWinner": "B",
+      "canonicalClean": "B",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-035:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-035:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-036",
+      "recordingDigest": "e5a0a9ad1185bd173568",
+      "recordingLine": 36,
+      "rawSha256": "1a5105721b5b6706a4b5d7557ad3a951b1c292bdf283c4c55e8ff4911b367d31",
+      "stableRubricItemId": "rubric:rubric_eval_279",
+      "recordedWinner": "B",
+      "canonicalClean": "B",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 4,
+        "cleanAccepted": true,
+        "defectRejected": false,
+        "winner": "tie",
+        "ignoredRequirementIds": ["unknown:rb-bank-036:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 4,
+        "cleanAccepted": true,
+        "defectRejected": false,
+        "winner": "tie",
+        "ignoredRequirementIds": ["unknown:rb-bank-036:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-045",
+      "recordingDigest": "46e8d6cc43b27aeb2c78",
+      "recordingLine": 46,
+      "rawSha256": "b54da5e3f93abaceaeb876c56195303d2fc713ea431190ed5567642117e58f0c",
+      "stableRubricItemId": "rubric:rubric_eval_201",
+      "recordedWinner": "B",
+      "canonicalClean": "B",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-045:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-045:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-046",
+      "recordingDigest": "2d12e7311d53c6a04526",
+      "recordingLine": 47,
+      "rawSha256": "c279399223e1c7957349cec163b8e5266346250348cae49895b4fba120f412f4",
+      "stableRubricItemId": "rubric:rubric_eval_279",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 2,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-046:legacy-row-1"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 4,
+        "cleanAccepted": true,
+        "defectRejected": false,
+        "winner": "tie",
+        "ignoredRequirementIds": ["unknown:rb-bank-046:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-047",
+      "recordingDigest": "2517c8492a3b78f21fba",
+      "recordingLine": 48,
+      "rawSha256": "822bcddfb7f2c8972138349399b386c260e08e01c9a3cc8c5d461ccbf9f3288b",
+      "stableRubricItemId": "rubric:rubric_eval_833",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-047:legacy-row-2", "unknown:rb-bank-047:legacy-row-3"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-047:legacy-row-2", "unknown:rb-bank-047:legacy-row-3"]
+      }
+    },
+    {
+      "id": "rb-bank-048",
+      "recordingDigest": "75280fad0b05191ff999",
+      "recordingLine": 49,
+      "rawSha256": "2875cb52ad35369a2de724d7d4cd11e6c473e2c9a35fc2939cebcf4ea953619f",
+      "stableRubricItemId": "rubric:rubric_eval_1115",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-048:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-048:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-054",
+      "recordingDigest": "013ea5b9bdedcb1346d8",
+      "recordingLine": 55,
+      "rawSha256": "eb4ad98eeebb2c4fb130bb180c7ea788cb64729fda041eb94525205083ec4077",
+      "stableRubricItemId": "rubric:rubric_eval_161",
+      "recordedWinner": "B",
+      "canonicalClean": "B",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-054:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-054:legacy-row-2"]
+      }
+    },
+    {
+      "id": "rb-bank-057",
+      "recordingDigest": "97ab1fc57426dc055539",
+      "recordingLine": 58,
+      "rawSha256": "613697bc902db4fa4d696cc605b90123f16e2262fd51e47d165eaedf2c8acd1e",
+      "stableRubricItemId": "rubric:rubric_eval_833",
+      "recordedWinner": "A",
+      "canonicalClean": "A",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-057:legacy-row-2", "unknown:rb-bank-057:legacy-row-3"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "A",
+        "ignoredRequirementIds": ["unknown:rb-bank-057:legacy-row-2", "unknown:rb-bank-057:legacy-row-3"]
+      }
+    },
+    {
+      "id": "rb-bank-058",
+      "recordingDigest": "2ccb1e0c8e087e7f0bc0",
+      "recordingLine": 59,
+      "rawSha256": "66a163e883d64140de198348a7835d0d16b198fd2b57d12c192e1c80e37b12e8",
+      "stableRubricItemId": "rubric:rubric_eval_1115",
+      "recordedWinner": "B",
+      "canonicalClean": "B",
+      "mapped": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-058:legacy-row-2"]
+      },
+      "blindId1": {
+        "selectedLegacyRowId": 1,
+        "cleanScore": 4,
+        "defectScore": 0,
+        "cleanAccepted": true,
+        "defectRejected": true,
+        "winner": "B",
+        "ignoredRequirementIds": ["unknown:rb-bank-058:legacy-row-2"]
+      }
+    }
+  ]
+}
