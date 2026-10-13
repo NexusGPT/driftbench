@@ -8,7 +8,7 @@ Status: the estate reader, the session reader, the replay adapter, the ordered-p
 
 | Generic atom kind | Claude Code source |
 |---|---|
-| Instruction, gate | `CLAUDE.md`, `.claude/CLAUDE.md` and `CLAUDE.local.md`, the same files in subfolders of the project (loaded when the agent works there, so left out of the size ceiling), memory files under `.claude/memory/`, the bodies of `SKILL.md` files and agent files |
+| Instruction, gate | `CLAUDE.md`, `.claude/CLAUDE.md` and `CLAUDE.local.md`, the same files in subfolders of the project (loaded when the agent works there, so left out of the size ceiling), the files a standing file imports with `@path` (up to five imports deep), memory files under `.claude/memory/`, the bodies of `SKILL.md` files and agent files |
 | Route | the `description` of each skill and agent, rows of a routing table in the standing file that name a skill or an agent |
 | Skill, reference, script | a skill folder, `.claude/skills/<name>/`: `SKILL.md` (frontmatter, with `allowed-tools`, and body), the files it names, its scripts, the hooks in its frontmatter |
 | Subagent | `.claude/agents/*.md`: name, description, tools, model, effort, skills, the body |

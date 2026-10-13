@@ -19,7 +19,7 @@ import type {
   StepDecl,
   SubagentDecl,
 } from './reader';
-import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
+import { blankFences, keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
 
 /**
  * The Claude Code reader: the runtime adapter of the estate scanner. It reads `CLAUDE.md` (and
@@ -240,6 +240,7 @@ export class ClaudeCodeReader implements EstateReader {
       }
     }
     noteSharedNames(estate);
+    await readImports(root, estate, ignored, budget);
     readNamedDocuments(estate, budget);
     await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
@@ -252,6 +253,55 @@ export class ClaudeCodeReader implements EstateReader {
     const scripts = new Set(estate.guards.flatMap((guard) => (guard.script ? [guard.script] : [])));
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
     return estate;
+  }
+}
+
+/** How many imports deep the runtime follows `@path` from a standing file. */
+const IMPORT_DEPTH = 5;
+
+/**
+ * Files the standing instructions import with `@path` (relative to the importing file, or from the root):
+ * the runtime loads them with the standing file, so they are standing prose too, and the files they import
+ * in turn, up to five imports deep. A path written in code (a fence, backticks) or an e-mail address
+ * imports nothing.
+ */
+async function readImports(root: string, estate: RawEstate, ignored: Ignored, budget: number): Promise<void> {
+  const files = new Map(estate.files.map((file) => [file.path, file]));
+  let wave = estate.files.filter((file) => file.kind === 'standing' || file.kind === 'memory');
+  for (let depth = 0; depth < IMPORT_DEPTH && wave.length > 0; depth++) {
+    const next: EstateFile[] = [];
+    for (const file of wave) {
+      const lines = blankFences(file.text).split('\n');
+      for (const line of lines) {
+        for (const match of line.replace(/`[^`]*`/g, ' ').matchAll(/(?:^|\s)@([^\s@`]+\.[A-Za-z0-9]+)/g)) {
+          const written = (match[1] ?? '').replace(/[.,;:)]+$/, '');
+          if (written.startsWith('~') || written.startsWith('/')) continue;
+          const candidates = [
+            posix.normalize(posix.join(posix.dirname(file.path), written)),
+            posix.normalize(written),
+          ];
+          let target = candidates.map((path) => files.get(path)).find((found) => found !== undefined);
+          if (!target) {
+            const path = candidates.find((candidate) => !candidate.startsWith('..'));
+            if (!path || ignored.rules.some((rule) => rule.test(path))) continue;
+            const info = await stat(join(root, path)).catch(() => undefined);
+            if (!info?.isFile() || info.size > MAX_FILE_BYTES) continue;
+            target = {
+              path,
+              text: (await readFile(join(root, path), 'utf8')).replace(/^\uFEFF/, ''),
+              kind: 'other',
+            };
+            estate.files.push(target);
+            files.set(path, target);
+          }
+          if (target.kind !== 'other' || !PROSE_FILE.test(target.path)) continue;
+          target.kind = 'standing';
+          addProse(estate, target, 1, lastLine(target.text), budget);
+          next.push(target);
+        }
+      }
+    }
+    wave = next;
   }
 }
 

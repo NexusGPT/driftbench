@@ -634,6 +634,8 @@ function referenceAtoms(
   builder: AtomBuilder,
 ): void {
   const skipped = new Set(raw.ignored?.paths ?? []);
+  const kind = files.get(chunk.file)?.kind;
+  const standing = kind === 'standing' || kind === 'memory';
   let notes = false;
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     const heading = /^#{1,6}\s+(.*)$/.exec(line.text);
@@ -644,6 +646,8 @@ function referenceAtoms(
       // A path written in another form (backslashes, a wiki link) is looked for by its file name's stem.
       const written = line.text.includes(named) ? named : basename(named).replace(/\.[A-Za-z0-9]+$/, '');
       if (!positiveMention(line.text, written, ['read', 'open', 'load'])) continue;
+      // In a standing file, `@path` imports the file into the standing instructions: no read to ask for.
+      if (standing && new RegExp(`(?:^|\\s)@${escapeRegExp(named)}(?![\\w./-])`).test(line.text)) continue;
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
         skipped,
