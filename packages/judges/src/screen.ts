@@ -167,6 +167,12 @@ const OTHER_LANGUAGES: readonly {
     judge: ['评分标准', '评估标准', '评判', '评分', '裁判', '评审'],
     verdict: ['通过', '合格', '成功', '不及格', '失败'],
   },
+  {
+    // Japanese
+    loose: true,
+    judge: ['評価基準', '評価', '採点', '審査', '判定'],
+    verdict: ['合格', '成功', '失敗', 'パス', '通過'],
+  },
 ];
 
 const VERDICT_WORDS = [
