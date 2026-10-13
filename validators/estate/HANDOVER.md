@@ -6,6 +6,14 @@ Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 38 were made by a f
 
 Iteration 40 at 59f4b083b merges main, including PR 274 and D11/D12. Seed 1, run alone: level 3, 1108/1169. Reader 641/641, lint 46/46, plan 65/65, generation 244/270, agent-mutants 46/74, maintenance 51/53, scale 15/20. The earlier sections below retain the prior executor history.
 
+## Current v4 result
+
+Iteration 41 at aa9877712: seed 1 remains level 3. The isolated ladder stops at generation and does not measure scale: reader 641/641, lint 46/46, plan 65/65, generation 247/270. Focused runs separately show maintain.impact 33/33 and mutant.agent 38/44. The latest full baseline for agent-mutants is 46/74 and maintenance 51/53; do not label those stale counts as the fixed product's score. Scale remains 15/20 on the older loaded-host baseline and must only be remeasured on a quiet host.
+
+The maintainer rules the negative reply-length item valid. aa9877712 fixes it: unqualified negative guard controls forbid deny, ask, warn and nudge, while ordinary allow invocations pass. Explicit verdicts remain exact. Regression red first, then 2/2; then 34/34; generate 32/32; CLI unit specs 5/5; gen.complete 84/97, up from 83/97. The earlier negative-guard ruling request below is resolved by this fix.
+
+Next: apply further maintainer rulings to product code; merge each ruling PR when announced; remeasure seed 1 without scale until the host is quiet. Do not mark PR 154 ready until a level rises.
+
 ## Level per seed
 
 <!-- level-table:start -->
