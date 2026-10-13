@@ -104,6 +104,6 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
   if ready:
    print(json.dumps({'time':now(),'baseItems':len(bases),'escalated':len(escalated),'pending':len(pending),'workers':WORKERS}),flush=True)
    list(pool.map(call,ready))
-  elif len(bases)==expected and not pending:
-   print(json.dumps({'done':True,'items':expected,'escalated':len(escalated),'calls':len(cache),'spendConservative':spent}),flush=True);break
+  elif len(bases)==expected and (not pending or ('--available' in sys.argv and not any(t['provider']!='gemini' for t in pending))):
+   print(json.dumps({'done':True,'geminiPaused':(ROOT/'pause-gemini').exists(),'waitingGeminiItems':len(waiting),'waitingGeminiCalls':sum(t['provider']=='gemini' for t in pending),'items':expected,'escalated':len(escalated),'calls':len(cache),'spendConservative':spent}),flush=True);break
   else:time.sleep(10)

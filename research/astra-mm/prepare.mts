@@ -1,8 +1,8 @@
 import {readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-import {contestantById} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-mm/examples/judge-benchmarks/src/contestants.ts';
-import {CRITERIA} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-mm/examples/judge-benchmarks/src/data.ts';
-import {createJevJudge} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-mm/packages/judges/src/clients/system1.ts';
+import {contestantById} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/astra-mm/research/astra-mm/frozen-source/examples/judge-benchmarks/src/contestants.ts';
+import {CRITERIA} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/astra-mm/research/astra-mm/frozen-source/examples/judge-benchmarks/src/data.ts';
+import {createJevJudge} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/astra-mm/research/astra-mm/frozen-source/packages/judges/src/clients/system1.ts';
 import {pairRequest} from './council-pairs.ts';
 const sample=JSON.parse(readFileSync(process.argv[2],'utf8'));
 const contestant=contestantById('driftbench');

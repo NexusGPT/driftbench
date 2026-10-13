@@ -1,1 +1,1 @@
-{"compilerOptions": {"target": "ES2022", "module": "ESNext", "moduleResolution": "Bundler", "baseUrl": "../..", "paths": {"@driftbench/*": ["/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-mm/packages/*/src/index.ts"], "@agent-nexus/driftbench-*": ["packages/*/src/index.ts"]}}}
+{"compilerOptions": {"target": "ES2022", "module": "ESNext", "moduleResolution": "Bundler", "baseUrl": "../..", "paths": {"@driftbench/*": ["research/astra-mm/frozen-source/packages/*/src/index.ts"], "@agent-nexus/driftbench-*": ["packages/*/src/index.ts"]}}}

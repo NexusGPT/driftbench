@@ -1,0 +1,7 @@
+{
+  "sourceCommit": "0278595cb5b5a6b49830a1cacdbfd22bb951c0de",
+  "archive": "frozen-source.tar.gz",
+  "sha256": "b0f735ead05445fab733d8b9d4edf920289bea1d718349b968b78b9c630bffb0",
+  "files": "Frozen repository source only; no benchmark results or TEST data",
+  "runtimeDependency": "franc-all 7.2.0, per the pinned pnpm lockfile; other package dependencies reuse read-only main package node_modules."
+}

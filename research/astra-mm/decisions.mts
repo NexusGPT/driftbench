@@ -1,7 +1,7 @@
 // Score only completed cohorts. All provider parsers and pair-order rules are the source harness's.
 import {readFileSync,writeFileSync} from 'node:fs';
-import {contestantById} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-mm/examples/judge-benchmarks/src/contestants.ts';
-import {outcomeFromProbability} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-mm/packages/judges/src/contract.ts';
+import {contestantById} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/astra-mm/research/astra-mm/frozen-source/examples/judge-benchmarks/src/contestants.ts';
+import {outcomeFromProbability} from '/Users/assem/Documents/GitHub/driftbench/.worktrees/astra-mm/research/astra-mm/frozen-source/packages/judges/src/contract.ts';
 const root='research/astra-mm/data',prefix=process.argv[2]??'dev';
 const rows=(file:string)=>readFileSync(file,'utf8').trim().split('\n').filter(Boolean).map(l=>JSON.parse(l));
 const sample=JSON.parse(readFileSync(`${root}/${prefix}.json`,'utf8'));
@@ -19,10 +19,13 @@ export const majority=(ss:string[],threshold?:number)=>{
 };
 const text=(r:any)=>r.provider==='openai'?(r.payload.choices?.[0]?.message?.content??''):(r.payload.candidates?.[0]?.content?.parts??[]).filter((p:any)=>!p.thought).map((p:any)=>p.text??'').join('');
 const sc=(g:string[],label:string,refused=false)=>refused?0:g.reduce((v,x)=>v+(x===label?1:x==='tie'?.5:0),0)/g.length;
-const out:any[]=[];
+const out:any[]=[],excluded:any[]=[];
+const partial=process.argv.includes('--complete-only');
 for(const item of sample){
- const f:any=base.get(item.id);if(!f)throw Error(`Missing base ${item.id}`);
+ const f:any=base.get(item.id);if(!f){if(partial){excluded.push({id:item.id,reason:'base unfinished'});continue;}throw Error(`Missing base ${item.id}`);}
  const escalate=f.providerRefused||!(f.games.length===2&&f.games[0]===f.games[1]&&['A','B'].includes(f.games[0]));
+ const missing=escalate?taskBank.filter(t=>t.id===item.id&&!byKey.has(t.key)).map(t=>({provider:t.provider,order:t.order,key:t.key})):[];
+ if(missing.length){if(partial){excluded.push({id:item.id,group:item.group,reason:'panel unfinished',missing});continue;}throw Error(`Missing panel ${item.id}`);}
  let games=f.games,refused=f.providerRefused,seats:any={};
  if(escalate){
   for(const p of ['openai','gemini','jev']){
@@ -45,4 +48,6 @@ for(const item of sample){
  out.push({id:item.id,group:item.group,language:item.language,label:item.label,baseGames:f.games,baseRefused:f.providerRefused,escalated:escalate,seats,games,providerRefused:refused,base:sc(f.games,item.label,f.providerRefused),cascade:sc(games,item.label,refused)});
 }
 writeFileSync(`${root}/${prefix}-decisions.jsonl`,out.map(r=>JSON.stringify(r)).join('\n')+'\n');
-console.log(JSON.stringify({items:out.length,escalated:out.filter(r=>r.escalated).length}));
+writeFileSync(`${root}/${prefix}-full-panel-decisions.jsonl`,out.filter(r=>r.escalated).map(r=>JSON.stringify(r)).join('\n')+'\n');
+writeFileSync(`${root}/${prefix}-excluded.json`,JSON.stringify(excluded,null,2)+'\n');
+console.log(JSON.stringify({completeCascadeItems:out.length,fullPanelItems:out.filter(r=>r.escalated).length,excluded:excluded.length}));
