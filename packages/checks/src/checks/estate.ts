@@ -26,7 +26,7 @@ import type { CustomCheckFunction } from './custom';
  * - `max_words`: a word limit on a named part of the reply: a draft, or the whole reply.
  * - `no_delete_under`: nothing deleted under a folder.
  * - `stage_seen`: a step allowed at any point was reached at least once.
- * - `guard_message`: a guard that blocked said why, and the message keeps the output rules.
+ * - `guard_message`: a guard that intervened said why, and the message keeps the output rules.
  * - `guard_finished`: every run of a guard answered within its time.
  */
 
@@ -637,25 +637,27 @@ function messageOf(run: GuardRun): string | undefined {
 }
 
 /**
- * `{ name, mustNot?, block? }`. Every run of the guard that blocked (deny or block) gives a message, and
+ * `{ name, mustNot?, block? }`. Every intervention (deny, block, ask, warn or nudge) gives a message, and
  * each message keeps the output rules: no pattern of `mustNot` matches it. Inconclusive when the guard did
- * not block in the block, or the runtime reports no output for it.
+ * not intervene in the block, or the runtime reports no output for it.
  */
 export const guardMessage: CustomCheckFunction = (ctx, options) => {
   if (!isRecord(options) || typeof options.name !== 'string') throw new Error('guard_message needs { name }');
   if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
-  const blocked = runsOf(ctx, options.name).filter((run) => /^(deny|block)$/i.test(run.verdict));
-  if (blocked.length === 0) {
+  const interventions = runsOf(ctx, options.name).filter((run) =>
+    /^(deny|block|ask|warn|nudge)$/i.test(run.verdict),
+  );
+  if (interventions.length === 0) {
     return [
       machineVerdict(
         'guard_message',
         'present',
         'inconclusive',
-        `${options.name} did not block in this block`,
+        `${options.name} did not intervene in this block`,
       ),
     ];
   }
-  const messages = blocked.map(messageOf);
+  const messages = interventions.map(messageOf);
   if (messages.every((message) => message === undefined)) {
     return [
       machineVerdict(
@@ -671,10 +673,10 @@ export const guardMessage: CustomCheckFunction = (ctx, options) => {
     machineVerdict(
       'guard_message',
       'present',
-      given.length === blocked.length ? 'pass' : 'fail',
-      given.length === blocked.length
-        ? `${plural(blocked.length, 'blocking run')} of ${options.name}, each with a message: ${given.map((m) => JSON.stringify(m)).join('; ')}`
-        : `${blocked.length - given.length} of ${plural(blocked.length, 'blocking run')} of ${options.name} gave no message`,
+      given.length === interventions.length ? 'pass' : 'fail',
+      given.length === interventions.length
+        ? `${plural(interventions.length, 'intervention')} of ${options.name}, each with a message: ${given.map((m) => JSON.stringify(m)).join('; ')}`
+        : `${interventions.length - given.length} of ${plural(interventions.length, 'intervention')} of ${options.name} gave no message`,
     ),
   ];
   const patterns = Array.isArray(options.mustNot)
