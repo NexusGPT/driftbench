@@ -14,6 +14,7 @@ HERE = Path(__file__).parent
 MODELS = ['haiku', 'gpt-6-luna', 'gemini-3.8-flash', 'gemini-3.5-flash-lite']
 CELLS = ['claude-sonnet-5-5', 'gpt-6.1-sol']  # separate folders under cells/, each with its own gate
 CONTESTANTS = ['ledger', 'promptfoo']
+CLOSED = ['haiku']  # official result frozen at close (amendment 10)
 
 
 def lines(path):
@@ -29,10 +30,13 @@ def report(iterations=20000):
     last = {}
     folders = [HERE / 'recordings'] + [HERE / 'cells' / c for c in CELLS]
     every = lambda name: [r for f in folders for r in lines(f / name)]
+    first = {}
     for r in every('decisions.jsonl'):
         if r['phase'] == 'test':
             last[(r['model'], r['id'], r['contestant'])] = r  # a later eligibility round supersedes a no-answer row
-    decisions = list(last.values())
+            first.setdefault((r['model'], r['id'], r['contestant']), r)
+    # A closed cell keeps its official result from the rows recorded at close; a post-close recovery is an addendum.
+    decisions = [first[k] if k[0] in CLOSED else v for k, v in last.items()]
     calls = [r for r in every('calls.jsonl') if r['phase'] == 'test']
     attempts = [r for r in every('attempts.jsonl') if r['phase'] == 'test']
     cell_spend = {}
@@ -91,6 +95,14 @@ def report(iterations=20000):
             'cost': cost,
             'items': primary.get('items', []),
         }
+        if model in CLOSED and any(last[k] is not first[k] for k in last if k[0] == model):
+            rec = [v for k, v in last.items() if k[0] == model]
+            # An error envelope with output tokens is a model-side failure: the item stays missing in both lines.
+            failed = {c['id'] for c in mcalls if str((c.get('response') or {}).get('finishReason', '')).startswith('error:')}
+            still = {r['id'] for r in rec if r.get('error')} | failed
+            addendum = compare([x for x in pool if x['id'] not in still], rec, model, iterations=iterations)
+            out['models'][model]['withRecoveredItems'] = {**strip(addendum), 'label': 'post-close recovery of transport no-answers; never replaces the official line',
+                                                          'stillMissing': sorted(still), 'modelSideFailures': sorted(failed)}
     return out
 
 

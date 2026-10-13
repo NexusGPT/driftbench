@@ -49,7 +49,7 @@ const recordsFile = resolve(runDir, 'decisions.jsonl');
 const callsFile = resolve(runDir, 'calls.jsonl');
 // Eligibility amendment: listed calls and decisions returned no model answer after their tries,
 // so they are asked again in a new round. Rows with any recorded model answer are never listed.
-const eligibilityPath = resolve(here, 'eligibility.json');
+const eligibilityPath = existsSync(resolve(here, `eligibility-${model}.json`)) ? resolve(here, `eligibility-${model}.json`) : resolve(here, 'eligibility.json');
 const eligibility: any = existsSync(eligibilityPath) ? JSON.parse(readFileSync(eligibilityPath, 'utf8')) : null;
 const eligible = eligibility?.model === model ? eligibility : null;
 const eligibleCalls = new Set<string>(eligible?.callKeys ?? []);
@@ -94,7 +94,7 @@ if (!dry) {
   if (cell?.maxThinkingTokens) env.MAX_THINKING_TOKENS = String(cell.maxThinkingTokens);
   transport = createDialectTransport({ ...cfg, env, maxTokens: 8192, timeoutMs: TIMEOUT_MS,
     maxRetries: 0, maxBudgetUsd: cell?.maxBudgetUsd ?? .10 } as any);
-  if (cell && cfg.provider === 'claude-cli') {
+  if ((cell || eligible?.keepEnvelope) && cfg.provider === 'claude-cli') {
     // Amendment 9: same command, flags, folder rule and prompt as the frozen transport, but the whole
     // JSON envelope is kept on every call so an error with zero output tokens can be told from an answer.
     const { buildDialectRequest } = await import('../../packages/judges/src/clients/transport.ts');
@@ -107,7 +107,7 @@ if (!dry) {
       const built = buildDialectRequest('claude-cli', request);
       folder ??= mkdtempSync(resolve(tmpdir(), 'driftbench-claude-transport-'));
       const ran = await runClaudeCommand('claude', ['-p', '--output-format', 'json', '--model', cfg.model, '--system-prompt', request.system,
-        ...CLAUDE_JUDGE_FLAGS, '--max-budget-usd', String(cell.maxBudgetUsd)], built.payload.user as string, { cwd: folder, env, timeoutMs: TIMEOUT_MS });
+        ...CLAUDE_JUDGE_FLAGS, '--max-budget-usd', String(cell?.maxBudgetUsd ?? .10)], built.payload.user as string, { cwd: folder, env, timeoutMs: TIMEOUT_MS });
       const read = readClaudeEnvelope(ran.stdout, ran.code);
       const identity = { dialect: frozen.dialect, fingerprint: `${frozen.fingerprint}:${built.fingerprint}` };
       if (read.kind === 'no-envelope') throw Object.assign(new Error(`claude exited ${ran.code} without a JSON result`), { envelope: ran.stdout.slice(0, 4000) });
@@ -187,7 +187,7 @@ async function ask(meta: any, request: any) {
           // The provider processed nothing on an unreachable host or a 5xx, so that try costs zero.
           const free = Boolean(cell) && cfg.provider !== 'claude-cli' && isZeroCost(text);
           // A Claude envelope reports the real cost of a no-answer try; it is settled at that cost.
-          const known = Boolean(cell) && Number.isFinite((error as any)?.costUsd) ? Math.min((error as any).costUsd, reserve) : undefined;
+          const known = Boolean(cell || eligible?.keepEnvelope) && Number.isFinite((error as any)?.costUsd) ? Math.min((error as any).costUsd, reserve) : undefined;
           if (free) budget.settle(tryKey(n), 0);
           else if (known !== undefined) budget.settle(tryKey(n), known);
           if (cell) link.failed(text);

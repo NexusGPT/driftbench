@@ -1,5 +1,5 @@
 {
-  "stage": "test-v9",
+  "stage": "test-v10",
   "core": {
     "pr": "https://github.com/achammah/driftbench/pull/168",
     "commit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
@@ -90,13 +90,14 @@
     "research/ledger-mm/artifacts/pool.json": "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb",
     "research/ledger-mm/artifacts/pilot.json": "1fa01e034f8fb2fe782bcf1fa6f6bc11c5856f5b69a9702fb4c2177169f5733a",
     "research/ledger-mm/artifacts/harm-fixtures.json": "cb26c07022016c8c0ecff5f1c7663991d673ed7d01c2cf50c9b82842a773467d",
-    "research/ledger-mm/run-test.mts": "e30449fab1cc129dd50057f3ad047e6c378f36997dff9eef969acf4e11ce3760",
+    "research/ledger-mm/run-test.mts": "f20451113500d9e4c38716a4ed59966b6f181c22fac8ea5d3f3db20f3faa99e9",
     "research/ledger-mm/exec.mjs": "d6d42cacfa1e54a8a1c001d751ebb2e2ff29b1230b9f9c6db2bd78ba90fe248d",
     "research/ledger-mm/test_exec.mjs": "13169a8ab9d48d6c8933ad4e5cbd93e5736bf543eccdc6d58a0cd6fa95be4b70",
     "research/ledger-mm/eligibility.json": "84b05992165f14a4bc4e130a793f52ac2204fec691d0f43ce33916579c82bdeb",
     "research/ledger-mm/test_eligibility.py": "a84b5aeef9b7c796310442328d9529705a5faf32d720c21bdbb36a70b1009e60",
-    "research/ledger-mm/test_report.py": "2d5c99b3d9a09a55bd8a0c8c3c76c0005df7667c3ed3845203f76ec690142f73",
-    "research/ledger-mm/supervise.sh": "48009290f0265ce5158fc987818a454d851dd50da7f81e619520170e3902b21c"
+    "research/ledger-mm/test_report.py": "34e58998f914b6e6bc4c4840dfab2188e1ea7466ea100a20a6c7609938e944c0",
+    "research/ledger-mm/supervise.sh": "48009290f0265ce5158fc987818a454d851dd50da7f81e619520170e3902b21c",
+    "research/ledger-mm/eligibility-haiku.json": "0524da8d2a0feba7e21c76f38d01ae06f395fe73909fc4ee0cbd6378d9275a63"
   },
   "executionRules": {
     "driver": "research/ledger-mm/run-test.mts, derived from frozen run.mts by execution changes only",
@@ -221,5 +222,12 @@
     "by": "owner via coordinator",
     "text": "Claude CLI cells keep the whole JSON envelope on every call. An error envelope with zero output tokens and no model text is a transport no-answer: recoverable missing-only, settled at its reported cost. An error envelope with any model output is an answer or a model-side failure and is never re-sent. A run with no JSON envelope (crash, timeout) is a no-answer whose cost is unknown, so its reserve is held. The Sonnet cell calls the same command, flags, empty folder and prompt as the frozen transport; only the reading of the envelope differs.",
     "haiku": "The Haiku cell ran through the frozen transport, which discards the envelope on an error. No envelope was kept for its 9 missing items (51 failed tries), so none can be classed by this rule from recordings."
+  },
+  "amendment10": {
+    "loggedUtc": "2026-10-13",
+    "by": "owner via coordinator",
+    "text": "Post-close recovery of transport no-answers on both contestants alike. These calls returned \"claude returned an error result\" on 3 tries and no envelope was kept. Each is asked once more (one round, up to 3 tries) with the whole envelope kept. The closed Haiku result stays exactly as recorded and reported (0.8886 against 0.8645). The recovery is reported only as a second labelled line \"with recovered items\", never in place of it. A call that returns output tokens on an error envelope stays missing in both lines.",
+    "file": "research/ledger-mm/eligibility-haiku.json",
+    "order": "after gpt-6.1-sol and claude-sonnet-5-5 finish"
   }
 }
