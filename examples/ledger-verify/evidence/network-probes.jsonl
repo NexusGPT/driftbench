@@ -101,3 +101,22 @@
 {"healthy": true, "status": 404, "at": "2026-10-13T15:28:59.129433+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
 {"healthy": true, "status": 404, "at": "2026-10-13T15:29:28.449929+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
 {"healthy": true, "status": 404, "at": "2026-10-13T15:29:58.876218+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T15:30:29.505076+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T15:30:58.377323+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T15:31:30.012804+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 421, "at": "2026-10-13T15:31:53.651249+00:00", "model": "gpt-6.1-sol", "host": "api.openai.com", "providerGeneration": false}
+{"healthy": true, "status": 421, "at": "2026-10-13T15:32:23.738460+00:00", "model": "gpt-6.1-sol", "host": "api.openai.com", "providerGeneration": false}
+{"healthy": true, "status": 421, "at": "2026-10-13T15:32:54.395575+00:00", "model": "gpt-6.1-sol", "host": "api.openai.com", "providerGeneration": false}
+{"healthy": false, "error": "TypeError: fetch failed", "cause": "SocketError: other side closed", "at": "2026-10-13T15:33:36.808404+00:00", "model": "gpt-6.1-sol", "host": "api.openai.com", "providerGeneration": false}
+{"healthy": false, "error": "TypeError: fetch failed", "cause": "ConnectTimeoutError: Connect Timeout Error (attempted address: api.openai.com:443, timeout: 10000ms)", "at": "2026-10-13T15:34:21.509279+00:00", "model": "gpt-6.1-sol", "host": "api.openai.com", "providerGeneration": false}
+{"healthy": false, "error": "TypeError: fetch failed", "cause": "Error: getaddrinfo ENOTFOUND api.openai.com", "at": "2026-10-13T15:34:28.742023+00:00", "model": "gpt-6.1-sol", "host": "api.openai.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T15:57:52.102099+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T15:58:21.869839+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T15:58:51.914456+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T15:59:21.891616+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T15:59:51.854539+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T16:00:21.897983+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T16:00:51.953978+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T16:01:21.936283+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T16:01:51.880907+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}
+{"healthy": true, "status": 404, "at": "2026-10-13T16:02:21.970040+00:00", "model": "claude-sonnet-5-5", "host": "api.anthropic.com", "providerGeneration": false}

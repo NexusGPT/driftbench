@@ -88,6 +88,9 @@ def main():
         with (DOSSIER.parent.parent/'spend-ledger.md').open('a') as stream:
             f=cells['additionalCellFees']
             stream.write('| '+stamp+' | verify Flash Lite finish | '+str(f['settledUsd'])+' USD settled; '+str(f['unresolvedMaximumUsd'])+' USD unresolved maximum; cap 24 USD | full 379 units; additional cell, separate from original budget | '+head+' |\n')
+    for model, fees in cells.get('newModelFees', {}).items():
+        with (DOSSIER.parent.parent/'spend-ledger.md').open('a') as stream:
+            stream.write('| '+stamp+' | verify '+model+' | cumulative checkpoint, not an additional charge | '+str(fees['settledUsd'])+' USD settled; '+str(fees['unresolvedMaximumUsd'])+' USD unresolved maximum; cap '+str(fees['capUsd'])+' USD | Separate cell; status in dossier | '+head+' |\n')
     print(json.dumps(dict(status='pushed and remote verified', head=head, completedModels=final['completedModels'])))
 
 

@@ -2,7 +2,7 @@
 import json,os,re,subprocess,sys,time
 from pathlib import Path
 BASE=Path(__file__).resolve().parent;ROOT=BASE.parents[1]
-CONNECTION=re.compile(r'ENOTFOUND|ECONNRESET|ETIMEDOUT|EAI_AGAIN|UND_ERR_CONNECT_TIMEOUT|connect(?:ion)?[^\n]{0,40}(?:timeout|reset|refused|closed)|fetch failed|ran past \d+ ms|socket hang up|DNS',re.I)
+CONNECTION=re.compile(r'ENOTFOUND|ECONNRESET|ETIMEDOUT|EAI_AGAIN|UND_ERR_CONNECT_TIMEOUT|connect(?:ion)?[^\n]{0,40}(?:timeout|reset|refused|closed)|fetch failed|could not be reached|ran past \d+ ms|socket hang up|DNS',re.I)
 def main():
  args=sys.argv[1:];model=args[args.index('--model')+1];folder={'gpt-6.1-sol':'sol61','claude-sonnet-5-5':'sonnet'}[model]
  user=sys.stdin.read();attempt=0

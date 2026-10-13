@@ -14,7 +14,7 @@ for i,cmd in enumerate(cmds):
  if i==0:
   r=read(BASE/'evidence/item-history-replay.json');assert len(r['phases'])==6 and all(p['identicalDecisions'] and p['newCalls']==0 for p in r['phases'])
   (BASE/'evidence/phase-replay-checks.json').write_text(json.dumps(r,indent=2)+'\n');(BASE/'evidence/request-attribution.json').write_bytes((BASE/'evidence/history-request-attribution.json').read_bytes())
-cells=read(BASE/'evidence/cells.json');assert cells['fees']['maximumAccountedUsd']<=25;assert not cells['outputLimitErrors']['unmappedLimits']
+cells=read(BASE/'evidence/cells.json');assert cells['fees']['maximumAccountedUsd']<=read(BASE/'evidence/runtime-freeze.json')['capUsd'];assert not cells['outputLimitErrors']['unmappedLimits']
 for p,h in read(BASE/'evidence/reporting-freeze.json')['sourceHashes'].items():assert hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h,p
 for c in cells['cells']:
  c['additionalCell']=True;c['validityPassedScope']='Planted mutation checks only; full DEV cheater margin not established';c['claimStatus']='Additional cell; multiplicity policy pending collator'

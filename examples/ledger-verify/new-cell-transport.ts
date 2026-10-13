@@ -43,7 +43,7 @@ try{
  budget('reserve',reserve);reservation=true;
  let output:any,metadata:any;
  if(model==='claude-sonnet-5-5'){
-  const env:any={...process.env,CLAUDE_JUDGE_MODEL:'sonnet',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'16384',CLAUDE_CODE_EFFORT_LEVEL:'medium'};
+  const env:any={...process.env,CLAUDE_JUDGE_MODEL:'sonnet',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'16384',CLAUDE_CODE_EFFORT_LEVEL:'medium',DISABLE_PROMPT_CACHING:'1'};
   for(const name of ['OPENAI_API_KEY','GEMINI_API_KEY','ANTHROPIC_API_KEY','MAX_THINKING_TOKENS','CLAUDE_CODE_DISABLE_THINKING','CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING'])delete env[name];
   nativeReceipt=resolve(base,'receipts/native',id+'.json');env.VERIFY_NATIVE_RECEIPT=nativeReceipt;env.VERIFY_NATIVE_EXECUTABLE='/Users/assem/.local/bin/claude';
   const transport=createDialectTransport({provider:'claude-cli',model:'sonnet',env,command:resolve(parent,'capture-claude.sh'),timeoutMs:300000,maxBudgetUsd:.5});
@@ -55,7 +55,7 @@ try{
   const key=(await readFile(resolve(process.env.HOME!,'.nexus-secrets/openai.key'),'utf8')).trim();
   const transport=createDialectTransport({provider:'openai',model,env:{OPENAI_API_KEY:key},reasoning:'medium',maxTokens:32768,timeoutMs:300000,maxRetries:0,
    fetch:responsesFetch(async v=>{raw=v;nativeReceipt=resolve(base,'receipts/native',id+'.json');await writeFile(nativeReceipt,JSON.stringify(v)+'\n');})});
-  started=true;const response=await withQuotaBackoff(()=>transport.complete({system,user,...(schema?{schema}:{})}),async event=>{await log('quota.jsonl',{id,at:new Date().toISOString(),model,phase,fingerprint,...event});});
+  started=true;const response=await withQuotaBackoff(async()=>{while(true){const gate=JSON.parse(await readFile(resolve(parent,'evidence/network-admission.json'),'utf8'));if(gate.open&&gate.model===model&&Date.now()/1000-gate.lastProbeEpoch<75)break;await new Promise(r=>setTimeout(r,1000));}return transport.complete({system,user,...(schema?{schema}:{})});},async event=>{await log('quota.jsonl',{id,at:new Date().toISOString(),model,phase,fingerprint,...event});});
   output={result:response.text,total_cost_usd:responsesCost(raw),is_error:false,verify_receipt_id:id,verify_answered:true};metadata={...response,raw:undefined,text:undefined,responsesStatus:raw.status,incompleteDetails:raw.incomplete_details,usage:raw.usage};
  }
  const state=budget('settle',output.total_cost_usd);reservation=false;

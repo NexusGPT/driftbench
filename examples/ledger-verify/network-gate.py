@@ -21,7 +21,7 @@ def paid_streak(model,since):
    if name=='calls':events[r['id']]=(r['at'],False)
    elif CONNECTION.search(r.get('message','')) and not r.get('returnedEnvelope'):
     native=Path(r['nativeReceipt']) if r.get('nativeReceipt') else None
-    if native and native.exists() and native.stat().st_size:continue
+    if r.get('noAnswer') is not True and native and native.exists() and native.stat().st_size:continue
     events[r['id']]=(r['at'],True)
  streak=0
  for at,bad in sorted(events.values()):streak=streak+1 if bad else 0

@@ -1,11 +1,11 @@
 {
   "capUsd": 25,
-  "spentUsd": 0.035454,
+  "spentUsd": 0.133846,
   "reservations": {
-    "11c16009-8ef6-44d8-b677-ebbe50b1f8f4": {
+    "e1469ce1-8ea4-422e-b742-48d4e91788ef": {
       "usd": 0.5,
       "model": "claude-sonnet-5-5",
-      "at": "2026-10-13T15:30:09.965891+00:00"
+      "at": "2026-10-13T16:02:22.080672+00:00"
     }
   },
   "receipts": [
@@ -14,17 +14,41 @@
       "model": "claude-sonnet-5-5",
       "usd": 0.035454,
       "reservedUsd": 0.5
+    },
+    {
+      "id": "11c16009-8ef6-44d8-b677-ebbe50b1f8f4",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.021202,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "76994237-d20a-48ef-99c9-39f814138c21",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.020758,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ce101a32-0bce-4296-8da0-4917d729cb74",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.041426,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "af62b3bd-77f0-41e4-8b8c-a7ecb7c747e6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015005999999999999,
+      "reservedUsd": 0.5
     }
   ],
   "activeCalls": {
-    "11c16009-8ef6-44d8-b677-ebbe50b1f8f4": {
-      "pid": 81201,
+    "e1469ce1-8ea4-422e-b742-48d4e91788ef": {
+      "pid": 22304,
       "model": "claude-sonnet-5-5",
-      "at": "2026-10-13T15:30:09.771851+00:00"
+      "at": "2026-10-13T16:02:22.061282+00:00"
     }
   },
   "pacing": {
-    "loadOneMinute": 139.2685546875,
+    "loadOneMinute": 9.5419921875,
     "recentNoAnswerIds": [],
     "limit": 2
   }
