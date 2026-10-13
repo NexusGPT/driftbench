@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Teacher-forced runs keep private canonical prefix buffers and take one resolved snapshot per block. Immutable message templates share their lazy field descriptors without registering every old message again on each send. Mutable callback arrays, isolated writes and `structuredClone` remain supported.
+
 Adapters can borrow a read-only history view with copy-on-write. The function adapter captures primitive message fields and copies nested JSON on first access, using plain array slots for ordinary messages. Existing mutable agent callbacks keep isolated writes, `structuredClone` support and their `Message[]` signature.
 
 * Legacy judging freezes main `a97cb65e` rendering and parsing, including entry separators, object extraction and repair behavior. All 1,028 stored chat entries have main-matching replay outcomes.

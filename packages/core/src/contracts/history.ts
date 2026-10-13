@@ -150,11 +150,12 @@ export function copyOnWriteHistory(history: readonly Message[]): Message[] {
 const lazySources = new WeakMap<Message[], readonly Message[]>();
 const sealedCopies = new WeakMap<Message[], Map<number, Message>>();
 const lazyDescriptors: PropertyDescriptor[] = [];
-type MessageTemplate = { values: Record<string, unknown>; lazy: string[] };
+type MessageTemplate = {
+  values: Record<string, unknown>;
+  lazy: { key: string; descriptor: PropertyDescriptor }[];
+};
 const messageTemplates = new WeakMap<Message, MessageTemplate>();
-const fieldSources = new WeakMap<Message, Message>();
 const sealedFields = new WeakMap<Message, Map<string, unknown>>();
-const fieldDescriptors = new Map<string, PropertyDescriptor>();
 
 function messageTemplate(message: Message | undefined): MessageTemplate | undefined {
   if (!message || typeof message !== 'object') return undefined;
@@ -165,13 +166,13 @@ function messageTemplate(message: Message | undefined): MessageTemplate | undefi
   if (prototype !== Object.prototype && prototype !== null) return undefined;
   if (Object.hasOwn(message, '__proto__')) return undefined;
   const values: Record<string, unknown> = {};
-  const lazy: string[] = [];
+  const lazy: MessageTemplate['lazy'] = [];
   const fields = Object.getOwnPropertyDescriptors(message);
   for (const key of Object.keys(message)) {
     const field = fields[key] as PropertyDescriptor;
     if ('value' in field && (field.value === null || typeof field.value !== 'object')) {
       values[key] = field.value;
-    } else lazy.push(key);
+    } else lazy.push({ key, descriptor: fieldDescriptor(message, key) });
   }
   return { values, lazy };
 }
@@ -190,27 +191,22 @@ function replaceField(message: Message, key: string, value: unknown): unknown {
   return value;
 }
 
-function fieldDescriptor(key: string): PropertyDescriptor {
-  let descriptor = fieldDescriptors.get(key);
-  if (!descriptor) {
-    descriptor = {
-      enumerable: true,
-      configurable: true,
-      get(this: Message) {
-        const fields = sealedFields.get(this);
-        if (fields?.has(key)) return fields.get(key);
-        const source = fieldSources.get(this) as unknown as Record<string, unknown>;
-        return replaceField(this, key, cloneJson(source[key]));
-      },
-      set(this: Message, value: unknown) {
-        if (Object.isFrozen(this))
-          throw new TypeError(`Cannot assign to read only field '${key}' of history`);
-        replaceField(this, key, value);
-      },
-    };
-    fieldDescriptors.set(key, descriptor);
-  }
-  return descriptor;
+function fieldDescriptor(source: Message, key: string): PropertyDescriptor {
+  // The immutable source's template owns this descriptor. Snapshots share it without another source
+  // registration per old message; each receiver still detaches its field on first access or write.
+  return {
+    enumerable: true,
+    configurable: true,
+    get(this: Message) {
+      const fields = sealedFields.get(this);
+      if (fields?.has(key)) return fields.get(key);
+      return replaceField(this, key, cloneJson((source as unknown as Record<string, unknown>)[key]));
+    },
+    set(this: Message, value: unknown) {
+      if (Object.isFrozen(this)) throw new TypeError(`Cannot assign to read only field '${key}' of history`);
+      replaceField(this, key, value);
+    },
+  };
 }
 
 function replaceMessage(array: Message[], index: number, value: Message): Message {
@@ -234,10 +230,7 @@ export function lazyHistoryCopy(history: readonly Message[]): Message[] {
     const template = messageTemplate(source);
     if (template) {
       const copied = { ...template.values } as unknown as Message;
-      if (template.lazy.length > 0) {
-        fieldSources.set(copied, source as Message);
-        for (const key of template.lazy) Object.defineProperty(copied, key, fieldDescriptor(key));
-      }
+      for (const field of template.lazy) Object.defineProperty(copied, field.key, field.descriptor);
       result[index] = copied;
     } else {
       lazySources.set(result, history);

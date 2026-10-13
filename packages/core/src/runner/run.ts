@@ -10,6 +10,7 @@ import type { Message, TargetRef, WorldState } from '../schema/common';
 import {
   type BlockResult,
   Observed,
+  type ResolvedGiven,
   type RetryEvent,
   type RunEvent,
   type RunMode,
@@ -25,9 +26,9 @@ import { driftOf } from './drift';
 import {
   addFacts,
   assistantMessage,
-  canonicalGiven,
   enterBlock,
   initialGiven,
+  resolveCanonicalGiven,
   resolveGiven,
   stimulusMessages,
 } from './given';
@@ -295,24 +296,26 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const planned = planStep(spec, step);
       if (step.kind === 'block') nextBlock = step.blockIndex + 1;
 
+      let teacherGiven: ResolvedGiven | undefined;
       if (run.mode === 'T') {
         if (step.kind !== 'block') {
           throw new RunnerError(
             `teacher-forced mode runs the spec's own blocks; the driver ${run.driver.id} injected ${step.perturbationId}`,
           );
         }
-        const canonical = canonicalGiven(spec, step.blockIndex);
+        const canonical = resolveCanonicalGiven(spec, step.blockIndex, run.target);
         state = canonical.state;
         // A task's workspace is part of the state the reference trajectory had at this block: the session
         // of the block before keeps it, unless this block writes its own workspace. Its history becomes the
         // canonical prefix. Every other block starts in a new session from its canonical Given.
         const keepsWorkspace =
           run.capabilities.sandbox && spec.blocks[step.blockIndex]?.given?.world?.workspace === undefined;
-        if (!(keepsWorkspace && channel.reseat(canonical.prefix))) {
+        if (!(keepsWorkspace && channel.reseat(canonical.given.prefix))) {
           await channel.restart();
           sessionBase = composed;
         }
-        history = canonical.prefix;
+        history = canonical.given.prefix;
+        teacherGiven = canonical.given;
       } else {
         state = enterBlock(state, planned.given, planned.world);
         if (planned.given?.prefix) {
@@ -321,7 +324,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         }
       }
       const user = stimulusMessages(planned.stimulus);
-      const given = resolveGiven(state, history, run.target);
+      const given = teacherGiven ?? resolveGiven(state, history, run.target);
       const turn: Turn = {
         index: position,
         stimulus: planned.stimulus,

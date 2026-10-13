@@ -108,18 +108,34 @@ export function addFacts(
  * replays its past turns reads it again.
  */
 export function canonicalGiven(spec: Spec, blockIndex: number): { state: RunningGiven; prefix: Message[] } {
+  const canonical = canonicalState(spec, blockIndex);
+  return { state: canonical.state, prefix: [...canonical.prefix] };
+}
+
+/** Internal runner path: take the resolved snapshot once, before any asynchronous session work. */
+export function resolveCanonicalGiven(
+  spec: Spec,
+  blockIndex: number,
+  target: TargetRef,
+): { state: RunningGiven; given: ResolvedGiven } {
+  const canonical = canonicalState(spec, blockIndex);
+  return { state: canonical.state, given: resolveGiven(canonical.state, canonical.prefix, target) };
+}
+
+function canonicalState(spec: Spec, blockIndex: number): { state: RunningGiven; prefix: Message[] } {
   // A run asks for block 0, 1, 2 in turn. The situation before block k's own given, kept from the last ask,
   // lets the next ask build one block more, not the whole prefix again; its messages are the same objects,
-  // which the prefix cache and the hashes read once.
+  // which the prefix cache and the hashes read once. The cache owns its growing array; only the returned
+  // public snapshot copies its pointers, so caller edits cannot alter the next block's canonical prefix.
   const kept = canonicalKept.get(spec);
   const resume = kept && kept.blocks === spec.blocks && kept.next <= blockIndex ? kept : undefined;
   let state = resume ? resume.state : initialGiven(spec);
-  let prefix: Message[] = resume ? [...resume.prefix] : [];
+  let prefix: Message[] = resume ? resume.prefix : [];
   for (let index = resume ? resume.next : 0; index <= blockIndex; index++) {
     const block = spec.blocks[index];
     if (!block) break;
     if (index === blockIndex) {
-      canonicalKept.set(spec, { blocks: spec.blocks, next: index, state, prefix: [...prefix] });
+      canonicalKept.set(spec, { blocks: spec.blocks, next: index, state, prefix });
     }
     state = enterBlock(state, block.given);
     if (block.given?.prefix) prefix = structuredClone(block.given.prefix);

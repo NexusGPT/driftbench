@@ -129,3 +129,22 @@ Finding: the current post-main seed-1 bank has teacher-forced growth 31.4 and re
 Mechanism committed as f4f70544: skip template registration for messages already present in the immutable-template WeakMap. This leaves the array marker, new-message registration and snapshot semantics unchanged. Three registration cases pass after the one-line fix, including replacement and same-array append; all 49 selected history, adapter and growth checks pass, with two existing skips. Whole-bank growth remains unaccepted until measured.
 
 The whole seed-1 measurement remains level 7 and 2360/2384, 1 of 21. Teacher-forced growth is 26.8 and replay growth 25.5 against 25; free-running passes. No growth item is cleared by this iteration.
+
+
+## 2026-10-13: canonical prefix array ownership
+
+Question: can canonicalGiven advance its internal prefix without copying every old pointer twice, while public snapshots remain mutable and isolated?
+
+Sources: packages/core/src/runner/given.ts (canonicalGiven and canonicalKept); packages/core/test/runner/teacher.test.ts (prefix overrides and teacher-forced sessions); docs/adapters/index.md (mutable snapshots and runner ownership).
+
+Finding: the resumed source 09f5042e completes seed 1 at level 10, 2382/2384. Teacher-forced growth is 27.8 and free-running growth 40.3 against unchanged 25. A deterministic red-first test counts 802 copied message references when a 400-message cached prefix grows to 402. The current implementation copies the cached prefix into a working array, then copies it again into the cache. Two existing-behavior tests for caller array edits and backward/repeated requests pass before the fix.
+
+Mechanism: keep the growing buffer private to canonicalKept and return one fresh public snapshot. The cache does not expose its array; returned arrays keep mutable and structuredClone behavior. Prefix overrides retain their deep copy. This changes array ownership in given.ts, not adapter contracts or the bank.
+
+Measurement method: process.cpuUsage user plus system time, five runs each at 40 and 400 blocks, report CPU and wall medians separately. The owner allows the busy host; load is recorded with every sample. At source 09f5042e on Node 24, CPU medians are 6.612 and 83.886 ms (ratio 12.6869) on seed 1, and 3.858 and 93.464 ms (ratio 24.2260) on seed 3. These subsystem medians are not full-bank seed scores. The unchanged bank still uses its own CPU timing.
+
+The public-only buffer change passes the pointer-copy test but still fails Node 22 seed 2 at 28.8. The internal resolved path avoids the intermediate public snapshot before the asynchronous session boundary; it still fails the stock growth test at 29.4, so neither partial candidate is accepted alone. A second deterministic snapshot test counts 400 source registrations when 400 already immutable messages are copied. These registrations are redundant ownership metadata for the same growing canonical snapshot.
+
+The source-bound field descriptor belongs to the immutable message template and is reused by its snapshots. Each getter still detaches the receiver's field; frozen and sealed reads and structuredClone stay compatible. The registration test turns green at zero, and all 44 focused Node 22 tests pass, including unchanged seed-1 and seed-2 bank growth regressions. The bank and its CPU timing remain unchanged.
+
+Five-run CPU and wall medians are recorded separately in resume-final-node22-cpu.jsonl and resume-final-node24-cpu.jsonl. Node 22 CPU ratios on seeds 1, 2 and 3 are 19.4178, 13.4088 and 15.8045. Node 24 ratios are 8.4233, 14.3614 and 22.4981. The host's one-minute load at sample starts ranges from 169.0635 to 184.4019; these medians are subsystem probes, not 21 complete bank seeds. The full bank sweep must pass before the floor can rise.
