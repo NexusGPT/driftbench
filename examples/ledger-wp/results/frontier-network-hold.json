@@ -1,0 +1,8 @@
+{
+  "active": true,
+  "at": "2026-10-13T15:33:59.373Z",
+  "key": "3c3d27cfffdb9c126af516e439ee3988059c694f1ad2907eea04450992260d2a",
+  "model": "claude-sonnet-5-5",
+  "split": "dev",
+  "reason": "Three consecutive connection failures; pause ten minutes then require ten healthy provider probes"
+}

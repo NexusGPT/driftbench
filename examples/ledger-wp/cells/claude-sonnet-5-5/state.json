@@ -1,15 +1,15 @@
 {
-  "pid": 57954,
+  "pid": 26448,
   "model": "claude-sonnet-5-5",
   "mode": "run",
   "status": "stopped",
-  "at": "2026-10-13T15:13:21.581Z",
-  "decisions": 176,
-  "submissions": 195,
+  "at": "2026-10-13T15:34:41.261Z",
+  "decisions": 227,
+  "submissions": 110,
   "spend": {
-    "actual": 7.491838399999999,
+    "actual": 10.9276264,
     "reserved": 0,
     "pending": []
   },
-  "error": "Error: Shared network hold; fresh probe gate required"
+  "error": "Error: Shared network circuit break; fresh probe gate required"
 }

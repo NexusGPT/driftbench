@@ -1,8 +1,8 @@
 {
-  "epochStart": "2026-10-13T14:48:00.061547+00:00",
+  "epochStart": "2026-10-13T15:20:29.456994+00:00",
   "cycle": 1,
   "model": "claude-sonnet-5-5",
-  "supervisorPid": 23778,
+  "supervisorPid": 3701,
   "probeFile": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-wp/examples/ledger-wp/results/frontier-probes.jsonl",
   "maxConcurrentCalls": 2,
   "gatePassed": true,

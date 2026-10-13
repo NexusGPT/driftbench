@@ -1,12 +1,21 @@
 {
-  "pid": 23778,
-  "status": "stopped",
-  "at": "2026-10-13T15:13:39.579423+00:00",
-  "cycle": 1,
+  "pid": 3701,
+  "status": "probe-spacing",
+  "at": "2026-10-13T15:53:19.842897+00:00",
+  "cycle": 2,
   "activeModel": "claude-sonnet-5-5",
   "targets": {
-    "claude-sonnet-5-5": 57954
+    "claude-sonnet-5-5": 26448
   },
-  "networkStops": [],
-  "reason": "Owner stopped supervisor"
+  "networkStops": [
+    {
+      "at": "2026-10-13T15:33:59.373Z",
+      "cycle": 1,
+      "model": "claude-sonnet-5-5",
+      "split": "dev"
+    }
+  ],
+  "nextAt": "2026-10-13T15:53:49.669478+00:00",
+  "consecutive": 3,
+  "required": 10
 }

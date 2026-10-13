@@ -1,6 +1,6 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T15:15:09.676187+00:00",
+  "at": "2026-10-13T15:44:49.520588+00:00",
   "scores": [
     {
       "contestant": "pair-ledger",
@@ -24,9 +24,9 @@
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       },
-      "allPhaseCostUsd": 5.0776944,
+      "allPhaseCostUsd": 7.2999604,
       "testCostUsdIncludingTransport": 0,
-      "orderedReadings": 189,
+      "orderedReadings": 247,
       "schemaReasks": 1,
       "schemaReaskUsd": 0.040403999999999995,
       "outputCapCalls": 0,
@@ -207,10 +207,10 @@
         "87a37381f9cef4d92c4999699aa0a99361ab1e7bd1970fea9b0d6bbcd8b9cd13"
       ],
       "http429": 0,
-      "transportFailures": 6,
+      "transportFailures": 8,
       "tokens": {
-        "input": 1435598,
-        "output": 207684,
+        "input": 2131141,
+        "output": 290802,
         "cacheRead": 1824,
         "cacheWrite": 32369
       }
@@ -227,7 +227,7 @@
       "ties": 0,
       "usdPer100Pairs": null,
       "usdPer100Games": null,
-      "allPhaseCostUsd": 2.414144,
+      "allPhaseCostUsd": 3.627666,
       "testCostUsdIncludingTransport": 0,
       "orderedReadings": 0,
       "schemaReasks": 0,
@@ -410,10 +410,10 @@
         "87a37381f9cef4d92c4999699aa0a99361ab1e7bd1970fea9b0d6bbcd8b9cd13"
       ],
       "http429": 0,
-      "transportFailures": 4,
+      "transportFailures": 6,
       "tokens": {
-        "input": 1100836,
-        "output": 12520,
+        "input": 1676032,
+        "output": 18833,
         "cacheRead": 0,
         "cacheWrite": 21818
       }
@@ -436,7 +436,7 @@
   },
   "complete": false,
   "spend": {
-    "actualUsd": 7.491838399999999,
+    "actualUsd": 10.9276264,
     "heldUsd": 0,
     "pending": {}
   },
@@ -444,7 +444,7 @@
     "pilot": 5,
     "fixtures": 36,
     "validity": 40,
-    "dev": 95
+    "dev": 146
   },
   "projection": {
     "model": "claude-sonnet-5-5",
