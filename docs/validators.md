@@ -95,6 +95,8 @@ What the owner reads: one table per validator per merge, seven rows at most, wit
 1. Ladders and floors. `pnpm driftbench validate all --seeds 1..3 --hidden --check-floor` runs every registered validator on seeds 1, 2 and 3 and on the hidden seed of the commit, prints each ladder table, and fails when a validator's level (the minimum over the four seeds) is below the floor of its registered ladder version in `validators/floors.json`, or when that file holds a floor for a component with no registered validator, for a ladder version above the registered one, or above the top of its ladder. A floor of an earlier ladder version is history and is not enforced (section 12.5). `pnpm driftbench validate all --check-handover` then fails when a validator's `HANDOVER.md` is missing, lacks a required section, or shows a level table that differs from the last row of its journal.
 2. Protection. On a pull request, `pnpm driftbench validate protect --branch <head> --base origin/<base>` lists the files the branch changes (`git diff --name-only base...HEAD`, full history checked out) and fails when the branch name starts with `exec/` and any of them is protected. Protected: `packages/validators/src/**` (the ladders and banks under `ladders/`, their thresholds, the hidden seed derivation, the bank, hardness and floor logic, and the frame that scores them), the bank fixtures under `packages/validators/fixtures/**` and the validator's own tests under `packages/validators/test/**`, `validators/floors.json`, `validators/EXECUTOR.md`, the fault families under `examples/acme/faults/**`, the statistics reference fixtures under `packages/stats/test/reference/**`, and the workflow file itself. Executors push from `exec/` branches; the maintainer changes these files from any other branch.
 
+With `--check-floor`, each ladder with a positive floor for its registered version computes only through that floor. A floor of zero, or an earlier version with no applicable floor, keeps the ordinary walk to the first failure. Levels above a positive floor stay unmeasured, including with `--items` or `--all-levels`. Plain measurements continue to explore the ladder.
+
 ### 8.2 The command
 
 ```
@@ -131,7 +133,7 @@ Option errors that the argument parser itself reports (an unknown flag) exit 2, 
 `registeredLadders()` in `packages/validators/src/ladders/index.ts` returns two validators today: `judges` and `stats`. `validate floors` prints their floors:
 
 ```
-Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 1 (ladder version 1).
+Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 7 (ladder version 2), system = 7 (ladder version 5).
 ```
 
 The CI command, run from the repository root at the commit that merged main into this docs branch, printed this and exited 0. The hidden seed changes with every commit.
@@ -296,3 +298,11 @@ The gate. No validator merges without the audit: `--hardness` fails its gate whe
 ### 12.8 The frozen contract
 
 Owner review, 2026-10-12: the rules of sections 12.1 to 12.7 changed four times while validators were being built, and every change cost rework across six lanes. From this point the contract is frozen as written: the bank (12.1, 12.2, 12.6), the forecast and the distinct-cause count (12.4), floors per ladder version (12.5) and the independent audit with its blind view (12.7, `--blind`, `--all-levels`). A rule changes only when an audit report names a hole the current rules let through, and the change is written here, with that report as its reason, before any lane acts on it.
+
+## Measurement cache during system sweeps
+
+A system sweep can invoke the statistics validator repeatedly with the same code and seed. Within that system command, these statistics sub-runs use a measurement cache keyed by the latest commit touching `packages/stats`, the statistics validator's source tree, the seed, the repository root and the full-run mode. Every system item still runs on every requested seed. Only an identical statistics sub-run can reuse its measured result.
+
+The cache ends with the system command. A standalone statistics command runs fresh. Uncommitted changes to the statistics package or its validator disable reuse. Cached reports are copied before returning them, so a consumer cannot change another item's result.
+
+To record cache evidence, set `DRIFTBENCH_STATS_SWEEP_LOG` to a local JSONL file path. Each fresh or cached result records its key and the SHA-256 of its report. Equal fresh and cached hashes prove the reports match. This log does not change command output or bank items. State the cache use and the completed seeds in the measurement report; a partial sweep does not prove unmeasured seeds.

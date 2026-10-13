@@ -156,9 +156,16 @@ export function playerClient(
   const judge = cassette.judges.find((candidate) => candidate.id === judgeId);
   if (!judge) throw new JudgeError('config', `the cassette lists no judge "${judgeId}"`);
   const used = new Map<string, number>();
+  // The entries of this judge by key, built once, so a call does not scan every entry.
+  const byKey = new Map<string, CassetteEntry[]>();
+  for (const entry of cassette.entries) {
+    if (entry.judge !== judgeId) continue;
+    byKey.set(entry.key, [...(byKey.get(entry.key) ?? []), entry]);
+  }
   const recordedContract =
     options.answerContract ??
-    (cassette.entries.some((entry) => entry.judge === judgeId && entry.answerContract === 'ledger')
+    (byKey.size > 0 &&
+    [...byKey.values()].some((list) => list.some((entry) => entry.answerContract === 'ledger'))
       ? 'ledger'
       : 'legacy');
   return {
@@ -171,7 +178,7 @@ export function playerClient(
     async judge(request) {
       const effective = !request.answerContract ? { ...request, answerContract: recordedContract } : request;
       const key = requestKey(effective, judge, options.prompt);
-      const matches = cassette.entries.filter((entry) => entry.judge === judgeId && entry.key === key);
+      const matches = byKey.get(key) ?? [];
       if (matches.length === 0) {
         throw new JudgeError(
           'cassette_miss',

@@ -1,0 +1,931 @@
+{
+  "component": "system",
+  "ladderVersion": 5,
+  "level": 7,
+  "top": 11,
+  "seeds": [
+    {
+      "seed": 1,
+      "hidden": false,
+      "level": 7,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9824561403508771,
+          "pass": false,
+          "itemCount": 2
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 8,
+        "id": "version-drift",
+        "name": "drift between two versions at the right cell",
+        "items": [
+          {
+            "id": "claim/report/line-block-accuracy",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-1 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+          },
+          {
+            "id": "claim/report/mode-run-pass",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+          }
+        ]
+      }
+    },
+    {
+      "seed": 2,
+      "hidden": false,
+      "level": 7,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9824561403508771,
+          "pass": false,
+          "itemCount": 2
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 8,
+        "id": "version-drift",
+        "name": "drift between two versions at the right cell",
+        "items": [
+          {
+            "id": "claim/report/line-block-accuracy",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-2 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+          },
+          {
+            "id": "claim/report/mode-run-pass",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+          }
+        ]
+      }
+    },
+    {
+      "seed": 3,
+      "hidden": false,
+      "level": 7,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9824561403508771,
+          "pass": false,
+          "itemCount": 2
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 8,
+        "id": "version-drift",
+        "name": "drift between two versions at the right cell",
+        "items": [
+          {
+            "id": "claim/report/line-block-accuracy",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-3 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+          },
+          {
+            "id": "claim/report/mode-run-pass",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+          }
+        ]
+      }
+    },
+    {
+      "seed": 4,
+      "hidden": false,
+      "level": 7,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9824561403508771,
+          "pass": false,
+          "itemCount": 2
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 8,
+        "id": "version-drift",
+        "name": "drift between two versions at the right cell",
+        "items": [
+          {
+            "id": "claim/report/line-block-accuracy",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-4 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+          },
+          {
+            "id": "claim/report/mode-run-pass",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+          }
+        ]
+      }
+    },
+    {
+      "seed": 5,
+      "hidden": false,
+      "level": 7,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9824561403508771,
+          "pass": false,
+          "itemCount": 2
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 8,
+        "id": "version-drift",
+        "name": "drift between two versions at the right cell",
+        "items": [
+          {
+            "id": "claim/report/line-block-accuracy",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-5 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+          },
+          {
+            "id": "claim/report/mode-run-pass",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+          }
+        ]
+      }
+    },
+    {
+      "seed": 293302998,
+      "hidden": true,
+      "level": 7,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9824561403508771,
+          "pass": false,
+          "itemCount": 2
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 8,
+        "id": "version-drift",
+        "name": "drift between two versions at the right cell",
+        "items": [
+          {
+            "id": "claim/report/line-block-accuracy",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-2998 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+          },
+          {
+            "id": "claim/report/mode-run-pass",
+            "component": "packages/report/src/reliability.ts",
+            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
+            "family": "report-brute-force",
+            "tier": 2,
+            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+          }
+        ]
+      }
+    }
+  ],
+  "hiddenSeed": {
+    "seed": 293302998,
+    "source": "head",
+    "head": "c43c8e96b0031edc4217499f65f3cf54b5eb604e"
+  },
+  "measurement": {
+    "command": "SDK runSeeds(system, seeds 1..5 followed by the commit-derived hidden seed), stopping at the first failure",
+    "completedSeeds": 6,
+    "totalSeeds": 21,
+    "mainHead": "c43c8e96b0031edc4217499f65f3cf54b5eb604e"
+  }
+}
