@@ -2,6 +2,7 @@ import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { expect, it } from 'vitest';
 import { z } from 'zod';
 import { observationCompatibilityHash, prepareRejudge, rejudgeRun } from '../../src/radius/rejudge';
+import { adapterProvenance, provenanceHash } from '../../src/runner/provenance';
 import { runSpec } from '../../src/runner/run';
 import { Spec } from '../../src/schema/spec';
 import { echoAdapter, specOf } from '../runner/support';
@@ -54,6 +55,16 @@ const base = () =>
     now: () => new Date('2026-10-13T00:00:00Z'),
   });
 const options = {
+  baselineProvenance: {
+    version: 2 as const,
+    adapters: [
+      {
+        ...adapterProvenance(echoAdapter(), target.adapter),
+        targetHash: provenanceHash(target),
+        agentVersionHash: provenanceHash('v1'),
+      },
+    ],
+  },
   fromCampaign: 'acme-base',
   agentVersion: 'v1',
   criteria: ['price'],
@@ -62,6 +73,9 @@ const options = {
 it('rejudges only affected criteria without an agent and catches a planted rubric regression', async () => {
   const run = await base();
   const prepared = prepareRejudge(original, changed(), run, options);
+  const previouslyJudged = run.blocks[1];
+  if (!previouslyJudged) throw new Error('missing second block');
+  previouslyJudged.rejudged = { ...prepared.stamp, criteria: ['tone'] };
   const calls: string[][] = [];
   let spend = 0;
   const result = await rejudgeRun(
@@ -91,6 +105,7 @@ it('rejudges only affected criteria without an agent and catches a planted rubri
   expect(result.blocks[0]?.pass).toBe(false);
   expect(result.blocks[0]?.rejudged?.criteria).toEqual(['price']);
   expect(result.blocks[1]?.carried).toBeDefined();
+  expect(result.blocks[1]?.rejudged).toBeUndefined();
   expect(result.cost).toBe(0.03);
   expect(result.rejudged).toMatchObject({
     oldSpecHash: run.specHash,
@@ -104,12 +119,17 @@ it('refuses legacy, changed agent, changed deterministic checks, unknown inputs,
   if (!run.provenance) throw new Error('missing stamp');
   for (const [source, spec, opts] of [
     [{ ...run, provenance: undefined }, changed(), options],
+    [{ ...run, provenanceDigest: undefined }, changed(), options],
+    [run, changed(), { ...options, baselineProvenance: undefined }],
     [run, changed(), { ...options, agentVersion: 'v2' }],
     [run, { ...changed(), blocks: [{ ...original.blocks[0], expect: { must: ['regression'] } }] }, options],
     [run, changed(), { ...options, maxAgeDays: 0 }],
     [run, changed(), { ...options, maxCarry: 0 }],
     [
-      { ...run, provenance: { ...run.provenance, driver: { id: 'custom', seeds: null } } },
+      {
+        ...run,
+        provenance: { ...run.provenance, driver: { idHash: provenanceHash('custom'), seedsHash: null } },
+      },
       changed(),
       options,
     ],
@@ -125,8 +145,11 @@ it('refuses tampered Given, ledger, stimulus, artifact references and undeclared
   for (const block of [
     { ...first, givenHash: 'wrong' },
     { ...first, provenance: { ...stamp, ledgerHash: 'wrong' } },
-    { ...first, provenance: { ...stamp, stimulus: { user: 'wrong' } } },
-    { ...first, provenance: { ...stamp, artifacts: [{ path: 'price.txt', sha256: null }] } },
+    { ...first, provenance: { ...stamp, stimulusHash: provenanceHash({ user: 'wrong' }) } },
+    {
+      ...first,
+      provenance: { ...stamp, artifacts: [{ pathHash: provenanceHash('price.txt'), sha256: null }] },
+    },
   ])
     expect(() =>
       prepareRejudge(original, changed(), { ...run, blocks: [block, ...run.blocks.slice(1)] }, options),

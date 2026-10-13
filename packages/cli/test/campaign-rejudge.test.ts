@@ -87,6 +87,28 @@ it('rejudges Acme stored replies, reports carried rows and cost, and refuses an 
     expect(after?.blocks[0]?.verdicts.find((v) => v.name === 'quote')?.outcome).toBe('fail');
     expect(after?.blocks.map((b) => b.observed)).toEqual(before?.blocks.map((b) => b.observed));
     expect((await db.getCampaign('judged'))?.rejudged?.[0]?.oldSpecHash).toBe(before?.specHash);
+    const baselineCampaign = await db.getCampaign('base');
+    if (!baselineCampaign || !before) throw new Error('missing baseline');
+    for (const field of ['digest', 'ledger'] as const) {
+      const damaged = structuredClone(before);
+      if (field === 'digest') delete damaged.provenanceDigest;
+      else {
+        const stamp = damaged.blocks[0]?.provenance;
+        if (!stamp) throw new Error('missing block stamp');
+        stamp.ledgerHash = '0'.repeat(64);
+      }
+      const from = `damaged-${field}`;
+      const output = `refused-${field}`;
+      await db.putCampaign({ ...baselineCampaign, campaignId: from });
+      await db.putRun(from, damaged);
+      const invalid = [...args];
+      invalid[invalid.indexOf('base')] = from;
+      invalid[invalid.indexOf('judged')] = output;
+      const refused = await cli(invalid);
+      expect(refused.code).toBe(2);
+      expect(refused.err).toContain('Legacy campaign');
+      expect(await db.getCampaign(output)).toBeUndefined();
+    }
     await db.close();
     const report = await cli(['report', 'judged', '--store', path, '--out', join(dir, 'scorecard.html')]);
     expect(report.err).toBe('');
@@ -105,4 +127,4 @@ it('rejudges Acme stored replies, reports carried rows and cost, and refuses an 
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
-});
+}, 30_000);

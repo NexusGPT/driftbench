@@ -323,8 +323,10 @@ anchors and settings. New fields are included by default. Deterministic checks a
 outputs remain in the hash: changing them requires a full agent rerun; this command does not
 re-evaluate changed deterministic checks on old observations.
 
-Re-judge validates the existing carry age and count limits, the same agent version, every
-resolved Given hash, ledger hash and actual stimulus before making a judge call. It supports
+Re-judge validates the existing carry age and count limits, the same agent version, the complete
+campaign stamp and integrity digest, and every resolved Given, ledger and stimulus hash before
+making a judge call. Its agent execution context is the frozen recorded context: this command accepts
+no new driver, seed, adapter or target configuration. Such changes require `campaign run`. It supports
 complete scripted F and T conversation runs whose judge inputs can be reconstructed. Legacy,
 partial, injected or adaptive runs, unknown seeds, task artifact reads, inconsistent stamps,
 and missing judge input bytes are refused with a full-rerun instruction. A judge-only command

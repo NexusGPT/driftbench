@@ -10,14 +10,15 @@ import {
   resolveGiven,
   stimulusMessages,
 } from '../runner/given';
+import { provenanceHash } from '../runner/provenance';
 import { succession } from '../runner/succession';
 import type { Message } from '../schema/common';
-import { type BlockResult, type RunResult, Verdict } from '../schema/run';
+import { type BlockResult, type Campaign, type RunResult, Verdict } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { canonicalJson, contentHash } from '../spec/hash';
 import { parseCriterionRef } from '../spec/semantics';
-import { type CarryLimits, planRadiusCampaign } from './carry';
-import { radiusOf } from './radius';
+import { type CarryLimits, carryOrigin } from './carry';
+import { completeBaselineProvenance } from './provenance';
 import { agentVersionOf } from './version';
 
 /**
@@ -44,7 +45,8 @@ export function observationCompatibilityHash(spec: Spec, execution: { executionH
   return contentHash({ spec: copy, execution });
 }
 
-export type RejudgeOptions = CarryLimits & {
+export type RejudgeOptions = Pick<CarryLimits, 'now' | 'maxCarry' | 'maxAgeDays'> & {
+  baselineProvenance?: Campaign['provenance'];
   fromCampaign: string;
   agentVersion: string;
   criteria: readonly string[];
@@ -68,8 +70,9 @@ export function prepareRejudge(
   options: RejudgeOptions,
 ): PreparedRejudge {
   const provenance = run.provenance;
-  if (!provenance || run.blocks.some((b) => !b.provenance))
-    return refuse('Legacy observation has no execution provenance');
+  if (!provenance || !completeBaselineProvenance({ provenance: options.baselineProvenance, runs: [run] }))
+    return refuse('Legacy observation has missing, incomplete or inconsistent execution provenance');
+  if (run.status !== 'completed') return refuse('The observation did not complete');
   if (run.specHash !== contentHash(old)) return refuse('The pinned old spec hash does not match');
   if (
     !options.agentVersion ||
@@ -80,8 +83,8 @@ export function prepareRejudge(
   // A custom driver receives the whole spec and could read even rubric text. Only the known scripted
   // driver is proven independent of those fields. Unknown seeds and injected/adaptive paths fail closed.
   if (
-    provenance.driver.id !== 'scripted' ||
-    canonicalJson(provenance.driver.seeds) !== '{}' ||
+    provenance.driver.idHash !== provenanceHash('scripted') ||
+    provenance.driver.seedsHash !== provenanceHash({}) ||
     run.mode === 'P' ||
     run.perturbationId ||
     run.blocks.some((b) => b.injected)
@@ -105,18 +108,11 @@ export function prepareRejudge(
     if (canonicalJson(before) !== canonicalJson(def) && !names.has(def.name))
       return refuse(`Changed criterion ${def.name} is not selected`);
   }
-  const cell = { ...run, cellId: run.runId, blocks: run.blocks.length };
-  const manifest = { from: options.agentVersion, to: options.agentVersion, changes: [] };
-  const plan = planRadiusCampaign(
-    [cell],
-    radiusOf([{ spec: old, hash: run.specHash }], manifest, { modes: [run.mode] }),
-    manifest,
-    { campaignId: options.fromCampaign, runs: [run] },
-    options,
-  );
-  const reuse = plan.carried[0];
-  if (!reuse)
-    return refuse(plan.nothing ?? plan.refused[0]?.reason ?? 'The observation is not valid for carry');
+  // A re-judge freezes the recorded agent execution context and accepts no candidate driver/adapter
+  // options. Only judge-only spec fields may differ. Do not invent a "current" agent stamp from the
+  // baseline to satisfy the agent-change planner; share just the observation age/count rules.
+  const reuse = carryOrigin(run, options.fromCampaign, options);
+  if ('reason' in reuse) return refuse(reuse.reason);
   if (run.blocks.length !== old.blocks.length) return refuse('The observation is incomplete');
   let state = initialGiven(spec);
   let history: Message[] = [];
@@ -124,7 +120,13 @@ export function prepareRejudge(
   for (let index = 0; index < run.blocks.length; index++) {
     const result = run.blocks[index];
     const block = spec.blocks[index];
-    if (!result || !block || result.provenance?.specIndex !== index || result.index !== index)
+    if (
+      !result ||
+      !block ||
+      result.provenance?.specIndex !== index ||
+      result.index !== index ||
+      result.blockId !== block.id
+    )
       return refuse('Block order cannot be reconstructed');
     if (run.mode === 'T') {
       const canonical = canonicalGiven(spec, index);
@@ -136,10 +138,10 @@ export function prepareRejudge(
     }
     const given = resolveGiven(state, history, run.target);
     const facts = addFacts(state.ledger, block.expect?.ledger_add);
-    if (given.hash !== result.givenHash || contentHash(facts.ledger) !== result.provenance.ledgerHash)
+    if (given.hash !== result.givenHash || provenanceHash(facts.ledger) !== result.provenance.ledgerHash)
       return refuse(`Block ${index} Given or ledger does not match its stamp`);
-    const stimulus = result.provenance.stimulus;
-    if (canonicalJson(stimulus) !== canonicalJson(block.when))
+    const stimulus = block.when;
+    if (provenanceHash(stimulus) !== result.provenance.stimulusHash)
       return refuse('The scripted stimulus does not match its stamp');
     for (const def of spec.criteria ?? []) {
       if (
@@ -196,7 +198,8 @@ export async function rejudgeRun(
     if (!original) return refuse('The observation disappeared');
     const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);
     if (!selected.length) {
-      blocks.push({ ...original, carried });
+      const { rejudged: _previousJudge, ...unchanged } = original;
+      blocks.push({ ...unchanged, carried });
       continue;
     }
     const blockSpend = spent();
