@@ -1,16 +1,25 @@
 # LongJudge writing pair ledger study
 
+## Owner withdrawal: Gemini 3.8
+
+| Model | Status | Pending work |
+| --- | --- | --- |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | None |
+
+Flash Lite stays the Gemini result. Raw answers, decisions, costs, holds and historical freezes remain unchanged.
+Earlier reset permissions and request estimates are superseded. No new model call is required.
+
 Measured state: 2026-10-13T12:40:06.626862+00:00. Branch `research/ledger-wp`, local head `3d4f6324bd548c682ecaafc7740811ffa766942e`.
 
 ## Outcome
 
-The model table below is the observed result, including pending and partial cells. No global superiority claim is made. This row is preregistered as no significant loss, not an assumed win.
+The model table below is the observed result, including the explicitly dropped cell. No global superiority claim is made. This row is preregistered as no significant loss, not an assumed win.
 
-haiku: TIE; gpt-6-luna: TIE; gemini-3.8-flash: pending; gemini-3.5-flash-lite: TIE. TIE follows the preregistered significance rule and does not establish equivalence. Source: `results/primary-disposition.json`.
+haiku: TIE; gpt-6-luna: TIE; gemini-3.8-flash: DROPPED; gemini-3.5-flash-lite: TIE. TIE follows the preregistered significance rule and does not establish equivalence. Source: `results/primary-disposition.json`.
 
 Preregistered development validity fails the cheater bar for haiku, gpt-6-luna, gemini-3.5-flash-lite. The full test runs under explicit owner authorization without tuning. This study cannot claim that all validity gates pass. Source: `results/phase-report.json`.
 
-Gemini: not run: daily quota. Development comparisons: 214/270 complete, 56 missing. Test comparisons: 0/519 complete, 519 missing. No-answer quota rejections are not judge failures. The reset watcher is disarmed. Resumption requires the owner's explicit word and runs last; the prior reset-based permission is superseded. The Gemini-only last-call cutoff remains 2026-10-14 12:00 UTC. Source: `freeze.json` and `results/decisions.jsonl`.
+Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. Its partial recordings remain immutable. It has zero scheduled requests and no pending completion. Flash Lite stays the Gemini result. Source: `results/gemini-3.8-owner-drop.json`.
 
 Actual recorded model spend: 16.12030680 USD. Unsettled reservations: 6.44811914 USD. Total lane cap: 35 USD. Recorded call attempts: 6184. Source: `results/spend.jsonl` and `results/calls.jsonl`.
 
@@ -50,9 +59,6 @@ Scores use normalized presentation games. Ties and unparsed pair-ledger or promp
 | gpt-6-luna | pair-ledger | 173 | 186/346 | 53.76 | 48.49 to 58.94 | 0 | 0.15114 | 0.07557 |
 | gpt-6-luna | reader-first-c50b2dc3 | 173 | 234/346 | 67.63 | 62.53 to 72.34 | 135 | 0.24011 | 0.12005 |
 | gpt-6-luna | promptfoo | 173 | 197/346 | 56.94 | 51.67 to 62.05 | 0 | 0.06837 | 0.03418 |
-| gemini-3.8-flash | pair-ledger | 0 | 0/0 | pending | pending | 0 | pending | pending |
-| gemini-3.8-flash | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | 0 | pending | pending |
-| gemini-3.8-flash | promptfoo | 0 | 0/0 | pending | pending | 0 | pending | pending |
 | gemini-3.5-flash-lite | pair-ledger | 173 | 204/346 | 58.96 | 53.71 to 64.02 | 0 | 0.84956 | 0.42478 |
 | gemini-3.5-flash-lite | promptfoo | 173 | 209/346 | 60.40 | 55.16 to 65.42 | 0 | 0.48784 | 0.24392 |
 
@@ -67,8 +73,6 @@ Reader-first is the separate opt-in PR 157 row at `c50b2dc3`. It has a length pr
 | haiku | reader-first-c50b2dc3 | 173 | 95/58 | 10.69 | 1.50 to 19.43 | 0.003472 | not applicable, exploratory |
 | gpt-6-luna | pair-ledger | 173 | 31/42 | -3.18 | -8.72 to 2.68 | 0.241645 | pending full primary family |
 | gpt-6-luna | reader-first-c50b2dc3 | 173 | 109/72 | 10.69 | 0.86 to 20.71 | 0.007284 | not applicable, exploratory |
-| gemini-3.8-flash | pair-ledger | 0 | 0/0 | pending | pending | pending | pending full primary family |
-| gemini-3.8-flash | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | pending | not applicable, exploratory |
 | gemini-3.5-flash-lite | pair-ledger | 173 | 42/47 | -1.45 | -7.49 to 4.57 | 0.671809 | pending full primary family |
 
 Per-cell game McNemar is the requested nominal test. Games sharing a pair and request are dependent. Interpret the request-cluster interval alongside that p value. Holm awaits the complete cross-benchmark primary family. Reader-first remains exploratory. Source: `results/cells.json` and frozen `stats.py`.
@@ -87,7 +91,6 @@ Longer-wins uses whitespace units in English and Han characters in Chinese, matc
 |---|---:|---:|---:|
 | haiku | 173 | 173 | 0 |
 | gpt-6-luna | 173 | 173 | 0 |
-| gemini-3.8-flash | 0 | 0 | 0 |
 | gemini-3.5-flash-lite | 0 | 0 | 0 |
 
 This comparison uses every recorded test choice, not accuracy alone. Exact agreement with the control cannot support an added writing-quality benefit. Source: `results/reader-vs-longer.json` and `results/decisions.jsonl`.
@@ -102,18 +105,12 @@ This comparison uses every recorded test choice, not accuracy alone. Exact agree
 | pilot | gpt-6-luna | pair-ledger | 20 | 65.00 | 0.4196 | pending/pending | pending | pending |
 | pilot | gpt-6-luna | reader-first-c50b2dc3 | 20 | 75.00 | 0.5592 | pending/pending | pending | pending |
 | pilot | gpt-6-luna | promptfoo | 20 | 55.00 | 0.2350 | pending/pending | pending | pending |
-| pilot | gemini-3.8-flash | pair-ledger | 20 | 60.00 | 3.3606 | pending/pending | pending | pending |
-| pilot | gemini-3.8-flash | reader-first-c50b2dc3 | 20 | 75.00 | 5.5983 | pending/pending | pending | pending |
-| pilot | gemini-3.8-flash | promptfoo | 20 | 75.00 | 2.4523 | pending/pending | pending | pending |
 | dev | haiku | pair-ledger | 30 | 60.00 | 1.2059 | 10/120 | True | False |
 | dev | haiku | reader-first-c50b2dc3 | 30 | 73.33 | 1.4381 | 2/120 | False | False |
 | dev | haiku | promptfoo | 30 | 48.33 | 0.7693 | 11/120 | False | False |
 | dev | gpt-6-luna | pair-ledger | 30 | 50.00 | 0.4394 | 12/120 | True | False |
 | dev | gpt-6-luna | reader-first-c50b2dc3 | 30 | 73.33 | 0.6021 | 0/120 | False | False |
 | dev | gpt-6-luna | promptfoo | 30 | 53.33 | 0.2592 | 3/120 | True | False |
-| dev | gemini-3.8-flash | pair-ledger | 30 | 53.33 | 3.4290 | 2/48 | True | False |
-| dev | gemini-3.8-flash | reader-first-c50b2dc3 | 30 | 73.33 | 5.6330 | 0/44 | False | False |
-| dev | gemini-3.8-flash | promptfoo | 30 | 50.00 | 2.4088 | 3/44 | True | False |
 | dev | gemini-3.5-flash-lite | pair-ledger | 30 | 50.00 | 1.8497 | 22/120 | True | False |
 | dev | gemini-3.5-flash-lite | promptfoo | 30 | 56.67 | 1.1779 | 18/120 | True | False |
 
@@ -145,18 +142,6 @@ Detailed three-repeat noise, six planted fixtures, kappa, label-preserving, inje
 | gpt-6-luna | promptfoo | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
 | gpt-6-luna | promptfoo | injection | 4/4 | 8/8 | 100.00 | 100 | pass |
 | gpt-6-luna | promptfoo | label-flip | 6/6 | 12/12 | 100.00 | 90 | pass |
-| gemini-3.8-flash | pair-ledger | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
-| gemini-3.8-flash | pair-ledger | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
-| gemini-3.8-flash | pair-ledger | injection | 4/4 | 8/8 | 100.00 | 100 | pass |
-| gemini-3.8-flash | pair-ledger | label-flip | 6/6 | 12/12 | 100.00 | 90 | pass |
-| gemini-3.8-flash | reader-first-c50b2dc3 | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
-| gemini-3.8-flash | reader-first-c50b2dc3 | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
-| gemini-3.8-flash | reader-first-c50b2dc3 | injection | 4/4 | 6/8 | 75.00 | 100 | fail |
-| gemini-3.8-flash | reader-first-c50b2dc3 | label-flip | 6/6 | 4/12 | 33.33 | 90 | fail |
-| gemini-3.8-flash | promptfoo | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
-| gemini-3.8-flash | promptfoo | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
-| gemini-3.8-flash | promptfoo | injection | 4/4 | 8/8 | 100.00 | 100 | pass |
-| gemini-3.8-flash | promptfoo | label-flip | 6/6 | 12/12 | 100.00 | 90 | pass |
 | gemini-3.5-flash-lite | pair-ledger | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
 | gemini-3.5-flash-lite | pair-ledger | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
 | gemini-3.5-flash-lite | pair-ledger | injection | 4/4 | 8/8 | 100.00 | 100 | pass |
@@ -169,6 +154,8 @@ Detailed three-repeat noise, six planted fixtures, kappa, label-preserving, inje
 Edit consistency compares each variant with the first sealed fixture reading. Relabelling maps the choice back; label-flipping edits require the opposite choice. Planted accuracy is also retained in `results/validity-checks.json`. These are small planted checks, not estimates over arbitrary writing.
 
 ## Runtime audit
+
+Gemini 3.8 rows below retain partial transport and cost evidence only. They are not benchmark scores or pending work.
 
 | Model | Contestant | Recorded attempts | Output-limit finishes | Provider errors | HTTP 429, all / test |
 |---|---|---:|---:|---:|---:|
@@ -200,6 +187,8 @@ The common HTTP output limit can truncate a reasoning-heavy response. This is re
 The owner explicitly preserves the frozen core single schema re-ask after malformed JSON. The no-returned-answer-retry rule applies to transport wrappers. Frequencies count `ledger.reask` in completed pair readings; their second attempt cost is included in each decision and the overall spend. Source: `results/reasks.json` and `results/decisions.jsonl`.
 
 ## Freeze and execution
+
+Historical runtime amendments below are superseded for Gemini 3.8 by `results/gemini-3.8-owner-drop.json`. No resumption is scheduled or authorized.
 
 - Core: [PR 168](https://github.com/achammah/driftbench/pull/168), `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`, remote hash verified before calls.
 - Reader-first: [PR 157](https://github.com/achammah/driftbench/pull/157), source snapshot `c50b2dc3`.
@@ -238,7 +227,9 @@ The owner explicitly preserves the frozen core single schema re-ask after malfor
 - The owner raises only the Flash Lite subcap from 5 to 8 USD inside the unchanged 35 USD cap, and permits one fresh cycle of at most three submissions for the eight exact logical keys in `freeze.json`. All holds remain counted.
 - The first missing sealed call probes alone before concurrency eight resumes. Any new network failure aborts in-flight Gemini calls, writes a persistent hold and stops paid submissions immediately. No returned answer is repeated.
 
-## Parked Gemini 3.8 request allocation
+## Historical Gemini 3.8 request allocation, superseded by owner drop
+
+Current allocation is zero requests. The following figures describe the earlier, cancelled allocation only.
 
 - Watcher 70641 is disarmed and verified absent. Owner-only resumption supersedes the previous automatic reset permission. Evidence: `results/gemini-reset-watcher-disarmed.json` and `freeze.json`.
 - Missing comparisons: 575, consisting of 191 pair-ledger, 192 reader-first and 192 promptfoo. No answered call is cached inside these incomplete comparisons.

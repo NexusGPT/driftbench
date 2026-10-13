@@ -1,23 +1,31 @@
 {
-  "at": "2026-10-13T12:09:03.995005+00:00",
-  "model": "gemini-3.8-flash",
-  "missingComparisons": 575,
-  "remainingByContestant": {
-    "pair-ledger": 191,
-    "reader-first-c50b2dc3": 192,
-    "promptfoo": 192
+  "historicalAllocation": {
+    "at": "2026-10-13T12:09:03.995005+00:00",
+    "model": "gemini-3.8-flash",
+    "missingComparisons": 575,
+    "remainingByContestant": {
+      "pair-ledger": 191,
+      "reader-first-c50b2dc3": 192,
+      "promptfoo": 192
+    },
+    "savedAnswersInIncompleteComparisons": 0,
+    "minimumNewModelRequests": 1150,
+    "observedDevCanonicalThirdReads": 17,
+    "observedDevCompletePrimaryComparisons": 72,
+    "expectedAdditionalCanonicalReads": 45.09722222222222,
+    "observedSchemaReasks": 0,
+    "observedOrderedReadings": 281,
+    "expectedSchemaReasksAtObservedRate": 0,
+    "expectedRequestsRoundedUp": 1196,
+    "maximumAnswerRequestsWithAllCanonicalAndSchemaReasks": 1914,
+    "transportRetrySubmissionsExcluded": true,
+    "qualification": "Minimum and maximum answer counts are exact; expected count extrapolates the observed Gemini DEV escalation rate. Future answers determine canonical reads and schema re-asks, so an exact future total is unknowable.",
+    "status": "Parked until explicit owner resumption"
   },
-  "savedAnswersInIncompleteComparisons": 0,
-  "minimumNewModelRequests": 1150,
-  "observedDevCanonicalThirdReads": 17,
-  "observedDevCompletePrimaryComparisons": 72,
-  "expectedAdditionalCanonicalReads": 45.09722222222222,
-  "observedSchemaReasks": 0,
-  "observedOrderedReadings": 281,
-  "expectedSchemaReasksAtObservedRate": 0,
-  "expectedRequestsRoundedUp": 1196,
-  "maximumAnswerRequestsWithAllCanonicalAndSchemaReasks": 1914,
-  "transportRetrySubmissionsExcluded": true,
-  "qualification": "Minimum and maximum answer counts are exact; expected count extrapolates the observed Gemini DEV escalation rate. Future answers determine canonical reads and schema re-asks, so an exact future total is unknowable.",
-  "status": "Parked until explicit owner resumption"
+  "model": "gemini-3.8-flash",
+  "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+  "pendingComparisons": 0,
+  "scheduledRequests": 0,
+  "resumeAllowed": false,
+  "ownerAmendment": "gemini-3.8-owner-drop.json"
 }

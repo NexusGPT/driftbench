@@ -1,5 +1,9 @@
 # Writing data provenance
 
+## Final model disposition
+
+Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. Flash Lite stays the Gemini result. The withdrawal supersedes the historical Gemini 3.8 authorization below. It changes no sealed input, label, contestant prompt or scoring formula. Raw recordings and prior freezes remain intact; `results/gemini-3.8-owner-drop.json` records their hashes.
+
 The data is WritingPreferenceBench by Shuangshuang Ying and coauthors, from the [dataset repository](https://github.com/WritingPreferenceBench/Writing-Preference-Bench), [Hugging Face release](https://huggingface.co/datasets/m-a-p/Writing-Preference-Bench), and [paper](https://arxiv.org/html/2510.14616v2). The fetched source hashes and URLs are in `sources/receipts.json` and `sources/hf-receipts.json`.
 
 ## Licence

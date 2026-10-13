@@ -280,140 +280,35 @@
     {
       "model": "gemini-3.8-flash",
       "contestant": "pair-ledger",
-      "checks": {
-        "relabel": {
-          "expectedPairs": 6,
-          "observedPairs": 6,
-          "matchingGames": 12,
-          "games": 12,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 12,
-          "thresholdPercent": 95,
-          "passes": true
-        },
-        "markdown": {
-          "expectedPairs": 4,
-          "observedPairs": 4,
-          "matchingGames": 8,
-          "games": 8,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 8,
-          "thresholdPercent": 95,
-          "passes": true
-        },
-        "injection": {
-          "expectedPairs": 4,
-          "observedPairs": 4,
-          "matchingGames": 8,
-          "games": 8,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 8,
-          "thresholdPercent": 100,
-          "passes": true
-        },
-        "label-flip": {
-          "expectedPairs": 6,
-          "observedPairs": 6,
-          "matchingGames": 12,
-          "games": 12,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 12,
-          "thresholdPercent": 90,
-          "passes": true
-        }
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.8-flash",
       "contestant": "reader-first-c50b2dc3",
-      "checks": {
-        "relabel": {
-          "expectedPairs": 6,
-          "observedPairs": 6,
-          "matchingGames": 12,
-          "games": 12,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 4,
-          "thresholdPercent": 95,
-          "passes": true
-        },
-        "markdown": {
-          "expectedPairs": 4,
-          "observedPairs": 4,
-          "matchingGames": 8,
-          "games": 8,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 4,
-          "thresholdPercent": 95,
-          "passes": true
-        },
-        "injection": {
-          "expectedPairs": 4,
-          "observedPairs": 4,
-          "matchingGames": 6,
-          "games": 8,
-          "consistencyPercent": 75.0,
-          "plantedCorrectGames": 4,
-          "thresholdPercent": 100,
-          "passes": false
-        },
-        "label-flip": {
-          "expectedPairs": 6,
-          "observedPairs": 6,
-          "matchingGames": 4,
-          "games": 12,
-          "consistencyPercent": 33.333333333333336,
-          "plantedCorrectGames": 4,
-          "thresholdPercent": 90,
-          "passes": false
-        }
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.8-flash",
       "contestant": "promptfoo",
-      "checks": {
-        "relabel": {
-          "expectedPairs": 6,
-          "observedPairs": 6,
-          "matchingGames": 12,
-          "games": 12,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 12,
-          "thresholdPercent": 95,
-          "passes": true
-        },
-        "markdown": {
-          "expectedPairs": 4,
-          "observedPairs": 4,
-          "matchingGames": 8,
-          "games": 8,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 8,
-          "thresholdPercent": 95,
-          "passes": true
-        },
-        "injection": {
-          "expectedPairs": 4,
-          "observedPairs": 4,
-          "matchingGames": 8,
-          "games": 8,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 8,
-          "thresholdPercent": 100,
-          "passes": true
-        },
-        "label-flip": {
-          "expectedPairs": 6,
-          "observedPairs": 6,
-          "matchingGames": 12,
-          "games": 12,
-          "consistencyPercent": 100.0,
-          "plantedCorrectGames": 12,
-          "thresholdPercent": 90,
-          "passes": true
-        }
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.5-flash-lite",
@@ -507,5 +402,6 @@
         }
       }
     }
-  ]
+  ],
+  "ownerDisposition": "gemini-3.8-owner-drop.json"
 }

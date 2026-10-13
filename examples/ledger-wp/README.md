@@ -2,6 +2,12 @@
 
 This research row compares the core pair ledger and the exact promptfoo select-best template on fresh WritingPreferenceBench pairs. A separate exploratory row measures the opt-in reader-first judge from PR 157 at `c50b2dc3`. It retains its length-aware fallback. See `PROVENANCE.md` before interpreting scores.
 
+## Final status
+
+All retained model cells have completed TEST. Sonnet and GPT-6.1 results are in `results/frontier-final-summary.md`; earlier cells are in `results/report.md`.
+
+Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. Flash Lite stays the Gemini result. No Gemini 3.8 resumption is authorized or scheduled. The reset watcher stays disarmed. `results/gemini-3.8-owner-drop.json` supersedes all earlier resumption permissions and request estimates below. Raw recordings, costs and holds remain unchanged. No paid calls remain.
+
 ## Reproduce without model calls
 
 ```sh
@@ -10,11 +16,14 @@ TMPDIR="$PWD/examples/ledger-wp/runtime" node --import tsx --test examples/ledge
 TMPDIR="$PWD/examples/ledger-wp/runtime" node --import tsx examples/ledger-wp/harness.ts --cheaters
 python3 examples/ledger-wp/stats.py
 python3 examples/ledger-wp/phase_report.py
+python3 examples/ledger-wp/owner-disposition.py
 ```
 
 Runtime dependencies can be linked to an existing installation. Do not copy `node_modules`. The `node --import tsx` entry point avoids the CLI's Unix-socket path limit in deeply nested worktrees. Runtime files stay under this directory's ignored `runtime/` folder.
 
-## Paid run gate
+## Historical paid run gate
+
+These instructions document the completed run. They do not authorize new calls. Frozen report generators reproduce historical rows; apply `owner-disposition.py` last to retain the owner's withdrawal in current tables.
 
 Every call requires `freeze.json`, a pushed core PR and source hashes matching the freeze. The pool seals have independent pre-call commits. Haiku, `gpt-6-luna`, and `gemini-3.8-flash` are authorized. The owner confirms Gemini billing and names `openai.key` and `gemini-driftbench.key`; no other key file is used. The process reserves cost before every submission and retains uncertain spend. The whole lane cap is 35 USD, including pilots, repetitions, errors and unfinished items.
 

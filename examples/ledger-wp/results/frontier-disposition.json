@@ -1,0 +1,240 @@
+{
+  "at": "2026-10-13T18:30:53.009006+00:00",
+  "dataCommit": "def8da23a2a5bc653d26d947cedb14653d913655",
+  "cells": [
+    {
+      "model": "claude-sonnet-5-5",
+      "verdict": "TIE",
+      "ourScore": 224,
+      "promptfooScore": 231,
+      "gamesPerContestant": 346,
+      "pairsPerContestant": 173,
+      "longerWins": 234,
+      "comparison": {
+        "matchedPairs": 173,
+        "wins": 23,
+        "losses": 30,
+        "deltaPoints": -2.023121387283237,
+        "requestCluster95": [
+          -7.103825136612022,
+          3.0303030303030303
+        ],
+        "mcnemarTwoSided": 0.4101027163746913,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "scores": [
+        {
+          "contestant": "pair-ledger",
+          "pairs": 173,
+          "games": 346,
+          "correct": 224,
+          "accuracy": 64.73988439306359,
+          "wilson95": [
+            59.56884671230426,
+            69.58721739280186
+          ],
+          "recipeUsd": 10.315908,
+          "graderErrors": 0,
+          "ties": 14,
+          "usdPer100Pairs": 5.962952601156069,
+          "usdPer100Games": 2.9814763005780347,
+          "comparison": {
+            "matchedPairs": 173,
+            "wins": 23,
+            "losses": 30,
+            "deltaPoints": -2.023121387283237,
+            "requestCluster95": [
+              -7.103825136612022,
+              3.0303030303030303
+            ],
+            "mcnemarTwoSided": 0.4101027163746913,
+            "holm18": null,
+            "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+          },
+          "allPhaseCostUsd": 19.0099804,
+          "testCostUsdIncludingTransport": 10.315908,
+          "orderedReadings": 671,
+          "schemaReasks": 2,
+          "schemaReaskUsd": 0.078216,
+          "outputCapCalls": 0,
+          "testItemsLostToOutputCap": [],
+          "missingTestItems": [],
+          "http429": 0,
+          "transportFailures": 9,
+          "sessionLimitNoAnswers": 1,
+          "tokens": {
+            "input": 4782176,
+            "output": 931597,
+            "cacheRead": 1824,
+            "cacheWrite": 32369
+          }
+        },
+        {
+          "contestant": "promptfoo",
+          "pairs": 173,
+          "games": 346,
+          "correct": 231,
+          "accuracy": 66.76300578034682,
+          "wilson95": [
+            61.639324578729735,
+            71.51855224668506
+          ],
+          "recipeUsd": 4.31682,
+          "graderErrors": 0,
+          "ties": 0,
+          "usdPer100Pairs": 2.495271676300578,
+          "usdPer100Games": 1.247635838150289,
+          "allPhaseCostUsd": 8.723152,
+          "testCostUsdIncludingTransport": 4.31682,
+          "orderedReadings": 0,
+          "schemaReasks": 0,
+          "schemaReaskUsd": 0,
+          "outputCapCalls": 0,
+          "testItemsLostToOutputCap": [],
+          "missingTestItems": [],
+          "http429": 0,
+          "transportFailures": 6,
+          "sessionLimitNoAnswers": 0,
+          "tokens": {
+            "input": 3767920,
+            "output": 110004,
+            "cacheRead": 0,
+            "cacheWrite": 21818
+          }
+        }
+      ],
+      "actualUsd": 27.733132400000034,
+      "heldUsd": 0,
+      "capUsd": 45,
+      "freezeSha256": "fdca5960c44c0def2ae733642de05d0a95b749ffec043f025673dcbcbc4b348a",
+      "auditPassed": true,
+      "sourceHashes": {
+        "calls.jsonl": "67ef9f29238dfca4bfeec09970b19529d87b3c3413a3b00075234e9ff9ca1c8b",
+        "decisions.jsonl": "8cb103a3af17b5b7ae236b06cb11ed70253134ce942e1eaea1b0351ad82abef6",
+        "report.json": "c7491698e42009d04b2944ced5ef6285739d6c9cb52cf3612cf6973d00720297",
+        "audit.json": "3908e8d8796a18494a2ae0cda90673fe5e4e0b592d06f8a429fa290386891e07"
+      }
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "verdict": "LOSS",
+      "ourScore": 148,
+      "promptfooScore": 181,
+      "gamesPerContestant": 346,
+      "pairsPerContestant": 173,
+      "longerWins": 234,
+      "comparison": {
+        "matchedPairs": 173,
+        "wins": 12,
+        "losses": 45,
+        "deltaPoints": -9.53757225433526,
+        "requestCluster95": [
+          -15.2046783625731,
+          -4.166666666666667
+        ],
+        "mcnemarTwoSided": 1.3127443164284713e-05,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      },
+      "scores": [
+        {
+          "contestant": "pair-ledger",
+          "pairs": 173,
+          "games": 346,
+          "correct": 148,
+          "accuracy": 42.774566473988436,
+          "wilson95": [
+            37.66888322565315,
+            48.03892848753014
+          ],
+          "recipeUsd": 4.7943717999999995,
+          "graderErrors": 0,
+          "ties": 76,
+          "usdPer100Pairs": 2.7713131791907513,
+          "usdPer100Games": 1.3856565895953756,
+          "comparison": {
+            "matchedPairs": 173,
+            "wins": 12,
+            "losses": 45,
+            "deltaPoints": -9.53757225433526,
+            "requestCluster95": [
+              -15.2046783625731,
+              -4.166666666666667
+            ],
+            "mcnemarTwoSided": 1.3127443164284713e-05,
+            "holm18": null,
+            "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+          },
+          "allPhaseCostUsd": 8.4809487,
+          "testCostUsdIncludingTransport": 4.7943718,
+          "orderedReadings": 715,
+          "schemaReasks": 0,
+          "schemaReaskUsd": 0,
+          "outputCapCalls": 0,
+          "testItemsLostToOutputCap": [],
+          "missingTestItems": [],
+          "http429": 0,
+          "transportFailures": 44,
+          "sessionLimitNoAnswers": 0,
+          "tokens": {
+            "input": 2917892,
+            "output": 348086,
+            "cacheRead": 943217,
+            "cacheWrite": 1912834
+          }
+        },
+        {
+          "contestant": "promptfoo",
+          "pairs": 173,
+          "games": 346,
+          "correct": 181,
+          "accuracy": 52.3121387283237,
+          "wilson95": [
+            47.052882627482184,
+            57.52061762429918
+          ],
+          "recipeUsd": 2.458313,
+          "graderErrors": 0,
+          "ties": 0,
+          "usdPer100Pairs": 1.4209901734104047,
+          "usdPer100Games": 0.7104950867052023,
+          "allPhaseCostUsd": 4.7452354,
+          "testCostUsdIncludingTransport": 2.458313,
+          "orderedReadings": 0,
+          "schemaReasks": 0,
+          "schemaReaskUsd": 0,
+          "outputCapCalls": 0,
+          "testItemsLostToOutputCap": [],
+          "missingTestItems": [],
+          "http429": 0,
+          "transportFailures": 19,
+          "sessionLimitNoAnswers": 0,
+          "tokens": {
+            "input": 2138574,
+            "output": 27842,
+            "cacheRead": 356029,
+            "cacheWrite": 1732245
+          }
+        }
+      ],
+      "actualUsd": 13.226184100000012,
+      "heldUsd": 15.75,
+      "capUsd": 32,
+      "freezeSha256": "8894d17255c1640403e2e3d51b9332833179013f9bac2925a01d3bcd96aa5026",
+      "auditPassed": true,
+      "sourceHashes": {
+        "calls.jsonl": "289ce251f9d05e8050df87529aeeb681de667ad69678591a234230210a7421bd",
+        "decisions.jsonl": "f85028dd83e2d8d36efd7e3827c4259a7dc0533f8c619b45fa2016399ca73bce",
+        "report.json": "461ed3daedfd31c6e98a254678a1c0743fd3eac534c8bce72f4468797f8c0849",
+        "audit.json": "876bdd9c21cd26cd7c4e079239ac778c0cc10586877c52f5a1df65c3f62ffba1"
+      }
+    }
+  ],
+  "primaryInterpretation": "No writing superiority claim. Sonnet is TIE and GPT-6.1 is LOSS under the frozen rule. TIE does not establish equivalence. Neither model beats longer-wins.",
+  "noPaidCallsAfterCompletion": true,
+  "gemini38": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+  "old35UsdBudget": "unchanged",
+  "crossCellAudit": "frontier-cross-cell-audit.json",
+  "geminiResultModel": "gemini-3.5-flash-lite"
+}

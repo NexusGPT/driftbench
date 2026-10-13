@@ -247,124 +247,35 @@
     {
       "model": "gemini-3.8-flash",
       "contestant": "pair-ledger",
-      "pairs": 20,
-      "games": 40,
-      "correct": 24,
-      "accuracy": 60.0,
-      "wilson95": [
-        44.595893660346185,
-        73.65167431570808
-      ],
-      "recipeUsd": 0.3885105,
-      "graderErrors": 0,
-      "ties": 4,
-      "usdPer100Pairs": 1.9425525000000001,
-      "usdPer100Games": 0.9712762500000001,
-      "comparison": {
-        "matchedPairs": 20,
-        "wins": 0,
-        "losses": 6,
-        "deltaPoints": -15.0,
-        "requestCluster95": [
-          -27.77777777777778,
-          -4.545454545454546
-        ],
-        "mcnemarTwoSided": 0.03125,
-        "holm18": null,
-        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
-      },
-      "projectedTestUsd": 3.3606158250000004,
-      "controls": {
-        "longer-wins": {
-          "accuracy": 75.0,
-          "judgeLeadPoints": -15.0
-        },
-        "constant-FIRST": {
-          "accuracy": 50.0,
-          "judgeLeadPoints": 10.0
-        },
-        "refusal-wins": {
-          "accuracy": 0.0,
-          "judgeLeadPoints": 60.0
-        }
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.8-flash",
       "contestant": "reader-first-c50b2dc3",
-      "pairs": 20,
-      "games": 40,
-      "correct": 30,
-      "accuracy": 75.0,
-      "wilson95": [
-        59.806038579231966,
-        85.8128813609037
-      ],
-      "recipeUsd": 0.6472065,
-      "graderErrors": 8,
-      "ties": 0,
-      "usdPer100Pairs": 3.2360325000000003,
-      "usdPer100Games": 1.6180162500000002,
-      "comparison": {
-        "matchedPairs": 20,
-        "wins": 8,
-        "losses": 8,
-        "deltaPoints": 0.0,
-        "requestCluster95": [
-          -26.31578947368421,
-          26.19047619047619
-        ],
-        "mcnemarTwoSided": 1.0,
-        "holm18": null,
-        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
-      },
-      "projectedTestUsd": 5.598336225000001,
-      "controls": {
-        "longer-wins": {
-          "accuracy": 75.0,
-          "judgeLeadPoints": 0.0
-        },
-        "constant-FIRST": {
-          "accuracy": 50.0,
-          "judgeLeadPoints": 25.0
-        },
-        "refusal-wins": {
-          "accuracy": 0.0,
-          "judgeLeadPoints": 75.0
-        }
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.8-flash",
       "contestant": "promptfoo",
-      "pairs": 20,
-      "games": 40,
-      "correct": 30,
-      "accuracy": 75.0,
-      "wilson95": [
-        59.806038579231966,
-        85.8128813609037
-      ],
-      "recipeUsd": 0.2835045,
-      "graderErrors": 0,
-      "ties": 0,
-      "usdPer100Pairs": 1.4175225,
-      "usdPer100Games": 0.70876125,
-      "projectedTestUsd": 2.452313925,
-      "controls": {
-        "longer-wins": {
-          "accuracy": 75.0,
-          "judgeLeadPoints": 0.0
-        },
-        "constant-FIRST": {
-          "accuracy": 50.0,
-          "judgeLeadPoints": 25.0
-        },
-        "refusal-wins": {
-          "accuracy": 0.0,
-          "judgeLeadPoints": 75.0
-        }
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     }
   ],
   "dev": [
@@ -897,265 +808,35 @@
     {
       "model": "gemini-3.8-flash",
       "contestant": "pair-ledger",
-      "pairs": 30,
-      "games": 60,
-      "correct": 32,
-      "accuracy": 53.333333333333336,
-      "wilson95": [
-        40.89342702715789,
-        65.3720939585615
-      ],
-      "recipeUsd": 0.594627,
-      "graderErrors": 0,
-      "ties": 2,
-      "usdPer100Pairs": 1.98209,
-      "usdPer100Games": 0.991045,
-      "comparison": {
-        "matchedPairs": 30,
-        "wins": 4,
-        "losses": 2,
-        "deltaPoints": 3.3333333333333335,
-        "requestCluster95": [
-          -6.666666666666667,
-          14.285714285714286
-        ],
-        "mcnemarTwoSided": 0.6875,
-        "holm18": null,
-        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
-      },
-      "projectedTestUsd": 3.4290157,
-      "controls": {
-        "longer-wins": {
-          "accuracy": 73.33333333333333,
-          "judgeLeadPoints": -19.999999999999993
-        },
-        "constant-FIRST": {
-          "accuracy": 50.0,
-          "judgeLeadPoints": 3.3333333333333357
-        },
-        "refusal-wins": {
-          "accuracy": 0.0,
-          "judgeLeadPoints": 53.333333333333336
-        }
-      },
-      "noise": {
-        "completeTriplePairs": 12,
-        "repeatGameFlips": 2,
-        "comparisons": 48,
-        "flipPercent": 4.166666666666667
-      },
-      "sixFixturesThreeOfThree": {
-        "fixture-en-name": true,
-        "fixture-en-count": true,
-        "fixture-en-language": true,
-        "fixture-zh-name": true,
-        "fixture-zh-count": true,
-        "fixture-zh-language": true
-      },
-      "fixtureKappa": 1.0,
-      "earnedFixtureSeat": true,
-      "cheaterBarPass": false,
-      "plantedEditChecks": {
-        "relabel": {
-          "expectedPairs": 6,
-          "coveredPairs": 6,
-          "correctGames": 12,
-          "games": 12,
-          "accuracy": 100.0
-        },
-        "markdown": {
-          "expectedPairs": 4,
-          "coveredPairs": 4,
-          "correctGames": 8,
-          "games": 8,
-          "accuracy": 100.0
-        },
-        "injection": {
-          "expectedPairs": 4,
-          "coveredPairs": 4,
-          "correctGames": 8,
-          "games": 8,
-          "accuracy": 100.0
-        },
-        "label-flip": {
-          "expectedPairs": 6,
-          "coveredPairs": 6,
-          "correctGames": 12,
-          "games": 12,
-          "accuracy": 100.0
-        }
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.8-flash",
       "contestant": "reader-first-c50b2dc3",
-      "pairs": 30,
-      "games": 60,
-      "correct": 44,
-      "accuracy": 73.33333333333333,
-      "wilson95": [
-        60.99128690331636,
-        82.86735999671944
-      ],
-      "recipeUsd": 0.97682025,
-      "graderErrors": 27,
-      "ties": 0,
-      "usdPer100Pairs": 3.2560675,
-      "usdPer100Games": 1.62803375,
-      "comparison": {
-        "matchedPairs": 30,
-        "wins": 22,
-        "losses": 8,
-        "deltaPoints": 23.333333333333332,
-        "requestCluster95": [
-          0.0,
-          46.42857142857143
-        ],
-        "mcnemarTwoSided": 0.016124801710247993,
-        "holm18": null,
-        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
-      },
-      "projectedTestUsd": 5.6329967750000005,
-      "controls": {
-        "longer-wins": {
-          "accuracy": 73.33333333333333,
-          "judgeLeadPoints": 0.0
-        },
-        "constant-FIRST": {
-          "accuracy": 50.0,
-          "judgeLeadPoints": 23.33333333333333
-        },
-        "refusal-wins": {
-          "accuracy": 0.0,
-          "judgeLeadPoints": 73.33333333333333
-        }
-      },
-      "noise": {
-        "completeTriplePairs": 11,
-        "repeatGameFlips": 0,
-        "comparisons": 44,
-        "flipPercent": 0.0
-      },
-      "sixFixturesThreeOfThree": {
-        "fixture-en-name": false,
-        "fixture-en-count": false,
-        "fixture-en-language": true,
-        "fixture-zh-name": false,
-        "fixture-zh-count": false,
-        "fixture-zh-language": true
-      },
-      "fixtureKappa": 0.0,
-      "earnedFixtureSeat": false,
-      "cheaterBarPass": false,
-      "plantedEditChecks": {
-        "relabel": {
-          "expectedPairs": 6,
-          "coveredPairs": 6,
-          "correctGames": 4,
-          "games": 12,
-          "accuracy": 33.333333333333336
-        },
-        "markdown": {
-          "expectedPairs": 4,
-          "coveredPairs": 4,
-          "correctGames": 4,
-          "games": 8,
-          "accuracy": 50.0
-        },
-        "injection": {
-          "expectedPairs": 4,
-          "coveredPairs": 4,
-          "correctGames": 4,
-          "games": 8,
-          "accuracy": 50.0
-        },
-        "label-flip": {
-          "expectedPairs": 6,
-          "coveredPairs": 6,
-          "correctGames": 4,
-          "games": 12,
-          "accuracy": 33.333333333333336
-        }
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.8-flash",
       "contestant": "promptfoo",
-      "pairs": 30,
-      "games": 60,
-      "correct": 30,
-      "accuracy": 50.0,
-      "wilson95": [
-        37.73502424155577,
-        62.26497575844423
-      ],
-      "recipeUsd": 0.4177035,
-      "graderErrors": 0,
-      "ties": 0,
-      "usdPer100Pairs": 1.392345,
-      "usdPer100Games": 0.6961725,
-      "projectedTestUsd": 2.40875685,
-      "controls": {
-        "longer-wins": {
-          "accuracy": 73.33333333333333,
-          "judgeLeadPoints": -23.33333333333333
-        },
-        "constant-FIRST": {
-          "accuracy": 50.0,
-          "judgeLeadPoints": 0.0
-        },
-        "refusal-wins": {
-          "accuracy": 0.0,
-          "judgeLeadPoints": 50.0
-        }
-      },
-      "noise": {
-        "completeTriplePairs": 11,
-        "repeatGameFlips": 3,
-        "comparisons": 44,
-        "flipPercent": 6.818181818181818
-      },
-      "sixFixturesThreeOfThree": {
-        "fixture-en-name": true,
-        "fixture-en-count": true,
-        "fixture-en-language": true,
-        "fixture-zh-name": true,
-        "fixture-zh-count": true,
-        "fixture-zh-language": true
-      },
-      "fixtureKappa": 1.0,
-      "earnedFixtureSeat": true,
-      "cheaterBarPass": false,
-      "plantedEditChecks": {
-        "relabel": {
-          "expectedPairs": 6,
-          "coveredPairs": 6,
-          "correctGames": 12,
-          "games": 12,
-          "accuracy": 100.0
-        },
-        "markdown": {
-          "expectedPairs": 4,
-          "coveredPairs": 4,
-          "correctGames": 8,
-          "games": 8,
-          "accuracy": 100.0
-        },
-        "injection": {
-          "expectedPairs": 4,
-          "coveredPairs": 4,
-          "correctGames": 8,
-          "games": 8,
-          "accuracy": 100.0
-        },
-        "label-flip": {
-          "expectedPairs": 6,
-          "coveredPairs": 6,
-          "correctGames": 12,
-          "games": 12,
-          "accuracy": 100.0
-        }
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.5-flash-lite",
@@ -1329,5 +1010,6 @@
       }
     }
   ],
-  "policy": "A failed predeclared validity criterion is reported and never tuned away. Test launch requires an explicit recorded disposition."
+  "policy": "A failed predeclared validity criterion is reported and never tuned away. Test launch requires an explicit recorded disposition.",
+  "ownerDisposition": "gemini-3.8-owner-drop.json"
 }

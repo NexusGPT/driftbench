@@ -1,7 +1,16 @@
+## Owner withdrawal: Gemini 3.8
+
+| Model | Status | Pending work |
+| --- | --- | --- |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | None |
+
+Flash Lite stays the Gemini result. Raw answers, decisions, costs, holds and historical freezes remain unchanged.
+Earlier reset permissions and request estimates are superseded. No new model call is required.
+
 ## Additive Sonnet and GPT-6.1 writing cells
 
 - Authorization: separate budgets on top of the original 35 USD. GPT-6.1 cap is 32 USD including holds after the network recovery amendment; Sonnet cap is 45 USD after the cache-only runtime fix and five-call recalibration. Existing reservations stay unchanged.
-- Both contestants use the same model inside each cell. Gemini 3.8 remains parked. Reader-first stays in its separate legacy rows.
+- Both contestants use the same model inside each cell. Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. Flash Lite stays the Gemini result. Reader-first stays in its separate legacy rows.
 - Runtime amendment: ten consecutive healthy probes 30 seconds apart on the active provider; concurrency two, one model cell at a time. Three consecutive connection failures pause ten minutes before a fresh gate. Missing-only transport recovery has no cycle limit, including the 12 formerly exhausted calls. Returned answers are never submitted again.
 - The 16:00 UTC cutoff is removed for these two new cells because of the host network pause; no TEST result was seen before this amendment. Unknown holds remain reserved. Explicit zero-token provider errors settle at their real zero cost. TEST starts only after 20 consecutive healthy DEV calls; transport-missing items prevent final status.
 - Frozen core, pool, order, schema re-ask and scoring remain fixed. Five pilot calls calibrate cost before fixtures, validity, DEV and the full TEST.

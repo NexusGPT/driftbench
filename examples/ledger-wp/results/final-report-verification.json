@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-13T18:39:59.788319+00:00",
+  "originalSourceHashes": 191,
+  "seals": 5,
+  "ownerDispositionIdempotent": true,
+  "retainedModelScoreRowsUnchanged": true,
+  "paidCalls": 0,
+  "newCells": [
+    {
+      "model": "claude-sonnet-5-5",
+      "testComparisons": 346,
+      "freezeSha256": "fdca5960c44c0def2ae733642de05d0a95b749ffec043f025673dcbcbc4b348a",
+      "auditPassed": true,
+      "capIncludesHoldsVerified": true
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "testComparisons": 346,
+      "freezeSha256": "8894d17255c1640403e2e3d51b9332833179013f9bac2925a01d3bcd96aa5026",
+      "auditPassed": true,
+      "capIncludesHoldsVerified": true
+    }
+  ]
+}

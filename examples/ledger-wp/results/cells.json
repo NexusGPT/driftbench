@@ -166,67 +166,35 @@
     {
       "model": "gemini-3.8-flash",
       "contestant": "pair-ledger",
-      "status": "pending or partial",
-      "pairs": 0,
-      "games": 0,
-      "correct": 0,
-      "accuracy": null,
-      "wilson95": null,
-      "recipeUsd": 0,
-      "graderErrors": 0,
-      "ties": 0,
-      "usdPer100Pairs": null,
-      "usdPer100Games": null,
-      "comparison": {
-        "matchedPairs": 0,
-        "wins": 0,
-        "losses": 0,
-        "deltaPoints": null,
-        "requestCluster95": null,
-        "mcnemarTwoSided": null,
-        "holm18": null,
-        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.8-flash",
       "contestant": "reader-first-c50b2dc3",
-      "status": "pending or partial",
-      "pairs": 0,
-      "games": 0,
-      "correct": 0,
-      "accuracy": null,
-      "wilson95": null,
-      "recipeUsd": 0,
-      "graderErrors": 0,
-      "ties": 0,
-      "usdPer100Pairs": null,
-      "usdPer100Games": null,
-      "comparison": {
-        "matchedPairs": 0,
-        "wins": 0,
-        "losses": 0,
-        "deltaPoints": null,
-        "requestCluster95": null,
-        "mcnemarTwoSided": null,
-        "holm18": null,
-        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
-      }
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.8-flash",
       "contestant": "promptfoo",
-      "status": "pending or partial",
-      "pairs": 0,
-      "games": 0,
-      "correct": 0,
-      "accuracy": null,
-      "wilson95": null,
-      "recipeUsd": 0,
-      "graderErrors": 0,
-      "ties": 0,
-      "usdPer100Pairs": null,
-      "usdPer100Games": null
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "verdict": "DROPPED",
+      "score": null,
+      "comparison": null,
+      "pendingComparisons": 0,
+      "recordings": "results/decisions.jsonl",
+      "ownerAmendment": "results/gemini-3.8-owner-drop.json"
     },
     {
       "model": "gemini-3.5-flash-lite",
@@ -328,5 +296,6 @@
       "usdPer100Pairs": 0.0,
       "usdPer100Games": 0.0
     }
-  ]
+  ],
+  "ownerDisposition": "gemini-3.8-owner-drop.json"
 }

@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-13T18:38:36.762657+00:00",
+  "supervisorPid": 42739,
+  "processAlive": false,
+  "terminalStatus": "complete",
+  "completedAt": "2026-10-13T18:24:56.347580+00:00",
+  "lastAnswerAt": "2026-10-13T18:24:54.082Z",
+  "answeredTestComparisons": 346,
+  "expectedTestComparisons": 346,
+  "byContestant": {
+    "pair-ledger": 173,
+    "promptfoo": 173
+  },
+  "logPath": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-wp/examples/ledger-wp/runtime/frontier-supervisor-sonnet-resume.log",
+  "logEmpty": true,
+  "terminalEvidence": "results/frontier-supervisor.json",
+  "audit": "cells/claude-sonnet-5-5/audit.json",
+  "action": "No restart: all sealed TEST comparisons are complete."
+}
