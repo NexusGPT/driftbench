@@ -1,0 +1,26 @@
+{
+  "registered_at": "2026-10-13T04:09:10.521013+00:00",
+  "authorization": "Owner permits up to 6 concurrent model calls, raises shared cap to USD20, requires last new call before06:35 and commit/push/report by06:40 local ahead of network outage.",
+  "unchanged": [
+    "all cases and labels",
+    "all system and user prompts",
+    "model and model flags",
+    "decoders and scoring",
+    "primary registration9c1c2ff8",
+    "candidate registrationb63b9103",
+    "map registration25fee06e"
+  ],
+  "concurrency": 6,
+  "cap_usd": 20,
+  "last_dispatch": "2026-10-13T06:35:00+02:00",
+  "completion_deadline": "2026-10-13T06:40:00+02:00",
+  "candidate_completed_before_amendment": 160,
+  "candidate_pause": "Original two-call runner quiesced after a fully journaled batch.160starts=160successful answers. No calls lost, repeated or discarded.",
+  "sha256": {
+    "comparisons/astra-hard/operations.py": "e8edf105b4396347347fabbface21fdb05abf82aa9479e1a628484e2f73ee58b",
+    "comparisons/astra-hard/operations_analysis.py": "32e82ba019fbaf16c71ac37ea9b67bec43210f05ceffe2bd32bc939e5d006a76",
+    "comparisons/astra-hard/candidates/operational-pause.json": "20d801e165bdd56bd613b24e918bca41ec25bdc00674a195565ff56765b70d8e",
+    "comparisons/astra-hard/candidates/preregistration.json": "8093407a95ee967dafc25a9c1faf082051a733eb0a487fa733f292b0f6310a4e",
+    "comparisons/astra-hard/map/preregistration.json": "9128a2b232747c639644c608add50f5070e46ea28053556a4718e57606e095f0"
+  }
+}

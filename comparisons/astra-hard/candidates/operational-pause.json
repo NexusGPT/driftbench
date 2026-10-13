@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-13T04:08:01.099530+00:00",
+  "own_runner_pid": 61873,
+  "started": 160,
+  "recorded": 158,
+  "method": "Pause dispatch after the current complete batch by making the next journal open fail. In-flight workers finish and records persist. Restore the original journal only after runner exit.",
+  "owner_authorization": "Up to six concurrent calls, USD20 cap, last dispatch 06:35 and push by06:40 Europe/Brussels."
+}
