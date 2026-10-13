@@ -601,6 +601,16 @@ export const FILE_PAGES: readonly FilePage[] = [
     ],
   },
   {
+    file: 'campaign.md',
+    title: 'Campaign configuration reference',
+    source: 'packages/core/src/schema/config.ts',
+    about:
+      'The `campaign:` key of `driftbench.yaml`, or the file named by `--config`, holds campaign settings. Command-line flags override the file. See [the campaign key](../running.md#the-campaign-key) for how `campaign run`, `campaign plan` and `ci` use these settings.',
+    keys: SNAKE,
+    names: core,
+    roots: [['CampaignConfig', core.CampaignConfig]],
+  },
+  {
     file: 'map.md',
     title: 'Map reference',
     source: 'packages/generate/src/extract/proposal.ts',

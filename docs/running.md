@@ -539,6 +539,8 @@ To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.
 
 ### The campaign key
 
+Every field and its accepted values are in the [campaign configuration reference](reference/campaign.md).
+
 `campaign:` declares a campaign in the file instead of on the command line. Each setting is a plain mapping onto one flag of `campaign run`, so the file and the flags mean the same thing:
 
 | Key | Flag | Holds |
