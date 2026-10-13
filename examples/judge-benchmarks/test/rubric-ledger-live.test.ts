@@ -40,7 +40,23 @@ describe('live pair-ledger harness', () => {
     calls = await new LedgerCalls(root, 1).load(); // explicit top-up starts a new runner
     await run(1); expect(count).toBe(3);
     await run(); await run(2); expect(count).toBe(3);
-    expect(calls.rows.filter((r) => r.identity.billingResume === 1)).toHaveLength(1);
+    expect(calls.rows.filter((r) => r.identity.billingResume === 1)).toHaveLength(2);
+  });
+  test('a fresh request rejected after top-up cannot consume that same authorization again', async () => {
+    const root = await mkdtemp(resolve('.cache/ledger-rb/test-live-'));
+    let calls = await new LedgerCalls(root, 1).load(); let count = 0;
+    const fake: DialectTransport = { dialect: 'scratchpad-json', fingerprint: 'fresh-topup-rejection',
+      async complete() { count++; throw Object.assign(new Error('prepayment depleted'), { status: 402 }); } };
+    const item = validityFixtures()[0]!;
+    const run = (epoch: number) => evaluate(item, [{ name: 'rb_1', rubric: item.criterion! }], 'gemini-3.8-flash',
+      'fresh-topup-rejection', 0, 'promptfoo', fake, calls, true, undefined, epoch);
+    await expect(run(1)).rejects.toBeInstanceOf(LedgerPrepaymentStop);
+    calls = await new LedgerCalls(root, 1).load();
+    await expect(run(1)).rejects.toBeInstanceOf(LedgerPrepaymentStop);
+    expect(count).toBe(1); expect(calls.rows[0]!.identity.billingResume).toBe(1);
+    calls = await new LedgerCalls(root, 1).load();
+    await expect(run(2)).rejects.toBeInstanceOf(LedgerPrepaymentStop);
+    expect(count).toBe(2);
   });
   test('a new 402 stops the authorized epoch and that same epoch cannot retry it', async () => {
     const root = await mkdtemp(resolve('.cache/ledger-rb/test-live-'));

@@ -38,5 +38,11 @@
     "freezeSha256": "9601c09292ae8f46c42472bdc63e1d6d9dc54acc4e06536838aa928f5a142610",
     "rule": "A returned 402 opens a provider-wide circuit before a sibling can submit another order. Already in-flight answers remain recorded. No prompt or scoring change.",
     "tests": "20 focused tests and TypeScript pass"
+  },
+  "freshRequestEpochGuard": {
+    "at": "2026-10-13T10:56:12.162968+00:00",
+    "freezeSha256": "d0714380904bdf7a9e4be51a50e810918469925ba4d86a177d0109ad2d9515ce",
+    "rule": "New requests start in the current billing epoch. A new 402 cannot consume the same top-up authorization after a restart. Previously answered requests keep their recorded epoch and replay.",
+    "tests": "21 focused tests and TypeScript pass; no duplicate returned logical requests among 6439 returned requests audited"
   }
 }

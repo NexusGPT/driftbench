@@ -59,7 +59,9 @@ export function billingIdentity(base: CallIdentity, calls: readonly LedgerCall[]
   const same = calls.filter(({ identity: i }) => i.model === base.model && i.phase === base.phase &&
     i.item === base.item && i.contestant === base.contestant && i.sample === base.sample &&
     i.ordinal === base.ordinal && i.transportFingerprint === base.transportFingerprint && JSON.stringify(i.request) === request);
-  let epoch = Math.max(0, ...same.map((c) => c.identity.billingResume ?? 0));
+  // Fresh requests inherit this run's top-up epoch too. Otherwise a new 402
+  // at epoch zero could consume the same top-up authorization again on restart.
+  let epoch = same.length ? Math.max(0, ...same.map((c) => c.identity.billingResume ?? 0)) : authorizedEpoch ?? 0;
   const latest = same.filter((c) => (c.identity.billingResume ?? 0) === epoch)
     .sort((a, b) => (a.identity.transportAttempt ?? 0) - (b.identity.transportAttempt ?? 0)).at(-1);
   if (latest && isPrepaymentRejection(latest) && authorizedEpoch !== undefined && authorizedEpoch > epoch) epoch = authorizedEpoch;
