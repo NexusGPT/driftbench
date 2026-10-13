@@ -6,104 +6,95 @@
 | Seed | Level |
 |---|---|
 | 1 | 10 |
+| 2 | 11 |
+| 3 | 10 |
+| 4 | 10 |
+| 5 | 11 |
+| 6 | 11 |
+| 7 | 10 |
+| 8 | 11 |
+| 9 | 11 |
+| 10 | 10 |
+| 11 | 11 |
+| 12 | 11 |
+| 13 | 11 |
 <!-- level-table:end -->
 
-Owner pause checkpoint, journal iteration 9: source 3306a372 includes main a75645be and merged maintainer PR 128. The seed-1 comparison is level 7 to 10, 2360/2384 to 2383/2384. The score is 0.9995805369127517. Its improvement is credited to the upstream current-contract bank, not a new growth fix. The exact-file codemod preservation fix is committed with its red-first test; all seven codemod tests pass.
+Journal iteration 10 records the owner-stopped partial baseline at source e945dc9a8cd838169332166076538ebfc10c1286. Coverage is 13 of 21 seeds. Partial seed 14 is excluded. Seeds 14 through 20 and the hidden seed are unmeasured at this source. The source includes main 71c26039. This checkpoint claims no component-fix improvement.
 
-The paused stage completes 3 of 21 seeds at this source: seed 1 level 10, 2383/2384; seed 2 level 11, 2384/2384; seed 3 level 10, 2383/2384. Aggregate passing on every completed seed is 2383/2384. Teacher-forced growth fails seed 1 at 28.5 and seed 3 at 27.1, against the unchanged 25. All stale expectations pass on these completed seeds. Partial seed 4 is stopped and excluded. No remaining seed is inferred.
+| Seed | Passing |
+|---|---|
+| 1 | 2383/2384 |
+| 2 | 2384/2384 |
+| 3 | 2383/2384 |
+| 4 | 2383/2384 |
+| 5 | 2384/2384 |
+| 6 | 2384/2384 |
+| 7 | 2383/2384 |
+| 8 | 2384/2384 |
+| 9 | 2384/2384 |
+| 10 | 2382/2384 |
+| 11 | 2384/2384 |
+| 12 | 2384/2384 |
+| 13 | 2384/2384 |
 
-Evidence: /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/system-measurements/post-pr128-stage/report.json. The marked level table describes the journal's comparable seed 1; the separate three-seed stage does not invent before measurements for seeds 2 or 3.
+The bank has 2384 items. Across all 13 complete seeds, 2382 items pass every seed. Teacher-forced growth fails seeds 1, 3, 7 and 10; free-running growth fails seeds 4 and 10. Every other item passes these complete seeds. The unchanged growth bound is 25.
 
-Owner instruction: "alright man, let's pause it all for now." The owned sweep is stopped. No automatic resume or watcher is armed.
-
-
-Baseline on main a303a3f2 merged into codex/system-v3: bank version 5, 2384 items, 2355 passing, 29 failing, score 0.9878355704697986. Only seed 1 is complete. Do not extrapolate to other seeds. Older journals remain in journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl.
-
-Iteration 5 committed measurement: source e1d6cb6d (iteration 5, unused block cache keys), bank version 5, seed 1 level 7, 2362 of 2384 passing (score 0.9907718120805369). All scale items pass seed 1. The same source completes a five-seed stage, with levels 7,7,7,7,7 and 2359 of 2384 passing every completed seed (score 0.989513422818792). Coverage is 5 of 21 at this source, with no extrapolation. The journal compares seed 1 with the previous seed-1 result; the other four have no same-source before measurement. Older stages at different versions cannot be combined with this result.
-
-Iteration 6, source 5b628263: seed 1 stays level 7, with 2361/2384 passing (score 0.9903523489932886), 1 of 21 at this source. Free-running growth is 28.6 against 25; teacher-forced and replay pass. This result supersedes the seed-1 score above, not its separate five-seed coverage. The growth work remains incomplete.
-
-Latest committed measurement, iteration 7 source 796124a5: seed 1 stays level 7, 2361/2384 (score 0.9903523489932886), 1 of 21. Free-running growth is 25.3 against 25. The numeric-ref fix passes all 16 targeted registry tests and the unchanged seed-4 dataset/ref-forms item; no whole seed-4 result at this source is claimed.
-
-Post-main bace403d measurement at committed source 67f2ad09: seed 1 stays level 7, 2360/2384 (score 0.9899328859060402), 1 of 21. Its 22 stale expectations remain, with teacher-forced growth 31.4 and replay growth 30.3 against 25; free-running passes. This is a new source, not an extrapolation from iteration 7. Iteration 8 measures that registration candidate below.
-
-Latest committed measurement, iteration 8 source f4f70544: seed 1 stays level 7, 2360/2384 (score 0.9899328859060402), 1 of 21. Teacher-forced growth is 26.8 and replay growth 25.5 against 25; free-running passes. The registration fix removes the deterministic repeated template writes but does not clear either growth item.
+Evidence: /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/system-measurements/pr118-merge-e945dc9a/report.json, individual seed JSON files, source.json, progress.jsonl and stats-cache.jsonl. The sequential sweep uses a single statistics measurement cache and caps nested statistics workers at two. Cached reports retain the hashes of their fresh results. The baseline is stopped, not resumable as a fixed-code result.
 
 ## Floor
 
-This branch now includes the system v5 floor of 7 from main PR 143. Main c43c8e96 reaches level 7 on visible seeds 1 through 5 and commit-derived hidden seed 293302998: 6 of 21 stopping runs. That minimum justifies the owner-authorized initial system v5 floor of 7 in a separate main change. Further rises require all 21 seeds. Floor evidence is separate from this branch journal.
+System bank version 5 has floor 7. This executor does not change the floor. A floor increase requires a separate authorized change with all 21 measured seeds.
 
 ## Open items
 
-The last complete seed-1 report, at iteration 8 source f4f70544, has 22 stale expectations and two scale failures: teacher-forced and replay growth. Across the five-seed stage, free-running growth fails seed 3 at 30.5 and teacher-forced growth fails seed 4 at 38.6, against the unchanged bound of 25. That earlier seed 4 also fails claim/cli/dataset/ref-forms for numeric hash prefix 456042; iteration 7 fixes the cause and passes its targeted item. Replay growth passes all five completed seeds. The committed bank includes the five maintainer estate-item rewrites. The original baseline census is two real and 27 stale failures.
+The current branch has three separately committed component fixes after the partial baseline: suffix-only canonical registration (353ab983), short-circuit ledger evidence (dc65181b), and lazy ledger-history collection (1050ce7c). No full bank result is yet attributed to these changes.
 
-At iteration 8, stale expectations cover the report's two rate intervals, four MDE assertions, extract proposal validation and map counts, select and holdout fixture counts, four mixed-suite golden comparisons and the pilot example totals. The executor does not edit any of them. The bank maintainer re-derives each assertion from current code or docs and retains its strength.
+Five fresh Node 22.23.3 seed-2 repetitions after all three changes pass: 17.5835, 19.7989, 21.7793, 18.2166 and 13.4983. These are unchanged bank growth-item measurements, not complete seeds. Earlier broader core-suite runs still expose ratios 31.4 and 37.9, so CI and the final sweep remain acceptance evidence.
 
-The current golden suite has nine conversations and one price-sheet task. Its documented run requires `--route flow:price-sheet=process:acme-ops`. The stale comparison items omit that route. The holdout secrecy item fails its old sealed-count conjunct, not its leakage assertion: the measured leaked-ID list is empty.
+Main 086b6003, including PR 180's revert of PR 176, is merged as 7fca5894. The executor neither duplicates nor depends on the seed-7167 calibration change. Main's separate escalation.ts union type error awaits fix/escalation-ledger-union through PR 185. Do not patch that file here. The final sweep starts only after main is green and the five-repeat growth gate holds.
 
 ## Hypotheses tried
 
-The function adapter copies every prior message body on each send, and teacher-forced sessions copy their entire canonical prefix on open. Red-first tests reproduce unread message access and teacher-forced growth, including an 80 times measurement and a seed-2 measurement of 58.1 times.
+- Real cost: copying histories of 40, 400 and 4000 messages performs 40, 400 and 4000 template lookups, field definitions and message allocations. CPU noise does not explain those operation counts.
+- Timing noise: five fresh pre-fix Node 22 seed-2 ratios are 15.9927, 22.8549, 23.2232, 27.4063 and 17.5487. The spread crosses 25. Five Node 24 ratios are 21.9487, 22.5994, 9.1237, 15.1244 and 9.3676. Node 22 CI at e945dc9a fails the same item at 27.6.
+- Canonical registration: the red test sees 402 old/new message visits when a 400-message prefix grows by two. The committed fix visits only the two new messages. Public snapshots, prefix overrides, repeated/backward requests, mutable callbacks and structuredClone stay compatible. This change alone passes only four of five Node 22 repeats.
+- Ledger evidence: red tests read 80/800 content fields at history lengths 40/400. Current-contact replies need only the first older alternative, and replies without contact values need no history. Fixed reads are 2/2 and 0/0 respectively. Checked facts and contradiction order are preserved.
+- Runner history collection: red tests visit 1600/160000 message slots over 40/400 blocks for a reply needing no ledger history. A restartable iterable reduces both to zero. All 26 ledger and drift checks pass.
+- Rejected private experiments: literal message factories, bulk descriptor construction, and deferred nested-message slots do not establish CPU headroom. Deferred slots pass 79 compatibility tests but only two of five Node 22 growth repetitions. Those source/test edits are removed from the branch. The unchanged callback contract remains a mutable plain array.
 
-The committed snapshot fix preserves mutable `Message[]` callbacks and `structuredClone`: marked runner-owned prefixes can be borrowed; callbacks receive plain arrays that copy each message on first access. A read-only proxy is an explicit helper, never the callback default. The copy-only five-seed sweep completes 5 of 21 seeds, with levels 2, 2, 7, 2, 2 and 2351 of 2384 items passing every completed seed (score 0.9861577181208053). All three growth paths still fail at least one seed. A later compatibility test run also fails teacher-forced seed 2 at 29.5 times. Do not claim the history work complete before measurement.
-
-Profiling the remaining free-running growth identifies repeated native hash updates over the whole prefix. The cache-key head changes per block, so the incremental digest cannot reuse that head. A new red-first test verifies the unchanged canonical digest but observes 802 native updates for 800 messages. Bulk canonical-text hashing is committed as 0d1dda8f. It passes the exact-digest and native-update tests, but the whole seed-1 report still fails teacher-forced and replay growth. Iteration 3 precompiles only the two anchored non-global ledger contact patterns. Its red-first test observes 4004 constructions for 400 prior contacts, and the fix retains identical contradictions. The whole seed-1 report passes 2361/2384, with teacher-forced growth still 25.7 against 25.
-
-Iteration 4 commits the prefix-text implementation with packages/core/test/canonical-prefix-cost.test.ts and packages/core/test/mutable-list-hash.test.ts. Its red-first tests observe 402 cache lookups and an incorrect digest after a mutable array grows. Eleven hash, cache and growth tests pass after the fix. The full bank still has teacher-forced growth at 45.6 against 25, so the growth work is incomplete.
-
-Iteration 5 commits packages/core/test/runner/uncached-key-cost.test.ts with the conditional cache-key fix as e1d6cb6d. Two uncached-mode tests fail before the fix; all three cache-work cases pass afterward, including unchanged cached/replay key identity. A broader test run has 88 passing cases and a seed-2 growth failure at 25.4. The full five-seed bank accepts the same seed 2 timing, but the seed 3 and seed 4 failures above mean the history growth work remains incomplete.
+Earlier iterations and their source-specific scores remain in journal.jsonl, journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl. Their measurements cannot be combined with this partial baseline or the pending final sweep.
 
 ## Next actions
 
-1. Wait for the owner to resume. Read journal iteration 9, this handover and the complete git status first. The iteration-9 fresh handover test is due on resume. No seed sweep remains running.
-2. Continue the remaining teacher-forced growth cause from packages/core/src/contracts/history.ts and packages/core/src/runner/given.ts. Preserve mutable plain arrays and structuredClone compatibility. The rejected local object-literal candidate is not a cure. Keep the limit at 25 and reproduce it red before the next component fix.
-3. Freeze the source before finishing seeds 4 and 5 or restarting the first-five stage after another main merge. Report N of 21, keep versions separate and do not raise the floor without all 21 seeds. Run node tools/rename-scope.mjs, typecheck and lint after each main merge.
+1. Merge green current main after PR 185 lands. Keep both CHANGELOG sides. Run rename-scope, typecheck, lint and strict executor protection. Do not fix the upstream judge file here.
+2. Freeze the source and run one full sequential sweep of seeds 1 through 20 plus its commit-derived hidden seed, with nested statistics workers capped at two. Record all seed levels and pass counts. Do not restart the stopped baseline.
+3. Append the measured result to the journal, rewrite this handover, push PR 118, and verify every check is green and GitHub reports MERGEABLE. Log item defects here; never edit the bank or its limits.
 
 ## Pitfalls
 
-* No paid model calls, no git stash, no secrets, no bank edits. Commit trailer: Co-Authored-By: GPT-6.1 Sol (Codex) <noreply@openai.com>. <!-- guard:allow public commit attribution address -->
-* Vitest uses `--maxWorkers=2`; after each main merge run `node tools/rename-scope.mjs`, then typecheck and lint before pushing.
-* The owner stages sweeps: seed 1 plus four more first; report completed seeds as N of 21. Run remaining seeds only while time remains before 06:00 local. The work ends at 07:00 local or 100 percent.
-* Nested stats measurements are cached by stats revision and seed only within one sweep. Dirty stats/bank code measures fresh. Disclose cache use and verify fresh/cached report equality.
-* The scale bank times CPU and keeps the minimum of repeated timings. One green micro-run is insufficient when another run fails the bound.
-* The owner skips the local estate-floor rerun: 616 seconds against 600 seconds at host load 150 is judged by CI. Do not raise the timeout.
-* This branch includes main a75645be, including merged PR 128. The latest full bank measurement remains the separately stamped iteration 8 source; the merged head has not yet had a full bank measurement. The namespace codemod changes zero files; typecheck and lint pass before pushing. New pushes create fresh CI; cancelled runs are not rerun. The public commit-attribution address has a scoped guard:allow marker; keep it when editing this handover.
+- Never git stash, never print or commit keys, fictional data only, and no em or en dashes in repo prose.
+- Use 2>&1 for command diagnostics and vitest --maxWorkers=2. No simultaneous sweeps.
+- The CLI has no --jobs option. The owner confirms sequential execution. The external two-worker-sweep.mts wrapper caps nested workers without editing validator code.
+- Only validators/system/HANDOVER.md and appended journal.jsonl rows are authorized here. The CI protected-path list also covers validator source, fixtures, tests, floors, EXECUTOR.md, fault fixtures, statistics references and the validator workflow.
+- The journal schema requires measured before levels. Do not invent zeroes for seeds missing from the partial baseline. Report the complete final sweep separately from its comparable before/after seed subset.
+- Commit trailer: Co-Authored-By: GPT-6.1 Sol (Codex) <noreply@openai.com>. <!-- guard:allow public commit attribution address -->
 
 ## How to run
 
-```
-pnpm driftbench validate system --seed 1 --items --json > before.json
-pnpm driftbench validate system --seeds 1..5 --items --json > staged.json
-pnpm -s exec tsx packages/validators/src/ladders/system/journal-row.ts --before before.json --after staged.json --iteration <n> --hypothesis "<one cause>" --files a,b --commit <sha> --model codex > row.json
-pnpm driftbench validate system --journal row.json
-pnpm exec vitest run <tests> --maxWorkers=2
-pnpm typecheck
-pnpm lint
+```sh
+pnpm driftbench validate system --help 2>&1
+pnpm exec tsx <scratchpad>/system-measurements/two-worker-sweep.mts <new-output-folder> 2>&1
+pnpm exec vitest run <tests> --maxWorkers=2 2>&1
+node tools/rename-scope.mjs 2>&1
+pnpm typecheck 2>&1
+pnpm lint 2>&1
+pnpm -s driftbench validate protect --branch exec/system-safety-check --base origin/main 2>&1
+pnpm driftbench validate system --check-handover 2>&1
 ```
 
-The journal-row helper's default command names the full 21-seed sweep. Correct that field to the command actually run before appending a partial-sweep row. Never claim unmeasured seeds.
+The wrapper delegates to the unchanged SDK runSeeds full-bank path for each seed, records source identity before/after each seed, and writes individual and aggregate reports. Set DRIFTBENCH_STATS_SWEEP_LOG to the output folder's stats-cache.jsonl to retain cache evidence. The source must stay frozen during the sweep.
 
 ## Fixtures
 
-The unchanged bank is packages/validators/src/ladders/system/bank. Its manifest is packages/validators/fixtures/system/bank-manifest.json. The maintainer alone changes items and regenerates the manifest. The executor changes component source, tests, docs, research, journal and this handover.
-
-
-## Local work, not pushed
-
-No uncommitted repository paths remain after this handover commit. Before each later handover push, compare the complete git status with this inventory and mark every remaining path local, not pushed.
-
-Rejected ordinary role/content object-literal candidate, local, not pushed: the following files are private snapshots, outside the repository. The expanded red-first Node 22 growth test fails seeds 2, 3 and 4 before the candidate. After it, seed 2 still fails at 38.5 against 25; 417 tests pass and 36 skip. The repository source and tests are restored to the committed versions, so no iteration 9 fix or bank score is claimed.
-
-* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/system-measurements/rejected-role-content/packages/core/src/contracts/history.ts, local, not pushed.
-* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/system-measurements/rejected-role-content/packages/core/test/history-fields.test.ts, local, not pushed.
-* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/system-measurements/rejected-role-content/packages/core/test/runner/history-growth.test.ts, local, not pushed.
-
-## Pull requests, as of
-
-As of 2026-10-13 06:27 CEST: GitHub reports PR 118 open and draft at c36468ca, targeting main; Node 22, Node 24 and validators CI are in progress. Its body records previous head 415d0ee4 Node 22 failures at packages/core/test/runner/history-growth.test.ts:14:70: seed 1 growth 25.7 and seed 2 growth 32.3 against 25. PR 128 is open at df42a5b4, targeting main; it includes main 64cc35e8, the namespace codemod, passing typecheck and lint, and a fresh CI run on the capped command. PRs 130, 137, 139, 140, 143, 149 and 150 are merged. These are dated GitHub observations, not journal results. Recheck current heads and CI before acting.
-
-As of 2026-10-13 06:28 CEST: separate main PR 159 is open at afce297d with queued CI. It extracts only the bank maintainer PR 128 clustered interval oracle correction, at the owner's urgent request after PR 152 fails on main. Both items reproduce exactly on main seeds 1, 2 and 3; four red seeded test cases include hidden seed 692104744. Eight tests pass after the correction, including interval-only mutations and report coverage tests; typecheck and lint pass. No system bank seed sweep is claimed by those targeted tests. The executor branch bank stays untouched.
-
-As of 2026-10-13 06:38 CEST: PR 128 is merged, after all checks pass. Its system floor test runs in 66.381 seconds on Node 22 and 81.733 seconds on Node 24, under the unchanged 600-second limit. The pending current-source measurement is restarted after the main merge; the interrupted pre-merge partial seed counts as zero completed seeds.
-
-As of 2026-10-13 06:57 CEST: the owner pauses all work. PR 128 and PR 159 are merged with all checks green. PR 118 is draft at 3306a372; its latest CI is in progress. PR 161 is open with CI in progress for the required codemod preservation fix. Its source is also committed on this branch. The pending pause-state commit contains this handover and journal row only; no uncommitted component work remains after that commit.
+The bank is packages/validators/src/ladders/system/bank. Its manifest is packages/validators/fixtures/system/bank-manifest.json. Only the maintainer changes either. Incoming main changes are retained by merging; the executor adds no edits under protected paths.
