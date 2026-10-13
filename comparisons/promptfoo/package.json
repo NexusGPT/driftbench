@@ -1,0 +1,9 @@
+{
+  "name": "promptfoo-comparison",
+  "private": true,
+  "type": "module",
+  "description": "Installs the competitor (promptfoo, MIT) for the comparison scripts in this folder. Not part of the driftbench packages.",
+  "dependencies": {
+    "promptfoo": "0.124.1"
+  }
+}

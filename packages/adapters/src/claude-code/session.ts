@@ -198,6 +198,8 @@ type PendingCall = { call: ToolCall; at?: string; line: number };
 class BlockBuilder {
   /** The tools the runtime offered in this block, from the last init record; undefined when none was seen. */
   offered?: string[];
+  /** The stop reason of the last model message in the block, as the transcript records it. */
+  finishReason?: string;
   readonly segments: Segment[] = [];
   readonly texts: string[] = [];
   readonly toolCalls: ToolCall[] = [];
@@ -397,6 +399,7 @@ export function mapSession(input: SessionInput): ReplaySession {
       }
       block.touch(line, at);
       const message = isRecord(record.message) ? record.message : {};
+      if (typeof message.stop_reason === 'string') block.finishReason = message.stop_reason;
       const usage = isRecord(message.usage) ? message.usage : undefined;
       if (usage) {
         const id = typeof message.id === 'string' ? message.id : `anonymous-${anonymous++}`;
@@ -568,6 +571,7 @@ export function mapSession(input: SessionInput): ReplaySession {
       ...(meta.steps ? { stages: block.stages } : {}),
       // Absent, never empty, when no init record named the offered tools: the check is then inconclusive.
       ...(block.offered === undefined ? {} : { offered: [...block.offered] }),
+      ...(block.finishReason === undefined ? {} : { finishReason: block.finishReason }),
     };
     const diff =
       treeDiff && index === builders.length - 1
