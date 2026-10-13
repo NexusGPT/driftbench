@@ -155,7 +155,13 @@ describe('tracesFromOtel: edge cases', () => {
     );
     const [trace, other] = traces;
     expect(trace?.turns[0]?.observed.toolCalls).toEqual([
-      { label: 'lookup', input: {}, error: 'timeout', startedAt: '1970-01-01T00:00:10.500Z', latencyMs: 100 },
+      {
+        label: 'lookup',
+        input: null,
+        error: 'timeout',
+        startedAt: '1970-01-01T00:00:10.500Z',
+        latencyMs: 100,
+      },
     ]);
     expect(other).toBeUndefined();
     expect(trace?.issues).toEqual([]);

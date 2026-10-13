@@ -64,6 +64,8 @@ export type JudgeRequest = {
   readonly assessment?: Assessment;
   /** Candidate texts for validating content-anchored winners. */
   readonly candidates?: { readonly A: string; readonly B: string };
+  /** Pairwise presentation policy, included in cassette identity. Absent means both orders. */
+  readonly presentation?: 'both-orders' | 'canonical';
   readonly factAudit?: { readonly reference: string };
   readonly criterion: CriterionText;
   /** The system prompt of this request. Absent: the criterion prompt of the prompt kit. */

@@ -245,7 +245,7 @@ export function toolExpect(
     value: {
       label,
       count: count ?? 1,
-      ...(filled?.ok ? { input: filled.value } : {}),
+      ...(filled?.ok ? { input: filled.value, input_closed: true } : {}),
     },
   };
 }

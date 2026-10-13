@@ -20,6 +20,7 @@ Node.js 22 or newer. ESM only, with TypeScript types.
 * `createCustomCheck`
 * `createLangCheck`
 * `createSimilarityCheck`
+* `statedLength` (opt-in) and `preferByStatedLength`
 * `scanPii`
 
 The full list of exports is in the type declarations (`dist/index.d.ts`).
