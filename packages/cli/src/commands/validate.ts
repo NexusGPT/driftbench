@@ -210,8 +210,11 @@ export async function validateCommand(
   if (hidden?.note && !options.json) io.out(`Note: ${hidden.note}\n`);
   const reports: LadderReport[] = [];
   for (const ladder of chosen) {
+    const floor = options.checkFloor ? floorOf(floors, ladder.component, ladderVersion(ladder)) : 0;
     const report = await runSeeds(ladder, seedSpecs(visible, hidden), root, {
       full: Boolean(options.items || options.allLevels),
+      // Invalid floors keep the existing checkFloors diagnostic instead of throwing in runLadder.
+      ...(floor > 0 && floor <= ladder.levels.length ? { maxLevel: floor } : {}),
     });
     reports.push(options.blind ? blindReport(report) : report);
   }
