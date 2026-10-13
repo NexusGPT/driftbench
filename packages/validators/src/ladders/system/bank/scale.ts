@@ -26,7 +26,7 @@ import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { SYSTEM_COMPONENTS } from '../components';
 import { type Behaviour, followerReply } from '../plant';
-import { measureGrowth } from './growth';
+import { measureGrowth, VISIT_GROWTH_BOUND } from './growth';
 import {
   type BankItem,
   type Draft,
@@ -52,7 +52,8 @@ import {
  * Level 11: scale (section 12.2, item 4). Each subject runs at one, ten and a hundred times a base size. At
  * every size the answer must be the planted one; and the time from ten to a hundred times must grow at most
  * GROWTH_BOUND times (linear growth is ten; a quadratic path is a hundred), with the largest size under its
- * budget. Correct and slow is a failing item.
+ * budget. Correct and slow is a failing item. The subject whose size is the length of the history takes its
+ * growth from `growth.ts`, which counts the work before it times it.
  */
 
 export const GROWTH_BOUND = 25;
@@ -77,7 +78,8 @@ type Subject = {
   component: string;
   /**
    * True for the subject whose size is the length of the history the agent is given. Its growth item reads
-   * the growth measure of `growth.ts`.
+   * the growth measure of `growth.ts`: a count of message visits against the linear law, and the best CPU
+   * time of many runs against GROWTH_BOUND, in place of one timing over the best of three.
    */
   history?: boolean;
   run(seed: number, size: number): Promise<ItemResult>;
@@ -586,7 +588,9 @@ export function scaleItems(): BankItem[] {
       level: 11,
       component: subject.component,
       source: 'scale',
-      title: `${subject.name}: the time from ten to a hundred times the size grows at most ${GROWTH_BOUND} times`,
+      title: subject.history
+        ? `${subject.name}: from ten to a hundred times the size, the message visits grow at most ${VISIT_GROWTH_BOUND} times and the best CPU time at most ${GROWTH_BOUND} times`
+        : `${subject.name}: the time from ten to a hundred times the size grows at most ${GROWTH_BOUND} times`,
       async check({ seed }) {
         if (subject.history) {
           const growth = await measureGrowth((size) => subject.run(seed, size), subject.base, {
