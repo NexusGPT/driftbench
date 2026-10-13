@@ -37,8 +37,8 @@ describe('the Acme map proposal', () => {
       dimensions: 51,
       constraints: 111,
       phrases: 55,
-      relations: 73,
-      total: 290,
+      relations: 74,
+      total: 291,
       approved: 0,
     });
     expect(counts.valuesApproved).toBe(0);
@@ -183,7 +183,7 @@ describe('the Acme map proposal', () => {
     const flipped = approveAll(proposal.text);
     if (!flipped.ok) throw new Error('cannot approve');
     expect(approved.text).toBe(flipped.text);
-    expect(countEntries(approved.proposal)).toMatchObject({ total: 290, approved: 290, valuesApproved: 184 });
+    expect(countEntries(approved.proposal)).toMatchObject({ total: 291, approved: 291, valuesApproved: 184 });
   });
 
   it('gives the space commands a map of seven axes they accept, written in space.yaml', async () => {

@@ -13,6 +13,7 @@ import {
   tupleValues,
 } from '@agent-nexus/driftbench-space';
 import { stringify } from 'yaml';
+import { seedFolderName } from '../families/instances';
 import {
   NO_THEN_CRITERION,
   PLACEHOLDER_CRITERION,
@@ -91,7 +92,8 @@ export type GenerateOptions = {
   tasks?: TaskInput[];
 };
 
-export type GeneratedFile = { path: string; text: string };
+/** A file the suite writes: text, or bytes for a seed file that is not text (then `text` is empty). */
+export type GeneratedFile = { path: string; text: string; bytes?: Uint8Array };
 
 export type SeederTotals = {
   specs: number;
@@ -312,7 +314,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     "# A task family's oracle wrote the Then before any agent ran; this file places it in the map's space.",
     '# Do not edit it by hand: change the family or the map and generate again. Fictional data only.',
   ].join('\n');
-  for (const { id, spec } of taskSpecs(prepared, options.tasks ?? [], run)) {
+  for (const { id, spec, seed: workspace } of taskSpecs(prepared, options.tasks ?? [], run)) {
     const renderText = () => `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
     const text = options.specCap === undefined ? renderText() : '';
     if (options.specCap !== undefined) cappedText.set(id, renderText);
@@ -329,6 +331,15 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     complete.push(loaded.spec);
     keep('task', loaded.spec);
     files.push({ path: `${COMPLETE_DIR}/task/${id}.yaml`, text });
+    // A workspace with a file that is not text starts from a folder: written beside the spec, as
+    // `driftbench family instances` writes it (families/instances.ts seedFolderName).
+    if (workspace) {
+      const folder = `${COMPLETE_DIR}/task/${seedFolderName(id)}`;
+      for (const [path, content] of Object.entries(workspace.text).sort(([a], [b]) => a.localeCompare(b)))
+        files.push({ path: `${folder}/${path}`, text: content });
+      for (const [path, content] of Object.entries(workspace.binary).sort(([a], [b]) => a.localeCompare(b)))
+        files.push({ path: `${folder}/${path}`, text: '', bytes: content });
+    }
   }
 
   // The cover seeder: one scenario per allowed cell still uncovered, skipping a cell an earlier cover spec

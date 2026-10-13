@@ -4,10 +4,10 @@
     "path": "../map/approved.yaml",
     "agent": "acme",
     "version": "1",
-    "hash": "0f897ba84410",
+    "hash": "7c05b9cee9cc",
     "dimensions": 51,
     "values": 187,
-    "constraints": 471,
+    "constraints": 463,
     "phrases": 55
   },
   "options": {
@@ -16,9 +16,9 @@
     "max": null
   },
   "summary": {
-    "specs": 378,
-    "blocks": 1492,
-    "complete": 303,
+    "specs": 411,
+    "blocks": 1516,
+    "complete": 336,
     "incomplete": 75
   },
   "seeders": {
@@ -30,8 +30,8 @@
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 146,
-        "pielou": 0.941131171384,
+        "hill_q0": 163,
+        "pielou": 0.948065939882,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -58,8 +58,8 @@
       "needs_then": 15,
       "cut": false,
       "measures": {
-        "hill_q0": 130,
-        "pielou": 0.959520190334,
+        "hill_q0": 128,
+        "pielou": 0.956431785228,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -72,8 +72,8 @@
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 199,
-        "pielou": 0.918741647729,
+        "hill_q0": 200,
+        "pielou": 0.91810102424,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -87,21 +87,21 @@
       "cut": false,
       "measures": {
         "hill_q0": 203,
-        "pielou": 0.92730545119,
+        "pielou": 0.928619223726,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
     },
     "task": {
-      "specs": 34,
-      "blocks": 47,
-      "complete": 34,
+      "specs": 67,
+      "blocks": 71,
+      "complete": 67,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 41,
-        "pielou": 0.950144175089,
+        "hill_q0": 48,
+        "pielou": 0.95165704041,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -115,7 +115,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 318,
-        "pielou": 0.90337659112,
+        "pielou": 0.903779691578,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -262,15 +262,10 @@
     "cells": 29,
     "covered": 29,
     "unbuilt": [],
-    "unreachable": [
-      {
-        "dimension": "workspace_start",
-        "value": "existing-workbook"
-      }
-    ]
+    "unreachable": []
   },
   "constraints": {
-    "applied": 471,
+    "applied": 463,
     "list": [
       {
         "forbid": {
@@ -2227,24 +2222,10 @@
       },
       {
         "forbid": {
-          "behaviour": "B-013",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries behaviour=B-013 with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
           "behaviour": "B-014",
           "workspace_start": "none"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-014 with workspace_start=none"
-      },
-      {
-        "forbid": {
-          "behaviour": "B-014",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries behaviour=B-014 with workspace_start=existing-workbook"
       },
       {
         "forbid": {
@@ -2780,13 +2761,6 @@
       },
       {
         "forbid": {
-          "deviation": "none",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries deviation=none with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
           "deviation": "D1_off_topic",
           "workspace_start": "catalog-only"
         },
@@ -2945,20 +2919,6 @@
           "workspace_start": "existing-workbook"
         },
         "reason": "derived from the relations: no approved path carries deviation=D12_prompt_extraction with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
-          "channel": "chat",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries channel=chat with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
-          "channel": "whatsapp",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries channel=whatsapp with workspace_start=existing-workbook"
       },
       {
         "forbid": {
@@ -3438,13 +3398,6 @@
       },
       {
         "forbid": {
-          "stage": "add_summary",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries stage=add_summary with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
           "user_type": "existing-customer",
           "coverage_result": "no-service"
         },
@@ -3498,20 +3451,6 @@
           "workspace_start": "existing-workbook"
         },
         "reason": "derived from the relations: no approved path carries user_type=new-customer with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
-          "user_type": "sales-operations",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries user_type=sales-operations with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
-          "coverage_result": "none",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries coverage_result=none with workspace_start=existing-workbook"
       },
       {
         "forbid": {
@@ -4122,18 +4061,18 @@
     "actual": [
       {
         "t": 2,
-        "specs": 303,
-        "allowed": 701,
-        "covered": 701,
+        "specs": 336,
+        "allowed": 708,
+        "covered": 708,
         "share": 1,
         "uncovered": []
       },
       {
         "t": 3,
-        "specs": 303,
-        "allowed": 4044,
-        "covered": 2871,
-        "share": 0.7099406528189911,
+        "specs": 336,
+        "allowed": 4064,
+        "covered": 2885,
+        "share": 0.7098917322834646,
         "uncovered": [
           {
             "behaviour": "B-002",
@@ -4573,7 +4512,7 @@
           {
             "behaviour": "B-009",
             "deviation": "D7_silence_or_burst",
-            "channel": "whatsapp"
+            "channel": "chat"
           },
           {
             "behaviour": "B-009",
@@ -9028,6 +8967,11 @@
           {
             "deviation": "D1_off_topic",
             "channel": "chat",
+            "stage": "identify"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "chat",
             "stage": "port_number"
           },
           {
@@ -9038,17 +8982,17 @@
           {
             "deviation": "D1_off_topic",
             "channel": "chat",
+            "stage": "recap"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "chat",
             "stage": "order_placed"
           },
           {
             "deviation": "D1_off_topic",
             "channel": "chat",
             "stage": "handover"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "channel": "whatsapp",
-            "stage": "identify"
           },
           {
             "deviation": "D1_off_topic",
@@ -9058,22 +9002,27 @@
           {
             "deviation": "D1_off_topic",
             "channel": "whatsapp",
-            "stage": "recap"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "channel": "whatsapp",
             "stage": "callback"
           },
           {
             "deviation": "D5_language_switch",
-            "channel": "whatsapp",
+            "channel": "chat",
+            "stage": "identify"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "chat",
             "stage": "port_number"
           },
           {
             "deviation": "D5_language_switch",
-            "channel": "whatsapp",
+            "channel": "chat",
             "stage": "details"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "chat",
+            "stage": "closing"
           },
           {
             "deviation": "D5_language_switch",
@@ -9083,7 +9032,17 @@
           {
             "deviation": "D5_language_switch",
             "channel": "whatsapp",
+            "stage": "callback"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp",
             "stage": "handover"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat",
+            "stage": "port_number"
           },
           {
             "deviation": "D6_instruction_in_data",
@@ -9092,13 +9051,13 @@
           },
           {
             "deviation": "D6_instruction_in_data",
-            "channel": "chat",
-            "stage": "handover"
+            "channel": "whatsapp",
+            "stage": "recap"
           },
           {
             "deviation": "D6_instruction_in_data",
             "channel": "whatsapp",
-            "stage": "recap"
+            "stage": "handover"
           },
           {
             "deviation": "D10_return",
@@ -9109,11 +9068,6 @@
             "deviation": "D10_return",
             "channel": "whatsapp",
             "stage": "details"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
-            "channel": "chat",
-            "stage": "port_number"
           },
           {
             "deviation": "D7_silence_or_burst",
@@ -9124,6 +9078,11 @@
             "deviation": "D7_silence_or_burst",
             "channel": "chat",
             "stage": "closing"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp",
+            "stage": "port_number"
           },
           {
             "deviation": "D7_silence_or_burst",
@@ -9143,6 +9102,11 @@
           {
             "deviation": "D9_out_of_scope",
             "channel": "chat",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "chat",
             "stage": "handover"
           },
           {
@@ -9153,12 +9117,12 @@
           {
             "deviation": "D9_out_of_scope",
             "channel": "whatsapp",
-            "stage": "port_number"
+            "stage": "callback"
           },
           {
             "deviation": "D9_out_of_scope",
             "channel": "whatsapp",
-            "stage": "callback"
+            "stage": "closing"
           },
           {
             "deviation": "D11_pii_leak",
@@ -9212,13 +9176,13 @@
           },
           {
             "deviation": "D12_prompt_extraction",
-            "channel": "chat",
+            "channel": "whatsapp",
             "stage": "handover"
           },
           {
             "deviation": "D1_off_topic",
-            "channel": "chat",
-            "coverage_result": "no-service"
+            "channel": "whatsapp",
+            "coverage_result": "fiber"
           },
           {
             "deviation": "D1_off_topic",
@@ -9226,22 +9190,22 @@
             "coverage_result": "not-in-map"
           },
           {
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
+            "coverage_result": "5g-only"
+          },
+          {
             "deviation": "D8_tool_failure",
             "channel": "chat",
             "coverage_result": "not-in-map"
           },
           {
             "deviation": "D8_tool_failure",
-            "channel": "whatsapp",
-            "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D10_return",
-            "channel": "whatsapp",
-            "coverage_result": "no-service"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
             "channel": "whatsapp",
             "coverage_result": "fiber"
           },
@@ -9253,17 +9217,22 @@
           {
             "deviation": "D9_out_of_scope",
             "channel": "whatsapp",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp",
             "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "channel": "chat",
+            "coverage_result": "fiber"
           },
           {
             "deviation": "D11_pii_leak",
             "channel": "whatsapp",
             "coverage_result": "not-in-map"
-          },
-          {
-            "deviation": "D12_prompt_extraction",
-            "channel": "chat",
-            "coverage_result": "no-service"
           },
           {
             "deviation": "D12_prompt_extraction",
@@ -10004,33 +9973,33 @@
       }
     ],
     "t": 2,
-    "allowed": 701,
+    "allowed": 708,
     "complete": {
       "t": 2,
-      "specs": 303,
-      "allowed": 701,
-      "covered": 701,
+      "specs": 336,
+      "allowed": 708,
+      "covered": 708,
       "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 378,
-      "allowed": 701,
-      "covered": 701,
+      "specs": 411,
+      "allowed": 708,
+      "covered": 708,
       "share": 1
     },
     "measures": {
-      "discovery": 0.014603899812352125,
-      "chao_coverage": 0.9853968856506081,
-      "chao1": 972.5117449316406,
-      "hill_q0": 701,
-      "hill_q1": 278.602223428516,
-      "hill_q2": 167.18920816793462,
-      "pielou": 0.859180200786,
-      "t3_share": 0.7099406528189911,
-      "t3_allowed": 4044,
-      "weighted_share": 0.999999999999907,
-      "effective_sample_size": 225.278445645979,
+      "discovery": 0.013672471738466238,
+      "chao_coverage": 0.9863281583839363,
+      "chao1": 1004.653265069989,
+      "hill_q0": 708,
+      "hill_q1": 284.15369735081,
+      "hill_q2": 175.32924164682183,
+      "pielou": 0.860885852735,
+      "t3_share": 0.7098917322834646,
+      "t3_allowed": 4064,
+      "weighted_share": 0.999999999999909,
+      "effective_sample_size": 225.84353227331476,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,
@@ -10039,7 +10008,7 @@
       "axis_stage": 13,
       "axis_user_type": 3,
       "axis_coverage_result": 5,
-      "axis_workspace_start": 2,
+      "axis_workspace_start": 3,
       "machine_then_share": 1,
       "judged_only_blocks": 0
     },
@@ -10047,9 +10016,9 @@
       "label": "examples/acme/specs",
       "t": 2,
       "specs": 7,
-      "allowed": 701,
+      "allowed": 708,
       "covered": 237,
-      "share": 0.33808844507845937
+      "share": 0.3347457627118644
     }
   },
   "invalid": [],

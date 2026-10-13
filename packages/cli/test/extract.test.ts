@@ -437,7 +437,7 @@ describe('driftbench extract map', () => {
     expect(err).not.toContain('over the limit');
     expect(code).toBe(1);
     expect(out.split('\n')[0]).toBe(
-      'Map acme, version 1: 7 dimensions, 212940 cells, 388 constraints, prior uniform (no weight declared)',
+      'Map acme, version 1: 7 dimensions, 212940 cells, 380 constraints, prior uniform (no weight declared)',
     );
   });
 });
