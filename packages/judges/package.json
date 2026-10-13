@@ -45,7 +45,8 @@
     "@agent-nexus/driftbench-stats": "workspace:*",
     "@agent-nexus/driftbench-artifacts": "workspace:*",
     "zod": "^4.6.5",
-    "yaml": "^2.9.1"
+    "yaml": "^2.9.1",
+    "@agent-nexus/driftbench-checks": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

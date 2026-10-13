@@ -3,6 +3,8 @@ import type { ClientOptions, JudgeClient } from '../client';
 import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS } from '../contract';
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
+import { googleResponseSchema, isPairLedgerRequest, JUDGE_DIALECTS, withJudgeDialect } from './dialects';
+import { buildDialectRequest } from './transport';
 
 /**
  * The system 2 judges: chat models that read the rubric and the data and answer the contract as JSON.
@@ -49,25 +51,39 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
     family: 'openai',
     cls: 'system2',
     model,
+    dialect: JUDGE_DIALECTS.openai.id,
+    ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     cost: options.cost ?? CHAT_COST,
-    async judge(request) {
+    async judge(original) {
+      const request = withJudgeDialect(original, JUDGE_DIALECTS.openai.id, options.reasoning);
+      const reasoning = request.reasoning ?? options.reasoning;
       const prompt = buildPrompt(request);
+      const ledgerPayload = isPairLedgerRequest(request)
+        ? buildDialectRequest('openai', { ...prompt, schema: responseSchema(request), reasoning }).payload
+        : undefined;
       const payload = await postJson(
         url,
         { authorization: `Bearer ${key}` },
-        {
-          model,
-          max_completion_tokens: budgetOf(request),
-          temperature: 0,
-          response_format: {
-            type: 'json_schema',
-            json_schema: { name: 'judge_answer', strict: false, schema: responseSchema(request) },
-          },
-          messages: [
-            { role: 'system', content: prompt.system },
-            { role: 'user', content: prompt.user },
-          ],
-        },
+        ledgerPayload
+          ? { model, max_completion_tokens: budgetOf(request), temperature: 0, ...ledgerPayload }
+          : {
+              model,
+              max_completion_tokens: budgetOf(request),
+              temperature: 0,
+              ...(reasoning === undefined ? {} : { reasoning_effort: reasoning }),
+              response_format: {
+                type: 'json_schema',
+                json_schema: {
+                  name: 'judge_answer',
+                  strict: isPairLedgerRequest(request),
+                  schema: responseSchema(request),
+                },
+              },
+              messages: [
+                { role: 'system', content: prompt.system },
+                { role: 'user', content: prompt.user },
+              ],
+            },
         options,
       );
       const choice = isRecord(payload) && Array.isArray(payload.choices) ? payload.choices[0] : undefined;
@@ -103,19 +119,26 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
     family: 'anthropic',
     cls: 'system2',
     model,
+    dialect: JUDGE_DIALECTS.anthropic.id,
     cost: options.cost ?? CHAT_COST,
-    async judge(request) {
+    async judge(original) {
+      const request = withJudgeDialect(original, JUDGE_DIALECTS.anthropic.id);
       const prompt = buildPrompt(request);
+      const ledgerPayload = isPairLedgerRequest(request)
+        ? buildDialectRequest('anthropic', prompt).payload
+        : undefined;
       const payload = await postJson(
         url,
         { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-        {
-          model,
-          max_tokens: budgetOf(request),
-          temperature: 0,
-          system: prompt.system,
-          messages: [{ role: 'user', content: prompt.user }],
-        },
+        ledgerPayload
+          ? { model, max_tokens: budgetOf(request), temperature: 0, ...ledgerPayload }
+          : {
+              model,
+              max_tokens: budgetOf(request),
+              temperature: 0,
+              system: prompt.system,
+              messages: [{ role: 'user', content: prompt.user }],
+            },
         options,
       );
       const raw = JSON.stringify(payload);
@@ -154,22 +177,41 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
     family: 'google',
     cls: 'system2',
     model,
+    dialect: JUDGE_DIALECTS.google.id,
+    ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     cost: options.cost ?? CHAT_COST,
-    async judge(request) {
+    async judge(original) {
+      const request = withJudgeDialect(original, JUDGE_DIALECTS.google.id, options.reasoning);
+      const reasoning = request.reasoning ?? options.reasoning;
       const prompt = buildPrompt(request);
+      const ledgerPayload = isPairLedgerRequest(request)
+        ? buildDialectRequest('google', { ...prompt, schema: responseSchema(request), reasoning }).payload
+        : undefined;
       const payload = await postJson(
         url,
         { 'x-goog-api-key': key },
-        {
-          systemInstruction: { parts: [{ text: prompt.system }] },
-          contents: [{ role: 'user', parts: [{ text: prompt.user }] }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            responseSchema: googleSchema(responseSchema(request)),
-            maxOutputTokens: budgetOf(request),
-            temperature: 0,
-          },
-        },
+        ledgerPayload
+          ? {
+              ...ledgerPayload,
+              generationConfig: {
+                ...(isRecord(ledgerPayload.generationConfig) ? ledgerPayload.generationConfig : {}),
+                maxOutputTokens: budgetOf(request),
+                temperature: 0,
+              },
+            }
+          : {
+              systemInstruction: { parts: [{ text: prompt.system }] },
+              contents: [{ role: 'user', parts: [{ text: prompt.user }] }],
+              generationConfig: {
+                responseMimeType: 'application/json',
+                responseSchema: isPairLedgerRequest(request)
+                  ? googleResponseSchema(responseSchema(request))
+                  : googleSchema(responseSchema(request)),
+                maxOutputTokens: budgetOf(request),
+                temperature: 0,
+                ...(reasoning === undefined ? {} : { thinkingConfig: { thinkingLevel: reasoning } }),
+              },
+            },
         options,
       );
       const raw = JSON.stringify(payload);
