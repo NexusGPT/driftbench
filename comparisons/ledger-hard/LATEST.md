@@ -9,3 +9,5 @@ The owner now limits the combined primary and dialect runs to four calls total. 
 Sources and original seals stay fixed. Execution amendments describe only operational changes. `resume.py` writes each answer durably before releasing its worker. No answered call is retried. Unanswered transport failures receive up to three attempts with 10/30-second backoff.
 
 The combined USD 10 cap includes measured usage, the USD 0.40 lost-attempt reserve, and reservations for active calls. Only the two owner-named API key files are used, read inside each worker.
+
+Later quota amendment: Gemini is limited to two calls, within the combined four-call cap. HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota retries remain pending, never scored as judge failures. This overrides the general three-attempt rule for HTTP 429 only.

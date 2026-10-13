@@ -19,6 +19,7 @@ def main():
     primary_text=primary_text.replace('| gemini-3.8-flash | All rows | 0/1536 | pending | pending | | | | | Pending billing |',
         '| gemini-3.8-flash | Original primary | Not run | | | | | | | See the three-model dialect variant |')
     primary_text=primary_text.replace('transport failures; measured spend','final unsuccessful responses; measured spend')
+    primary_text=primary_text.replace('Owner-authorized unanswered transport retries use at most three attempts with 10/30-second backoff and at most two concurrent Luna calls. All failed attempts remain recorded.', 'Unanswered transport retries follow the operational amendments above. All failed attempts remain recorded.')
     variant_text=(HERE/'dialect/REPORT.md').read_text().replace('final transport failures.', 'final unsuccessful responses.')
     lines=['# Ledger hard-row dossier','',f'Final recording analysis generated {stamp()}. All case and result counts come from the linked files in `comparisons/ledger-hard/`.','',
        f'- Full sealed coverage: 384 cases per row, 1,536 per model; two primary models and three dialect models.',
@@ -47,16 +48,17 @@ def main():
     for x in recovery['items']:lines.append(f'| {x["experiment"]} | {x["model"]} | {x["id"]} | {x["side"]} | `{x["request_sha256"]}` |')
     lines+=['',
        'On the later owner instruction, existing workers drained naturally before the combined concurrency changed to four. `concurrency-amendment.json` records this boundary. Independent rotating queues prevent a blocked provider from holding the Haiku queue. Luna transport failures above 5% over 50 attempts reduce its dialect limit from four to two, within the combined four-call cap. All transport attempts and backoffs remain recorded; content is never retried.','',
+       'Gemini is capped at two calls under the combined four-call limit. HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota retries remain pending and unscored, never judge failures. Other unanswered transport failures use at most three attempts with 10/30-second waits. `quota-amendment.json` records this later owner instruction. Unanswered attempts have no reported usage; measured cost excludes unreported charges.','',
        'Primary Luna keeps provider-default reasoning for both contestants and omits temperature. The API does not report which reasoning setting that default resolves to. Dialect Luna and Gemini use medium for both contestants. Haiku exposes no reasoning control in this harness.','',
        '## Native parity and verification','',
        '`verification-final.json` proves complete coverage, unique scored keys, disjoint experiment keys, exact goal labels, original payload non-overlap, immutable source hashes, registered crash re-asks, resolved model IDs and the budget. `peer-decoder-parity.mts` replays every successful peer answer through the pinned native verdict functions, including the native YAML fallback. `trajectory-parity.mts` checks all 384 goal summaries against the pinned helper.','',
        '| Experiment | Unique calls | Native peer answers checked | Final unsuccessful calls | Measured USD |','|---|---:|---:|---:|---:|']
     for experiment,p in proof['experiments'].items():lines.append(f'| {experiment} | {p["recorded_unique"]}/{p["planned_unique"]} | {p["native_peer_decodes"]} | {p["final_failed_calls"]} | {p["measured_usd"]:.8f} |')
     lines+=['',
-       'Ten focused protocol/recovery tests pass. Every raw response and usage record remains in the journals. Haiku cache creation and cache reads are separate from ordinary input tokens in `verification-final.json`; CLI-reported cost is authoritative. The peer native YAML dependency is the pinned js-yaml 5.4.2 bundle, with npm integrity and upstream provenance under `native-validation/`. No node_modules directory is copied.','',
+       'Focused protocol/recovery tests pass; `test-output.txt` retains the test result. Every raw response and usage record remains in the journals. Haiku cache creation and cache reads are separate from ordinary input tokens in `verification-final.json`; CLI-reported cost is authoritative. The peer native YAML dependency is the pinned js-yaml 5.4.2 bundle, with npm integrity and upstream provenance under `native-validation/`. No node_modules directory is copied.','',
        '## Freeze hashes','',
        '| Artifact | SHA-256 |','|---|---|']
-    for name in ['seal.json','accounting-amendment.json','transport-amendment.json','dialect/seal.json','recovery-amendment.json','concurrency-amendment.json','crash-recovery.json','seeds.json','prompts.json','dialect/prompts.json','score.py','dialect-score.py','verification-final.json']:
+    for name in ['seal.json','accounting-amendment.json','transport-amendment.json','dialect/seal.json','recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','crash-recovery.json','seeds.json','prompts.json','dialect/prompts.json','score.py','dialect-score.py','verification-final.json']:
         lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     lines+=['',f'Candidate procedure: `{seal["candidate_procedure_sha256"]}`. Original seal commit: `eeb7875e`. Core dialect source: `{variant["core_commit"]}`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.','',
        '## Original primary tables','',primary_text,'','## Dialect tables','',variant_text,'',

@@ -16,8 +16,9 @@ def main():
         source_hashes.update(json.loads((HERE/amendment).read_text())['sha256'])
     for path,value in source_hashes.items():assert digest(ROOT/path)==value,path
     authorised={i['request_sha256']:i for i in recovery['items']}
-    all_keys=set();details={};reasked=[];total=0;combined_events=[]
+    all_keys=set();details={};reasked=[];total=0;combined_events=[];quota_events=[]
     boundary=json.loads((HERE/'concurrency-amendment.json').read_text())['stamp']
+    quota_boundary=json.loads((HERE/'quota-amendment.json').read_text())['stamp']
     for experiment,directory,reqs,answers in [
         ('primary',HERE,run.requests(MODELS,None),records()),
         ('dialect',HERE/'dialect',d.all_requests(),d.variant_records())]:
@@ -60,6 +61,7 @@ def main():
             maximum[model]=max(maximum[model],active[model])
             time=a['stamp'] if a['event']=='start' else a['finished']
             if time>=boundary:combined_events.append((time,1 if a['event']=='start' else -1))
+            if time>=quota_boundary and model=='gemini-3.8-flash':quota_events.append((time,1 if a['event']=='start' else -1))
         limits={'haiku':6,'gpt-6-luna':2 if experiment=='primary' else 4,'gemini-3.8-flash':4}
         assert all(n<=limits[m] for m,n in maximum.items())
         cost=sum(run.priced(a) or 0 if a['model']=='gpt-6-luna' else a.get('measured_usd') or 0 for a in answers);total+=cost
@@ -93,11 +95,18 @@ def main():
         assert combined_active>=0
     assert combined_max<=4
     if args.require_complete:assert combined_active==0
+    gemini_active=gemini_max=0
+    for time,delta in sorted(quota_events):
+        gemini_active+=delta;gemini_max=max(gemini_max,gemini_active)
+        assert gemini_active>=0
+    assert gemini_max<=2
+    if args.require_complete:assert gemini_active==0
     result={'verified_at':stamp(),'experiments':details,'construction_audit_sha256':digest(HERE/'construction-cue-audit.json'),
         'crash_reasked_recorded':len(reasked),'crash_authorised':len(authorised),'measured_usd':total,
         'lost_attempt_reserve_usd':recovery['lost_attempt_reserve_usd'],'measured_plus_lost_reserve_usd':total+recovery['lost_attempt_reserve_usd'],
         'complete':all(v['complete'] for v in details.values()),'no_request_key_overlap':True,
-        'combined_call_limit_from':boundary,'combined_max_concurrent_after_amendment':combined_max}
+        'combined_call_limit_from':boundary,'combined_max_concurrent_after_amendment':combined_max,
+        'gemini_call_limit_from':quota_boundary,'gemini_max_concurrent_after_amendment':gemini_max}
     dump(HERE/'verification-final.json',result);print(json.dumps(result,indent=2))
 
 if __name__=='__main__':main()
